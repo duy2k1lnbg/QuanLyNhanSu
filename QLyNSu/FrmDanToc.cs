@@ -120,5 +120,40 @@ namespace QLyNSu
             _IDDT = int.Parse(gvDsDT.GetFocusedRowCellValue("IDDT").ToString());
             txtTen.Text = gvDsDT.GetFocusedRowCellValue("TENDT").ToString();
         }
+
+        private void barDockControlTop_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void barDockControlBottom_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void barDockControlLeft_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void barDockControlRight_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
+        {
+
+        }
+
+        private void txtTen_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void gcDsDT_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

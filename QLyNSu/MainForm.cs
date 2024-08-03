@@ -61,7 +61,7 @@ namespace QLyNSu
 
         private void barButtonItem6_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            OpenForm(typeof(FrmTrinhDo));
         }
 
         private void barButtonItem11_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

@@ -1,5 +1,4 @@
-﻿using Bu;
-using DevExpress.XtraEditors;
+﻿using DevExpress.XtraEditors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,13 +13,12 @@ using Bu;
 
 namespace QLyNSu
 {
-    public partial class FrmTonGiao : DevExpress.XtraEditors.XtraForm
+    public partial class FrmTrinhDo : DevExpress.XtraEditors.XtraForm
     {
-
-        TONGIAO _tongiao;
+        TRINHDO _trinhdo;
         bool _them;
-        int _IDTG;
-        public FrmTonGiao()
+        int _IDTD;
+        public FrmTrinhDo()
         {
             InitializeComponent();
         }
@@ -39,32 +37,24 @@ namespace QLyNSu
 
         void LoadData()
         {
-            gcDsTG.DataSource = _tongiao.getList();
-            gvDsTG.OptionsBehavior.Editable = false;
+            gcDsTD.DataSource = _trinhdo.getList();
+            gvDsTD.OptionsBehavior.Editable = false;
         }
 
         void SaveData()
         {
             if (_them)
             {
-                TB_TONGIAO tg = new TB_TONGIAO();
-                tg.TENTG = txtTen.Text;
-                _tongiao.Add(tg);
+                TB_TRINHDO tg = new TB_TRINHDO();
+                tg.TENTD = txtTen.Text;
+                _trinhdo.Add(tg);
             }
             else
             {
-                var tg = _tongiao.getItem(_IDTG);
-                tg.TENTG = txtTen.Text;
-                _tongiao.Update(tg);
+                var td = _trinhdo.getItem(_IDTD);
+                td.TENTD = txtTen.Text;
+                _trinhdo.Update(td);
             }
-        }
-
-        private void FrmTonGiao_Load_1(object sender, EventArgs e)
-        {
-            _them = false;
-            _tongiao = new TONGIAO();
-            showHide(true);
-            LoadData();
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -84,7 +74,7 @@ namespace QLyNSu
         {
             if (MessageBox.Show("Mày có chắc là xoá nó đi không", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
-                _tongiao.Delete(_IDTG);
+                _trinhdo.Delete(_IDTD);
                 LoadData();
             }
         }
@@ -113,10 +103,18 @@ namespace QLyNSu
 
         }
 
-        private void gvDsTG_Click(object sender, EventArgs e)
+        private void FrmTrinhDo_Load(object sender, EventArgs e)
         {
-            _IDTG = int.Parse(gvDsTG.GetFocusedRowCellValue("IDTG").ToString());
-            txtTen.Text = gvDsTG.GetFocusedRowCellValue("TENTG").ToString();
+            _them = false;
+            _trinhdo = new TRINHDO();
+            showHide(true);
+            LoadData();
+        }
+
+        private void gvDsTD_Click(object sender, EventArgs e)
+        {
+            _IDTD = int.Parse(gvDsTD.GetFocusedRowCellValue("IDTD").ToString());
+            txtTen.Text = gvDsTD.GetFocusedRowCellValue("TENTD").ToString();
         }
     }
 }
