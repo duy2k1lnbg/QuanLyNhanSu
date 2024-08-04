@@ -44,19 +44,35 @@ namespace QLyNSu
 
         void SaveData()
         {
-            if (_them)
+            try
             {
-                TB_TONGIAO tg = new TB_TONGIAO();
-                tg.TENTG = txtTen.Text;
-                _tongiao.Add(tg);
+                if (_them)
+                {
+                    TB_TONGIAO tg = new TB_TONGIAO();
+                    tg.TENTG = txtTen.Text;
+                    _tongiao.Add(tg);
+                }
+                else
+                {
+                    var tg = _tongiao.getItem(_IDTG);
+                    if (tg != null)
+                    {
+                        tg.TENTG = txtTen.Text;
+                        _tongiao.Update(tg);
+                    }
+                    else
+                    {
+                        throw new Exception("Không tìm thấy đối tượng với ID: " + _IDTG);
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var tg = _tongiao.getItem(_IDTG);
-                tg.TENTG = txtTen.Text;
-                _tongiao.Update(tg);
+                // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+                MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
 
         private void FrmTonGiao_Load_1(object sender, EventArgs e)
         {
@@ -81,8 +97,17 @@ namespace QLyNSu
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            if (MessageBox.Show("Mày có chắc là xoá nó đi không", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            // Kiểm tra xem _IDTG có giá trị hợp lệ không
+            if (_IDTG <= 0)
             {
+                MessageBox.Show("Vui lòng chọn một hàng để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Hiển thị hộp thoại xác nhận
+            if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                // Thực hiện xóa và tải lại dữ liệu
                 _tongiao.Delete(_IDTG);
                 LoadData();
             }

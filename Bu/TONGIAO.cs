@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity.Validation;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,11 +29,35 @@ namespace Bu
                 db.SaveChanges();
                 return tg;
             }
+            catch (DbEntityValidationException ex)
+            {
+                var errorMessages = ex.EntityValidationErrors
+                    .SelectMany(x => x.ValidationErrors)
+                    .Select(x => x.ErrorMessage);
+                var fullErrorMessage = string.Join("; ", errorMessages);
+                var exceptionMessage = string.Concat(ex.Message, " The validation errors are: ", fullErrorMessage);
+                throw new Exception("Lỗi: " + exceptionMessage);
+            }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi" + ex.Message);
+                var innerExceptionMessage = ex.InnerException?.Message ?? string.Empty;
+                throw new Exception("Lỗi: " + ex.Message + " Inner Exception: " + innerExceptionMessage);
             }
         }
+
+        //public TB_TONGIAO Add(TB_TONGIAO tg)
+        //{
+        //    try
+        //    {
+        //        db.TB_TONGIAO.Add(tg);
+        //        db.SaveChanges();
+        //        return tg;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw new Exception("Lỗi" + ex.Message);
+        //    }
+        //}
 
         public TB_TONGIAO Update(TB_TONGIAO tg)
         {

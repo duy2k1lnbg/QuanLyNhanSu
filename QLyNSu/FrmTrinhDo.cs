@@ -43,17 +43,32 @@ namespace QLyNSu
 
         void SaveData()
         {
-            if (_them)
+            try
             {
-                TB_TRINHDO tg = new TB_TRINHDO();
-                tg.TENTD = txtTen.Text;
-                _trinhdo.Add(tg);
+                if (_them)
+                {
+                    TB_TRINHDO tg = new TB_TRINHDO();
+                    tg.TENTD = txtTen.Text;
+                    _trinhdo.Add(tg);
+                }
+                else
+                {
+                    var td = _trinhdo.getItem(_IDTD);
+                    if (td != null)
+                    {
+                        td.TENTD = txtTen.Text;
+                        _trinhdo.Update(td);
+                    }
+                    else
+                    {
+                        throw new Exception("Không tìm thấy đối tượng với ID: " + _IDTD);
+                    }
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var td = _trinhdo.getItem(_IDTD);
-                td.TENTD = txtTen.Text;
-                _trinhdo.Update(td);
+                // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+                MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -72,8 +87,17 @@ namespace QLyNSu
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            if (MessageBox.Show("Mày có chắc là xoá nó đi không", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            // Kiểm tra xem _IDTG có giá trị hợp lệ không
+            if (_IDTD <= 0)
             {
+                MessageBox.Show("Vui lòng chọn một hàng để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Hiển thị hộp thoại xác nhận
+            if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                // Thực hiện xóa và tải lại dữ liệu
                 _trinhdo.Delete(_IDTD);
                 LoadData();
             }

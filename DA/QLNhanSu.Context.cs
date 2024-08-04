@@ -42,5 +42,6 @@ namespace DA
         public virtual DbSet<TB_TONGIAO> TB_TONGIAO { get; set; }
         public virtual DbSet<TB_TRINHDO> TB_TRINHDO { get; set; }
         public virtual DbSet<TB_UNGLUONG> TB_UNGLUONG { get; set; }
+        public virtual DbSet<TB_TONGIAO_BACKUP> TB_TONGIAO_BACKUP { get; set; }
     }
 }

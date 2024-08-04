@@ -59,11 +59,20 @@ namespace QLyNSu
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            if(MessageBox.Show("Mày có chắc là xoá nó đi không","Thông báo",MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            // Kiểm tra xem _IDTG có giá trị hợp lệ không
+            if (_IDDT <= 0)
             {
+                MessageBox.Show("Vui lòng chọn một hàng để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            // Hiển thị hộp thoại xác nhận
+            if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                // Thực hiện xóa và tải lại dữ liệu
                 _dantoc.Delete(_IDDT);
                 LoadData();
-            }    
+            }
         }
 
         private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -101,17 +110,33 @@ namespace QLyNSu
 
         void SaveData()
         {
-            if (_them)
+            try
             {
-                TB_DANTOC dt = new TB_DANTOC();
-                dt.TENDT = txtTen.Text;
-                _dantoc.Add(dt);
+                if (_them)
+                {
+                    TB_DANTOC dt = new TB_DANTOC();
+                    dt.TENDT = txtTen.Text;
+                    _dantoc.Add(dt);
+                }
+                else
+                {
+                    var dt = _dantoc.getItem(_IDDT);
+                    if (dt != null)
+                    {
+                        dt.TENDT = txtTen.Text;
+                        _dantoc.Update(dt);
+                    }
+                    else
+                    {
+                        throw new Exception("Không tìm thấy đối tượng với ID: " + _IDDT);
+                    }    
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var dt = _dantoc.getItem(_IDDT);
-                dt.TENDT = txtTen.Text;
-                _dantoc.Update(dt);
+
+                // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+                MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

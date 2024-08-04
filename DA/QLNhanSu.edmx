@@ -154,6 +154,15 @@
           <Key>
             <PropertyRef Name="IDTG" />
           </Key>
+          <Property Name="IDTG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TENTG" Type="nvarchar2" MaxLength="50" />
+        </EntityType>
+        <!--Errors Found During Generation:
+warning 6002: The table/view 'HR.TB_TONGIAO_BACKUP' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="TB_TONGIAO_BACKUP">
+          <Key>
+            <PropertyRef Name="IDTG" />
+          </Key>
           <Property Name="IDTG" Type="number" Precision="38" Scale="0" Nullable="false" />
           <Property Name="TENTG" Type="nvarchar2" MaxLength="50" />
         </EntityType>
@@ -370,6 +379,12 @@
           <EntitySet Name="TB_TONGIAO" EntityType="Self.TB_TONGIAO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_TRINHDO" EntityType="Self.TB_TRINHDO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_UNGLUONG" EntityType="Self.TB_UNGLUONG" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_TONGIAO_BACKUP" EntityType="Self.TB_TONGIAO_BACKUP" store:Type="Tables" store:Schema="HR">
+            <DefiningQuery>SELECT 
+"TB_TONGIAO_BACKUP"."IDTG" AS "IDTG", 
+"TB_TONGIAO_BACKUP"."TENTG" AS "TENTG"
+FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
+          </EntitySet>
           <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Self.TB_BANGCONG_LC_FK2">
             <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
             <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
@@ -449,6 +464,7 @@
           <EntitySet Name="TB_TONGIAO" EntityType="Model.TB_TONGIAO" />
           <EntitySet Name="TB_TRINHDO" EntityType="Model.TB_TRINHDO" />
           <EntitySet Name="TB_UNGLUONG" EntityType="Model.TB_UNGLUONG" />
+          <EntitySet Name="TB_TONGIAO_BACKUP" EntityType="Model.TB_TONGIAO_BACKUP" />
           <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Model.TB_BANGCONG_LC_FK2">
             <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
             <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
@@ -681,7 +697,7 @@
           <Key>
             <PropertyRef Name="IDTG" />
           </Key>
-          <Property Name="IDTG" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDTG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENTG" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="TB_TRINHDO">
@@ -704,6 +720,13 @@
           <Property Name="TRANGTHAI" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_UNGLUONG" ToRole="TB_NHANVIEN" />
+        </EntityType>
+        <EntityType Name="TB_TONGIAO_BACKUP">
+          <Key>
+            <PropertyRef Name="IDTG" />
+          </Key>
+          <Property Name="IDTG" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="TENTG" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="TB_BANGCONG_LC_FK2">
           <End Type="Model.TB_LOAICONG" Role="TB_LOAICONG" Multiplicity="0..1" />
@@ -1072,6 +1095,14 @@
                 <ScalarProperty Name="THANG" ColumnName="THANG" />
                 <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="IDUL" ColumnName="IDUL" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_TONGIAO_BACKUP">
+            <EntityTypeMapping TypeName="Model.TB_TONGIAO_BACKUP">
+              <MappingFragment StoreEntitySet="TB_TONGIAO_BACKUP">
+                <ScalarProperty Name="TENTG" ColumnName="TENTG" />
+                <ScalarProperty Name="IDTG" ColumnName="IDTG" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
