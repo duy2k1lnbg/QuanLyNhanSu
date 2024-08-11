@@ -12,9 +12,12 @@ namespace DA
     using System;
     using System.Collections.Generic;
     
-    public partial class TB_TONGIAO_BACKUP
+    public partial class TB_CONGTY
     {
-        public decimal IDTG { get; set; }
-        public string TENTG { get; set; }
+        public decimal IDCTY { get; set; }
+        public string TENCTY { get; set; }
+        public string DIENTHOAI { get; set; }
+        public string EMAIL { get; set; }
+        public string DIACHI { get; set; }
     }
 }

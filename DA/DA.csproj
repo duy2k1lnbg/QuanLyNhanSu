@@ -125,6 +125,9 @@
     <Compile Include="TB_CHUCVU.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_CONGTY.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_DANTOC.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
@@ -156,9 +159,6 @@
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_TONGIAO.cs">
-      <DependentUpon>QLNhanSu.tt</DependentUpon>
-    </Compile>
-    <Compile Include="TB_TONGIAO_BACKUP.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_TRINHDO.cs">

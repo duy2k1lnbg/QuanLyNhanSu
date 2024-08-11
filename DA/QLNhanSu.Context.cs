@@ -29,6 +29,7 @@ namespace DA
         public virtual DbSet<TB_BAOHIEM> TB_BAOHIEM { get; set; }
         public virtual DbSet<TB_BOPHAN> TB_BOPHAN { get; set; }
         public virtual DbSet<TB_CHUCVU> TB_CHUCVU { get; set; }
+        public virtual DbSet<TB_CONGTY> TB_CONGTY { get; set; }
         public virtual DbSet<TB_DANTOC> TB_DANTOC { get; set; }
         public virtual DbSet<TB_HOPDONG> TB_HOPDONG { get; set; }
         public virtual DbSet<TB_KHENTHUONG_KYLUAT> TB_KHENTHUONG_KYLUAT { get; set; }
@@ -42,6 +43,5 @@ namespace DA
         public virtual DbSet<TB_TONGIAO> TB_TONGIAO { get; set; }
         public virtual DbSet<TB_TRINHDO> TB_TRINHDO { get; set; }
         public virtual DbSet<TB_UNGLUONG> TB_UNGLUONG { get; set; }
-        public virtual DbSet<TB_TONGIAO_BACKUP> TB_TONGIAO_BACKUP { get; set; }
     }
 }

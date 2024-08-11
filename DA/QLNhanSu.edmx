@@ -45,6 +45,16 @@
           <Property Name="IDCV" Type="number" Precision="38" Scale="0" Nullable="false" />
           <Property Name="TENCV" Type="nvarchar2" MaxLength="50" />
         </EntityType>
+        <EntityType Name="TB_CONGTY">
+          <Key>
+            <PropertyRef Name="IDCTY" />
+          </Key>
+          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TENCTY" Type="nvarchar2" MaxLength="200" />
+          <Property Name="DIENTHOAI" Type="nvarchar2" MaxLength="50" />
+          <Property Name="EMAIL" Type="nvarchar2" MaxLength="100" />
+          <Property Name="DIACHI" Type="nvarchar2" MaxLength="500" />
+        </EntityType>
         <EntityType Name="TB_DANTOC">
           <Key>
             <PropertyRef Name="IDDT" />
@@ -155,16 +165,7 @@
             <PropertyRef Name="IDTG" />
           </Key>
           <Property Name="IDTG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENTG" Type="nvarchar2" MaxLength="50" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'HR.TB_TONGIAO_BACKUP' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="TB_TONGIAO_BACKUP">
-          <Key>
-            <PropertyRef Name="IDTG" />
-          </Key>
-          <Property Name="IDTG" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="TENTG" Type="nvarchar2" MaxLength="50" />
+          <Property Name="TENTG" Type="nvarchar2" MaxLength="20" />
         </EntityType>
         <EntityType Name="TB_TRINHDO">
           <Key>
@@ -366,6 +367,7 @@ warning 6002: The table/view 'HR.TB_TONGIAO_BACKUP' does not have a primary key 
           <EntitySet Name="TB_BAOHIEM" EntityType="Self.TB_BAOHIEM" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_BOPHAN" EntityType="Self.TB_BOPHAN" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_CHUCVU" EntityType="Self.TB_CHUCVU" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_CONGTY" EntityType="Self.TB_CONGTY" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_DANTOC" EntityType="Self.TB_DANTOC" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_HOPDONG" EntityType="Self.TB_HOPDONG" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_KHENTHUONG_KYLUAT" EntityType="Self.TB_KHENTHUONG_KYLUAT" Schema="HR" store:Type="Tables" />
@@ -379,12 +381,6 @@ warning 6002: The table/view 'HR.TB_TONGIAO_BACKUP' does not have a primary key 
           <EntitySet Name="TB_TONGIAO" EntityType="Self.TB_TONGIAO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_TRINHDO" EntityType="Self.TB_TRINHDO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_UNGLUONG" EntityType="Self.TB_UNGLUONG" Schema="HR" store:Type="Tables" />
-          <EntitySet Name="TB_TONGIAO_BACKUP" EntityType="Self.TB_TONGIAO_BACKUP" store:Type="Tables" store:Schema="HR">
-            <DefiningQuery>SELECT 
-"TB_TONGIAO_BACKUP"."IDTG" AS "IDTG", 
-"TB_TONGIAO_BACKUP"."TENTG" AS "TENTG"
-FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
-          </EntitySet>
           <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Self.TB_BANGCONG_LC_FK2">
             <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
             <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
@@ -451,6 +447,7 @@ FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
           <EntitySet Name="TB_BAOHIEM" EntityType="Model.TB_BAOHIEM" />
           <EntitySet Name="TB_BOPHAN" EntityType="Model.TB_BOPHAN" />
           <EntitySet Name="TB_CHUCVU" EntityType="Model.TB_CHUCVU" />
+          <EntitySet Name="TB_CONGTY" EntityType="Model.TB_CONGTY" />
           <EntitySet Name="TB_DANTOC" EntityType="Model.TB_DANTOC" />
           <EntitySet Name="TB_HOPDONG" EntityType="Model.TB_HOPDONG" />
           <EntitySet Name="TB_KHENTHUONG_KYLUAT" EntityType="Model.TB_KHENTHUONG_KYLUAT" />
@@ -464,7 +461,6 @@ FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
           <EntitySet Name="TB_TONGIAO" EntityType="Model.TB_TONGIAO" />
           <EntitySet Name="TB_TRINHDO" EntityType="Model.TB_TRINHDO" />
           <EntitySet Name="TB_UNGLUONG" EntityType="Model.TB_UNGLUONG" />
-          <EntitySet Name="TB_TONGIAO_BACKUP" EntityType="Model.TB_TONGIAO_BACKUP" />
           <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Model.TB_BANGCONG_LC_FK2">
             <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
             <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
@@ -566,6 +562,16 @@ FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
           <Property Name="IDCV" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
           <Property Name="TENCV" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_CV_FK3" FromRole="TB_CHUCVU" ToRole="TB_NHANVIEN" />
+        </EntityType>
+        <EntityType Name="TB_CONGTY">
+          <Key>
+            <PropertyRef Name="IDCTY" />
+          </Key>
+          <Property Name="IDCTY" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TENCTY" Type="String" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="DIENTHOAI" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="EMAIL" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="DIACHI" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="TB_DANTOC">
           <Key>
@@ -698,7 +704,7 @@ FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
             <PropertyRef Name="IDTG" />
           </Key>
           <Property Name="IDTG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENTG" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TENTG" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="TB_TRINHDO">
           <Key>
@@ -720,13 +726,6 @@ FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
           <Property Name="TRANGTHAI" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_UNGLUONG" ToRole="TB_NHANVIEN" />
-        </EntityType>
-        <EntityType Name="TB_TONGIAO_BACKUP">
-          <Key>
-            <PropertyRef Name="IDTG" />
-          </Key>
-          <Property Name="IDTG" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
-          <Property Name="TENTG" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <Association Name="TB_BANGCONG_LC_FK2">
           <End Type="Model.TB_LOAICONG" Role="TB_LOAICONG" Multiplicity="0..1" />
@@ -954,6 +953,17 @@ FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="TB_CONGTY">
+            <EntityTypeMapping TypeName="Model.TB_CONGTY">
+              <MappingFragment StoreEntitySet="TB_CONGTY">
+                <ScalarProperty Name="DIACHI" ColumnName="DIACHI" />
+                <ScalarProperty Name="EMAIL" ColumnName="EMAIL" />
+                <ScalarProperty Name="DIENTHOAI" ColumnName="DIENTHOAI" />
+                <ScalarProperty Name="TENCTY" ColumnName="TENCTY" />
+                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="TB_DANTOC">
             <EntityTypeMapping TypeName="Model.TB_DANTOC">
               <MappingFragment StoreEntitySet="TB_DANTOC">
@@ -1095,14 +1105,6 @@ FROM "HR"."TB_TONGIAO_BACKUP" "TB_TONGIAO_BACKUP"</DefiningQuery>
                 <ScalarProperty Name="THANG" ColumnName="THANG" />
                 <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="IDUL" ColumnName="IDUL" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_TONGIAO_BACKUP">
-            <EntityTypeMapping TypeName="Model.TB_TONGIAO_BACKUP">
-              <MappingFragment StoreEntitySet="TB_TONGIAO_BACKUP">
-                <ScalarProperty Name="TENTG" ColumnName="TENTG" />
-                <ScalarProperty Name="IDTG" ColumnName="IDTG" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
