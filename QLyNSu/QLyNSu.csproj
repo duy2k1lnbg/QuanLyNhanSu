@@ -99,11 +99,35 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FrmBoPhan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmBoPhan.Designer.cs">
+      <DependentUpon>FrmBoPhan.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmChucVu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmChucVu.Designer.cs">
+      <DependentUpon>FrmChucVu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmCongTy.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmCongTy.Designer.cs">
+      <DependentUpon>FrmCongTy.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmDanToc.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FrmDanToc.Designer.cs">
       <DependentUpon>FrmDanToc.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmPhongBan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmPhongBan.Designer.cs">
+      <DependentUpon>FrmPhongBan.cs</DependentUpon>
     </Compile>
     <Compile Include="FrmTonGiao.cs">
       <SubType>Form</SubType>
@@ -125,8 +149,20 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="FrmBoPhan.resx">
+      <DependentUpon>FrmBoPhan.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmChucVu.resx">
+      <DependentUpon>FrmChucVu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmCongTy.resx">
+      <DependentUpon>FrmCongTy.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmDanToc.resx">
       <DependentUpon>FrmDanToc.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmPhongBan.resx">
+      <DependentUpon>FrmPhongBan.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmTonGiao.resx">
       <DependentUpon>FrmTonGiao.cs</DependentUpon>

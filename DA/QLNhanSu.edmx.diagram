@@ -4,13 +4,13 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="d4a7f28898b6445a91f22b92a3229ac9" Name="Diagram1" ZoomLevel="63">
+      <Diagram DiagramId="d4a7f28898b6445a91f22b92a3229ac9" Name="Diagram1" ZoomLevel="93">
         <EntityTypeShape EntityType="Model.TB_BANGCONG" Width="1.5" PointX="8.25" PointY="12" />
         <EntityTypeShape EntityType="Model.TB_BAOHIEM" Width="1.5" PointX="5.25" PointY="25.375" />
         <EntityTypeShape EntityType="Model.TB_BOPHAN" Width="1.5" PointX="0.75" PointY="15.875" />
         <EntityTypeShape EntityType="Model.TB_CHUCVU" Width="1.5" PointX="0.75" PointY="12.875" />
-        <EntityTypeShape EntityType="Model.TB_CONGTY" Width="1.5" PointX="0.75" PointY="0.75" />
-        <EntityTypeShape EntityType="Model.TB_DANTOC" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="Model.TB_CONGTY" Width="1.5" PointX="2.25" PointY="0.75" />
+        <EntityTypeShape EntityType="Model.TB_DANTOC" Width="1.5" PointX="4" PointY="0.75" />
         <EntityTypeShape EntityType="Model.TB_HOPDONG" Width="1.5" PointX="5.25" PointY="14.875" />
         <EntityTypeShape EntityType="Model.TB_KHENTHUONG_KYLUAT" Width="1.5" PointX="5.25" PointY="28.375" />
         <EntityTypeShape EntityType="Model.TB_LOAICA" Width="1.5" PointX="6" PointY="4.75" />
