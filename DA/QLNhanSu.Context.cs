@@ -31,6 +31,7 @@ namespace DA
         public virtual DbSet<TB_CHUCVU> TB_CHUCVU { get; set; }
         public virtual DbSet<TB_CONGTY> TB_CONGTY { get; set; }
         public virtual DbSet<TB_DANTOC> TB_DANTOC { get; set; }
+        public virtual DbSet<TB_GIOITINH> TB_GIOITINH { get; set; }
         public virtual DbSet<TB_HOPDONG> TB_HOPDONG { get; set; }
         public virtual DbSet<TB_KHENTHUONG_KYLUAT> TB_KHENTHUONG_KYLUAT { get; set; }
         public virtual DbSet<TB_LOAICA> TB_LOAICA { get; set; }

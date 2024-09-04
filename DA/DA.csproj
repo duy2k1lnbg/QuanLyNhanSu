@@ -131,6 +131,9 @@
     <Compile Include="TB_DANTOC.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_GIOITINH.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_HOPDONG.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>

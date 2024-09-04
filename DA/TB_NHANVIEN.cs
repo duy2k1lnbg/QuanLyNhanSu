@@ -27,7 +27,7 @@ namespace DA
     
         public decimal MANV { get; set; }
         public string HOTEN { get; set; }
-        public string GIOITINH { get; set; }
+        public Nullable<decimal> GIOITINH { get; set; }
         public Nullable<System.DateTime> NGAYSINH { get; set; }
         public string DIENTHOAI { get; set; }
         public string CCCD { get; set; }
@@ -39,12 +39,14 @@ namespace DA
         public Nullable<decimal> IDTD { get; set; }
         public Nullable<decimal> IDDT { get; set; }
         public Nullable<decimal> IDTG { get; set; }
+        public Nullable<decimal> IDCTY { get; set; }
     
         public virtual TB_BANGCONG TB_BANGCONG { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_BAOHIEM> TB_BAOHIEM { get; set; }
         public virtual TB_BOPHAN TB_BOPHAN { get; set; }
         public virtual TB_CHUCVU TB_CHUCVU { get; set; }
+        public virtual TB_CONGTY TB_CONGTY { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_HOPDONG> TB_HOPDONG { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
