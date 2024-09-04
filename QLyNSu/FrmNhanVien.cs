@@ -28,7 +28,7 @@ namespace QLyNSu
         PHONGBAN _phongban;
         BOPHAN _bophan;
         TRINHDO _trinhdo;
-        //TB_GIOITINH _gioitinh;
+        GIOITINH _gioitinh;
 
         public FrmNhanVien()
         {
@@ -70,7 +70,7 @@ namespace QLyNSu
 
         void LoadData()
         {
-            gcDsNV.DataSource = _nhanvien.getList();
+            gcDsNV.DataSource = _nhanvien.getListFll_DTO();
             gvDsNV.OptionsBehavior.Editable = false;
         }
 
@@ -210,7 +210,7 @@ namespace QLyNSu
             _tongiao = new TONGIAO();
             _phongban = new PHONGBAN();
             _bophan = new BOPHAN();
-            //_gioitinh = new TB_GIOITINH();
+            _gioitinh = new GIOITINH();
             showHide(true);
             LoadData();
             LoadCombo();
@@ -284,9 +284,22 @@ namespace QLyNSu
             cboTonGiao.DisplayMember = "TENTG";
             cboTonGiao.ValueMember = "IDTG";
 
-            //cboGioiTinh.DataSource = _gioitinh.getList();
-            //cboGioiTinh.DisplayMember = "TENGT";
-            //cboGioiTinh.ValueMember = "GIOITINH";
+            cboGioiTinh.DataSource = _gioitinh.getList();
+            cboGioiTinh.DisplayMember = "TENGT";
+            cboGioiTinh.ValueMember = "GIOITINH";
+        }
+
+        private void btnImage_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFile = new OpenFileDialog();
+            openFile.Filter = "Picture file (jpg, png)|*.png;*.jpg";
+            openFile.Title = "Chọn 1 hình ảnh";
+            if(openFile.ShowDialog() == DialogResult.OK)
+            {
+                pictureHinhanh.Image = Image.FromFile(openFile.FileName);
+                pictureHinhanh.SizeMode = PictureBoxSizeMode.StretchImage;
+            }    
+
         }
     }
 }

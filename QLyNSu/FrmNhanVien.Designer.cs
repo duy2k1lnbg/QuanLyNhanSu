@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmNhanVien));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.btnImage = new System.Windows.Forms.Button();
+            this.cboGioiTinh = new System.Windows.Forms.ComboBox();
             this.labelControl12 = new DevExpress.XtraEditors.LabelControl();
             this.cboTonGiao = new System.Windows.Forms.ComboBox();
             this.labelControl11 = new DevExpress.XtraEditors.LabelControl();
@@ -60,6 +62,7 @@
             this.MANV = new DevExpress.XtraGrid.Columns.GridColumn();
             this.HOTEN = new DevExpress.XtraGrid.Columns.GridColumn();
             this.GIOITINH = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TENGT = new DevExpress.XtraGrid.Columns.GridColumn();
             this.NGAYSINH = new DevExpress.XtraGrid.Columns.GridColumn();
             this.DIENTHOAI = new DevExpress.XtraGrid.Columns.GridColumn();
             this.CCCD = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -91,8 +94,6 @@
             this.barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlRight = new DevExpress.XtraBars.BarDockControl();
-            this.cboGioiTinh = new System.Windows.Forms.ComboBox();
-            this.btnImage = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -142,9 +143,29 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.gcDsNV);
-            this.splitContainer1.Size = new System.Drawing.Size(1361, 588);
+            this.splitContainer1.Size = new System.Drawing.Size(1738, 588);
             this.splitContainer1.SplitterDistance = 400;
             this.splitContainer1.TabIndex = 6;
+            // 
+            // btnImage
+            // 
+            this.btnImage.Font = new System.Drawing.Font("Tahoma", 11F);
+            this.btnImage.Location = new System.Drawing.Point(12, 329);
+            this.btnImage.Name = "btnImage";
+            this.btnImage.Size = new System.Drawing.Size(224, 34);
+            this.btnImage.TabIndex = 28;
+            this.btnImage.Text = "Chọn hình ảnh.....";
+            this.btnImage.UseVisualStyleBackColor = true;
+            this.btnImage.Click += new System.EventHandler(this.btnImage_Click);
+            // 
+            // cboGioiTinh
+            // 
+            this.cboGioiTinh.Font = new System.Drawing.Font("Tahoma", 12F);
+            this.cboGioiTinh.FormattingEnabled = true;
+            this.cboGioiTinh.Location = new System.Drawing.Point(343, 107);
+            this.cboGioiTinh.Name = "cboGioiTinh";
+            this.cboGioiTinh.Size = new System.Drawing.Size(172, 32);
+            this.cboGioiTinh.TabIndex = 27;
             // 
             // labelControl12
             // 
@@ -160,16 +181,16 @@
             // 
             this.cboTonGiao.Font = new System.Drawing.Font("Tahoma", 12F);
             this.cboTonGiao.FormattingEnabled = true;
-            this.cboTonGiao.Location = new System.Drawing.Point(1180, 103);
+            this.cboTonGiao.Location = new System.Drawing.Point(1438, 106);
             this.cboTonGiao.Name = "cboTonGiao";
-            this.cboTonGiao.Size = new System.Drawing.Size(169, 32);
+            this.cboTonGiao.Size = new System.Drawing.Size(256, 32);
             this.cboTonGiao.TabIndex = 25;
             // 
             // labelControl11
             // 
             this.labelControl11.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl11.Appearance.Options.UseFont = true;
-            this.labelControl11.Location = new System.Drawing.Point(1089, 107);
+            this.labelControl11.Location = new System.Drawing.Point(1347, 110);
             this.labelControl11.Name = "labelControl11";
             this.labelControl11.Size = new System.Drawing.Size(85, 24);
             this.labelControl11.TabIndex = 24;
@@ -179,16 +200,16 @@
             // 
             this.cboDanToc.Font = new System.Drawing.Font("Tahoma", 12F);
             this.cboDanToc.FormattingEnabled = true;
-            this.cboDanToc.Location = new System.Drawing.Point(1180, 47);
+            this.cboDanToc.Location = new System.Drawing.Point(1438, 50);
             this.cboDanToc.Name = "cboDanToc";
-            this.cboDanToc.Size = new System.Drawing.Size(169, 32);
+            this.cboDanToc.Size = new System.Drawing.Size(256, 32);
             this.cboDanToc.TabIndex = 23;
             // 
             // labelControl10
             // 
             this.labelControl10.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl10.Appearance.Options.UseFont = true;
-            this.labelControl10.Location = new System.Drawing.Point(1098, 51);
+            this.labelControl10.Location = new System.Drawing.Point(1356, 54);
             this.labelControl10.Name = "labelControl10";
             this.labelControl10.Size = new System.Drawing.Size(76, 24);
             this.labelControl10.TabIndex = 22;
@@ -198,16 +219,16 @@
             // 
             this.cboBoPhan.Font = new System.Drawing.Font("Tahoma", 12F);
             this.cboBoPhan.FormattingEnabled = true;
-            this.cboBoPhan.Location = new System.Drawing.Point(865, 216);
+            this.cboBoPhan.Location = new System.Drawing.Point(960, 219);
             this.cboBoPhan.Name = "cboBoPhan";
-            this.cboBoPhan.Size = new System.Drawing.Size(172, 32);
+            this.cboBoPhan.Size = new System.Drawing.Size(304, 32);
             this.cboBoPhan.TabIndex = 21;
             // 
             // labelControl9
             // 
             this.labelControl9.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl9.Appearance.Options.UseFont = true;
-            this.labelControl9.Location = new System.Drawing.Point(779, 220);
+            this.labelControl9.Location = new System.Drawing.Point(874, 223);
             this.labelControl9.Name = "labelControl9";
             this.labelControl9.Size = new System.Drawing.Size(80, 24);
             this.labelControl9.TabIndex = 20;
@@ -217,16 +238,16 @@
             // 
             this.cboPhongBan.Font = new System.Drawing.Font("Tahoma", 12F);
             this.cboPhongBan.FormattingEnabled = true;
-            this.cboPhongBan.Location = new System.Drawing.Point(865, 158);
+            this.cboPhongBan.Location = new System.Drawing.Point(960, 161);
             this.cboPhongBan.Name = "cboPhongBan";
-            this.cboPhongBan.Size = new System.Drawing.Size(172, 32);
+            this.cboPhongBan.Size = new System.Drawing.Size(304, 32);
             this.cboPhongBan.TabIndex = 19;
             // 
             // labelControl8
             // 
             this.labelControl8.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl8.Appearance.Options.UseFont = true;
-            this.labelControl8.Location = new System.Drawing.Point(758, 162);
+            this.labelControl8.Location = new System.Drawing.Point(853, 165);
             this.labelControl8.Name = "labelControl8";
             this.labelControl8.Size = new System.Drawing.Size(101, 24);
             this.labelControl8.TabIndex = 18;
@@ -236,16 +257,16 @@
             // 
             this.cboTrinhDo.Font = new System.Drawing.Font("Tahoma", 12F);
             this.cboTrinhDo.FormattingEnabled = true;
-            this.cboTrinhDo.Location = new System.Drawing.Point(865, 103);
+            this.cboTrinhDo.Location = new System.Drawing.Point(960, 106);
             this.cboTrinhDo.Name = "cboTrinhDo";
-            this.cboTrinhDo.Size = new System.Drawing.Size(172, 32);
+            this.cboTrinhDo.Size = new System.Drawing.Size(304, 32);
             this.cboTrinhDo.TabIndex = 17;
             // 
             // labelControl6
             // 
             this.labelControl6.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl6.Appearance.Options.UseFont = true;
-            this.labelControl6.Location = new System.Drawing.Point(778, 107);
+            this.labelControl6.Location = new System.Drawing.Point(873, 110);
             this.labelControl6.Name = "labelControl6";
             this.labelControl6.Size = new System.Drawing.Size(81, 24);
             this.labelControl6.TabIndex = 16;
@@ -255,16 +276,16 @@
             // 
             this.cboChucVu.Font = new System.Drawing.Font("Tahoma", 12F);
             this.cboChucVu.FormattingEnabled = true;
-            this.cboChucVu.Location = new System.Drawing.Point(865, 47);
+            this.cboChucVu.Location = new System.Drawing.Point(960, 50);
             this.cboChucVu.Name = "cboChucVu";
-            this.cboChucVu.Size = new System.Drawing.Size(172, 32);
+            this.cboChucVu.Size = new System.Drawing.Size(304, 32);
             this.cboChucVu.TabIndex = 15;
             // 
             // labelControl5
             // 
             this.labelControl5.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl5.Appearance.Options.UseFont = true;
-            this.labelControl5.Location = new System.Drawing.Point(781, 51);
+            this.labelControl5.Location = new System.Drawing.Point(876, 54);
             this.labelControl5.Name = "labelControl5";
             this.labelControl5.Size = new System.Drawing.Size(78, 24);
             this.labelControl5.TabIndex = 14;
@@ -293,10 +314,12 @@
             // dateNgaySinh
             // 
             this.dateNgaySinh.CalendarFont = new System.Drawing.Font("Tahoma", 11F);
+            this.dateNgaySinh.CustomFormat = "dd/MM/yyyy";
             this.dateNgaySinh.Font = new System.Drawing.Font("Tahoma", 11F);
+            this.dateNgaySinh.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
             this.dateNgaySinh.Location = new System.Drawing.Point(341, 159);
             this.dateNgaySinh.Name = "dateNgaySinh";
-            this.dateNgaySinh.Size = new System.Drawing.Size(313, 30);
+            this.dateNgaySinh.Size = new System.Drawing.Size(174, 30);
             this.dateNgaySinh.TabIndex = 11;
             // 
             // txtDiaChi
@@ -378,7 +401,7 @@
             this.gcDsNV.MainView = this.gvDsNV;
             this.gcDsNV.MenuManager = this.barManager1;
             this.gcDsNV.Name = "gcDsNV";
-            this.gcDsNV.Size = new System.Drawing.Size(1361, 184);
+            this.gcDsNV.Size = new System.Drawing.Size(1738, 184);
             this.gcDsNV.TabIndex = 0;
             this.gcDsNV.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvDsNV});
@@ -390,6 +413,7 @@
             this.MANV,
             this.HOTEN,
             this.GIOITINH,
+            this.TENGT,
             this.NGAYSINH,
             this.DIENTHOAI,
             this.CCCD,
@@ -416,7 +440,7 @@
             // 
             this.MANV.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
             this.MANV.AppearanceHeader.Options.UseFont = true;
-            this.MANV.Caption = "Mã nhân viên";
+            this.MANV.Caption = "MÃ NV";
             this.MANV.FieldName = "MANV";
             this.MANV.MaxWidth = 100;
             this.MANV.MinWidth = 25;
@@ -429,28 +453,40 @@
             // 
             this.HOTEN.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
             this.HOTEN.AppearanceHeader.Options.UseFont = true;
-            this.HOTEN.Caption = "Họ tên";
+            this.HOTEN.Caption = "HỌ TÊN";
             this.HOTEN.FieldName = "HOTEN";
             this.HOTEN.MaxWidth = 200;
             this.HOTEN.MinWidth = 200;
             this.HOTEN.Name = "HOTEN";
             this.HOTEN.Visible = true;
-            this.HOTEN.VisibleIndex = 1;
+            this.HOTEN.VisibleIndex = 2;
             this.HOTEN.Width = 200;
             // 
             // GIOITINH
             // 
-            this.GIOITINH.Caption = "Giới tính";
+            this.GIOITINH.Caption = "GIOITINH";
             this.GIOITINH.FieldName = "GIOITINH";
             this.GIOITINH.MinWidth = 25;
             this.GIOITINH.Name = "GIOITINH";
-            this.GIOITINH.Visible = true;
-            this.GIOITINH.VisibleIndex = 2;
             this.GIOITINH.Width = 94;
+            // 
+            // TENGT
+            // 
+            this.TENGT.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENGT.AppearanceHeader.Options.UseFont = true;
+            this.TENGT.Caption = "GIÓI TÍNH";
+            this.TENGT.FieldName = "TENGT";
+            this.TENGT.MinWidth = 25;
+            this.TENGT.Name = "TENGT";
+            this.TENGT.Visible = true;
+            this.TENGT.VisibleIndex = 4;
+            this.TENGT.Width = 94;
             // 
             // NGAYSINH
             // 
-            this.NGAYSINH.Caption = "Ngày sinh";
+            this.NGAYSINH.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.NGAYSINH.AppearanceHeader.Options.UseFont = true;
+            this.NGAYSINH.Caption = "NGÀY SINH";
             this.NGAYSINH.FieldName = "NGAYSINH";
             this.NGAYSINH.MinWidth = 25;
             this.NGAYSINH.Name = "NGAYSINH";
@@ -460,42 +496,50 @@
             // 
             // DIENTHOAI
             // 
-            this.DIENTHOAI.Caption = "Điện thoại";
+            this.DIENTHOAI.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.DIENTHOAI.AppearanceHeader.Options.UseFont = true;
+            this.DIENTHOAI.Caption = "ĐIỆN THOẠI";
             this.DIENTHOAI.FieldName = "DIENTHOAI";
             this.DIENTHOAI.MinWidth = 25;
             this.DIENTHOAI.Name = "DIENTHOAI";
             this.DIENTHOAI.Visible = true;
-            this.DIENTHOAI.VisibleIndex = 4;
+            this.DIENTHOAI.VisibleIndex = 5;
             this.DIENTHOAI.Width = 94;
             // 
             // CCCD
             // 
+            this.CCCD.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.CCCD.AppearanceHeader.Options.UseFont = true;
             this.CCCD.Caption = "CCCD/CMND";
             this.CCCD.FieldName = "CCCD";
             this.CCCD.MinWidth = 25;
             this.CCCD.Name = "CCCD";
             this.CCCD.Visible = true;
-            this.CCCD.VisibleIndex = 5;
+            this.CCCD.VisibleIndex = 6;
             this.CCCD.Width = 94;
             // 
             // DIACHI
             // 
-            this.DIACHI.Caption = "Địa chỉ";
+            this.DIACHI.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.DIACHI.AppearanceHeader.Options.UseFont = true;
+            this.DIACHI.Caption = "ĐỊA CHỈ";
             this.DIACHI.FieldName = "DIACHI";
             this.DIACHI.MinWidth = 25;
             this.DIACHI.Name = "DIACHI";
             this.DIACHI.Visible = true;
-            this.DIACHI.VisibleIndex = 6;
+            this.DIACHI.VisibleIndex = 7;
             this.DIACHI.Width = 94;
             // 
             // HINHANH
             // 
-            this.HINHANH.Caption = "Hình ảnh";
+            this.HINHANH.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.HINHANH.AppearanceHeader.Options.UseFont = true;
+            this.HINHANH.Caption = "HÌNH ẢNH";
             this.HINHANH.FieldName = "HINHANH";
             this.HINHANH.MinWidth = 25;
             this.HINHANH.Name = "HINHANH";
             this.HINHANH.Visible = true;
-            this.HINHANH.VisibleIndex = 7;
+            this.HINHANH.VisibleIndex = 1;
             this.HINHANH.Width = 94;
             // 
             // IDBP
@@ -504,18 +548,18 @@
             this.IDBP.FieldName = "IDBP";
             this.IDBP.MinWidth = 25;
             this.IDBP.Name = "IDBP";
-            this.IDBP.Visible = true;
-            this.IDBP.VisibleIndex = 8;
             this.IDBP.Width = 94;
             // 
             // TENBP
             // 
-            this.TENBP.Caption = "Bộ phận";
+            this.TENBP.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENBP.AppearanceHeader.Options.UseFont = true;
+            this.TENBP.Caption = "BỘ PHẬN";
             this.TENBP.FieldName = "TENBP";
             this.TENBP.MinWidth = 25;
             this.TENBP.Name = "TENBP";
             this.TENBP.Visible = true;
-            this.TENBP.VisibleIndex = 12;
+            this.TENBP.VisibleIndex = 8;
             this.TENBP.Width = 94;
             // 
             // IDPB
@@ -524,19 +568,20 @@
             this.IDPB.FieldName = "IDPB";
             this.IDPB.MinWidth = 25;
             this.IDPB.Name = "IDPB";
-            this.IDPB.Visible = true;
-            this.IDPB.VisibleIndex = 9;
             this.IDPB.Width = 94;
             // 
             // TENPB
             // 
-            this.TENPB.Caption = "Phòng ban";
+            this.TENPB.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENPB.AppearanceHeader.Options.UseFont = true;
+            this.TENPB.Caption = "PHÒNG BAN";
             this.TENPB.FieldName = "TENPB";
-            this.TENPB.MinWidth = 25;
+            this.TENPB.MaxWidth = 120;
+            this.TENPB.MinWidth = 120;
             this.TENPB.Name = "TENPB";
             this.TENPB.Visible = true;
-            this.TENPB.VisibleIndex = 13;
-            this.TENPB.Width = 94;
+            this.TENPB.VisibleIndex = 9;
+            this.TENPB.Width = 120;
             // 
             // IDTD
             // 
@@ -544,19 +589,20 @@
             this.IDTD.FieldName = "IDTD";
             this.IDTD.MinWidth = 25;
             this.IDTD.Name = "IDTD";
-            this.IDTD.Visible = true;
-            this.IDTD.VisibleIndex = 10;
             this.IDTD.Width = 94;
             // 
             // TENTD
             // 
-            this.TENTD.Caption = "Trình độ";
+            this.TENTD.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENTD.AppearanceHeader.Options.UseFont = true;
+            this.TENTD.Caption = "TRÌNH ĐỘ";
             this.TENTD.FieldName = "TENTD";
-            this.TENTD.MinWidth = 25;
+            this.TENTD.MaxWidth = 120;
+            this.TENTD.MinWidth = 120;
             this.TENTD.Name = "TENTD";
             this.TENTD.Visible = true;
-            this.TENTD.VisibleIndex = 14;
-            this.TENTD.Width = 94;
+            this.TENTD.VisibleIndex = 10;
+            this.TENTD.Width = 120;
             // 
             // IDCV
             // 
@@ -564,19 +610,20 @@
             this.IDCV.FieldName = "IDCV";
             this.IDCV.MinWidth = 25;
             this.IDCV.Name = "IDCV";
-            this.IDCV.Visible = true;
-            this.IDCV.VisibleIndex = 11;
             this.IDCV.Width = 94;
             // 
             // TENCV
             // 
-            this.TENCV.Caption = "Chức vụ";
+            this.TENCV.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENCV.AppearanceHeader.Options.UseFont = true;
+            this.TENCV.Caption = "CHỨC VỤ";
             this.TENCV.FieldName = "TENCV";
-            this.TENCV.MinWidth = 25;
+            this.TENCV.MaxWidth = 120;
+            this.TENCV.MinWidth = 120;
             this.TENCV.Name = "TENCV";
             this.TENCV.Visible = true;
-            this.TENCV.VisibleIndex = 15;
-            this.TENCV.Width = 94;
+            this.TENCV.VisibleIndex = 11;
+            this.TENCV.Width = 120;
             // 
             // IDDT
             // 
@@ -584,19 +631,20 @@
             this.IDDT.FieldName = "IDDT";
             this.IDDT.MinWidth = 25;
             this.IDDT.Name = "IDDT";
-            this.IDDT.Visible = true;
-            this.IDDT.VisibleIndex = 16;
             this.IDDT.Width = 94;
             // 
             // TENDT
             // 
-            this.TENDT.Caption = "Dân Tộc";
+            this.TENDT.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENDT.AppearanceHeader.Options.UseFont = true;
+            this.TENDT.Caption = "DÂN TỘC";
             this.TENDT.FieldName = "TENDT";
-            this.TENDT.MinWidth = 25;
+            this.TENDT.MaxWidth = 120;
+            this.TENDT.MinWidth = 120;
             this.TENDT.Name = "TENDT";
             this.TENDT.Visible = true;
-            this.TENDT.VisibleIndex = 17;
-            this.TENDT.Width = 94;
+            this.TENDT.VisibleIndex = 12;
+            this.TENDT.Width = 120;
             // 
             // IDTG
             // 
@@ -604,19 +652,20 @@
             this.IDTG.FieldName = "IDTG";
             this.IDTG.MinWidth = 25;
             this.IDTG.Name = "IDTG";
-            this.IDTG.Visible = true;
-            this.IDTG.VisibleIndex = 18;
             this.IDTG.Width = 94;
             // 
             // TENTG
             // 
-            this.TENTG.Caption = "Tôn giáo";
+            this.TENTG.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENTG.AppearanceHeader.Options.UseFont = true;
+            this.TENTG.Caption = "TÔN GIÁO";
             this.TENTG.FieldName = "TENTG";
-            this.TENTG.MinWidth = 25;
+            this.TENTG.MaxWidth = 120;
+            this.TENTG.MinWidth = 120;
             this.TENTG.Name = "TENTG";
             this.TENTG.Visible = true;
-            this.TENTG.VisibleIndex = 19;
-            this.TENTG.Width = 94;
+            this.TENTG.VisibleIndex = 13;
+            this.TENTG.Width = 120;
             // 
             // barManager1
             // 
@@ -737,7 +786,7 @@
             this.barDockControlTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.barDockControlTop.Location = new System.Drawing.Point(0, 0);
             this.barDockControlTop.Manager = this.barManager1;
-            this.barDockControlTop.Size = new System.Drawing.Size(1361, 33);
+            this.barDockControlTop.Size = new System.Drawing.Size(1738, 33);
             // 
             // barDockControlBottom
             // 
@@ -745,7 +794,7 @@
             this.barDockControlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.barDockControlBottom.Location = new System.Drawing.Point(0, 621);
             this.barDockControlBottom.Manager = this.barManager1;
-            this.barDockControlBottom.Size = new System.Drawing.Size(1361, 20);
+            this.barDockControlBottom.Size = new System.Drawing.Size(1738, 20);
             // 
             // barDockControlLeft
             // 
@@ -759,34 +808,15 @@
             // 
             this.barDockControlRight.CausesValidation = false;
             this.barDockControlRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.barDockControlRight.Location = new System.Drawing.Point(1361, 33);
+            this.barDockControlRight.Location = new System.Drawing.Point(1738, 33);
             this.barDockControlRight.Manager = this.barManager1;
             this.barDockControlRight.Size = new System.Drawing.Size(0, 588);
-            // 
-            // cboGioiTinh
-            // 
-            this.cboGioiTinh.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.cboGioiTinh.FormattingEnabled = true;
-            this.cboGioiTinh.Location = new System.Drawing.Point(343, 107);
-            this.cboGioiTinh.Name = "cboGioiTinh";
-            this.cboGioiTinh.Size = new System.Drawing.Size(172, 32);
-            this.cboGioiTinh.TabIndex = 27;
-            // 
-            // btnImage
-            // 
-            this.btnImage.Font = new System.Drawing.Font("Tahoma", 11F);
-            this.btnImage.Location = new System.Drawing.Point(12, 329);
-            this.btnImage.Name = "btnImage";
-            this.btnImage.Size = new System.Drawing.Size(224, 34);
-            this.btnImage.TabIndex = 28;
-            this.btnImage.Text = "Chọn hình ảnh.....";
-            this.btnImage.UseVisualStyleBackColor = true;
             // 
             // FrmNhanVien
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1361, 641);
+            this.ClientSize = new System.Drawing.Size(1738, 641);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.barDockControlLeft);
             this.Controls.Add(this.barDockControlRight);
@@ -874,5 +904,6 @@
         private DevExpress.XtraGrid.Columns.GridColumn TENTG;
         private System.Windows.Forms.ComboBox cboGioiTinh;
         private System.Windows.Forms.Button btnImage;
+        private DevExpress.XtraGrid.Columns.GridColumn TENGT;
     }
 }

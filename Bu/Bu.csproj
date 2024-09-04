@@ -88,6 +88,8 @@
     <Compile Include="CHUCVU.cs" />
     <Compile Include="CONGTY.cs" />
     <Compile Include="DANTOC.cs" />
+    <Compile Include="DTO\NHANVIEN_DTO.cs" />
+    <Compile Include="GIOITINH.cs" />
     <Compile Include="NHANVIEN.cs" />
     <Compile Include="PHONGBAN.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

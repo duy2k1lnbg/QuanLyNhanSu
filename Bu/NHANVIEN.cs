@@ -1,4 +1,5 @@
-﻿using DA;
+﻿using Bu.DTO;
+using DA;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Validation;
@@ -19,6 +20,60 @@ namespace Bu
         public List<TB_NHANVIEN> getList()
         {
             return db.TB_NHANVIEN.ToList();
+        }
+        public List<NHANVIEN_DTO> getListFll_DTO() 
+        { 
+            var lstNV = db.TB_NHANVIEN.ToList();
+            List<NHANVIEN_DTO > lstNvDTO = new List<NHANVIEN_DTO>();
+            NHANVIEN_DTO nvDTO;
+            foreach (var item in lstNV) 
+            {
+                nvDTO = new NHANVIEN_DTO();
+                nvDTO.MANV = item.MANV;
+                nvDTO.HOTEN = item.HOTEN;
+                nvDTO.GIOITINH = item.GIOITINH;
+                nvDTO.CCCD = item.CCCD;
+                nvDTO.NGAYSINH = item.NGAYSINH;
+                nvDTO.DIENTHOAI = item.DIENTHOAI;
+                nvDTO.DIACHI = item.DIACHI;
+                nvDTO.HINHANH = item.HINHANH;
+
+                nvDTO.IDTD = item.IDTD;
+                var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == item.IDTD);
+                nvDTO.TENTD = td.TENTD;
+
+                nvDTO.IDBP = item.IDBP;
+                var bp = db.TB_BOPHAN.FirstOrDefault( b=> b.IDBP == item.IDBP);
+                nvDTO.TENBP = bp.TENBP;
+
+                nvDTO.IDPB = item.IDPB;
+                var pb = db.TB_PHONGBAN.FirstOrDefault(c => c.IDPB == item.IDPB);
+                nvDTO.TENPB = pb.TENPB;
+
+                nvDTO.IDDT = item.IDDT;
+                var dt = db.TB_DANTOC.FirstOrDefault(e => e.IDDT == item.IDDT);
+                nvDTO.TENDT = dt.TENDT;
+
+                nvDTO.IDCTY = item.IDCTY;
+                var cty = db.TB_CONGTY.FirstOrDefault(f => f.IDCTY == item.IDCTY);
+                nvDTO.TENCTY = cty.TENCTY;
+
+                nvDTO.IDCV = item.IDCV;
+                var cv = db.TB_CHUCVU.FirstOrDefault(g => g.IDCV == item.IDCV);
+                nvDTO.TENCV = cv.TENCV;
+
+                nvDTO.IDTG = item.IDTG;
+                var tg = db.TB_TONGIAO.FirstOrDefault(h => h.IDTG == item.IDTG);
+                nvDTO.TENTG = tg.TENTG;
+
+                nvDTO.GIOITINH = item.GIOITINH;
+                var gt = db.TB_GIOITINH.FirstOrDefault(i => i.GIOITINH == item.GIOITINH);
+                nvDTO.TENGT = gt.TENGT;
+
+                lstNvDTO.Add(nvDTO);
+
+            }
+            return lstNvDTO;
         }
 
         public TB_NHANVIEN Add(TB_NHANVIEN nv)
@@ -78,7 +133,7 @@ namespace Bu
         {
             try
             {
-                var _nv = db.TB_NHANVIEN.FirstOrDefault(x => x.IDTG == id);
+                var _nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == id);
                 db.TB_NHANVIEN.Remove(_nv);
                 db.SaveChanges();
             }
