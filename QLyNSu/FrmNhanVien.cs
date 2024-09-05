@@ -82,7 +82,7 @@ namespace QLyNSu
                 {
                     TB_NHANVIEN nv = new TB_NHANVIEN();
                     nv.HOTEN = txtHoTen.Text;
-                    nv.GIOITINH = int.Parse(cboGioiTinh.SelectedValue.ToString());
+                    nv.IDGT = int.Parse(cboGioiTinh.SelectedValue.ToString());
                     nv.NGAYSINH = dateNgaySinh.Value;
                     nv.DIENTHOAI = txtSDT.Text;
                     nv.CCCD = txtCCCD.Text;
@@ -103,7 +103,7 @@ namespace QLyNSu
                     if (nv != null)
                     {
                         nv.HOTEN = txtHoTen.Text;
-                        nv.GIOITINH = int.Parse(cboGioiTinh.SelectedValue.ToString());
+                        nv.IDGT = int.Parse(cboGioiTinh.SelectedValue.ToString());
                         nv.NGAYSINH = dateNgaySinh.Value;
                         nv.DIENTHOAI = txtSDT.Text;
                         nv.CCCD = txtCCCD.Text;
@@ -158,7 +158,8 @@ namespace QLyNSu
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            // Kiểm tra xem _IDTG có giá trị hợp lệ không
+            splitContainer1.Panel1Collapsed = false;
+            //Kiểm tra xem _IDTG có giá trị hợp lệ không
             if (_MANV <= 0)
             {
                 MessageBox.Show("Vui lòng chọn một hàng để xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -172,6 +173,7 @@ namespace QLyNSu
                 _nhanvien.Delete(_MANV);
                 LoadData();
             }
+            
         }
 
         private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -224,7 +226,7 @@ namespace QLyNSu
                 _MANV = int.Parse(gvDsNV.GetFocusedRowCellValue("MANV").ToString());
                 var nv = _nhanvien.getItem(_MANV);
                 txtHoTen.Text = nv.HOTEN;
-                cboGioiTinh.SelectedValue = nv.GIOITINH;
+                cboGioiTinh.SelectedValue = nv.IDGT;
                 dateNgaySinh.Value = nv.NGAYSINH.Value;
                 txtSDT.Text = nv.DIENTHOAI;
                 txtCCCD.Text = nv.CCCD;
@@ -252,10 +254,20 @@ namespace QLyNSu
 
         public Image Base64ToImage(byte[] imageBytes) 
         {
-            MemoryStream ms = new MemoryStream();
-            ms.Write(imageBytes, 0, imageBytes.Length);
-            Image image = Image.FromStream(ms, true);
-            return image;
+            try
+            {
+                MemoryStream ms = new MemoryStream();
+                ms.Write(imageBytes, 0, imageBytes.Length);
+                Image image = Image.FromStream(ms, true);
+                return image;
+            }
+            catch (Exception ex)
+            {
+                
+                MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return null;
+            }
+            
         }
 
         void LoadCombo()
@@ -286,7 +298,7 @@ namespace QLyNSu
 
             cboGioiTinh.DataSource = _gioitinh.getList();
             cboGioiTinh.DisplayMember = "TENGT";
-            cboGioiTinh.ValueMember = "GIOITINH";
+            cboGioiTinh.ValueMember = "IDGT";
         }
 
         private void btnImage_Click(object sender, EventArgs e)

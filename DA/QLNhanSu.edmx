@@ -9,7 +9,7 @@
           <Key>
             <PropertyRef Name="MABC" />
           </Key>
-          <Property Name="MABC" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="MABC" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="NAM" Type="number" Precision="38" Scale="0" />
           <Property Name="THANG" Type="number" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
@@ -24,7 +24,7 @@
           <Key>
             <PropertyRef Name="IDBH" />
           </Key>
-          <Property Name="IDBH" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDBH" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="SOBH" Type="nvarchar2" MaxLength="50" />
           <Property Name="NGAYCAP" Type="date" />
           <Property Name="NOICAP" Type="nvarchar2" MaxLength="50" />
@@ -35,14 +35,14 @@
           <Key>
             <PropertyRef Name="IDBP" />
           </Key>
-          <Property Name="IDBP" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDBP" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENBP" Type="nvarchar2" MaxLength="50" />
         </EntityType>
         <EntityType Name="TB_CHUCVU">
           <Key>
             <PropertyRef Name="IDCV" />
           </Key>
-          <Property Name="IDCV" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDCV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENCV" Type="nvarchar2" MaxLength="50" />
         </EntityType>
         <EntityType Name="TB_CONGTY">
@@ -64,16 +64,16 @@
         </EntityType>
         <EntityType Name="TB_GIOITINH">
           <Key>
-            <PropertyRef Name="GIOITINH" />
+            <PropertyRef Name="IDGT" />
           </Key>
-          <Property Name="GIOITINH" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="IDGT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENGT" Type="nvarchar2" MaxLength="50" />
         </EntityType>
         <EntityType Name="TB_HOPDONG">
           <Key>
             <PropertyRef Name="SOHD" />
           </Key>
-          <Property Name="SOHD" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="SOHD" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="NGAYBATDAU" Type="date" />
           <Property Name="NGAYKETTHUC" Type="date" />
           <Property Name="NGAYKY" Type="date" />
@@ -87,7 +87,7 @@
           <Key>
             <PropertyRef Name="IDKTKL" />
           </Key>
-          <Property Name="IDKTKL" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDKTKL" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="SOKTKL" Type="number" Precision="38" Scale="0" />
           <Property Name="NOIDUNG" Type="nvarchar2" MaxLength="500" />
           <Property Name="NGAY" Type="date" />
@@ -98,7 +98,7 @@
           <Key>
             <PropertyRef Name="IDLOAICA" />
           </Key>
-          <Property Name="IDLOAICA" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDLOAICA" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENLOAICA" Type="nvarchar2" MaxLength="50" />
           <Property Name="HESO" Type="float" Precision="126" Scale="0" />
         </EntityType>
@@ -106,7 +106,7 @@
           <Key>
             <PropertyRef Name="IDLOAICONG" />
           </Key>
-          <Property Name="IDLOAICONG" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDLOAICONG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENLC" Type="nvarchar2" MaxLength="50" />
           <Property Name="HESO" Type="float" Precision="126" Scale="0" />
         </EntityType>
@@ -114,9 +114,9 @@
           <Key>
             <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
-          <Property Name="GIOITINH" Type="number" Precision="38" Scale="0" />
+          <Property Name="IDGT" Type="number" Precision="38" Scale="0" />
           <Property Name="NGAYSINH" Type="date" />
           <Property Name="DIENTHOAI" Type="nvarchar2" MaxLength="50" />
           <Property Name="CCCD" Type="nvarchar2" MaxLength="50" />
@@ -134,7 +134,7 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="ID" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="MANV" Type="number" Precision="38" Scale="0" />
           <Property Name="IDPC" Type="number" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="date" />
@@ -145,7 +145,7 @@
           <Key>
             <PropertyRef Name="IDPB" />
           </Key>
-          <Property Name="IDPB" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDPB" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENPB" Type="nvarchar2" MaxLength="50" />
         </EntityType>
         <EntityType Name="TB_PHUCAP">
@@ -160,7 +160,7 @@
           <Key>
             <PropertyRef Name="IDTCA" />
           </Key>
-          <Property Name="IDTCA" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDTCA" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="NAM" Type="number" Precision="38" Scale="0" />
           <Property Name="THANG" Type="number" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
@@ -179,14 +179,14 @@
           <Key>
             <PropertyRef Name="IDTD" />
           </Key>
-          <Property Name="IDTD" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDTD" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENTD" Type="nvarchar2" MaxLength="50" />
         </EntityType>
         <EntityType Name="TB_UNGLUONG">
           <Key>
             <PropertyRef Name="IDUL" />
           </Key>
-          <Property Name="IDUL" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDUL" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="NAM" Type="number" Precision="38" Scale="0" />
           <Property Name="THANG" Type="number" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
@@ -195,7 +195,9 @@
           <Property Name="MANV" Type="number" Precision="38" Scale="0" />
         </EntityType>
         <Association Name="TB_BANGCONG_LC_FK2">
-          <End Role="TB_LOAICONG" Type="Self.TB_LOAICONG" Multiplicity="0..1" />
+          <End Role="TB_LOAICONG" Type="Self.TB_LOAICONG" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_BANGCONG" Type="Self.TB_BANGCONG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_LOAICONG">
@@ -207,7 +209,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_BANGCONG_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="1" />
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_BANGCONG" Type="Self.TB_BANGCONG" Multiplicity="0..1" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -219,7 +223,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_BAOHIEM_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_BAOHIEM" Type="Self.TB_BAOHIEM" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -231,7 +237,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_HOPDONG_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_HOPDONG" Type="Self.TB_HOPDONG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -243,7 +251,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_KHENTHUONG_KYLUAT_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_KHENTHUONG_KYLUAT" Type="Self.TB_KHENTHUONG_KYLUAT" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -269,7 +279,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_CTY_FK5">
-          <End Role="TB_CONGTY" Type="Self.TB_CONGTY" Multiplicity="0..1" />
+          <End Role="TB_CONGTY" Type="Self.TB_CONGTY" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_CONGTY">
@@ -294,6 +306,34 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="TB_NHANVIEN_DT_FK6">
+          <End Role="TB_DANTOC" Type="Self.TB_DANTOC" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_DANTOC">
+              <PropertyRef Name="IDDT" />
+            </Principal>
+            <Dependent Role="TB_NHANVIEN">
+              <PropertyRef Name="IDDT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_NHANVIEN_GT_FK8">
+          <End Role="TB_GIOITINH" Type="Self.TB_GIOITINH" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_GIOITINH">
+              <PropertyRef Name="IDGT" />
+            </Principal>
+            <Dependent Role="TB_NHANVIEN">
+              <PropertyRef Name="IDGT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="TB_NHANVIEN_PB_FK1">
           <End Role="TB_PHONGBAN" Type="Self.TB_PHONGBAN" Multiplicity="0..1">
             <OnDelete Action="Cascade" />
@@ -309,7 +349,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_NHANVIEN_PHUCAP" Type="Self.TB_NHANVIEN_PHUCAP" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -321,7 +363,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_PC_FK2">
-          <End Role="TB_PHUCAP" Type="Self.TB_PHUCAP" Multiplicity="0..1" />
+          <End Role="TB_PHUCAP" Type="Self.TB_PHUCAP" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_NHANVIEN_PHUCAP" Type="Self.TB_NHANVIEN_PHUCAP" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_PHUCAP">
@@ -346,8 +390,24 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="TB_NHANVIEN_TG_FK7">
+          <End Role="TB_TONGIAO" Type="Self.TB_TONGIAO" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_TONGIAO">
+              <PropertyRef Name="IDTG" />
+            </Principal>
+            <Dependent Role="TB_NHANVIEN">
+              <PropertyRef Name="IDTG" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="TB_TANGCA_LCA_FK1">
-          <End Role="TB_LOAICA" Type="Self.TB_LOAICA" Multiplicity="0..1" />
+          <End Role="TB_LOAICA" Type="Self.TB_LOAICA" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_TANGCA" Type="Self.TB_TANGCA" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_LOAICA">
@@ -359,7 +419,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_TANGCA_NV_FK2">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_TANGCA" Type="Self.TB_TANGCA" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -371,7 +433,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_UNGLUONG_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="TB_UNGLUONG" Type="Self.TB_UNGLUONG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -434,6 +498,14 @@
             <End Role="TB_CHUCVU" EntitySet="TB_CHUCVU" />
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
           </AssociationSet>
+          <AssociationSet Name="TB_NHANVIEN_DT_FK6" Association="Self.TB_NHANVIEN_DT_FK6">
+            <End Role="TB_DANTOC" EntitySet="TB_DANTOC" />
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+          </AssociationSet>
+          <AssociationSet Name="TB_NHANVIEN_GT_FK8" Association="Self.TB_NHANVIEN_GT_FK8">
+            <End Role="TB_GIOITINH" EntitySet="TB_GIOITINH" />
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+          </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_PB_FK1" Association="Self.TB_NHANVIEN_PB_FK1">
             <End Role="TB_PHONGBAN" EntitySet="TB_PHONGBAN" />
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
@@ -448,6 +520,10 @@
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_TD_FK4" Association="Self.TB_NHANVIEN_TD_FK4">
             <End Role="TB_TRINHDO" EntitySet="TB_TRINHDO" />
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+          </AssociationSet>
+          <AssociationSet Name="TB_NHANVIEN_TG_FK7" Association="Self.TB_NHANVIEN_TG_FK7">
+            <End Role="TB_TONGIAO" EntitySet="TB_TONGIAO" />
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_TANGCA_LCA_FK1" Association="Self.TB_TANGCA_LCA_FK1">
@@ -511,6 +587,14 @@
             <End Role="TB_CONGTY" EntitySet="TB_CONGTY" />
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
           </AssociationSet>
+          <AssociationSet Name="TB_NHANVIEN_DT_FK6" Association="Model.TB_NHANVIEN_DT_FK6">
+            <End Role="TB_DANTOC" EntitySet="TB_DANTOC" />
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+          </AssociationSet>
+          <AssociationSet Name="TB_NHANVIEN_GT_FK8" Association="Model.TB_NHANVIEN_GT_FK8">
+            <End Role="TB_GIOITINH" EntitySet="TB_GIOITINH" />
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+          </AssociationSet>
           <AssociationSet Name="TB_HOPDONG_NV_FK1" Association="Model.TB_HOPDONG_NV_FK1">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_HOPDONG" EntitySet="TB_HOPDONG" />
@@ -535,6 +619,10 @@
             <End Role="TB_TRINHDO" EntitySet="TB_TRINHDO" />
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
           </AssociationSet>
+          <AssociationSet Name="TB_NHANVIEN_TG_FK7" Association="Model.TB_NHANVIEN_TG_FK7">
+            <End Role="TB_TONGIAO" EntitySet="TB_TONGIAO" />
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+          </AssociationSet>
           <AssociationSet Name="TB_TANGCA_NV_FK2" Association="Model.TB_TANGCA_NV_FK2">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_TANGCA" EntitySet="TB_TANGCA" />
@@ -552,7 +640,7 @@
           <Key>
             <PropertyRef Name="MABC" />
           </Key>
-          <Property Name="MABC" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="MABC" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
@@ -569,7 +657,7 @@
           <Key>
             <PropertyRef Name="IDBH" />
           </Key>
-          <Property Name="IDBH" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDBH" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="SOBH" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="NGAYCAP" Type="DateTime" />
           <Property Name="NOICAP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
@@ -581,7 +669,7 @@
           <Key>
             <PropertyRef Name="IDBP" />
           </Key>
-          <Property Name="IDBP" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDBP" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENBP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_BP_FK2" FromRole="TB_BOPHAN" ToRole="TB_NHANVIEN" />
         </EntityType>
@@ -589,7 +677,7 @@
           <Key>
             <PropertyRef Name="IDCV" />
           </Key>
-          <Property Name="IDCV" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDCV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENCV" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_CV_FK3" FromRole="TB_CHUCVU" ToRole="TB_NHANVIEN" />
         </EntityType>
@@ -610,19 +698,21 @@
           </Key>
           <Property Name="IDDT" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENDT" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_DT_FK6" FromRole="TB_DANTOC" ToRole="TB_NHANVIEN" />
         </EntityType>
         <EntityType Name="TB_GIOITINH">
           <Key>
-            <PropertyRef Name="GIOITINH" />
+            <PropertyRef Name="IDGT" />
           </Key>
-          <Property Name="GIOITINH" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDGT" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENGT" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_GT_FK8" FromRole="TB_GIOITINH" ToRole="TB_NHANVIEN" />
         </EntityType>
         <EntityType Name="TB_HOPDONG">
           <Key>
             <PropertyRef Name="SOHD" />
           </Key>
-          <Property Name="SOHD" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="SOHD" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NGAYBATDAU" Type="DateTime" />
           <Property Name="NGAYKETTHUC" Type="DateTime" />
           <Property Name="NGAYKY" Type="DateTime" />
@@ -637,7 +727,7 @@
           <Key>
             <PropertyRef Name="IDKTKL" />
           </Key>
-          <Property Name="IDKTKL" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDKTKL" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="SOKTKL" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NOIDUNG" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="NGAY" Type="DateTime" />
@@ -649,7 +739,7 @@
           <Key>
             <PropertyRef Name="IDLOAICA" />
           </Key>
-          <Property Name="IDLOAICA" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDLOAICA" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENLOAICA" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="HESO" Type="Decimal" Precision="38" Scale="0" />
           <NavigationProperty Name="TB_TANGCA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_LOAICA" ToRole="TB_TANGCA" />
@@ -658,7 +748,7 @@
           <Key>
             <PropertyRef Name="IDLOAICONG" />
           </Key>
-          <Property Name="IDLOAICONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDLOAICONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENLC" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="HESO" Type="Decimal" Precision="38" Scale="0" />
           <NavigationProperty Name="TB_BANGCONG" Relationship="Model.TB_BANGCONG_LC_FK2" FromRole="TB_LOAICONG" ToRole="TB_BANGCONG" />
@@ -667,9 +757,9 @@
           <Key>
             <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="GIOITINH" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="IDGT" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAYSINH" Type="DateTime" />
           <Property Name="DIENTHOAI" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="CCCD" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
@@ -687,11 +777,14 @@
           <NavigationProperty Name="TB_BOPHAN" Relationship="Model.TB_NHANVIEN_BP_FK2" FromRole="TB_NHANVIEN" ToRole="TB_BOPHAN" />
           <NavigationProperty Name="TB_CHUCVU" Relationship="Model.TB_NHANVIEN_CV_FK3" FromRole="TB_NHANVIEN" ToRole="TB_CHUCVU" />
           <NavigationProperty Name="TB_CONGTY" Relationship="Model.TB_NHANVIEN_CTY_FK5" FromRole="TB_NHANVIEN" ToRole="TB_CONGTY" />
+          <NavigationProperty Name="TB_DANTOC" Relationship="Model.TB_NHANVIEN_DT_FK6" FromRole="TB_NHANVIEN" ToRole="TB_DANTOC" />
+          <NavigationProperty Name="TB_GIOITINH" Relationship="Model.TB_NHANVIEN_GT_FK8" FromRole="TB_NHANVIEN" ToRole="TB_GIOITINH" />
           <NavigationProperty Name="TB_HOPDONG" Relationship="Model.TB_HOPDONG_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_HOPDONG" />
           <NavigationProperty Name="TB_KHENTHUONG_KYLUAT" Relationship="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_KHENTHUONG_KYLUAT" />
           <NavigationProperty Name="TB_PHONGBAN" Relationship="Model.TB_NHANVIEN_PB_FK1" FromRole="TB_NHANVIEN" ToRole="TB_PHONGBAN" />
           <NavigationProperty Name="TB_NHANVIEN_PHUCAP" Relationship="Model.TB_NHANVIEN_PHUCAP_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_NHANVIEN_PHUCAP" />
           <NavigationProperty Name="TB_TRINHDO" Relationship="Model.TB_NHANVIEN_TD_FK4" FromRole="TB_NHANVIEN" ToRole="TB_TRINHDO" />
+          <NavigationProperty Name="TB_TONGIAO" Relationship="Model.TB_NHANVIEN_TG_FK7" FromRole="TB_NHANVIEN" ToRole="TB_TONGIAO" />
           <NavigationProperty Name="TB_TANGCA" Relationship="Model.TB_TANGCA_NV_FK2" FromRole="TB_NHANVIEN" ToRole="TB_TANGCA" />
           <NavigationProperty Name="TB_UNGLUONG" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_UNGLUONG" />
         </EntityType>
@@ -699,7 +792,7 @@
           <Key>
             <PropertyRef Name="ID" />
           </Key>
-          <Property Name="ID" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="ID" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="IDPC" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="DateTime" />
@@ -712,7 +805,7 @@
           <Key>
             <PropertyRef Name="IDPB" />
           </Key>
-          <Property Name="IDPB" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDPB" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENPB" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_PB_FK1" FromRole="TB_PHONGBAN" ToRole="TB_NHANVIEN" />
         </EntityType>
@@ -729,7 +822,7 @@
           <Key>
             <PropertyRef Name="IDTCA" />
           </Key>
-          <Property Name="IDTCA" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDTCA" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
@@ -745,12 +838,13 @@
           </Key>
           <Property Name="IDTG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENTG" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_TG_FK7" FromRole="TB_TONGIAO" ToRole="TB_NHANVIEN" />
         </EntityType>
         <EntityType Name="TB_TRINHDO">
           <Key>
             <PropertyRef Name="IDTD" />
           </Key>
-          <Property Name="IDTD" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDTD" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENTD" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_TD_FK4" FromRole="TB_TRINHDO" ToRole="TB_NHANVIEN" />
         </EntityType>
@@ -758,7 +852,7 @@
           <Key>
             <PropertyRef Name="IDUL" />
           </Key>
-          <Property Name="IDUL" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDUL" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
@@ -768,7 +862,9 @@
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_UNGLUONG" ToRole="TB_NHANVIEN" />
         </EntityType>
         <Association Name="TB_BANGCONG_LC_FK2">
-          <End Type="Model.TB_LOAICONG" Role="TB_LOAICONG" Multiplicity="0..1" />
+          <End Type="Model.TB_LOAICONG" Role="TB_LOAICONG" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_BANGCONG" Role="TB_BANGCONG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_LOAICONG">
@@ -780,7 +876,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_BANGCONG_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="1" />
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_BANGCONG" Role="TB_BANGCONG" Multiplicity="0..1" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -792,7 +890,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_BAOHIEM_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1" />
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_BAOHIEM" Role="TB_BAOHIEM" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -832,7 +932,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_CTY_FK5">
-          <End Type="Model.TB_CONGTY" Role="TB_CONGTY" Multiplicity="0..1" />
+          <End Type="Model.TB_CONGTY" Role="TB_CONGTY" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_CONGTY">
@@ -843,8 +945,38 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="TB_NHANVIEN_DT_FK6">
+          <End Type="Model.TB_DANTOC" Role="TB_DANTOC" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_DANTOC">
+              <PropertyRef Name="IDDT" />
+            </Principal>
+            <Dependent Role="TB_NHANVIEN">
+              <PropertyRef Name="IDDT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_NHANVIEN_GT_FK8">
+          <End Type="Model.TB_GIOITINH" Role="TB_GIOITINH" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_GIOITINH">
+              <PropertyRef Name="IDGT" />
+            </Principal>
+            <Dependent Role="TB_NHANVIEN">
+              <PropertyRef Name="IDGT" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="TB_HOPDONG_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1" />
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_HOPDONG" Role="TB_HOPDONG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -856,7 +988,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_KHENTHUONG_KYLUAT_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1" />
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_KHENTHUONG_KYLUAT" Role="TB_KHENTHUONG_KYLUAT" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -868,7 +1002,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_TANGCA_LCA_FK1">
-          <End Type="Model.TB_LOAICA" Role="TB_LOAICA" Multiplicity="0..1" />
+          <End Type="Model.TB_LOAICA" Role="TB_LOAICA" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_TANGCA" Role="TB_TANGCA" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_LOAICA">
@@ -894,7 +1030,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1" />
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_NHANVIEN_PHUCAP" Role="TB_NHANVIEN_PHUCAP" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -919,8 +1057,24 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="TB_NHANVIEN_TG_FK7">
+          <End Type="Model.TB_TONGIAO" Role="TB_TONGIAO" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_TONGIAO">
+              <PropertyRef Name="IDTG" />
+            </Principal>
+            <Dependent Role="TB_NHANVIEN">
+              <PropertyRef Name="IDTG" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="TB_TANGCA_NV_FK2">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1" />
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_TANGCA" Role="TB_TANGCA" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -932,7 +1086,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_UNGLUONG_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1" />
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_UNGLUONG" Role="TB_UNGLUONG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
@@ -944,7 +1100,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_PC_FK2">
-          <End Type="Model.TB_PHUCAP" Role="TB_PHUCAP" Multiplicity="0..1" />
+          <End Type="Model.TB_PHUCAP" Role="TB_PHUCAP" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Type="Model.TB_NHANVIEN_PHUCAP" Role="TB_NHANVIEN_PHUCAP" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_PHUCAP">
@@ -1028,7 +1186,7 @@
             <EntityTypeMapping TypeName="Model.TB_GIOITINH">
               <MappingFragment StoreEntitySet="TB_GIOITINH">
                 <ScalarProperty Name="TENGT" ColumnName="TENGT" />
-                <ScalarProperty Name="GIOITINH" ColumnName="GIOITINH" />
+                <ScalarProperty Name="IDGT" ColumnName="IDGT" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1092,7 +1250,7 @@
                 <ScalarProperty Name="CCCD" ColumnName="CCCD" />
                 <ScalarProperty Name="DIENTHOAI" ColumnName="DIENTHOAI" />
                 <ScalarProperty Name="NGAYSINH" ColumnName="NGAYSINH" />
-                <ScalarProperty Name="GIOITINH" ColumnName="GIOITINH" />
+                <ScalarProperty Name="IDGT" ColumnName="IDGT" />
                 <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
               </MappingFragment>

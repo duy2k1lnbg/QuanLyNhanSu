@@ -14,7 +14,16 @@ namespace DA
     
     public partial class TB_TONGIAO
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public TB_TONGIAO()
+        {
+            this.TB_NHANVIEN = new HashSet<TB_NHANVIEN>();
+        }
+    
         public decimal IDTG { get; set; }
         public string TENTG { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_NHANVIEN> TB_NHANVIEN { get; set; }
     }
 }

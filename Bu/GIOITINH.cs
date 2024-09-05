@@ -14,7 +14,7 @@ namespace Bu
 
         public TB_GIOITINH getItem(int id)
         {
-            return db.TB_GIOITINH.FirstOrDefault(x => x.GIOITINH == id);
+            return db.TB_GIOITINH.FirstOrDefault(x => x.IDGT == id);
         }
         public List<TB_GIOITINH> getList()
         {
@@ -49,7 +49,7 @@ namespace Bu
         {
             try
             {
-                var _gt = db.TB_GIOITINH.FirstOrDefault(x => x.GIOITINH == gt.GIOITINH);
+                var _gt = db.TB_GIOITINH.FirstOrDefault(x => x.IDGT == gt.IDGT);
                 _gt.TENGT = gt.TENGT;
                 db.SaveChanges();
                 return gt;
@@ -65,7 +65,7 @@ namespace Bu
         {
             try
             {
-                var _gt = db.TB_GIOITINH.FirstOrDefault(x => x.GIOITINH == id);
+                var _gt = db.TB_GIOITINH.FirstOrDefault(x => x.IDGT == id);
                 db.TB_GIOITINH.Remove(_gt);
                 db.SaveChanges();
             }

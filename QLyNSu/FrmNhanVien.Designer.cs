@@ -61,7 +61,7 @@
             this.gvDsNV = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.MANV = new DevExpress.XtraGrid.Columns.GridColumn();
             this.HOTEN = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.GIOITINH = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.IDGT = new DevExpress.XtraGrid.Columns.GridColumn();
             this.TENGT = new DevExpress.XtraGrid.Columns.GridColumn();
             this.NGAYSINH = new DevExpress.XtraGrid.Columns.GridColumn();
             this.DIENTHOAI = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -412,7 +412,7 @@
             this.gvDsNV.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
             this.MANV,
             this.HOTEN,
-            this.GIOITINH,
+            this.IDGT,
             this.TENGT,
             this.NGAYSINH,
             this.DIENTHOAI,
@@ -462,13 +462,13 @@
             this.HOTEN.VisibleIndex = 2;
             this.HOTEN.Width = 200;
             // 
-            // GIOITINH
+            // IDGT
             // 
-            this.GIOITINH.Caption = "GIOITINH";
-            this.GIOITINH.FieldName = "GIOITINH";
-            this.GIOITINH.MinWidth = 25;
-            this.GIOITINH.Name = "GIOITINH";
-            this.GIOITINH.Width = 94;
+            this.IDGT.Caption = "IDGT";
+            this.IDGT.FieldName = "IDGT";
+            this.IDGT.MinWidth = 25;
+            this.IDGT.Name = "IDGT";
+            this.IDGT.Width = 94;
             // 
             // TENGT
             // 
@@ -884,7 +884,7 @@
         private System.Windows.Forms.ComboBox cboChucVu;
         private DevExpress.XtraEditors.LabelControl labelControl5;
         private DevExpress.XtraEditors.LabelControl labelControl12;
-        private DevExpress.XtraGrid.Columns.GridColumn GIOITINH;
+        private DevExpress.XtraGrid.Columns.GridColumn IDGT;
         private DevExpress.XtraGrid.Columns.GridColumn NGAYSINH;
         private DevExpress.XtraGrid.Columns.GridColumn DIENTHOAI;
         private DevExpress.XtraGrid.Columns.GridColumn CCCD;

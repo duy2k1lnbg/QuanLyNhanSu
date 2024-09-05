@@ -10,7 +10,7 @@ namespace Bu.DTO
     {
         public decimal MANV { get; set; }
         public string HOTEN { get; set; }
-        public Nullable<decimal> GIOITINH { get; set; }
+        public Nullable<decimal> IDGT { get; set; }
         public string TENGT { get; set; }
         public Nullable<System.DateTime> NGAYSINH { get; set; }
         public string DIENTHOAI { get; set; }

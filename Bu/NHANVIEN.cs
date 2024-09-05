@@ -31,7 +31,7 @@ namespace Bu
                 nvDTO = new NHANVIEN_DTO();
                 nvDTO.MANV = item.MANV;
                 nvDTO.HOTEN = item.HOTEN;
-                nvDTO.GIOITINH = item.GIOITINH;
+                nvDTO.IDGT = item.IDGT;
                 nvDTO.CCCD = item.CCCD;
                 nvDTO.NGAYSINH = item.NGAYSINH;
                 nvDTO.DIENTHOAI = item.DIENTHOAI;
@@ -66,8 +66,8 @@ namespace Bu
                 var tg = db.TB_TONGIAO.FirstOrDefault(h => h.IDTG == item.IDTG);
                 nvDTO.TENTG = tg.TENTG;
 
-                nvDTO.GIOITINH = item.GIOITINH;
-                var gt = db.TB_GIOITINH.FirstOrDefault(i => i.GIOITINH == item.GIOITINH);
+                nvDTO.IDGT = item.IDGT;
+                var gt = db.TB_GIOITINH.FirstOrDefault(i => i.IDGT == item.IDGT);
                 nvDTO.TENGT = gt.TENGT;
 
                 lstNvDTO.Add(nvDTO);
@@ -106,7 +106,7 @@ namespace Bu
             {
                 var _nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == nv.MANV);
                 _nv.HOTEN = nv.HOTEN;
-                _nv.GIOITINH = nv.GIOITINH;
+                _nv.IDGT = nv.IDGT;
                 _nv.NGAYSINH = nv.NGAYSINH;
                 _nv.DIENTHOAI = nv.DIENTHOAI;
                 _nv.CCCD = nv.CCCD;
