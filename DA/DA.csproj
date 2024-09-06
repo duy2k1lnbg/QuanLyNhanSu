@@ -199,6 +199,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="HR_backup.sql" />
     <Content Include="QLNhanSu.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>QLNhanSu.edmx</DependentUpon>

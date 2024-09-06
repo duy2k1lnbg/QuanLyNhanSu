@@ -1,6 +1,8 @@
 ﻿using Bu;
+using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
+using QLyNSu.Reports;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DevExpress.XtraReports.UI;
 
 namespace QLyNSu
 {
@@ -29,6 +32,8 @@ namespace QLyNSu
         BOPHAN _bophan;
         TRINHDO _trinhdo;
         GIOITINH _gioitinh;
+
+        List<NHANVIEN_DTO> _lstNVDTO;
 
         public FrmNhanVien()
         {
@@ -72,6 +77,7 @@ namespace QLyNSu
         {
             gcDsNV.DataSource = _nhanvien.getListFll_DTO();
             gvDsNV.OptionsBehavior.Editable = false;
+            _lstNVDTO = _nhanvien.getListFll_DTO();
         }
 
         void SaveData()
@@ -199,7 +205,8 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            rptDSNhanVien rpt = new rptDSNhanVien(_lstNVDTO);
+            rpt.ShowRibbonPreview();
         }
 
         private void FrmNhanVien_Load(object sender, EventArgs e)
