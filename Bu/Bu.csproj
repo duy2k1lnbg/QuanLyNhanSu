@@ -90,6 +90,7 @@
     <Compile Include="DANTOC.cs" />
     <Compile Include="DTO\NHANVIEN_DTO.cs" />
     <Compile Include="GIOITINH.cs" />
+    <Compile Include="HOPDONGLAODONG.cs" />
     <Compile Include="NHANVIEN.cs" />
     <Compile Include="PHONGBAN.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -14,7 +14,6 @@ namespace DA
     
     public partial class TB_HOPDONG
     {
-        public decimal SOHD { get; set; }
         public Nullable<System.DateTime> NGAYBATDAU { get; set; }
         public Nullable<System.DateTime> NGAYKETTHUC { get; set; }
         public Nullable<System.DateTime> NGAYKY { get; set; }
@@ -23,6 +22,14 @@ namespace DA
         public string THOIHAN { get; set; }
         public Nullable<decimal> HESOLUONG { get; set; }
         public Nullable<decimal> MANV { get; set; }
+        public string SOHD { get; set; }
+        public Nullable<decimal> IDCTY { get; set; }
+        public Nullable<decimal> DEL_BY { get; set; }
+        public Nullable<System.DateTime> DEL_DATE { get; set; }
+        public Nullable<decimal> UPDATE_BY { get; set; }
+        public Nullable<System.DateTime> UPDATE_DATE { get; set; }
+        public Nullable<decimal> CREATED_BY { get; set; }
+        public Nullable<System.DateTime> CREATED_DATE { get; set; }
     
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }

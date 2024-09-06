@@ -15,15 +15,16 @@ namespace QLyNSu
 {
     public partial class FrmBoPhan : DevExpress.XtraEditors.XtraForm
     {
-        BOPHAN _bophan;
-        bool _them;
-        int _IDBP;
         public FrmBoPhan()
         {
             InitializeComponent();
         }
 
-        void showHide(bool kt)
+        private BOPHAN _bophan;
+        bool _them;
+        int _IDBP;
+
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -35,13 +36,13 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        void LoadData()
+        private void LoadData()
         {
             gcDsBP.DataSource = _bophan.getList();
             gvDsBP.OptionsBehavior.Editable = false;
         }
 
-        void SaveData()
+        private void SaveData()
         {
             try
             {

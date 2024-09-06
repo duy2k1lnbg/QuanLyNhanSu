@@ -73,15 +73,22 @@
           <Key>
             <PropertyRef Name="SOHD" />
           </Key>
-          <Property Name="SOHD" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="NGAYBATDAU" Type="date" />
           <Property Name="NGAYKETTHUC" Type="date" />
           <Property Name="NGAYKY" Type="date" />
-          <Property Name="NOIDUNG" Type="nvarchar2" MaxLength="500" />
+          <Property Name="NOIDUNG" Type="nvarchar2" MaxLength="2000" />
           <Property Name="LANKY" Type="number" Precision="38" Scale="0" />
           <Property Name="THOIHAN" Type="nvarchar2" MaxLength="50" />
           <Property Name="HESOLUONG" Type="float" Precision="126" Scale="0" />
           <Property Name="MANV" Type="number" Precision="38" Scale="0" />
+          <Property Name="SOHD" Type="nvarchar2" MaxLength="100" Nullable="false" />
+          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DEL_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DEL_DATE" Type="date" />
+          <Property Name="UPDATE_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATE_DATE" Type="date" />
+          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_KHENTHUONG_KYLUAT">
           <Key>
@@ -551,7 +558,6 @@
           <EntitySet Name="TB_CONGTY" EntityType="Model.TB_CONGTY" />
           <EntitySet Name="TB_DANTOC" EntityType="Model.TB_DANTOC" />
           <EntitySet Name="TB_GIOITINH" EntityType="Model.TB_GIOITINH" />
-          <EntitySet Name="TB_HOPDONG" EntityType="Model.TB_HOPDONG" />
           <EntitySet Name="TB_KHENTHUONG_KYLUAT" EntityType="Model.TB_KHENTHUONG_KYLUAT" />
           <EntitySet Name="TB_LOAICA" EntityType="Model.TB_LOAICA" />
           <EntitySet Name="TB_LOAICONG" EntityType="Model.TB_LOAICONG" />
@@ -595,10 +601,6 @@
             <End Role="TB_GIOITINH" EntitySet="TB_GIOITINH" />
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
           </AssociationSet>
-          <AssociationSet Name="TB_HOPDONG_NV_FK1" Association="Model.TB_HOPDONG_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_HOPDONG" EntitySet="TB_HOPDONG" />
-          </AssociationSet>
           <AssociationSet Name="TB_KHENTHUONG_KYLUAT_NV_FK1" Association="Model.TB_KHENTHUONG_KYLUAT_NV_FK1">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_KHENTHUONG_KYLUAT" EntitySet="TB_KHENTHUONG_KYLUAT" />
@@ -634,6 +636,11 @@
           <AssociationSet Name="TB_NHANVIEN_PHUCAP_PC_FK2" Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2">
             <End Role="TB_PHUCAP" EntitySet="TB_PHUCAP" />
             <End Role="TB_NHANVIEN_PHUCAP" EntitySet="TB_NHANVIEN_PHUCAP" />
+          </AssociationSet>
+          <EntitySet Name="TB_HOPDONG" EntityType="Model.TB_HOPDONG" />
+          <AssociationSet Name="TB_HOPDONG_NV_FK1" Association="Model.TB_HOPDONG_NV_FK1">
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End Role="TB_HOPDONG" EntitySet="TB_HOPDONG" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="TB_BANGCONG">
@@ -708,21 +715,6 @@
           <Property Name="TENGT" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_GT_FK8" FromRole="TB_GIOITINH" ToRole="TB_NHANVIEN" />
         </EntityType>
-        <EntityType Name="TB_HOPDONG">
-          <Key>
-            <PropertyRef Name="SOHD" />
-          </Key>
-          <Property Name="SOHD" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NGAYBATDAU" Type="DateTime" />
-          <Property Name="NGAYKETTHUC" Type="DateTime" />
-          <Property Name="NGAYKY" Type="DateTime" />
-          <Property Name="NOIDUNG" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="LANKY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="THOIHAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="HESOLUONG" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_HOPDONG_NV_FK1" FromRole="TB_HOPDONG" ToRole="TB_NHANVIEN" />
-        </EntityType>
         <EntityType Name="TB_KHENTHUONG_KYLUAT">
           <Key>
             <PropertyRef Name="IDKTKL" />
@@ -779,7 +771,6 @@
           <NavigationProperty Name="TB_CONGTY" Relationship="Model.TB_NHANVIEN_CTY_FK5" FromRole="TB_NHANVIEN" ToRole="TB_CONGTY" />
           <NavigationProperty Name="TB_DANTOC" Relationship="Model.TB_NHANVIEN_DT_FK6" FromRole="TB_NHANVIEN" ToRole="TB_DANTOC" />
           <NavigationProperty Name="TB_GIOITINH" Relationship="Model.TB_NHANVIEN_GT_FK8" FromRole="TB_NHANVIEN" ToRole="TB_GIOITINH" />
-          <NavigationProperty Name="TB_HOPDONG" Relationship="Model.TB_HOPDONG_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_HOPDONG" />
           <NavigationProperty Name="TB_KHENTHUONG_KYLUAT" Relationship="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_KHENTHUONG_KYLUAT" />
           <NavigationProperty Name="TB_PHONGBAN" Relationship="Model.TB_NHANVIEN_PB_FK1" FromRole="TB_NHANVIEN" ToRole="TB_PHONGBAN" />
           <NavigationProperty Name="TB_NHANVIEN_PHUCAP" Relationship="Model.TB_NHANVIEN_PHUCAP_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_NHANVIEN_PHUCAP" />
@@ -787,6 +778,7 @@
           <NavigationProperty Name="TB_TONGIAO" Relationship="Model.TB_NHANVIEN_TG_FK7" FromRole="TB_NHANVIEN" ToRole="TB_TONGIAO" />
           <NavigationProperty Name="TB_TANGCA" Relationship="Model.TB_TANGCA_NV_FK2" FromRole="TB_NHANVIEN" ToRole="TB_TANGCA" />
           <NavigationProperty Name="TB_UNGLUONG" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_UNGLUONG" />
+          <NavigationProperty Name="TB_HOPDONG" Relationship="Model.TB_HOPDONG_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_HOPDONG" />
         </EntityType>
         <EntityType Name="TB_NHANVIEN_PHUCAP">
           <Key>
@@ -973,20 +965,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="TB_HOPDONG_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="Model.TB_HOPDONG" Role="TB_HOPDONG" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="TB_NHANVIEN">
-              <PropertyRef Name="MANV" />
-            </Principal>
-            <Dependent Role="TB_HOPDONG">
-              <PropertyRef Name="MANV" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="TB_KHENTHUONG_KYLUAT_NV_FK1">
           <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
             <OnDelete Action="Cascade" />
@@ -1113,6 +1091,42 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="TB_HOPDONG">
+          <Key>
+            <PropertyRef Name="SOHD" />
+          </Key>
+          <Property Name="NGAYBATDAU" Type="DateTime" />
+          <Property Name="NGAYKETTHUC" Type="DateTime" />
+          <Property Name="NGAYKY" Type="DateTime" />
+          <Property Name="NOIDUNG" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
+          <Property Name="LANKY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="THOIHAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="HESOLUONG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="SOHD" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="IDCTY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DEL_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DEL_DATE" Type="DateTime" />
+          <Property Name="UPDATE_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATE_DATE" Type="DateTime" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_HOPDONG_NV_FK1" FromRole="TB_HOPDONG" ToRole="TB_NHANVIEN" />
+        </EntityType>
+        <Association Name="TB_HOPDONG_NV_FK1">
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_HOPDONG" Role="TB_HOPDONG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_NHANVIEN">
+              <PropertyRef Name="MANV" />
+            </Principal>
+            <Dependent Role="TB_HOPDONG">
+              <PropertyRef Name="MANV" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1187,21 +1201,6 @@
               <MappingFragment StoreEntitySet="TB_GIOITINH">
                 <ScalarProperty Name="TENGT" ColumnName="TENGT" />
                 <ScalarProperty Name="IDGT" ColumnName="IDGT" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_HOPDONG">
-            <EntityTypeMapping TypeName="Model.TB_HOPDONG">
-              <MappingFragment StoreEntitySet="TB_HOPDONG">
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="HESOLUONG" ColumnName="HESOLUONG" />
-                <ScalarProperty Name="THOIHAN" ColumnName="THOIHAN" />
-                <ScalarProperty Name="LANKY" ColumnName="LANKY" />
-                <ScalarProperty Name="NOIDUNG" ColumnName="NOIDUNG" />
-                <ScalarProperty Name="NGAYKY" ColumnName="NGAYKY" />
-                <ScalarProperty Name="NGAYKETTHUC" ColumnName="NGAYKETTHUC" />
-                <ScalarProperty Name="NGAYBATDAU" ColumnName="NGAYBATDAU" />
-                <ScalarProperty Name="SOHD" ColumnName="SOHD" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1324,6 +1323,28 @@
                 <ScalarProperty Name="THANG" ColumnName="THANG" />
                 <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="IDUL" ColumnName="IDUL" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_HOPDONG">
+            <EntityTypeMapping TypeName="Model.TB_HOPDONG">
+              <MappingFragment StoreEntitySet="TB_HOPDONG">
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="UPDATE_DATE" ColumnName="UPDATE_DATE" />
+                <ScalarProperty Name="UPDATE_BY" ColumnName="UPDATE_BY" />
+                <ScalarProperty Name="DEL_DATE" ColumnName="DEL_DATE" />
+                <ScalarProperty Name="DEL_BY" ColumnName="DEL_BY" />
+                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
+                <ScalarProperty Name="SOHD" ColumnName="SOHD" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="HESOLUONG" ColumnName="HESOLUONG" />
+                <ScalarProperty Name="THOIHAN" ColumnName="THOIHAN" />
+                <ScalarProperty Name="LANKY" ColumnName="LANKY" />
+                <ScalarProperty Name="NOIDUNG" ColumnName="NOIDUNG" />
+                <ScalarProperty Name="NGAYKY" ColumnName="NGAYKY" />
+                <ScalarProperty Name="NGAYKETTHUC" ColumnName="NGAYKETTHUC" />
+                <ScalarProperty Name="NGAYBATDAU" ColumnName="NGAYBATDAU" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

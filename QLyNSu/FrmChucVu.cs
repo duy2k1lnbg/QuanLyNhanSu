@@ -15,15 +15,16 @@ namespace QLyNSu
 {
     public partial class FrmChucVu : DevExpress.XtraEditors.XtraForm
     {
-        CHUCVU _chucvu;
-        bool _them;
-        int _IDCV;
         public FrmChucVu()
         {
             InitializeComponent();
         }
 
-        void showHide(bool kt)
+        private CHUCVU _chucvu;
+        bool _them;
+        int _IDCV;
+
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -35,13 +36,13 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        void LoadData()
+        private void LoadData()
         {
             gcDsCV.DataSource = _chucvu.getList();
             gvDsCV.OptionsBehavior.Editable = false;
         }
 
-        void SaveData()
+        private void SaveData()
         {
             try
             {

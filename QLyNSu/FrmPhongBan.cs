@@ -15,15 +15,16 @@ namespace QLyNSu
 {
     public partial class FrmPhongBan : DevExpress.XtraEditors.XtraForm
     {
-        PHONGBAN _phongban;
-        bool _them;
-        int _IDPB;
         public FrmPhongBan()
         {
             InitializeComponent();
         }
 
-        void showHide(bool kt)
+        private PHONGBAN _phongban;
+        bool _them;
+        int _IDPB;
+
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -35,13 +36,13 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        void LoadData()
+        private void LoadData()
         {
             gcDsPB.DataSource = _phongban.getList();
             gvDsPB.OptionsBehavior.Editable = false;
         }
 
-        void SaveData()
+        private void SaveData()
         {
             try
             {

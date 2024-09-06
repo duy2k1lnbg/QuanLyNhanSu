@@ -19,28 +19,30 @@ namespace QLyNSu
 {
     public partial class FrmNhanVien : DevExpress.XtraEditors.XtraForm
     {
-        NHANVIEN _nhanvien;
-        bool _them;
-        int _MANV;
-
-        //Load data
-
-        DANTOC _dantoc;
-        TONGIAO _tongiao;
-        CHUCVU _chucvu;
-        PHONGBAN _phongban;
-        BOPHAN _bophan;
-        TRINHDO _trinhdo;
-        GIOITINH _gioitinh;
-
-        List<NHANVIEN_DTO> _lstNVDTO;
-
         public FrmNhanVien()
         {
             InitializeComponent();
         }
 
-        void showHide(bool kt)
+        private NHANVIEN _nhanvien;
+        bool _them;
+        int _MANV;
+
+        //Load data
+
+        private DANTOC _dantoc;
+        private TONGIAO _tongiao;
+        private CHUCVU _chucvu;
+        private PHONGBAN _phongban;
+        private BOPHAN _bophan;
+        private TRINHDO _trinhdo;
+        private GIOITINH _gioitinh;
+
+        private Image _hinh;
+
+        List<NHANVIEN_DTO> _lstNVDTO;
+
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -65,7 +67,7 @@ namespace QLyNSu
             dateNgaySinh.Enabled = !kt;
         }
 
-        void _reset()
+        private void _reset()
         {
             txtHoTen.Text = string.Empty;
             txtCCCD.Text = string.Empty;
@@ -73,14 +75,14 @@ namespace QLyNSu
             txtDiaChi.Text = string.Empty;
         }
 
-        void LoadData()
+        private void LoadData()
         {
             gcDsNV.DataSource = _nhanvien.getListFll_DTO();
             gvDsNV.OptionsBehavior.Editable = false;
             _lstNVDTO = _nhanvien.getListFll_DTO();
         }
 
-        void SaveData()
+       private void SaveData()
         {
             try
             {
@@ -160,6 +162,7 @@ namespace QLyNSu
             _them = false;
             showHide(false);
             splitContainer1.Panel1Collapsed = false;
+            gcDsNV.Enabled = true;
         }
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -277,7 +280,7 @@ namespace QLyNSu
             
         }
 
-        void LoadCombo()
+        private void LoadCombo()
         {
             cboBoPhan.DataSource = _bophan.getList();
             cboBoPhan.DisplayMember = "TENBP";

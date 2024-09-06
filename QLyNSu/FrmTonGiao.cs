@@ -15,16 +15,15 @@ namespace QLyNSu
 {
     public partial class FrmTonGiao : DevExpress.XtraEditors.XtraForm
     {
-
-        TONGIAO _tongiao;
-        bool _them;
-        int _IDTG;
         public FrmTonGiao()
         {
             InitializeComponent();
         }
 
-        void showHide(bool kt)
+        private TONGIAO _tongiao;
+        bool _them;
+        int _IDTG;
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -36,13 +35,13 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        void LoadData()
+        private void LoadData()
         {
             gcDsTG.DataSource = _tongiao.getList();
             gvDsTG.OptionsBehavior.Editable = false;
         }
 
-        void SaveData()
+        private void SaveData()
         {
             try
             {

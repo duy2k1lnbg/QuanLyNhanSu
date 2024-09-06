@@ -15,15 +15,16 @@ namespace QLyNSu
 {
     public partial class FrmTrinhDo : DevExpress.XtraEditors.XtraForm
     {
-        TRINHDO _trinhdo;
-        bool _them;
-        int _IDTD;
         public FrmTrinhDo()
         {
             InitializeComponent();
         }
 
-        void showHide(bool kt)
+        private TRINHDO _trinhdo;
+        bool _them;
+        int _IDTD;
+
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -35,13 +36,13 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        void LoadData()
+        private void LoadData()
         {
             gcDsTD.DataSource = _trinhdo.getList();
             gvDsTD.OptionsBehavior.Editable = false;
         }
 
-        void SaveData()
+        private void SaveData()
         {
             try
             {

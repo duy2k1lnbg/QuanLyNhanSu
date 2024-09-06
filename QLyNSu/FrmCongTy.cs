@@ -15,15 +15,16 @@ namespace QLyNSu
 {
     public partial class FrmCongTy : DevExpress.XtraEditors.XtraForm
     {
-        CONGTY _congty;
-        bool _them;
-        int _IDCTY;
         public FrmCongTy()
         {
             InitializeComponent();
         }
 
-        void showHide(bool kt)
+        private CONGTY _congty;
+        bool _them;
+        int _IDCTY;
+
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -38,13 +39,13 @@ namespace QLyNSu
             txtDC.Enabled = !kt;  
         }
 
-        void LoadData()
+        private void LoadData()
         {
             gcDsCT.DataSource = _congty.getList();
             gvDsCT.OptionsBehavior.Editable = false;
         }
 
-        void SaveData()
+        private void SaveData()
         {
             try
             {

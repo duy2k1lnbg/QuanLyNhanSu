@@ -16,7 +16,7 @@ namespace QLyNSu
             InitializeComponent();
         }
 
-        void OpenForm(Type typeForm)
+        private void OpenForm(Type typeForm)
         {
             foreach(var frm in MdiChildren)
                 if(frm.GetType() == typeForm)
@@ -102,6 +102,11 @@ namespace QLyNSu
         private void barButtonItem8_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             OpenForm(typeof(FrmNhanVien));
+        }
+
+        private void barButtonItem9_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            OpenForm(typeof(FrmHopDongLaoDong));
         }
     }
 }

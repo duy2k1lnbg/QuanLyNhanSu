@@ -15,15 +15,16 @@ namespace QLyNSu
 {
     public partial class FrmDanToc : DevExpress.XtraEditors.XtraForm
     {
-        DANTOC _dantoc;
-        bool _them;
-        int _IDDT;
         public FrmDanToc()
         {
             InitializeComponent();
         }
 
-        void showHide(bool kt)
+        private DANTOC _dantoc;
+        bool _them;
+        int _IDDT;
+
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -102,13 +103,13 @@ namespace QLyNSu
             LoadData();
         }
 
-        void LoadData()
+        private void LoadData()
         {
             gcDsDT.DataSource = _dantoc.getList();
             gvDsDT.OptionsBehavior.Editable = false;
         }
 
-        void SaveData()
+        private void SaveData()
         {
             try
             {
