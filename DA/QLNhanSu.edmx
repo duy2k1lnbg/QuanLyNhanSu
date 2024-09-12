@@ -76,7 +76,6 @@
           <Property Name="NGAYBATDAU" Type="date" />
           <Property Name="NGAYKETTHUC" Type="date" />
           <Property Name="NGAYKY" Type="date" />
-          <Property Name="NOIDUNG" Type="nvarchar2" MaxLength="2000" />
           <Property Name="LANKY" Type="number" Precision="38" Scale="0" />
           <Property Name="THOIHAN" Type="nvarchar2" MaxLength="50" />
           <Property Name="HESOLUONG" Type="float" Precision="126" Scale="0" />
@@ -89,6 +88,7 @@
           <Property Name="UPDATE_DATE" Type="date" />
           <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
           <Property Name="CREATED_DATE" Type="date" />
+          <Property Name="NOIDUNG" Type="nclob" />
         </EntityType>
         <EntityType Name="TB_KHENTHUONG_KYLUAT">
           <Key>
@@ -1098,7 +1098,6 @@
           <Property Name="NGAYBATDAU" Type="DateTime" />
           <Property Name="NGAYKETTHUC" Type="DateTime" />
           <Property Name="NGAYKY" Type="DateTime" />
-          <Property Name="NOIDUNG" Type="String" MaxLength="2000" FixedLength="false" Unicode="true" />
           <Property Name="LANKY" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="THOIHAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="HESOLUONG" Type="Decimal" Precision="38" Scale="0" />
@@ -1111,6 +1110,7 @@
           <Property Name="UPDATE_DATE" Type="DateTime" />
           <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="NOIDUNG" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_HOPDONG_NV_FK1" FromRole="TB_HOPDONG" ToRole="TB_NHANVIEN" />
         </EntityType>
         <Association Name="TB_HOPDONG_NV_FK1">
@@ -1329,6 +1329,7 @@
           <EntitySetMapping Name="TB_HOPDONG">
             <EntityTypeMapping TypeName="Model.TB_HOPDONG">
               <MappingFragment StoreEntitySet="TB_HOPDONG">
+                <ScalarProperty Name="NOIDUNG" ColumnName="NOIDUNG" />
                 <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
                 <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
                 <ScalarProperty Name="UPDATE_DATE" ColumnName="UPDATE_DATE" />
@@ -1341,7 +1342,6 @@
                 <ScalarProperty Name="HESOLUONG" ColumnName="HESOLUONG" />
                 <ScalarProperty Name="THOIHAN" ColumnName="THOIHAN" />
                 <ScalarProperty Name="LANKY" ColumnName="LANKY" />
-                <ScalarProperty Name="NOIDUNG" ColumnName="NOIDUNG" />
                 <ScalarProperty Name="NGAYKY" ColumnName="NGAYKY" />
                 <ScalarProperty Name="NGAYKETTHUC" ColumnName="NGAYKETTHUC" />
                 <ScalarProperty Name="NGAYBATDAU" ColumnName="NGAYBATDAU" />

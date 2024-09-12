@@ -1,8 +1,10 @@
-﻿using DA;
+﻿using Bu.DTO;
+using DA;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity.Validation;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -21,6 +23,37 @@ namespace Bu
             return db.TB_HOPDONG.ToList();
         }
 
+
+        public List<HOPDONG_DTO> getlistFull_DTO() 
+        { 
+            List<TB_HOPDONG> lstHD = db.TB_HOPDONG.ToList();
+            List<HOPDONG_DTO> lstHD_DTO = new List<HOPDONG_DTO>();
+            HOPDONG_DTO hd_DTO;
+            foreach (var item in lstHD)
+            {
+                hd_DTO = new HOPDONG_DTO();
+                hd_DTO.SOHD = item.SOHD;
+                hd_DTO.NGAYBATDAU = item.NGAYBATDAU;
+                hd_DTO.NGAYKETTHUC = item.NGAYKETTHUC;
+                hd_DTO.NGAYKY = item.NGAYKY;
+                hd_DTO.LANKY = item.LANKY;
+                hd_DTO.HESOLUONG = item.HESOLUONG;
+                hd_DTO.THOIHAN = item.THOIHAN;
+                hd_DTO.NOIDUNG = item.NOIDUNG;
+                hd_DTO.MANV = item.MANV;
+                var nv = db.TB_NHANVIEN.FirstOrDefault(n => n.MANV == item.MANV);
+                hd_DTO.HOTEN = nv.HOTEN;
+                hd_DTO.CREATED_BY = item.CREATED_BY;
+                hd_DTO.CREATED_DATE = item.CREATED_DATE;
+                hd_DTO.UPDATE_BY = item.UPDATE_BY;
+                hd_DTO.UPDATE_DATE = item.UPDATE_DATE;
+                hd_DTO.DEL_BY = item.DEL_BY;
+                hd_DTO.DEL_DATE = item.DEL_DATE;
+                hd_DTO.IDCTY = item.IDCTY;
+                lstHD_DTO.Add(hd_DTO);
+            }
+            return lstHD_DTO;
+        }
         public TB_HOPDONG Add(TB_HOPDONG hd)
         {
             try
@@ -72,11 +105,11 @@ namespace Bu
             }
         }
 
-        public void Delete(string id, int manv)
+        public void Delete(string sohd, int manv)
         {
             try
             {
-                var _hd = db.TB_HOPDONG.FirstOrDefault(x => x.SOHD == id);
+                var _hd = db.TB_HOPDONG.FirstOrDefault(x => x.SOHD == sohd);
                 _hd.DEL_BY = manv;
                 _hd.DEL_DATE = DateTime.Now;
                 db.SaveChanges();
@@ -85,6 +118,19 @@ namespace Bu
             {
 
                 throw new Exception("Lỗi" + ex.Message);
+            }
+        }
+
+        public string MaxSoHopDong()
+        {
+            var _hd = db.TB_HOPDONG.OrderByDescending(x => x.CREATED_DATE).FirstOrDefault();
+            if (_hd != null)
+            {
+                return _hd.SOHD;
+            }
+            else
+            {
+                return "00000";
             }
         }
     }

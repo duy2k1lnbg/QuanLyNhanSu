@@ -10,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace QLyNSu
 {
@@ -21,18 +22,22 @@ namespace QLyNSu
         }
 
         private HOPDONGLAODONG _hdld;
-        bool _them;
-        string _SOHD;
+        private NHANVIEN _nhanvien;
+        private bool _them;
+        private string _SOHD;
+        private string _MaxSHD;
         private void FrmHopDongLaoDong_Load(object sender, EventArgs e)
         {
             _hdld = new HOPDONGLAODONG();
+            _nhanvien = new NHANVIEN();
             _them = false;
             showHide(true);
             LoadData();
+            loadNhanVien();
             splitContainer1.Panel1Collapsed = true;
         }
 
-        void showHide(bool kt)
+        private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
@@ -51,19 +56,24 @@ namespace QLyNSu
             searchMANV.Enabled = !kt;
         }
 
-        void _reset()
+        private void _reset()
         {
             txtSoHD.Text = string.Empty;
             dtNgayBatDau.Value = DateTime.Now;
-            dtNgayBatDau.Value = dtNgayBatDau.Value.AddMonths(6);
             dtNgayKy.Value = DateTime.Now;
             spLanKy.Text = "1";
             spHeSoLuong.Text = "1";
         }
 
-        void LoadData()
+        private void loadNhanVien()
         {
-            gcDsHDLD.DataSource = _hdld.getList();
+            searchMANV.Properties.DataSource = _nhanvien.getList();
+            searchMANV.Properties.ValueMember = "MANV";
+            searchMANV.Properties.DisplayMember = "HOTEN";
+        }
+        private void LoadData()
+        {
+            gcDsHDLD.DataSource = _hdld.getlistFull_DTO();
             gvDsHDLD.OptionsBehavior.Editable = false;
         }
 
@@ -128,11 +138,43 @@ namespace QLyNSu
             {
                 if (_them)
                 {
-                    
+                    //Số hợp đồng: 00001/2024/HĐLĐ
+                    var maxSoHD = _hdld.MaxSoHopDong();
+                    int so = int.Parse(maxSoHD.Substring(0, 5)) + 1;
+
+                    TB_HOPDONG hd = new TB_HOPDONG();
+
+                    hd.SOHD = so.ToString("00000") + @"/2024/HĐLĐ";
+                    hd.NGAYBATDAU = dtNgayBatDau.Value;
+                    hd.NGAYKETTHUC = dtNgayKetThuc.Value;
+                    hd.NGAYKY = dtNgayKy.Value;
+                    hd.THOIHAN = cbThoiHan.Text; 
+                    hd.HESOLUONG = decimal.Parse(spHeSoLuong.EditValue.ToString());
+                    hd.LANKY = int.Parse(spLanKy.EditValue.ToString());
+                    hd.MANV = int.Parse(searchMANV.EditValue.ToString());
+                    hd.NOIDUNG = txtNoiDung.RtfText;
+                    hd.IDCTY = 1;
+                    hd.CREATED_BY = 1;
+                    hd.CREATED_DATE = DateTime.Now;
+                    _hdld.Add(hd);
                 }
                 else
                 {
-                    
+                    //Số hợp đồng: 00001/2024/HĐLĐ
+                    var hd = _hdld.getItem(_SOHD);
+
+                    hd.NGAYBATDAU = dtNgayBatDau.Value;
+                    hd.NGAYKETTHUC = dtNgayKetThuc.Value;
+                    hd.NGAYKY = dtNgayKy.Value;
+                    hd.THOIHAN = cbThoiHan.Text;
+                    hd.HESOLUONG = decimal.Parse(spHeSoLuong.EditValue.ToString());
+                    hd.LANKY = int.Parse(spLanKy.EditValue.ToString());
+                    hd.MANV = int.Parse(searchMANV.EditValue.ToString());
+                    hd.NOIDUNG = txtNoiDung.RtfText;
+                    hd.IDCTY = 1;
+                    hd.CREATED_BY = 1;
+                    hd.CREATED_DATE = DateTime.Now;
+                    _hdld.Update(hd);
                 }
             }
             catch (Exception ex)
@@ -147,6 +189,58 @@ namespace QLyNSu
             if (gvDsHDLD.RowCount > 0)
             {
                 _SOHD = gvDsHDLD.GetFocusedRowCellValue("SOHD").ToString();
+                var hd = _hdld.getItem(_SOHD);
+
+                txtSoHD.Text = _SOHD;
+                dtNgayBatDau.Value = hd.NGAYBATDAU.Value;
+                dtNgayKetThuc.Value = hd.NGAYKETTHUC.Value ;
+                dtNgayKy.Value = hd.NGAYKY.Value;
+                cbThoiHan.Text = hd.THOIHAN;
+                spHeSoLuong.Text= hd.HESOLUONG.ToString();
+                spLanKy.Text = hd.LANKY.ToString();
+                searchMANV.EditValue = hd.MANV;
+                txtNoiDung.RtfText = hd.NOIDUNG;
+            }
+        }
+
+        private void cbThoiHan_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            // Lấy giá trị ngày bắt đầu từ DateTimePicker
+            DateTime startDate = dtNgayBatDau.Value;
+
+            // Cập nhật ngày kết thúc dựa trên lựa chọn trong ComboBox
+            switch (cbThoiHan.SelectedItem.ToString())
+            {
+                case "3 Tháng":
+                    dtNgayKetThuc.Value = startDate.AddMonths(3);
+                    break;
+                case "6 Tháng":
+                    dtNgayKetThuc.Value = startDate.AddMonths(6);
+                    break;
+                case "9 Tháng":
+                    dtNgayKetThuc.Value = startDate.AddMonths(9);
+                    break;
+                case "1 Năm":
+                    dtNgayKetThuc.Value = startDate.AddYears(1);
+                    break;
+                case "2 Năm":
+                    dtNgayKetThuc.Value = startDate.AddYears(2);
+                    break;
+                case "3 Năm":
+                    dtNgayKetThuc.Value = startDate.AddYears(3);
+                    break;
+                case "4 Năm":
+                    dtNgayKetThuc.Value = startDate.AddYears(4);
+                    break;
+                case "5 Năm":
+                    dtNgayKetThuc.Value = startDate.AddYears(5);
+                    break;
+                case "6 Năm":
+                    dtNgayKetThuc.Value = startDate.AddYears(6);
+                    break;
+                default:
+                    MessageBox.Show("Lựa chọn không hợp lệ!");
+                    break;
             }
         }
     }
