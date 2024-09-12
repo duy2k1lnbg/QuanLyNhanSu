@@ -1,6 +1,9 @@
 ﻿using Bu;
+using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
+using DevExpress.XtraReports.UI;
+using QLyNSu.Reports;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,6 +26,7 @@ namespace QLyNSu
 
         private HOPDONGLAODONG _hdld;
         private NHANVIEN _nhanvien;
+        public List<HOPDONG_DTO> _lstHD;
         private bool _them;
         private string _SOHD;
         private string _MaxSHD;
@@ -95,7 +99,7 @@ namespace QLyNSu
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            splitContainer1.Panel1Collapsed = false;
+            splitContainer1.Panel1Collapsed = true;
             // Hiển thị hộp thoại xác nhận
             if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
@@ -129,7 +133,9 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            _lstHD = _hdld.getItem_FULL(_SOHD);
+            rptHopDongLaoDong rpt = new rptHopDongLaoDong(_lstHD);
+            rpt.ShowRibbonPreview();
         }
 
         private void SaveData()
@@ -200,6 +206,8 @@ namespace QLyNSu
                 spLanKy.Text = hd.LANKY.ToString();
                 searchMANV.EditValue = hd.MANV;
                 txtNoiDung.RtfText = hd.NOIDUNG;
+
+                _lstHD = _hdld.getItem_FULL(_SOHD);
             }
         }
 

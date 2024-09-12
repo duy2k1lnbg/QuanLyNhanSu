@@ -9,9 +9,9 @@ namespace Bu.DTO
 {
     public class HOPDONG_DTO
     {
-        public Nullable<System.DateTime> NGAYBATDAU { get; set; }
-        public Nullable<System.DateTime> NGAYKETTHUC { get; set; }
-        public Nullable<System.DateTime> NGAYKY { get; set; }
+        public string NGAYBATDAU { get; set; }
+        public string NGAYKETTHUC { get; set; }
+        public string NGAYKY { get; set; }
         public Nullable<decimal> LANKY { get; set; }
         public string THOIHAN { get; set; }
         public Nullable<decimal> HESOLUONG { get; set; }
@@ -28,5 +28,12 @@ namespace Bu.DTO
 
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
         public string HOTEN { get; set; }
+        public string DIENTHOAI { get; set; }
+        public string CCCD { get; set; }
+        public string DIACHI { get; set; }
+        public string NGAYSINH { get; set; }
+        public Nullable<decimal> IDTD { get; set; }
+        public string TENTD { get; set; }
+
     }
 }

@@ -15,7 +15,7 @@ namespace QLyNSu.Reports
             InitializeComponent();
         }
 
-        List<NHANVIEN_DTO> _lstNV;
+        private List<NHANVIEN_DTO> _lstNV;
 
         public rptDSNhanVien(List<NHANVIEN_DTO> lstNV)
         {
@@ -25,7 +25,7 @@ namespace QLyNSu.Reports
             loadData();
         }
 
-        void loadData()
+        public void loadData()
         {
             lblMANV.DataBindings.Add("Text", _lstNV, "MANV");
             lblHOTEN.DataBindings.Add("Text", _lstNV, "HOTEN");
