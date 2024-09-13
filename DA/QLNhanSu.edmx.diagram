@@ -12,7 +12,6 @@
         <EntityTypeShape EntityType="Model.TB_DANTOC" Width="1.5" PointX="0.75" PointY="7.5" />
         <EntityTypeShape EntityType="Model.TB_GIOITINH" Width="1.5" PointX="0.75" PointY="19.125" />
         <EntityTypeShape EntityType="Model.TB_HOPDONG" Width="1.5" PointX="5.25" PointY="18.25" />
-        <EntityTypeShape EntityType="Model.TB_KHENTHUONG_KYLUAT" Width="1.5" PointX="5.25" PointY="26.75" />
         <EntityTypeShape EntityType="Model.TB_LOAICA" Width="1.5" PointX="6" PointY="4.5" />
         <EntityTypeShape EntityType="Model.TB_LOAICONG" Width="1.5" PointX="3" PointY="7.5" />
         <EntityTypeShape EntityType="Model.TB_NHANVIEN" Width="1.5" PointX="3" PointY="10.875" />
@@ -32,7 +31,6 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_DT_FK6" />
         <AssociationConnector Association="Model.TB_NHANVIEN_GT_FK8" />
         <AssociationConnector Association="Model.TB_HOPDONG_NV_FK1" />
-        <AssociationConnector Association="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" />
         <AssociationConnector Association="Model.TB_TANGCA_LCA_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PB_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_NV_FK1" />
@@ -44,6 +42,8 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2" />
         <EntityTypeShape EntityType="Model.TB_CONGTY" Width="1.5" PointX="0.75" PointY="10.125" />
         <AssociationConnector Association="Model.TB_NHANVIEN_CTY_FK5" />
+        <EntityTypeShape EntityType="Model.TB_KHENTHUONG_KYLUAT" Width="1.5" PointX="3.625" PointY="0.75" />
+        <AssociationConnector Association="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

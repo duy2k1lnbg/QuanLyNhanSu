@@ -40,7 +40,7 @@ namespace QLyNSu
         private QUOCTICH _quoctich;
         private CONGTY _congty;
 
-        private Image _hinh;
+        //private Image _hinh;
 
         List<NHANVIEN_DTO> _lstNVDTO;
 

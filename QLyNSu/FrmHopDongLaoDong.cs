@@ -29,7 +29,7 @@ namespace QLyNSu
         public List<HOPDONG_DTO> _lstHD;
         private bool _them;
         private string _SOHD;
-        private string _MaxSHD;
+        //private string _MaxSHD;
         private void FrmHopDongLaoDong_Load(object sender, EventArgs e)
         {
             _hdld = new HOPDONGLAODONG();
