@@ -31,7 +31,7 @@ namespace Bu
                 hd_DTO.NGAYKETTHUC = " ngày " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(6);
                 //hd_DTO.NGAYBATDAU = item.NGAYBATDAU.Value.ToString("dd/MM/yyyy");
                 //hd_DTO.NGAYKETTHUC = item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy");
-                hd_DTO.NGAYKY = item.NGAYKY.Value.ToString("dd/MM/yyyy");
+                hd_DTO.NGAYKY = " ngày " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(6);
                 hd_DTO.LANKY = item.LANKY;
                 hd_DTO.HESOLUONG = item.HESOLUONG;
                 hd_DTO.THOIHAN = item.THOIHAN;
