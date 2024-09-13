@@ -8,26 +8,26 @@ using System.Threading.Tasks;
 
 namespace Bu
 {
-    public class CONGTY
+    public class QUOCTICH
     {
         MyEntities db = new MyEntities();
 
-        public TB_CONGTY getItem(int id)
+        public TB_QUOCTICH getItem(int id)
         {
-            return db.TB_CONGTY.FirstOrDefault(x => x.IDCTY == id);
+            return db.TB_QUOCTICH.FirstOrDefault(x => x.IDQT == id);
         }
-        public List<TB_CONGTY> getList()
+        public List<TB_QUOCTICH> getList()
         {
-            return db.TB_CONGTY.ToList();
+            return db.TB_QUOCTICH.ToList();
         }
 
-        public TB_CONGTY Add(TB_CONGTY ct)
+        public TB_QUOCTICH Add(TB_QUOCTICH qt)
         {
             try
             {
-                db.TB_CONGTY.Add(ct);
+                db.TB_QUOCTICH.Add(qt);
                 db.SaveChanges();
-                return ct;
+                return qt;
             }
             catch (DbEntityValidationException ex)
             {
@@ -45,19 +45,14 @@ namespace Bu
             }
         }
 
-        public TB_CONGTY Update(TB_CONGTY ct)
+        public TB_QUOCTICH Update(TB_QUOCTICH qt)
         {
             try
             {
-                var _ct = db.TB_CONGTY.FirstOrDefault(x => x.IDCTY == ct.IDCTY);
-                _ct.TENCTY = ct.TENCTY;
-                _ct.DIENTHOAICTY = ct.DIENTHOAICTY;
-                _ct.EMAILCTY = ct.EMAILCTY;
-                _ct.DIACHICTY = ct.DIACHICTY;
-                _ct.DAIDIEN = ct.DAIDIEN;
-                _ct.MASOTHUECTY = ct.MASOTHUECTY;
+                var _qt = db.TB_QUOCTICH.FirstOrDefault(x => x.IDQT == qt.IDQT);
+                _qt.TENQT = qt.TENQT;
                 db.SaveChanges();
-                return ct;
+                return qt;
             }
             catch (Exception ex)
             {
@@ -70,8 +65,8 @@ namespace Bu
         {
             try
             {
-                var _ct = db.TB_CONGTY.FirstOrDefault(x => x.IDCTY == id);
-                db.TB_CONGTY.Remove(_ct);
+                var _qt = db.TB_QUOCTICH.FirstOrDefault(x => x.IDQT == id);
+                db.TB_QUOCTICH.Remove(_qt);
                 db.SaveChanges();
             }
             catch (Exception ex)

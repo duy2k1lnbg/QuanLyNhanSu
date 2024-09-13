@@ -158,6 +158,9 @@
     <Compile Include="TB_PHUCAP.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_QUOCTICH.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_TANGCA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>

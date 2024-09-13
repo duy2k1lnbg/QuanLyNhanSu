@@ -34,6 +34,19 @@ namespace Bu.DTO
         public string NGAYSINH { get; set; }
         public Nullable<decimal> IDTD { get; set; }
         public string TENTD { get; set; }
+        public Nullable<decimal> IDQT { get; set; }
+        public string TENQT { get; set; }
+        public Nullable<decimal> IDBP { get; set; }
+        public string TENBP { get; set; }
+        public Nullable<decimal> IDCV { get; set; }
+        public string TENCV { get; set; }
+        public Nullable<decimal> IDPB { get; set; }
+        public string TENPB { get; set; }
+        public string TENCTY { get; set; }
+        public string DAIDIEN { get; set; }
+        public string MASOTHUECTY { get; set; }
+        public string DIACHICTY { get; set; }
+        public string DIENTHOAICTY { get; set; }
 
     }
 }

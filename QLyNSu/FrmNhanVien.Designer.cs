@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmNhanVien));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.cboQuocTich = new System.Windows.Forms.ComboBox();
+            this.labelControl13 = new DevExpress.XtraEditors.LabelControl();
             this.btnImage = new System.Windows.Forms.Button();
             this.cboGioiTinh = new System.Windows.Forms.ComboBox();
             this.labelControl12 = new DevExpress.XtraEditors.LabelControl();
@@ -80,6 +82,8 @@
             this.TENDT = new DevExpress.XtraGrid.Columns.GridColumn();
             this.IDTG = new DevExpress.XtraGrid.Columns.GridColumn();
             this.TENTG = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.IDQT = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TENQT = new DevExpress.XtraGrid.Columns.GridColumn();
             this.barManager1 = new DevExpress.XtraBars.BarManager(this.components);
             this.bar1 = new DevExpress.XtraBars.Bar();
             this.btnThem = new DevExpress.XtraBars.BarButtonItem();
@@ -94,6 +98,8 @@
             this.barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlRight = new DevExpress.XtraBars.BarDockControl();
+            this.cboCongTy = new System.Windows.Forms.ComboBox();
+            this.labelControl14 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -113,6 +119,10 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.cboCongTy);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControl14);
+            this.splitContainer1.Panel1.Controls.Add(this.cboQuocTich);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControl13);
             this.splitContainer1.Panel1.Controls.Add(this.btnImage);
             this.splitContainer1.Panel1.Controls.Add(this.cboGioiTinh);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl12);
@@ -146,6 +156,25 @@
             this.splitContainer1.Size = new System.Drawing.Size(1738, 588);
             this.splitContainer1.SplitterDistance = 400;
             this.splitContainer1.TabIndex = 6;
+            // 
+            // cboQuocTich
+            // 
+            this.cboQuocTich.Font = new System.Drawing.Font("Tahoma", 12F);
+            this.cboQuocTich.FormattingEnabled = true;
+            this.cboQuocTich.Location = new System.Drawing.Point(1438, 165);
+            this.cboQuocTich.Name = "cboQuocTich";
+            this.cboQuocTich.Size = new System.Drawing.Size(256, 32);
+            this.cboQuocTich.TabIndex = 30;
+            // 
+            // labelControl13
+            // 
+            this.labelControl13.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl13.Appearance.Options.UseFont = true;
+            this.labelControl13.Location = new System.Drawing.Point(1337, 169);
+            this.labelControl13.Name = "labelControl13";
+            this.labelControl13.Size = new System.Drawing.Size(95, 24);
+            this.labelControl13.TabIndex = 29;
+            this.labelControl13.Text = "Quốc Tịch:";
             // 
             // btnImage
             // 
@@ -327,7 +356,7 @@
             this.txtDiaChi.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtDiaChi.Location = new System.Drawing.Point(343, 339);
             this.txtDiaChi.Name = "txtDiaChi";
-            this.txtDiaChi.Size = new System.Drawing.Size(818, 32);
+            this.txtDiaChi.Size = new System.Drawing.Size(611, 32);
             this.txtDiaChi.TabIndex = 5;
             // 
             // labelControl4
@@ -430,7 +459,9 @@
             this.IDDT,
             this.TENDT,
             this.IDTG,
-            this.TENTG});
+            this.TENTG,
+            this.IDQT,
+            this.TENQT});
             this.gvDsNV.GridControl = this.gcDsNV;
             this.gvDsNV.Name = "gvDsNV";
             this.gvDsNV.OptionsView.ShowGroupPanel = false;
@@ -667,6 +698,26 @@
             this.TENTG.VisibleIndex = 13;
             this.TENTG.Width = 120;
             // 
+            // IDQT
+            // 
+            this.IDQT.Caption = "IDQT";
+            this.IDQT.FieldName = "IDQT";
+            this.IDQT.MinWidth = 25;
+            this.IDQT.Name = "IDQT";
+            this.IDQT.Width = 94;
+            // 
+            // TENQT
+            // 
+            this.TENQT.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENQT.AppearanceHeader.Options.UseFont = true;
+            this.TENQT.Caption = "QUỐC TỊCH";
+            this.TENQT.FieldName = "TENQT";
+            this.TENQT.MinWidth = 25;
+            this.TENQT.Name = "TENQT";
+            this.TENQT.Visible = true;
+            this.TENQT.VisibleIndex = 14;
+            this.TENQT.Width = 94;
+            // 
             // barManager1
             // 
             this.barManager1.Bars.AddRange(new DevExpress.XtraBars.Bar[] {
@@ -812,6 +863,25 @@
             this.barDockControlRight.Manager = this.barManager1;
             this.barDockControlRight.Size = new System.Drawing.Size(0, 588);
             // 
+            // cboCongTy
+            // 
+            this.cboCongTy.Font = new System.Drawing.Font("Tahoma", 12F);
+            this.cboCongTy.FormattingEnabled = true;
+            this.cboCongTy.Location = new System.Drawing.Point(1097, 339);
+            this.cboCongTy.Name = "cboCongTy";
+            this.cboCongTy.Size = new System.Drawing.Size(597, 32);
+            this.cboCongTy.TabIndex = 32;
+            // 
+            // labelControl14
+            // 
+            this.labelControl14.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl14.Appearance.Options.UseFont = true;
+            this.labelControl14.Location = new System.Drawing.Point(1016, 342);
+            this.labelControl14.Name = "labelControl14";
+            this.labelControl14.Size = new System.Drawing.Size(75, 24);
+            this.labelControl14.TabIndex = 31;
+            this.labelControl14.Text = "Công ty:";
+            // 
             // FrmNhanVien
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -905,5 +975,11 @@
         private System.Windows.Forms.ComboBox cboGioiTinh;
         private System.Windows.Forms.Button btnImage;
         private DevExpress.XtraGrid.Columns.GridColumn TENGT;
+        private System.Windows.Forms.ComboBox cboQuocTich;
+        private DevExpress.XtraEditors.LabelControl labelControl13;
+        private DevExpress.XtraGrid.Columns.GridColumn IDQT;
+        private DevExpress.XtraGrid.Columns.GridColumn TENQT;
+        private System.Windows.Forms.ComboBox cboCongTy;
+        private DevExpress.XtraEditors.LabelControl labelControl14;
     }
 }

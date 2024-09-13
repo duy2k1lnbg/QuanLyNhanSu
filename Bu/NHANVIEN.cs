@@ -70,6 +70,10 @@ namespace Bu
                 var gt = db.TB_GIOITINH.FirstOrDefault(i => i.IDGT == item.IDGT);
                 nvDTO.TENGT = gt.TENGT;
 
+                nvDTO.IDQT = item.IDQT;
+                var qt = db.TB_QUOCTICH.FirstOrDefault(k => k.IDQT == item.IDQT);
+                nvDTO.TENQT = qt.TENQT;
+
                 lstNvDTO.Add(nvDTO);
 
             }
@@ -119,6 +123,7 @@ namespace Bu
                 _nv.IDDT = nv.IDDT;
                 _nv.IDTG = nv.IDTG;
                 _nv.IDCTY = nv.IDCTY;
+                _nv.IDQT = nv.IDQT;
                 db.SaveChanges();
                 return nv;
             }

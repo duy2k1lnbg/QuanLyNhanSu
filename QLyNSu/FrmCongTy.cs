@@ -36,7 +36,9 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
             txtSDT.Enabled = !kt;
             txtEMAIL.Enabled = !kt;
-            txtDC.Enabled = !kt;  
+            txtDC.Enabled = !kt;
+            txtDaiDien.Enabled = !kt;
+            txtMaSoThue.Enabled = !kt;
         }
 
         private void LoadData()
@@ -53,9 +55,11 @@ namespace QLyNSu
                 {
                     TB_CONGTY cty = new TB_CONGTY();
                     cty.TENCTY = txtTen.Text;
-                    cty.DIENTHOAI = txtSDT.Text;
-                    cty.EMAIL = txtEMAIL.Text;
-                    cty.DIACHI = txtDC.Text;
+                    cty.DIENTHOAICTY = txtSDT.Text;
+                    cty.EMAILCTY = txtEMAIL.Text;
+                    cty.DIACHICTY = txtDC.Text;
+                    cty.DAIDIEN = txtDaiDien.Text;
+                    cty.MASOTHUECTY = txtMaSoThue.Text;
                     _congty.Add(cty);
                 }
                 else
@@ -64,9 +68,11 @@ namespace QLyNSu
                     if (cty != null)
                     {
                         cty.TENCTY = txtTen.Text;
-                        cty.DIENTHOAI = txtSDT.Text;
-                        cty.EMAIL = txtEMAIL.Text;
-                        cty.DIACHI = txtDC.Text;
+                        cty.DIENTHOAICTY = txtSDT.Text;
+                        cty.EMAILCTY = txtEMAIL.Text;
+                        cty.DIACHICTY = txtDC.Text;
+                        cty.DAIDIEN = txtDaiDien.Text;
+                        cty.MASOTHUECTY = txtMaSoThue.Text;
                         _congty.Update(cty);
                     }
                     else
@@ -90,6 +96,8 @@ namespace QLyNSu
             txtSDT.Text = string.Empty;
             txtEMAIL.Text = string.Empty;
             txtDC.Text = string.Empty;
+            txtMaSoThue.Text = string.Empty;
+            txtDaiDien.Text = string.Empty;
         }
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -146,9 +154,11 @@ namespace QLyNSu
             {
                 _IDCTY = int.Parse(gvDsCT.GetFocusedRowCellValue("IDCTY").ToString());
                 txtTen.Text = gvDsCT.GetFocusedRowCellValue("TENCTY").ToString();
-                txtSDT.Text = gvDsCT.GetFocusedRowCellValue("DIENTHOAI").ToString();
-                txtEMAIL.Text = gvDsCT.GetFocusedRowCellValue("EMAIL").ToString();
-                txtDC.Text = gvDsCT.GetFocusedRowCellValue("DIACHI").ToString();
+                txtSDT.Text = gvDsCT.GetFocusedRowCellValue("DIENTHOAICTY").ToString();
+                txtEMAIL.Text = gvDsCT.GetFocusedRowCellValue("EMAILCTY").ToString();
+                txtDC.Text = gvDsCT.GetFocusedRowCellValue("DIACHICTY").ToString();
+                txtDaiDien.Text = gvDsCT.GetFocusedRowCellValue("DAIDIEN").ToString();
+                txtMaSoThue.Text = gvDsCT.GetFocusedRowCellValue("MASOTHUECTY").ToString();
             }     
         }
 

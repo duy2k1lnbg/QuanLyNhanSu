@@ -18,11 +18,11 @@ namespace DA
         public TB_NHANVIEN()
         {
             this.TB_BAOHIEM = new HashSet<TB_BAOHIEM>();
+            this.TB_HOPDONG = new HashSet<TB_HOPDONG>();
             this.TB_KHENTHUONG_KYLUAT = new HashSet<TB_KHENTHUONG_KYLUAT>();
             this.TB_NHANVIEN_PHUCAP = new HashSet<TB_NHANVIEN_PHUCAP>();
             this.TB_TANGCA = new HashSet<TB_TANGCA>();
             this.TB_UNGLUONG = new HashSet<TB_UNGLUONG>();
-            this.TB_HOPDONG = new HashSet<TB_HOPDONG>();
         }
     
         public decimal MANV { get; set; }
@@ -40,27 +40,29 @@ namespace DA
         public Nullable<decimal> IDDT { get; set; }
         public Nullable<decimal> IDTG { get; set; }
         public Nullable<decimal> IDCTY { get; set; }
+        public Nullable<decimal> IDQT { get; set; }
     
         public virtual TB_BANGCONG TB_BANGCONG { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_BAOHIEM> TB_BAOHIEM { get; set; }
         public virtual TB_BOPHAN TB_BOPHAN { get; set; }
         public virtual TB_CHUCVU TB_CHUCVU { get; set; }
-        public virtual TB_CONGTY TB_CONGTY { get; set; }
         public virtual TB_DANTOC TB_DANTOC { get; set; }
         public virtual TB_GIOITINH TB_GIOITINH { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_HOPDONG> TB_HOPDONG { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_KHENTHUONG_KYLUAT> TB_KHENTHUONG_KYLUAT { get; set; }
         public virtual TB_PHONGBAN TB_PHONGBAN { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_NHANVIEN_PHUCAP> TB_NHANVIEN_PHUCAP { get; set; }
+        public virtual TB_QUOCTICH TB_QUOCTICH { get; set; }
         public virtual TB_TRINHDO TB_TRINHDO { get; set; }
         public virtual TB_TONGIAO TB_TONGIAO { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_TANGCA> TB_TANGCA { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_UNGLUONG> TB_UNGLUONG { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TB_HOPDONG> TB_HOPDONG { get; set; }
+        public virtual TB_CONGTY TB_CONGTY { get; set; }
     }
 }

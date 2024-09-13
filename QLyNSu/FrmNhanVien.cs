@@ -37,6 +37,8 @@ namespace QLyNSu
         private BOPHAN _bophan;
         private TRINHDO _trinhdo;
         private GIOITINH _gioitinh;
+        private QUOCTICH _quoctich;
+        private CONGTY _congty;
 
         private Image _hinh;
 
@@ -63,6 +65,7 @@ namespace QLyNSu
             cboTrinhDo.Enabled = !kt;
             cboChucVu.Enabled = !kt;
             cboDanToc.Enabled = !kt;
+            cboQuocTich.Enabled = !kt;
             btnImage.Enabled = !kt;
             dateNgaySinh.Enabled = !kt;
         }
@@ -102,7 +105,8 @@ namespace QLyNSu
                     nv.IDTD = int.Parse(cboTrinhDo.SelectedValue.ToString());
                     nv.IDDT = int.Parse(cboDanToc.SelectedValue.ToString());
                     nv.IDTG = int.Parse(cboTonGiao.SelectedValue.ToString());
-                    nv.IDCTY = 1;
+                    nv.IDQT = int.Parse(cboQuocTich.SelectedValue.ToString());
+                    nv.IDCTY = int.Parse(cboCongTy.SelectedValue.ToString());
                     _nhanvien.Add(nv);
                 }
                 else
@@ -123,7 +127,8 @@ namespace QLyNSu
                         nv.IDTD = int.Parse(cboTrinhDo.SelectedValue.ToString());
                         nv.IDDT = int.Parse(cboDanToc.SelectedValue.ToString());
                         nv.IDTG = int.Parse(cboTonGiao.SelectedValue.ToString());
-                        nv.IDCTY = 1;
+                        nv.IDQT = int.Parse(cboQuocTich.SelectedValue.ToString());
+                        nv.IDCTY = int.Parse(cboCongTy.SelectedValue.ToString());
                         _nhanvien.Update(nv);
                     }
                     else
@@ -223,6 +228,8 @@ namespace QLyNSu
             _phongban = new PHONGBAN();
             _bophan = new BOPHAN();
             _gioitinh = new GIOITINH();
+            _quoctich = new QUOCTICH();
+            _congty = new CONGTY();
             showHide(true);
             LoadData();
             LoadCombo();
@@ -248,7 +255,8 @@ namespace QLyNSu
                 cboChucVu.SelectedValue = nv.IDCV;
                 cboDanToc.SelectedValue = nv.IDDT;
                 cboTonGiao.SelectedValue = nv.IDTG;
-                //cboCongTy.SelectedValue = nv.IDCTY;
+                cboQuocTich.SelectedValue = nv.IDQT;
+                cboCongTy.SelectedValue = nv.IDCTY;
             }
         }
 
@@ -309,6 +317,14 @@ namespace QLyNSu
             cboGioiTinh.DataSource = _gioitinh.getList();
             cboGioiTinh.DisplayMember = "TENGT";
             cboGioiTinh.ValueMember = "IDGT";
+
+            cboQuocTich.DataSource = _quoctich.getList();
+            cboQuocTich.DisplayMember = "TENQT";
+            cboQuocTich.ValueMember = "IDQT";
+
+            cboCongTy.DataSource = _congty.getList();
+            cboCongTy.DisplayMember = "TENCTY";
+            cboCongTy.ValueMember = "IDCTY";
         }
 
         private void btnImage_Click(object sender, EventArgs e)

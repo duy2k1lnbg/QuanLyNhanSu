@@ -31,5 +31,7 @@ namespace Bu.DTO
         public string TENTG { get; set; }
         public Nullable<decimal> IDCTY { get; set; }
         public string TENCTY { get; set; }
+        public Nullable<decimal> IDQT { get; set; }
+        public string TENQT { get; set; }
     }
 }

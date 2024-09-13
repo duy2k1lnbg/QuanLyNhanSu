@@ -48,6 +48,26 @@ namespace Bu
                 var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == nv.IDTD);
                 hd_DTO.TENTD = td.TENTD;
 
+                hd_DTO.IDQT = nv.IDQT;
+                var qt = db.TB_QUOCTICH.FirstOrDefault(b => b.IDQT == nv.IDQT);
+                hd_DTO.TENQT = qt.TENQT;
+
+                hd_DTO.IDBP = nv.IDBP;
+                var bp = db.TB_BOPHAN.FirstOrDefault(c => c.IDBP == nv.IDBP);
+                hd_DTO.TENBP = bp.TENBP;
+
+                hd_DTO.IDCV = nv.IDCV;
+                var cv = db.TB_CHUCVU.FirstOrDefault(d => d.IDCV == nv.IDCV);
+                hd_DTO.TENCV = cv.TENCV;
+
+                hd_DTO.IDCTY = nv.IDCTY;
+                var cty = db.TB_CONGTY.FirstOrDefault(e => e.IDCTY == nv.IDCTY);
+                hd_DTO.TENCTY = cty.TENCTY;
+                hd_DTO.DAIDIEN = cty.DAIDIEN;
+                hd_DTO.DIENTHOAICTY = cty.DIENTHOAICTY;
+                hd_DTO.MASOTHUECTY = cty.MASOTHUECTY;
+                hd_DTO.DIACHICTY = cty.DIACHICTY;
+
                 hd_DTO.CREATED_BY = item.CREATED_BY;
                 hd_DTO.CREATED_DATE = item.CREATED_DATE;
                 hd_DTO.UPDATE_BY = item.UPDATE_BY;
@@ -94,6 +114,10 @@ namespace Bu
                 hd_DTO.IDTD = nv.IDTD;
                 var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == nv.IDTD);
                 hd_DTO.TENTD = td.TENTD;
+
+                hd_DTO.IDQT = nv.IDQT;
+                var qt = db.TB_QUOCTICH.FirstOrDefault(b => b.IDQT == nv.IDQT);
+                hd_DTO.TENQT = qt.TENQT;
 
                 hd_DTO.CREATED_BY = item.CREATED_BY;
                 hd_DTO.CREATED_DATE = item.CREATED_DATE;
