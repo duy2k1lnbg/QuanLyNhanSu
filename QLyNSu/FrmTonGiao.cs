@@ -45,6 +45,11 @@ namespace QLyNSu
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(txtTen.Text))
+                {
+                    MessageBox.Show("Vui lòng điền tên tôn giáo.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 if (_them)
                 {
                     TB_TONGIAO tg = new TB_TONGIAO();

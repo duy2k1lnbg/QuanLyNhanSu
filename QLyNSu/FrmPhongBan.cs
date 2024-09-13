@@ -46,6 +46,11 @@ namespace QLyNSu
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(txtTen.Text))
+                {
+                    MessageBox.Show("Vui lòng điền tên phòng ban.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 if (_them)
                 {
                     TB_PHONGBAN pb = new TB_PHONGBAN();

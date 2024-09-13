@@ -51,6 +51,12 @@ namespace QLyNSu
         {
             try
             {
+                // Kiểm tra dữ liệu đầu vào
+                if (string.IsNullOrWhiteSpace(txtTen.Text))
+                {
+                    MessageBox.Show("Vui lòng điền tên công ty.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 if (_them)
                 {
                     TB_CONGTY cty = new TB_CONGTY();

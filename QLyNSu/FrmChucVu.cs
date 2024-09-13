@@ -46,6 +46,11 @@ namespace QLyNSu
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(txtTen.Text))
+                {
+                    MessageBox.Show("Vui lòng điền tên chức vụ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 if (_them)
                 {
                     TB_CHUCVU cv = new TB_CHUCVU();

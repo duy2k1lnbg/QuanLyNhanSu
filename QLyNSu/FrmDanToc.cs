@@ -113,6 +113,11 @@ namespace QLyNSu
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(txtTen.Text))
+                {
+                    MessageBox.Show("Vui lòng điền tên dân tộc.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 if (_them)
                 {
                     TB_DANTOC dt = new TB_DANTOC();
