@@ -76,6 +76,15 @@ namespace QLyNSu
             txtCCCD.Text = string.Empty;
             txtSDT.Text = string.Empty;
             txtDiaChi.Text = string.Empty;
+
+            cboBoPhan.Text = "Vui lòng chọn bộ phận";
+            cboGioiTinh.Text = "Vui lòng chọn giới tính";
+            cboPhongBan.Text = "Vui lòng chọn phòng ban";
+            cboTonGiao.Text = "Vui lòng chọn tôn giáo";
+            cboTrinhDo.Text = "Vui lòng chọn trình độ";
+            cboChucVu.Text = "Vui lòng chọn chức vụ";
+            cboDanToc.Text = "Vui lòng chọn dân tộc";
+            cboQuocTich.Text = "Vui lòng chọn quốc tịch";
         }
 
         private void LoadData()
@@ -87,8 +96,85 @@ namespace QLyNSu
 
        private void SaveData()
         {
+            //try
+            //{
+            //    if (_them)
+            //    {
+            //        TB_NHANVIEN nv = new TB_NHANVIEN();
+            //        nv.HOTEN = txtHoTen.Text;
+            //        nv.IDGT = int.Parse(cboGioiTinh.SelectedValue.ToString());
+            //        nv.NGAYSINH = dateNgaySinh.Value;
+            //        nv.DIENTHOAI = txtSDT.Text;
+            //        nv.CCCD = txtCCCD.Text;
+            //        nv.DIACHI = txtDiaChi.Text;
+            //        nv.HINHANH = ImageToBase64(pictureHinhanh.Image, pictureHinhanh.Image.RawFormat);
+            //        nv.IDPB = int.Parse(cboPhongBan.SelectedValue.ToString());
+            //        nv.IDBP = int.Parse(cboBoPhan.SelectedValue.ToString());
+            //        nv.IDCV = int.Parse(cboChucVu.SelectedValue.ToString());
+            //        nv.IDTD = int.Parse(cboTrinhDo.SelectedValue.ToString());
+            //        nv.IDDT = int.Parse(cboDanToc.SelectedValue.ToString());
+            //        nv.IDTG = int.Parse(cboTonGiao.SelectedValue.ToString());
+            //        nv.IDQT = int.Parse(cboQuocTich.SelectedValue.ToString());
+            //        nv.IDCTY = int.Parse(cboCongTy.SelectedValue.ToString());
+            //        _nhanvien.Add(nv);
+            //    }
+            //    else
+            //    {
+            //        var nv = _nhanvien.getItem(_MANV);
+            //        if (nv != null)
+            //        {
+            //            nv.HOTEN = txtHoTen.Text;
+            //            nv.IDGT = int.Parse(cboGioiTinh.SelectedValue.ToString());
+            //            nv.NGAYSINH = dateNgaySinh.Value;
+            //            nv.DIENTHOAI = txtSDT.Text;
+            //            nv.CCCD = txtCCCD.Text;
+            //            nv.DIACHI = txtDiaChi.Text;
+            //            nv.HINHANH = ImageToBase64(pictureHinhanh.Image, pictureHinhanh.Image.RawFormat);
+            //            nv.IDPB = int.Parse(cboPhongBan.SelectedValue.ToString());
+            //            nv.IDBP = int.Parse(cboBoPhan.SelectedValue.ToString());
+            //            nv.IDCV = int.Parse(cboChucVu.SelectedValue.ToString());
+            //            nv.IDTD = int.Parse(cboTrinhDo.SelectedValue.ToString());
+            //            nv.IDDT = int.Parse(cboDanToc.SelectedValue.ToString());
+            //            nv.IDTG = int.Parse(cboTonGiao.SelectedValue.ToString());
+            //            nv.IDQT = int.Parse(cboQuocTich.SelectedValue.ToString());
+            //            nv.IDCTY = int.Parse(cboCongTy.SelectedValue.ToString());
+            //            _nhanvien.Update(nv);
+            //        }
+            //        else
+            //        {
+            //            throw new Exception("Không tìm thấy đối tượng với ID: " + _MANV);
+            //        }
+            //    }
+            //}
+            //catch (Exception ex)
+            //{
+            //    // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
+            //    MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //}
             try
             {
+                // Kiểm tra hình ảnh có null không, nếu null thì gán hình ảnh mặc định
+                Image imageToSave = pictureHinhanh.Image ?? Image.FromFile(@"image\NhanVien\noimage.png");
+
+                // Kiểm tra các trường thông tin cần thiết
+                if (string.IsNullOrWhiteSpace(txtHoTen.Text) ||
+                    string.IsNullOrWhiteSpace(txtCCCD.Text) ||
+                    string.IsNullOrWhiteSpace(txtSDT.Text) ||
+                    string.IsNullOrWhiteSpace(txtDiaChi.Text) ||
+                    cboGioiTinh.SelectedValue == null ||
+                    cboPhongBan.SelectedValue == null ||
+                    cboBoPhan.SelectedValue == null ||
+                    cboChucVu.SelectedValue == null ||
+                    cboTrinhDo.SelectedValue == null ||
+                    cboDanToc.SelectedValue == null ||
+                    cboTonGiao.SelectedValue == null ||
+                    cboQuocTich.SelectedValue == null ||
+                    cboCongTy.SelectedValue == null)
+                {
+                    MessageBox.Show("Vui lòng điền đầy đủ thông tin trước khi lưu.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 if (_them)
                 {
                     TB_NHANVIEN nv = new TB_NHANVIEN();
@@ -98,7 +184,7 @@ namespace QLyNSu
                     nv.DIENTHOAI = txtSDT.Text;
                     nv.CCCD = txtCCCD.Text;
                     nv.DIACHI = txtDiaChi.Text;
-                    nv.HINHANH = ImageToBase64(pictureHinhanh.Image, pictureHinhanh.Image.RawFormat);
+                    nv.HINHANH = ImageToBase64(imageToSave, imageToSave.RawFormat);
                     nv.IDPB = int.Parse(cboPhongBan.SelectedValue.ToString());
                     nv.IDBP = int.Parse(cboBoPhan.SelectedValue.ToString());
                     nv.IDCV = int.Parse(cboChucVu.SelectedValue.ToString());
@@ -120,7 +206,7 @@ namespace QLyNSu
                         nv.DIENTHOAI = txtSDT.Text;
                         nv.CCCD = txtCCCD.Text;
                         nv.DIACHI = txtDiaChi.Text;
-                        nv.HINHANH = ImageToBase64(pictureHinhanh.Image, pictureHinhanh.Image.RawFormat);
+                        nv.HINHANH = ImageToBase64(imageToSave, imageToSave.RawFormat);
                         nv.IDPB = int.Parse(cboPhongBan.SelectedValue.ToString());
                         nv.IDBP = int.Parse(cboBoPhan.SelectedValue.ToString());
                         nv.IDCV = int.Parse(cboChucVu.SelectedValue.ToString());
@@ -142,6 +228,7 @@ namespace QLyNSu
                 // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
                 MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
         }
 
         private void gcDsNV_Click(object sender, EventArgs e)
@@ -238,25 +325,56 @@ namespace QLyNSu
 
         private void gvDsNV_Click(object sender, EventArgs e)
         {
+            //if (gvDsNV.RowCount > 0)
+            //{
+            //    _MANV = int.Parse(gvDsNV.GetFocusedRowCellValue("MANV").ToString());
+            //    var nv = _nhanvien.getItem(_MANV);
+            //    txtHoTen.Text = nv.HOTEN;
+            //    cboGioiTinh.SelectedValue = nv.IDGT;
+            //    dateNgaySinh.Value = nv.NGAYSINH.Value;
+            //    txtSDT.Text = nv.DIENTHOAI;
+            //    txtCCCD.Text = nv.CCCD;
+            //    txtDiaChi.Text = nv.DIACHI;
+            //    pictureHinhanh.Image = Base64ToImage(nv.HINHANH);
+            //    cboBoPhan.SelectedValue = nv.IDBP;
+            //    cboPhongBan.SelectedValue = nv.IDPB;
+            //    cboTrinhDo.SelectedValue = nv.IDTD;
+            //    cboChucVu.SelectedValue = nv.IDCV;
+            //    cboDanToc.SelectedValue = nv.IDDT;
+            //    cboTonGiao.SelectedValue = nv.IDTG;
+            //    cboQuocTich.SelectedValue = nv.IDQT;
+            //    cboCongTy.SelectedValue = nv.IDCTY;
+            //}
             if (gvDsNV.RowCount > 0)
             {
                 _MANV = int.Parse(gvDsNV.GetFocusedRowCellValue("MANV").ToString());
+
                 var nv = _nhanvien.getItem(_MANV);
-                txtHoTen.Text = nv.HOTEN;
-                cboGioiTinh.SelectedValue = nv.IDGT;
-                dateNgaySinh.Value = nv.NGAYSINH.Value;
-                txtSDT.Text = nv.DIENTHOAI;
-                txtCCCD.Text = nv.CCCD;
-                txtDiaChi.Text = nv.DIACHI;
-                pictureHinhanh.Image = Base64ToImage(nv.HINHANH);
-                cboBoPhan.SelectedValue = nv.IDBP;
-                cboPhongBan.SelectedValue = nv.IDPB;
-                cboTrinhDo.SelectedValue = nv.IDTD;
-                cboChucVu.SelectedValue = nv.IDCV;
-                cboDanToc.SelectedValue = nv.IDDT;
-                cboTonGiao.SelectedValue = nv.IDTG;
-                cboQuocTich.SelectedValue = nv.IDQT;
-                cboCongTy.SelectedValue = nv.IDCTY;
+
+                txtHoTen.Text = string.IsNullOrEmpty(nv?.HOTEN) ? "null" : nv.HOTEN;
+                cboGioiTinh.SelectedValue = nv?.IDGT ?? -1;
+                dateNgaySinh.Value = nv?.NGAYSINH ?? DateTime.Now;
+                txtSDT.Text = string.IsNullOrEmpty(nv?.DIENTHOAI) ? "null" : nv.DIENTHOAI;
+                txtCCCD.Text = string.IsNullOrEmpty(nv?.CCCD) ? "null" : nv.CCCD;
+                txtDiaChi.Text = string.IsNullOrEmpty(nv?.DIACHI) ? "null" : nv.DIACHI;
+
+                if (nv?.HINHANH != null && nv.HINHANH.Length > 0)
+                {
+                    pictureHinhanh.Image = Base64ToImage(nv.HINHANH);
+                }
+                else
+                {
+                    pictureHinhanh.Image = null; // Hoặc thiết lập hình ảnh mặc định
+                }
+
+                cboBoPhan.SelectedValue = nv?.IDBP ?? -1;
+                cboPhongBan.SelectedValue = nv?.IDPB ?? -1;
+                cboTrinhDo.SelectedValue = nv?.IDTD ?? -1;
+                cboChucVu.SelectedValue = nv?.IDCV ?? -1;
+                cboDanToc.SelectedValue = nv?.IDDT ?? -1;
+                cboTonGiao.SelectedValue = nv?.IDTG ?? -1;
+                cboQuocTich.SelectedValue = nv?.IDQT ?? -1;
+                cboCongTy.SelectedValue = nv?.IDCTY ?? -1;
             }
         }
 

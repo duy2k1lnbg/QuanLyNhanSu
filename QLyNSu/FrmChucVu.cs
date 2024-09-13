@@ -49,7 +49,8 @@ namespace QLyNSu
                 if (_them)
                 {
                     TB_CHUCVU cv = new TB_CHUCVU();
-                    cv.TENCV = txtTen.Text;
+                    //cv.TENCV = txtTen.Text;
+                    cv.TENCV = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                     _chucvu.Add(cv);
                 }
                 else
@@ -57,7 +58,8 @@ namespace QLyNSu
                     var cv = _chucvu.getItem(_IDCV);
                     if (cv != null)
                     {
-                        cv.TENCV = txtTen.Text;
+                        //cv.TENCV = txtTen.Text;
+                        cv.TENCV = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                         _chucvu.Update(cv);
                     }
                     else
@@ -129,8 +131,27 @@ namespace QLyNSu
 
         private void gvDsCV_Click(object sender, EventArgs e)
         {
-            _IDCV = int.Parse(gvDsCV.GetFocusedRowCellValue("IDCV").ToString());
-            txtTen.Text = gvDsCV.GetFocusedRowCellValue("TENCV").ToString();
+            //_IDCV = int.Parse(gvDsCV.GetFocusedRowCellValue("IDCV").ToString());
+            //txtTen.Text = gvDsCV.GetFocusedRowCellValue("TENCV").ToString();
+
+            if (gvDsCV.GetFocusedRowCellValue("IDCV") != null)
+            {
+                _IDCV = int.Parse(gvDsCV.GetFocusedRowCellValue("IDCV").ToString());
+            }
+            else
+            {
+                _IDCV = -1;
+            }
+
+            var tendtValue = gvDsCV.GetFocusedRowCellValue("TENCV");
+            if (tendtValue != null && !string.IsNullOrEmpty(tendtValue.ToString()))
+            {
+                txtTen.Text = tendtValue.ToString();
+            }
+            else
+            {
+                txtTen.Text = string.Empty;
+            }
         }
 
         private void FrmChucVu_Load(object sender, EventArgs e)

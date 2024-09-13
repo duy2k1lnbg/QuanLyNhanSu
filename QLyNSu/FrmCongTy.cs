@@ -54,12 +54,12 @@ namespace QLyNSu
                 if (_them)
                 {
                     TB_CONGTY cty = new TB_CONGTY();
-                    cty.TENCTY = txtTen.Text;
-                    cty.DIENTHOAICTY = txtSDT.Text;
-                    cty.EMAILCTY = txtEMAIL.Text;
-                    cty.DIACHICTY = txtDC.Text;
-                    cty.DAIDIEN = txtDaiDien.Text;
-                    cty.MASOTHUECTY = txtMaSoThue.Text;
+                    cty.TENCTY = !string.IsNullOrEmpty(txtTen.Text) ? txtTen.Text : null;
+                    cty.DIENTHOAICTY = !string.IsNullOrEmpty(txtSDT.Text) ? txtSDT.Text : null;
+                    cty.EMAILCTY = !string.IsNullOrEmpty(txtEMAIL.Text) ? txtEMAIL.Text : null;
+                    cty.DIACHICTY = !string.IsNullOrEmpty(txtDC.Text) ? txtDC.Text : null;
+                    cty.DAIDIEN = !string.IsNullOrEmpty(txtDaiDien.Text) ? txtDaiDien.Text : null;
+                    cty.MASOTHUECTY = !string.IsNullOrEmpty(txtMaSoThue.Text) ? txtMaSoThue.Text : null;
                     _congty.Add(cty);
                 }
                 else
@@ -67,12 +67,12 @@ namespace QLyNSu
                     var cty = _congty.getItem(_IDCTY);
                     if (cty != null)
                     {
-                        cty.TENCTY = txtTen.Text;
-                        cty.DIENTHOAICTY = txtSDT.Text;
-                        cty.EMAILCTY = txtEMAIL.Text;
-                        cty.DIACHICTY = txtDC.Text;
-                        cty.DAIDIEN = txtDaiDien.Text;
-                        cty.MASOTHUECTY = txtMaSoThue.Text;
+                        cty.TENCTY = !string.IsNullOrEmpty(txtTen.Text) ? txtTen.Text : null;
+                        cty.DIENTHOAICTY = !string.IsNullOrEmpty(txtSDT.Text) ? txtSDT.Text : null;
+                        cty.EMAILCTY = !string.IsNullOrEmpty(txtEMAIL.Text) ? txtEMAIL.Text : null;
+                        cty.DIACHICTY = !string.IsNullOrEmpty(txtDC.Text) ? txtDC.Text : null;
+                        cty.DAIDIEN = !string.IsNullOrEmpty(txtDaiDien.Text) ? txtDaiDien.Text : null;
+                        cty.MASOTHUECTY = !string.IsNullOrEmpty(txtMaSoThue.Text) ? txtMaSoThue.Text : null;
                         _congty.Update(cty);
                     }
                     else
@@ -152,13 +152,26 @@ namespace QLyNSu
         {
             if(gvDsCT.RowCount > 0)
             {
-                _IDCTY = int.Parse(gvDsCT.GetFocusedRowCellValue("IDCTY").ToString());
-                txtTen.Text = gvDsCT.GetFocusedRowCellValue("TENCTY").ToString();
-                txtSDT.Text = gvDsCT.GetFocusedRowCellValue("DIENTHOAICTY").ToString();
-                txtEMAIL.Text = gvDsCT.GetFocusedRowCellValue("EMAILCTY").ToString();
-                txtDC.Text = gvDsCT.GetFocusedRowCellValue("DIACHICTY").ToString();
-                txtDaiDien.Text = gvDsCT.GetFocusedRowCellValue("DAIDIEN").ToString();
-                txtMaSoThue.Text = gvDsCT.GetFocusedRowCellValue("MASOTHUECTY").ToString();
+                _IDCTY = gvDsCT.GetFocusedRowCellValue("IDCTY") != null ?
+                 int.Parse(gvDsCT.GetFocusedRowCellValue("IDCTY").ToString()) : 0;
+
+                txtTen.Text = gvDsCT.GetFocusedRowCellValue("TENCTY") != null ?
+                              gvDsCT.GetFocusedRowCellValue("TENCTY").ToString() : "";
+
+                txtSDT.Text = gvDsCT.GetFocusedRowCellValue("DIENTHOAICTY") != null ?
+                              gvDsCT.GetFocusedRowCellValue("DIENTHOAICTY").ToString() : "";
+
+                txtEMAIL.Text = gvDsCT.GetFocusedRowCellValue("EMAILCTY") != null ?
+                                gvDsCT.GetFocusedRowCellValue("EMAILCTY").ToString() : "";
+
+                txtDC.Text = gvDsCT.GetFocusedRowCellValue("DIACHICTY") != null ?
+                             gvDsCT.GetFocusedRowCellValue("DIACHICTY").ToString() : "";
+
+                txtDaiDien.Text = gvDsCT.GetFocusedRowCellValue("DAIDIEN") != null ?
+                                  gvDsCT.GetFocusedRowCellValue("DAIDIEN").ToString() : "";
+
+                txtMaSoThue.Text = gvDsCT.GetFocusedRowCellValue("MASOTHUECTY") != null ?
+                                   gvDsCT.GetFocusedRowCellValue("MASOTHUECTY").ToString() : "";
             }     
         }
 

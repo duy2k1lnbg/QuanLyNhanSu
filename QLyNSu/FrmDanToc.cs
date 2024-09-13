@@ -116,7 +116,8 @@ namespace QLyNSu
                 if (_them)
                 {
                     TB_DANTOC dt = new TB_DANTOC();
-                    dt.TENDT = txtTen.Text;
+                    //dt.TENDT = txtTen.Text;
+                    dt.TENDT = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                     _dantoc.Add(dt);
                 }
                 else
@@ -124,7 +125,8 @@ namespace QLyNSu
                     var dt = _dantoc.getItem(_IDDT);
                     if (dt != null)
                     {
-                        dt.TENDT = txtTen.Text;
+                        //dt.TENDT = txtTen.Text;
+                        dt.TENDT = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                         _dantoc.Update(dt);
                     }
                     else
@@ -143,8 +145,30 @@ namespace QLyNSu
 
         private void gvDsDT_Click(object sender, EventArgs e)
         {
-            _IDDT = int.Parse(gvDsDT.GetFocusedRowCellValue("IDDT").ToString());
-            txtTen.Text = gvDsDT.GetFocusedRowCellValue("TENDT").ToString();
+            //_IDDT = int.Parse(gvDsDT.GetFocusedRowCellValue("IDDT").ToString());
+            //txtTen.Text = gvDsDT.GetFocusedRowCellValue("TENDT").ToString();
+            // Kiểm tra nếu IDDT có giá trị trước khi gán
+            if (gvDsDT.GetFocusedRowCellValue("IDDT") != null)
+            {
+                _IDDT = int.Parse(gvDsDT.GetFocusedRowCellValue("IDDT").ToString());
+            }
+            else
+            {
+                // Gán ID mặc định hoặc xử lý nếu cần
+                _IDDT = -1;
+            }
+
+            // Kiểm tra nếu TENDT không bị null hoặc rỗng
+            var tendtValue = gvDsDT.GetFocusedRowCellValue("TENDT");
+            if (tendtValue != null && !string.IsNullOrEmpty(tendtValue.ToString()))
+            {
+                txtTen.Text = tendtValue.ToString();
+            }
+            else
+            {
+                // Gán giá trị mặc định nếu TENDT trống
+                txtTen.Text = string.Empty;
+            }
         }
 
         private void barDockControlTop_Click(object sender, EventArgs e)

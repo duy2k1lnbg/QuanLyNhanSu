@@ -48,7 +48,8 @@ namespace QLyNSu
                 if (_them)
                 {
                     TB_TONGIAO tg = new TB_TONGIAO();
-                    tg.TENTG = txtTen.Text;
+                    //tg.TENTG = txtTen.Text;
+                    tg.TENTG = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                     _tongiao.Add(tg);
                 }
                 else
@@ -56,7 +57,8 @@ namespace QLyNSu
                     var tg = _tongiao.getItem(_IDTG);
                     if (tg != null)
                     {
-                        tg.TENTG = txtTen.Text;
+                        //tg.TENTG = txtTen.Text;
+                        tg.TENTG = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                         _tongiao.Update(tg);
                     }
                     else
@@ -138,8 +140,27 @@ namespace QLyNSu
 
         private void gvDsTG_Click(object sender, EventArgs e)
         {
-            _IDTG = int.Parse(gvDsTG.GetFocusedRowCellValue("IDTG").ToString());
-            txtTen.Text = gvDsTG.GetFocusedRowCellValue("TENTG").ToString();
+            //_IDTG = int.Parse(gvDsTG.GetFocusedRowCellValue("IDTG").ToString());
+            //txtTen.Text = gvDsTG.GetFocusedRowCellValue("TENTG").ToString();
+
+            if (gvDsTG.GetFocusedRowCellValue("IDTG") != null)
+            {
+                _IDTG = int.Parse(gvDsTG.GetFocusedRowCellValue("IDTG").ToString());
+            }
+            else
+            {
+                _IDTG = -1;
+            }
+
+            var tendtValue = gvDsTG.GetFocusedRowCellValue("TENTG");
+            if (tendtValue != null && !string.IsNullOrEmpty(tendtValue.ToString()))
+            {
+                txtTen.Text = tendtValue.ToString();
+            }
+            else
+            {
+                txtTen.Text = string.Empty;
+            }
         }
     }
 }

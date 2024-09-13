@@ -49,7 +49,8 @@ namespace QLyNSu
                 if (_them)
                 {
                     TB_BOPHAN bp = new TB_BOPHAN();
-                    bp.TENBP = txtTen.Text;
+                    //bp.TENBP = txtTen.Text;
+                    bp.TENBP = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                     _bophan.Add(bp);
                 }
                 else
@@ -57,7 +58,8 @@ namespace QLyNSu
                     var bp = _bophan.getItem(_IDBP);
                     if (bp != null)
                     {
-                        bp.TENBP = txtTen.Text;
+                        //bp.TENBP = txtTen.Text;
+                        bp.TENBP = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                         _bophan.Update(bp);
                     }
                     else
@@ -82,8 +84,27 @@ namespace QLyNSu
 
         private void gvDsBP_Click(object sender, EventArgs e)
         {
-            _IDBP = int.Parse(gvDsBP.GetFocusedRowCellValue("IDBP").ToString());
-            txtTen.Text = gvDsBP.GetFocusedRowCellValue("TENBP").ToString();
+            //_IDBP = int.Parse(gvDsBP.GetFocusedRowCellValue("IDBP").ToString());
+            //txtTen.Text = gvDsBP.GetFocusedRowCellValue("TENBP").ToString();
+
+            if (gvDsBP.GetFocusedRowCellValue("IDBP") != null)
+            {
+                _IDBP = int.Parse(gvDsBP.GetFocusedRowCellValue("IDBP").ToString());
+            }
+            else
+            {
+                _IDBP = -1;
+            }
+
+            var tendtValue = gvDsBP.GetFocusedRowCellValue("TENBP");
+            if (tendtValue != null && !string.IsNullOrEmpty(tendtValue.ToString()))
+            {
+                txtTen.Text = tendtValue.ToString();
+            }
+            else
+            {
+                txtTen.Text = string.Empty;
+            }
         }
 
         private void FrmBoPhan_Load(object sender, EventArgs e)

@@ -67,6 +67,7 @@ namespace QLyNSu
             dtNgayKy.Value = DateTime.Now;
             spLanKy.Text = "1";
             spHeSoLuong.Text = "1";
+            searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
         }
 
         private void loadNhanVien()
@@ -144,6 +145,43 @@ namespace QLyNSu
             {
                 if (_them)
                 {
+                    // Kiểm tra dữ liệu đầu vào
+                    if (string.IsNullOrWhiteSpace(cbThoiHan.Text))
+                    {
+                        MessageBox.Show("Vui lòng chọn thời hạn hợp đồng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    if (spHeSoLuong.EditValue == null || !decimal.TryParse(spHeSoLuong.EditValue.ToString(), out _))
+                    {
+                        MessageBox.Show("Vui lòng nhập hệ số lương hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    if (spLanKy.EditValue == null || !int.TryParse(spLanKy.EditValue.ToString(), out _))
+                    {
+                        MessageBox.Show("Vui lòng nhập số lần ký hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    if (searchMANV.EditValue == null || !int.TryParse(searchMANV.EditValue.ToString(), out _))
+                    {
+                        MessageBox.Show("Vui lòng chọn nhân viên hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    // Kiểm tra ngày bắt đầu, ngày kết thúc và ngày ký
+                    if (dtNgayBatDau.Value > dtNgayKetThuc.Value)
+                    {
+                        MessageBox.Show("Ngày bắt đầu không thể lớn hơn ngày kết thúc.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    if (dtNgayKy.Value < dtNgayBatDau.Value || dtNgayKy.Value > dtNgayKetThuc.Value)
+                    {
+                        MessageBox.Show("Ngày ký phải nằm trong khoảng thời gian hợp đồng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
                     //Số hợp đồng: 00001/2024/HĐLĐ
                     var maxSoHD = _hdld.MaxSoHopDong();
                     int so = int.Parse(maxSoHD.Substring(0, 5)) + 1;
@@ -168,6 +206,11 @@ namespace QLyNSu
                 {
                     //Số hợp đồng: 00001/2024/HĐLĐ
                     var hd = _hdld.getItem(_SOHD);
+                    if (hd == null)
+                    {
+                        MessageBox.Show("Không tìm thấy hợp đồng với số hợp đồng: " + _SOHD, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
 
                     hd.NGAYBATDAU = dtNgayBatDau.Value;
                     hd.NGAYKETTHUC = dtNgayKetThuc.Value;

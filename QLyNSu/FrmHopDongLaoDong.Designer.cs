@@ -30,7 +30,7 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmHopDongLaoDong));
-            DevExpress.XtraBars.Ribbon.GalleryItemGroup galleryItemGroup1 = new DevExpress.XtraBars.Ribbon.GalleryItemGroup();
+            DevExpress.XtraBars.Ribbon.GalleryItemGroup galleryItemGroup2 = new DevExpress.XtraBars.Ribbon.GalleryItemGroup();
             this.NGAYKETTHUC = new DevExpress.XtraGrid.Columns.GridColumn();
             this.HESOLUONG = new DevExpress.XtraGrid.Columns.GridColumn();
             this.LANKY = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -498,7 +498,7 @@
             // 
             this.galleryChangeTableStyleItem1.Gallery.ColumnCount = 3;
             this.galleryChangeTableStyleItem1.Gallery.Groups.AddRange(new DevExpress.XtraBars.Ribbon.GalleryItemGroup[] {
-            galleryItemGroup1});
+            galleryItemGroup2});
             this.galleryChangeTableStyleItem1.Gallery.ImageSize = new System.Drawing.Size(81, 58);
             this.galleryChangeTableStyleItem1.Id = 13;
             this.galleryChangeTableStyleItem1.ModifyItemLink = null;

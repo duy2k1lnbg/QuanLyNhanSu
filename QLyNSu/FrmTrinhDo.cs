@@ -48,16 +48,18 @@ namespace QLyNSu
             {
                 if (_them)
                 {
-                    TB_TRINHDO tg = new TB_TRINHDO();
-                    tg.TENTD = txtTen.Text;
-                    _trinhdo.Add(tg);
+                    TB_TRINHDO td = new TB_TRINHDO();
+                    //tg.TENTD = txtTen.Text;
+                    td.TENTD = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
+                    _trinhdo.Add(td);
                 }
                 else
                 {
                     var td = _trinhdo.getItem(_IDTD);
                     if (td != null)
                     {
-                        td.TENTD = txtTen.Text;
+                        //td.TENTD = txtTen.Text;
+                        td.TENTD = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                         _trinhdo.Update(td);
                     }
                     else
@@ -138,8 +140,27 @@ namespace QLyNSu
 
         private void gvDsTD_Click(object sender, EventArgs e)
         {
-            _IDTD = int.Parse(gvDsTD.GetFocusedRowCellValue("IDTD").ToString());
-            txtTen.Text = gvDsTD.GetFocusedRowCellValue("TENTD").ToString();
+            //_IDTD = int.Parse(gvDsTD.GetFocusedRowCellValue("IDTD").ToString());
+            //txtTen.Text = gvDsTD.GetFocusedRowCellValue("TENTD").ToString();
+
+            if (gvDsTD.GetFocusedRowCellValue("IDTD") != null)
+            {
+                _IDTD = int.Parse(gvDsTD.GetFocusedRowCellValue("IDTD").ToString());
+            }
+            else
+            {
+                _IDTD = -1;
+            }
+
+            var tendtValue = gvDsTD.GetFocusedRowCellValue("TENTD");
+            if (tendtValue != null && !string.IsNullOrEmpty(tendtValue.ToString()))
+            {
+                txtTen.Text = tendtValue.ToString();
+            }
+            else
+            {
+                txtTen.Text = string.Empty;
+            }
         }
     }
 }

@@ -49,7 +49,8 @@ namespace QLyNSu
                 if (_them)
                 {
                     TB_PHONGBAN pb = new TB_PHONGBAN();
-                    pb.TENPB = txtTen.Text;
+                    //pb.TENPB = txtTen.Text;
+                    pb.TENPB = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                     _phongban.Add(pb);
                 }
                 else
@@ -57,7 +58,8 @@ namespace QLyNSu
                     var pb = _phongban.getItem(_IDPB);
                     if (pb != null)
                     {
-                        pb.TENPB = txtTen.Text;
+                        //pb.TENPB = txtTen.Text;
+                        pb.TENPB = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
                         _phongban.Update(pb);
                     }
                     else
@@ -130,8 +132,27 @@ namespace QLyNSu
 
         private void gvDsPB_Click(object sender, EventArgs e)
         {
-            _IDPB = int.Parse(gvDsPB.GetFocusedRowCellValue("IDPB").ToString());
-            txtTen.Text = gvDsPB.GetFocusedRowCellValue("TENPB").ToString();
+            //_IDPB = int.Parse(gvDsPB.GetFocusedRowCellValue("IDPB").ToString());
+            //txtTen.Text = gvDsPB.GetFocusedRowCellValue("TENPB").ToString();
+
+            if (gvDsPB.GetFocusedRowCellValue("IDPB") != null)
+            {
+                _IDPB = int.Parse(gvDsPB.GetFocusedRowCellValue("IDPB").ToString());
+            }
+            else
+            {
+                _IDPB = -1;
+            }
+
+            var tendtValue = gvDsPB.GetFocusedRowCellValue("TENPB");
+            if (tendtValue != null && !string.IsNullOrEmpty(tendtValue.ToString()))
+            {
+                txtTen.Text = tendtValue.ToString();
+            }
+            else
+            {
+                txtTen.Text = string.Empty;
+            }
         }
 
         private void FrmPhongBan_Load(object sender, EventArgs e)

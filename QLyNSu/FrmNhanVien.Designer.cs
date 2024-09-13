@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmNhanVien));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.cboCongTy = new System.Windows.Forms.ComboBox();
+            this.labelControl14 = new DevExpress.XtraEditors.LabelControl();
             this.cboQuocTich = new System.Windows.Forms.ComboBox();
             this.labelControl13 = new DevExpress.XtraEditors.LabelControl();
             this.btnImage = new System.Windows.Forms.Button();
@@ -98,8 +100,6 @@
             this.barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlRight = new DevExpress.XtraBars.BarDockControl();
-            this.cboCongTy = new System.Windows.Forms.ComboBox();
-            this.labelControl14 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -157,6 +157,25 @@
             this.splitContainer1.SplitterDistance = 400;
             this.splitContainer1.TabIndex = 6;
             // 
+            // cboCongTy
+            // 
+            this.cboCongTy.Font = new System.Drawing.Font("Tahoma", 12F);
+            this.cboCongTy.FormattingEnabled = true;
+            this.cboCongTy.Location = new System.Drawing.Point(1097, 339);
+            this.cboCongTy.Name = "cboCongTy";
+            this.cboCongTy.Size = new System.Drawing.Size(597, 32);
+            this.cboCongTy.TabIndex = 32;
+            // 
+            // labelControl14
+            // 
+            this.labelControl14.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl14.Appearance.Options.UseFont = true;
+            this.labelControl14.Location = new System.Drawing.Point(1016, 342);
+            this.labelControl14.Name = "labelControl14";
+            this.labelControl14.Size = new System.Drawing.Size(75, 24);
+            this.labelControl14.TabIndex = 31;
+            this.labelControl14.Text = "Công ty:";
+            // 
             // cboQuocTich
             // 
             this.cboQuocTich.Font = new System.Drawing.Font("Tahoma", 12F);
@@ -193,7 +212,7 @@
             this.cboGioiTinh.FormattingEnabled = true;
             this.cboGioiTinh.Location = new System.Drawing.Point(343, 107);
             this.cboGioiTinh.Name = "cboGioiTinh";
-            this.cboGioiTinh.Size = new System.Drawing.Size(172, 32);
+            this.cboGioiTinh.Size = new System.Drawing.Size(272, 32);
             this.cboGioiTinh.TabIndex = 27;
             // 
             // labelControl12
@@ -862,25 +881,6 @@
             this.barDockControlRight.Location = new System.Drawing.Point(1738, 33);
             this.barDockControlRight.Manager = this.barManager1;
             this.barDockControlRight.Size = new System.Drawing.Size(0, 588);
-            // 
-            // cboCongTy
-            // 
-            this.cboCongTy.Font = new System.Drawing.Font("Tahoma", 12F);
-            this.cboCongTy.FormattingEnabled = true;
-            this.cboCongTy.Location = new System.Drawing.Point(1097, 339);
-            this.cboCongTy.Name = "cboCongTy";
-            this.cboCongTy.Size = new System.Drawing.Size(597, 32);
-            this.cboCongTy.TabIndex = 32;
-            // 
-            // labelControl14
-            // 
-            this.labelControl14.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl14.Appearance.Options.UseFont = true;
-            this.labelControl14.Location = new System.Drawing.Point(1016, 342);
-            this.labelControl14.Name = "labelControl14";
-            this.labelControl14.Size = new System.Drawing.Size(75, 24);
-            this.labelControl14.TabIndex = 31;
-            this.labelControl14.Text = "Công ty:";
             // 
             // FrmNhanVien
             // 
