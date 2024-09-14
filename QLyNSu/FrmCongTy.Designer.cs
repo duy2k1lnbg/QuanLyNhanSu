@@ -50,22 +50,22 @@
             this.DIENTHOAICTY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.EMAILCTY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.DIACHICTY = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.DAIDIEN = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.MASOTHUECTY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gcDsCT = new DevExpress.XtraGrid.GridControl();
             this.txtTen = new System.Windows.Forms.TextBox();
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.txtMaSoThue = new System.Windows.Forms.TextBox();
+            this.labelControl3 = new DevExpress.XtraEditors.LabelControl();
+            this.txtDaiDien = new System.Windows.Forms.TextBox();
+            this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.txtDC = new System.Windows.Forms.TextBox();
             this.lap4 = new DevExpress.XtraEditors.LabelControl();
             this.txtEMAIL = new System.Windows.Forms.TextBox();
             this.lap3 = new DevExpress.XtraEditors.LabelControl();
             this.txtSDT = new System.Windows.Forms.TextBox();
             this.lap2 = new DevExpress.XtraEditors.LabelControl();
-            this.txtDaiDien = new System.Windows.Forms.TextBox();
-            this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
-            this.txtMaSoThue = new System.Windows.Forms.TextBox();
-            this.labelControl3 = new DevExpress.XtraEditors.LabelControl();
-            this.DAIDIEN = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.MASOTHUECTY = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvDsCT)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gcDsCT)).BeginInit();
@@ -299,6 +299,31 @@
             this.DIACHICTY.VisibleIndex = 4;
             this.DIACHICTY.Width = 200;
             // 
+            // DAIDIEN
+            // 
+            this.DAIDIEN.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.DAIDIEN.AppearanceHeader.Options.UseFont = true;
+            this.DAIDIEN.Caption = "Đại Diện";
+            this.DAIDIEN.FieldName = "DAIDIEN";
+            this.DAIDIEN.MaxWidth = 200;
+            this.DAIDIEN.MinWidth = 200;
+            this.DAIDIEN.Name = "DAIDIEN";
+            this.DAIDIEN.Visible = true;
+            this.DAIDIEN.VisibleIndex = 5;
+            this.DAIDIEN.Width = 200;
+            // 
+            // MASOTHUECTY
+            // 
+            this.MASOTHUECTY.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.MASOTHUECTY.AppearanceHeader.Options.UseFont = true;
+            this.MASOTHUECTY.Caption = "Mã Số Thuế";
+            this.MASOTHUECTY.FieldName = "MASOTHUECTY";
+            this.MASOTHUECTY.MinWidth = 25;
+            this.MASOTHUECTY.Name = "MASOTHUECTY";
+            this.MASOTHUECTY.Visible = true;
+            this.MASOTHUECTY.VisibleIndex = 6;
+            this.MASOTHUECTY.Width = 94;
+            // 
             // gcDsCT
             // 
             this.gcDsCT.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -313,19 +338,19 @@
             // 
             // txtTen
             // 
-            this.txtTen.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtTen.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtTen.Location = new System.Drawing.Point(168, 27);
             this.txtTen.Name = "txtTen";
-            this.txtTen.Size = new System.Drawing.Size(465, 32);
+            this.txtTen.Size = new System.Drawing.Size(465, 30);
             this.txtTen.TabIndex = 1;
             // 
             // labelControl1
             // 
-            this.labelControl1.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl1.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(65, 30);
             this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(83, 24);
+            this.labelControl1.Size = new System.Drawing.Size(84, 23);
             this.labelControl1.TabIndex = 0;
             this.labelControl1.Text = "Tên CTY:";
             // 
@@ -359,120 +384,95 @@
             this.splitContainer1.SplitterDistance = 191;
             this.splitContainer1.TabIndex = 7;
             // 
+            // txtMaSoThue
+            // 
+            this.txtMaSoThue.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtMaSoThue.Location = new System.Drawing.Point(809, 103);
+            this.txtMaSoThue.Name = "txtMaSoThue";
+            this.txtMaSoThue.Size = new System.Drawing.Size(465, 30);
+            this.txtMaSoThue.TabIndex = 11;
+            // 
+            // labelControl3
+            // 
+            this.labelControl3.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl3.Appearance.Options.UseFont = true;
+            this.labelControl3.Location = new System.Drawing.Point(689, 111);
+            this.labelControl3.Name = "labelControl3";
+            this.labelControl3.Size = new System.Drawing.Size(100, 23);
+            this.labelControl3.TabIndex = 10;
+            this.labelControl3.Text = "Mã số thuế:";
+            // 
+            // txtDaiDien
+            // 
+            this.txtDaiDien.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDaiDien.Location = new System.Drawing.Point(168, 103);
+            this.txtDaiDien.Name = "txtDaiDien";
+            this.txtDaiDien.Size = new System.Drawing.Size(465, 30);
+            this.txtDaiDien.TabIndex = 9;
+            // 
+            // labelControl2
+            // 
+            this.labelControl2.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl2.Appearance.Options.UseFont = true;
+            this.labelControl2.Location = new System.Drawing.Point(67, 106);
+            this.labelControl2.Name = "labelControl2";
+            this.labelControl2.Size = new System.Drawing.Size(76, 23);
+            this.labelControl2.TabIndex = 8;
+            this.labelControl2.Text = "Đại diện:";
+            // 
             // txtDC
             // 
-            this.txtDC.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDC.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtDC.Location = new System.Drawing.Point(809, 65);
             this.txtDC.Name = "txtDC";
-            this.txtDC.Size = new System.Drawing.Size(465, 32);
+            this.txtDC.Size = new System.Drawing.Size(465, 30);
             this.txtDC.TabIndex = 7;
             // 
             // lap4
             // 
-            this.lap4.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lap4.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lap4.Appearance.Options.UseFont = true;
             this.lap4.Location = new System.Drawing.Point(726, 68);
             this.lap4.Name = "lap4";
-            this.lap4.Size = new System.Drawing.Size(68, 24);
+            this.lap4.Size = new System.Drawing.Size(65, 23);
             this.lap4.TabIndex = 6;
             this.lap4.Text = "Địa chỉ:";
             // 
             // txtEMAIL
             // 
-            this.txtEMAIL.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtEMAIL.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtEMAIL.Location = new System.Drawing.Point(809, 27);
             this.txtEMAIL.Name = "txtEMAIL";
-            this.txtEMAIL.Size = new System.Drawing.Size(465, 32);
+            this.txtEMAIL.Size = new System.Drawing.Size(465, 30);
             this.txtEMAIL.TabIndex = 5;
             // 
             // lap3
             // 
-            this.lap3.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lap3.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lap3.Appearance.Options.UseFont = true;
             this.lap3.Location = new System.Drawing.Point(738, 30);
             this.lap3.Name = "lap3";
-            this.lap3.Size = new System.Drawing.Size(56, 24);
+            this.lap3.Size = new System.Drawing.Size(55, 23);
             this.lap3.TabIndex = 4;
             this.lap3.Text = "Email:";
             // 
             // txtSDT
             // 
-            this.txtSDT.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtSDT.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtSDT.Location = new System.Drawing.Point(168, 65);
             this.txtSDT.Name = "txtSDT";
-            this.txtSDT.Size = new System.Drawing.Size(465, 32);
+            this.txtSDT.Size = new System.Drawing.Size(465, 30);
             this.txtSDT.TabIndex = 3;
             // 
             // lap2
             // 
-            this.lap2.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lap2.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lap2.Appearance.Options.UseFont = true;
             this.lap2.Location = new System.Drawing.Point(44, 68);
             this.lap2.Name = "lap2";
-            this.lap2.Size = new System.Drawing.Size(99, 24);
+            this.lap2.Size = new System.Drawing.Size(93, 23);
             this.lap2.TabIndex = 2;
             this.lap2.Text = "Điện thoại:";
-            // 
-            // txtDaiDien
-            // 
-            this.txtDaiDien.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtDaiDien.Location = new System.Drawing.Point(168, 103);
-            this.txtDaiDien.Name = "txtDaiDien";
-            this.txtDaiDien.Size = new System.Drawing.Size(465, 32);
-            this.txtDaiDien.TabIndex = 9;
-            // 
-            // labelControl2
-            // 
-            this.labelControl2.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Location = new System.Drawing.Point(67, 106);
-            this.labelControl2.Name = "labelControl2";
-            this.labelControl2.Size = new System.Drawing.Size(81, 24);
-            this.labelControl2.TabIndex = 8;
-            this.labelControl2.Text = "Đại diện:";
-            // 
-            // txtMaSoThue
-            // 
-            this.txtMaSoThue.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtMaSoThue.Location = new System.Drawing.Point(809, 103);
-            this.txtMaSoThue.Name = "txtMaSoThue";
-            this.txtMaSoThue.Size = new System.Drawing.Size(465, 32);
-            this.txtMaSoThue.TabIndex = 11;
-            // 
-            // labelControl3
-            // 
-            this.labelControl3.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl3.Appearance.Options.UseFont = true;
-            this.labelControl3.Location = new System.Drawing.Point(689, 111);
-            this.labelControl3.Name = "labelControl3";
-            this.labelControl3.Size = new System.Drawing.Size(105, 24);
-            this.labelControl3.TabIndex = 10;
-            this.labelControl3.Text = "Mã số thuế:";
-            // 
-            // DAIDIEN
-            // 
-            this.DAIDIEN.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.DAIDIEN.AppearanceHeader.Options.UseFont = true;
-            this.DAIDIEN.Caption = "Đại Diện";
-            this.DAIDIEN.FieldName = "DAIDIEN";
-            this.DAIDIEN.MaxWidth = 200;
-            this.DAIDIEN.MinWidth = 200;
-            this.DAIDIEN.Name = "DAIDIEN";
-            this.DAIDIEN.Visible = true;
-            this.DAIDIEN.VisibleIndex = 5;
-            this.DAIDIEN.Width = 200;
-            // 
-            // MASOTHUECTY
-            // 
-            this.MASOTHUECTY.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.MASOTHUECTY.AppearanceHeader.Options.UseFont = true;
-            this.MASOTHUECTY.Caption = "Mã Số Thuế";
-            this.MASOTHUECTY.FieldName = "MASOTHUECTY";
-            this.MASOTHUECTY.MinWidth = 25;
-            this.MASOTHUECTY.Name = "MASOTHUECTY";
-            this.MASOTHUECTY.Visible = true;
-            this.MASOTHUECTY.VisibleIndex = 6;
-            this.MASOTHUECTY.Width = 94;
             // 
             // FrmCongTy
             // 

@@ -180,7 +180,7 @@ namespace QLyNSu
                     int so = int.Parse(maxSoQD.Substring(0, 5)) + 1;
 
                     TB_KHENTHUONG_KYLUAT kt = new TB_KHENTHUONG_KYLUAT();
-                    kt.SOQUYETDINH = so.ToString("00000") + @"/2024/QĐKT";
+                    kt.SOQUYETDINH = so.ToString("00000") + @"/" + DateTime.Now.Year.ToString() + @"/QĐKT";
                     //kt.NGAYBATDAU = dtNgayBatDau.Value;
                     //kt.NGAYKETTHUC = dtNgayKetThuc.Value;
                     kt.NGAY = dtNgay.Value;

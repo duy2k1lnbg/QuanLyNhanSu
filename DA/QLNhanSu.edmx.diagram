@@ -44,6 +44,7 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_CTY_FK5" />
         <EntityTypeShape EntityType="Model.TB_KHENTHUONG_KYLUAT" Width="1.5" PointX="3.625" PointY="0.75" />
         <AssociationConnector Association="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" />
+        <EntityTypeShape EntityType="Model.TB_DIEUCHUYEN_NHANVIEN" Width="1.5" PointX="0.75" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

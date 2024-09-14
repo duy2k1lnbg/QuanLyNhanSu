@@ -137,6 +137,12 @@
     <Compile Include="FrmDanToc.Designer.cs">
       <DependentUpon>FrmDanToc.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmDieuChuyen_NhanVien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmDieuChuyen_NhanVien.Designer.cs">
+      <DependentUpon>FrmDieuChuyen_NhanVien.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmHopDongLaoDong.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -223,6 +229,9 @@
     <EmbeddedResource Include="FrmDanToc.resx">
       <DependentUpon>FrmDanToc.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FrmDieuChuyen_NhanVien.resx">
+      <DependentUpon>FrmDieuChuyen_NhanVien.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmHopDongLaoDong.resx">
       <DependentUpon>FrmHopDongLaoDong.cs</DependentUpon>
     </EmbeddedResource>
@@ -303,6 +312,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="image\NhanVien\noimage.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="image\Icon\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Text.Json.6.0.0\build\System.Text.Json.targets" Condition="Exists('..\packages\System.Text.Json.6.0.0\build\System.Text.Json.targets')" />

@@ -188,7 +188,7 @@ namespace QLyNSu
 
                     TB_HOPDONG hd = new TB_HOPDONG();
 
-                    hd.SOHD = so.ToString("00000") + @"/2024/HĐLĐ";
+                    hd.SOHD = so.ToString("00000") + @"/" + DateTime.Now.Year.ToString() + @"/HĐLĐ";
                     hd.NGAYBATDAU = dtNgayBatDau.Value;
                     hd.NGAYKETTHUC = dtNgayKetThuc.Value;
                     hd.NGAYKY = dtNgayKy.Value;

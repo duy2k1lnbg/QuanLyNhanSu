@@ -64,6 +64,24 @@
           <Property Name="IDDT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENDT" Type="nvarchar2" MaxLength="50" />
         </EntityType>
+        <EntityType Name="TB_DIEUCHUYEN_NHANVIEN">
+          <Key>
+            <PropertyRef Name="SOQDDIEUCHUYEN" />
+          </Key>
+          <Property Name="SOQDDIEUCHUYEN" Type="nvarchar2" MaxLength="50" Nullable="false" />
+          <Property Name="NGAYDC" Type="date" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
+          <Property Name="MAPB" Type="number" Precision="38" Scale="0" />
+          <Property Name="MAPB2" Type="number" Precision="38" Scale="0" />
+          <Property Name="LYDODC" Type="nvarchar2" MaxLength="500" />
+          <Property Name="GHICHU" Type="nvarchar2" MaxLength="700" />
+          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="date" />
+          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="date" />
+          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="date" />
+        </EntityType>
         <EntityType Name="TB_GIOITINH">
           <Key>
             <PropertyRef Name="IDGT" />
@@ -492,6 +510,7 @@
           <EntitySet Name="TB_CHUCVU" EntityType="Self.TB_CHUCVU" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_CONGTY" EntityType="Self.TB_CONGTY" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_DANTOC" EntityType="Self.TB_DANTOC" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_DIEUCHUYEN_NHANVIEN" EntityType="Self.TB_DIEUCHUYEN_NHANVIEN" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_GIOITINH" EntityType="Self.TB_GIOITINH" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_HOPDONG" EntityType="Self.TB_HOPDONG" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_KHENTHUONG_KYLUAT" EntityType="Self.TB_KHENTHUONG_KYLUAT" Schema="HR" store:Type="Tables" />
@@ -684,6 +703,7 @@
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_KHENTHUONG_KYLUAT" EntitySet="TB_KHENTHUONG_KYLUAT" />
           </AssociationSet>
+          <EntitySet Name="TB_DIEUCHUYEN_NHANVIEN" EntityType="Model.TB_DIEUCHUYEN_NHANVIEN" />
         </EntityContainer>
         <EntityType Name="TB_BANGCONG">
           <Key>
@@ -1203,6 +1223,24 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="TB_DIEUCHUYEN_NHANVIEN">
+          <Key>
+            <PropertyRef Name="SOQDDIEUCHUYEN" />
+          </Key>
+          <Property Name="SOQDDIEUCHUYEN" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NGAYDC" Type="DateTime" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MAPB" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MAPB2" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="LYDODC" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="GHICHU" Type="String" MaxLength="700" FixedLength="false" Unicode="true" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="DateTime" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1440,6 +1478,25 @@
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
                 <ScalarProperty Name="NGAY" ColumnName="NGAY" />
                 <ScalarProperty Name="NOIDUNG" ColumnName="NOIDUNG" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_DIEUCHUYEN_NHANVIEN">
+            <EntityTypeMapping TypeName="Model.TB_DIEUCHUYEN_NHANVIEN">
+              <MappingFragment StoreEntitySet="TB_DIEUCHUYEN_NHANVIEN">
+                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
+                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="GHICHU" ColumnName="GHICHU" />
+                <ScalarProperty Name="LYDODC" ColumnName="LYDODC" />
+                <ScalarProperty Name="MAPB2" ColumnName="MAPB2" />
+                <ScalarProperty Name="MAPB" ColumnName="MAPB" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="NGAYDC" ColumnName="NGAYDC" />
+                <ScalarProperty Name="SOQDDIEUCHUYEN" ColumnName="SOQDDIEUCHUYEN" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

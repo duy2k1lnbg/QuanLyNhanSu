@@ -45,5 +45,6 @@ namespace DA
         public virtual DbSet<TB_UNGLUONG> TB_UNGLUONG { get; set; }
         public virtual DbSet<TB_CONGTY> TB_CONGTY { get; set; }
         public virtual DbSet<TB_KHENTHUONG_KYLUAT> TB_KHENTHUONG_KYLUAT { get; set; }
+        public virtual DbSet<TB_DIEUCHUYEN_NHANVIEN> TB_DIEUCHUYEN_NHANVIEN { get; set; }
     }
 }

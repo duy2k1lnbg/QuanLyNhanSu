@@ -99,6 +99,7 @@
             // gcDsCV
             // 
             this.gcDsCV.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gcDsCV.Font = new System.Drawing.Font("Times New Roman", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gcDsCV.Location = new System.Drawing.Point(0, 0);
             this.gcDsCV.MainView = this.gvDsCV;
             this.gcDsCV.MenuManager = this.barManager1;
@@ -255,19 +256,19 @@
             // 
             // txtTen
             // 
-            this.txtTen.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtTen.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtTen.Location = new System.Drawing.Point(210, 38);
             this.txtTen.Name = "txtTen";
-            this.txtTen.Size = new System.Drawing.Size(515, 32);
+            this.txtTen.Size = new System.Drawing.Size(515, 30);
             this.txtTen.TabIndex = 1;
             // 
             // labelControl1
             // 
-            this.labelControl1.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl1.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(83, 41);
             this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(120, 24);
+            this.labelControl1.Size = new System.Drawing.Size(118, 23);
             this.labelControl1.TabIndex = 0;
             this.labelControl1.Text = "Tên Chức Vụ:";
             // 
