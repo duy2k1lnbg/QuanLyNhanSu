@@ -21,6 +21,51 @@ namespace Bu
             return db.TB_KHENTHUONG_KYLUAT.Where(x => x.LOAI == loai).ToList();
         }
 
+        public List<KHENTHUONG_KYLUAT_DTO> getItem_FULL(int loai, string soQD)
+        {
+            List<TB_KHENTHUONG_KYLUAT> lstKT = db.TB_KHENTHUONG_KYLUAT.Where(x => x.LOAI == loai && x.SOQUYETDINH == soQD).ToList();
+            List<KHENTHUONG_KYLUAT_DTO> lst_DTO = new List<KHENTHUONG_KYLUAT_DTO>();
+            KHENTHUONG_KYLUAT_DTO kt_DTO;
+            foreach (var item in lstKT)
+            {
+                kt_DTO = new KHENTHUONG_KYLUAT_DTO();
+                kt_DTO.SOQUYETDINH = item.SOQUYETDINH;
+                kt_DTO.TUNGAY = item.TUNGAY.HasValue ? item.TUNGAY.Value.ToString("dd/MM/yyyy") : null;
+                kt_DTO.DENNGAY = item.DENNGAY.HasValue ? item.DENNGAY.Value.ToString("dd/MM/yyyy") : null;
+                kt_DTO.NOIDUNG = item.NOIDUNG;
+                kt_DTO.LYDO = item.LYDO;
+                kt_DTO.NGAY = "Bắc Giang, ngày " + item.NGAY.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAY.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAY.Value.ToString("dd/MM/yyyy").Substring(6);
+                //kt_DTO.NGAY = item.NGAY.Value.ToString("dd/MM/yyyy");
+                kt_DTO.LOAI = item.LOAI;
+
+                kt_DTO.MANV = item.MANV;
+                var nv = db.TB_NHANVIEN.FirstOrDefault(a => a.MANV == item.MANV);
+                kt_DTO.HOTEN = nv.HOTEN; 
+
+                kt_DTO.IDBP = nv.IDBP;
+                var bp = db.TB_BOPHAN.FirstOrDefault(c => c.IDBP == nv.IDBP);
+                kt_DTO.TENBP = bp.TENBP;
+
+                kt_DTO.IDCV = nv.IDCV;
+                var cv = db.TB_CHUCVU.FirstOrDefault(d => d.IDCV == nv.IDCV);
+                kt_DTO.TENCV = cv.TENCV;
+
+                kt_DTO.IDCTY = nv.IDCTY;
+                var cty = db.TB_CONGTY.FirstOrDefault(e => e.IDCTY == nv.IDCTY);
+                kt_DTO.TENCTY = cty.TENCTY;
+
+                kt_DTO.CREATED_BY = item.CREATED_BY;
+                kt_DTO.CREATED_DATE = item.CREATED_DATE;
+                kt_DTO.UPDATED_BY = item.UPDATED_BY;
+                kt_DTO.UPDATED_DATE = item.UPDATED_DATE;
+                kt_DTO.DELETED_BY = item.DELETED_BY;
+                kt_DTO.DELETED_DATE = item.DELETED_DATE;
+                //kt_DTO.IDCTY = item.IDCTY;
+                lst_DTO.Add(kt_DTO);
+            }
+            return lst_DTO;
+        }
+
         public List<KHENTHUONG_KYLUAT_DTO> getListFull(int loai)
         {
             List<TB_KHENTHUONG_KYLUAT> lstKT = db.TB_KHENTHUONG_KYLUAT.Where(x => x.LOAI == loai).ToList();
@@ -30,20 +75,16 @@ namespace Bu
             {
                 kt_DTO = new KHENTHUONG_KYLUAT_DTO();
                 kt_DTO.SOQUYETDINH = item.SOQUYETDINH;
-                kt_DTO.TUNGAY = item.TUNGAY;
-                kt_DTO.DENNGAY = item.DENNGAY;           
+                kt_DTO.TUNGAY = item.TUNGAY.HasValue ? item.TUNGAY.Value.ToString("dd/MM/yyyy") : null;
+                kt_DTO.DENNGAY = item.DENNGAY.HasValue ? item.DENNGAY.Value.ToString("dd/MM/yyyy") : null;      
                 kt_DTO.NOIDUNG = item.NOIDUNG;
                 kt_DTO.LYDO = item.LYDO;
-                kt_DTO.NGAY = item.NGAY;
+                kt_DTO.NGAY = item.NGAY.Value.ToString("dd/MM/yyyy");
                 kt_DTO.LOAI = item.LOAI;
 
                 kt_DTO.MANV = item.MANV;
                 var nv = db.TB_NHANVIEN.FirstOrDefault(n => n.MANV == item.MANV);
                 kt_DTO.HOTEN = nv.HOTEN;
-
-                //kt_DTO.IDCTY = nv.IDCTY;
-                //var cty = db.TB_CONGTY.FirstOrDefault(e => e.IDCTY == nv.IDCTY);
-                //kt_DTO.TENCTY = cty.TENCTY;
 
                 kt_DTO.CREATED_BY = item.CREATED_BY;
                 kt_DTO.CREATED_DATE = item.CREATED_DATE;

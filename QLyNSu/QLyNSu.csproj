@@ -199,6 +199,18 @@
     <Compile Include="Reports\rptHopDongLaoDong.Designer.cs">
       <DependentUpon>rptHopDongLaoDong.cs</DependentUpon>
     </Compile>
+    <Compile Include="Reports\rptKhenThuong.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reports\rptKhenThuong.Designer.cs">
+      <DependentUpon>rptKhenThuong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\rptKyLuat.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Reports\rptKyLuat.Designer.cs">
+      <DependentUpon>rptKyLuat.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="FrmBoPhan.resx">
       <DependentUpon>FrmBoPhan.cs</DependentUpon>
     </EmbeddedResource>
@@ -251,6 +263,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\rptHopDongLaoDong.resx">
       <DependentUpon>rptHopDongLaoDong.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\rptKhenThuong.resx">
+      <DependentUpon>rptKhenThuong.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\rptKyLuat.resx">
+      <DependentUpon>rptKyLuat.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">

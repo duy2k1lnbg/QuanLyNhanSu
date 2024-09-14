@@ -1,6 +1,9 @@
 ﻿using Bu;
+using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
+using DevExpress.XtraReports.UI;
+using QLyNSu.Reports;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -24,6 +27,7 @@ namespace QLyNSu
         private string _SOQD;
         private KHENTHUONG_KYLUAT _ktkl;
         private NHANVIEN _nhanvien;
+        public List<KHENTHUONG_KYLUAT_DTO> _lstKL;
         private void FrmKyLuat_Load(object sender, EventArgs e)
         {
             _ktkl = new KHENTHUONG_KYLUAT();
@@ -129,9 +133,9 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            //_lstHD = _hdld.getItem_FULL(_SOHD);
-            //rptHopDongLaoDong rpt = new rptHopDongLaoDong(_lstHD);
-            //rpt.ShowRibbonPreview();
+            _lstKL = _ktkl.getItem_FULL(2, _SOQD);
+            rptKyLuat rpt = new rptKyLuat(_lstKL);
+            rpt.ShowRibbonPreview();
         }
 
         private void gvDsKl_Click(object sender, EventArgs e)
@@ -146,7 +150,8 @@ namespace QLyNSu
             searchMANV.EditValue = kl.MANV;
             txtLyDo.Text = kl.LYDO;
             txtNoiDung.Text = kl.NOIDUNG;
-            //_lstHD = _ktkl.getItem_FULL(_SOQD);
+
+            _lstKL = _ktkl.getItem_FULL(2, _SOQD);
         }
 
         private void SaveData()

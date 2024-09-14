@@ -133,8 +133,6 @@
             this.SOQUYETDINH = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gvDsKT = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.NGAY = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.TUNGAY = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.DENNGAY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.LYDO = new DevExpress.XtraGrid.Columns.GridColumn();
             this.NOIDUNG = new DevExpress.XtraGrid.Columns.GridColumn();
             this.gcDsKT = new DevExpress.XtraGrid.GridControl();
@@ -1141,8 +1139,6 @@
             this.MANV,
             this.HOTEN,
             this.NGAY,
-            this.TUNGAY,
-            this.DENNGAY,
             this.LYDO,
             this.NOIDUNG});
             this.gvDsKT.GridControl = this.gcDsKT;
@@ -1161,26 +1157,6 @@
             this.NGAY.Visible = true;
             this.NGAY.VisibleIndex = 2;
             this.NGAY.Width = 191;
-            // 
-            // TUNGAY
-            // 
-            this.TUNGAY.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.TUNGAY.AppearanceHeader.Options.UseFont = true;
-            this.TUNGAY.Caption = "TỪ NGÀY";
-            this.TUNGAY.FieldName = "TUNGAY";
-            this.TUNGAY.MinWidth = 25;
-            this.TUNGAY.Name = "TUNGAY";
-            this.TUNGAY.Width = 191;
-            // 
-            // DENNGAY
-            // 
-            this.DENNGAY.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.DENNGAY.AppearanceHeader.Options.UseFont = true;
-            this.DENNGAY.Caption = "ĐẾN NGÀY";
-            this.DENNGAY.FieldName = "DENNGAY";
-            this.DENNGAY.MinWidth = 25;
-            this.DENNGAY.Name = "DENNGAY";
-            this.DENNGAY.Width = 497;
             // 
             // LYDO
             // 
@@ -1520,8 +1496,6 @@
         private DevExpress.XtraGrid.Columns.GridColumn MANV;
         private DevExpress.XtraGrid.Columns.GridColumn HOTEN;
         private DevExpress.XtraGrid.Columns.GridColumn NGAY;
-        private DevExpress.XtraGrid.Columns.GridColumn TUNGAY;
-        private DevExpress.XtraGrid.Columns.GridColumn DENNGAY;
         private DevExpress.XtraGrid.Columns.GridColumn LYDO;
         private System.Windows.Forms.TextBox txtNoiDung;
         private System.Windows.Forms.TextBox txtLyDo;

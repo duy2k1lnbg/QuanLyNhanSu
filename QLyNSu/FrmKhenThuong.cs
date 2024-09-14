@@ -1,6 +1,8 @@
 ﻿using Bu;
+using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
+using DevExpress.XtraReports.UI;
 using QLyNSu.Reports;
 using System;
 using System.Collections.Generic;
@@ -25,6 +27,7 @@ namespace QLyNSu
         private string _SOQD;
         private KHENTHUONG_KYLUAT _ktkl;
         private NHANVIEN _nhanvien;
+        public List<KHENTHUONG_KYLUAT_DTO> _lstKT;
         private void FrmKhenThuong_Load(object sender, EventArgs e)
         {
             _ktkl = new KHENTHUONG_KYLUAT();
@@ -126,9 +129,9 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            //_lstHD = _hdld.getItem_FULL(_SOHD);
-            //rptHopDongLaoDong rpt = new rptHopDongLaoDong(_lstHD);
-            //rpt.ShowRibbonPreview();
+            _lstKT = _ktkl.getItem_FULL(1, _SOQD);
+            rptKhenThuong rpt = new rptKhenThuong(_lstKT);
+            rpt.ShowRibbonPreview();
         }
 
         private void gvDsKT_Click(object sender, EventArgs e)
@@ -140,12 +143,10 @@ namespace QLyNSu
 
                 txtSoQD.Text = _SOQD;
                 dtNgay.Value = kt.NGAY.Value;
-                //dtNgayKetThuc.Value = kt.NGAYKETTHUC.Value;
-                //dtNgayKy.Value = kt.NGAYKY.Value;
                 searchMANV.EditValue = kt.MANV;
                 txtLyDo.Text = kt.LYDO;
                 txtNoiDung.Text = kt.NOIDUNG;
-                //_lstHD = _ktkl.getItem_FULL(_SOQD);
+                _lstKT = _ktkl.getItem_FULL(1,_SOQD);
             }
         }
 
@@ -213,7 +214,7 @@ namespace QLyNSu
             catch (Exception ex)
             {
                 // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
-                MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, " Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
