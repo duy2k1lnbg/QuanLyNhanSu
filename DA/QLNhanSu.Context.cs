@@ -34,7 +34,6 @@ namespace DA
         public virtual DbSet<TB_HOPDONG> TB_HOPDONG { get; set; }
         public virtual DbSet<TB_LOAICA> TB_LOAICA { get; set; }
         public virtual DbSet<TB_LOAICONG> TB_LOAICONG { get; set; }
-        public virtual DbSet<TB_NHANVIEN> TB_NHANVIEN { get; set; }
         public virtual DbSet<TB_NHANVIEN_PHUCAP> TB_NHANVIEN_PHUCAP { get; set; }
         public virtual DbSet<TB_PHONGBAN> TB_PHONGBAN { get; set; }
         public virtual DbSet<TB_PHUCAP> TB_PHUCAP { get; set; }
@@ -46,5 +45,7 @@ namespace DA
         public virtual DbSet<TB_CONGTY> TB_CONGTY { get; set; }
         public virtual DbSet<TB_KHENTHUONG_KYLUAT> TB_KHENTHUONG_KYLUAT { get; set; }
         public virtual DbSet<TB_DIEUCHUYEN_NHANVIEN> TB_DIEUCHUYEN_NHANVIEN { get; set; }
+        public virtual DbSet<TB_NHANVIEN> TB_NHANVIEN { get; set; }
+        public virtual DbSet<TB_NHANVIEN_THOIVIEC> TB_NHANVIEN_THOIVIEC { get; set; }
     }
 }

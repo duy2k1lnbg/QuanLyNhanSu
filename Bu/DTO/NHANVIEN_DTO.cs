@@ -33,5 +33,6 @@ namespace Bu.DTO
         public string TENCTY { get; set; }
         public Nullable<decimal> IDQT { get; set; }
         public string TENQT { get; set; }
+        public Nullable<decimal> DATHOIVIEC { get; set; }
     }
 }

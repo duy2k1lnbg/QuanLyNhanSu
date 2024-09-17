@@ -93,10 +93,12 @@
     <Compile Include="DTO\HOPDONG_DTO.cs" />
     <Compile Include="DTO\KHENTHUONG_KYLUAT_DTO.cs" />
     <Compile Include="DTO\NHANVIEN_DTO.cs" />
+    <Compile Include="DTO\NHANVIEN_THOIVIEC_DTO.cs" />
     <Compile Include="GIOITINH.cs" />
     <Compile Include="HOPDONGLAODONG.cs" />
     <Compile Include="KHENTHUONG_KYLUAT.cs" />
     <Compile Include="NHANVIEN.cs" />
+    <Compile Include="NHANVIEN_THOIVIEC.cs" />
     <Compile Include="PHONGBAN.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QUOCTICH.cs" />

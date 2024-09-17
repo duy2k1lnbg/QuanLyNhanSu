@@ -155,6 +155,9 @@
     <Compile Include="TB_NHANVIEN_PHUCAP.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_NHANVIEN_THOIVIEC.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_PHONGBAN.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>

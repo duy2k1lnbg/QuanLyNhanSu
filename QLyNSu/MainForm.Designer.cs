@@ -213,6 +213,7 @@
             this.btnThoiViec.Id = 12;
             this.btnThoiViec.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnThoiViec.ImageOptions.SvgImage")));
             this.btnThoiViec.Name = "btnThoiViec";
+            this.btnThoiViec.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnThoiViec_ItemClick);
             // 
             // barButtonItem13
             // 
