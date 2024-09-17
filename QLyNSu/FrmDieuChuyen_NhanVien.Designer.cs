@@ -344,6 +344,7 @@
             this.gcDsDC.TabIndex = 0;
             this.gcDsDC.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvDsDC});
+            this.gcDsDC.Click += new System.EventHandler(this.gcDsDC_Click);
             // 
             // gvDsDC
             // 
@@ -445,12 +446,12 @@
             this.DELETED_BY.AppearanceHeader.Options.UseFont = true;
             this.DELETED_BY.Caption = "DEL";
             this.DELETED_BY.FieldName = "DELETED_BY";
-            this.DELETED_BY.MaxWidth = 50;
-            this.DELETED_BY.MinWidth = 50;
+            this.DELETED_BY.MaxWidth = 30;
+            this.DELETED_BY.MinWidth = 30;
             this.DELETED_BY.Name = "DELETED_BY";
             this.DELETED_BY.Visible = true;
             this.DELETED_BY.VisibleIndex = 0;
-            this.DELETED_BY.Width = 50;
+            this.DELETED_BY.Width = 30;
             // 
             // TENPB
             // 

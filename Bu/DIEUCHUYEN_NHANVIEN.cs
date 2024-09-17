@@ -41,7 +41,7 @@ namespace Bu
                 nvDTO.TENPB = pb.TENPB;
 
                 nvDTO.MAPB2 = item.MAPB2;
-                var pb2 = db.TB_PHONGBAN.FirstOrDefault(c => c.IDPB == item.MAPB);
+                var pb2 = db.TB_PHONGBAN.FirstOrDefault(c => c.IDPB == item.MAPB2);
                 nvDTO.TENPB2 = pb2.TENPB;
 
                 nvDTO.NGAYDC = item.NGAYDC;

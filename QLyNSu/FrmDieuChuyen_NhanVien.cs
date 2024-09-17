@@ -111,7 +111,12 @@ namespace QLyNSu
 
         private void gvDsDC_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
         {
-
+            if (e.Column.Name == "DELETED_BY" && e.CellValue != null)
+            {
+                Image img = Properties.Resources.del;
+                e.Graphics.DrawImage(img , e.Bounds.X, e.Bounds.Y);
+                e.Handled = true;
+            }
         }
 
         private void showHide(bool kt)
@@ -164,6 +169,7 @@ namespace QLyNSu
 
         private void SaveData()
         {
+            TB_DIEUCHUYEN_NHANVIEN dc;
             try
             {
                 if (_them)
@@ -191,7 +197,7 @@ namespace QLyNSu
                     var maxSoQD = _dcnv.MaxSoQuyetDinh();
                     int so = int.Parse(maxSoQD.Substring(0, 5)) + 1;
 
-                    TB_DIEUCHUYEN_NHANVIEN dc = new TB_DIEUCHUYEN_NHANVIEN();
+                    dc = new TB_DIEUCHUYEN_NHANVIEN();
                     dc.SOQDDIEUCHUYEN = so.ToString("00000") + @"/" + DateTime.Now.Year.ToString() + @"/QĐĐC";
                     dc.NGAYDC = dtNgayDC.Value;
                     dc.LYDODC = txtLyDoDC.Text;
@@ -206,7 +212,7 @@ namespace QLyNSu
                 else
                 {
                     //Số hợp đồng: 00001/2024/HĐLĐ
-                    var dc = _dcnv.getItem(_SOQD);
+                    dc = _dcnv.getItem(_SOQD);
                     if (dc == null)
                     {
                         MessageBox.Show("Không tìm thấy hợp đồng với số hợp đồng: " + _SOQD, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -222,12 +228,20 @@ namespace QLyNSu
                     dc.UPDATED_DATE = DateTime.Now;
                     _dcnv.Update(dc);
                 }
+                var nv = _nhanvien.getItem((int)dc.MANV.Value);
+                nv.IDPB = dc.MAPB2;
+                _nhanvien.Update(nv);
             }
             catch (Exception ex)
             {
                 // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
                 MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        }
+
+        private void gcDsDC_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
