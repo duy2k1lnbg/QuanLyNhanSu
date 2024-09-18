@@ -18,9 +18,11 @@ namespace DA
         public TB_NHANVIEN()
         {
             this.TB_BAOHIEM = new HashSet<TB_BAOHIEM>();
+            this.TB_DIEUCHUYEN_NHANVIEN = new HashSet<TB_DIEUCHUYEN_NHANVIEN>();
             this.TB_HOPDONG = new HashSet<TB_HOPDONG>();
             this.TB_KHENTHUONG_KYLUAT = new HashSet<TB_KHENTHUONG_KYLUAT>();
             this.TB_NHANVIEN_PHUCAP = new HashSet<TB_NHANVIEN_PHUCAP>();
+            this.TB_NHANVIEN_THOIVIEC = new HashSet<TB_NHANVIEN_THOIVIEC>();
             this.TB_TANGCA = new HashSet<TB_TANGCA>();
             this.TB_UNGLUONG = new HashSet<TB_UNGLUONG>();
         }
@@ -50,6 +52,8 @@ namespace DA
         public virtual TB_CHUCVU TB_CHUCVU { get; set; }
         public virtual TB_CONGTY TB_CONGTY { get; set; }
         public virtual TB_DANTOC TB_DANTOC { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_DIEUCHUYEN_NHANVIEN> TB_DIEUCHUYEN_NHANVIEN { get; set; }
         public virtual TB_GIOITINH TB_GIOITINH { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_HOPDONG> TB_HOPDONG { get; set; }
@@ -61,6 +65,8 @@ namespace DA
         public virtual TB_QUOCTICH TB_QUOCTICH { get; set; }
         public virtual TB_TRINHDO TB_TRINHDO { get; set; }
         public virtual TB_TONGIAO TB_TONGIAO { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_NHANVIEN_THOIVIEC> TB_NHANVIEN_THOIVIEC { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_TANGCA> TB_TANGCA { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]

@@ -21,7 +21,7 @@ namespace DA
         public string NOIDUNG { get; set; }
         public Nullable<decimal> SOTIEN { get; set; }
     
-        public virtual TB_PHUCAP TB_PHUCAP { get; set; }
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
+        public virtual TB_PHUCAP TB_PHUCAP { get; set; }
     }
 }

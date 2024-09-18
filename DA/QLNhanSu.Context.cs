@@ -29,12 +29,17 @@ namespace DA
         public virtual DbSet<TB_BAOHIEM> TB_BAOHIEM { get; set; }
         public virtual DbSet<TB_BOPHAN> TB_BOPHAN { get; set; }
         public virtual DbSet<TB_CHUCVU> TB_CHUCVU { get; set; }
+        public virtual DbSet<TB_CONGTY> TB_CONGTY { get; set; }
         public virtual DbSet<TB_DANTOC> TB_DANTOC { get; set; }
+        public virtual DbSet<TB_DIEUCHUYEN_NHANVIEN> TB_DIEUCHUYEN_NHANVIEN { get; set; }
         public virtual DbSet<TB_GIOITINH> TB_GIOITINH { get; set; }
         public virtual DbSet<TB_HOPDONG> TB_HOPDONG { get; set; }
+        public virtual DbSet<TB_KHENTHUONG_KYLUAT> TB_KHENTHUONG_KYLUAT { get; set; }
         public virtual DbSet<TB_LOAICA> TB_LOAICA { get; set; }
         public virtual DbSet<TB_LOAICONG> TB_LOAICONG { get; set; }
+        public virtual DbSet<TB_NHANVIEN> TB_NHANVIEN { get; set; }
         public virtual DbSet<TB_NHANVIEN_PHUCAP> TB_NHANVIEN_PHUCAP { get; set; }
+        public virtual DbSet<TB_NHANVIEN_THOIVIEC> TB_NHANVIEN_THOIVIEC { get; set; }
         public virtual DbSet<TB_PHONGBAN> TB_PHONGBAN { get; set; }
         public virtual DbSet<TB_PHUCAP> TB_PHUCAP { get; set; }
         public virtual DbSet<TB_QUOCTICH> TB_QUOCTICH { get; set; }
@@ -42,10 +47,5 @@ namespace DA
         public virtual DbSet<TB_TONGIAO> TB_TONGIAO { get; set; }
         public virtual DbSet<TB_TRINHDO> TB_TRINHDO { get; set; }
         public virtual DbSet<TB_UNGLUONG> TB_UNGLUONG { get; set; }
-        public virtual DbSet<TB_CONGTY> TB_CONGTY { get; set; }
-        public virtual DbSet<TB_KHENTHUONG_KYLUAT> TB_KHENTHUONG_KYLUAT { get; set; }
-        public virtual DbSet<TB_DIEUCHUYEN_NHANVIEN> TB_DIEUCHUYEN_NHANVIEN { get; set; }
-        public virtual DbSet<TB_NHANVIEN> TB_NHANVIEN { get; set; }
-        public virtual DbSet<TB_NHANVIEN_THOIVIEC> TB_NHANVIEN_THOIVIEC { get; set; }
     }
 }

@@ -27,5 +27,7 @@ namespace DA
         public Nullable<System.DateTime> UPDATED_DATE { get; set; }
         public Nullable<decimal> DELETED_BY { get; set; }
         public Nullable<System.DateTime> DELETED_DATE { get; set; }
+    
+        public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }
 }
