@@ -161,6 +161,12 @@
     <Compile Include="FrmKyLuat.Designer.cs">
       <DependentUpon>FrmKyLuat.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmNangLuong_NhanVien.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmNangLuong_NhanVien.Designer.cs">
+      <DependentUpon>FrmNangLuong_NhanVien.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmNhanVien.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -246,6 +252,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FrmKyLuat.resx">
       <DependentUpon>FrmKyLuat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmNangLuong_NhanVien.resx">
+      <DependentUpon>FrmNangLuong_NhanVien.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmNhanVien.resx">
       <DependentUpon>FrmNhanVien.cs</DependentUpon>

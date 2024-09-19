@@ -133,5 +133,10 @@ namespace QLyNSu
         {
             OpenForm(typeof(FrmNhanVien_ThoiViec));
         }
+
+        private void btnNangLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            OpenForm(typeof(FrmNangLuong_NhanVien));
+        }
     }
 }
