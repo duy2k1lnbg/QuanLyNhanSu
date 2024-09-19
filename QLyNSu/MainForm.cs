@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Bu;
+using QLyNSu.FORM_CHAMCONG;
 
 namespace QLyNSu
 {
@@ -185,6 +186,11 @@ namespace QLyNSu
             {
                 e.TemplatedItem.AppearanceItem.Normal.ForeColor = Color.Blue;
             }    
+        }
+
+        private void btnLoaiCa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            OpenForm(typeof(FrmLoaiCa));
         }
     }
 }

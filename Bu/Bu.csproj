@@ -84,6 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CLASS_CHAMCONG\LOAICA.cs" />
     <Compile Include="CLASS_NHANSU\BOPHAN.cs" />
     <Compile Include="CLASS_NHANSU\CHUCVU.cs" />
     <Compile Include="CLASS_NHANSU\CONGTY.cs" />
@@ -123,6 +124,7 @@
       <Name>DA</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Text.Json.6.0.0\build\System.Text.Json.targets" Condition="Exists('..\packages\System.Text.Json.6.0.0\build\System.Text.Json.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

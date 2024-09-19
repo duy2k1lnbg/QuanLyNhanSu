@@ -136,6 +136,12 @@
           <Property Name="IDLOAICA" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENLOAICA" Type="nvarchar2" MaxLength="50" />
           <Property Name="HESO" Type="float" Precision="126" Scale="0" />
+          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="date" />
+          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="date" />
+          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_LOAICONG">
           <Key>
@@ -704,7 +710,6 @@
           <EntitySet Name="TB_GIOITINH" EntityType="Model.TB_GIOITINH" />
           <EntitySet Name="TB_HOPDONG" EntityType="Model.TB_HOPDONG" />
           <EntitySet Name="TB_KHENTHUONG_KYLUAT" EntityType="Model.TB_KHENTHUONG_KYLUAT" />
-          <EntitySet Name="TB_LOAICA" EntityType="Model.TB_LOAICA" />
           <EntitySet Name="TB_LOAICONG" EntityType="Model.TB_LOAICONG" />
           <EntitySet Name="TB_NHANVIEN" EntityType="Model.TB_NHANVIEN" />
           <EntitySet Name="TB_NHANVIEN_PHUCAP" EntityType="Model.TB_NHANVIEN_PHUCAP" />
@@ -760,10 +765,6 @@
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_KHENTHUONG_KYLUAT" EntitySet="TB_KHENTHUONG_KYLUAT" />
           </AssociationSet>
-          <AssociationSet Name="TB_TANGCA_LCA_FK1" Association="Model.TB_TANGCA_LCA_FK1">
-            <End Role="TB_LOAICA" EntitySet="TB_LOAICA" />
-            <End Role="TB_TANGCA" EntitySet="TB_TANGCA" />
-          </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_PB_FK1" Association="Model.TB_NHANVIEN_PB_FK1">
             <End Role="TB_PHONGBAN" EntitySet="TB_PHONGBAN" />
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
@@ -804,6 +805,11 @@
           <AssociationSet Name="TB_NANGLUONG_NHANVIEN_FK1" Association="Model.TB_NANGLUONG_NHANVIEN_FK1">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_NANGLUONG_NHANVIEN" EntitySet="TB_NANGLUONG_NHANVIEN" />
+          </AssociationSet>
+          <EntitySet Name="TB_LOAICA" EntityType="Model.TB_LOAICA" />
+          <AssociationSet Name="TB_TANGCA_LCA_FK1" Association="Model.TB_TANGCA_LCA_FK1">
+            <End Role="TB_LOAICA" EntitySet="TB_LOAICA" />
+            <End Role="TB_TANGCA" EntitySet="TB_TANGCA" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="TB_BANGCONG">
@@ -941,15 +947,6 @@
           <Property Name="SOQUYETDINH" Type="String" Nullable="false" MaxLength="70" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" FromRole="TB_KHENTHUONG_KYLUAT" ToRole="TB_NHANVIEN" />
         </EntityType>
-        <EntityType Name="TB_LOAICA">
-          <Key>
-            <PropertyRef Name="IDLOAICA" />
-          </Key>
-          <Property Name="IDLOAICA" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENLOAICA" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="HESO" Type="Decimal" Precision="38" Scale="0" />
-          <NavigationProperty Name="TB_TANGCA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_LOAICA" ToRole="TB_TANGCA" />
-        </EntityType>
         <EntityType Name="TB_LOAICONG">
           <Key>
             <PropertyRef Name="IDLOAICONG" />
@@ -1067,8 +1064,8 @@
           <Property Name="SOGIO" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="IDLOAICA" Type="Decimal" Precision="38" Scale="0" />
-          <NavigationProperty Name="TB_LOAICA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_TANGCA" ToRole="TB_LOAICA" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_TANGCA_NV_FK2" FromRole="TB_TANGCA" ToRole="TB_NHANVIEN" />
+          <NavigationProperty Name="TB_LOAICA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_TANGCA" ToRole="TB_LOAICA" />
         </EntityType>
         <EntityType Name="TB_TONGIAO">
           <Key>
@@ -1251,20 +1248,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="TB_TANGCA_LCA_FK1">
-          <End Type="Model.TB_LOAICA" Role="TB_LOAICA" Multiplicity="0..1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="Model.TB_TANGCA" Role="TB_TANGCA" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="TB_LOAICA">
-              <PropertyRef Name="IDLOAICA" />
-            </Principal>
-            <Dependent Role="TB_TANGCA">
-              <PropertyRef Name="IDLOAICA" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="TB_NHANVIEN_PB_FK1">
           <End Type="Model.TB_PHONGBAN" Role="TB_PHONGBAN" Multiplicity="0..1">
             <OnDelete Action="Cascade" />
@@ -1421,6 +1404,35 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="TB_LOAICA">
+          <Key>
+            <PropertyRef Name="IDLOAICA" />
+          </Key>
+          <Property Name="IDLOAICA" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TENLOAICA" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="HESO" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_TANGCA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_LOAICA" ToRole="TB_TANGCA" />
+        </EntityType>
+        <Association Name="TB_TANGCA_LCA_FK1">
+          <End Type="Model.TB_LOAICA" Role="TB_LOAICA" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_TANGCA" Role="TB_TANGCA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_LOAICA">
+              <PropertyRef Name="IDLOAICA" />
+            </Principal>
+            <Dependent Role="TB_TANGCA">
+              <PropertyRef Name="IDLOAICA" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1558,15 +1570,6 @@
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
                 <ScalarProperty Name="NGAY" ColumnName="NGAY" />
                 <ScalarProperty Name="NOIDUNG" ColumnName="NOIDUNG" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_LOAICA">
-            <EntityTypeMapping TypeName="Model.TB_LOAICA">
-              <MappingFragment StoreEntitySet="TB_LOAICA">
-                <ScalarProperty Name="HESO" ColumnName="HESO" />
-                <ScalarProperty Name="TENLOAICA" ColumnName="TENLOAICA" />
-                <ScalarProperty Name="IDLOAICA" ColumnName="IDLOAICA" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1716,6 +1719,21 @@
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
                 <ScalarProperty Name="SOHD" ColumnName="SOHD" />
                 <ScalarProperty Name="SOQDNL" ColumnName="SOQDNL" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_LOAICA">
+            <EntityTypeMapping TypeName="Model.TB_LOAICA">
+              <MappingFragment StoreEntitySet="TB_LOAICA">
+                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
+                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="HESO" ColumnName="HESO" />
+                <ScalarProperty Name="TENLOAICA" ColumnName="TENLOAICA" />
+                <ScalarProperty Name="IDLOAICA" ColumnName="IDLOAICA" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

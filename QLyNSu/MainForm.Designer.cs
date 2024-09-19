@@ -30,15 +30,15 @@
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            DevExpress.XtraEditors.TableLayout.ItemTemplateBase itemTemplateBase2 = new DevExpress.XtraEditors.TableLayout.ItemTemplateBase();
-            DevExpress.XtraEditors.TableLayout.TableColumnDefinition tableColumnDefinition2 = new DevExpress.XtraEditors.TableLayout.TableColumnDefinition();
-            DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement3 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
-            DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement4 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
             DevExpress.XtraEditors.TableLayout.ItemTemplateBase itemTemplateBase1 = new DevExpress.XtraEditors.TableLayout.ItemTemplateBase();
             DevExpress.XtraEditors.TableLayout.TableColumnDefinition tableColumnDefinition1 = new DevExpress.XtraEditors.TableLayout.TableColumnDefinition();
             DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement1 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
             DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement2 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
             DevExpress.XtraEditors.TableLayout.TableRowDefinition tableRowDefinition1 = new DevExpress.XtraEditors.TableLayout.TableRowDefinition();
+            DevExpress.XtraEditors.TableLayout.ItemTemplateBase itemTemplateBase2 = new DevExpress.XtraEditors.TableLayout.ItemTemplateBase();
+            DevExpress.XtraEditors.TableLayout.TableColumnDefinition tableColumnDefinition2 = new DevExpress.XtraEditors.TableLayout.TableColumnDefinition();
+            DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement3 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
+            DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement4 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
             this.ribbonControl1 = new DevExpress.XtraBars.Ribbon.RibbonControl();
             this.barButtonItem1 = new DevExpress.XtraBars.BarButtonItem();
             this.barButtonItem2 = new DevExpress.XtraBars.BarButtonItem();
@@ -52,13 +52,13 @@
             this.btnKhenThuong = new DevExpress.XtraBars.BarButtonItem();
             this.btnDieuChuyen = new DevExpress.XtraBars.BarButtonItem();
             this.btnThoiViec = new DevExpress.XtraBars.BarButtonItem();
-            this.barButtonItem13 = new DevExpress.XtraBars.BarButtonItem();
-            this.barButtonItem14 = new DevExpress.XtraBars.BarButtonItem();
-            this.barButtonItem15 = new DevExpress.XtraBars.BarButtonItem();
-            this.barButtonItem16 = new DevExpress.XtraBars.BarButtonItem();
-            this.barButtonItem17 = new DevExpress.XtraBars.BarButtonItem();
-            this.barButtonItem18 = new DevExpress.XtraBars.BarButtonItem();
-            this.barButtonItem19 = new DevExpress.XtraBars.BarButtonItem();
+            this.btnLoaiCa = new DevExpress.XtraBars.BarButtonItem();
+            this.btnLoaiCong = new DevExpress.XtraBars.BarButtonItem();
+            this.btnPhuCap = new DevExpress.XtraBars.BarButtonItem();
+            this.btnTangCa = new DevExpress.XtraBars.BarButtonItem();
+            this.btnUngLuong = new DevExpress.XtraBars.BarButtonItem();
+            this.btnBangCong = new DevExpress.XtraBars.BarButtonItem();
+            this.btnBangLuong = new DevExpress.XtraBars.BarButtonItem();
             this.btnExit1 = new DevExpress.XtraBars.BarButtonItem();
             this.btnCongTy = new DevExpress.XtraBars.BarButtonItem();
             this.btnBoPhan = new DevExpress.XtraBars.BarButtonItem();
@@ -83,22 +83,22 @@
             this.dockManager1 = new DevExpress.XtraBars.Docking.DockManager(this.components);
             this.dockThongBao = new DevExpress.XtraBars.Docking.DockPanel();
             this.dockPanel1_Container = new DevExpress.XtraBars.Docking.ControlContainer();
-            this.grSinhNhat = new DevExpress.XtraEditors.GroupControl();
             this.grNangLuong = new DevExpress.XtraEditors.GroupControl();
-            this.lstSinhNhat = new DevExpress.XtraEditors.ListBoxControl();
             this.lstNangLuong = new DevExpress.XtraEditors.ListBoxControl();
+            this.grSinhNhat = new DevExpress.XtraEditors.GroupControl();
+            this.lstSinhNhat = new DevExpress.XtraEditors.ListBoxControl();
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.documentManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabbedView1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).BeginInit();
             this.dockThongBao.SuspendLayout();
             this.dockPanel1_Container.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.grSinhNhat)).BeginInit();
-            this.grSinhNhat.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grNangLuong)).BeginInit();
             this.grNangLuong.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.lstSinhNhat)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.lstNangLuong)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.grSinhNhat)).BeginInit();
+            this.grSinhNhat.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.lstSinhNhat)).BeginInit();
             this.SuspendLayout();
             // 
             // ribbonControl1
@@ -119,13 +119,13 @@
             this.btnKhenThuong,
             this.btnDieuChuyen,
             this.btnThoiViec,
-            this.barButtonItem13,
-            this.barButtonItem14,
-            this.barButtonItem15,
-            this.barButtonItem16,
-            this.barButtonItem17,
-            this.barButtonItem18,
-            this.barButtonItem19,
+            this.btnLoaiCa,
+            this.btnLoaiCong,
+            this.btnPhuCap,
+            this.btnTangCa,
+            this.btnUngLuong,
+            this.btnBangCong,
+            this.btnBangLuong,
             this.btnExit1,
             this.btnCongTy,
             this.btnBoPhan,
@@ -242,55 +242,56 @@
             this.btnThoiViec.Name = "btnThoiViec";
             this.btnThoiViec.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnThoiViec_ItemClick);
             // 
-            // barButtonItem13
+            // btnLoaiCa
             // 
-            this.barButtonItem13.Caption = "Loại Ca";
-            this.barButtonItem13.Id = 13;
-            this.barButtonItem13.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem13.ImageOptions.LargeImage")));
-            this.barButtonItem13.Name = "barButtonItem13";
+            this.btnLoaiCa.Caption = "Loại Ca";
+            this.btnLoaiCa.Id = 13;
+            this.btnLoaiCa.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem13.ImageOptions.LargeImage")));
+            this.btnLoaiCa.Name = "btnLoaiCa";
+            this.btnLoaiCa.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnLoaiCa_ItemClick);
             // 
-            // barButtonItem14
+            // btnLoaiCong
             // 
-            this.barButtonItem14.Caption = "Loại Công";
-            this.barButtonItem14.Id = 14;
-            this.barButtonItem14.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem14.ImageOptions.LargeImage")));
-            this.barButtonItem14.Name = "barButtonItem14";
+            this.btnLoaiCong.Caption = "Loại Công";
+            this.btnLoaiCong.Id = 14;
+            this.btnLoaiCong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem14.ImageOptions.LargeImage")));
+            this.btnLoaiCong.Name = "btnLoaiCong";
             // 
-            // barButtonItem15
+            // btnPhuCap
             // 
-            this.barButtonItem15.Caption = "Phụ cấp";
-            this.barButtonItem15.Id = 15;
-            this.barButtonItem15.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem15.ImageOptions.LargeImage")));
-            this.barButtonItem15.Name = "barButtonItem15";
-            this.barButtonItem15.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem15_ItemClick);
+            this.btnPhuCap.Caption = "Phụ cấp";
+            this.btnPhuCap.Id = 15;
+            this.btnPhuCap.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem15.ImageOptions.LargeImage")));
+            this.btnPhuCap.Name = "btnPhuCap";
+            this.btnPhuCap.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem15_ItemClick);
             // 
-            // barButtonItem16
+            // btnTangCa
             // 
-            this.barButtonItem16.Caption = "Tăng Ca";
-            this.barButtonItem16.Id = 16;
-            this.barButtonItem16.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem16.ImageOptions.LargeImage")));
-            this.barButtonItem16.Name = "barButtonItem16";
+            this.btnTangCa.Caption = "Tăng Ca";
+            this.btnTangCa.Id = 16;
+            this.btnTangCa.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem16.ImageOptions.LargeImage")));
+            this.btnTangCa.Name = "btnTangCa";
             // 
-            // barButtonItem17
+            // btnUngLuong
             // 
-            this.barButtonItem17.Caption = "Ứng Lương";
-            this.barButtonItem17.Id = 17;
-            this.barButtonItem17.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem17.ImageOptions.LargeImage")));
-            this.barButtonItem17.Name = "barButtonItem17";
+            this.btnUngLuong.Caption = "Ứng Lương";
+            this.btnUngLuong.Id = 17;
+            this.btnUngLuong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem17.ImageOptions.LargeImage")));
+            this.btnUngLuong.Name = "btnUngLuong";
             // 
-            // barButtonItem18
+            // btnBangCong
             // 
-            this.barButtonItem18.Caption = "Bảng Công";
-            this.barButtonItem18.Id = 18;
-            this.barButtonItem18.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem18.ImageOptions.LargeImage")));
-            this.barButtonItem18.Name = "barButtonItem18";
+            this.btnBangCong.Caption = "Bảng Công";
+            this.btnBangCong.Id = 18;
+            this.btnBangCong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem18.ImageOptions.LargeImage")));
+            this.btnBangCong.Name = "btnBangCong";
             // 
-            // barButtonItem19
+            // btnBangLuong
             // 
-            this.barButtonItem19.Caption = "Bảng Lương";
-            this.barButtonItem19.Id = 19;
-            this.barButtonItem19.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem19.ImageOptions.LargeImage")));
-            this.barButtonItem19.Name = "barButtonItem19";
+            this.btnBangLuong.Caption = "Bảng Lương";
+            this.btnBangLuong.Id = 19;
+            this.btnBangLuong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem19.ImageOptions.LargeImage")));
+            this.btnBangLuong.Name = "btnBangLuong";
             // 
             // btnExit1
             // 
@@ -418,13 +419,13 @@
             // 
             // ribbonPageGroup5
             // 
-            this.ribbonPageGroup5.ItemLinks.Add(this.barButtonItem13, true);
-            this.ribbonPageGroup5.ItemLinks.Add(this.barButtonItem14, true);
-            this.ribbonPageGroup5.ItemLinks.Add(this.barButtonItem15, true);
-            this.ribbonPageGroup5.ItemLinks.Add(this.barButtonItem16, true);
-            this.ribbonPageGroup5.ItemLinks.Add(this.barButtonItem17, true);
-            this.ribbonPageGroup5.ItemLinks.Add(this.barButtonItem18, true);
-            this.ribbonPageGroup5.ItemLinks.Add(this.barButtonItem19, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnLoaiCa, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnLoaiCong, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnPhuCap, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnTangCa, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnUngLuong, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnBangCong, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnBangLuong, true);
             this.ribbonPageGroup5.Name = "ribbonPageGroup5";
             this.ribbonPageGroup5.Text = "Quản Lý Chấm Công";
             // 
@@ -493,18 +494,6 @@
             this.dockPanel1_Container.Size = new System.Drawing.Size(271, 486);
             this.dockPanel1_Container.TabIndex = 0;
             // 
-            // grSinhNhat
-            // 
-            this.grSinhNhat.AppearanceCaption.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.grSinhNhat.AppearanceCaption.Options.UseFont = true;
-            this.grSinhNhat.Controls.Add(this.lstSinhNhat);
-            this.grSinhNhat.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grSinhNhat.Location = new System.Drawing.Point(0, 0);
-            this.grSinhNhat.Name = "grSinhNhat";
-            this.grSinhNhat.Size = new System.Drawing.Size(271, 370);
-            this.grSinhNhat.TabIndex = 1;
-            this.grSinhNhat.Text = "Sinh Nhật";
-            // 
             // grNangLuong
             // 
             this.grNangLuong.AppearanceCaption.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -516,6 +505,47 @@
             this.grNangLuong.Size = new System.Drawing.Size(271, 116);
             this.grNangLuong.TabIndex = 2;
             this.grNangLuong.Text = "Tăng Lương";
+            // 
+            // lstNangLuong
+            // 
+            this.lstNangLuong.Appearance.Font = new System.Drawing.Font("Times New Roman", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lstNangLuong.Appearance.Options.UseFont = true;
+            this.lstNangLuong.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstNangLuong.ItemHeight = 48;
+            this.lstNangLuong.Location = new System.Drawing.Point(2, 28);
+            this.lstNangLuong.Name = "lstNangLuong";
+            this.lstNangLuong.Size = new System.Drawing.Size(267, 86);
+            this.lstNangLuong.TabIndex = 0;
+            itemTemplateBase1.Columns.Add(tableColumnDefinition1);
+            templatedItemElement1.FieldName = "HOTEN";
+            templatedItemElement1.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            templatedItemElement1.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
+            templatedItemElement1.Text = "HOTEN";
+            templatedItemElement1.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.TopLeft;
+            templatedItemElement2.AnchorElementIndex = 0;
+            templatedItemElement2.FieldName = "NGAYBATDAU";
+            templatedItemElement2.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            templatedItemElement2.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
+            templatedItemElement2.Text = "NGAYBATDAU";
+            templatedItemElement2.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            itemTemplateBase1.Elements.Add(templatedItemElement1);
+            itemTemplateBase1.Elements.Add(templatedItemElement2);
+            itemTemplateBase1.Name = "LenLuong_NV";
+            itemTemplateBase1.Rows.Add(tableRowDefinition1);
+            this.lstNangLuong.Templates.Add(itemTemplateBase1);
+            this.lstNangLuong.CustomizeItem += new DevExpress.XtraEditors.CustomizeTemplatedItemEventHandler(this.lstNangLuong_CustomizeItem);
+            // 
+            // grSinhNhat
+            // 
+            this.grSinhNhat.AppearanceCaption.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grSinhNhat.AppearanceCaption.Options.UseFont = true;
+            this.grSinhNhat.Controls.Add(this.lstSinhNhat);
+            this.grSinhNhat.Dock = System.Windows.Forms.DockStyle.Top;
+            this.grSinhNhat.Location = new System.Drawing.Point(0, 0);
+            this.grSinhNhat.Name = "grSinhNhat";
+            this.grSinhNhat.Size = new System.Drawing.Size(271, 370);
+            this.grSinhNhat.TabIndex = 1;
+            this.grSinhNhat.Text = "Sinh Nhật";
             // 
             // lstSinhNhat
             // 
@@ -547,35 +577,6 @@
             this.lstSinhNhat.Templates.Add(itemTemplateBase2);
             this.lstSinhNhat.CustomizeItem += new DevExpress.XtraEditors.CustomizeTemplatedItemEventHandler(this.lstSinhNhat_CustomizeItem);
             // 
-            // lstNangLuong
-            // 
-            this.lstNangLuong.Appearance.Font = new System.Drawing.Font("Times New Roman", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lstNangLuong.Appearance.Options.UseFont = true;
-            this.lstNangLuong.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstNangLuong.ItemHeight = 48;
-            this.lstNangLuong.Location = new System.Drawing.Point(2, 28);
-            this.lstNangLuong.Name = "lstNangLuong";
-            this.lstNangLuong.Size = new System.Drawing.Size(267, 86);
-            this.lstNangLuong.TabIndex = 0;
-            itemTemplateBase1.Columns.Add(tableColumnDefinition1);
-            templatedItemElement1.FieldName = "HOTEN";
-            templatedItemElement1.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            templatedItemElement1.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
-            templatedItemElement1.Text = "HOTEN";
-            templatedItemElement1.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.TopLeft;
-            templatedItemElement2.AnchorElementIndex = 0;
-            templatedItemElement2.FieldName = "NGAYBATDAU";
-            templatedItemElement2.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            templatedItemElement2.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
-            templatedItemElement2.Text = "NGAYBATDAU";
-            templatedItemElement2.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            itemTemplateBase1.Elements.Add(templatedItemElement1);
-            itemTemplateBase1.Elements.Add(templatedItemElement2);
-            itemTemplateBase1.Name = "LenLuong_NV";
-            itemTemplateBase1.Rows.Add(tableRowDefinition1);
-            this.lstNangLuong.Templates.Add(itemTemplateBase1);
-            this.lstNangLuong.CustomizeItem += new DevExpress.XtraEditors.CustomizeTemplatedItemEventHandler(this.lstNangLuong_CustomizeItem);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -595,12 +596,12 @@
             ((System.ComponentModel.ISupportInitialize)(this.dockManager1)).EndInit();
             this.dockThongBao.ResumeLayout(false);
             this.dockPanel1_Container.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.grSinhNhat)).EndInit();
-            this.grSinhNhat.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grNangLuong)).EndInit();
             this.grNangLuong.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.lstSinhNhat)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.lstNangLuong)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.grSinhNhat)).EndInit();
+            this.grSinhNhat.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.lstSinhNhat)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -631,13 +632,13 @@
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup ribbonPageGroup5;
         private DevExpress.XtraBars.Ribbon.RibbonPage ribbonPage4;
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup ribbonPageGroup6;
-        private DevExpress.XtraBars.BarButtonItem barButtonItem13;
-        private DevExpress.XtraBars.BarButtonItem barButtonItem14;
-        private DevExpress.XtraBars.BarButtonItem barButtonItem15;
-        private DevExpress.XtraBars.BarButtonItem barButtonItem16;
-        private DevExpress.XtraBars.BarButtonItem barButtonItem17;
-        private DevExpress.XtraBars.BarButtonItem barButtonItem18;
-        private DevExpress.XtraBars.BarButtonItem barButtonItem19;
+        private DevExpress.XtraBars.BarButtonItem btnLoaiCa;
+        private DevExpress.XtraBars.BarButtonItem btnLoaiCong;
+        private DevExpress.XtraBars.BarButtonItem btnPhuCap;
+        private DevExpress.XtraBars.BarButtonItem btnTangCa;
+        private DevExpress.XtraBars.BarButtonItem btnUngLuong;
+        private DevExpress.XtraBars.BarButtonItem btnBangCong;
+        private DevExpress.XtraBars.BarButtonItem btnBangLuong;
         private DevExpress.XtraBars.Ribbon.RibbonPageGroup ribbonPageGroup7;
         private DevExpress.XtraBars.BarButtonItem btnExit1;
         private DevExpress.XtraBars.Docking2010.DocumentManager documentManager1;
