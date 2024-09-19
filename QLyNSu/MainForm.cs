@@ -82,7 +82,7 @@ namespace QLyNSu
         {
             _nhanvien = new NHANVIEN();
             _hopdong = new HOPDONGLAODONG();
-            ribbonControl1.SelectedPage = ribbonPage2;
+            ribbonControl1.SelectedPage = ribbonPage3;
             loadSinhNhat();
             loadLenLuong();
         }
