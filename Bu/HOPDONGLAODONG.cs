@@ -209,5 +209,55 @@ namespace Bu
                 return "00000";
             }
         }
+
+        public List<HOPDONG_DTO> getLenLuong()
+        {
+            List<TB_HOPDONG> lstHD = db.TB_HOPDONG.Where(x => x.NGAYBATDAU.HasValue
+                && x.NGAYBATDAU.Value.Month == DateTime.Now.Month
+                && (DateTime.Now.Year - x.NGAYBATDAU.Value.Year) == 2).ToList();
+
+            //List<TB_HOPDONG> lstHD = db.TB_HOPDONG.Where(x => x.NGAYBATDAU.HasValue && x.NGAYBATDAU.Value.Year == 2022).ToList();
+            List<HOPDONG_DTO> lstHD_DTO = new List<HOPDONG_DTO>();
+            HOPDONG_DTO hd_DTO;
+            foreach (var item in lstHD)
+            {
+                hd_DTO = new HOPDONG_DTO();
+                hd_DTO.SOHD = item.SOHD;
+                hd_DTO.NGAYBATDAU = item.NGAYBATDAU.Value.ToString("dd/MM/yyyy");
+                hd_DTO.NGAYKETTHUC = item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy");
+                //hd_DTO.NGAYBATDAU = "Từ ngày " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(0,2) + " tháng " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(6);
+                //hd_DTO.NGAYKETTHUC = "Từ ngày " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(6);
+                hd_DTO.NGAYKY = item.NGAYKY.Value.ToString("dd/MM/yyyy");
+                hd_DTO.LANKY = item.LANKY;
+                hd_DTO.HESOLUONG = item.HESOLUONG;
+                hd_DTO.THOIHAN = item.THOIHAN;
+                hd_DTO.NOIDUNG = item.NOIDUNG;
+
+                hd_DTO.MANV = item.MANV;
+                var nv = db.TB_NHANVIEN.FirstOrDefault(n => n.MANV == item.MANV);
+                hd_DTO.HOTEN = nv.HOTEN;
+                hd_DTO.CCCD = nv.CCCD;
+                hd_DTO.DIACHI = nv.DIACHI;
+                hd_DTO.NGAYSINH = nv.NGAYSINH.Value.ToString("dd/MM/yyyy");
+
+                hd_DTO.IDTD = nv.IDTD;
+                var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == nv.IDTD);
+                hd_DTO.TENTD = td.TENTD;
+
+                hd_DTO.IDQT = nv.IDQT;
+                var qt = db.TB_QUOCTICH.FirstOrDefault(b => b.IDQT == nv.IDQT);
+                hd_DTO.TENQT = qt.TENQT;
+
+                hd_DTO.CREATED_BY = item.CREATED_BY;
+                hd_DTO.CREATED_DATE = item.CREATED_DATE;
+                hd_DTO.UPDATE_BY = item.UPDATE_BY;
+                hd_DTO.UPDATE_DATE = item.UPDATE_DATE;
+                hd_DTO.DEL_BY = item.DEL_BY;
+                hd_DTO.DEL_DATE = item.DEL_DATE;
+                hd_DTO.IDCTY = item.IDCTY;
+                lstHD_DTO.Add(hd_DTO);
+            }
+            return lstHD_DTO;
+        }
     }
 }

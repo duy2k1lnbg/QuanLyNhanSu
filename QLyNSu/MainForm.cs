@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Bu;
 
 namespace QLyNSu
 {
@@ -15,6 +16,9 @@ namespace QLyNSu
         {
             InitializeComponent();
         }
+
+        private NHANVIEN _nhanvien;
+        private HOPDONGLAODONG _hopdong;
 
         private void OpenForm(Type typeForm)
         {
@@ -76,7 +80,11 @@ namespace QLyNSu
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            _nhanvien = new NHANVIEN();
+            _hopdong = new HOPDONGLAODONG();
             ribbonControl1.SelectedPage = ribbonPage2;
+            loadSinhNhat();
+            loadLenLuong();
         }
 
         private void barButtonItem7_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -137,6 +145,46 @@ namespace QLyNSu
         private void btnNangLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             OpenForm(typeof(FrmNangLuong_NhanVien));
+        }
+
+        private void loadSinhNhat()
+        {
+            lstSinhNhat.DataSource = _nhanvien.getSinhNhat();
+            lstSinhNhat.DisplayMember = "HOTEN";
+            lstSinhNhat.ValueMember = "MANV";
+        }
+
+        private void loadLenLuong()
+        {
+            lstNangLuong.DataSource = _hopdong.getLenLuong();
+            lstNangLuong.DisplayMember = "HOTEN";
+            lstNangLuong.ValueMember = "MANV";
+        }
+
+        private void lstSinhNhat_CustomizeItem(object sender, DevExpress.XtraEditors.CustomizeTemplatedItemEventArgs e)
+        {
+            DateTime parsedDate;
+
+            // Thử chuyển đổi chuỗi từ Elements[1].Text sang kiểu DateTime
+            if (DateTime.TryParse(e.TemplatedItem.Elements[1].Text, out parsedDate))
+            {
+                // Định dạng lại chuỗi theo định dạng dd/MM/yyyy
+                e.TemplatedItem.Elements[1].Text = parsedDate.ToString("dd/MM/yyyy");
+
+                // Kiểm tra nếu ngày hiện tại và sinh nhật trùng nhau
+                if (parsedDate.Day == DateTime.Now.Day && parsedDate.Month == DateTime.Now.Month)
+                {
+                    e.TemplatedItem.AppearanceItem.Normal.ForeColor = Color.DeepPink;
+                }
+            }
+        }
+
+        private void lstNangLuong_CustomizeItem(object sender, DevExpress.XtraEditors.CustomizeTemplatedItemEventArgs e)
+        {
+            if (e.TemplatedItem.Elements[1].Text.Substring(0,2) == DateTime.Now.Day.ToString())
+            {
+                e.TemplatedItem.AppearanceItem.Normal.ForeColor = Color.Blue;
+            }    
         }
     }
 }

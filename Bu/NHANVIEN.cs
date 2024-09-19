@@ -150,5 +150,10 @@ namespace Bu
                 throw new Exception("Lỗi" + ex.Message);
             }
         }
+
+        public List<TB_NHANVIEN> getSinhNhat()
+        {
+            return db.TB_NHANVIEN.Where(x => x.NGAYSINH.Value.Month == DateTime.Now.Month).ToList();
+        }
     }
 }
