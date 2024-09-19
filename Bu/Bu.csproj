@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLASS_CHAMCONG\LOAICA.cs" />
+    <Compile Include="CLASS_CHAMCONG\LOAICONG.cs" />
     <Compile Include="CLASS_NHANSU\BOPHAN.cs" />
     <Compile Include="CLASS_NHANSU\CHUCVU.cs" />
     <Compile Include="CLASS_NHANSU\CONGTY.cs" />

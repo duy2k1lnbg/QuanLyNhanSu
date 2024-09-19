@@ -1,5 +1,4 @@
-﻿using Bu;
-using Bu.CLASS_CHAMCONG;
+﻿using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
 using System;
@@ -14,43 +13,23 @@ using System.Windows.Forms;
 
 namespace QLyNSu.FORM_CHAMCONG
 {
-    public partial class FrmLoaiCa : DevExpress.XtraEditors.XtraForm
+    public partial class FrmLoaiCong : DevExpress.XtraEditors.XtraForm
     {
-        public FrmLoaiCa()
+        public FrmLoaiCong()
         {
             InitializeComponent();
         }
 
-        private LOAICA _loaica;
+        private LOAICONG _loaicong;
         bool _them;
-        int _IDLOAICA;
+        int _IDLOAICONG;
 
-        private void FrmLoaiCa_Load(object sender, EventArgs e)
+        private void FrmLoaiCong_Load(object sender, EventArgs e)
         {
             _them = false;
-            _loaica = new LOAICA();
+            _loaicong = new LOAICONG();
             showHide(true);
             LoadData();
-        }
-
-        private void gvDanhSach_Click(object sender, EventArgs e)
-        {
-            if(gvDanhSach.RowCount > 0)
-            {
-                _IDLOAICA = int.Parse(gvDanhSach.GetFocusedRowCellValue("IDLOAICA").ToString());
-                txtTen.Text = gvDanhSach.GetFocusedRowCellValue("TENLOAICA").ToString();
-                spHeSo.Text = gvDanhSach.GetFocusedRowCellValue("HESOLOAICA").ToString();
-            }    
-        }
-
-        private void gvDanhSach_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
-        {
-            if (e.Column.Name == "DELETED_BY" && e.CellValue != null)
-            {
-                Image img = Properties.Resources.del;
-                e.Graphics.DrawImage(img, e.Bounds.X, e.Bounds.Y);
-                e.Handled = true;
-            }
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -72,7 +51,7 @@ namespace QLyNSu.FORM_CHAMCONG
             if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 // Thực hiện xóa và tải lại dữ liệu
-                _loaica.Delete(_IDLOAICA, 1);
+                _loaicong.Delete(_IDLOAICONG, 1);
                 LoadData();
             }
         }
@@ -101,6 +80,26 @@ namespace QLyNSu.FORM_CHAMCONG
 
         }
 
+        private void gvDanhSach_Click(object sender, EventArgs e)
+        {
+            if (gvDanhSach.RowCount > 0)
+            {
+                _IDLOAICONG = int.Parse(gvDanhSach.GetFocusedRowCellValue("IDLOAICONG").ToString());
+                txtTen.Text = gvDanhSach.GetFocusedRowCellValue("TENLC").ToString();
+                spHeSo.Text = gvDanhSach.GetFocusedRowCellValue("HESOLOAICONG").ToString();
+            }
+        }
+
+        private void gvDanhSach_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
+        {
+            if (e.Column.Name == "DELETED_BY" && e.CellValue != null)
+            {
+                Image img = Properties.Resources.del;
+                e.Graphics.DrawImage(img, e.Bounds.X, e.Bounds.Y);
+                e.Handled = true;
+            }
+        }
+
         private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
@@ -116,7 +115,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void LoadData()
         {
-            gcDanhSach.DataSource = _loaica.getList();
+            gcDanhSach.DataSource = _loaicong.getList();
             gvDanhSach.OptionsBehavior.Editable = false;
         }
 
@@ -132,27 +131,27 @@ namespace QLyNSu.FORM_CHAMCONG
 
                 if (_them)
                 {
-                    TB_LOAICA lc = new TB_LOAICA();
-                    lc.TENLOAICA = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
-                    lc.HESOLOAICA = decimal.Parse(spHeSo.EditValue.ToString());
+                    TB_LOAICONG lc = new TB_LOAICONG();
+                    lc.TENLC = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
+                    lc.HESOLOAICONG = decimal.Parse(spHeSo.EditValue.ToString());
                     lc.CREATED_BY = 1;
                     lc.CREATED_DATE = DateTime.Now;
-                    _loaica.Add(lc);
+                    _loaicong.Add(lc);
                 }
                 else
                 {
-                    var lc = _loaica.getItem(_IDLOAICA);
+                    var lc = _loaicong.getItem(_IDLOAICONG);
                     if (lc != null)
                     {
-                        lc.TENLOAICA = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
-                        lc.HESOLOAICA = decimal.Parse(spHeSo.EditValue.ToString());
+                        lc.TENLC = string.IsNullOrEmpty(txtTen.Text) ? null : txtTen.Text;
+                        lc.HESOLOAICONG = decimal.Parse(spHeSo.EditValue.ToString());
                         lc.UPDATED_BY = 1;
                         lc.UPDATED_DATE = DateTime.Now;
-                        _loaica.Update(lc);
+                        _loaicong.Update(lc);
                     }
                     else
                     {
-                        throw new Exception("Không tìm thấy đối tượng với ID: " + _IDLOAICA);
+                        throw new Exception("Không tìm thấy đối tượng với ID: " + _IDLOAICONG);
                     }
                 }
             }

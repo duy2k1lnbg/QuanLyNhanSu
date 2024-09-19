@@ -7,25 +7,25 @@ using System.Threading.Tasks;
 
 namespace Bu.CLASS_CHAMCONG
 {
-    public class LOAICA
+    public class LOAICONG
     {
         MyEntities db = new MyEntities();
 
-        public TB_LOAICA getItem(int idloaica )
+        public TB_LOAICONG getItem(int idloaicong)
         {
-            return db.TB_LOAICA.FirstOrDefault(x => x.IDLOAICA == idloaica);
+            return db.TB_LOAICONG.FirstOrDefault(x => x.IDLOAICONG == idloaicong);
         }
 
-        public List<TB_LOAICA> getList()
+        public List<TB_LOAICONG> getList()
         {
-            return db.TB_LOAICA.ToList();
+            return db.TB_LOAICONG.ToList();
         }
 
-        public TB_LOAICA Add(TB_LOAICA lc)
+        public TB_LOAICONG Add(TB_LOAICONG lc)
         {
             try
             {
-                db.TB_LOAICA.Add(lc);
+                db.TB_LOAICONG.Add(lc);
                 db.SaveChanges();
                 return lc;
             }
@@ -36,13 +36,13 @@ namespace Bu.CLASS_CHAMCONG
             }
         }
 
-        public TB_LOAICA Update(TB_LOAICA lc)
+        public TB_LOAICONG Update(TB_LOAICONG lc)
         {
             try
             {
-                var _lc = db.TB_LOAICA.FirstOrDefault(x => x.IDLOAICA == lc.IDLOAICA);
-                _lc.TENLOAICA = lc.TENLOAICA;
-                _lc.HESOLOAICA = lc.HESOLOAICA;
+                var _lc = db.TB_LOAICONG.FirstOrDefault(x => x.IDLOAICONG == lc.IDLOAICONG);
+                _lc.TENLC = lc.TENLC;
+                _lc.HESOLOAICONG = lc.HESOLOAICONG;
                 _lc.UPDATED_BY = lc.UPDATED_BY;
                 _lc.UPDATED_DATE = lc.UPDATED_DATE;
 
@@ -56,9 +56,9 @@ namespace Bu.CLASS_CHAMCONG
             }
         }
 
-        public void Delete(int idloaica, int iduser)
+        public void Delete(int idloaicong, int iduser)
         {
-            var _lc = db.TB_LOAICA.FirstOrDefault(x => x.IDLOAICA == idloaica);
+            var _lc = db.TB_LOAICONG.FirstOrDefault(x => x.IDLOAICONG == idloaicong);
             _lc.DELETED_BY = iduser;
             _lc.DELETED_DATE = DateTime.Now;
 

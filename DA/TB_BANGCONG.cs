@@ -25,7 +25,7 @@ namespace DA
         public Nullable<decimal> MANV { get; set; }
         public Nullable<decimal> IDLOAICONG { get; set; }
     
-        public virtual TB_LOAICONG TB_LOAICONG { get; set; }
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
+        public virtual TB_LOAICONG TB_LOAICONG { get; set; }
     }
 }

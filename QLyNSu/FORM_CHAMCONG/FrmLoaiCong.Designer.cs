@@ -1,6 +1,6 @@
 ﻿namespace QLyNSu.FORM_CHAMCONG
 {
-    partial class FrmLoaiCa
+    partial class FrmLoaiCong
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,8 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmLoaiCa));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmLoaiCong));
+            this.DELETED_BY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.barDockControlRight = new DevExpress.XtraBars.BarDockControl();
             this.barManager1 = new DevExpress.XtraBars.BarManager(this.components);
             this.bar1 = new DevExpress.XtraBars.Bar();
@@ -44,34 +45,46 @@
             this.barDockControlTop = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
-            this.TENLOAICA = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.IDLOAICA = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.gvDanhSach = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.HESOLOAICA = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.DELETED_BY = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.gcDanhSach = new DevExpress.XtraGrid.GridControl();
-            this.txtTen = new System.Windows.Forms.TextBox();
-            this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.spHeSo = new DevExpress.XtraEditors.SpinEdit();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.txtTen = new System.Windows.Forms.TextBox();
+            this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
+            this.gcDanhSach = new DevExpress.XtraGrid.GridControl();
+            this.gvDanhSach = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.IDLOAICONG = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.HESOLOAICONG = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TENLC = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvDanhSach)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gcDanhSach)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spHeSo.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.spHeSo.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gcDanhSach)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvDanhSach)).BeginInit();
             this.SuspendLayout();
+            // 
+            // DELETED_BY
+            // 
+            this.DELETED_BY.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.DELETED_BY.AppearanceHeader.Options.UseFont = true;
+            this.DELETED_BY.Caption = "DEL";
+            this.DELETED_BY.FieldName = "DELETED_BY";
+            this.DELETED_BY.MaxWidth = 35;
+            this.DELETED_BY.MinWidth = 35;
+            this.DELETED_BY.Name = "DELETED_BY";
+            this.DELETED_BY.Visible = true;
+            this.DELETED_BY.VisibleIndex = 0;
+            this.DELETED_BY.Width = 35;
             // 
             // barDockControlRight
             // 
             this.barDockControlRight.CausesValidation = false;
             this.barDockControlRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.barDockControlRight.Location = new System.Drawing.Point(1229, 33);
+            this.barDockControlRight.Location = new System.Drawing.Point(1329, 33);
             this.barDockControlRight.Manager = this.barManager1;
-            this.barDockControlRight.Size = new System.Drawing.Size(0, 511);
+            this.barDockControlRight.Size = new System.Drawing.Size(0, 539);
             // 
             // barManager1
             // 
@@ -192,15 +205,15 @@
             this.barDockControlTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.barDockControlTop.Location = new System.Drawing.Point(0, 0);
             this.barDockControlTop.Manager = this.barManager1;
-            this.barDockControlTop.Size = new System.Drawing.Size(1229, 33);
+            this.barDockControlTop.Size = new System.Drawing.Size(1329, 33);
             // 
             // barDockControlBottom
             // 
             this.barDockControlBottom.CausesValidation = false;
             this.barDockControlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.barDockControlBottom.Location = new System.Drawing.Point(0, 544);
+            this.barDockControlBottom.Location = new System.Drawing.Point(0, 572);
             this.barDockControlBottom.Manager = this.barManager1;
-            this.barDockControlBottom.Size = new System.Drawing.Size(1229, 20);
+            this.barDockControlBottom.Size = new System.Drawing.Size(1329, 20);
             // 
             // barDockControlLeft
             // 
@@ -208,124 +221,7 @@
             this.barDockControlLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.barDockControlLeft.Location = new System.Drawing.Point(0, 33);
             this.barDockControlLeft.Manager = this.barManager1;
-            this.barDockControlLeft.Size = new System.Drawing.Size(0, 511);
-            // 
-            // TENLOAICA
-            // 
-            this.TENLOAICA.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.TENLOAICA.AppearanceHeader.Options.UseFont = true;
-            this.TENLOAICA.Caption = "LOẠI CA";
-            this.TENLOAICA.FieldName = "TENLOAICA";
-            this.TENLOAICA.MaxWidth = 200;
-            this.TENLOAICA.MinWidth = 200;
-            this.TENLOAICA.Name = "TENLOAICA";
-            this.TENLOAICA.Visible = true;
-            this.TENLOAICA.VisibleIndex = 2;
-            this.TENLOAICA.Width = 200;
-            // 
-            // IDLOAICA
-            // 
-            this.IDLOAICA.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.IDLOAICA.AppearanceHeader.Options.UseFont = true;
-            this.IDLOAICA.Caption = "ID";
-            this.IDLOAICA.FieldName = "IDLOAICA";
-            this.IDLOAICA.MaxWidth = 100;
-            this.IDLOAICA.MinWidth = 25;
-            this.IDLOAICA.Name = "IDLOAICA";
-            this.IDLOAICA.Visible = true;
-            this.IDLOAICA.VisibleIndex = 1;
-            this.IDLOAICA.Width = 94;
-            // 
-            // gvDanhSach
-            // 
-            this.gvDanhSach.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
-            this.IDLOAICA,
-            this.HESOLOAICA,
-            this.TENLOAICA,
-            this.DELETED_BY});
-            this.gvDanhSach.GridControl = this.gcDanhSach;
-            this.gvDanhSach.Name = "gvDanhSach";
-            this.gvDanhSach.OptionsView.ShowGroupPanel = false;
-            this.gvDanhSach.CustomDrawCell += new DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventHandler(this.gvDanhSach_CustomDrawCell);
-            this.gvDanhSach.Click += new System.EventHandler(this.gvDanhSach_Click);
-            // 
-            // HESOLOAICA
-            // 
-            this.HESOLOAICA.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.HESOLOAICA.AppearanceHeader.Options.UseFont = true;
-            this.HESOLOAICA.Caption = "HỆ SỐ";
-            this.HESOLOAICA.FieldName = "HESOLOAICA";
-            this.HESOLOAICA.MinWidth = 25;
-            this.HESOLOAICA.Name = "HESOLOAICA";
-            this.HESOLOAICA.Visible = true;
-            this.HESOLOAICA.VisibleIndex = 3;
-            this.HESOLOAICA.Width = 94;
-            // 
-            // DELETED_BY
-            // 
-            this.DELETED_BY.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.DELETED_BY.AppearanceHeader.Options.UseFont = true;
-            this.DELETED_BY.Caption = "DEL";
-            this.DELETED_BY.FieldName = "DELETED_BY";
-            this.DELETED_BY.MaxWidth = 35;
-            this.DELETED_BY.MinWidth = 35;
-            this.DELETED_BY.Name = "DELETED_BY";
-            this.DELETED_BY.Visible = true;
-            this.DELETED_BY.VisibleIndex = 0;
-            this.DELETED_BY.Width = 35;
-            // 
-            // gcDanhSach
-            // 
-            this.gcDanhSach.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gcDanhSach.Font = new System.Drawing.Font("Times New Roman", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.gcDanhSach.Location = new System.Drawing.Point(0, 0);
-            this.gcDanhSach.MainView = this.gvDanhSach;
-            this.gcDanhSach.MenuManager = this.barManager1;
-            this.gcDanhSach.Name = "gcDanhSach";
-            this.gcDanhSach.Size = new System.Drawing.Size(1229, 380);
-            this.gcDanhSach.TabIndex = 0;
-            this.gcDanhSach.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gvDanhSach});
-            // 
-            // txtTen
-            // 
-            this.txtTen.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtTen.Location = new System.Drawing.Point(203, 38);
-            this.txtTen.Name = "txtTen";
-            this.txtTen.Size = new System.Drawing.Size(294, 30);
-            this.txtTen.TabIndex = 1;
-            // 
-            // labelControl1
-            // 
-            this.labelControl1.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl1.Appearance.Options.UseFont = true;
-            this.labelControl1.Location = new System.Drawing.Point(123, 42);
-            this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(74, 23);
-            this.labelControl1.TabIndex = 0;
-            this.labelControl1.Text = "Loại Ca:";
-            // 
-            // splitContainer1
-            // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.splitContainer1.Location = new System.Drawing.Point(0, 33);
-            this.splitContainer1.Name = "splitContainer1";
-            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitContainer1.Panel1
-            // 
-            this.splitContainer1.Panel1.Controls.Add(this.labelControl2);
-            this.splitContainer1.Panel1.Controls.Add(this.spHeSo);
-            this.splitContainer1.Panel1.Controls.Add(this.txtTen);
-            this.splitContainer1.Panel1.Controls.Add(this.labelControl1);
-            // 
-            // splitContainer1.Panel2
-            // 
-            this.splitContainer1.Panel2.Controls.Add(this.gcDanhSach);
-            this.splitContainer1.Size = new System.Drawing.Size(1229, 511);
-            this.splitContainer1.SplitterDistance = 127;
-            this.splitContainer1.TabIndex = 7;
+            this.barDockControlLeft.Size = new System.Drawing.Size(0, 539);
             // 
             // labelControl2
             // 
@@ -369,28 +265,132 @@
             this.spHeSo.Size = new System.Drawing.Size(125, 28);
             this.spHeSo.TabIndex = 2;
             // 
-            // FrmLoaiCa
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 33);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.labelControl2);
+            this.splitContainer1.Panel1.Controls.Add(this.spHeSo);
+            this.splitContainer1.Panel1.Controls.Add(this.txtTen);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControl1);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.gcDanhSach);
+            this.splitContainer1.Size = new System.Drawing.Size(1329, 539);
+            this.splitContainer1.SplitterDistance = 127;
+            this.splitContainer1.TabIndex = 8;
+            // 
+            // txtTen
+            // 
+            this.txtTen.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtTen.Location = new System.Drawing.Point(203, 38);
+            this.txtTen.Name = "txtTen";
+            this.txtTen.Size = new System.Drawing.Size(294, 30);
+            this.txtTen.TabIndex = 1;
+            // 
+            // labelControl1
+            // 
+            this.labelControl1.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl1.Appearance.Options.UseFont = true;
+            this.labelControl1.Location = new System.Drawing.Point(103, 42);
+            this.labelControl1.Name = "labelControl1";
+            this.labelControl1.Size = new System.Drawing.Size(94, 23);
+            this.labelControl1.TabIndex = 0;
+            this.labelControl1.Text = "Loại Công:";
+            // 
+            // gcDanhSach
+            // 
+            this.gcDanhSach.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gcDanhSach.Font = new System.Drawing.Font("Times New Roman", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.gcDanhSach.Location = new System.Drawing.Point(0, 0);
+            this.gcDanhSach.MainView = this.gvDanhSach;
+            this.gcDanhSach.MenuManager = this.barManager1;
+            this.gcDanhSach.Name = "gcDanhSach";
+            this.gcDanhSach.Size = new System.Drawing.Size(1329, 408);
+            this.gcDanhSach.TabIndex = 0;
+            this.gcDanhSach.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gvDanhSach});
+            // 
+            // gvDanhSach
+            // 
+            this.gvDanhSach.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
+            this.IDLOAICONG,
+            this.HESOLOAICONG,
+            this.TENLC,
+            this.DELETED_BY});
+            this.gvDanhSach.GridControl = this.gcDanhSach;
+            this.gvDanhSach.Name = "gvDanhSach";
+            this.gvDanhSach.OptionsView.ShowGroupPanel = false;
+            this.gvDanhSach.CustomDrawCell += new DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventHandler(this.gvDanhSach_CustomDrawCell);
+            this.gvDanhSach.Click += new System.EventHandler(this.gvDanhSach_Click);
+            // 
+            // IDLOAICONG
+            // 
+            this.IDLOAICONG.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.IDLOAICONG.AppearanceHeader.Options.UseFont = true;
+            this.IDLOAICONG.Caption = "ID";
+            this.IDLOAICONG.FieldName = "IDLOAICONG";
+            this.IDLOAICONG.MaxWidth = 100;
+            this.IDLOAICONG.MinWidth = 25;
+            this.IDLOAICONG.Name = "IDLOAICONG";
+            this.IDLOAICONG.Visible = true;
+            this.IDLOAICONG.VisibleIndex = 1;
+            this.IDLOAICONG.Width = 94;
+            // 
+            // HESOLOAICONG
+            // 
+            this.HESOLOAICONG.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.HESOLOAICONG.AppearanceHeader.Options.UseFont = true;
+            this.HESOLOAICONG.Caption = "HỆ SỐ";
+            this.HESOLOAICONG.FieldName = "HESOLOAICONG";
+            this.HESOLOAICONG.MinWidth = 25;
+            this.HESOLOAICONG.Name = "HESOLOAICONG";
+            this.HESOLOAICONG.Visible = true;
+            this.HESOLOAICONG.VisibleIndex = 3;
+            this.HESOLOAICONG.Width = 94;
+            // 
+            // TENLC
+            // 
+            this.TENLC.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TENLC.AppearanceHeader.Options.UseFont = true;
+            this.TENLC.Caption = "LOẠI CA";
+            this.TENLC.FieldName = "TENLC";
+            this.TENLC.MaxWidth = 200;
+            this.TENLC.MinWidth = 200;
+            this.TENLC.Name = "TENLC";
+            this.TENLC.Visible = true;
+            this.TENLC.VisibleIndex = 2;
+            this.TENLC.Width = 200;
+            // 
+            // FrmLoaiCong
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1229, 564);
+            this.ClientSize = new System.Drawing.Size(1329, 592);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.barDockControlLeft);
             this.Controls.Add(this.barDockControlRight);
             this.Controls.Add(this.barDockControlBottom);
             this.Controls.Add(this.barDockControlTop);
-            this.Name = "FrmLoaiCa";
-            this.Text = "Loại Ca";
-            this.Load += new System.EventHandler(this.FrmLoaiCa_Load);
+            this.Name = "FrmLoaiCong";
+            this.Text = "Loại Công";
+            this.Load += new System.EventHandler(this.FrmLoaiCong_Load);
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvDanhSach)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gcDanhSach)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spHeSo.Properties)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.spHeSo.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gcDanhSach)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvDanhSach)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -398,6 +398,7 @@
 
         #endregion
 
+        private DevExpress.XtraGrid.Columns.GridColumn DELETED_BY;
         private DevExpress.XtraBars.BarDockControl barDockControlRight;
         private DevExpress.XtraBars.BarManager barManager1;
         private DevExpress.XtraBars.Bar bar1;
@@ -413,15 +414,14 @@
         private DevExpress.XtraBars.BarDockControl barDockControlBottom;
         private DevExpress.XtraBars.BarDockControl barDockControlLeft;
         private System.Windows.Forms.SplitContainer splitContainer1;
+        private DevExpress.XtraEditors.LabelControl labelControl2;
+        private DevExpress.XtraEditors.SpinEdit spHeSo;
         private System.Windows.Forms.TextBox txtTen;
         private DevExpress.XtraEditors.LabelControl labelControl1;
         private DevExpress.XtraGrid.GridControl gcDanhSach;
         private DevExpress.XtraGrid.Views.Grid.GridView gvDanhSach;
-        private DevExpress.XtraGrid.Columns.GridColumn IDLOAICA;
-        private DevExpress.XtraGrid.Columns.GridColumn TENLOAICA;
-        private DevExpress.XtraEditors.LabelControl labelControl2;
-        private DevExpress.XtraEditors.SpinEdit spHeSo;
-        private DevExpress.XtraGrid.Columns.GridColumn HESOLOAICA;
-        private DevExpress.XtraGrid.Columns.GridColumn DELETED_BY;
+        private DevExpress.XtraGrid.Columns.GridColumn IDLOAICONG;
+        private DevExpress.XtraGrid.Columns.GridColumn HESOLOAICONG;
+        private DevExpress.XtraGrid.Columns.GridColumn TENLC;
     }
 }

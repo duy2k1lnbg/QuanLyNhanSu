@@ -22,7 +22,13 @@ namespace DA
     
         public decimal IDLOAICONG { get; set; }
         public string TENLC { get; set; }
-        public Nullable<decimal> HESO { get; set; }
+        public Nullable<decimal> HESOLOAICONG { get; set; }
+        public Nullable<decimal> CREATED_BY { get; set; }
+        public Nullable<System.DateTime> CREATED_DATE { get; set; }
+        public Nullable<decimal> UPDATED_BY { get; set; }
+        public Nullable<System.DateTime> UPDATED_DATE { get; set; }
+        public Nullable<decimal> DELETED_BY { get; set; }
+        public Nullable<System.DateTime> DELETED_DATE { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_BANGCONG> TB_BANGCONG { get; set; }

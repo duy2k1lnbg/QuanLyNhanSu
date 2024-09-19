@@ -192,5 +192,15 @@ namespace QLyNSu
         {
             OpenForm(typeof(FrmLoaiCa));
         }
+
+        private void btnLoaiCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            OpenForm(typeof(FrmLoaiCong));
+        }
+
+        private void btnThoat2_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            this.Close();
+        }
     }
 }

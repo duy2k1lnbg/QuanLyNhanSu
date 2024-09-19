@@ -22,7 +22,7 @@ namespace DA
     
         public decimal IDLOAICA { get; set; }
         public string TENLOAICA { get; set; }
-        public Nullable<decimal> HESO { get; set; }
+        public Nullable<decimal> HESOLOAICA { get; set; }
         public Nullable<decimal> CREATED_BY { get; set; }
         public Nullable<System.DateTime> CREATED_DATE { get; set; }
         public Nullable<decimal> UPDATED_BY { get; set; }

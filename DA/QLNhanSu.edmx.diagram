@@ -15,7 +15,6 @@
         <EntityTypeShape EntityType="Model.TB_GIOITINH" Width="1.5" PointX="0.75" PointY="21.875" />
         <EntityTypeShape EntityType="Model.TB_HOPDONG" Width="1.5" PointX="5.25" PointY="39.125" />
         <EntityTypeShape EntityType="Model.TB_KHENTHUONG_KYLUAT" Width="1.5" PointX="5.25" PointY="8.25" />
-        <EntityTypeShape EntityType="Model.TB_LOAICONG" Width="1.5" PointX="6" PointY="30.75" />
         <EntityTypeShape EntityType="Model.TB_NHANVIEN" Width="1.5" PointX="3" PointY="18.625" />
         <EntityTypeShape EntityType="Model.TB_NHANVIEN_PHUCAP" Width="1.5" PointX="5.25" PointY="19.375" />
         <EntityTypeShape EntityType="Model.TB_NHANVIEN_THOIVIEC" Width="1.5" PointX="5.25" PointY="23.375" />
@@ -26,7 +25,6 @@
         <EntityTypeShape EntityType="Model.TB_TONGIAO" Width="1.5" PointX="0.75" PointY="32.125" />
         <EntityTypeShape EntityType="Model.TB_TRINHDO" Width="1.5" PointX="0.75" PointY="34.5" />
         <EntityTypeShape EntityType="Model.TB_UNGLUONG" Width="1.5" PointX="5.25" PointY="16" />
-        <AssociationConnector Association="Model.TB_BANGCONG_LC_FK2" />
         <AssociationConnector Association="Model.TB_BANGCONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_BAOHIEM_NV_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_BP_FK2" />
@@ -48,7 +46,9 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2" />
         <EntityTypeShape EntityType="Model.TB_NANGLUONG_NHANVIEN" Width="1.5" PointX="5.25" PointY="33.625" />
         <AssociationConnector Association="Model.TB_NANGLUONG_NHANVIEN_FK1" />
-        <EntityTypeShape EntityType="Model.TB_LOAICA" Width="1.5" PointX="0.75" PointY="1" />
+        <EntityTypeShape EntityType="Model.TB_LOAICA" Width="1.5" PointX="2.75" PointY="1" />
+        <EntityTypeShape EntityType="Model.TB_LOAICONG" Width="1.5" PointX="0.75" PointY="1" />
+        <AssociationConnector Association="Model.TB_BANGCONG_LC_FK2" />
         <AssociationConnector Association="Model.TB_TANGCA_LCA_FK1" />
       </Diagram>
     </edmx:Diagrams>
