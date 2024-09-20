@@ -67,7 +67,8 @@ namespace QLyNSu
             dtNgayKy.Value = DateTime.Now;
             spLanKy.Text = "1";
             spHeSoLuong.Text = "1";
-            searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
+            searchMANV.Text = "Vui lòng chọn 1 nhân viên";
+            txtNoiDung.Text = string.Empty;
         }
 
         private void loadNhanVien()
