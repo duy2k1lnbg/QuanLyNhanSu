@@ -20,6 +20,31 @@
           <Property Name="MANV" Type="number" Precision="38" Scale="0" />
           <Property Name="IDLOAICONG" Type="number" Precision="38" Scale="0" />
         </EntityType>
+        <EntityType Name="TB_BANGCONG_CHITIET">
+          <Key>
+            <PropertyRef Name="IDBANGCONGCT" />
+          </Key>
+          <Property Name="IDBANGCONGCT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MAKYCONG" Type="number" Precision="38" Scale="0" />
+          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
+          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="NGAY" Type="date" />
+          <Property Name="THU" Type="nvarchar2" MaxLength="50" />
+          <Property Name="GIOVAO" Type="nvarchar2" MaxLength="50" />
+          <Property Name="GIORA" Type="nvarchar2" MaxLength="50" />
+          <Property Name="NGAYPHEP" Type="float" Precision="126" Scale="0" />
+          <Property Name="CONGNGAYLE" Type="float" Precision="126" Scale="0" />
+          <Property Name="CONGCHUNHAT" Type="float" Precision="126" Scale="0" />
+          <Property Name="KYHIEU" Type="nvarchar2" MaxLength="50" />
+          <Property Name="GHICHU" Type="nvarchar2" MaxLength="500" />
+          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="date" />
+          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="date" />
+          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="date" />
+        </EntityType>
         <EntityType Name="TB_BAOHIEM">
           <Key>
             <PropertyRef Name="IDBH" />
@@ -128,6 +153,73 @@
           <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
           <Property Name="DELETED_DATE" Type="date" />
           <Property Name="SOQUYETDINH" Type="nvarchar2" MaxLength="70" Nullable="false" />
+        </EntityType>
+        <EntityType Name="TB_KYCONG">
+          <Key>
+            <PropertyRef Name="IDKYCONG" />
+          </Key>
+          <Property Name="IDKYCONG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MAKYCONG" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
+          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
+          <Property Name="KHOA" Type="number" Precision="38" Scale="0" />
+          <Property Name="NGAYTINHCONG" Type="date" />
+          <Property Name="NGAYCONGTRONGTHANG" Type="float" Precision="126" Scale="0" />
+          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
+          <Property Name="TRANGTHAI" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="date" />
+          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="date" />
+        </EntityType>
+        <EntityType Name="TB_KYCONGCHITIET">
+          <Key>
+            <PropertyRef Name="MAKYCONG" />
+          </Key>
+          <Property Name="MAKYCONG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="D1" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D2" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D3" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D4" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D5" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D6" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D7" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D8" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D9" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D10" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D11" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D12" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D13" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D14" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D15" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D16" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D17" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D18" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D19" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D20" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D21" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D22" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D23" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D24" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D25" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D26" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D27" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D28" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D29" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D30" Type="nvarchar2" MaxLength="10" />
+          <Property Name="D31" Type="nvarchar2" MaxLength="10" />
+          <Property Name="NGAYCONG" Type="float" Precision="126" Scale="0" />
+          <Property Name="NGAYPHEP" Type="float" Precision="126" Scale="0" />
+          <Property Name="NGHIKHONGPHEP" Type="float" Precision="126" Scale="0" />
+          <Property Name="CONGNGAYLE" Type="float" Precision="126" Scale="0" />
+          <Property Name="CONGCHUNHAT" Type="float" Precision="126" Scale="0" />
+          <Property Name="TONGNGAYCONG" Type="float" Precision="126" Scale="0" />
+          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="date" />
+          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_LOAICA">
           <Key>
@@ -286,6 +378,18 @@
           <Property Name="TRANGTHAI" Type="number" Precision="38" Scale="0" />
           <Property Name="MANV" Type="number" Precision="38" Scale="0" />
         </EntityType>
+        <Association Name="TB_BANGCONG_CHITIET_FK1">
+          <End Role="TB_KYCONGCHITIET" Type="Self.TB_KYCONGCHITIET" Multiplicity="0..1" />
+          <End Role="TB_BANGCONG_CHITIET" Type="Self.TB_BANGCONG_CHITIET" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_KYCONGCHITIET">
+              <PropertyRef Name="MAKYCONG" />
+            </Principal>
+            <Dependent Role="TB_BANGCONG_CHITIET">
+              <PropertyRef Name="MAKYCONG" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="TB_BANGCONG_LC_FK2">
           <End Role="TB_LOAICONG" Type="Self.TB_LOAICONG" Multiplicity="0..1">
             <OnDelete Action="Cascade" />
@@ -364,6 +468,30 @@
               <PropertyRef Name="MANV" />
             </Principal>
             <Dependent Role="TB_KHENTHUONG_KYLUAT">
+              <PropertyRef Name="MANV" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_KYCONG_FK1">
+          <End Role="TB_KYCONGCHITIET" Type="Self.TB_KYCONGCHITIET" Multiplicity="1" />
+          <End Role="TB_KYCONG" Type="Self.TB_KYCONG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_KYCONGCHITIET">
+              <PropertyRef Name="MAKYCONG" />
+            </Principal>
+            <Dependent Role="TB_KYCONG">
+              <PropertyRef Name="MAKYCONG" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_KYCONGCHITIET_FK1">
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="1" />
+          <End Role="TB_KYCONGCHITIET" Type="Self.TB_KYCONGCHITIET" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_NHANVIEN">
+              <PropertyRef Name="MANV" />
+            </Principal>
+            <Dependent Role="TB_KYCONGCHITIET">
               <PropertyRef Name="MANV" />
             </Dependent>
           </ReferentialConstraint>
@@ -590,6 +718,7 @@
         </Association>
         <EntityContainer Name="ModelStoreContainer">
           <EntitySet Name="TB_BANGCONG" EntityType="Self.TB_BANGCONG" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_BANGCONG_CHITIET" EntityType="Self.TB_BANGCONG_CHITIET" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_BAOHIEM" EntityType="Self.TB_BAOHIEM" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_BOPHAN" EntityType="Self.TB_BOPHAN" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_CHUCVU" EntityType="Self.TB_CHUCVU" Schema="HR" store:Type="Tables" />
@@ -599,6 +728,8 @@
           <EntitySet Name="TB_GIOITINH" EntityType="Self.TB_GIOITINH" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_HOPDONG" EntityType="Self.TB_HOPDONG" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_KHENTHUONG_KYLUAT" EntityType="Self.TB_KHENTHUONG_KYLUAT" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_KYCONG" EntityType="Self.TB_KYCONG" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_KYCONGCHITIET" EntityType="Self.TB_KYCONGCHITIET" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_LOAICA" EntityType="Self.TB_LOAICA" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_LOAICONG" EntityType="Self.TB_LOAICONG" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_NANGLUONG_NHANVIEN" EntityType="Self.TB_NANGLUONG_NHANVIEN" Schema="HR" store:Type="Tables" />
@@ -612,6 +743,10 @@
           <EntitySet Name="TB_TONGIAO" EntityType="Self.TB_TONGIAO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_TRINHDO" EntityType="Self.TB_TRINHDO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_UNGLUONG" EntityType="Self.TB_UNGLUONG" Schema="HR" store:Type="Tables" />
+          <AssociationSet Name="TB_BANGCONG_CHITIET_FK1" Association="Self.TB_BANGCONG_CHITIET_FK1">
+            <End Role="TB_KYCONGCHITIET" EntitySet="TB_KYCONGCHITIET" />
+            <End Role="TB_BANGCONG_CHITIET" EntitySet="TB_BANGCONG_CHITIET" />
+          </AssociationSet>
           <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Self.TB_BANGCONG_LC_FK2">
             <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
             <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
@@ -635,6 +770,14 @@
           <AssociationSet Name="TB_KHENTHUONG_KYLUAT_NV_FK1" Association="Self.TB_KHENTHUONG_KYLUAT_NV_FK1">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_KHENTHUONG_KYLUAT" EntitySet="TB_KHENTHUONG_KYLUAT" />
+          </AssociationSet>
+          <AssociationSet Name="TB_KYCONG_FK1" Association="Self.TB_KYCONG_FK1">
+            <End Role="TB_KYCONGCHITIET" EntitySet="TB_KYCONGCHITIET" />
+            <End Role="TB_KYCONG" EntitySet="TB_KYCONG" />
+          </AssociationSet>
+          <AssociationSet Name="TB_KYCONGCHITIET_FK1" Association="Self.TB_KYCONGCHITIET_FK1">
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End Role="TB_KYCONGCHITIET" EntitySet="TB_KYCONGCHITIET" />
           </AssociationSet>
           <AssociationSet Name="TB_NANGLUONG_NHANVIEN_FK1" Association="Self.TB_NANGLUONG_NHANVIEN_FK1">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
@@ -707,6 +850,7 @@
       <Schema Namespace="Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="MyEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="TB_BANGCONG" EntityType="Model.TB_BANGCONG" />
+          <EntitySet Name="TB_BANGCONG_CHITIET" EntityType="Model.TB_BANGCONG_CHITIET" />
           <EntitySet Name="TB_BAOHIEM" EntityType="Model.TB_BAOHIEM" />
           <EntitySet Name="TB_BOPHAN" EntityType="Model.TB_BOPHAN" />
           <EntitySet Name="TB_CHUCVU" EntityType="Model.TB_CHUCVU" />
@@ -716,6 +860,11 @@
           <EntitySet Name="TB_GIOITINH" EntityType="Model.TB_GIOITINH" />
           <EntitySet Name="TB_HOPDONG" EntityType="Model.TB_HOPDONG" />
           <EntitySet Name="TB_KHENTHUONG_KYLUAT" EntityType="Model.TB_KHENTHUONG_KYLUAT" />
+          <EntitySet Name="TB_KYCONG" EntityType="Model.TB_KYCONG" />
+          <EntitySet Name="TB_KYCONGCHITIET" EntityType="Model.TB_KYCONGCHITIET" />
+          <EntitySet Name="TB_LOAICA" EntityType="Model.TB_LOAICA" />
+          <EntitySet Name="TB_LOAICONG" EntityType="Model.TB_LOAICONG" />
+          <EntitySet Name="TB_NANGLUONG_NHANVIEN" EntityType="Model.TB_NANGLUONG_NHANVIEN" />
           <EntitySet Name="TB_NHANVIEN" EntityType="Model.TB_NHANVIEN" />
           <EntitySet Name="TB_NHANVIEN_PHUCAP" EntityType="Model.TB_NHANVIEN_PHUCAP" />
           <EntitySet Name="TB_NHANVIEN_THOIVIEC" EntityType="Model.TB_NHANVIEN_THOIVIEC" />
@@ -726,9 +875,17 @@
           <EntitySet Name="TB_TONGIAO" EntityType="Model.TB_TONGIAO" />
           <EntitySet Name="TB_TRINHDO" EntityType="Model.TB_TRINHDO" />
           <EntitySet Name="TB_UNGLUONG" EntityType="Model.TB_UNGLUONG" />
+          <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Model.TB_BANGCONG_LC_FK2">
+            <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
+            <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
+          </AssociationSet>
           <AssociationSet Name="TB_BANGCONG_NV_FK1" Association="Model.TB_BANGCONG_NV_FK1">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
+          </AssociationSet>
+          <AssociationSet Name="TB_BANGCONG_CHITIET_FK1" Association="Model.TB_BANGCONG_CHITIET_FK1">
+            <End Role="TB_KYCONGCHITIET" EntitySet="TB_KYCONGCHITIET" />
+            <End Role="TB_BANGCONG_CHITIET" EntitySet="TB_BANGCONG_CHITIET" />
           </AssociationSet>
           <AssociationSet Name="TB_BAOHIEM_NV_FK1" Association="Model.TB_BAOHIEM_NV_FK1">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
@@ -766,6 +923,22 @@
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_KHENTHUONG_KYLUAT" EntitySet="TB_KHENTHUONG_KYLUAT" />
           </AssociationSet>
+          <AssociationSet Name="TB_KYCONG_FK1" Association="Model.TB_KYCONG_FK1">
+            <End Role="TB_KYCONGCHITIET" EntitySet="TB_KYCONGCHITIET" />
+            <End Role="TB_KYCONG" EntitySet="TB_KYCONG" />
+          </AssociationSet>
+          <AssociationSet Name="TB_KYCONGCHITIET_FK1" Association="Model.TB_KYCONGCHITIET_FK1">
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End Role="TB_KYCONGCHITIET" EntitySet="TB_KYCONGCHITIET" />
+          </AssociationSet>
+          <AssociationSet Name="TB_TANGCA_LCA_FK1" Association="Model.TB_TANGCA_LCA_FK1">
+            <End Role="TB_LOAICA" EntitySet="TB_LOAICA" />
+            <End Role="TB_TANGCA" EntitySet="TB_TANGCA" />
+          </AssociationSet>
+          <AssociationSet Name="TB_NANGLUONG_NHANVIEN_FK1" Association="Model.TB_NANGLUONG_NHANVIEN_FK1">
+            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End Role="TB_NANGLUONG_NHANVIEN" EntitySet="TB_NANGLUONG_NHANVIEN" />
+          </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_PB_FK1" Association="Model.TB_NHANVIEN_PB_FK1">
             <End Role="TB_PHONGBAN" EntitySet="TB_PHONGBAN" />
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
@@ -802,21 +975,6 @@
             <End Role="TB_PHUCAP" EntitySet="TB_PHUCAP" />
             <End Role="TB_NHANVIEN_PHUCAP" EntitySet="TB_NHANVIEN_PHUCAP" />
           </AssociationSet>
-          <EntitySet Name="TB_NANGLUONG_NHANVIEN" EntityType="Model.TB_NANGLUONG_NHANVIEN" />
-          <AssociationSet Name="TB_NANGLUONG_NHANVIEN_FK1" Association="Model.TB_NANGLUONG_NHANVIEN_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_NANGLUONG_NHANVIEN" EntitySet="TB_NANGLUONG_NHANVIEN" />
-          </AssociationSet>
-          <EntitySet Name="TB_LOAICA" EntityType="Model.TB_LOAICA" />
-          <EntitySet Name="TB_LOAICONG" EntityType="Model.TB_LOAICONG" />
-          <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Model.TB_BANGCONG_LC_FK2">
-            <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
-            <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
-          </AssociationSet>
-          <AssociationSet Name="TB_TANGCA_LCA_FK1" Association="Model.TB_TANGCA_LCA_FK1">
-            <End Role="TB_LOAICA" EntitySet="TB_LOAICA" />
-            <End Role="TB_TANGCA" EntitySet="TB_TANGCA" />
-          </AssociationSet>
         </EntityContainer>
         <EntityType Name="TB_BANGCONG">
           <Key>
@@ -832,8 +990,34 @@
           <Property Name="PHUTRA" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="IDLOAICONG" Type="Decimal" Precision="38" Scale="0" />
-          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_BANGCONG_NV_FK1" FromRole="TB_BANGCONG" ToRole="TB_NHANVIEN" />
           <NavigationProperty Name="TB_LOAICONG" Relationship="Model.TB_BANGCONG_LC_FK2" FromRole="TB_BANGCONG" ToRole="TB_LOAICONG" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_BANGCONG_NV_FK1" FromRole="TB_BANGCONG" ToRole="TB_NHANVIEN" />
+        </EntityType>
+        <EntityType Name="TB_BANGCONG_CHITIET">
+          <Key>
+            <PropertyRef Name="IDBANGCONGCT" />
+          </Key>
+          <Property Name="IDBANGCONGCT" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MAKYCONG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="IDCTY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NGAY" Type="DateTime" />
+          <Property Name="THU" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GIOVAO" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GIORA" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NGAYPHEP" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CONGNGAYLE" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CONGCHUNHAT" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="KYHIEU" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GHICHU" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_KYCONGCHITIET" Relationship="Model.TB_BANGCONG_CHITIET_FK1" FromRole="TB_BANGCONG_CHITIET" ToRole="TB_KYCONGCHITIET" />
         </EntityType>
         <EntityType Name="TB_BAOHIEM">
           <Key>
@@ -953,6 +1137,127 @@
           <Property Name="SOQUYETDINH" Type="String" Nullable="false" MaxLength="70" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" FromRole="TB_KHENTHUONG_KYLUAT" ToRole="TB_NHANVIEN" />
         </EntityType>
+        <EntityType Name="TB_KYCONG">
+          <Key>
+            <PropertyRef Name="IDKYCONG" />
+          </Key>
+          <Property Name="IDKYCONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MAKYCONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="KHOA" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NGAYTINHCONG" Type="DateTime" />
+          <Property Name="NGAYCONGTRONGTHANG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="IDCTY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="TRANGTHAI" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_KYCONGCHITIET" Relationship="Model.TB_KYCONG_FK1" FromRole="TB_KYCONG" ToRole="TB_KYCONGCHITIET" />
+        </EntityType>
+        <EntityType Name="TB_KYCONGCHITIET">
+          <Key>
+            <PropertyRef Name="MAKYCONG" />
+          </Key>
+          <Property Name="MAKYCONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="D1" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D2" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D3" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D4" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D5" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D6" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D7" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D8" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D9" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D10" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D11" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D12" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D13" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D14" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D15" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D16" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D17" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D18" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D19" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D20" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D21" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D22" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D23" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D24" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D25" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D26" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D27" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D28" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D29" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D30" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="D31" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+          <Property Name="NGAYCONG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NGAYPHEP" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NGHIKHONGPHEP" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CONGNGAYLE" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CONGCHUNHAT" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="TONGNGAYCONG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_BANGCONG_CHITIET" Relationship="Model.TB_BANGCONG_CHITIET_FK1" FromRole="TB_KYCONGCHITIET" ToRole="TB_BANGCONG_CHITIET" />
+          <NavigationProperty Name="TB_KYCONG" Relationship="Model.TB_KYCONG_FK1" FromRole="TB_KYCONGCHITIET" ToRole="TB_KYCONG" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_KYCONGCHITIET_FK1" FromRole="TB_KYCONGCHITIET" ToRole="TB_NHANVIEN" />
+        </EntityType>
+        <EntityType Name="TB_LOAICA">
+          <Key>
+            <PropertyRef Name="IDLOAICA" />
+          </Key>
+          <Property Name="IDLOAICA" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TENLOAICA" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="HESOLOAICA" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_TANGCA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_LOAICA" ToRole="TB_TANGCA" />
+        </EntityType>
+        <EntityType Name="TB_LOAICONG">
+          <Key>
+            <PropertyRef Name="IDLOAICONG" />
+          </Key>
+          <Property Name="IDLOAICONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TENLC" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="HESOLOAICONG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_BANGCONG" Relationship="Model.TB_BANGCONG_LC_FK2" FromRole="TB_LOAICONG" ToRole="TB_BANGCONG" />
+        </EntityType>
+        <EntityType Name="TB_NANGLUONG_NHANVIEN">
+          <Key>
+            <PropertyRef Name="SOQDNL" />
+          </Key>
+          <Property Name="SOQDNL" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="SOHD" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="HESOLUONG_NOW" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="HESOLUONG_NEW" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NGAYLENLUONG" Type="DateTime" />
+          <Property Name="NGAYKYNL" Type="DateTime" />
+          <Property Name="GHICHUNL" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NANGLUONG_NHANVIEN_FK1" FromRole="TB_NANGLUONG_NHANVIEN" ToRole="TB_NHANVIEN" />
+        </EntityType>
         <EntityType Name="TB_NHANVIEN">
           <Key>
             <PropertyRef Name="MANV" />
@@ -984,6 +1289,8 @@
           <NavigationProperty Name="TB_GIOITINH" Relationship="Model.TB_NHANVIEN_GT_FK8" FromRole="TB_NHANVIEN" ToRole="TB_GIOITINH" />
           <NavigationProperty Name="TB_HOPDONG" Relationship="Model.TB_HOPDONG_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_HOPDONG" />
           <NavigationProperty Name="TB_KHENTHUONG_KYLUAT" Relationship="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_KHENTHUONG_KYLUAT" />
+          <NavigationProperty Name="TB_KYCONGCHITIET" Relationship="Model.TB_KYCONGCHITIET_FK1" FromRole="TB_NHANVIEN" ToRole="TB_KYCONGCHITIET" />
+          <NavigationProperty Name="TB_NANGLUONG_NHANVIEN" Relationship="Model.TB_NANGLUONG_NHANVIEN_FK1" FromRole="TB_NHANVIEN" ToRole="TB_NANGLUONG_NHANVIEN" />
           <NavigationProperty Name="TB_PHONGBAN" Relationship="Model.TB_NHANVIEN_PB_FK1" FromRole="TB_NHANVIEN" ToRole="TB_PHONGBAN" />
           <NavigationProperty Name="TB_NHANVIEN_PHUCAP" Relationship="Model.TB_NHANVIEN_PHUCAP_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_NHANVIEN_PHUCAP" />
           <NavigationProperty Name="TB_QUOCTICH" Relationship="Model.TB_NHANVIEN_QT_FK9" FromRole="TB_NHANVIEN" ToRole="TB_QUOCTICH" />
@@ -992,7 +1299,6 @@
           <NavigationProperty Name="TB_NHANVIEN_THOIVIEC" Relationship="Model.TB_NHANVIEN_THOIVIEC_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_NHANVIEN_THOIVIEC" />
           <NavigationProperty Name="TB_TANGCA" Relationship="Model.TB_TANGCA_NV_FK2" FromRole="TB_NHANVIEN" ToRole="TB_TANGCA" />
           <NavigationProperty Name="TB_UNGLUONG" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_UNGLUONG" />
-          <NavigationProperty Name="TB_NANGLUONG_NHANVIEN" Relationship="Model.TB_NANGLUONG_NHANVIEN_FK1" FromRole="TB_NHANVIEN" ToRole="TB_NANGLUONG_NHANVIEN" />
         </EntityType>
         <EntityType Name="TB_NHANVIEN_PHUCAP">
           <Key>
@@ -1061,8 +1367,8 @@
           <Property Name="SOGIO" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="IDLOAICA" Type="Decimal" Precision="38" Scale="0" />
-          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_TANGCA_NV_FK2" FromRole="TB_TANGCA" ToRole="TB_NHANVIEN" />
           <NavigationProperty Name="TB_LOAICA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_TANGCA" ToRole="TB_LOAICA" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_TANGCA_NV_FK2" FromRole="TB_TANGCA" ToRole="TB_NHANVIEN" />
         </EntityType>
         <EntityType Name="TB_TONGIAO">
           <Key>
@@ -1093,6 +1399,20 @@
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_UNGLUONG" ToRole="TB_NHANVIEN" />
         </EntityType>
+        <Association Name="TB_BANGCONG_LC_FK2">
+          <End Type="Model.TB_LOAICONG" Role="TB_LOAICONG" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_BANGCONG" Role="TB_BANGCONG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_LOAICONG">
+              <PropertyRef Name="IDLOAICONG" />
+            </Principal>
+            <Dependent Role="TB_BANGCONG">
+              <PropertyRef Name="IDLOAICONG" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="TB_BANGCONG_NV_FK1">
           <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -1104,6 +1424,18 @@
             </Principal>
             <Dependent Role="TB_BANGCONG">
               <PropertyRef Name="MABC" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_BANGCONG_CHITIET_FK1">
+          <End Type="Model.TB_KYCONGCHITIET" Role="TB_KYCONGCHITIET" Multiplicity="0..1" />
+          <End Type="Model.TB_BANGCONG_CHITIET" Role="TB_BANGCONG_CHITIET" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_KYCONGCHITIET">
+              <PropertyRef Name="MAKYCONG" />
+            </Principal>
+            <Dependent Role="TB_BANGCONG_CHITIET">
+              <PropertyRef Name="MAKYCONG" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1227,6 +1559,56 @@
               <PropertyRef Name="MANV" />
             </Principal>
             <Dependent Role="TB_KHENTHUONG_KYLUAT">
+              <PropertyRef Name="MANV" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_KYCONG_FK1">
+          <End Type="Model.TB_KYCONGCHITIET" Role="TB_KYCONGCHITIET" Multiplicity="1" />
+          <End Type="Model.TB_KYCONG" Role="TB_KYCONG" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_KYCONGCHITIET">
+              <PropertyRef Name="MAKYCONG" />
+            </Principal>
+            <Dependent Role="TB_KYCONG">
+              <PropertyRef Name="MAKYCONG" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_KYCONGCHITIET_FK1">
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="1" />
+          <End Type="Model.TB_KYCONGCHITIET" Role="TB_KYCONGCHITIET" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_NHANVIEN">
+              <PropertyRef Name="MANV" />
+            </Principal>
+            <Dependent Role="TB_KYCONGCHITIET">
+              <PropertyRef Name="MANV" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_TANGCA_LCA_FK1">
+          <End Type="Model.TB_LOAICA" Role="TB_LOAICA" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_TANGCA" Role="TB_TANGCA" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_LOAICA">
+              <PropertyRef Name="IDLOAICA" />
+            </Principal>
+            <Dependent Role="TB_TANGCA">
+              <PropertyRef Name="IDLOAICA" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_NANGLUONG_NHANVIEN_FK1">
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1" />
+          <End Type="Model.TB_NANGLUONG_NHANVIEN" Role="TB_NANGLUONG_NHANVIEN" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_NHANVIEN">
+              <PropertyRef Name="MANV" />
+            </Principal>
+            <Dependent Role="TB_NANGLUONG_NHANVIEN">
               <PropertyRef Name="MANV" />
             </Dependent>
           </ReferentialConstraint>
@@ -1355,96 +1737,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="TB_NANGLUONG_NHANVIEN">
-          <Key>
-            <PropertyRef Name="SOQDNL" />
-          </Key>
-          <Property Name="SOQDNL" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="SOHD" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="HESOLUONG_NOW" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="HESOLUONG_NEW" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="NGAYLENLUONG" Type="DateTime" />
-          <Property Name="NGAYKYNL" Type="DateTime" />
-          <Property Name="GHICHUNL" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
-          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="DateTime" />
-          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="DateTime" />
-          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="DateTime" />
-          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NANGLUONG_NHANVIEN_FK1" FromRole="TB_NANGLUONG_NHANVIEN" ToRole="TB_NHANVIEN" />
-        </EntityType>
-        <Association Name="TB_NANGLUONG_NHANVIEN_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1" />
-          <End Type="Model.TB_NANGLUONG_NHANVIEN" Role="TB_NANGLUONG_NHANVIEN" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="TB_NHANVIEN">
-              <PropertyRef Name="MANV" />
-            </Principal>
-            <Dependent Role="TB_NANGLUONG_NHANVIEN">
-              <PropertyRef Name="MANV" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="TB_LOAICA">
-          <Key>
-            <PropertyRef Name="IDLOAICA" />
-          </Key>
-          <Property Name="IDLOAICA" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENLOAICA" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="HESOLOAICA" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="DateTime" />
-          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="DateTime" />
-          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="DateTime" />
-          <NavigationProperty Name="TB_TANGCA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_LOAICA" ToRole="TB_TANGCA" />
-        </EntityType>
-        <EntityType Name="TB_LOAICONG">
-          <Key>
-            <PropertyRef Name="IDLOAICONG" />
-          </Key>
-          <Property Name="IDLOAICONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENLC" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="HESOLOAICONG" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="DateTime" />
-          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="DateTime" />
-          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="DateTime" />
-          <NavigationProperty Name="TB_BANGCONG" Relationship="Model.TB_BANGCONG_LC_FK2" FromRole="TB_LOAICONG" ToRole="TB_BANGCONG" />
-        </EntityType>
-        <Association Name="TB_BANGCONG_LC_FK2">
-          <End Type="Model.TB_LOAICONG" Role="TB_LOAICONG" Multiplicity="0..1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="Model.TB_BANGCONG" Role="TB_BANGCONG" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="TB_LOAICONG">
-              <PropertyRef Name="IDLOAICONG" />
-            </Principal>
-            <Dependent Role="TB_BANGCONG">
-              <PropertyRef Name="IDLOAICONG" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="TB_TANGCA_LCA_FK1">
-          <End Type="Model.TB_LOAICA" Role="TB_LOAICA" Multiplicity="0..1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="Model.TB_TANGCA" Role="TB_TANGCA" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="TB_LOAICA">
-              <PropertyRef Name="IDLOAICA" />
-            </Principal>
-            <Dependent Role="TB_TANGCA">
-              <PropertyRef Name="IDLOAICA" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1464,6 +1756,32 @@
                 <ScalarProperty Name="THANG" ColumnName="THANG" />
                 <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="MABC" ColumnName="MABC" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_BANGCONG_CHITIET">
+            <EntityTypeMapping TypeName="Model.TB_BANGCONG_CHITIET">
+              <MappingFragment StoreEntitySet="TB_BANGCONG_CHITIET">
+                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
+                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="GHICHU" ColumnName="GHICHU" />
+                <ScalarProperty Name="KYHIEU" ColumnName="KYHIEU" />
+                <ScalarProperty Name="CONGCHUNHAT" ColumnName="CONGCHUNHAT" />
+                <ScalarProperty Name="CONGNGAYLE" ColumnName="CONGNGAYLE" />
+                <ScalarProperty Name="NGAYPHEP" ColumnName="NGAYPHEP" />
+                <ScalarProperty Name="GIORA" ColumnName="GIORA" />
+                <ScalarProperty Name="GIOVAO" ColumnName="GIOVAO" />
+                <ScalarProperty Name="THU" ColumnName="THU" />
+                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
+                <ScalarProperty Name="MAKYCONG" ColumnName="MAKYCONG" />
+                <ScalarProperty Name="IDBANGCONGCT" ColumnName="IDBANGCONGCT" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1585,6 +1903,125 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="TB_KYCONG">
+            <EntityTypeMapping TypeName="Model.TB_KYCONG">
+              <MappingFragment StoreEntitySet="TB_KYCONG">
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="TRANGTHAI" ColumnName="TRANGTHAI" />
+                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
+                <ScalarProperty Name="NGAYCONGTRONGTHANG" ColumnName="NGAYCONGTRONGTHANG" />
+                <ScalarProperty Name="NGAYTINHCONG" ColumnName="NGAYTINHCONG" />
+                <ScalarProperty Name="KHOA" ColumnName="KHOA" />
+                <ScalarProperty Name="NAM" ColumnName="NAM" />
+                <ScalarProperty Name="THANG" ColumnName="THANG" />
+                <ScalarProperty Name="MAKYCONG" ColumnName="MAKYCONG" />
+                <ScalarProperty Name="IDKYCONG" ColumnName="IDKYCONG" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_KYCONGCHITIET">
+            <EntityTypeMapping TypeName="Model.TB_KYCONGCHITIET">
+              <MappingFragment StoreEntitySet="TB_KYCONGCHITIET">
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="TONGNGAYCONG" ColumnName="TONGNGAYCONG" />
+                <ScalarProperty Name="CONGCHUNHAT" ColumnName="CONGCHUNHAT" />
+                <ScalarProperty Name="CONGNGAYLE" ColumnName="CONGNGAYLE" />
+                <ScalarProperty Name="NGHIKHONGPHEP" ColumnName="NGHIKHONGPHEP" />
+                <ScalarProperty Name="NGAYPHEP" ColumnName="NGAYPHEP" />
+                <ScalarProperty Name="NGAYCONG" ColumnName="NGAYCONG" />
+                <ScalarProperty Name="D31" ColumnName="D31" />
+                <ScalarProperty Name="D30" ColumnName="D30" />
+                <ScalarProperty Name="D29" ColumnName="D29" />
+                <ScalarProperty Name="D28" ColumnName="D28" />
+                <ScalarProperty Name="D27" ColumnName="D27" />
+                <ScalarProperty Name="D26" ColumnName="D26" />
+                <ScalarProperty Name="D25" ColumnName="D25" />
+                <ScalarProperty Name="D24" ColumnName="D24" />
+                <ScalarProperty Name="D23" ColumnName="D23" />
+                <ScalarProperty Name="D22" ColumnName="D22" />
+                <ScalarProperty Name="D21" ColumnName="D21" />
+                <ScalarProperty Name="D20" ColumnName="D20" />
+                <ScalarProperty Name="D19" ColumnName="D19" />
+                <ScalarProperty Name="D18" ColumnName="D18" />
+                <ScalarProperty Name="D17" ColumnName="D17" />
+                <ScalarProperty Name="D16" ColumnName="D16" />
+                <ScalarProperty Name="D15" ColumnName="D15" />
+                <ScalarProperty Name="D14" ColumnName="D14" />
+                <ScalarProperty Name="D13" ColumnName="D13" />
+                <ScalarProperty Name="D12" ColumnName="D12" />
+                <ScalarProperty Name="D11" ColumnName="D11" />
+                <ScalarProperty Name="D10" ColumnName="D10" />
+                <ScalarProperty Name="D9" ColumnName="D9" />
+                <ScalarProperty Name="D8" ColumnName="D8" />
+                <ScalarProperty Name="D7" ColumnName="D7" />
+                <ScalarProperty Name="D6" ColumnName="D6" />
+                <ScalarProperty Name="D5" ColumnName="D5" />
+                <ScalarProperty Name="D4" ColumnName="D4" />
+                <ScalarProperty Name="D3" ColumnName="D3" />
+                <ScalarProperty Name="D2" ColumnName="D2" />
+                <ScalarProperty Name="D1" ColumnName="D1" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="MAKYCONG" ColumnName="MAKYCONG" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_LOAICA">
+            <EntityTypeMapping TypeName="Model.TB_LOAICA">
+              <MappingFragment StoreEntitySet="TB_LOAICA">
+                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
+                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="HESOLOAICA" ColumnName="HESOLOAICA" />
+                <ScalarProperty Name="TENLOAICA" ColumnName="TENLOAICA" />
+                <ScalarProperty Name="IDLOAICA" ColumnName="IDLOAICA" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_LOAICONG">
+            <EntityTypeMapping TypeName="Model.TB_LOAICONG">
+              <MappingFragment StoreEntitySet="TB_LOAICONG">
+                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
+                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="HESOLOAICONG" ColumnName="HESOLOAICONG" />
+                <ScalarProperty Name="TENLC" ColumnName="TENLC" />
+                <ScalarProperty Name="IDLOAICONG" ColumnName="IDLOAICONG" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_NANGLUONG_NHANVIEN">
+            <EntityTypeMapping TypeName="Model.TB_NANGLUONG_NHANVIEN">
+              <MappingFragment StoreEntitySet="TB_NANGLUONG_NHANVIEN">
+                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
+                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="GHICHUNL" ColumnName="GHICHUNL" />
+                <ScalarProperty Name="NGAYKYNL" ColumnName="NGAYKYNL" />
+                <ScalarProperty Name="NGAYLENLUONG" ColumnName="NGAYLENLUONG" />
+                <ScalarProperty Name="HESOLUONG_NEW" ColumnName="HESOLUONG_NEW" />
+                <ScalarProperty Name="HESOLUONG_NOW" ColumnName="HESOLUONG_NOW" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="SOHD" ColumnName="SOHD" />
+                <ScalarProperty Name="SOQDNL" ColumnName="SOQDNL" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="TB_NHANVIEN">
             <EntityTypeMapping TypeName="Model.TB_NHANVIEN">
               <MappingFragment StoreEntitySet="TB_NHANVIEN">
@@ -1702,56 +2139,6 @@
                 <ScalarProperty Name="THANG" ColumnName="THANG" />
                 <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="IDUL" ColumnName="IDUL" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_NANGLUONG_NHANVIEN">
-            <EntityTypeMapping TypeName="Model.TB_NANGLUONG_NHANVIEN">
-              <MappingFragment StoreEntitySet="TB_NANGLUONG_NHANVIEN">
-                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
-                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
-                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
-                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
-                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
-                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
-                <ScalarProperty Name="GHICHUNL" ColumnName="GHICHUNL" />
-                <ScalarProperty Name="NGAYKYNL" ColumnName="NGAYKYNL" />
-                <ScalarProperty Name="NGAYLENLUONG" ColumnName="NGAYLENLUONG" />
-                <ScalarProperty Name="HESOLUONG_NEW" ColumnName="HESOLUONG_NEW" />
-                <ScalarProperty Name="HESOLUONG_NOW" ColumnName="HESOLUONG_NOW" />
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="SOHD" ColumnName="SOHD" />
-                <ScalarProperty Name="SOQDNL" ColumnName="SOQDNL" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_LOAICA">
-            <EntityTypeMapping TypeName="Model.TB_LOAICA">
-              <MappingFragment StoreEntitySet="TB_LOAICA">
-                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
-                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
-                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
-                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
-                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
-                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
-                <ScalarProperty Name="HESOLOAICA" ColumnName="HESOLOAICA" />
-                <ScalarProperty Name="TENLOAICA" ColumnName="TENLOAICA" />
-                <ScalarProperty Name="IDLOAICA" ColumnName="IDLOAICA" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_LOAICONG">
-            <EntityTypeMapping TypeName="Model.TB_LOAICONG">
-              <MappingFragment StoreEntitySet="TB_LOAICONG">
-                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
-                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
-                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
-                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
-                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
-                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
-                <ScalarProperty Name="HESOLOAICONG" ColumnName="HESOLOAICONG" />
-                <ScalarProperty Name="TENLC" ColumnName="TENLC" />
-                <ScalarProperty Name="IDLOAICONG" ColumnName="IDLOAICONG" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

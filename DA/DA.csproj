@@ -116,6 +116,9 @@
     <Compile Include="TB_BANGCONG.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_BANGCONG_CHITIET.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_BAOHIEM.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
@@ -141,6 +144,12 @@
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_KHENTHUONG_KYLUAT.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_KYCONG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_KYCONGCHITIET.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_LOAICA.cs">

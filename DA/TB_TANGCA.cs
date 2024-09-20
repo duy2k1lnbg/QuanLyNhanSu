@@ -22,7 +22,7 @@ namespace DA
         public Nullable<decimal> MANV { get; set; }
         public Nullable<decimal> IDLOAICA { get; set; }
     
-        public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
         public virtual TB_LOAICA TB_LOAICA { get; set; }
+        public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }
 }
