@@ -84,6 +84,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CLASS_CHAMCONG\KYCONG.cs" />
+    <Compile Include="CLASS_CHAMCONG\KYCONGCHITIET.cs" />
     <Compile Include="CLASS_CHAMCONG\LOAICA.cs" />
     <Compile Include="CLASS_CHAMCONG\LOAICONG.cs" />
     <Compile Include="CLASS_NHANSU\BOPHAN.cs" />

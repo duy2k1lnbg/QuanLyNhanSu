@@ -202,5 +202,10 @@ namespace QLyNSu
         {
             this.Close();
         }
+
+        private void btnBangCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            OpenForm(typeof(FrmBangCong));
+        }
     }
 }

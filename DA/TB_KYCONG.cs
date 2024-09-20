@@ -14,7 +14,6 @@ namespace DA
     
     public partial class TB_KYCONG
     {
-        public decimal IDKYCONG { get; set; }
         public decimal MAKYCONG { get; set; }
         public Nullable<decimal> THANG { get; set; }
         public Nullable<decimal> NAM { get; set; }
@@ -27,7 +26,7 @@ namespace DA
         public Nullable<System.DateTime> CREATED_DATE { get; set; }
         public Nullable<decimal> UPDATED_BY { get; set; }
         public Nullable<System.DateTime> UPDATED_DATE { get; set; }
-    
-        public virtual TB_KYCONGCHITIET TB_KYCONGCHITIET { get; set; }
+        public Nullable<decimal> DELETED_BY { get; set; }
+        public Nullable<System.DateTime> DELETED_DATE { get; set; }
     }
 }

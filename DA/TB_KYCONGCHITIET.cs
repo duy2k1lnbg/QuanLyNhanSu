@@ -18,7 +18,6 @@ namespace DA
         public TB_KYCONGCHITIET()
         {
             this.TB_BANGCONG_CHITIET = new HashSet<TB_BANGCONG_CHITIET>();
-            this.TB_KYCONG = new HashSet<TB_KYCONG>();
         }
     
         public decimal MAKYCONG { get; set; }
@@ -65,11 +64,10 @@ namespace DA
         public Nullable<System.DateTime> CREATED_DATE { get; set; }
         public Nullable<decimal> UPDATED_BY { get; set; }
         public Nullable<System.DateTime> UPDATED_DATE { get; set; }
+        public Nullable<decimal> IDCTY { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_BANGCONG_CHITIET> TB_BANGCONG_CHITIET { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TB_KYCONG> TB_KYCONG { get; set; }
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }
 }

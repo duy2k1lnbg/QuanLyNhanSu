@@ -16,8 +16,6 @@
         <EntityTypeShape EntityType="Model.TB_GIOITINH" Width="1.5" PointX="0.75" PointY="38.125" />
         <EntityTypeShape EntityType="Model.TB_HOPDONG" Width="1.5" PointX="5.25" PointY="24.75" />
         <EntityTypeShape EntityType="Model.TB_KHENTHUONG_KYLUAT" Width="1.5" PointX="5.25" PointY="13.5" />
-        <EntityTypeShape EntityType="Model.TB_KYCONG" Width="1.5" PointX="7.5" PointY="50.75" />
-        <EntityTypeShape EntityType="Model.TB_KYCONGCHITIET" Width="1.5" PointX="5.25" PointY="44.75" />
         <EntityTypeShape EntityType="Model.TB_LOAICA" Width="1.5" PointX="6" PointY="5.125" />
         <EntityTypeShape EntityType="Model.TB_LOAICONG" Width="1.5" PointX="6" PointY="60.125" />
         <EntityTypeShape EntityType="Model.TB_NANGLUONG_NHANVIEN" Width="1.5" PointX="5.25" PointY="8.75" />
@@ -33,7 +31,6 @@
         <EntityTypeShape EntityType="Model.TB_UNGLUONG" Width="1.5" PointX="5.25" PointY="18.125" />
         <AssociationConnector Association="Model.TB_BANGCONG_LC_FK2" />
         <AssociationConnector Association="Model.TB_BANGCONG_NV_FK1" />
-        <AssociationConnector Association="Model.TB_BANGCONG_CHITIET_FK1" />
         <AssociationConnector Association="Model.TB_BAOHIEM_NV_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_BP_FK2" />
         <AssociationConnector Association="Model.TB_NHANVIEN_CV_FK3" />
@@ -43,8 +40,6 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_GT_FK8" />
         <AssociationConnector Association="Model.TB_HOPDONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" />
-        <AssociationConnector Association="Model.TB_KYCONG_FK1" />
-        <AssociationConnector Association="Model.TB_KYCONGCHITIET_FK1" />
         <AssociationConnector Association="Model.TB_TANGCA_LCA_FK1" />
         <AssociationConnector Association="Model.TB_NANGLUONG_NHANVIEN_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PB_FK1" />
@@ -56,6 +51,10 @@
         <AssociationConnector Association="Model.TB_TANGCA_NV_FK2" />
         <AssociationConnector Association="Model.TB_UNGLUONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2" />
+        <EntityTypeShape EntityType="Model.TB_KYCONGCHITIET" Width="1.5" PointX="5.25" PointY="64.5" />
+        <AssociationConnector Association="Model.TB_BANGCONG_CHITIET_FK1" />
+        <AssociationConnector Association="Model.TB_KYCONGCHITIET_FK1" />
+        <EntityTypeShape EntityType="Model.TB_KYCONG" Width="1.5" PointX="0.75" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
