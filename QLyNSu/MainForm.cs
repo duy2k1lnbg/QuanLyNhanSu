@@ -78,24 +78,28 @@ namespace QLyNSu
 
         }
 
-        private void barButtonItem4_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem4_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmDanToc));
+            //await Task.Run(() =>
+            //{
+            //    OpenForm(typeof(FrmDanToc));
+            //});
+            await OpenForm(typeof(FrmDanToc));
         }
 
-        private void barButtonItem5_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem5_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmTonGiao));
+            await OpenForm(typeof(FrmTonGiao));
         }
 
-        private void barButtonItem6_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem6_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmTrinhDo));
+           await OpenForm(typeof(FrmTrinhDo));
         }
 
-        private void barButtonItem11_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem11_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmDieuChuyen_NhanVien));
+           await OpenForm(typeof(FrmDieuChuyen_NhanVien));
         }
 
         private void barButtonItem15_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -112,34 +116,34 @@ namespace QLyNSu
             await loadLenLuong();
         }
 
-        private void barButtonItem7_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem7_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmPhongBan));
+            await OpenForm(typeof(FrmPhongBan));
         }
 
-        private void barButtonItem5_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem5_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmBoPhan));
+            await OpenForm(typeof(FrmBoPhan));
         }
 
-        private void barButtonItem4_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem4_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmCongTy));
+            await OpenForm(typeof(FrmCongTy));
         }
 
-        private void barButtonItem21_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem21_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmChucVu));
+            await OpenForm(typeof(FrmChucVu));
         }
 
-        private void barButtonItem8_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem8_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmNhanVien));
+            await OpenForm(typeof(FrmNhanVien));
         }
 
-        private void barButtonItem9_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem9_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmHopDongLaoDong));
+            await OpenForm(typeof(FrmHopDongLaoDong));
         }
 
         private void barButtonItem20_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -152,24 +156,24 @@ namespace QLyNSu
             this.Close();
         }
 
-        private void btnKhenThuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnKhenThuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmKhenThuong));
+            await OpenForm(typeof(FrmKhenThuong));
         }
 
-        private void btnKyLuat_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnKyLuat_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmKyLuat));
+            await OpenForm(typeof(FrmKyLuat));
         }
 
-        private void btnThoiViec_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnThoiViec_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmNhanVien_ThoiViec));
+             await OpenForm(typeof(FrmNhanVien_ThoiViec));
         }
 
-        private void btnNangLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnNangLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmNangLuong_NhanVien));
+            await OpenForm(typeof(FrmNangLuong_NhanVien));
         }
 
         private async Task loadSinhNhat()
@@ -214,14 +218,14 @@ namespace QLyNSu
             }    
         }
 
-        private void btnLoaiCa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLoaiCa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmLoaiCa));
+            await OpenForm(typeof(FrmLoaiCa));
         }
 
-        private void btnLoaiCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLoaiCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmLoaiCong));
+            await OpenForm(typeof(FrmLoaiCong));
         }
 
         private void btnThoat2_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -229,9 +233,9 @@ namespace QLyNSu
             this.Close();
         }
 
-        private void btnBangCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnBangCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmBangCong));
+            await OpenForm(typeof(FrmBangCong));
         }
     }
 }
