@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Bu;
 using QLyNSu.FORM_CHAMCONG;
@@ -21,17 +22,40 @@ namespace QLyNSu
         private NHANVIEN _nhanvien;
         private HOPDONGLAODONG _hopdong;
 
-        private void OpenForm(Type typeForm)
+        //private void OpenForm(Type typeForm)
+        //{
+        //    foreach(var frm in MdiChildren)
+        //        if(frm.GetType() == typeForm)
+        //        {
+        //            frm.Activate();
+        //            return;
+        //        }
+        //    Form f = (Form)Activator.CreateInstance(typeForm);
+        //    f.MdiParent = this;
+        //    f.Show();
+        //}
+
+        private async Task OpenForm(Type typeForm)
         {
-            foreach(var frm in MdiChildren)
-                if(frm.GetType() == typeForm)
+            foreach (var frm in MdiChildren)
+            {
+                if (frm.GetType() == typeForm)
                 {
                     frm.Activate();
                     return;
                 }
-            Form f = (Form)Activator.CreateInstance(typeForm);
-            f.MdiParent = this;
-            f.Show();
+            }
+
+            // Khởi tạo form bất đồng bộ
+            await Task.Run(() =>
+            {
+                Form f = (Form)Activator.CreateInstance(typeForm);
+                this.Invoke((MethodInvoker)delegate
+                {
+                    f.MdiParent = this;
+                    f.Show();
+                });
+            });
         }
 
         private void ribbonControl1_Click(object sender, EventArgs e)
@@ -79,13 +103,13 @@ namespace QLyNSu
 
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        private async void MainForm_Load(object sender, EventArgs e)
         {
             _nhanvien = new NHANVIEN();
             _hopdong = new HOPDONGLAODONG();
             ribbonControl1.SelectedPage = ribbonPage3;
-            loadSinhNhat();
-            loadLenLuong();
+            await loadSinhNhat();
+            await loadLenLuong();
         }
 
         private void barButtonItem7_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -148,16 +172,18 @@ namespace QLyNSu
             OpenForm(typeof(FrmNangLuong_NhanVien));
         }
 
-        private void loadSinhNhat()
+        private async Task loadSinhNhat()
         {
-            lstSinhNhat.DataSource = _nhanvien.getSinhNhat();
+            lstSinhNhat.DataSource = await Task.Run(() => _nhanvien.getSinhNhat());
+            //lstSinhNhat.DataSource = _nhanvien.getSinhNhat();
             lstSinhNhat.DisplayMember = "HOTEN";
             lstSinhNhat.ValueMember = "MANV";
         }
 
-        private void loadLenLuong()
+        private async Task loadLenLuong()
         {
-            lstNangLuong.DataSource = _hopdong.getLenLuong();
+            //lstNangLuong.DataSource =  _hopdong.getLenLuong();
+            lstNangLuong.DataSource = await Task.Run(() => _hopdong.getLenLuong());
             lstNangLuong.DisplayMember = "HOTEN";
             lstNangLuong.ValueMember = "MANV";
         }
