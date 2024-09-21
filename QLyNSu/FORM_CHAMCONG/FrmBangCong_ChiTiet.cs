@@ -3,6 +3,7 @@ using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Mask;
 using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid.Columns;
+using DevExpress.XtraSplashScreen;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,24 +24,30 @@ namespace QLyNSu.FORM_CHAMCONG
         }
 
         private KYCONGCHITIET _kcct;
-        private int _macty;
+        public int _macty;
         public int _thang;
         public int _nam;
-        private int _makycong;
+        public int _MAKYCONG;
 
         private void FrmBangCong_ChiTiet_Load(object sender, EventArgs e)
         {
             _kcct = new KYCONGCHITIET();
-            gcBangCongChiTiet.DataSource = _kcct.getList(_makycong);
+            gcBangCongChiTiet.DataSource = _kcct.getList(_MAKYCONG);
             CustomView(_thang, _nam);
             cboThang.Text = _thang.ToString();
             cboNam.Text = _nam.ToString();
         }
 
+        public void loadBangCong()
+        {
+            gcBangCongChiTiet.DataSource = _kcct.getList(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text));
+            CustomView(int.Parse(cboThang.Text), int.Parse(cboNam.Text));
+        }
         private void btnPhatSinhKyCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            
+            SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, false);
             _kcct.phatSinhKyCongChiTiet(_macty, int.Parse(cboThang.Text), int.Parse(cboNam.Text));
+            SplashScreenManager.CloseForm();
             loadBangCong();
         }
 
@@ -64,11 +71,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.Close();
         }
 
-        void loadBangCong()
-        {
-            gcBangCongChiTiet.DataSource = _kcct.getList(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text));
-            CustomView(int.Parse(cboThang.Text), int.Parse(cboNam.Text));
-        }
+        
 
         private void CustomView(int thang, int nam)
         {

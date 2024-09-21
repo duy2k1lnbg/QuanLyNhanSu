@@ -14,12 +14,6 @@ namespace DA
     
     public partial class TB_KYCONGCHITIET
     {
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
-        public TB_KYCONGCHITIET()
-        {
-            this.TB_BANGCONG_CHITIET = new HashSet<TB_BANGCONG_CHITIET>();
-        }
-    
         public decimal MAKYCONG { get; set; }
         public decimal MANV { get; set; }
         public string HOTEN { get; set; }
@@ -65,9 +59,5 @@ namespace DA
         public Nullable<decimal> UPDATED_BY { get; set; }
         public Nullable<System.DateTime> UPDATED_DATE { get; set; }
         public Nullable<decimal> IDCTY { get; set; }
-    
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TB_BANGCONG_CHITIET> TB_BANGCONG_CHITIET { get; set; }
-        public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }
 }

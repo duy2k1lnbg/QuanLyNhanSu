@@ -26,7 +26,6 @@ namespace DA
             this.TB_NHANVIEN_THOIVIEC = new HashSet<TB_NHANVIEN_THOIVIEC>();
             this.TB_TANGCA = new HashSet<TB_TANGCA>();
             this.TB_UNGLUONG = new HashSet<TB_UNGLUONG>();
-            this.TB_KYCONGCHITIET = new HashSet<TB_KYCONGCHITIET>();
         }
     
         public decimal MANV { get; set; }
@@ -75,7 +74,5 @@ namespace DA
         public virtual ICollection<TB_TANGCA> TB_TANGCA { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_UNGLUONG> TB_UNGLUONG { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TB_KYCONGCHITIET> TB_KYCONGCHITIET { get; set; }
     }
 }

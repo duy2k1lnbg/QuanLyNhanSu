@@ -22,8 +22,8 @@ namespace QLyNSu.FORM_CHAMCONG
         }
 
         private KYCONG _kycong;
-        bool _them;
-        int _MAKYCONG;
+        private bool _them;
+        public int _MAKYCONG;
 
         private void FrmBangCong_Load(object sender, EventArgs e)
         {
@@ -31,6 +31,8 @@ namespace QLyNSu.FORM_CHAMCONG
             _kycong = new KYCONG();
             showHide(true);
             LoadData();
+            cboNam.Text = DateTime.Now.Year.ToString();
+            cboThang.Text = DateTime.Now.Month.ToString();
         }
 
         private void gvDanhSach_Click(object sender, EventArgs e)
@@ -217,6 +219,10 @@ namespace QLyNSu.FORM_CHAMCONG
         private void btnXemBC_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             FrmBangCong_ChiTiet frm = new FrmBangCong_ChiTiet();
+            frm._MAKYCONG = _MAKYCONG;
+            frm._thang = int.Parse(cboThang.Text);
+            frm._nam = int.Parse(cboNam.Text);
+            frm._macty = 1;
             frm.ShowDialog();
         }
     }

@@ -15,18 +15,19 @@ namespace Bu.CLASS_CHAMCONG
         {
             return db.TB_KYCONGCHITIET.Where(x => x.MAKYCONG == makycong).ToList();
         }
-
         public void phatSinhKyCongChiTiet(int macty, int thang, int nam)
         {
-            var lstNv = db.TB_NHANVIEN.ToList();
-            if (lstNv.Count == 0) return;
+            var lstNV = db.TB_NHANVIEN.ToList();
+            if (lstNV.Count == 0) return;
 
-            foreach (var item in lstNv)
+            foreach (var item in lstNV)
             {
                 List<string> listDay = new List<string>();
+
                 for (int j = 1; j <= GetDayNumber(thang, nam); j++)
                 {
                     DateTime newDate = new DateTime(nam, thang, j);
+
                     switch (newDate.DayOfWeek.ToString())
                     {
                         case "Sunday":
@@ -94,9 +95,12 @@ namespace Bu.CLASS_CHAMCONG
                 kycongchitiet.D30 = listDay[29];
                 kycongchitiet.D31 = listDay[30];
 
+                kycongchitiet.NGAYCONG = GetData_Functions.demSoNgayLamViecTrongThang(thang, nam);
+                kycongchitiet.TONGNGAYCONG = GetData_Functions.demSoNgayLamViecTrongThang(thang, nam);
                 db.TB_KYCONGCHITIET.Add(kycongchitiet);
                 db.SaveChanges();
             }
+
         }
 
         private int GetDayNumber(int thang, int nam)

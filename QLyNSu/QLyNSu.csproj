@@ -113,6 +113,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FormManager_Functions.cs" />
     <Compile Include="FORM_CHAMCONG\FrmBangCong.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -221,6 +222,12 @@
     <Compile Include="FORM_NHANSU\FrmTrinhDo.Designer.cs">
       <DependentUpon>FrmTrinhDo.cs</DependentUpon>
     </Compile>
+    <Compile Include="FrmWaiting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmWaiting.Designer.cs">
+      <DependentUpon>FrmWaiting.cs</DependentUpon>
+    </Compile>
     <Compile Include="Functions\ChamCong_Functions.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
@@ -307,6 +314,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmTrinhDo.resx">
       <DependentUpon>FrmTrinhDo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmWaiting.resx">
+      <DependentUpon>FrmWaiting.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

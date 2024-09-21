@@ -51,10 +51,8 @@
         <AssociationConnector Association="Model.TB_TANGCA_NV_FK2" />
         <AssociationConnector Association="Model.TB_UNGLUONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2" />
-        <EntityTypeShape EntityType="Model.TB_KYCONGCHITIET" Width="1.5" PointX="5.25" PointY="64.5" />
-        <AssociationConnector Association="Model.TB_BANGCONG_CHITIET_FK1" />
-        <AssociationConnector Association="Model.TB_KYCONGCHITIET_FK1" />
         <EntityTypeShape EntityType="Model.TB_KYCONG" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="Model.TB_KYCONGCHITIET" Width="1.5" PointX="0.75" PointY="5.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -9,96 +9,116 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Bu;
+using DevExpress.XtraSplashScreen;
 using QLyNSu.FORM_CHAMCONG;
 
 namespace QLyNSu
 {
     public partial class MainForm : DevExpress.XtraBars.Ribbon.RibbonForm
     {
+        private FormManager_Functions _formManager;
         public MainForm()
         {
             InitializeComponent();
+            _formManager = new FormManager_Functions(this); // Khởi tạo FormManager
         }
 
         private NHANVIEN _nhanvien;
         private HOPDONGLAODONG _hopdong;
-        private SemaphoreSlim _semaphore = new SemaphoreSlim(1,1);
+        //private SemaphoreSlim _semaphore = new SemaphoreSlim(1,1);
 
-        private void OpenForm(Type typeForm)
-        {
-            foreach (var frm in MdiChildren)
-                if (frm.GetType() == typeForm)
-                {
-                    frm.Activate();
-                    return;
-                }
-            Form f = (Form)Activator.CreateInstance(typeForm);
-            f.MdiParent = this;
-            f.Show();
-        }
+        //private void OpenForm(Type typeForm)
+        //{
+        //    foreach (var frm in MdiChildren)
+        //        if (frm.GetType() == typeForm)
+        //        {
+        //            frm.Activate();
+        //            return;
+        //        }
+        //    Form f = (Form)Activator.CreateInstance(typeForm);
+        //    f.MdiParent = this;
+        //    f.Show();
+        //}
 
-        private async Task OpenFormAsync(Type typeForm)
-        {
-            foreach (var frm in MdiChildren)
-            {
-                if (frm.GetType() == typeForm)
-                {
-                    frm.Activate();
-                    return;
-                }
-            }
+        //private async Task OpenFormAsync(Type typeForm)
+        //{
+        //    foreach (var frm in MdiChildren)
+        //    {
+        //        if (frm.GetType() == typeForm)
+        //        {
+        //            frm.Activate();
+        //            return;
+        //        }
+        //    }
 
-            // Khởi tạo form bất đồng bộ
-            await Task.Run(() =>
-            {
-                Form f = (Form)Activator.CreateInstance(typeForm);
-                this.Invoke((MethodInvoker)delegate
-                {
-                    f.MdiParent = this;
-                    f.Show();
-                });
-            });
-        }
+        //    // Khởi tạo form bất đồng bộ
+        //    await Task.Run(() =>
+        //    {
+        //        Form f = (Form)Activator.CreateInstance(typeForm);
+        //        this.Invoke((MethodInvoker)delegate
+        //        {
+        //            f.MdiParent = this;
+        //            f.Show();
+        //        });
+        //    });
+        //}
 
-        private async Task OpenFormWithSemaphore(Type typeForm)
-        {
-            if (!_semaphore.Wait(0))
-            {
-                MessageBox.Show("Hệ thống đang bận, vui lòng chờ một chút.");
-                return;
-            }
+        //private async Task OpenFormWithSplashScreen(Type typeForm)
+        //{
+        //    // Hiển thị SplashScreen khi đang mở form
+        //    SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, false);
 
-            try
-            {
-                await OpenFormAsync(typeForm);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}");
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
-        }
+        //    try
+        //    {
+        //        await OpenFormWithSemaphore(typeForm);
+        //    }
+        //    finally
+        //    {
+        //        // Đóng SplashScreen sau khi form đã mở xong
+        //        SplashScreenManager.CloseForm();
+        //    }
+        //}
 
-        private void CloseAll()
-        {
-            if (this.InvokeRequired)
-            {
-                this.Invoke(new MethodInvoker(CloseAll));
-            }
-            else
-            {
-                // Hiển thị hộp thoại xác nhận trước khi thoát
-                DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn thoát không?", "Xác nhận thoát", MessageBoxButtons.YesNo);
-                if (result == DialogResult.Yes)
-                {
-                    // Kết thúc toàn bộ ứng dụng
-                    Application.Exit();
-                }
-            }
-        }
+
+        //private async Task OpenFormWithSemaphore(Type typeForm)
+        //{
+        //    if (!_semaphore.Wait(0))
+        //    {
+        //        MessageBox.Show("Hệ thống đang bận, vui lòng chờ một chút.");
+        //        return;
+        //    }
+
+        //    try
+        //    {
+        //        await OpenFormAsync(typeForm);
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        MessageBox.Show($"Có lỗi xảy ra: {ex.Message}");
+        //    }
+        //    finally
+        //    {
+        //        _semaphore.Release();
+        //    }
+        //}
+
+        //private void CloseAll()
+        //{
+        //    if (this.InvokeRequired)
+        //    {
+        //        this.Invoke(new MethodInvoker(CloseAll));
+        //    }
+        //    else
+        //    {
+        //        // Hiển thị hộp thoại xác nhận trước khi thoát
+        //        DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn thoát không?", "Xác nhận thoát", MessageBoxButtons.YesNo);
+        //        if (result == DialogResult.Yes)
+        //        {
+        //            // Kết thúc toàn bộ ứng dụng
+        //            Application.Exit();
+        //        }
+        //    }
+        //}
 
 
 
@@ -124,22 +144,22 @@ namespace QLyNSu
 
         private async void barButtonItem4_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmDanToc));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmDanToc));
         }
 
         private async void barButtonItem5_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmTonGiao));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmTonGiao));
         }
 
         private async void barButtonItem6_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmTrinhDo));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmTrinhDo));
         }
 
         private async void barButtonItem11_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-           await OpenFormWithSemaphore(typeof(FrmDieuChuyen_NhanVien));
+           await _formManager.OpenFormWithSplashScreen(typeof(FrmDieuChuyen_NhanVien));
         }
 
         private void barButtonItem15_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -158,63 +178,63 @@ namespace QLyNSu
 
         private async void barButtonItem7_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmPhongBan));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmPhongBan));
         }
 
         private async void barButtonItem5_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmBoPhan));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmBoPhan));
         }
 
         private async void barButtonItem4_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmCongTy));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmCongTy));
         }
 
         private async void barButtonItem21_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmChucVu));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmChucVu));
         }
 
         private async void barButtonItem8_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmNhanVien));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmNhanVien));
         }
 
         private void barButtonItem9_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmHopDongLaoDong));
+            _formManager.OpenForm(typeof(FrmHopDongLaoDong));
 
         }
 
         private void barButtonItem20_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            CloseAll();
+            _formManager.CloseAll();
         }
 
         private void barButtonItem22_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            CloseAll();
+            _formManager.CloseAll();
         }
 
         private async void btnKhenThuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmKhenThuong));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmKhenThuong));
         }
 
         private async void btnKyLuat_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmKyLuat));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmKyLuat));
         }
 
         private async void btnThoiViec_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-             await OpenFormWithSemaphore(typeof(FrmNhanVien_ThoiViec));
+             await _formManager.OpenFormWithSplashScreen(typeof(FrmNhanVien_ThoiViec));
         }
 
         private async void btnNangLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await OpenFormWithSemaphore(typeof(FrmNangLuong_NhanVien));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmNangLuong_NhanVien));
         }
 
         private async Task loadSinhNhat()
@@ -259,24 +279,24 @@ namespace QLyNSu
             }    
         }
 
-        private void btnLoaiCa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLoaiCa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmLoaiCa));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmLoaiCa));
         }
 
-        private void btnLoaiCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLoaiCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmLoaiCong));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmLoaiCong));
         }
 
         private void btnThoat2_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            CloseAll();
+            _formManager.CloseAll();
         }
 
-        private void btnBangCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnBangCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            OpenForm(typeof(FrmBangCong));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmBangCong));
         }
     }
 }
