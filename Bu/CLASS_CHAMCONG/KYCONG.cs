@@ -75,5 +75,36 @@ namespace Bu.CLASS_CHAMCONG
                 throw new Exception("Lỗi del data " + ex.Message);
             }
         }
+
+        public int KiemTraPhatSinhKyCong(int makycong)
+        {
+            var kc = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
+            if (kc == null)
+            {
+                return 0;
+            }
+            else
+            {
+                if (kc.TRANGTHAI == 1)
+                {
+                    return 1;
+                }
+                else
+                    return 0;
+            }    
+        }
+
+        public int KiemTraMaKyCong(int makycong)
+        {
+            var id = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
+            if (id == null)
+            {
+                return 0; 
+            }
+            else
+            {
+                return 1;
+            }
+        }
     }
 }

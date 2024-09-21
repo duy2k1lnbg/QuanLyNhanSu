@@ -25,6 +25,7 @@ namespace QLyNSu
 
         private NHANVIEN _nhanvien;
         private HOPDONGLAODONG _hopdong;
+        #region Region_OpenForm
         //private SemaphoreSlim _semaphore = new SemaphoreSlim(1,1);
 
         //private void OpenForm(Type typeForm)
@@ -119,8 +120,7 @@ namespace QLyNSu
         //        }
         //    }
         //}
-
-
+        #endregion
 
         private void ribbonControl1_Click(object sender, EventArgs e)
         {

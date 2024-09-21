@@ -127,7 +127,7 @@ namespace QLyNSu.FORM_CHAMCONG
             cboThang.Enabled = !kt;
             cboNam.Enabled = !kt;
             chkKhoa.Enabled = !kt;
-            chkTrangThai.Enabled = !kt;
+            //chkTrangThai.Enabled = !kt;
         }
 
         //private void _reset()
@@ -207,11 +207,11 @@ namespace QLyNSu.FORM_CHAMCONG
             {
                 if (e.Value.ToString() == "0")
                 {
-                    e.DisplayText = "Được phép sửa";
+                    e.DisplayText = "Chưa Tạo";
                 }
                 else if (e.Value.ToString() == "1")
                 {
-                    e.DisplayText = "Không được phép sửa";
+                    e.DisplayText = "Đã Tạo";
                 }
             }
         }

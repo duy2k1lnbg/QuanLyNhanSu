@@ -37,7 +37,6 @@ namespace QLyNSu
 
         public async Task OpenFormWithSplashScreen(Type typeForm)
         {
-            // Hiển thị SplashScreen khi đang mở form
             SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, false);
 
             try
@@ -56,7 +55,6 @@ namespace QLyNSu
             }
             finally
             {
-                // Đóng SplashScreen sau khi form đã mở xong
                 SplashScreenManager.CloseForm();
                 _semaphore.Release();
             }
@@ -73,7 +71,6 @@ namespace QLyNSu
                 }
             }
 
-            // Khởi tạo form bất đồng bộ
             Form f = (Form)Activator.CreateInstance(typeForm);
             f.MdiParent = _parentForm;
             await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => f.Show())));
@@ -87,11 +84,9 @@ namespace QLyNSu
             }
             else
             {
-                // Hiển thị hộp thoại xác nhận trước khi thoát
                 DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn thoát không?", "Xác nhận thoát", MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
                 {
-                    // Kết thúc toàn bộ ứng dụng
                     Application.Exit();
                 }
             }

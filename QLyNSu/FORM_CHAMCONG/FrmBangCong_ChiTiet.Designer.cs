@@ -32,9 +32,12 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmBangCong_ChiTiet));
             this.cboNam = new System.Windows.Forms.ComboBox();
             this.gcBangCongChiTiet = new DevExpress.XtraGrid.GridControl();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.gvBangCongChiTiet = new DevExpress.XtraGrid.Views.BandedGrid.BandedGridView();
+            this.TTNV = new DevExpress.XtraGrid.Views.BandedGrid.GridBand();
             this.colMaNV = new DevExpress.XtraGrid.Views.BandedGrid.BandedGridColumn();
             this.colHoTen = new DevExpress.XtraGrid.Views.BandedGrid.BandedGridColumn();
+            this.CHITIETNGAYCONG = new DevExpress.XtraGrid.Views.BandedGrid.GridBand();
             this.colD1 = new DevExpress.XtraGrid.Views.BandedGrid.BandedGridColumn();
             this.colD2 = new DevExpress.XtraGrid.Views.BandedGrid.BandedGridColumn();
             this.colD3 = new DevExpress.XtraGrid.Views.BandedGrid.BandedGridColumn();
@@ -92,8 +95,6 @@
             this.cboThang = new System.Windows.Forms.ComboBox();
             this.chkKhoa = new System.Windows.Forms.CheckBox();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
-            this.TTNV = new DevExpress.XtraGrid.Views.BandedGrid.GridBand();
-            this.CHITIETNGAYCONG = new DevExpress.XtraGrid.Views.BandedGrid.GridBand();
             ((System.ComponentModel.ISupportInitialize)(this.gcBangCongChiTiet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvBangCongChiTiet)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).BeginInit();
@@ -127,6 +128,7 @@
             // gcBangCongChiTiet
             // 
             this.gcBangCongChiTiet.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gcBangCongChiTiet.EmbeddedNavigator.ContextMenuStrip = this.contextMenuStrip1;
             this.gcBangCongChiTiet.Font = new System.Drawing.Font("Times New Roman", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gcBangCongChiTiet.Location = new System.Drawing.Point(0, 0);
             this.gcBangCongChiTiet.MainView = this.gvBangCongChiTiet;
@@ -136,6 +138,13 @@
             this.gcBangCongChiTiet.TabIndex = 0;
             this.gcBangCongChiTiet.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvBangCongChiTiet});
+            // 
+            // contextMenuStrip1
+            // 
+            this.contextMenuStrip1.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // gvBangCongChiTiet
             // 
@@ -205,6 +214,7 @@
             this.gvBangCongChiTiet.HorzScrollVisibility = DevExpress.XtraGrid.Views.Base.ScrollVisibility.Always;
             this.gvBangCongChiTiet.IndicatorWidth = 40;
             this.gvBangCongChiTiet.Name = "gvBangCongChiTiet";
+            this.gvBangCongChiTiet.OptionsBehavior.Editable = false;
             this.gvBangCongChiTiet.OptionsCustomization.AllowFilter = false;
             this.gvBangCongChiTiet.OptionsCustomization.AllowGroup = false;
             this.gvBangCongChiTiet.OptionsCustomization.AllowSort = false;
@@ -218,6 +228,23 @@
             this.gvBangCongChiTiet.OptionsView.ShowIndicator = false;
             this.gvBangCongChiTiet.RowHeight = 28;
             this.gvBangCongChiTiet.VertScrollVisibility = DevExpress.XtraGrid.Views.Base.ScrollVisibility.Always;
+            // 
+            // TTNV
+            // 
+            this.TTNV.AppearanceHeader.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.TTNV.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.TTNV.AppearanceHeader.Options.UseBackColor = true;
+            this.TTNV.AppearanceHeader.Options.UseFont = true;
+            this.TTNV.AppearanceHeader.Options.UseTextOptions = true;
+            this.TTNV.AppearanceHeader.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.TTNV.Caption = "THÔNG TIN NHÂN VIÊN";
+            this.TTNV.Columns.Add(this.colMaNV);
+            this.TTNV.Columns.Add(this.colHoTen);
+            this.TTNV.Fixed = DevExpress.XtraGrid.Columns.FixedStyle.Left;
+            this.TTNV.Name = "TTNV";
+            this.TTNV.RowCount = 2;
+            this.TTNV.VisibleIndex = 0;
+            this.TTNV.Width = 274;
             // 
             // colMaNV
             // 
@@ -239,6 +266,56 @@
             this.colHoTen.OptionsColumn.FixedWidth = true;
             this.colHoTen.Visible = true;
             this.colHoTen.Width = 200;
+            // 
+            // CHITIETNGAYCONG
+            // 
+            this.CHITIETNGAYCONG.AppearanceHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
+            this.CHITIETNGAYCONG.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.CHITIETNGAYCONG.AppearanceHeader.Options.UseBackColor = true;
+            this.CHITIETNGAYCONG.AppearanceHeader.Options.UseFont = true;
+            this.CHITIETNGAYCONG.AppearanceHeader.Options.UseTextOptions = true;
+            this.CHITIETNGAYCONG.AppearanceHeader.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.CHITIETNGAYCONG.Caption = "CHI TIẾT NGÀY CÔNG";
+            this.CHITIETNGAYCONG.Columns.Add(this.colD1);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD2);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD3);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD4);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD5);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD6);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD7);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD8);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD9);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD10);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD11);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD12);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD13);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD14);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD15);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD16);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD17);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD18);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD19);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD20);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD21);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD22);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD23);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD24);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD25);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD26);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD27);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD28);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD29);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD30);
+            this.CHITIETNGAYCONG.Columns.Add(this.colD31);
+            this.CHITIETNGAYCONG.Columns.Add(this.NGAYCONG);
+            this.CHITIETNGAYCONG.Columns.Add(this.NGHIKHONGPHEP);
+            this.CHITIETNGAYCONG.Columns.Add(this.NGAYPHEP);
+            this.CHITIETNGAYCONG.Columns.Add(this.CONGNGAYLE);
+            this.CHITIETNGAYCONG.Columns.Add(this.CONGCHUNHAT);
+            this.CHITIETNGAYCONG.Columns.Add(this.TONGNGAYCONG);
+            this.CHITIETNGAYCONG.Name = "CHITIETNGAYCONG";
+            this.CHITIETNGAYCONG.VisibleIndex = 1;
+            this.CHITIETNGAYCONG.Width = 2810;
             // 
             // colD1
             // 
@@ -969,73 +1046,6 @@
             this.labelControl2.TabIndex = 3;
             this.labelControl2.Text = "Tháng:";
             // 
-            // TTNV
-            // 
-            this.TTNV.AppearanceHeader.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.TTNV.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.TTNV.AppearanceHeader.Options.UseBackColor = true;
-            this.TTNV.AppearanceHeader.Options.UseFont = true;
-            this.TTNV.AppearanceHeader.Options.UseTextOptions = true;
-            this.TTNV.AppearanceHeader.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-            this.TTNV.Caption = "THÔNG TIN NHAN VIÊN";
-            this.TTNV.Columns.Add(this.colMaNV);
-            this.TTNV.Columns.Add(this.colHoTen);
-            this.TTNV.Fixed = DevExpress.XtraGrid.Columns.FixedStyle.Left;
-            this.TTNV.Name = "TTNV";
-            this.TTNV.RowCount = 2;
-            this.TTNV.VisibleIndex = 0;
-            this.TTNV.Width = 274;
-            // 
-            // CHITIETNGAYCONG
-            // 
-            this.CHITIETNGAYCONG.AppearanceHeader.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(224)))), ((int)(((byte)(192)))));
-            this.CHITIETNGAYCONG.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.CHITIETNGAYCONG.AppearanceHeader.Options.UseBackColor = true;
-            this.CHITIETNGAYCONG.AppearanceHeader.Options.UseFont = true;
-            this.CHITIETNGAYCONG.AppearanceHeader.Options.UseTextOptions = true;
-            this.CHITIETNGAYCONG.AppearanceHeader.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
-            this.CHITIETNGAYCONG.Caption = "CHI TIẾT NGÀY CÔNG";
-            this.CHITIETNGAYCONG.Columns.Add(this.colD1);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD2);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD3);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD4);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD5);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD6);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD7);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD8);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD9);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD10);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD11);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD12);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD13);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD14);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD15);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD16);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD17);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD18);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD19);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD20);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD21);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD22);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD23);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD24);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD25);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD26);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD27);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD28);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD29);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD30);
-            this.CHITIETNGAYCONG.Columns.Add(this.colD31);
-            this.CHITIETNGAYCONG.Columns.Add(this.NGAYCONG);
-            this.CHITIETNGAYCONG.Columns.Add(this.NGHIKHONGPHEP);
-            this.CHITIETNGAYCONG.Columns.Add(this.NGAYPHEP);
-            this.CHITIETNGAYCONG.Columns.Add(this.CONGNGAYLE);
-            this.CHITIETNGAYCONG.Columns.Add(this.CONGCHUNHAT);
-            this.CHITIETNGAYCONG.Columns.Add(this.TONGNGAYCONG);
-            this.CHITIETNGAYCONG.Name = "CHITIETNGAYCONG";
-            this.CHITIETNGAYCONG.VisibleIndex = 1;
-            this.CHITIETNGAYCONG.Width = 2810;
-            // 
             // FrmBangCong_ChiTiet
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -1130,5 +1140,6 @@
         private DevExpress.XtraGrid.Views.BandedGrid.BandedGridColumn TONGNGAYCONG;
         private DevExpress.XtraGrid.Views.BandedGrid.GridBand TTNV;
         private DevExpress.XtraGrid.Views.BandedGrid.GridBand CHITIETNGAYCONG;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }

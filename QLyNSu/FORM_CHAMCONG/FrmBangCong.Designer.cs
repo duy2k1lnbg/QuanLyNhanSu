@@ -410,6 +410,7 @@
             // chkTrangThai
             // 
             this.chkTrangThai.AutoSize = true;
+            this.chkTrangThai.Enabled = false;
             this.chkTrangThai.Font = new System.Drawing.Font("Times New Roman", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkTrangThai.Location = new System.Drawing.Point(735, 42);
             this.chkTrangThai.Name = "chkTrangThai";
