@@ -138,6 +138,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void LoadData()
         {
+            _kycong = new KYCONG();
             gcDanhSach.DataSource = _kycong.getList();
             FormManager_Functions.CustomView_Colums(gvDanhSach);
         }
@@ -223,6 +224,7 @@ namespace QLyNSu.FORM_CHAMCONG
             frm._thang = int.Parse(cboThang.Text);
             frm._nam = int.Parse(cboNam.Text);
             frm._macty = 1;
+            frm.ShowInTaskbar = false;
             frm.ShowDialog();
         }
 

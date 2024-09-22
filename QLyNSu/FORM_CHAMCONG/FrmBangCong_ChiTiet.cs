@@ -63,6 +63,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
         public void loadBangCong()
         {
+            _kcct = new KYCONGCHITIET();
             gcBangCongChiTiet.DataSource = _kcct.getList(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text));
             CustomView(int.Parse(cboThang.Text), int.Parse(cboNam.Text));
             gvBangCongChiTiet.OptionsBehavior.Editable = false;
@@ -86,7 +87,7 @@ namespace QLyNSu.FORM_CHAMCONG
             #endregion
 
             List<TB_NHANVIEN> lstNhanVien = _nhanvien.getList();
-            _kcct.phatSinhKyCongChiTiet(_macty, int.Parse(cboThang.Text), int.Parse(cboNam.Text));
+            _kcct.phatSinhKyCongChiTiet(_macty, int.Parse(cboThang.Text), int.Parse(cboNam.Text) ,1);
 
             foreach (var item in lstNhanVien)
             {
@@ -96,6 +97,7 @@ namespace QLyNSu.FORM_CHAMCONG
                     bcct.MANV = item.MANV;
                     bcct.IDCTY = item.IDCTY;
                     bcct.HOTEN = item.HOTEN;
+                    #region Cmt_Doi_May_Cham_Cong_Tu_Dong
                     //if (bcct.IDCALAM == "1") // ca ngày
                     //{
                     //    bcct.GIOVAO = "08:00";
@@ -106,6 +108,7 @@ namespace QLyNSu.FORM_CHAMCONG
                     //    bcct.GIOVAO = "20:00";
                     //    bcct.GIORA = "06:00";
                     //}    
+                    #endregion
                     bcct.GIOVAO = "08:00";
                     bcct.GIORA = "17:00";              
                     bcct.NGAY = DateTime.Parse(cboNam.Text+ "/" +cboThang.Text + "/" + i.ToString());
@@ -248,11 +251,11 @@ namespace QLyNSu.FORM_CHAMCONG
                         column = gvBangCongChiTiet.Columns[fieldName];
                         column.Caption = "T.Bảy " + Environment.NewLine + i;
                         column.OptionsColumn.AllowEdit = true;
-                        column.AppearanceHeader.ForeColor = Color.Red;
-                        column.AppearanceHeader.BackColor = Color.Violet;
-                        column.AppearanceHeader.BackColor2 = Color.Violet;
+                        column.AppearanceHeader.ForeColor = Color.Blue;
+                        column.AppearanceHeader.BackColor = Color.Transparent;
+                        column.AppearanceHeader.BackColor2 = Color.Transparent;
                         column.AppearanceCell.ForeColor = Color.Black;
-                        column.AppearanceCell.BackColor = Color.Khaki;
+                        column.AppearanceCell.BackColor = Color.Transparent;
                         column.OptionsColumn.AllowFocus = true;
                         //column.AppearanceHeader.Font = new Font("Tahoma", 8, FontStyle.Regular);
                         //column.Width = 30;
@@ -321,6 +324,47 @@ namespace QLyNSu.FORM_CHAMCONG
             frm._hoten = gvBangCongChiTiet.GetFocusedRowCellValue("HOTEN").ToString();
             frm._ngay = gvBangCongChiTiet.FocusedColumn.FieldName.ToString();
             frm.ShowDialog();
+        }
+
+        private void gvBangCongChiTiet_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
+        {
+            if (e.CellValue == null)
+            {
+
+            }
+            else 
+            {
+                if (e.CellValue.ToString() == "CT")
+                {
+                    e.Appearance.BackColor = Color.DeepSkyBlue;
+                    e.Appearance.ForeColor = Color.White;
+                }
+
+                if (e.CellValue.ToString() == "VR")
+                {
+                    e.Appearance.BackColor = Color.DarkGreen;
+                    e.Appearance.ForeColor = Color.White;
+                }
+
+                if (e.CellValue.ToString() == "P")
+                {
+                    e.Appearance.BackColor = Color.LightBlue;
+                    e.Appearance.ForeColor = Color.White;
+                }
+
+                if (e.CellValue.ToString() == "V")
+                {
+                    e.Appearance.BackColor = Color.IndianRed;
+                    e.Appearance.ForeColor = Color.White;
+                }
+
+                //if (e.CellValue.ToString() == "X")
+                //{
+                //    e.Appearance.BackColor = Color.White;
+                //    e.Appearance.ForeColor = Color.Black;
+                //}
+
+            }
         }
     }
 }

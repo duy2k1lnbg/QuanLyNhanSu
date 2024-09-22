@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Oracle.ManagedDataAccess.Client;
+using System;
 using System.Collections.Generic;
+using System.Data.Common;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -69,6 +72,58 @@ namespace Bu
                     break;
             }
             return thu;
+        }
+
+        //=============================================================== DBA Oracle =======================================
+
+        static OracleConnection con = new OracleConnection();
+
+        public static void taoKetNoi()
+        {
+            con.ConnectionString = "Data Source=localhost:1521/orcl; User Id=hr; Password=hr;";
+            try
+            {
+                con.Open();
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
+        public static void dongKetNoi()
+        {
+            con.Close();
+        }
+
+        public static DataTable getData(string query)
+        {
+            taoKetNoi();
+            DataTable tb = new DataTable();
+            OracleDataAdapter da = new OracleDataAdapter(query, con);
+            da.Fill(tb);
+            dongKetNoi();
+            return tb;
+        }
+
+        public static DataSet getDataSet(string query)
+        {
+            taoKetNoi();
+            OracleDataAdapter da = new OracleDataAdapter(query, con);
+            OracleCommandBuilder cmdBuilder = new OracleCommandBuilder(da);
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+            dongKetNoi();
+            return ds;
+        }
+
+        public static void execQuery(string qr)
+        {
+            taoKetNoi();
+            OracleCommand cmd = new OracleCommand(qr, con);
+            cmd.CommandType = CommandType.Text;
+            cmd.ExecuteNonQuery(); // Thực thi câu lệnh
+            dongKetNoi();
         }
     }
 }
