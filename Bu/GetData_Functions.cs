@@ -11,16 +11,26 @@ namespace Bu
         public static int demSoNgayLamViecTrongThang(int thang, int nam)
         {
             int dem = 0;
-            DateTime f = new DateTime(nam, thang, 01);
-            int x = f.Month + 1;
-            while (f.Month < x)
+            //DateTime f = new DateTime(nam, thang, 01);
+            //int x = f.Month + 1;
+            //while (f.Month < x)
+            //{
+            //    dem = dem + 1;
+            //    if (f.DayOfWeek == DayOfWeek.Sunday)
+            //    {
+            //        dem = dem - 1;
+            //    }
+            //    f = f.AddDays(1);
+            //}
+            int soNgayTrongThang = DateTime.DaysInMonth(nam, thang);
+
+            for (int i = 1; i <= soNgayTrongThang; i++)
             {
-                dem = dem + 1;
-                if (f.DayOfWeek == DayOfWeek.Sunday)
+                DateTime currentDay = new DateTime(nam, thang, i);
+                if (currentDay.DayOfWeek != DayOfWeek.Sunday) // Kiểm tra không phải Chủ Nhật
                 {
-                    dem = dem - 1;
+                    dem++;
                 }
-                f = f.AddDays(1);
             }
             return dem;
         }

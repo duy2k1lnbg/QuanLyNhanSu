@@ -75,7 +75,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsKT.DataSource = _ktkl.getListFull(1);
-            gvDsKT.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsKT);
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

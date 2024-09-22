@@ -1,9 +1,12 @@
-﻿using Bu.CLASS_CHAMCONG;
+﻿using Bu;
+using Bu.CLASS_CHAMCONG;
+using DA;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Mask;
 using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid.Columns;
 using DevExpress.XtraSplashScreen;
+using QLyNSu.Functions;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -35,6 +38,8 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private KYCONGCHITIET _kcct;
         private KYCONG _kycong;
+        private NHANVIEN _nhanvien;
+        private BANGCONG_NV_CHITIET _bangcong_ct;
         public int _macty;
         public int _thang;
         public int _nam;
@@ -46,6 +51,8 @@ namespace QLyNSu.FORM_CHAMCONG
             chkTrangThai.Enabled = false;
             _kcct = new KYCONGCHITIET();
             _kycong = new KYCONG();
+            _nhanvien = new NHANVIEN();
+            _bangcong_ct = new BANGCONG_NV_CHITIET();
             gcBangCongChiTiet.DataSource = _kcct.getList(_MAKYCONG);
             gvBangCongChiTiet.OptionsBehavior.Editable = false;
             CustomView(_thang, _nam);
@@ -62,6 +69,7 @@ namespace QLyNSu.FORM_CHAMCONG
         }
         private void btnPhatSinhKyCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            #region Check_Key
             SplashScreenManager.ShowForm(typeof(FrmWaiting), true, true);
             if (_kycong.KiemTraMaKyCong(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text)) == 0)
             {
@@ -75,7 +83,47 @@ namespace QLyNSu.FORM_CHAMCONG
                 SplashScreenManager.CloseForm();
                 return;
             }
+            #endregion
+
+            List<TB_NHANVIEN> lstNhanVien = _nhanvien.getList();
             _kcct.phatSinhKyCongChiTiet(_macty, int.Parse(cboThang.Text), int.Parse(cboNam.Text));
+
+            foreach (var item in lstNhanVien)
+            {
+                for (int i = 1; i < GetDayNumber(int.Parse(cboThang.Text), int.Parse(cboNam.Text)); i++)
+                {
+                    TB_BANGCONG_CHITIET bcct = new TB_BANGCONG_CHITIET();
+                    bcct.MANV = item.MANV;
+                    bcct.IDCTY = item.IDCTY;
+                    bcct.HOTEN = item.HOTEN;
+                    //if (bcct.IDCALAM == "1") // ca ngày
+                    //{
+                    //    bcct.GIOVAO = "08:00";
+                    //    bcct.GIORA = "17:00";
+                    //}    
+                    //else // ca đêm
+                    //{
+                    //    bcct.GIOVAO = "20:00";
+                    //    bcct.GIORA = "06:00";
+                    //}    
+                    bcct.GIOVAO = "08:00";
+                    bcct.GIORA = "17:00";              
+                    bcct.NGAY = DateTime.Parse(cboNam.Text+ "/" +cboThang.Text + "/" + i.ToString());
+                    bcct.THU = ChamCong_Functions.layThuTrongTuan(int.Parse(cboNam.Text), int.Parse(cboThang.Text), i);
+                    bcct.NGAYPHEP = 0;
+                    bcct.CONGNGAYLE = 0;
+                    bcct.CONGCHUNHAT = 0;
+                    if (bcct.THU == "Chủ nhật")
+                        bcct.KYHIEU = "CN";
+                    else
+                        bcct.KYHIEU = "X";
+                    bcct.MAKYCONG = _MAKYCONG;
+                    bcct.CREATED_BY = 1;
+                    bcct.CREATED_DATE = DateTime.Now;
+                    _bangcong_ct.Add(bcct);
+                }    
+            }    
+
             var kc =_kycong.getItem(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text));
             kc.TRANGTHAI = 1;
             _kycong.Update(kc);
@@ -121,6 +169,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
             for (i = 1; i <= GetDayNumber(thang, nam); i++)
             {
+                #region Column_Casting
                 DateTime newDate = new DateTime(nam, thang, i);
 
                 GridColumn column = new GridColumn();
@@ -221,7 +270,9 @@ namespace QLyNSu.FORM_CHAMCONG
                         //column.Width = 30;
                         //column.OptionsColumn.AllowFocus = false;
                         break;
+
                 }
+                #endregion
             }
 
             while (i <= 31)

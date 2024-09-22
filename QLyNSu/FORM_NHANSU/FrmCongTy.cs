@@ -44,7 +44,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsCT.DataSource = _congty.getList();
-            gvDsCT.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsCT);
         }
 
         private void SaveData()

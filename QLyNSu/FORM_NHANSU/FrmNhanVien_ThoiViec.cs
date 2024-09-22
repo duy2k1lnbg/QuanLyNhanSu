@@ -128,7 +128,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsTV.DataSource = _nvtv.getListFull();
-            gvDsTV.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsTV);
         }
 
         private void SaveData()

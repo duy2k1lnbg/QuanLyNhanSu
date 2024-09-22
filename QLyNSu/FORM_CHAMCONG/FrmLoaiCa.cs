@@ -117,7 +117,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private void LoadData()
         {
             gcDanhSach.DataSource = _loaica.getList();
-            gvDanhSach.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDanhSach);
         }
 
         private void SaveData()

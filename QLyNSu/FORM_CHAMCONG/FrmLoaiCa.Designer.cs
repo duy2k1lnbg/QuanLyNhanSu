@@ -217,7 +217,7 @@
             this.TENLOAICA.Caption = "LOẠI CA";
             this.TENLOAICA.FieldName = "TENLOAICA";
             this.TENLOAICA.MaxWidth = 200;
-            this.TENLOAICA.MinWidth = 200;
+            this.TENLOAICA.MinWidth = 100;
             this.TENLOAICA.Name = "TENLOAICA";
             this.TENLOAICA.Visible = true;
             this.TENLOAICA.VisibleIndex = 2;
@@ -230,7 +230,7 @@
             this.IDLOAICA.Caption = "ID";
             this.IDLOAICA.FieldName = "IDLOAICA";
             this.IDLOAICA.MaxWidth = 100;
-            this.IDLOAICA.MinWidth = 25;
+            this.IDLOAICA.MinWidth = 50;
             this.IDLOAICA.Name = "IDLOAICA";
             this.IDLOAICA.Visible = true;
             this.IDLOAICA.VisibleIndex = 1;
@@ -255,11 +255,12 @@
             this.HESOLOAICA.AppearanceHeader.Options.UseFont = true;
             this.HESOLOAICA.Caption = "HỆ SỐ";
             this.HESOLOAICA.FieldName = "HESOLOAICA";
-            this.HESOLOAICA.MinWidth = 25;
+            this.HESOLOAICA.MaxWidth = 200;
+            this.HESOLOAICA.MinWidth = 100;
             this.HESOLOAICA.Name = "HESOLOAICA";
             this.HESOLOAICA.Visible = true;
             this.HESOLOAICA.VisibleIndex = 3;
-            this.HESOLOAICA.Width = 94;
+            this.HESOLOAICA.Width = 100;
             // 
             // DELETED_BY
             // 

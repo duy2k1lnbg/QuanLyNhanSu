@@ -66,8 +66,8 @@
             this.TENCV.AppearanceHeader.Options.UseFont = true;
             this.TENCV.Caption = "Tên Chức Vụ";
             this.TENCV.FieldName = "TENCV";
-            this.TENCV.MaxWidth = 200;
-            this.TENCV.MinWidth = 200;
+            this.TENCV.MaxWidth = 500;
+            this.TENCV.MinWidth = 25;
             this.TENCV.Name = "TENCV";
             this.TENCV.Visible = true;
             this.TENCV.VisibleIndex = 1;
@@ -89,7 +89,7 @@
             this.IDCV.AppearanceHeader.Options.UseFont = true;
             this.IDCV.Caption = "ID Chức Vụ";
             this.IDCV.FieldName = "IDCV";
-            this.IDCV.MaxWidth = 100;
+            this.IDCV.MaxWidth = 500;
             this.IDCV.MinWidth = 25;
             this.IDCV.Name = "IDCV";
             this.IDCV.Visible = true;
@@ -104,7 +104,7 @@
             this.gcDsCV.MainView = this.gvDsCV;
             this.gcDsCV.MenuManager = this.barManager1;
             this.gcDsCV.Name = "gcDsCV";
-            this.gcDsCV.Size = new System.Drawing.Size(1344, 458);
+            this.gcDsCV.Size = new System.Drawing.Size(1271, 244);
             this.gcDsCV.TabIndex = 0;
             this.gcDsCV.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvDsCV});
@@ -228,15 +228,15 @@
             this.barDockControlTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.barDockControlTop.Location = new System.Drawing.Point(0, 0);
             this.barDockControlTop.Manager = this.barManager1;
-            this.barDockControlTop.Size = new System.Drawing.Size(1344, 33);
+            this.barDockControlTop.Size = new System.Drawing.Size(1271, 33);
             // 
             // barDockControlBottom
             // 
             this.barDockControlBottom.CausesValidation = false;
             this.barDockControlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.barDockControlBottom.Location = new System.Drawing.Point(0, 625);
+            this.barDockControlBottom.Location = new System.Drawing.Point(0, 411);
             this.barDockControlBottom.Manager = this.barManager1;
-            this.barDockControlBottom.Size = new System.Drawing.Size(1344, 20);
+            this.barDockControlBottom.Size = new System.Drawing.Size(1271, 20);
             // 
             // barDockControlLeft
             // 
@@ -244,15 +244,15 @@
             this.barDockControlLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.barDockControlLeft.Location = new System.Drawing.Point(0, 33);
             this.barDockControlLeft.Manager = this.barManager1;
-            this.barDockControlLeft.Size = new System.Drawing.Size(0, 592);
+            this.barDockControlLeft.Size = new System.Drawing.Size(0, 378);
             // 
             // barDockControlRight
             // 
             this.barDockControlRight.CausesValidation = false;
             this.barDockControlRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.barDockControlRight.Location = new System.Drawing.Point(1344, 33);
+            this.barDockControlRight.Location = new System.Drawing.Point(1271, 33);
             this.barDockControlRight.Manager = this.barManager1;
-            this.barDockControlRight.Size = new System.Drawing.Size(0, 592);
+            this.barDockControlRight.Size = new System.Drawing.Size(0, 378);
             // 
             // txtTen
             // 
@@ -288,7 +288,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.gcDsCV);
-            this.splitContainer1.Size = new System.Drawing.Size(1344, 592);
+            this.splitContainer1.Size = new System.Drawing.Size(1271, 378);
             this.splitContainer1.SplitterDistance = 130;
             this.splitContainer1.TabIndex = 5;
             // 
@@ -296,7 +296,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1344, 645);
+            this.ClientSize = new System.Drawing.Size(1271, 431);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.barDockControlLeft);
             this.Controls.Add(this.barDockControlRight);

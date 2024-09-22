@@ -10,18 +10,31 @@ namespace QLyNSu.Functions
     {
         public static int demSoNgayLamViecTrongThang(int thang, int nam)
         {
+            //int dem = 0;
+            //DateTime f = new DateTime(nam, thang, 1);
+            //int x = f.Month + 1;
+            //while (f.Month < x) 
+            //{
+            //    dem = dem + 1;
+            //    if (f.DayOfWeek == DayOfWeek.Sunday)
+            //    {
+            //        dem = dem - 1;
+            //    }
+            //    f = f.AddDays(1);
+            //}
+            //return dem;
             int dem = 0;
-            DateTime f = new DateTime(nam, thang, 01);
-            int x = f.Month + 1;
-            while (f.Month < x) 
+            int soNgayTrongThang = DateTime.DaysInMonth(nam, thang);
+
+            for (int i = 1; i <= soNgayTrongThang; i++)
             {
-                dem = dem + 1;
-                if (f.DayOfWeek == DayOfWeek.Sunday)
+                DateTime currentDay = new DateTime(nam, thang, i);
+                if (currentDay.DayOfWeek != DayOfWeek.Sunday) // Kiểm tra không phải Chủ Nhật
                 {
-                    dem = dem - 1;
+                    dem++;
                 }
-                f = f.AddDays(1);
             }
+
             return dem;
         }
 
@@ -55,7 +68,7 @@ namespace QLyNSu.Functions
                     thu = "Thứ bảy";
                     break;
                 case "Sunday":
-                    thu = "Chủ Nnật";
+                    thu = "Chủ nhật";
                     break;
             }
             return thu;

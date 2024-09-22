@@ -39,7 +39,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsBP.DataSource = _bophan.getList();
-            gvDsBP.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsBP);
         }
 
         private void SaveData()

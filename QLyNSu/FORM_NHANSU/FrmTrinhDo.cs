@@ -39,7 +39,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsTD.DataSource = _trinhdo.getList();
-            gvDsTD.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsTD);
         }
 
         private void SaveData()

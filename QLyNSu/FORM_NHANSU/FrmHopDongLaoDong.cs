@@ -80,7 +80,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsHDLD.DataSource = _hdld.getlistFull_DTO();
-            gvDsHDLD.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsHDLD);
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

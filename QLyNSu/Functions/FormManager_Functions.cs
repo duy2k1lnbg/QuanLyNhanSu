@@ -1,6 +1,7 @@
 ﻿using DevExpress.XtraSplashScreen;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -90,6 +91,46 @@ namespace QLyNSu
                     Application.Exit();
                 }
             }
+        }
+
+        public static void CustomView(DevExpress.XtraGrid.Views.Grid.GridView gridView, string layoutPath)
+        {
+            // Khôi phục layout từ file XML
+            gridView.RestoreLayoutFromXml(layoutPath);
+            //gridView.GridControl.DataSource = dataSource;
+            gridView.OptionsBehavior.Editable = false;
+
+            // Căn giữa các tiêu đề cột
+            foreach (DevExpress.XtraGrid.Columns.GridColumn column in gridView.Columns)
+            {
+                column.AppearanceHeader.Options.UseTextOptions = true;
+                column.AppearanceHeader.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            }
+        }
+
+        public static void CustomView_Colums(DevExpress.XtraGrid.Views.Grid.GridView gridView)
+        {
+            //gridView.GridControl.DataSource = dataSource;
+            gridView.OptionsBehavior.Editable = false;
+
+            gridView.OptionsMenu.EnableColumnMenu = false;
+            gridView.OptionsMenu.EnableGroupPanelMenu = false;
+            gridView.OptionsCustomization.AllowFilter = false;
+            //gridView.OptionsCustomization.AllowSort = false;
+
+            foreach (DevExpress.XtraGrid.Columns.GridColumn column in gridView.Columns)
+            {
+                column.AppearanceHeader.Options.UseTextOptions = true;
+                column.AppearanceHeader.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+
+                column.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 10, System.Drawing.FontStyle.Bold);
+                column.AppearanceCell.Font = new System.Drawing.Font("Tahoma", 10);
+            }
+            gridView.Appearance.HeaderPanel.Options.UseFont = true;
+            gridView.Appearance.HeaderPanel.Font = new Font("Tahoma", 12, FontStyle.Bold);
+            gridView.RowHeight = 28;
+            gridView.OptionsView.ColumnAutoWidth = false;
+            gridView.BestFitColumns();
         }
     }
 }

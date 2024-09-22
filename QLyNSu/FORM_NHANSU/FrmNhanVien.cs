@@ -92,6 +92,7 @@ namespace QLyNSu
             gcDsNV.DataSource = _nhanvien.getListFll_DTO();
             gvDsNV.OptionsBehavior.Editable = false;
             _lstNVDTO = _nhanvien.getListFll_DTO();
+            FormManager_Functions.CustomView_Colums(gvDsNV);
         }
 
        private void SaveData()

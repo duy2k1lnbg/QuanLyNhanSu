@@ -40,6 +40,7 @@ namespace QLyNSu
         {
             gcDsCV.DataSource = _chucvu.getList();
             gvDsCV.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsCV);
         }
 
         private void SaveData()

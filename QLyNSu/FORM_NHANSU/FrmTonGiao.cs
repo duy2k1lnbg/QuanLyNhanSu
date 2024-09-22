@@ -38,7 +38,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsTG.DataSource = _tongiao.getList();
-            gvDsTG.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsTG);
         }
 
         private void SaveData()

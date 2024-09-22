@@ -106,7 +106,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsDT.DataSource = _dantoc.getList();
-            gvDsDT.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsDT);
         }
 
         private void SaveData()

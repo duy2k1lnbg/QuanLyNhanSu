@@ -159,7 +159,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsNL.DataSource = _nlnv.getListFull();
-            gvDsNL.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsNL);
         }
 
         private void SaveData()

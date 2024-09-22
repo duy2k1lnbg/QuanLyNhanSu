@@ -157,7 +157,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsDC.DataSource = _dcnv.getListFull();
-            gvDsDC.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsDC);
         }
 
         private void LoadDonVi()

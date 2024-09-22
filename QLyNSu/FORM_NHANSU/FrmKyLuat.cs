@@ -79,7 +79,7 @@ namespace QLyNSu
         private void LoadData()
         {
             gcDsKl.DataSource = _ktkl.getListFull(2);
-            gvDsKl.OptionsBehavior.Editable = false;
+            FormManager_Functions.CustomView_Colums(gvDsKl);
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

@@ -82,9 +82,9 @@
             // 
             this.barDockControlRight.CausesValidation = false;
             this.barDockControlRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.barDockControlRight.Location = new System.Drawing.Point(1329, 33);
+            this.barDockControlRight.Location = new System.Drawing.Point(1306, 33);
             this.barDockControlRight.Manager = this.barManager1;
-            this.barDockControlRight.Size = new System.Drawing.Size(0, 539);
+            this.barDockControlRight.Size = new System.Drawing.Size(0, 424);
             // 
             // barManager1
             // 
@@ -205,15 +205,15 @@
             this.barDockControlTop.Dock = System.Windows.Forms.DockStyle.Top;
             this.barDockControlTop.Location = new System.Drawing.Point(0, 0);
             this.barDockControlTop.Manager = this.barManager1;
-            this.barDockControlTop.Size = new System.Drawing.Size(1329, 33);
+            this.barDockControlTop.Size = new System.Drawing.Size(1306, 33);
             // 
             // barDockControlBottom
             // 
             this.barDockControlBottom.CausesValidation = false;
             this.barDockControlBottom.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.barDockControlBottom.Location = new System.Drawing.Point(0, 572);
+            this.barDockControlBottom.Location = new System.Drawing.Point(0, 457);
             this.barDockControlBottom.Manager = this.barManager1;
-            this.barDockControlBottom.Size = new System.Drawing.Size(1329, 20);
+            this.barDockControlBottom.Size = new System.Drawing.Size(1306, 20);
             // 
             // barDockControlLeft
             // 
@@ -221,7 +221,7 @@
             this.barDockControlLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.barDockControlLeft.Location = new System.Drawing.Point(0, 33);
             this.barDockControlLeft.Manager = this.barManager1;
-            this.barDockControlLeft.Size = new System.Drawing.Size(0, 539);
+            this.barDockControlLeft.Size = new System.Drawing.Size(0, 424);
             // 
             // labelControl2
             // 
@@ -283,7 +283,7 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.gcDanhSach);
-            this.splitContainer1.Size = new System.Drawing.Size(1329, 539);
+            this.splitContainer1.Size = new System.Drawing.Size(1306, 424);
             this.splitContainer1.SplitterDistance = 127;
             this.splitContainer1.TabIndex = 8;
             // 
@@ -313,7 +313,7 @@
             this.gcDanhSach.MainView = this.gvDanhSach;
             this.gcDanhSach.MenuManager = this.barManager1;
             this.gcDanhSach.Name = "gcDanhSach";
-            this.gcDanhSach.Size = new System.Drawing.Size(1329, 408);
+            this.gcDanhSach.Size = new System.Drawing.Size(1306, 293);
             this.gcDanhSach.TabIndex = 0;
             this.gcDanhSach.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvDanhSach});
@@ -338,7 +338,7 @@
             this.IDLOAICONG.Caption = "ID";
             this.IDLOAICONG.FieldName = "IDLOAICONG";
             this.IDLOAICONG.MaxWidth = 100;
-            this.IDLOAICONG.MinWidth = 25;
+            this.IDLOAICONG.MinWidth = 50;
             this.IDLOAICONG.Name = "IDLOAICONG";
             this.IDLOAICONG.Visible = true;
             this.IDLOAICONG.VisibleIndex = 1;
@@ -350,11 +350,12 @@
             this.HESOLOAICONG.AppearanceHeader.Options.UseFont = true;
             this.HESOLOAICONG.Caption = "HỆ SỐ";
             this.HESOLOAICONG.FieldName = "HESOLOAICONG";
-            this.HESOLOAICONG.MinWidth = 25;
+            this.HESOLOAICONG.MaxWidth = 200;
+            this.HESOLOAICONG.MinWidth = 100;
             this.HESOLOAICONG.Name = "HESOLOAICONG";
             this.HESOLOAICONG.Visible = true;
             this.HESOLOAICONG.VisibleIndex = 3;
-            this.HESOLOAICONG.Width = 94;
+            this.HESOLOAICONG.Width = 100;
             // 
             // TENLC
             // 
@@ -363,7 +364,7 @@
             this.TENLC.Caption = "LOẠI CA";
             this.TENLC.FieldName = "TENLC";
             this.TENLC.MaxWidth = 200;
-            this.TENLC.MinWidth = 200;
+            this.TENLC.MinWidth = 100;
             this.TENLC.Name = "TENLC";
             this.TENLC.Visible = true;
             this.TENLC.VisibleIndex = 2;
@@ -373,7 +374,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1329, 592);
+            this.ClientSize = new System.Drawing.Size(1306, 477);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.barDockControlLeft);
             this.Controls.Add(this.barDockControlRight);

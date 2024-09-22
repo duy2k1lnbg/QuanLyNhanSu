@@ -191,7 +191,7 @@
             this.labelControl13.Appearance.Options.UseFont = true;
             this.labelControl13.Location = new System.Drawing.Point(1327, 169);
             this.labelControl13.Name = "labelControl13";
-            this.labelControl13.Size = new System.Drawing.Size(112, 25);
+            this.labelControl13.Size = new System.Drawing.Size(106, 25);
             this.labelControl13.TabIndex = 29;
             this.labelControl13.Text = "Quốc Tịch:";
             // 
@@ -221,7 +221,7 @@
             this.labelControl12.Appearance.Options.UseFont = true;
             this.labelControl12.Location = new System.Drawing.Point(256, 114);
             this.labelControl12.Name = "labelControl12";
-            this.labelControl12.Size = new System.Drawing.Size(95, 25);
+            this.labelControl12.Size = new System.Drawing.Size(91, 25);
             this.labelControl12.TabIndex = 26;
             this.labelControl12.Text = "Giới tính:";
             // 
@@ -259,7 +259,7 @@
             this.labelControl10.Appearance.Options.UseFont = true;
             this.labelControl10.Location = new System.Drawing.Point(1354, 54);
             this.labelControl10.Name = "labelControl10";
-            this.labelControl10.Size = new System.Drawing.Size(87, 25);
+            this.labelControl10.Size = new System.Drawing.Size(80, 25);
             this.labelControl10.TabIndex = 22;
             this.labelControl10.Text = "Dân tộc:";
             // 
@@ -278,7 +278,7 @@
             this.labelControl9.Appearance.Options.UseFont = true;
             this.labelControl9.Location = new System.Drawing.Point(862, 223);
             this.labelControl9.Name = "labelControl9";
-            this.labelControl9.Size = new System.Drawing.Size(93, 25);
+            this.labelControl9.Size = new System.Drawing.Size(86, 25);
             this.labelControl9.TabIndex = 20;
             this.labelControl9.Text = "Bộ phận:";
             // 
@@ -316,7 +316,7 @@
             this.labelControl6.Appearance.Options.UseFont = true;
             this.labelControl6.Location = new System.Drawing.Point(859, 110);
             this.labelControl6.Name = "labelControl6";
-            this.labelControl6.Size = new System.Drawing.Size(94, 25);
+            this.labelControl6.Size = new System.Drawing.Size(88, 25);
             this.labelControl6.TabIndex = 16;
             this.labelControl6.Text = "Trình độ:";
             // 
@@ -335,7 +335,7 @@
             this.labelControl5.Appearance.Options.UseFont = true;
             this.labelControl5.Location = new System.Drawing.Point(861, 54);
             this.labelControl5.Name = "labelControl5";
-            this.labelControl5.Size = new System.Drawing.Size(93, 25);
+            this.labelControl5.Size = new System.Drawing.Size(88, 25);
             this.labelControl5.TabIndex = 14;
             this.labelControl5.Text = "Chức vụ:";
             // 
@@ -384,7 +384,7 @@
             this.labelControl4.Appearance.Options.UseFont = true;
             this.labelControl4.Location = new System.Drawing.Point(271, 342);
             this.labelControl4.Name = "labelControl4";
-            this.labelControl4.Size = new System.Drawing.Size(78, 25);
+            this.labelControl4.Size = new System.Drawing.Size(74, 25);
             this.labelControl4.TabIndex = 4;
             this.labelControl4.Text = "Địa chỉ:";
             // 
@@ -420,7 +420,7 @@
             this.labelControl2.Appearance.Options.UseFont = true;
             this.labelControl2.Location = new System.Drawing.Point(241, 284);
             this.labelControl2.Name = "labelControl2";
-            this.labelControl2.Size = new System.Drawing.Size(110, 25);
+            this.labelControl2.Size = new System.Drawing.Size(104, 25);
             this.labelControl2.TabIndex = 2;
             this.labelControl2.Text = "Điện thoại:";
             // 
@@ -438,7 +438,7 @@
             this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(277, 51);
             this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(75, 25);
+            this.labelControl1.Size = new System.Drawing.Size(70, 25);
             this.labelControl1.TabIndex = 0;
             this.labelControl1.Text = "Họ tên:";
             // 
@@ -586,6 +586,7 @@
             this.HINHANH.AppearanceHeader.Options.UseFont = true;
             this.HINHANH.Caption = "HÌNH ẢNH";
             this.HINHANH.FieldName = "HINHANH";
+            this.HINHANH.MaxWidth = 100;
             this.HINHANH.MinWidth = 25;
             this.HINHANH.Name = "HINHANH";
             this.HINHANH.Visible = true;
