@@ -13,6 +13,11 @@ namespace Bu.CLASS_CHAMCONG
     {
         MyEntities db = new MyEntities();
 
+        public TB_BANGCONG_CHITIET getItem(int makycong, int manv, int ngay)
+        {
+            return db.TB_BANGCONG_CHITIET.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAY.Value.Day == ngay);
+        }
+
         public TB_BANGCONG_CHITIET Add(TB_BANGCONG_CHITIET bcct)
         {
             try
@@ -38,6 +43,7 @@ namespace Bu.CLASS_CHAMCONG
                 bcnv.GIOVAO = bcct.GIOVAO;
                 bcnv.GIORA = bcct.GIORA;
                 bcnv.NGAYPHEP = bcct.NGAYPHEP;
+                bcnv.NGAYCONG = bcct.NGAYCONG;
                 bcnv.GHICHU = bcct.GHICHU;
                 bcnv.CONGCHUNHAT = bcct.CONGCHUNHAT;
                 bcnv.CONGNGAYLE = bcct.CONGNGAYLE;
@@ -51,6 +57,16 @@ namespace Bu.CLASS_CHAMCONG
 
                 throw new Exception("Lỗi Update data " + ex.Message);
             }
+        }
+
+        public decimal tongNgayPhep(int makycong, int manv)
+        {
+            return db.TB_BANGCONG_CHITIET.Where(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAYPHEP != null).Sum(p => p.NGAYPHEP.Value);
+        }
+
+        public decimal tongNgayCong(int makycong, int manv)
+        {
+            return db.TB_BANGCONG_CHITIET.Where(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAYCONG != null).Sum(p => p.NGAYCONG.Value);
         }
     }
 }

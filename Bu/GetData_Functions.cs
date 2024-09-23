@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Bu
 {
@@ -119,11 +120,33 @@ namespace Bu
 
         public static void execQuery(string qr)
         {
-            taoKetNoi();
-            OracleCommand cmd = new OracleCommand(qr, con);
-            cmd.CommandType = CommandType.Text;
-            cmd.ExecuteNonQuery(); // Thực thi câu lệnh
-            dongKetNoi();
+            //taoKetNoi();
+            //OracleCommand cmd = new OracleCommand(qr, con);
+            //cmd.CommandType = CommandType.Text;
+            //cmd.ExecuteNonQuery(); // Thực thi câu lệnh
+            //dongKetNoi();
+            OracleCommand cmd = null;
+            try
+            {
+                taoKetNoi();
+                cmd = new OracleCommand(qr, con);
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery(); // Thực thi câu lệnh
+            }
+            catch (OracleException ex)
+            {
+                // Hiển thị thông báo lỗi mà không dừng chương trình
+                MessageBox.Show("Lỗi khi thực thi câu lệnh SQL: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                // Hiển thị thông báo lỗi chung
+                MessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                dongKetNoi(); // Đảm bảo luôn đóng kết nối
+            }
         }
     }
 }

@@ -32,7 +32,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmBangCong_ChiTiet));
             this.cboNam = new System.Windows.Forms.ComboBox();
             this.gcBangCongChiTiet = new DevExpress.XtraGrid.GridControl();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.gvBangCongChiTiet = new DevExpress.XtraGrid.Views.BandedGrid.BandedGridView();
             this.TTNV = new DevExpress.XtraGrid.Views.BandedGrid.GridBand();
             this.colMaNV = new DevExpress.XtraGrid.Views.BandedGrid.BandedGridColumn();
@@ -128,7 +127,6 @@
             // gcBangCongChiTiet
             // 
             this.gcBangCongChiTiet.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gcBangCongChiTiet.EmbeddedNavigator.ContextMenuStrip = this.contextMenuStrip1;
             this.gcBangCongChiTiet.Font = new System.Drawing.Font("Times New Roman", 7.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.gcBangCongChiTiet.Location = new System.Drawing.Point(0, 0);
             this.gcBangCongChiTiet.MainView = this.gvBangCongChiTiet;
@@ -138,13 +136,6 @@
             this.gcBangCongChiTiet.TabIndex = 0;
             this.gcBangCongChiTiet.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvBangCongChiTiet});
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Font = new System.Drawing.Font("Segoe UI", 11F);
-            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
             // 
             // gvBangCongChiTiet
             // 
@@ -229,6 +220,7 @@
             this.gvBangCongChiTiet.RowHeight = 28;
             this.gvBangCongChiTiet.VertScrollVisibility = DevExpress.XtraGrid.Views.Base.ScrollVisibility.Always;
             this.gvBangCongChiTiet.CustomDrawCell += new DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventHandler(this.gvBangCongChiTiet_CustomDrawCell);
+            this.gvBangCongChiTiet.PopupMenuShowing += new DevExpress.XtraGrid.Views.Grid.PopupMenuShowingEventHandler(this.gvBangCongChiTiet_PopupMenuShowing);
             // 
             // TTNV
             // 
@@ -1141,6 +1133,5 @@
         private DevExpress.XtraGrid.Views.BandedGrid.BandedGridColumn TONGNGAYCONG;
         private DevExpress.XtraGrid.Views.BandedGrid.GridBand TTNV;
         private DevExpress.XtraGrid.Views.BandedGrid.GridBand CHITIETNGAYCONG;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
     }
 }

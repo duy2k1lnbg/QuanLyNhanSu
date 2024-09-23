@@ -5,8 +5,10 @@ using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Mask;
 using DevExpress.XtraEditors.Repository;
 using DevExpress.XtraGrid.Columns;
+using DevExpress.XtraReports.UI;
 using DevExpress.XtraSplashScreen;
 using QLyNSu.Functions;
+using QLyNSu.Reports;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -34,6 +36,7 @@ namespace QLyNSu.FORM_CHAMCONG
             mnCapNhatNgayCong.Click += new EventHandler(this.mnCapNhatNgayCong_Click);
             contextMenu.Items.Add(mnCapNhatNgayCong);
             gcBangCongChiTiet.ContextMenuStrip = contextMenu;
+            gvBangCongChiTiet.PopupMenuShowing += gvBangCongChiTiet_PopupMenuShowing; ;
         }
 
         private KYCONGCHITIET _kcct;
@@ -49,6 +52,8 @@ namespace QLyNSu.FORM_CHAMCONG
         private void FrmBangCong_ChiTiet_Load(object sender, EventArgs e)
         {
             chkTrangThai.Enabled = false;
+            cboNam.Enabled = false;
+            cboThang.Enabled = false;
             _kcct = new KYCONGCHITIET();
             _kycong = new KYCONG();
             _nhanvien = new NHANVIEN();
@@ -91,7 +96,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
             foreach (var item in lstNhanVien)
             {
-                for (int i = 1; i < GetDayNumber(int.Parse(cboThang.Text), int.Parse(cboNam.Text)); i++)
+                for (int i = 1; i <= GetDayNumber(int.Parse(cboThang.Text), int.Parse(cboNam.Text)); i++)
                 {
                     TB_BANGCONG_CHITIET bcct = new TB_BANGCONG_CHITIET();
                     bcct.MANV = item.MANV;
@@ -117,9 +122,15 @@ namespace QLyNSu.FORM_CHAMCONG
                     bcct.CONGNGAYLE = 0;
                     bcct.CONGCHUNHAT = 0;
                     if (bcct.THU == "Chủ nhật")
+                    {
                         bcct.KYHIEU = "CN";
+                        bcct.NGAYCONG = 0;
+                    }    
                     else
+                    {
                         bcct.KYHIEU = "X";
+                        bcct.NGAYCONG = 1;
+                    }    
                     bcct.MAKYCONG = _MAKYCONG;
                     bcct.CREATED_BY = 1;
                     bcct.CREATED_DATE = DateTime.Now;
@@ -146,7 +157,9 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            List<TB_KYCONGCHITIET> lst = _kcct.getList(_MAKYCONG);
+            rptBangCongTongHop rpt = new rptBangCongTongHop(lst,_MAKYCONG.ToString());
+            rpt.ShowRibbonPreviewDialog();
         }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -318,12 +331,35 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void mnCapNhatNgayCong_Click(object sender, EventArgs e)
         {
-            FrmCapNhatNgayCong frm = new FrmCapNhatNgayCong();
-            frm._MAKYCONG = _MAKYCONG;
-            frm._manv = int.Parse(gvBangCongChiTiet.GetFocusedRowCellValue("MANV").ToString());
-            frm._hoten = gvBangCongChiTiet.GetFocusedRowCellValue("HOTEN").ToString();
-            frm._ngay = gvBangCongChiTiet.FocusedColumn.FieldName.ToString();
-            frm.ShowDialog();
+            //FrmCapNhatNgayCong frm = new FrmCapNhatNgayCong();
+            //frm._MAKYCONG = _MAKYCONG;
+            //frm._manv = int.Parse(gvBangCongChiTiet.GetFocusedRowCellValue("MANV").ToString());
+            //frm._hoten = gvBangCongChiTiet.GetFocusedRowCellValue("HOTEN").ToString();
+            //frm._ngay = gvBangCongChiTiet.FocusedColumn.FieldName.ToString();
+            //frm.ShowDialog();
+            if (gvBangCongChiTiet.RowCount > 0) // Kiểm tra có hàng nào không
+                {    
+                    var focusedRowHandle = gvBangCongChiTiet.FocusedRowHandle;
+                    if (focusedRowHandle >= 0) // Kiểm tra có hàng được chọn không
+                    {
+                        FrmCapNhatNgayCong frm = new FrmCapNhatNgayCong();
+                        frm._MAKYCONG = _MAKYCONG;
+                        frm._manv = int.Parse(gvBangCongChiTiet.GetFocusedRowCellValue("MANV").ToString());
+                        frm._hoten = gvBangCongChiTiet.GetFocusedRowCellValue("HOTEN").ToString();
+                        frm._ngay = gvBangCongChiTiet.FocusedColumn.FieldName.ToString();
+                        frm.nam_f_bcct1 = int.Parse(cboNam.Text);
+                        frm.thang_f1_bcct = int.Parse(cboThang.Text);
+                        frm.ShowDialog();
+                    }
+                    else
+                    {
+                        MessageBox.Show($"Vui lòng chọn một hàng để cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                }
+               else
+               {
+                MessageBox.Show($"Không có dữ liệu ở trong bảng hiện tại: ", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
         }
 
         private void gvBangCongChiTiet_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
@@ -366,5 +402,30 @@ namespace QLyNSu.FORM_CHAMCONG
 
             }
         }
+
+        private void gvBangCongChiTiet_PopupMenuShowing(object sender, DevExpress.XtraGrid.Views.Grid.PopupMenuShowingEventArgs e)
+        {
+            // Kiểm tra nếu menu là loại context menu cho hàng
+            if (e.MenuType == DevExpress.XtraGrid.Views.Grid.GridMenuType.Row)
+            {
+                var column = e.HitInfo.Column;
+
+                if (column != null)
+                {
+                    string columnName = column.FieldName;
+
+                    // Hiển thị tên cột
+                    //MessageBox.Show($"Cột đang được chọn: {columnName}");
+
+                    // Kiểm tra nếu cột là "D1", không cho hiển thị menu
+                    if (columnName == "D1")
+                    {
+                        e.Allow = false; // Ngăn hiển thị menu
+                    }
+                }
+            }
+        }
+       
+
     }
 }

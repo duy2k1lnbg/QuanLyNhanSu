@@ -37,11 +37,13 @@
             this.radioNgayNghi = new DevExpress.XtraEditors.RadioGroup();
             this.btnDong = new DevExpress.XtraEditors.SimpleButton();
             this.groupControl1 = new DevExpress.XtraEditors.GroupControl();
-            this.lblMANV = new System.Windows.Forms.Label();
-            this.label2 = new System.Windows.Forms.Label();
-            this.lblHoTen = new System.Windows.Forms.Label();
-            this.lblNgay = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.lblNgay = new System.Windows.Forms.Label();
+            this.lblHoTen = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.lblMANV = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.lblKyCong = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.grChamCong)).BeginInit();
             this.grChamCong.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.radioChamCong.Properties)).BeginInit();
@@ -149,6 +151,8 @@
             this.groupControl1.AppearanceCaption.ForeColor = System.Drawing.Color.Blue;
             this.groupControl1.AppearanceCaption.Options.UseFont = true;
             this.groupControl1.AppearanceCaption.Options.UseForeColor = true;
+            this.groupControl1.Controls.Add(this.label3);
+            this.groupControl1.Controls.Add(this.lblKyCong);
             this.groupControl1.Controls.Add(this.label1);
             this.groupControl1.Controls.Add(this.lblNgay);
             this.groupControl1.Controls.Add(this.lblHoTen);
@@ -160,35 +164,15 @@
             this.groupControl1.TabIndex = 6;
             this.groupControl1.Text = "Thông Tin";
             // 
-            // lblMANV
+            // label1
             // 
-            this.lblMANV.AutoSize = true;
-            this.lblMANV.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMANV.Location = new System.Drawing.Point(53, 39);
-            this.lblMANV.Name = "lblMANV";
-            this.lblMANV.Size = new System.Drawing.Size(64, 22);
-            this.lblMANV.TabIndex = 8;
-            this.lblMANV.Text = "MANV";
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(7, 81);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(81, 22);
-            this.label2.TabIndex = 9;
-            this.label2.Text = "Họ Tên:";
-            // 
-            // lblHoTen
-            // 
-            this.lblHoTen.AutoSize = true;
-            this.lblHoTen.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblHoTen.Location = new System.Drawing.Point(94, 81);
-            this.lblHoTen.Name = "lblHoTen";
-            this.lblHoTen.Size = new System.Drawing.Size(44, 22);
-            this.lblHoTen.TabIndex = 10;
-            this.lblHoTen.Text = "Tên";
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(7, 39);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(40, 22);
+            this.label1.TabIndex = 12;
+            this.label1.Text = "ID:";
             // 
             // lblNgay
             // 
@@ -200,15 +184,55 @@
             this.lblNgay.TabIndex = 11;
             this.lblNgay.Text = "Ngày";
             // 
-            // label1
+            // lblHoTen
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(7, 39);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(40, 22);
-            this.label1.TabIndex = 12;
-            this.label1.Text = "ID:";
+            this.lblHoTen.AutoSize = true;
+            this.lblHoTen.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblHoTen.Location = new System.Drawing.Point(94, 81);
+            this.lblHoTen.Name = "lblHoTen";
+            this.lblHoTen.Size = new System.Drawing.Size(44, 22);
+            this.lblHoTen.TabIndex = 10;
+            this.lblHoTen.Text = "Tên";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.Location = new System.Drawing.Point(7, 81);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(81, 22);
+            this.label2.TabIndex = 9;
+            this.label2.Text = "Họ Tên:";
+            // 
+            // lblMANV
+            // 
+            this.lblMANV.AutoSize = true;
+            this.lblMANV.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblMANV.Location = new System.Drawing.Point(53, 39);
+            this.lblMANV.Name = "lblMANV";
+            this.lblMANV.Size = new System.Drawing.Size(64, 22);
+            this.lblMANV.TabIndex = 8;
+            this.lblMANV.Text = "MANV";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label3.Location = new System.Drawing.Point(144, 39);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(46, 22);
+            this.label3.TabIndex = 14;
+            this.label3.Text = "KC_";
+            // 
+            // lblKyCong
+            // 
+            this.lblKyCong.AutoSize = true;
+            this.lblKyCong.Font = new System.Drawing.Font("Tahoma", 10.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblKyCong.Location = new System.Drawing.Point(190, 39);
+            this.lblKyCong.Name = "lblKyCong";
+            this.lblKyCong.Size = new System.Drawing.Size(64, 22);
+            this.lblKyCong.TabIndex = 13;
+            this.lblKyCong.Text = "MANV";
             // 
             // FrmCapNhatNgayCong
             // 
@@ -254,5 +278,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblMANV;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label lblKyCong;
     }
 }

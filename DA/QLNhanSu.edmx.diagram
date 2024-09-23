@@ -6,7 +6,6 @@
     <edmx:Diagrams>
       <Diagram DiagramId="d4a7f28898b6445a91f22b92a3229ac9" Name="Diagram1" ZoomLevel="82">
         <EntityTypeShape EntityType="Model.TB_BANGCONG" Width="1.5" PointX="8.25" PointY="30.875" />
-        <EntityTypeShape EntityType="Model.TB_BANGCONG_CHITIET" Width="1.5" PointX="7.5" PointY="45" />
         <EntityTypeShape EntityType="Model.TB_BAOHIEM" Width="1.5" PointX="5.25" PointY="33.25" />
         <EntityTypeShape EntityType="Model.TB_BOPHAN" Width="1.5" PointX="0.75" PointY="19.125" />
         <EntityTypeShape EntityType="Model.TB_CHUCVU" Width="1.5" PointX="0.75" PointY="35.75" />
@@ -53,6 +52,7 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2" />
         <EntityTypeShape EntityType="Model.TB_KYCONG" Width="1.5" PointX="0.75" PointY="0.75" />
         <EntityTypeShape EntityType="Model.TB_KYCONGCHITIET" Width="1.5" PointX="0.75" PointY="5.75" />
+        <EntityTypeShape EntityType="Model.TB_BANGCONG_CHITIET" Width="1.5" PointX="8.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -44,6 +44,7 @@
           <Property Name="UPDATED_DATE" Type="date" />
           <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
           <Property Name="DELETED_DATE" Type="date" />
+          <Property Name="NGAYCONG" Type="float" Precision="126" Scale="0" />
         </EntityType>
         <EntityType Name="TB_BAOHIEM">
           <Key>
@@ -805,7 +806,6 @@
       <Schema Namespace="Model" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="MyEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="TB_BANGCONG" EntityType="Model.TB_BANGCONG" />
-          <EntitySet Name="TB_BANGCONG_CHITIET" EntityType="Model.TB_BANGCONG_CHITIET" />
           <EntitySet Name="TB_BAOHIEM" EntityType="Model.TB_BAOHIEM" />
           <EntitySet Name="TB_BOPHAN" EntityType="Model.TB_BOPHAN" />
           <EntitySet Name="TB_CHUCVU" EntityType="Model.TB_CHUCVU" />
@@ -918,6 +918,7 @@
           </AssociationSet>
           <EntitySet Name="TB_KYCONG" EntityType="Model.TB_KYCONG" />
           <EntitySet Name="TB_KYCONGCHITIET" EntityType="Model.TB_KYCONGCHITIET" />
+          <EntitySet Name="TB_BANGCONG_CHITIET" EntityType="Model.TB_BANGCONG_CHITIET" />
         </EntityContainer>
         <EntityType Name="TB_BANGCONG">
           <Key>
@@ -935,31 +936,6 @@
           <Property Name="IDLOAICONG" Type="Decimal" Precision="38" Scale="0" />
           <NavigationProperty Name="TB_LOAICONG" Relationship="Model.TB_BANGCONG_LC_FK2" FromRole="TB_BANGCONG" ToRole="TB_LOAICONG" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_BANGCONG_NV_FK1" FromRole="TB_BANGCONG" ToRole="TB_NHANVIEN" />
-        </EntityType>
-        <EntityType Name="TB_BANGCONG_CHITIET">
-          <Key>
-            <PropertyRef Name="IDBANGCONGCT" />
-          </Key>
-          <Property Name="IDBANGCONGCT" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="MAKYCONG" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDCTY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="NGAY" Type="DateTime" />
-          <Property Name="THU" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="GIOVAO" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="GIORA" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="NGAYPHEP" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CONGNGAYLE" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CONGCHUNHAT" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="KYHIEU" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="GHICHU" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="DateTime" />
-          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="DateTime" />
-          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="DateTime" />
         </EntityType>
         <EntityType Name="TB_BAOHIEM">
           <Key>
@@ -1641,6 +1617,32 @@
           <Property Name="UPDATED_DATE" Type="DateTime" />
           <Property Name="IDCTY" Type="Decimal" Precision="38" Scale="0" />
         </EntityType>
+        <EntityType Name="TB_BANGCONG_CHITIET">
+          <Key>
+            <PropertyRef Name="IDBANGCONGCT" />
+          </Key>
+          <Property Name="IDBANGCONGCT" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MAKYCONG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="IDCTY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NGAY" Type="DateTime" />
+          <Property Name="THU" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GIOVAO" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GIORA" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NGAYPHEP" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CONGNGAYLE" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CONGCHUNHAT" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="KYHIEU" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GHICHU" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="DateTime" />
+          <Property Name="NGAYCONG" Type="Decimal" Precision="38" Scale="0" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -1660,32 +1662,6 @@
                 <ScalarProperty Name="THANG" ColumnName="THANG" />
                 <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="MABC" ColumnName="MABC" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_BANGCONG_CHITIET">
-            <EntityTypeMapping TypeName="Model.TB_BANGCONG_CHITIET">
-              <MappingFragment StoreEntitySet="TB_BANGCONG_CHITIET">
-                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
-                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
-                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
-                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
-                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
-                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
-                <ScalarProperty Name="GHICHU" ColumnName="GHICHU" />
-                <ScalarProperty Name="KYHIEU" ColumnName="KYHIEU" />
-                <ScalarProperty Name="CONGCHUNHAT" ColumnName="CONGCHUNHAT" />
-                <ScalarProperty Name="CONGNGAYLE" ColumnName="CONGNGAYLE" />
-                <ScalarProperty Name="NGAYPHEP" ColumnName="NGAYPHEP" />
-                <ScalarProperty Name="GIORA" ColumnName="GIORA" />
-                <ScalarProperty Name="GIOVAO" ColumnName="GIOVAO" />
-                <ScalarProperty Name="THU" ColumnName="THU" />
-                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
-                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
-                <ScalarProperty Name="MAKYCONG" ColumnName="MAKYCONG" />
-                <ScalarProperty Name="IDBANGCONGCT" ColumnName="IDBANGCONGCT" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2045,6 +2021,33 @@
                 <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
                 <ScalarProperty Name="MAKYCONG" ColumnName="MAKYCONG" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_BANGCONG_CHITIET">
+            <EntityTypeMapping TypeName="Model.TB_BANGCONG_CHITIET">
+              <MappingFragment StoreEntitySet="TB_BANGCONG_CHITIET">
+                <ScalarProperty Name="NGAYCONG" ColumnName="NGAYCONG" />
+                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
+                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
+                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
+                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
+                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
+                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
+                <ScalarProperty Name="GHICHU" ColumnName="GHICHU" />
+                <ScalarProperty Name="KYHIEU" ColumnName="KYHIEU" />
+                <ScalarProperty Name="CONGCHUNHAT" ColumnName="CONGCHUNHAT" />
+                <ScalarProperty Name="CONGNGAYLE" ColumnName="CONGNGAYLE" />
+                <ScalarProperty Name="NGAYPHEP" ColumnName="NGAYPHEP" />
+                <ScalarProperty Name="GIORA" ColumnName="GIORA" />
+                <ScalarProperty Name="GIOVAO" ColumnName="GIOVAO" />
+                <ScalarProperty Name="THU" ColumnName="THU" />
+                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
+                <ScalarProperty Name="MAKYCONG" ColumnName="MAKYCONG" />
+                <ScalarProperty Name="IDBANGCONGCT" ColumnName="IDBANGCONGCT" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
