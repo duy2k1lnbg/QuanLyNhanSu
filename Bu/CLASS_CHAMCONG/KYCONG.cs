@@ -18,7 +18,7 @@ namespace Bu.CLASS_CHAMCONG
 
         public List<TB_KYCONG> getList()
         {
-            return db.TB_KYCONG.ToList();
+            return db.TB_KYCONG.OrderBy(x => x.MAKYCONG).ToList();
         }
 
         public TB_KYCONG Add(TB_KYCONG kc)

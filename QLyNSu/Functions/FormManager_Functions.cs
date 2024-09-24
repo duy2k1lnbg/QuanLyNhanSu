@@ -132,5 +132,22 @@ namespace QLyNSu
             gridView.OptionsView.ColumnAutoWidth = false;
             gridView.BestFitColumns();
         }
+
+        public void OpenForm_NewTap(Type typeForm)
+        {
+            // Kiểm tra nếu form đã được mở
+            foreach (Form openForm in Application.OpenForms)
+            {
+                if (openForm.GetType() == typeForm)
+                {
+                    openForm.Activate();
+                    return;
+                }
+            }
+
+            // Tạo form mới và hiển thị
+            Form form = (Form)Activator.CreateInstance(typeForm);
+            form.Show();
+        }
     }
 }

@@ -116,6 +116,7 @@
             this.searchMANV.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.searchMANV.Properties.PopupView = this.searchLookUpEdit1View;
+            this.searchMANV.Properties.ShowClearButton = false;
             this.searchMANV.Size = new System.Drawing.Size(325, 32);
             this.searchMANV.TabIndex = 13;
             // 
@@ -549,6 +550,7 @@
             // 
             // cboDieuChuyen
             // 
+            this.cboDieuChuyen.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboDieuChuyen.Font = new System.Drawing.Font("Times New Roman", 13F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboDieuChuyen.FormattingEnabled = true;
             this.cboDieuChuyen.Location = new System.Drawing.Point(938, 108);

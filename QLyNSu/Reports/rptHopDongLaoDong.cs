@@ -26,7 +26,7 @@ namespace QLyNSu.Reports
         }
         public List<HOPDONG_DTO> _lstHD;
 
-        public void loadData()
+        private void loadData()
         {
             lblSOHD.DataBindings.Add("Text", _lstHD, "SOHD");
         }

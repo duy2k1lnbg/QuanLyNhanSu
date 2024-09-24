@@ -298,5 +298,12 @@ namespace QLyNSu
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmBangCong));
         }
+
+        private void btnBCCT_NV_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            //FrmBangCongNV_IN frm = new FrmBangCongNV_IN();
+            //frm.ShowDialog();
+            _formManager.OpenForm_NewTap(typeof(FrmBangCongNV_IN));
+        }
     }
 }

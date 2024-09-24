@@ -86,6 +86,7 @@
             this.lstNangLuong = new DevExpress.XtraEditors.ListBoxControl();
             this.grSinhNhat = new DevExpress.XtraEditors.GroupControl();
             this.lstSinhNhat = new DevExpress.XtraEditors.ListBoxControl();
+            this.btnBCCT_NV = new DevExpress.XtraBars.BarButtonItem();
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.documentManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabbedView1)).BeginInit();
@@ -132,10 +133,11 @@
             this.btnExit2,
             this.btnKyLuat,
             this.btnNangLuong,
-            this.btnThoat2});
+            this.btnThoat2,
+            this.btnBCCT_NV});
             this.ribbonControl1.Location = new System.Drawing.Point(0, 0);
             this.ribbonControl1.Margin = new System.Windows.Forms.Padding(4);
-            this.ribbonControl1.MaxItemId = 28;
+            this.ribbonControl1.MaxItemId = 29;
             this.ribbonControl1.Name = "ribbonControl1";
             this.ribbonControl1.OptionsMenuMinWidth = 385;
             this.ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
@@ -428,6 +430,7 @@
             this.ribbonPageGroup5.ItemLinks.Add(this.btnTangCa, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnUngLuong, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnBangCong, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnBCCT_NV, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnBangLuong, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnThoat2, true);
             this.ribbonPageGroup5.Name = "ribbonPageGroup5";
@@ -576,6 +579,14 @@
             this.lstSinhNhat.Templates.Add(itemTemplateBase2);
             this.lstSinhNhat.CustomizeItem += new DevExpress.XtraEditors.CustomizeTemplatedItemEventHandler(this.lstSinhNhat_CustomizeItem);
             // 
+            // btnBCCT_NV
+            // 
+            this.btnBCCT_NV.Caption = "Bảng Công Chi Tiết";
+            this.btnBCCT_NV.Id = 28;
+            this.btnBCCT_NV.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnBCCT_NV.ImageOptions.SvgImage")));
+            this.btnBCCT_NV.Name = "btnBCCT_NV";
+            this.btnBCCT_NV.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnBCCT_NV_ItemClick);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -655,6 +666,7 @@
         private DevExpress.XtraEditors.GroupControl grSinhNhat;
         private DevExpress.XtraEditors.ListBoxControl lstSinhNhat;
         private DevExpress.XtraBars.BarButtonItem btnThoat2;
+        private DevExpress.XtraBars.BarButtonItem btnBCCT_NV;
     }
 }
 

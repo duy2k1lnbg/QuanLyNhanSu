@@ -24,7 +24,7 @@ namespace QLyNSu.Reports
         }
         public List<KHENTHUONG_KYLUAT_DTO> _lstKL;
 
-        public void loadData()
+        private void loadData()
         {
             lblSoQD.DataBindings.Add("Text", _lstKL, "SOQUYETDINH");
             lblNgay.DataBindings.Add("Text", _lstKL, "NGAY");

@@ -118,7 +118,7 @@
             this.GHICHUTV,
             this.DELETED_BY,
             this.NGAYNGHIVIEC});
-            this.gvDsTV.DetailHeight = 398;
+            this.gvDsTV.DetailHeight = 425;
             this.gvDsTV.GridControl = this.gcDsTV;
             this.gvDsTV.Name = "gvDsTV";
             this.gvDsTV.OptionsView.ShowGroupPanel = false;
@@ -508,6 +508,7 @@
             this.searchMANV.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.searchMANV.Properties.PopupView = this.searchLookUpEdit1View;
+            this.searchMANV.Properties.ShowClearButton = false;
             this.searchMANV.Size = new System.Drawing.Size(325, 32);
             this.searchMANV.TabIndex = 13;
             // 

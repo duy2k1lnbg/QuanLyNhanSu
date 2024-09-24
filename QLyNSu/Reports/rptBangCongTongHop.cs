@@ -27,10 +27,10 @@ namespace QLyNSu.Reports
             RemoveInvalidDaysInMonth(makycong);
         }
 
-        public string _title = "";
+        private string _title = "";
 
         public List<TB_KYCONGCHITIET> _lstKCCT;
-        public void BinData()
+        private void BinData()
         {
             lblTitle.Text = "BẢNG CÔNG TỔNG HỢP THÁNG " + _title.Substring(4) + " NĂM " + _title.Substring(0, 4);
             MANV.DataBindings.Add("Text", DataSource, "MANV");
@@ -115,7 +115,7 @@ namespace QLyNSu.Reports
         //}
         #endregion
 
-        public void RemoveInvalidDaysInMonth(string _MAKYCONG)
+        private void RemoveInvalidDaysInMonth(string _MAKYCONG)
         {
             // Parse _MAKYCONG to get the year and month
             string yearString = _MAKYCONG.Substring(0, 4);

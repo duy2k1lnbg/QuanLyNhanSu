@@ -52,6 +52,10 @@
             this.txtLyDo = new System.Windows.Forms.TextBox();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.dtDenNgay = new System.Windows.Forms.DateTimePicker();
+            this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
+            this.dtTuNgay = new System.Windows.Forms.DateTimePicker();
+            this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
             this.txtNoiDung = new System.Windows.Forms.TextBox();
             this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
             this.searchMANV = new DevExpress.XtraEditors.SearchLookUpEdit();
@@ -70,10 +74,6 @@
             this.TUNGAY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.DENNGAY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.LYDO = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
-            this.dtTuNgay = new System.Windows.Forms.DateTimePicker();
-            this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
-            this.dtDenNgay = new System.Windows.Forms.DateTimePicker();
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.repositoryItemBorderLineStyle1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.repositoryItemBorderLineWeight1)).BeginInit();
@@ -334,6 +334,46 @@
             this.splitContainer1.SplitterDistance = 300;
             this.splitContainer1.TabIndex = 9;
             // 
+            // dtDenNgay
+            // 
+            this.dtDenNgay.CustomFormat = "dd/MM/yyyy";
+            this.dtDenNgay.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtDenNgay.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtDenNgay.Location = new System.Drawing.Point(600, 111);
+            this.dtDenNgay.Name = "dtDenNgay";
+            this.dtDenNgay.Size = new System.Drawing.Size(200, 33);
+            this.dtDenNgay.TabIndex = 23;
+            // 
+            // labelControl5
+            // 
+            this.labelControl5.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl5.Appearance.Options.UseFont = true;
+            this.labelControl5.Location = new System.Drawing.Point(486, 115);
+            this.labelControl5.Name = "labelControl5";
+            this.labelControl5.Size = new System.Drawing.Size(105, 25);
+            this.labelControl5.TabIndex = 22;
+            this.labelControl5.Text = "Đến Ngày: ";
+            // 
+            // dtTuNgay
+            // 
+            this.dtTuNgay.CustomFormat = "dd/MM/yyyy";
+            this.dtTuNgay.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtTuNgay.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtTuNgay.Location = new System.Drawing.Point(228, 111);
+            this.dtTuNgay.Name = "dtTuNgay";
+            this.dtTuNgay.Size = new System.Drawing.Size(200, 33);
+            this.dtTuNgay.TabIndex = 21;
+            // 
+            // labelControl4
+            // 
+            this.labelControl4.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl4.Appearance.Options.UseFont = true;
+            this.labelControl4.Location = new System.Drawing.Point(123, 115);
+            this.labelControl4.Name = "labelControl4";
+            this.labelControl4.Size = new System.Drawing.Size(95, 25);
+            this.labelControl4.TabIndex = 20;
+            this.labelControl4.Text = "Từ Ngày: ";
+            // 
             // txtNoiDung
             // 
             this.txtNoiDung.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -362,6 +402,7 @@
             this.searchMANV.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.searchMANV.Properties.PopupView = this.searchLookUpEdit1View;
+            this.searchMANV.Properties.ShowClearButton = false;
             this.searchMANV.Size = new System.Drawing.Size(325, 32);
             this.searchMANV.TabIndex = 13;
             // 
@@ -535,46 +576,6 @@
             this.LYDO.Visible = true;
             this.LYDO.VisibleIndex = 3;
             this.LYDO.Width = 300;
-            // 
-            // labelControl4
-            // 
-            this.labelControl4.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl4.Appearance.Options.UseFont = true;
-            this.labelControl4.Location = new System.Drawing.Point(123, 115);
-            this.labelControl4.Name = "labelControl4";
-            this.labelControl4.Size = new System.Drawing.Size(95, 25);
-            this.labelControl4.TabIndex = 20;
-            this.labelControl4.Text = "Từ Ngày: ";
-            // 
-            // dtTuNgay
-            // 
-            this.dtTuNgay.CustomFormat = "dd/MM/yyyy";
-            this.dtTuNgay.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dtTuNgay.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtTuNgay.Location = new System.Drawing.Point(228, 111);
-            this.dtTuNgay.Name = "dtTuNgay";
-            this.dtTuNgay.Size = new System.Drawing.Size(200, 33);
-            this.dtTuNgay.TabIndex = 21;
-            // 
-            // labelControl5
-            // 
-            this.labelControl5.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl5.Appearance.Options.UseFont = true;
-            this.labelControl5.Location = new System.Drawing.Point(486, 115);
-            this.labelControl5.Name = "labelControl5";
-            this.labelControl5.Size = new System.Drawing.Size(105, 25);
-            this.labelControl5.TabIndex = 22;
-            this.labelControl5.Text = "Đến Ngày: ";
-            // 
-            // dtDenNgay
-            // 
-            this.dtDenNgay.CustomFormat = "dd/MM/yyyy";
-            this.dtDenNgay.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.dtDenNgay.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
-            this.dtDenNgay.Location = new System.Drawing.Point(600, 111);
-            this.dtDenNgay.Name = "dtDenNgay";
-            this.dtDenNgay.Size = new System.Drawing.Size(200, 33);
-            this.dtDenNgay.TabIndex = 23;
             // 
             // FrmKyLuat
             // 

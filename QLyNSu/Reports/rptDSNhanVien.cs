@@ -25,7 +25,7 @@ namespace QLyNSu.Reports
             loadData();
         }
 
-        public void loadData()
+        private void loadData()
         {
             lblMANV.DataBindings.Add("Text", _lstNV, "MANV");
             lblHOTEN.DataBindings.Add("Text", _lstNV, "HOTEN");

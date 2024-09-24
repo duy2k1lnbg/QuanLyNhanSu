@@ -178,6 +178,7 @@
             // 
             // cboQuocTich
             // 
+            this.cboQuocTich.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboQuocTich.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboQuocTich.FormattingEnabled = true;
             this.cboQuocTich.Location = new System.Drawing.Point(1438, 165);
@@ -208,6 +209,7 @@
             // 
             // cboGioiTinh
             // 
+            this.cboGioiTinh.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboGioiTinh.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboGioiTinh.FormattingEnabled = true;
             this.cboGioiTinh.Location = new System.Drawing.Point(358, 111);
@@ -227,6 +229,7 @@
             // 
             // cboTonGiao
             // 
+            this.cboTonGiao.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboTonGiao.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboTonGiao.FormattingEnabled = true;
             this.cboTonGiao.Location = new System.Drawing.Point(1438, 106);
@@ -246,6 +249,7 @@
             // 
             // cboDanToc
             // 
+            this.cboDanToc.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboDanToc.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboDanToc.FormattingEnabled = true;
             this.cboDanToc.Location = new System.Drawing.Point(1438, 50);
@@ -265,6 +269,7 @@
             // 
             // cboBoPhan
             // 
+            this.cboBoPhan.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboBoPhan.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboBoPhan.FormattingEnabled = true;
             this.cboBoPhan.Location = new System.Drawing.Point(960, 219);
@@ -284,6 +289,7 @@
             // 
             // cboPhongBan
             // 
+            this.cboPhongBan.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboPhongBan.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboPhongBan.FormattingEnabled = true;
             this.cboPhongBan.Location = new System.Drawing.Point(960, 161);
@@ -303,6 +309,7 @@
             // 
             // cboTrinhDo
             // 
+            this.cboTrinhDo.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboTrinhDo.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboTrinhDo.FormattingEnabled = true;
             this.cboTrinhDo.Location = new System.Drawing.Point(960, 106);
@@ -322,6 +329,7 @@
             // 
             // cboChucVu
             // 
+            this.cboChucVu.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboChucVu.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboChucVu.FormattingEnabled = true;
             this.cboChucVu.Location = new System.Drawing.Point(960, 50);

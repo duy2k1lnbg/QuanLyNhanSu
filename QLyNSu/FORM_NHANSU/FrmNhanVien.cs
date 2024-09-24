@@ -97,6 +97,7 @@ namespace QLyNSu
 
        private void SaveData()
         {
+            #region Comments
             //try
             //{
             //    if (_them)
@@ -152,6 +153,7 @@ namespace QLyNSu
             //    // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
             //    MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             //}
+            #endregion
             try
             {
                 // Kiểm tra hình ảnh có null không, nếu null thì gán hình ảnh mặc định

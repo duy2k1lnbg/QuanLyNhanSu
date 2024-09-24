@@ -432,6 +432,7 @@
             this.txtNhanVien.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtNhanVien.Location = new System.Drawing.Point(858, 171);
             this.txtNhanVien.Name = "txtNhanVien";
+            this.txtNhanVien.ReadOnly = true;
             this.txtNhanVien.Size = new System.Drawing.Size(369, 33);
             this.txtNhanVien.TabIndex = 16;
             // 
@@ -465,6 +466,7 @@
             this.searchHopDong.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.searchHopDong.Properties.PopupView = this.searchLookUpEdit1View;
+            this.searchHopDong.Properties.ShowClearButton = false;
             this.searchHopDong.Size = new System.Drawing.Size(434, 32);
             this.searchHopDong.TabIndex = 13;
             this.searchHopDong.EditValueChanged += new System.EventHandler(this.searchHopDong_EditValueChanged);
@@ -577,7 +579,7 @@
             this.DELETED_BY,
             this.HESOLUONG_NOW,
             this.HESOLUONG_NEW});
-            this.gvDsNL.DetailHeight = 586;
+            this.gvDsNL.DetailHeight = 667;
             this.gvDsNL.GridControl = this.gcDsNL;
             this.gvDsNL.Name = "gvDsNL";
             this.gvDsNL.OptionsView.ShowGroupPanel = false;

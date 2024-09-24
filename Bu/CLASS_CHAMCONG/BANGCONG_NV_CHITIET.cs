@@ -18,6 +18,11 @@ namespace Bu.CLASS_CHAMCONG
             return db.TB_BANGCONG_CHITIET.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAY.Value.Day == ngay);
         }
 
+        public List<TB_BANGCONG_CHITIET> getBangCongCT(int makycong, int manv)
+        {
+            return db.TB_BANGCONG_CHITIET.Where(x => x.MAKYCONG == makycong && x.MANV == manv).OrderBy(x => x.NGAY).ToList();
+        }
+
         public TB_BANGCONG_CHITIET Add(TB_BANGCONG_CHITIET bcct)
         {
             try

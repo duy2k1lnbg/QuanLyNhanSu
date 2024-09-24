@@ -1029,6 +1029,7 @@
             this.searchMANV.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.searchMANV.Properties.PopupView = this.searchLookUpEdit1View;
+            this.searchMANV.Properties.ShowClearButton = false;
             this.searchMANV.Size = new System.Drawing.Size(426, 32);
             this.searchMANV.TabIndex = 13;
             // 
@@ -1140,7 +1141,7 @@
             this.labelControl6.Appearance.Options.UseFont = true;
             this.labelControl6.Location = new System.Drawing.Point(529, 145);
             this.labelControl6.Name = "labelControl6";
-            this.labelControl6.Size = new System.Drawing.Size(141, 25);
+            this.labelControl6.Size = new System.Drawing.Size(132, 25);
             this.labelControl6.TabIndex = 9;
             this.labelControl6.Text = "Hệ Số Lương:";
             // 
@@ -1150,7 +1151,7 @@
             this.labelControl5.Appearance.Options.UseFont = true;
             this.labelControl5.Location = new System.Drawing.Point(588, 94);
             this.labelControl5.Name = "labelControl5";
-            this.labelControl5.Size = new System.Drawing.Size(84, 25);
+            this.labelControl5.Size = new System.Drawing.Size(80, 25);
             this.labelControl5.TabIndex = 8;
             this.labelControl5.Text = "Lần Ký:";
             // 

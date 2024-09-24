@@ -349,7 +349,7 @@
             this.labelControl8.Appearance.Options.UseFont = true;
             this.labelControl8.Location = new System.Drawing.Point(4, 116);
             this.labelControl8.Name = "labelControl8";
-            this.labelControl8.Size = new System.Drawing.Size(217, 25);
+            this.labelControl8.Size = new System.Drawing.Size(205, 25);
             this.labelControl8.TabIndex = 14;
             this.labelControl8.Text = "Lý Do Khen Thưởng:";
             // 
@@ -363,6 +363,7 @@
             this.searchMANV.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.searchMANV.Properties.PopupView = this.searchLookUpEdit1View;
+            this.searchMANV.Properties.ShowClearButton = false;
             this.searchMANV.Size = new System.Drawing.Size(325, 32);
             this.searchMANV.TabIndex = 13;
             // 
@@ -421,7 +422,7 @@
             this.labelControl1.Appearance.Options.UseFont = true;
             this.labelControl1.Location = new System.Drawing.Point(151, 42);
             this.labelControl1.Name = "labelControl1";
-            this.labelControl1.Size = new System.Drawing.Size(74, 25);
+            this.labelControl1.Size = new System.Drawing.Size(69, 25);
             this.labelControl1.TabIndex = 0;
             this.labelControl1.Text = "Số QĐ:";
             // 
@@ -495,7 +496,7 @@
             this.labelControl2.Appearance.Options.UseFont = true;
             this.labelControl2.Location = new System.Drawing.Point(123, 180);
             this.labelControl2.Name = "labelControl2";
-            this.labelControl2.Size = new System.Drawing.Size(103, 25);
+            this.labelControl2.Size = new System.Drawing.Size(97, 25);
             this.labelControl2.TabIndex = 15;
             this.labelControl2.Text = "Nội Dung:";
             // 
