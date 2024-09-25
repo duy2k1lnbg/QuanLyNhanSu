@@ -119,11 +119,41 @@
     <Compile Include="FORM_CHAMCONG\FrmBangCongNV_IN.Designer.cs">
       <DependentUpon>FrmBangCongNV_IN.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmBangLuong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmBangLuong.Designer.cs">
+      <DependentUpon>FrmBangLuong.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_CHAMCONG\FrmCapNhatNgayCong.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="FORM_CHAMCONG\FrmCapNhatNgayCong.Designer.cs">
       <DependentUpon>FrmCapNhatNgayCong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmPhuCap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmPhuCap.Designer.cs">
+      <DependentUpon>FrmPhuCap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmTangCa.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmTangCa.Designer.cs">
+      <DependentUpon>FrmTangCa.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmUngLuong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmUngLuong.Designer.cs">
+      <DependentUpon>FrmUngLuong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FrmStartup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FrmStartup.Designer.cs">
+      <DependentUpon>FrmStartup.cs</DependentUpon>
     </Compile>
     <Compile Include="Functions\FormManager_Functions.cs" />
     <Compile Include="FORM_CHAMCONG\FrmBangCong.cs">
@@ -294,6 +324,9 @@
     <EmbeddedResource Include="FORM_CHAMCONG\FrmBangCong_ChiTiet.resx">
       <DependentUpon>FrmBangCong_ChiTiet.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmBangLuong.resx">
+      <DependentUpon>FrmBangLuong.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FORM_CHAMCONG\FrmCapNhatNgayCong.resx">
       <DependentUpon>FrmCapNhatNgayCong.cs</DependentUpon>
     </EmbeddedResource>
@@ -302,6 +335,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_CHAMCONG\FrmLoaiCong.resx">
       <DependentUpon>FrmLoaiCong.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmPhuCap.resx">
+      <DependentUpon>FrmPhuCap.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmTangCa.resx">
+      <DependentUpon>FrmTangCa.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmUngLuong.resx">
+      <DependentUpon>FrmUngLuong.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmBoPhan.resx">
       <DependentUpon>FrmBoPhan.cs</DependentUpon>
@@ -344,6 +386,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmTrinhDo.resx">
       <DependentUpon>FrmTrinhDo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FrmStartup.resx">
+      <DependentUpon>FrmStartup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmWaiting.resx">
       <DependentUpon>FrmWaiting.cs</DependentUpon>

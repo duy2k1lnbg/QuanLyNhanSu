@@ -33,12 +33,12 @@ namespace QLyNSu.FORM_CHAMCONG
             _nhanvien = new NHANVIEN();
             _kycong = new KYCONG();
             _bcct_nv = new BANGCONG_NV_CHITIET();
-            loadNhanVien();
-            loadKyCong();
+            LoadNhanVien();
+            LoadKyCong();
             searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
         }
 
-        private void loadNhanVien()
+        private void LoadNhanVien()
         {
             var nhanVienList = _nhanvien.getList();
 
@@ -57,7 +57,7 @@ namespace QLyNSu.FORM_CHAMCONG
             searchMANV.Properties.DisplayMember = "Display"; 
         }
 
-        private void loadKyCong()
+        private void LoadKyCong()
         {
             cboKyCong.DataSource = _kycong.getList();
             cboKyCong.DisplayMember = "MAKYCONG";
@@ -83,7 +83,7 @@ namespace QLyNSu.FORM_CHAMCONG
             }
             var lst = _bcct_nv.getBangCongCT(Convert.ToInt32(cboKyCong.SelectedValue), (int)searchMANV.EditValue);
             rptBangCongCTNV frm = new rptBangCongCTNV(lst);
-            frm.ShowPreviewDialog();
+            frm.ShowRibbonPreviewDialog();
         }
     }
 }

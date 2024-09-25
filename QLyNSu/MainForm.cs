@@ -162,9 +162,9 @@ namespace QLyNSu
            await _formManager.OpenFormWithSplashScreen(typeof(FrmDieuChuyen_NhanVien));
         }
 
-        private void barButtonItem15_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void barButtonItem15_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmPhuCap));
         }
 
         private async void MainForm_Load(object sender, EventArgs e)
@@ -304,6 +304,21 @@ namespace QLyNSu
             //FrmBangCongNV_IN frm = new FrmBangCongNV_IN();
             //frm.ShowDialog();
             _formManager.OpenForm_NewTap(typeof(FrmBangCongNV_IN));
+        }
+
+        private async void btnTangCa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmTangCa));
+        }
+
+        private async void btnUngLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmUngLuong));
+        }
+
+        private async void btnBangLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmBangLuong));
         }
     }
 }

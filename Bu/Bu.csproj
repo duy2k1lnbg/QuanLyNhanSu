@@ -90,6 +90,7 @@
     <Compile Include="CLASS_CHAMCONG\KYCONGCHITIET.cs" />
     <Compile Include="CLASS_CHAMCONG\LOAICA.cs" />
     <Compile Include="CLASS_CHAMCONG\LOAICONG.cs" />
+    <Compile Include="CLASS_CHAMCONG\PHUCAP.cs" />
     <Compile Include="CLASS_NHANSU\BOPHAN.cs" />
     <Compile Include="CLASS_NHANSU\CHUCVU.cs" />
     <Compile Include="CLASS_NHANSU\CONGTY.cs" />
@@ -100,6 +101,7 @@
     <Compile Include="DTO\KHENTHUONG_KYLUAT_DTO.cs" />
     <Compile Include="DTO\NANGLUONG_NHANVIEN_DTO.cs" />
     <Compile Include="DTO\NHANVIEN_DTO.cs" />
+    <Compile Include="DTO\NHANVIEN_PHUCAP_DTO.cs" />
     <Compile Include="DTO\NHANVIEN_THOIVIEC_DTO.cs" />
     <Compile Include="CLASS_NHANSU\GIOITINH.cs" />
     <Compile Include="CLASS_NHANSU\HOPDONGLAODONG.cs" />
