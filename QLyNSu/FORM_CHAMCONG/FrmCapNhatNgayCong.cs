@@ -76,7 +76,8 @@ namespace QLyNSu.FORM_CHAMCONG
             }
 
             // Cập nhật KYCONGCHITIET => BANGCONG_NV_CHITIET
-            GetData_Functions.execQuery("Update TB_KYCONGCHITIET SET " + fieldName+ "='"+_valueChamCong +"' WHERE MAKYCONG="+_MAKYCONG+" AND MANV="+ _manv);
+            //GetData_Functions.execQuery("Update TB_KYCONGCHITIET SET " + fieldName+ "='"+_valueChamCong +"' WHERE MAKYCONG="+_MAKYCONG+" AND MANV="+ _manv);
+            _kcct.UpdateChamCong(_MAKYCONG, _manv, _cngay, _valueChamCong);
 
             TB_BANGCONG_CHITIET bcctnv = _bcct_nv.getItem(_MAKYCONG, _manv, cldNgayCong.SelectionStart.Day);
             //if (bcctnv == null)

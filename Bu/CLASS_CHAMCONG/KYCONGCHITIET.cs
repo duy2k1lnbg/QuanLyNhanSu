@@ -5,6 +5,7 @@ using System.Data.Entity;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Bu.CLASS_CHAMCONG
 {
@@ -172,6 +173,40 @@ namespace Bu.CLASS_CHAMCONG
             catch (Exception ex)
             {
                 throw new Exception("Lỗi update data" + ex.Message);
+            }
+        }
+
+        public void UpdateChamCong(int _MAKYCONG, int _manv, int _cngay, string _valueChamCong)
+        {
+            // Tạo fieldName (D1, D2,...)
+            string fieldName = "D" + _cngay.ToString();
+
+            // Truy vấn bản ghi tương ứng
+            var kcct = getItem(_MAKYCONG, _manv);
+
+            if (kcct != null)
+            {
+                // Sử dụng Reflection để tìm và cập nhật trường tương ứng
+                var propertyInfo = kcct.GetType().GetProperty(fieldName);
+                if (propertyInfo != null)
+                {
+                    propertyInfo.SetValue(kcct, _valueChamCong); // Cập nhật giá trị
+
+                    using (var context = new MyEntities())
+                    {
+                        // Gắn entity vào context và lưu thay đổi
+                        context.Entry(kcct).State = EntityState.Modified;
+                        context.SaveChanges(); // Lưu vào cơ sở dữ liệu
+                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Không tìm thấy thuộc tính '{fieldName}' trong bản ghi TB_KYCONGCHITIET.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Không tìm thấy bản ghi tương ứng", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
