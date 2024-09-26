@@ -22,7 +22,6 @@ namespace DA
     
         public decimal IDPC { get; set; }
         public string TENPC { get; set; }
-        public Nullable<decimal> SOTIEN { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_NHANVIEN_PHUCAP> TB_NHANVIEN_PHUCAP { get; set; }

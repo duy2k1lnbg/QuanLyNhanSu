@@ -1,5 +1,6 @@
 ﻿using Bu;
 using Bu.CLASS_CHAMCONG;
+using DA;
 using DevExpress.DirectX.Common.DirectWrite;
 using DevExpress.XtraEditors;
 using System;
@@ -22,12 +23,13 @@ namespace QLyNSu.FORM_CHAMCONG
         }
         private PHUCAP _phucap;
         private NHANVIEN _nhanvien;
-        private int _id;
 
-
+        bool _them;
 
         private void FrmPhuCap_Load(object sender, EventArgs e)
         {
+            _them = false;
+            showHide(true);
             _nhanvien = new NHANVIEN();
             _phucap = new PHUCAP();
             LoadData();
@@ -35,31 +37,60 @@ namespace QLyNSu.FORM_CHAMCONG
             searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
             gvDanhSach.OptionsFind.AlwaysVisible = true;
             gvDanhSach.OptionsFind.FindDelay = 100;
-        }
-
-        private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
-        {
+            splitContainer1.Panel1Collapsed = true;
 
         }
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
-        }
-
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
-        {
-
+            _them = false;
+            showHide(false);
+            splitContainer1.Panel1Collapsed = false;
         }
 
         private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            try
+            {
+                if (string.IsNullOrEmpty(searchMANV.EditValue?.ToString()))
+                {
+                    MessageBox.Show("Vui lòng chọn một nhân viên!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return; // Dừng lại nếu không có giá trị
+                }
+
+                var nv = Convert.ToInt32(searchMANV.EditValue);
+                decimal sotienIdpc1 = Convert.ToDecimal(spP1.Text);
+                decimal sotienIdpc2 = Convert.ToDecimal(spP2.Text);
+                decimal sotienIdpc3 = Convert.ToDecimal(spP3.Text);
+                decimal sotienIdpc4 = Convert.ToDecimal(spP4.Text);
+                decimal sotienIdpc5 = Convert.ToDecimal(spP5.Text);
+                decimal sotienIdpc6 = Convert.ToDecimal(spP6.Text);
+                decimal sotienIdpc7 = Convert.ToDecimal(spP7.Text); 
+                _phucap.UpdatePhucap(nv, 1, sotienIdpc1);
+                _phucap.UpdatePhucap(nv, 2, sotienIdpc2);
+                _phucap.UpdatePhucap(nv, 3, sotienIdpc3);
+                _phucap.UpdatePhucap(nv, 4, sotienIdpc4);
+                _phucap.UpdatePhucap(nv, 5, sotienIdpc5);
+                _phucap.UpdatePhucap(nv, 6, sotienIdpc6);
+                _phucap.UpdatePhucap(nv, 7, sotienIdpc7);
+                LoadData();
+                var manv = Convert.ToInt32(searchMANV.EditValue); 
+                var row = ((DataRowView)searchMANV.GetSelectedDataRow()).Row; 
+                var hoten = row["HOTEN"].ToString();
+                MessageBox.Show($"Cập nhật phụ cấp thành công cho nhân viên {manv} - {hoten}!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi cập nhật: {ex.Message}");
+            }
 
         }
 
         private void btnHuy_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            _them = false;
+            showHide(true);
+            splitContainer1.Panel1Collapsed = true;
         }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -77,21 +108,24 @@ namespace QLyNSu.FORM_CHAMCONG
             if (gvDanhSach.FocusedRowHandle >= 0)
             {
                 searchMANV.EditValue = gvDanhSach.GetFocusedRowCellValue("MANV").ToString();
-                spP1.Text = gvDanhSach.GetFocusedRowCellValue("PhuCap1").ToString();
-                spP2.Text = gvDanhSach.GetFocusedRowCellValue("PhuCap2").ToString();
-                spP3.Text = gvDanhSach.GetFocusedRowCellValue("PhuCap3").ToString();
-                spP4.Text = gvDanhSach.GetFocusedRowCellValue("PhuCap4").ToString();
-                spP5.Text = gvDanhSach.GetFocusedRowCellValue("PhuCap5").ToString();
-                spP6.Text = gvDanhSach.GetFocusedRowCellValue("PhuCap6").ToString();
-                spP7.Text = gvDanhSach.GetFocusedRowCellValue("PhuCap7").ToString();
+                spP1.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC1").ToString();
+                spP2.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC2").ToString();
+                spP3.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC3").ToString();
+                spP4.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC4").ToString();
+                spP5.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC5").ToString();
+                spP6.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC6").ToString();
+                spP7.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC7").ToString();
                 var ghiChuValue = gvDanhSach.GetFocusedRowCellValue("GHICHU");
-                txtGhiChu.Text = ghiChuValue?.ToString() ?? string.Empty;
             }
+            splitContainer1.Panel1Collapsed = false;
+            _them = false;
+            showHide(false);
         }
 
         private void LoadData()
         {
-            gcDanhSach.DataSource = _phucap.GetNhanVienPhuCap();
+            _phucap = new PHUCAP();
+            gcDanhSach.DataSource = _phucap.GetNhanVienSortedByIDPC();
             FormManager_Functions.CustomView_Colums(gvDanhSach);
         }
 
@@ -114,14 +148,13 @@ namespace QLyNSu.FORM_CHAMCONG
             searchMANV.Properties.DisplayMember = "Display";
         }
 
-        private void LoadPhuCapID()
+        private void showHide(bool kt)
         {
-
-        }
-
-        private void searchMANV_EditValueChanged(object sender, EventArgs e)
-        {
-            
-        }
+            btnLuu.Enabled = !kt;
+            btnHuy.Enabled = !kt;
+            btnSua.Enabled = kt;
+            btnIn.Enabled = kt;
+            btnDong.Enabled = kt;
+        }    
     }
 }

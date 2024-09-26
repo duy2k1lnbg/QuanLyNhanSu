@@ -296,14 +296,14 @@
         </EntityType>
         <EntityType Name="TB_NHANVIEN_PHUCAP">
           <Key>
-            <PropertyRef Name="ID" />
+            <PropertyRef Name="MANV" />
+            <PropertyRef Name="IDPC" />
           </Key>
-          <Property Name="ID" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDPC" Type="number" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="IDPC" Type="number" Precision="38" Scale="0" Nullable="false" />
           <Property Name="NGAY" Type="date" />
           <Property Name="GHICHU" Type="nvarchar2" MaxLength="500" />
-          <Property Name="TONGPHUCAP" Type="float" Precision="126" Scale="0" />
+          <Property Name="SOTIEN" Type="float" Precision="126" Scale="0" />
           <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
           <Property Name="UPDATED_DATE" Type="date" />
           <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
@@ -341,7 +341,6 @@
           </Key>
           <Property Name="IDPC" Type="number" Precision="38" Scale="0" Nullable="false" />
           <Property Name="TENPC" Type="nvarchar2" MaxLength="250" />
-          <Property Name="SOTIEN" Type="float" Precision="126" Scale="0" />
         </EntityType>
         <EntityType Name="TB_QUOCTICH">
           <Key>
@@ -567,7 +566,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
           <End Role="TB_NHANVIEN_PHUCAP" Type="Self.TB_NHANVIEN_PHUCAP" Multiplicity="*" />
@@ -581,7 +580,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_PC_FK2">
-          <End Role="TB_PHUCAP" Type="Self.TB_PHUCAP" Multiplicity="0..1">
+          <End Role="TB_PHUCAP" Type="Self.TB_PHUCAP" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
           <End Role="TB_NHANVIEN_PHUCAP" Type="Self.TB_NHANVIEN_PHUCAP" Multiplicity="*" />
@@ -1250,14 +1249,14 @@
         </EntityType>
         <EntityType Name="TB_NHANVIEN_PHUCAP">
           <Key>
-            <PropertyRef Name="ID" />
+            <PropertyRef Name="MANV" />
+            <PropertyRef Name="IDPC" />
           </Key>
-          <Property Name="ID" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDPC" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDPC" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="DateTime" />
           <Property Name="GHICHU" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="TONGPHUCAP" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="SOTIEN" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="UPDATED_DATE" Type="DateTime" />
           <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
@@ -1299,7 +1298,6 @@
           </Key>
           <Property Name="IDPC" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
           <Property Name="TENPC" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-          <Property Name="SOTIEN" Type="Decimal" Precision="38" Scale="0" />
           <NavigationProperty Name="TB_NHANVIEN_PHUCAP" Relationship="Model.TB_NHANVIEN_PHUCAP_PC_FK2" FromRole="TB_PHUCAP" ToRole="TB_NHANVIEN_PHUCAP" />
         </EntityType>
         <EntityType Name="TB_QUOCTICH">
@@ -1546,7 +1544,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
           <End Type="Model.TB_NHANVIEN_PHUCAP" Role="TB_NHANVIEN_PHUCAP" Multiplicity="*" />
@@ -1642,7 +1640,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_PC_FK2">
-          <End Type="Model.TB_PHUCAP" Role="TB_PHUCAP" Multiplicity="0..1">
+          <End Type="Model.TB_PHUCAP" Role="TB_PHUCAP" Multiplicity="1">
             <OnDelete Action="Cascade" />
           </End>
           <End Type="Model.TB_NHANVIEN_PHUCAP" Role="TB_NHANVIEN_PHUCAP" Multiplicity="*" />
@@ -1975,12 +1973,11 @@
                 <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
                 <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
                 <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
-                <ScalarProperty Name="TONGPHUCAP" ColumnName="TONGPHUCAP" />
+                <ScalarProperty Name="SOTIEN" ColumnName="SOTIEN" />
                 <ScalarProperty Name="GHICHU" ColumnName="GHICHU" />
                 <ScalarProperty Name="NGAY" ColumnName="NGAY" />
                 <ScalarProperty Name="IDPC" ColumnName="IDPC" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="ID" ColumnName="ID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2013,7 +2010,6 @@
           <EntitySetMapping Name="TB_PHUCAP">
             <EntityTypeMapping TypeName="Model.TB_PHUCAP">
               <MappingFragment StoreEntitySet="TB_PHUCAP">
-                <ScalarProperty Name="SOTIEN" ColumnName="SOTIEN" />
                 <ScalarProperty Name="TENPC" ColumnName="TENPC" />
                 <ScalarProperty Name="IDPC" ColumnName="IDPC" />
               </MappingFragment>

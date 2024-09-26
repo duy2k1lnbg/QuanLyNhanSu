@@ -163,10 +163,7 @@ namespace Bu
 
         //public void UpdateChamCong(int _MAKYCONG, int _manv, int _cngay, string _valueChamCong)
         //{
-        //    // Tạo fieldName (D1, D2,...)
         //    string fieldName = "D" + _cngay.ToString();
-
-        //    // Truy vấn bản ghi tương ứng
         //    var kcct = getItem(_MAKYCONG, _manv);
 
         //    if (kcct != null)

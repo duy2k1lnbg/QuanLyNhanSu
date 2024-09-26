@@ -180,8 +180,6 @@ namespace Bu.CLASS_CHAMCONG
         {
             // Tạo fieldName (D1, D2,...)
             string fieldName = "D" + _cngay.ToString();
-
-            // Truy vấn bản ghi tương ứng
             var kcct = getItem(_MAKYCONG, _manv);
 
             if (kcct != null)
@@ -194,9 +192,8 @@ namespace Bu.CLASS_CHAMCONG
 
                     using (var context = new MyEntities())
                     {
-                        // Gắn entity vào context và lưu thay đổi
                         context.Entry(kcct).State = EntityState.Modified;
-                        context.SaveChanges(); // Lưu vào cơ sở dữ liệu
+                        context.SaveChanges();
                     }
                 }
                 else

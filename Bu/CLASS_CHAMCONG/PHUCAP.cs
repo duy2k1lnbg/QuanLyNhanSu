@@ -4,9 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Bu.CLASS_CHAMCONG
 {
@@ -14,155 +16,119 @@ namespace Bu.CLASS_CHAMCONG
     {
 
         MyEntities db = new MyEntities();
-
-        public TB_PHUCAP getItem_PC(int id)
+        public TB_NHANVIEN_PHUCAP getItem(int manv, int id)
         {
-            return db.TB_PHUCAP.FirstOrDefault(x => x.IDPC == id);
+            return db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == manv && x.IDPC == id);
         }
 
-        public List<TB_PHUCAP> getList_PC()
+        public List<TB_NHANVIEN_PHUCAP> getList()
         {
-            return db.TB_PHUCAP.ToList();
+            return db.TB_NHANVIEN_PHUCAP.ToList();
         }
 
-        public List<NHANVIEN_PHUCAP_DTO> GetNhanVienPhuCap()
+        public List<NHANVIEN_PHUCAP_DTO> GetNhanVienSortedByIDPC()
         {
-            using (var db = new MyEntities())
-            {
-                var nhanVienList = db.TB_NHANVIEN.ToList();
-                var viewModelList = new List<NHANVIEN_PHUCAP_DTO>();
-                foreach (var nv in nhanVienList)
+            var result = (from np in db.TB_NHANVIEN_PHUCAP
+                          join pc in db.TB_PHUCAP on np.IDPC equals pc.IDPC
+                          join nv in db.TB_NHANVIEN on np.MANV equals nv.MANV // Thêm join để lấy HOTEN
+                          select new
+                          {
+                              np.MANV,
+                              nv.HOTEN, // Lấy HOTEN từ bảng NHANVIEN
+                              np.IDPC,
+                              np.SOTIEN
+                          }).ToList();
+
+            // Gộp dữ liệu theo nhân viên
+            var groupedData = result
+                .GroupBy(x => new { x.MANV, x.HOTEN })
+                .Select(g => new NHANVIEN_PHUCAP_DTO
                 {
-                    var model = new NHANVIEN_PHUCAP_DTO
-                    {
-                        MANV = nv.MANV,
-                        HOTEN = nv.HOTEN,
-                        PhuCap1 = 0,
-                        PhuCap2 = 0,
-                        PhuCap3 = 0,
-                        PhuCap4 = 0,
-                        PhuCap5 = 0,
-                        PhuCap6 = 0,
-                        PhuCap7 = 0
-                    };
+                    MANV = g.Key.MANV,
+                    HOTEN = g.Key.HOTEN,
+                    SOTIEN_IDPC1 = g.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN,
+                    SOTIEN_IDPC2 = g.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN,
+                    SOTIEN_IDPC3 = g.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN,
+                    SOTIEN_IDPC4 = g.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN,
+                    SOTIEN_IDPC5 = g.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN,
+                    SOTIEN_IDPC6 = g.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN,
+                    SOTIEN_IDPC7 = g.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN
+                }).OrderBy(a => a.MANV).ToList();
 
-                    var phuCapList = db.TB_NHANVIEN_PHUCAP
-                        .Where(nvp => nvp.MANV == nv.MANV)
-                        .Select(nvp => new
-                        {
-                            nvp.IDPC,
-                            nvp.NGAY,
-                            nvp.GHICHU,
-                            SOTIEN = db.TB_PHUCAP
-                                       .Where(pc => pc.IDPC == nvp.IDPC)
-                                       .Select(pc => pc.SOTIEN)
-                                       .FirstOrDefault()
-                        })
-                        .ToList();
+            return groupedData;
+        }
 
-                    foreach (var pc in phuCapList)
-                    {
-                        switch (pc.IDPC)
-                        {
-                            case 1:
-                                model.PhuCap1 = pc.SOTIEN ?? 0; 
-                                break;
-                            case 2:
-                                model.PhuCap2 = pc.SOTIEN ?? 0;
-                                break;
-                            case 3:
-                                model.PhuCap3 = pc.SOTIEN ?? 0;
-                                break;
-                            case 4:
-                                model.PhuCap4 = pc.SOTIEN ?? 0;
-                                break;
-                            case 5:
-                                model.PhuCap5 = pc.SOTIEN ?? 0;
-                                break;
-                            case 6:
-                                model.PhuCap6 = pc.SOTIEN ?? 0;
-                                break;
-                            case 7:
-                                model.PhuCap7 = pc.SOTIEN ?? 0;
-                                break;
-                        }
-                    }
 
-                    viewModelList.Add(model);
-                }
 
-                return viewModelList;  
+        public TB_NHANVIEN_PHUCAP Add(TB_NHANVIEN_PHUCAP pc)
+        {
+            try
+            {
+                db.TB_NHANVIEN_PHUCAP.Add(pc);
+                db.SaveChanges();
+                return pc;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Lỗi Add data " + ex.Message);
             }
         }
 
-        public List<NHANVIEN_PHUCAP_DTO> GetNV_PC(int manv)
+        public TB_NHANVIEN_PHUCAP Update(TB_NHANVIEN_PHUCAP pc)
         {
-            using (var db = new MyEntities())
+            try
             {
-                var nhanVienList = db.TB_NHANVIEN.Where(x => x.MANV == manv).ToList();
-                var viewModelList = new List<NHANVIEN_PHUCAP_DTO>();
-                foreach (var nv in nhanVienList)
-                {
-                    var model = new NHANVIEN_PHUCAP_DTO
-                    {
-                        MANV = nv.MANV,
-                        HOTEN = nv.HOTEN,
-                        PhuCap1 = 0,
-                        PhuCap2 = 0,
-                        PhuCap3 = 0,
-                        PhuCap4 = 0,
-                        PhuCap5 = 0,
-                        PhuCap6 = 0,
-                        PhuCap7 = 0
-                    };
+                var _pc = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == pc.MANV && x.IDPC == pc.IDPC);
+                _pc.NGAY = pc.NGAY;
+                _pc.SOTIEN = pc.SOTIEN;
+                _pc.UPDATED_BY = pc.UPDATED_BY;
+                _pc.UPDATED_DATE = pc.UPDATED_DATE;
 
-                    var phuCapList = db.TB_NHANVIEN_PHUCAP
-                        .Where(nvp => nvp.MANV == nv.MANV)
-                        .Select(nvp => new
-                        {
-                            nvp.IDPC,
-                            nvp.NGAY,
-                            nvp.GHICHU,
-                            SOTIEN = db.TB_PHUCAP
-                                       .Where(pc => pc.IDPC == nvp.IDPC)
-                                       .Select(pc => pc.SOTIEN)
-                                       .FirstOrDefault()
-                        })
-                        .ToList();
-
-                    foreach (var pc in phuCapList)
-                    {
-                        switch (pc.IDPC)
-                        {
-                            case 1:
-                                model.PhuCap1 = pc.SOTIEN ?? 0;
-                                break;
-                            case 2:
-                                model.PhuCap2 = pc.SOTIEN ?? 0;
-                                break;
-                            case 3:
-                                model.PhuCap3 = pc.SOTIEN ?? 0;
-                                break;
-                            case 4:
-                                model.PhuCap4 = pc.SOTIEN ?? 0;
-                                break;
-                            case 5:
-                                model.PhuCap5 = pc.SOTIEN ?? 0;
-                                break;
-                            case 6:
-                                model.PhuCap6 = pc.SOTIEN ?? 0;
-                                break;
-                            case 7:
-                                model.PhuCap7 = pc.SOTIEN ?? 0;
-                                break;
-                        }
-                    }
-
-                    viewModelList.Add(model);
-                }
-
-                return viewModelList;
+                db.SaveChanges();
+                return pc;
             }
+            catch (Exception ex)
+            {
+
+                throw new Exception("Lỗi Add data " + ex.Message);
+            }
+        }
+
+        public void Delete(int manv, int id, int iduser)
+        {
+            var _lc = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == manv && x.IDPC ==id);
+            _lc.DELETED_BY = iduser;
+            _lc.DELETED_DATE = DateTime.Now;
+
+            db.SaveChanges();
+        }
+
+        public TB_PHUCAP getItemPC(int id)
+        {
+            return db.TB_PHUCAP.FirstOrDefault(x=>x.IDPC == id);
+        }
+
+        public void UpdatePhucap(int manv, int idpc, decimal sotien)
+        {
+            var phucap = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc);
+
+            if (phucap != null)
+            {
+                phucap.SOTIEN = sotien;
+            }
+            else
+            {
+                db.TB_NHANVIEN_PHUCAP.Add(new TB_NHANVIEN_PHUCAP
+                {
+                    MANV = manv,
+                    IDPC = idpc,
+                    SOTIEN = sotien,
+                    NGAY = DateTime.Now,
+                    GHICHU = ""
+                });
+            }
+            db.SaveChanges();
         }
     }
 }

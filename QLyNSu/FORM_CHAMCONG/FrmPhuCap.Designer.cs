@@ -32,9 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmPhuCap));
             this.barManager1 = new DevExpress.XtraBars.BarManager(this.components);
             this.bar1 = new DevExpress.XtraBars.Bar();
-            this.btnThem = new DevExpress.XtraBars.BarButtonItem();
             this.btnSua = new DevExpress.XtraBars.BarButtonItem();
-            this.btnXoa = new DevExpress.XtraBars.BarButtonItem();
             this.btnLuu = new DevExpress.XtraBars.BarButtonItem();
             this.btnHuy = new DevExpress.XtraBars.BarButtonItem();
             this.btnDong = new DevExpress.XtraBars.BarButtonItem();
@@ -44,6 +42,8 @@
             this.barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlRight = new DevExpress.XtraBars.BarDockControl();
+            this.btnThem = new DevExpress.XtraBars.BarButtonItem();
+            this.btnXoa = new DevExpress.XtraBars.BarButtonItem();
             this.repositoryItemBorderLineStyle1 = new DevExpress.XtraRichEdit.Forms.Design.RepositoryItemBorderLineStyle();
             this.repositoryItemBorderLineWeight1 = new DevExpress.XtraRichEdit.Forms.Design.RepositoryItemBorderLineWeight();
             this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
@@ -51,14 +51,13 @@
             this.gvDanhSach = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.MANV = new DevExpress.XtraGrid.Columns.GridColumn();
             this.HOTEN = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.PhuCap1 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.PhuCap2 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.PhuCap3 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.PhuCap4 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.PhuCap5 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.PhuCap6 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.PhuCap7 = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.GHICHU = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.SOTIEN_IDPC1 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.SOTIEN_IDPC4 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.SOTIEN_IDPC5 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.SOTIEN_IDPC2 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.SOTIEN_IDPC3 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.SOTIEN_IDPC6 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.SOTIEN_IDPC7 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.spP7 = new DevExpress.XtraEditors.SpinEdit();
             this.spP6 = new DevExpress.XtraEditors.SpinEdit();
@@ -67,8 +66,6 @@
             this.spP3 = new DevExpress.XtraEditors.SpinEdit();
             this.spP2 = new DevExpress.XtraEditors.SpinEdit();
             this.spP1 = new DevExpress.XtraEditors.SpinEdit();
-            this.txtGhiChu = new System.Windows.Forms.TextBox();
-            this.labelControl9 = new DevExpress.XtraEditors.LabelControl();
             this.labelControl8 = new DevExpress.XtraEditors.LabelControl();
             this.labelControl6 = new DevExpress.XtraEditors.LabelControl();
             this.labelControl5 = new DevExpress.XtraEditors.LabelControl();
@@ -118,7 +115,7 @@
             this.btnHuy,
             this.btnDong,
             this.btnIn});
-            this.barManager1.MaxItemId = 88;
+            this.barManager1.MaxItemId = 90;
             this.barManager1.RepositoryItems.AddRange(new DevExpress.XtraEditors.Repository.RepositoryItem[] {
             this.repositoryItemBorderLineStyle1,
             this.repositoryItemBorderLineWeight1});
@@ -137,22 +134,12 @@
             this.bar1.DockRow = 0;
             this.bar1.DockStyle = DevExpress.XtraBars.BarDockStyle.Top;
             this.bar1.LinksPersistInfo.AddRange(new DevExpress.XtraBars.LinkPersistInfo[] {
-            new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnThem, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnSua, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
-            new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnXoa, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnLuu, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnHuy, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnDong, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnIn, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph)});
             this.bar1.Text = "Tools";
-            // 
-            // btnThem
-            // 
-            this.btnThem.Caption = "Thêm";
-            this.btnThem.Id = 0;
-            this.btnThem.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnThem.ImageOptions.SvgImage")));
-            this.btnThem.Name = "btnThem";
-            this.btnThem.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnThem_ItemClick);
             // 
             // btnSua
             // 
@@ -161,14 +148,6 @@
             this.btnSua.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnSua.ImageOptions.SvgImage")));
             this.btnSua.Name = "btnSua";
             this.btnSua.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnSua_ItemClick);
-            // 
-            // btnXoa
-            // 
-            this.btnXoa.Caption = "Xoá";
-            this.btnXoa.Id = 2;
-            this.btnXoa.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnXoa.ImageOptions.SvgImage")));
-            this.btnXoa.Name = "btnXoa";
-            this.btnXoa.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnXoa_ItemClick);
             // 
             // btnLuu
             // 
@@ -248,6 +227,16 @@
             this.barDockControlRight.Manager = this.barManager1;
             this.barDockControlRight.Size = new System.Drawing.Size(0, 537);
             // 
+            // btnThem
+            // 
+            this.btnThem.Id = 88;
+            this.btnThem.Name = "btnThem";
+            // 
+            // btnXoa
+            // 
+            this.btnXoa.Id = 89;
+            this.btnXoa.Name = "btnXoa";
+            // 
             // repositoryItemBorderLineStyle1
             // 
             this.repositoryItemBorderLineStyle1.AutoHeight = false;
@@ -281,7 +270,7 @@
             this.gcDanhSach.MainView = this.gvDanhSach;
             this.gcDanhSach.MenuManager = this.barManager1;
             this.gcDanhSach.Name = "gcDanhSach";
-            this.gcDanhSach.Size = new System.Drawing.Size(1399, 193);
+            this.gcDanhSach.Size = new System.Drawing.Size(1399, 248);
             this.gcDanhSach.TabIndex = 0;
             this.gcDanhSach.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvDanhSach});
@@ -291,14 +280,13 @@
             this.gvDanhSach.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
             this.MANV,
             this.HOTEN,
-            this.PhuCap1,
-            this.PhuCap2,
-            this.PhuCap3,
-            this.PhuCap4,
-            this.PhuCap5,
-            this.PhuCap6,
-            this.PhuCap7,
-            this.GHICHU});
+            this.SOTIEN_IDPC1,
+            this.SOTIEN_IDPC4,
+            this.SOTIEN_IDPC5,
+            this.SOTIEN_IDPC2,
+            this.SOTIEN_IDPC3,
+            this.SOTIEN_IDPC6,
+            this.SOTIEN_IDPC7});
             this.gvDanhSach.GridControl = this.gcDanhSach;
             this.gvDanhSach.Name = "gvDanhSach";
             this.gvDanhSach.OptionsFind.AlwaysVisible = true;
@@ -333,95 +321,85 @@
             this.HOTEN.VisibleIndex = 1;
             this.HOTEN.Width = 200;
             // 
-            // PhuCap1
+            // SOTIEN_IDPC1
             // 
-            this.PhuCap1.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.PhuCap1.AppearanceHeader.Options.UseFont = true;
-            this.PhuCap1.Caption = "Phụ cấp trách nhiệm";
-            this.PhuCap1.FieldName = "PhuCap1";
-            this.PhuCap1.MinWidth = 25;
-            this.PhuCap1.Name = "PhuCap1";
-            this.PhuCap1.Visible = true;
-            this.PhuCap1.VisibleIndex = 2;
-            this.PhuCap1.Width = 101;
+            this.SOTIEN_IDPC1.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.SOTIEN_IDPC1.AppearanceHeader.Options.UseFont = true;
+            this.SOTIEN_IDPC1.Caption = "Phụ cấp trách nhiệm";
+            this.SOTIEN_IDPC1.FieldName = "SOTIEN_IDPC1";
+            this.SOTIEN_IDPC1.MinWidth = 25;
+            this.SOTIEN_IDPC1.Name = "SOTIEN_IDPC1";
+            this.SOTIEN_IDPC1.Visible = true;
+            this.SOTIEN_IDPC1.VisibleIndex = 2;
+            this.SOTIEN_IDPC1.Width = 101;
             // 
-            // PhuCap2
+            // SOTIEN_IDPC4
             // 
-            this.PhuCap2.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.PhuCap2.AppearanceHeader.Options.UseFont = true;
-            this.PhuCap2.Caption = "Phụ cấp ngôn ngữ";
-            this.PhuCap2.FieldName = "PhuCap2";
-            this.PhuCap2.MinWidth = 25;
-            this.PhuCap2.Name = "PhuCap2";
-            this.PhuCap2.Visible = true;
-            this.PhuCap2.VisibleIndex = 5;
-            this.PhuCap2.Width = 87;
+            this.SOTIEN_IDPC4.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.SOTIEN_IDPC4.AppearanceHeader.Options.UseFont = true;
+            this.SOTIEN_IDPC4.Caption = "Phụ cấp ngôn ngữ";
+            this.SOTIEN_IDPC4.FieldName = "SOTIEN_IDPC4";
+            this.SOTIEN_IDPC4.MinWidth = 25;
+            this.SOTIEN_IDPC4.Name = "SOTIEN_IDPC4";
+            this.SOTIEN_IDPC4.Visible = true;
+            this.SOTIEN_IDPC4.VisibleIndex = 5;
+            this.SOTIEN_IDPC4.Width = 87;
             // 
-            // PhuCap3
+            // SOTIEN_IDPC5
             // 
-            this.PhuCap3.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.PhuCap3.AppearanceHeader.Options.UseFont = true;
-            this.PhuCap3.Caption = "Phụ cấp thâm niên";
-            this.PhuCap3.FieldName = "PhuCap3";
-            this.PhuCap3.MinWidth = 25;
-            this.PhuCap3.Name = "PhuCap3";
-            this.PhuCap3.Visible = true;
-            this.PhuCap3.VisibleIndex = 6;
-            this.PhuCap3.Width = 138;
+            this.SOTIEN_IDPC5.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.SOTIEN_IDPC5.AppearanceHeader.Options.UseFont = true;
+            this.SOTIEN_IDPC5.Caption = "Phụ cấp thâm niên";
+            this.SOTIEN_IDPC5.FieldName = "SOTIEN_IDPC5";
+            this.SOTIEN_IDPC5.MinWidth = 25;
+            this.SOTIEN_IDPC5.Name = "SOTIEN_IDPC5";
+            this.SOTIEN_IDPC5.Visible = true;
+            this.SOTIEN_IDPC5.VisibleIndex = 6;
+            this.SOTIEN_IDPC5.Width = 138;
             // 
-            // PhuCap4
+            // SOTIEN_IDPC2
             // 
-            this.PhuCap4.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.PhuCap4.AppearanceHeader.Options.UseFont = true;
-            this.PhuCap4.Caption = "Phụ cấp chuyên cần";
-            this.PhuCap4.FieldName = "PhuCap4";
-            this.PhuCap4.MinWidth = 25;
-            this.PhuCap4.Name = "PhuCap4";
-            this.PhuCap4.Visible = true;
-            this.PhuCap4.VisibleIndex = 3;
-            this.PhuCap4.Width = 107;
+            this.SOTIEN_IDPC2.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.SOTIEN_IDPC2.AppearanceHeader.Options.UseFont = true;
+            this.SOTIEN_IDPC2.Caption = "Phụ cấp chuyên cần";
+            this.SOTIEN_IDPC2.FieldName = "SOTIEN_IDPC2";
+            this.SOTIEN_IDPC2.MinWidth = 25;
+            this.SOTIEN_IDPC2.Name = "SOTIEN_IDPC2";
+            this.SOTIEN_IDPC2.Visible = true;
+            this.SOTIEN_IDPC2.VisibleIndex = 3;
+            this.SOTIEN_IDPC2.Width = 107;
             // 
-            // PhuCap5
+            // SOTIEN_IDPC3
             // 
-            this.PhuCap5.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.PhuCap5.AppearanceHeader.Options.UseFont = true;
-            this.PhuCap5.Caption = "Phụ cấp nhà ở";
-            this.PhuCap5.FieldName = "PhuCap5";
-            this.PhuCap5.MinWidth = 25;
-            this.PhuCap5.Name = "PhuCap5";
-            this.PhuCap5.Visible = true;
-            this.PhuCap5.VisibleIndex = 4;
-            this.PhuCap5.Width = 71;
+            this.SOTIEN_IDPC3.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.SOTIEN_IDPC3.AppearanceHeader.Options.UseFont = true;
+            this.SOTIEN_IDPC3.Caption = "Phụ cấp nhà ở";
+            this.SOTIEN_IDPC3.FieldName = "SOTIEN_IDPC3";
+            this.SOTIEN_IDPC3.MinWidth = 25;
+            this.SOTIEN_IDPC3.Name = "SOTIEN_IDPC3";
+            this.SOTIEN_IDPC3.Visible = true;
+            this.SOTIEN_IDPC3.VisibleIndex = 4;
+            this.SOTIEN_IDPC3.Width = 71;
             // 
-            // PhuCap6
+            // SOTIEN_IDPC6
             // 
-            this.PhuCap6.Caption = "Phụ cấp phương tiện đi lại";
-            this.PhuCap6.FieldName = "PhuCap6";
-            this.PhuCap6.MinWidth = 25;
-            this.PhuCap6.Name = "PhuCap6";
-            this.PhuCap6.Visible = true;
-            this.PhuCap6.VisibleIndex = 7;
-            this.PhuCap6.Width = 37;
+            this.SOTIEN_IDPC6.Caption = "Phụ cấp phương tiện đi lại";
+            this.SOTIEN_IDPC6.FieldName = "SOTIEN_IDPC6";
+            this.SOTIEN_IDPC6.MinWidth = 25;
+            this.SOTIEN_IDPC6.Name = "SOTIEN_IDPC6";
+            this.SOTIEN_IDPC6.Visible = true;
+            this.SOTIEN_IDPC6.VisibleIndex = 7;
+            this.SOTIEN_IDPC6.Width = 37;
             // 
-            // PhuCap7
+            // SOTIEN_IDPC7
             // 
-            this.PhuCap7.Caption = "Phụ cấp khác";
-            this.PhuCap7.FieldName = "PhuCap7";
-            this.PhuCap7.MinWidth = 25;
-            this.PhuCap7.Name = "PhuCap7";
-            this.PhuCap7.Visible = true;
-            this.PhuCap7.VisibleIndex = 8;
-            this.PhuCap7.Width = 37;
-            // 
-            // GHICHU
-            // 
-            this.GHICHU.Caption = "GHICHU";
-            this.GHICHU.FieldName = "GHICHU";
-            this.GHICHU.MinWidth = 25;
-            this.GHICHU.Name = "GHICHU";
-            this.GHICHU.Visible = true;
-            this.GHICHU.VisibleIndex = 9;
-            this.GHICHU.Width = 37;
+            this.SOTIEN_IDPC7.Caption = "Phụ cấp khác";
+            this.SOTIEN_IDPC7.FieldName = "SOTIEN_IDPC7";
+            this.SOTIEN_IDPC7.MinWidth = 25;
+            this.SOTIEN_IDPC7.Name = "SOTIEN_IDPC7";
+            this.SOTIEN_IDPC7.Visible = true;
+            this.SOTIEN_IDPC7.VisibleIndex = 8;
+            this.SOTIEN_IDPC7.Width = 37;
             // 
             // splitContainer1
             // 
@@ -440,8 +418,6 @@
             this.splitContainer1.Panel1.Controls.Add(this.spP3);
             this.splitContainer1.Panel1.Controls.Add(this.spP2);
             this.splitContainer1.Panel1.Controls.Add(this.spP1);
-            this.splitContainer1.Panel1.Controls.Add(this.txtGhiChu);
-            this.splitContainer1.Panel1.Controls.Add(this.labelControl9);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl8);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl6);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl5);
@@ -457,7 +433,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.gcDanhSach);
             this.splitContainer1.Size = new System.Drawing.Size(1399, 537);
-            this.splitContainer1.SplitterDistance = 340;
+            this.splitContainer1.SplitterDistance = 285;
             this.splitContainer1.TabIndex = 10;
             // 
             // spP7
@@ -579,24 +555,6 @@
             this.spP1.Size = new System.Drawing.Size(218, 28);
             this.spP1.TabIndex = 32;
             // 
-            // txtGhiChu
-            // 
-            this.txtGhiChu.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtGhiChu.Location = new System.Drawing.Point(282, 295);
-            this.txtGhiChu.Name = "txtGhiChu";
-            this.txtGhiChu.Size = new System.Drawing.Size(996, 33);
-            this.txtGhiChu.TabIndex = 31;
-            // 
-            // labelControl9
-            // 
-            this.labelControl9.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl9.Appearance.Options.UseFont = true;
-            this.labelControl9.Location = new System.Drawing.Point(194, 299);
-            this.labelControl9.Name = "labelControl9";
-            this.labelControl9.Size = new System.Drawing.Size(82, 25);
-            this.labelControl9.TabIndex = 30;
-            this.labelControl9.Text = "Ghi chú:";
-            // 
             // labelControl8
             // 
             this.labelControl8.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -681,7 +639,6 @@
             this.searchMANV.Properties.ShowClearButton = false;
             this.searchMANV.Size = new System.Drawing.Size(325, 32);
             this.searchMANV.TabIndex = 13;
-            this.searchMANV.EditValueChanged += new System.EventHandler(this.searchMANV_EditValueChanged);
             // 
             // searchLookUpEdit1View
             // 
@@ -772,11 +729,11 @@
         private DevExpress.XtraGrid.Views.Grid.GridView gvDanhSach;
         private DevExpress.XtraGrid.Columns.GridColumn MANV;
         private DevExpress.XtraGrid.Columns.GridColumn HOTEN;
-        private DevExpress.XtraGrid.Columns.GridColumn PhuCap1;
-        private DevExpress.XtraGrid.Columns.GridColumn PhuCap2;
-        private DevExpress.XtraGrid.Columns.GridColumn PhuCap3;
-        private DevExpress.XtraGrid.Columns.GridColumn PhuCap4;
-        private DevExpress.XtraGrid.Columns.GridColumn PhuCap5;
+        private DevExpress.XtraGrid.Columns.GridColumn SOTIEN_IDPC1;
+        private DevExpress.XtraGrid.Columns.GridColumn SOTIEN_IDPC4;
+        private DevExpress.XtraGrid.Columns.GridColumn SOTIEN_IDPC5;
+        private DevExpress.XtraGrid.Columns.GridColumn SOTIEN_IDPC2;
+        private DevExpress.XtraGrid.Columns.GridColumn SOTIEN_IDPC3;
         private DevExpress.XtraRichEdit.Forms.Design.RepositoryItemBorderLineStyle repositoryItemBorderLineStyle1;
         private DevExpress.XtraRichEdit.Forms.Design.RepositoryItemBorderLineWeight repositoryItemBorderLineWeight1;
         private DevExpress.XtraEditors.LabelControl labelControl8;
@@ -785,11 +742,8 @@
         private DevExpress.XtraEditors.LabelControl labelControl4;
         private DevExpress.XtraEditors.LabelControl labelControl3;
         private DevExpress.XtraEditors.LabelControl labelControl1;
-        private DevExpress.XtraGrid.Columns.GridColumn PhuCap6;
-        private DevExpress.XtraGrid.Columns.GridColumn PhuCap7;
-        private DevExpress.XtraGrid.Columns.GridColumn GHICHU;
-        private System.Windows.Forms.TextBox txtGhiChu;
-        private DevExpress.XtraEditors.LabelControl labelControl9;
+        private DevExpress.XtraGrid.Columns.GridColumn SOTIEN_IDPC6;
+        private DevExpress.XtraGrid.Columns.GridColumn SOTIEN_IDPC7;
         private DevExpress.XtraEditors.SpinEdit spP7;
         private DevExpress.XtraEditors.SpinEdit spP6;
         private DevExpress.XtraEditors.SpinEdit spP5;
