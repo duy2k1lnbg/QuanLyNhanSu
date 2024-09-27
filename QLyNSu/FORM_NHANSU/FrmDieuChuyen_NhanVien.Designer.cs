@@ -345,7 +345,6 @@
             this.gcDsDC.TabIndex = 0;
             this.gcDsDC.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvDsDC});
-            this.gcDsDC.Click += new System.EventHandler(this.gcDsDC_Click);
             // 
             // gvDsDC
             // 

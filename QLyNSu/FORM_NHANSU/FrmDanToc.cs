@@ -35,10 +35,6 @@ namespace QLyNSu
             btnDong.Enabled = kt;
             txtTen.Enabled = !kt;
         }
-        private void labelControl1_Click(object sender, EventArgs e)
-        {
-
-        }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
@@ -174,41 +170,6 @@ namespace QLyNSu
                 // Gán giá trị mặc định nếu TENDT trống
                 txtTen.Text = string.Empty;
             }
-        }
-
-        private void barDockControlTop_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void barDockControlBottom_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void barDockControlLeft_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void barDockControlRight_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void splitContainer1_SplitterMoved(object sender, SplitterEventArgs e)
-        {
-
-        }
-
-        private void txtTen_TextChanged(object sender, EventArgs e)
-        {
-
-        }
-
-        private void gcDsDT_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

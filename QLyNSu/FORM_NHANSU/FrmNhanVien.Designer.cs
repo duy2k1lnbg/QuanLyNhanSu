@@ -86,6 +86,7 @@
             this.TENTG = new DevExpress.XtraGrid.Columns.GridColumn();
             this.IDQT = new DevExpress.XtraGrid.Columns.GridColumn();
             this.TENQT = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.DELETED_BY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.barManager1 = new DevExpress.XtraBars.BarManager(this.components);
             this.bar1 = new DevExpress.XtraBars.Bar();
             this.btnThem = new DevExpress.XtraBars.BarButtonItem();
@@ -100,7 +101,6 @@
             this.barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlRight = new DevExpress.XtraBars.BarDockControl();
-            this.DELETED_BY = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -462,7 +462,6 @@
             this.gcDsNV.TabIndex = 0;
             this.gcDsNV.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvDsNV});
-            this.gcDsNV.Click += new System.EventHandler(this.gcDsNV_Click);
             // 
             // gvDsNV
             // 
@@ -749,6 +748,17 @@
             this.TENQT.VisibleIndex = 15;
             this.TENQT.Width = 94;
             // 
+            // DELETED_BY
+            // 
+            this.DELETED_BY.Caption = "DEL";
+            this.DELETED_BY.FieldName = "DELETED_BY";
+            this.DELETED_BY.MaxWidth = 30;
+            this.DELETED_BY.MinWidth = 30;
+            this.DELETED_BY.Name = "DELETED_BY";
+            this.DELETED_BY.Visible = true;
+            this.DELETED_BY.VisibleIndex = 0;
+            this.DELETED_BY.Width = 30;
+            // 
             // barManager1
             // 
             this.barManager1.Bars.AddRange(new DevExpress.XtraBars.Bar[] {
@@ -893,17 +903,6 @@
             this.barDockControlRight.Location = new System.Drawing.Point(1738, 33);
             this.barDockControlRight.Manager = this.barManager1;
             this.barDockControlRight.Size = new System.Drawing.Size(0, 588);
-            // 
-            // DELETED_BY
-            // 
-            this.DELETED_BY.Caption = "DEL";
-            this.DELETED_BY.FieldName = "DELETED_BY";
-            this.DELETED_BY.MaxWidth = 30;
-            this.DELETED_BY.MinWidth = 30;
-            this.DELETED_BY.Name = "DELETED_BY";
-            this.DELETED_BY.Visible = true;
-            this.DELETED_BY.VisibleIndex = 0;
-            this.DELETED_BY.Width = 30;
             // 
             // FrmNhanVien
             // 

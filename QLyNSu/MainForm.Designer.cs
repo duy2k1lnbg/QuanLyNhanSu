@@ -89,6 +89,7 @@
             this.lstNangLuong = new DevExpress.XtraEditors.ListBoxControl();
             this.grSinhNhat = new DevExpress.XtraEditors.GroupControl();
             this.lstSinhNhat = new DevExpress.XtraEditors.ListBoxControl();
+            this.ribbonMiniToolbar1 = new DevExpress.XtraBars.Ribbon.RibbonMiniToolbar(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.documentManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabbedView1)).BeginInit();
@@ -142,6 +143,7 @@
             this.ribbonControl1.Location = new System.Drawing.Point(0, 0);
             this.ribbonControl1.Margin = new System.Windows.Forms.Padding(4);
             this.ribbonControl1.MaxItemId = 31;
+            this.ribbonControl1.MiniToolbars.Add(this.ribbonMiniToolbar1);
             this.ribbonControl1.Name = "ribbonControl1";
             this.ribbonControl1.OptionsMenuMinWidth = 385;
             this.ribbonControl1.Pages.AddRange(new DevExpress.XtraBars.Ribbon.RibbonPage[] {
@@ -154,7 +156,6 @@
             this.ribbonControl1.ShowToolbarCustomizeItem = false;
             this.ribbonControl1.Size = new System.Drawing.Size(1293, 193);
             this.ribbonControl1.Toolbar.ShowCustomizeItem = false;
-            this.ribbonControl1.Click += new System.EventHandler(this.ribbonControl1_Click);
             // 
             // barButtonItem1
             // 
@@ -615,6 +616,10 @@
             this.lstSinhNhat.Templates.Add(itemTemplateBase2);
             this.lstSinhNhat.CustomizeItem += new DevExpress.XtraEditors.CustomizeTemplatedItemEventHandler(this.lstSinhNhat_CustomizeItem);
             // 
+            // ribbonMiniToolbar1
+            // 
+            this.ribbonMiniToolbar1.ParentControl = this;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -697,6 +702,7 @@
         private DevExpress.XtraBars.BarButtonItem btnBCCT_NV;
         private DevExpress.XtraBars.BarButtonItem btnBaoCao;
         private DevExpress.XtraBars.BarButtonItem btnExit3;
+        private DevExpress.XtraBars.Ribbon.RibbonMiniToolbar ribbonMiniToolbar1;
     }
 }
 

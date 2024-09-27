@@ -248,10 +248,5 @@ namespace QLyNSu
                 MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        private void gcDsDC_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

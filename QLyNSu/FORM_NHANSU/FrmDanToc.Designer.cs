@@ -180,7 +180,6 @@
             this.barDockControlTop.Location = new System.Drawing.Point(0, 0);
             this.barDockControlTop.Manager = this.barManager1;
             this.barDockControlTop.Size = new System.Drawing.Size(1210, 33);
-            this.barDockControlTop.Click += new System.EventHandler(this.barDockControlTop_Click);
             // 
             // barDockControlBottom
             // 
@@ -189,7 +188,6 @@
             this.barDockControlBottom.Location = new System.Drawing.Point(0, 540);
             this.barDockControlBottom.Manager = this.barManager1;
             this.barDockControlBottom.Size = new System.Drawing.Size(1210, 20);
-            this.barDockControlBottom.Click += new System.EventHandler(this.barDockControlBottom_Click);
             // 
             // barDockControlLeft
             // 
@@ -198,7 +196,6 @@
             this.barDockControlLeft.Location = new System.Drawing.Point(0, 33);
             this.barDockControlLeft.Manager = this.barManager1;
             this.barDockControlLeft.Size = new System.Drawing.Size(0, 507);
-            this.barDockControlLeft.Click += new System.EventHandler(this.barDockControlLeft_Click);
             // 
             // barDockControlRight
             // 
@@ -207,7 +204,6 @@
             this.barDockControlRight.Location = new System.Drawing.Point(1210, 33);
             this.barDockControlRight.Manager = this.barManager1;
             this.barDockControlRight.Size = new System.Drawing.Size(0, 507);
-            this.barDockControlRight.Click += new System.EventHandler(this.barDockControlRight_Click);
             // 
             // splitContainer1
             // 
@@ -228,7 +224,6 @@
             this.splitContainer1.Size = new System.Drawing.Size(1210, 507);
             this.splitContainer1.SplitterDistance = 112;
             this.splitContainer1.TabIndex = 4;
-            this.splitContainer1.SplitterMoved += new System.Windows.Forms.SplitterEventHandler(this.splitContainer1_SplitterMoved);
             // 
             // txtTen
             // 
@@ -237,7 +232,6 @@
             this.txtTen.Name = "txtTen";
             this.txtTen.Size = new System.Drawing.Size(515, 30);
             this.txtTen.TabIndex = 1;
-            this.txtTen.TextChanged += new System.EventHandler(this.txtTen_TextChanged);
             // 
             // labelControl1
             // 
@@ -248,7 +242,6 @@
             this.labelControl1.Size = new System.Drawing.Size(115, 23);
             this.labelControl1.TabIndex = 0;
             this.labelControl1.Text = "Tên Dân Tộc:";
-            this.labelControl1.Click += new System.EventHandler(this.labelControl1_Click);
             // 
             // gcDsDT
             // 
@@ -261,7 +254,6 @@
             this.gcDsDT.TabIndex = 0;
             this.gcDsDT.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvDsDT});
-            this.gcDsDT.Click += new System.EventHandler(this.gcDsDT_Click);
             // 
             // gvDsDT
             // 

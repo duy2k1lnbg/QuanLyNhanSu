@@ -95,7 +95,7 @@ namespace QLyNSu
             FormManager_Functions.CustomView_Colums(gvDsNV);
         }
 
-       private void SaveData()
+        private void SaveData()
         {
             #region Comments
             //try
@@ -235,16 +235,6 @@ namespace QLyNSu
                 // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
                 MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
-        }
-
-        private void gcDsNV_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
 
         }
 
