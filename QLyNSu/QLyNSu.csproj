@@ -426,7 +426,6 @@
       <DependentUpon>rptKyLuat.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
-    <None Include="image\Icon\no_del.png" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -460,9 +459,8 @@
   <ItemGroup>
     <None Include="image\NhanVien\noimage.png" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Content Include="image\Icon\del.png" />
+    <Folder Include="image\Icon\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\packages\System.Text.Json.6.0.0\build\System.Text.Json.targets" Condition="Exists('..\packages\System.Text.Json.6.0.0\build\System.Text.Json.targets')" />

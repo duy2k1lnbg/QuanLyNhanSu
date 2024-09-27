@@ -196,8 +196,6 @@ namespace QLyNSu
                     nv.IDTG = int.Parse(cboTonGiao.SelectedValue.ToString());
                     nv.IDQT = int.Parse(cboQuocTich.SelectedValue.ToString());
                     nv.IDCTY = int.Parse(cboCongTy.SelectedValue.ToString());
-                    nv.CREATED_BY = 1;
-                    nv.CREATED_DATE = DateTime.Now;
                     _nhanvien.Add(nv);
                 }
                 else
@@ -220,8 +218,6 @@ namespace QLyNSu
                         nv.IDTG = int.Parse(cboTonGiao.SelectedValue.ToString());
                         nv.IDQT = int.Parse(cboQuocTich.SelectedValue.ToString());
                         nv.IDCTY = int.Parse(cboCongTy.SelectedValue.ToString());
-                        nv.UPDATED_BY = 1;
-                        nv.UPDATED_DATE = DateTime.Now;
                         _nhanvien.Update(nv);
                     }
                     else
@@ -275,10 +271,10 @@ namespace QLyNSu
             }
 
             // Hiển thị hộp thoại xác nhận
-            if (MessageBox.Show("Bạn có chắc là xoá đi không ?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 // Thực hiện xóa và tải lại dữ liệu
-                _nhanvien.Delete(_MANV, 1);
+                _nhanvien.Delete(_MANV);
                 LoadData();
             }
             
@@ -463,32 +459,6 @@ namespace QLyNSu
                 pictureHinhanh.SizeMode = PictureBoxSizeMode.StretchImage;
             }    
 
-        }
-
-        private void gvDsNV_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
-        {
-            //if (e.Column.Name == "DELETED_BY" && e.CellValue != null)
-            //{
-            //    Image img = Properties.Resources.del;
-            //    e.Graphics.DrawImage(img, e.Bounds.X, e.Bounds.Y);
-            //    e.Handled = true;
-            //}
-            if (e.Column.Name == "DELETED_BY")
-            {
-                Image img;
-                if (e.CellValue != null)
-                {
-                    img = Properties.Resources.del;
-                }
-                else
-                {
-                    img = Properties.Resources.no_del;
-                }
-                Rectangle rect = new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height);
-
-                e.Graphics.DrawImage(img, rect);
-                e.Handled = true;
-            }
         }
     }
 }

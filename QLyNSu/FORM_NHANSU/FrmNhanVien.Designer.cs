@@ -86,7 +86,6 @@
             this.TENTG = new DevExpress.XtraGrid.Columns.GridColumn();
             this.IDQT = new DevExpress.XtraGrid.Columns.GridColumn();
             this.TENQT = new DevExpress.XtraGrid.Columns.GridColumn();
-            this.DELETED_BY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.barManager1 = new DevExpress.XtraBars.BarManager(this.components);
             this.bar1 = new DevExpress.XtraBars.Bar();
             this.btnThem = new DevExpress.XtraBars.BarButtonItem();
@@ -489,12 +488,10 @@
             this.IDTG,
             this.TENTG,
             this.IDQT,
-            this.TENQT,
-            this.DELETED_BY});
+            this.TENQT});
             this.gvDsNV.GridControl = this.gcDsNV;
             this.gvDsNV.Name = "gvDsNV";
             this.gvDsNV.OptionsView.ShowGroupPanel = false;
-            this.gvDsNV.CustomDrawCell += new DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventHandler(this.gvDsNV_CustomDrawCell);
             this.gvDsNV.Click += new System.EventHandler(this.gvDsNV_Click);
             // 
             // MANV
@@ -507,7 +504,7 @@
             this.MANV.MinWidth = 25;
             this.MANV.Name = "MANV";
             this.MANV.Visible = true;
-            this.MANV.VisibleIndex = 1;
+            this.MANV.VisibleIndex = 0;
             this.MANV.Width = 94;
             // 
             // HOTEN
@@ -520,7 +517,7 @@
             this.HOTEN.MinWidth = 200;
             this.HOTEN.Name = "HOTEN";
             this.HOTEN.Visible = true;
-            this.HOTEN.VisibleIndex = 3;
+            this.HOTEN.VisibleIndex = 2;
             this.HOTEN.Width = 200;
             // 
             // IDGT
@@ -540,7 +537,7 @@
             this.TENGT.MinWidth = 25;
             this.TENGT.Name = "TENGT";
             this.TENGT.Visible = true;
-            this.TENGT.VisibleIndex = 5;
+            this.TENGT.VisibleIndex = 4;
             this.TENGT.Width = 94;
             // 
             // NGAYSINH
@@ -552,7 +549,7 @@
             this.NGAYSINH.MinWidth = 25;
             this.NGAYSINH.Name = "NGAYSINH";
             this.NGAYSINH.Visible = true;
-            this.NGAYSINH.VisibleIndex = 4;
+            this.NGAYSINH.VisibleIndex = 3;
             this.NGAYSINH.Width = 94;
             // 
             // DIENTHOAI
@@ -564,7 +561,7 @@
             this.DIENTHOAI.MinWidth = 25;
             this.DIENTHOAI.Name = "DIENTHOAI";
             this.DIENTHOAI.Visible = true;
-            this.DIENTHOAI.VisibleIndex = 6;
+            this.DIENTHOAI.VisibleIndex = 5;
             this.DIENTHOAI.Width = 94;
             // 
             // CCCD
@@ -576,7 +573,7 @@
             this.CCCD.MinWidth = 25;
             this.CCCD.Name = "CCCD";
             this.CCCD.Visible = true;
-            this.CCCD.VisibleIndex = 7;
+            this.CCCD.VisibleIndex = 6;
             this.CCCD.Width = 94;
             // 
             // DIACHI
@@ -588,7 +585,7 @@
             this.DIACHI.MinWidth = 25;
             this.DIACHI.Name = "DIACHI";
             this.DIACHI.Visible = true;
-            this.DIACHI.VisibleIndex = 8;
+            this.DIACHI.VisibleIndex = 7;
             this.DIACHI.Width = 94;
             // 
             // HINHANH
@@ -601,7 +598,7 @@
             this.HINHANH.MinWidth = 25;
             this.HINHANH.Name = "HINHANH";
             this.HINHANH.Visible = true;
-            this.HINHANH.VisibleIndex = 2;
+            this.HINHANH.VisibleIndex = 1;
             this.HINHANH.Width = 94;
             // 
             // IDBP
@@ -621,7 +618,7 @@
             this.TENBP.MinWidth = 25;
             this.TENBP.Name = "TENBP";
             this.TENBP.Visible = true;
-            this.TENBP.VisibleIndex = 9;
+            this.TENBP.VisibleIndex = 8;
             this.TENBP.Width = 94;
             // 
             // IDPB
@@ -642,7 +639,7 @@
             this.TENPB.MinWidth = 120;
             this.TENPB.Name = "TENPB";
             this.TENPB.Visible = true;
-            this.TENPB.VisibleIndex = 10;
+            this.TENPB.VisibleIndex = 9;
             this.TENPB.Width = 120;
             // 
             // IDTD
@@ -663,7 +660,7 @@
             this.TENTD.MinWidth = 120;
             this.TENTD.Name = "TENTD";
             this.TENTD.Visible = true;
-            this.TENTD.VisibleIndex = 11;
+            this.TENTD.VisibleIndex = 10;
             this.TENTD.Width = 120;
             // 
             // IDCV
@@ -684,7 +681,7 @@
             this.TENCV.MinWidth = 120;
             this.TENCV.Name = "TENCV";
             this.TENCV.Visible = true;
-            this.TENCV.VisibleIndex = 12;
+            this.TENCV.VisibleIndex = 11;
             this.TENCV.Width = 120;
             // 
             // IDDT
@@ -705,7 +702,7 @@
             this.TENDT.MinWidth = 120;
             this.TENDT.Name = "TENDT";
             this.TENDT.Visible = true;
-            this.TENDT.VisibleIndex = 13;
+            this.TENDT.VisibleIndex = 12;
             this.TENDT.Width = 120;
             // 
             // IDTG
@@ -726,7 +723,7 @@
             this.TENTG.MinWidth = 120;
             this.TENTG.Name = "TENTG";
             this.TENTG.Visible = true;
-            this.TENTG.VisibleIndex = 14;
+            this.TENTG.VisibleIndex = 13;
             this.TENTG.Width = 120;
             // 
             // IDQT
@@ -746,19 +743,8 @@
             this.TENQT.MinWidth = 25;
             this.TENQT.Name = "TENQT";
             this.TENQT.Visible = true;
-            this.TENQT.VisibleIndex = 15;
+            this.TENQT.VisibleIndex = 14;
             this.TENQT.Width = 94;
-            // 
-            // DELETED_BY
-            // 
-            this.DELETED_BY.Caption = "DEl";
-            this.DELETED_BY.FieldName = "DELETED_BY";
-            this.DELETED_BY.MaxWidth = 28;
-            this.DELETED_BY.MinWidth = 28;
-            this.DELETED_BY.Name = "DELETED_BY";
-            this.DELETED_BY.Visible = true;
-            this.DELETED_BY.VisibleIndex = 0;
-            this.DELETED_BY.Width = 28;
             // 
             // barManager1
             // 
@@ -1004,6 +990,5 @@
         private DevExpress.XtraGrid.Columns.GridColumn TENQT;
         private System.Windows.Forms.ComboBox cboCongTy;
         private DevExpress.XtraEditors.LabelControl labelControl14;
-        private DevExpress.XtraGrid.Columns.GridColumn DELETED_BY;
     }
 }

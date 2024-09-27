@@ -24,7 +24,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private PHUCAP _phucap;
         private NHANVIEN _nhanvien;
 
-        private bool _them;
+        bool _them;
 
         private void FrmPhuCap_Load(object sender, EventArgs e)
         {

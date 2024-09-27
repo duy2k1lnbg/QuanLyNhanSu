@@ -59,7 +59,7 @@ namespace QLyNSu
         {
             splitContainer1.Panel1Collapsed = true;
             // Hiển thị hộp thoại xác nhận
-            if (MessageBox.Show("Bạn có chắc là xoá đi không ?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _dcnv.Delete(_SOQD);
@@ -111,20 +111,10 @@ namespace QLyNSu
 
         private void gvDsDC_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
         {
-            if (e.Column.Name == "DELETED_BY")
+            if (e.Column.Name == "DELETED_BY" && e.CellValue != null)
             {
-                Image img;
-                if (e.CellValue != null)
-                {
-                    img = Properties.Resources.del;
-                }
-                else
-                {
-                    img = Properties.Resources.no_del;
-                }
-                Rectangle rect = new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height);
-
-                e.Graphics.DrawImage(img, rect);
+                Image img = Properties.Resources.del;
+                e.Graphics.DrawImage(img , e.Bounds.X, e.Bounds.Y);
                 e.Handled = true;
             }
         }

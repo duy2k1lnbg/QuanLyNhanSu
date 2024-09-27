@@ -136,13 +136,13 @@ namespace Bu
             }
         }
 
-        public void Delete(string soQD, int iduser)
+        public void Delete(string soQD)
         {
             try
             {
                 TB_KHENTHUONG_KYLUAT _kt = db.TB_KHENTHUONG_KYLUAT.FirstOrDefault(x => x.SOQUYETDINH == soQD);
-                _kt.DELETED_BY = iduser;
-                _kt.DELETED_DATE = DateTime.Now;
+                _kt.DELETED_BY = _kt.DELETED_BY;
+                _kt.DELETED_DATE = _kt.DELETED_DATE;
                 db.SaveChanges();
             }
             catch (Exception ex)

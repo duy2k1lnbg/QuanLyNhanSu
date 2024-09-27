@@ -293,12 +293,6 @@
           <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
           <Property Name="IDQT" Type="number" Precision="38" Scale="0" />
           <Property Name="DATHOIVIEC" Type="number" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_NHANVIEN_PHUCAP">
           <Key>
@@ -367,12 +361,6 @@
           <Property Name="SOGIO" Type="float" Precision="126" Scale="0" />
           <Property Name="MANV" Type="number" Precision="38" Scale="0" />
           <Property Name="IDLOAICA" Type="number" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_TONGIAO">
           <Key>
@@ -1240,12 +1228,6 @@
           <Property Name="IDCTY" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="IDQT" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="DATHOIVIEC" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="DateTime" />
-          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="DateTime" />
-          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="DateTime" />
           <NavigationProperty Name="TB_BANGCONG" Relationship="Model.TB_BANGCONG_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_BANGCONG" />
           <NavigationProperty Name="TB_BAOHIEM" Relationship="Model.TB_BAOHIEM_NV_FK1" FromRole="TB_NHANVIEN" ToRole="TB_BAOHIEM" />
           <NavigationProperty Name="TB_BOPHAN" Relationship="Model.TB_NHANVIEN_BP_FK2" FromRole="TB_NHANVIEN" ToRole="TB_BOPHAN" />
@@ -1339,12 +1321,6 @@
           <Property Name="SOGIO" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="IDLOAICA" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="DateTime" />
-          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="DateTime" />
-          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="DateTime" />
           <NavigationProperty Name="TB_LOAICA" Relationship="Model.TB_TANGCA_LCA_FK1" FromRole="TB_TANGCA" ToRole="TB_LOAICA" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_TANGCA_NV_FK2" FromRole="TB_TANGCA" ToRole="TB_NHANVIEN" />
         </EntityType>
@@ -1970,12 +1946,6 @@
           <EntitySetMapping Name="TB_NHANVIEN">
             <EntityTypeMapping TypeName="Model.TB_NHANVIEN">
               <MappingFragment StoreEntitySet="TB_NHANVIEN">
-                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
-                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
-                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
-                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
-                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
-                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
                 <ScalarProperty Name="DATHOIVIEC" ColumnName="DATHOIVIEC" />
                 <ScalarProperty Name="IDQT" ColumnName="IDQT" />
                 <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
@@ -2058,12 +2028,6 @@
           <EntitySetMapping Name="TB_TANGCA">
             <EntityTypeMapping TypeName="Model.TB_TANGCA">
               <MappingFragment StoreEntitySet="TB_TANGCA">
-                <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
-                <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
-                <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />
-                <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
-                <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
-                <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
                 <ScalarProperty Name="IDLOAICA" ColumnName="IDLOAICA" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
                 <ScalarProperty Name="SOGIO" ColumnName="SOGIO" />
