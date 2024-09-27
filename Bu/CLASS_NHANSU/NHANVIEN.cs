@@ -2,6 +2,7 @@
 using DA;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
 using System.Text;
@@ -75,6 +76,13 @@ namespace Bu
                 var qt = db.TB_QUOCTICH.FirstOrDefault(k => k.IDQT == item.IDQT);
                 nvDTO.TENQT = qt.TENQT;
 
+                nvDTO.CREATED_BY = item.CREATED_BY;
+                nvDTO.CREATED_DATE = item.CREATED_DATE;
+                nvDTO.UPDATED_BY = item.UPDATED_BY;
+                nvDTO.UPDATED_DATE = item.UPDATED_DATE;
+                nvDTO.DELETED_BY = item.DELETED_BY;
+                nvDTO.DELETED_DATE = item.DELETED_DATE;
+
                 lstNvDTO.Add(nvDTO);
 
             }
@@ -126,6 +134,8 @@ namespace Bu
                 _nv.IDTG = nv.IDTG;
                 _nv.IDCTY = nv.IDCTY;
                 _nv.IDQT = nv.IDQT;
+                _nv.UPDATED_BY = nv.UPDATED_BY;
+                _nv.UPDATED_DATE = nv.UPDATED_DATE;
                 db.SaveChanges();
                 return nv;
             }
@@ -136,12 +146,14 @@ namespace Bu
             }
         }
 
-        public void Delete(int id)
+        public void Delete(int id, int iduser)
         {
             try
             {
                 var _nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == id);
-                db.TB_NHANVIEN.Remove(_nv);
+                //db.TB_NHANVIEN.Remove(_nv);
+                _nv.DELETED_BY = iduser;
+                _nv.DELETED_DATE = DateTime.Now;
                 db.SaveChanges();
             }
             catch (Exception ex)

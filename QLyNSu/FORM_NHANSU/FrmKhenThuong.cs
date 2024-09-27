@@ -101,7 +101,7 @@ namespace QLyNSu
             if (MessageBox.Show("Bạn có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 // Thực hiện xóa và tải lại dữ liệu
-                _ktkl.Delete(_SOQD);
+                _ktkl.Delete(_SOQD, 1);
                 LoadData();
             }
         }
@@ -206,8 +206,8 @@ namespace QLyNSu
                     kt.LYDO = txtLyDo.Text;
                     kt.NOIDUNG = txtNoiDung.Text;
                     kt.MANV = int.Parse(searchMANV.EditValue.ToString());
-                    kt.CREATED_BY = 1;
-                    kt.CREATED_DATE = DateTime.Now;
+                    kt.UPDATED_BY = 1;
+                    kt.UPDATED_DATE = DateTime.Now;
                     _ktkl.Update(kt);
                 }
             }

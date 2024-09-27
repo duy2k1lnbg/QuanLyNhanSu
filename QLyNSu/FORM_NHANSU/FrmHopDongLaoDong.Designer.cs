@@ -161,6 +161,7 @@
             this.HOTEN = new DevExpress.XtraGrid.Columns.GridColumn();
             this.NGAYKY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.richEditBarController1 = new DevExpress.XtraRichEdit.UI.RichEditBarController(this.components);
+            this.DEL_BY = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.repositoryItemBorderLineStyle1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.repositoryItemBorderLineWeight1)).BeginInit();
@@ -186,7 +187,7 @@
             this.NGAYKETTHUC.MinWidth = 25;
             this.NGAYKETTHUC.Name = "NGAYKETTHUC";
             this.NGAYKETTHUC.Visible = true;
-            this.NGAYKETTHUC.VisibleIndex = 3;
+            this.NGAYKETTHUC.VisibleIndex = 4;
             this.NGAYKETTHUC.Width = 191;
             // 
             // HESOLUONG
@@ -198,7 +199,7 @@
             this.HESOLUONG.MinWidth = 25;
             this.HESOLUONG.Name = "HESOLUONG";
             this.HESOLUONG.Visible = true;
-            this.HESOLUONG.VisibleIndex = 6;
+            this.HESOLUONG.VisibleIndex = 7;
             this.HESOLUONG.Width = 191;
             // 
             // LANKY
@@ -210,7 +211,7 @@
             this.LANKY.MinWidth = 25;
             this.LANKY.Name = "LANKY";
             this.LANKY.Visible = true;
-            this.LANKY.VisibleIndex = 7;
+            this.LANKY.VisibleIndex = 8;
             this.LANKY.Width = 497;
             // 
             // THOIHAN
@@ -222,7 +223,7 @@
             this.THOIHAN.MinWidth = 25;
             this.THOIHAN.Name = "THOIHAN";
             this.THOIHAN.Visible = true;
-            this.THOIHAN.VisibleIndex = 5;
+            this.THOIHAN.VisibleIndex = 6;
             this.THOIHAN.Width = 191;
             // 
             // barManager1
@@ -939,7 +940,7 @@
             this.NGAYBATDAU.MinWidth = 25;
             this.NGAYBATDAU.Name = "NGAYBATDAU";
             this.NGAYBATDAU.Visible = true;
-            this.NGAYBATDAU.VisibleIndex = 2;
+            this.NGAYBATDAU.VisibleIndex = 3;
             this.NGAYBATDAU.Width = 191;
             // 
             // splitContainer1
@@ -1257,10 +1258,12 @@
             this.THOIHAN,
             this.HESOLUONG,
             this.LANKY,
-            this.NGAYKY});
+            this.NGAYKY,
+            this.DEL_BY});
             this.gvDsHDLD.GridControl = this.gcDsHDLD;
             this.gvDsHDLD.Name = "gvDsHDLD";
             this.gvDsHDLD.OptionsView.ShowGroupPanel = false;
+            this.gvDsHDLD.CustomDrawCell += new DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventHandler(this.gvDsHDLD_CustomDrawCell);
             this.gvDsHDLD.Click += new System.EventHandler(this.gvDsHDLD_Click);
             // 
             // SOHD
@@ -1273,7 +1276,7 @@
             this.SOHD.MinWidth = 200;
             this.SOHD.Name = "SOHD";
             this.SOHD.Visible = true;
-            this.SOHD.VisibleIndex = 0;
+            this.SOHD.VisibleIndex = 1;
             this.SOHD.Width = 200;
             // 
             // MANV
@@ -1295,7 +1298,7 @@
             this.HOTEN.MinWidth = 400;
             this.HOTEN.Name = "HOTEN";
             this.HOTEN.Visible = true;
-            this.HOTEN.VisibleIndex = 1;
+            this.HOTEN.VisibleIndex = 2;
             this.HOTEN.Width = 400;
             // 
             // NGAYKY
@@ -1307,7 +1310,7 @@
             this.NGAYKY.MinWidth = 25;
             this.NGAYKY.Name = "NGAYKY";
             this.NGAYKY.Visible = true;
-            this.NGAYKY.VisibleIndex = 4;
+            this.NGAYKY.VisibleIndex = 5;
             this.NGAYKY.Width = 191;
             // 
             // richEditBarController1
@@ -1393,6 +1396,17 @@
             this.richEditBarController1.BarItems.Add(this.changeTableCellsRotateAsian270TextDirectionItem1);
             this.richEditBarController1.BarItems.Add(this.showTableOptionsFormItem1);
             this.richEditBarController1.Control = this.txtNoiDung;
+            // 
+            // DEL_BY
+            // 
+            this.DEL_BY.Caption = "DEL";
+            this.DEL_BY.FieldName = "DEL_BY";
+            this.DEL_BY.MaxWidth = 30;
+            this.DEL_BY.MinWidth = 30;
+            this.DEL_BY.Name = "DEL_BY";
+            this.DEL_BY.Visible = true;
+            this.DEL_BY.VisibleIndex = 0;
+            this.DEL_BY.Width = 30;
             // 
             // FrmHopDongLaoDong
             // 
@@ -1559,5 +1573,6 @@
         private DevExpress.XtraEditors.LabelControl labelControl9;
         private System.Windows.Forms.ComboBox cbThoiHan;
         private DevExpress.XtraGrid.Columns.GridColumn NGAYKY;
+        private DevExpress.XtraGrid.Columns.GridColumn DEL_BY;
     }
 }
