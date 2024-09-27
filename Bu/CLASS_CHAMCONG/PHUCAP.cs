@@ -30,22 +30,23 @@ namespace Bu.CLASS_CHAMCONG
         {
             var result = (from np in db.TB_NHANVIEN_PHUCAP
                           join pc in db.TB_PHUCAP on np.IDPC equals pc.IDPC
-                          join nv in db.TB_NHANVIEN on np.MANV equals nv.MANV // Thêm join để lấy HOTEN
+                          join nv in db.TB_NHANVIEN on np.MANV equals nv.MANV 
                           select new
                           {
                               np.MANV,
-                              nv.HOTEN, // Lấy HOTEN từ bảng NHANVIEN
+                              nv.HOTEN, 
                               np.IDPC,
-                              np.SOTIEN
+                              np.SOTIEN,
+                              np.MAKYCONG 
                           }).ToList();
 
-            // Gộp dữ liệu theo nhân viên
             var groupedData = result
-                .GroupBy(x => new { x.MANV, x.HOTEN })
+                .GroupBy(x => new { x.MANV, x.HOTEN, x.MAKYCONG })
                 .Select(g => new NHANVIEN_PHUCAP_DTO
                 {
                     MANV = g.Key.MANV,
                     HOTEN = g.Key.HOTEN,
+                    MAKYCONG = g.Key.MAKYCONG, 
                     SOTIEN_IDPC1 = g.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN,
                     SOTIEN_IDPC2 = g.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN,
                     SOTIEN_IDPC3 = g.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN,
@@ -53,10 +54,46 @@ namespace Bu.CLASS_CHAMCONG
                     SOTIEN_IDPC5 = g.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN,
                     SOTIEN_IDPC6 = g.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN,
                     SOTIEN_IDPC7 = g.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN
-                }).OrderBy(a => a.MANV).ToList();
+                })
+                .OrderBy(a => a.MANV)
+                .ThenBy(a => a.MAKYCONG) 
+                .ToList();
 
             return groupedData;
         }
+
+
+        //public List<NHANVIEN_PHUCAP_DTO> GetNhanVienSortedByIDPC()
+        //{
+        //    var result = (from np in db.TB_NHANVIEN_PHUCAP
+        //                  join pc in db.TB_PHUCAP on np.IDPC equals pc.IDPC
+        //                  join nv in db.TB_NHANVIEN on np.MANV equals nv.MANV // Thêm join để lấy HOTEN
+        //                  select new
+        //                  {
+        //                      np.MANV,
+        //                      nv.HOTEN, // Lấy HOTEN từ bảng NHANVIEN
+        //                      np.IDPC,
+        //                      np.SOTIEN
+        //                  }).ToList();
+
+        //    // Gộp dữ liệu theo nhân viên
+        //    var groupedData = result
+        //        .GroupBy(x => new { x.MANV, x.HOTEN })
+        //        .Select(g => new NHANVIEN_PHUCAP_DTO
+        //        {
+        //            MANV = g.Key.MANV,
+        //            HOTEN = g.Key.HOTEN,
+        //            SOTIEN_IDPC1 = g.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN,
+        //            SOTIEN_IDPC2 = g.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN,
+        //            SOTIEN_IDPC3 = g.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN,
+        //            SOTIEN_IDPC4 = g.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN,
+        //            SOTIEN_IDPC5 = g.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN,
+        //            SOTIEN_IDPC6 = g.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN,
+        //            SOTIEN_IDPC7 = g.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN
+        //        }).OrderBy(a => a.MANV).ToList();
+
+        //    return groupedData;
+        //}
 
 
 
@@ -79,8 +116,7 @@ namespace Bu.CLASS_CHAMCONG
         {
             try
             {
-                var _pc = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == pc.MANV && x.IDPC == pc.IDPC);
-                _pc.NGAY = pc.NGAY;
+                var _pc = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == pc.MANV && x.IDPC == pc.IDPC && x.MAKYCONG == pc.MAKYCONG && x.MAKYCONG == pc.MAKYCONG);
                 _pc.SOTIEN = pc.SOTIEN;
                 _pc.UPDATED_BY = pc.UPDATED_BY;
                 _pc.UPDATED_DATE = pc.UPDATED_DATE;
@@ -109,9 +145,30 @@ namespace Bu.CLASS_CHAMCONG
             return db.TB_PHUCAP.FirstOrDefault(x=>x.IDPC == id);
         }
 
-        public void UpdatePhucap(int manv, int idpc, decimal sotien)
+        //public void UpdatePhucap(int manv, int idpc, decimal sotien)
+        //{
+        //    var phucap = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc);
+
+        //    if (phucap != null)
+        //    {
+        //        phucap.SOTIEN = sotien;
+        //    }
+        //    else
+        //    {
+        //        db.TB_NHANVIEN_PHUCAP.Add(new TB_NHANVIEN_PHUCAP
+        //        {
+        //            MANV = manv,
+        //            IDPC = idpc,
+        //            SOTIEN = sotien,
+        //            GHICHU = ""
+        //        });
+        //    }
+        //    db.SaveChanges();
+        //}
+
+        public void UpdatePhucap(int manv, int idpc, decimal sotien, int makycong)
         {
-            var phucap = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc);
+            var phucap = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc && np.MAKYCONG == makycong);
 
             if (phucap != null)
             {
@@ -123,8 +180,8 @@ namespace Bu.CLASS_CHAMCONG
                 {
                     MANV = manv,
                     IDPC = idpc,
+                    MAKYCONG = makycong, 
                     SOTIEN = sotien,
-                    NGAY = DateTime.Now,
                     GHICHU = ""
                 });
             }

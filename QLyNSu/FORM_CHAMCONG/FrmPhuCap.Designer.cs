@@ -58,7 +58,12 @@
             this.SOTIEN_IDPC3 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.SOTIEN_IDPC6 = new DevExpress.XtraGrid.Columns.GridColumn();
             this.SOTIEN_IDPC7 = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.MAKYCONG = new DevExpress.XtraGrid.Columns.GridColumn();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.spThang = new DevExpress.XtraEditors.SpinEdit();
+            this.labelControl10 = new DevExpress.XtraEditors.LabelControl();
+            this.spNam = new DevExpress.XtraEditors.SpinEdit();
+            this.labelControl9 = new DevExpress.XtraEditors.LabelControl();
             this.spP7 = new DevExpress.XtraEditors.SpinEdit();
             this.spP6 = new DevExpress.XtraEditors.SpinEdit();
             this.spP5 = new DevExpress.XtraEditors.SpinEdit();
@@ -86,6 +91,8 @@
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.spThang.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spNam.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spP7.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spP6.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.spP5.Properties)).BeginInit();
@@ -257,7 +264,7 @@
             // 
             this.labelControl7.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl7.Appearance.Options.UseFont = true;
-            this.labelControl7.Location = new System.Drawing.Point(169, 24);
+            this.labelControl7.Location = new System.Drawing.Point(47, 27);
             this.labelControl7.Name = "labelControl7";
             this.labelControl7.Size = new System.Drawing.Size(107, 25);
             this.labelControl7.TabIndex = 10;
@@ -286,7 +293,8 @@
             this.SOTIEN_IDPC2,
             this.SOTIEN_IDPC3,
             this.SOTIEN_IDPC6,
-            this.SOTIEN_IDPC7});
+            this.SOTIEN_IDPC7,
+            this.MAKYCONG});
             this.gvDanhSach.GridControl = this.gcDanhSach;
             this.gvDanhSach.Name = "gvDanhSach";
             this.gvDanhSach.OptionsFind.AlwaysVisible = true;
@@ -330,7 +338,7 @@
             this.SOTIEN_IDPC1.MinWidth = 25;
             this.SOTIEN_IDPC1.Name = "SOTIEN_IDPC1";
             this.SOTIEN_IDPC1.Visible = true;
-            this.SOTIEN_IDPC1.VisibleIndex = 2;
+            this.SOTIEN_IDPC1.VisibleIndex = 3;
             this.SOTIEN_IDPC1.Width = 101;
             // 
             // SOTIEN_IDPC4
@@ -342,7 +350,7 @@
             this.SOTIEN_IDPC4.MinWidth = 25;
             this.SOTIEN_IDPC4.Name = "SOTIEN_IDPC4";
             this.SOTIEN_IDPC4.Visible = true;
-            this.SOTIEN_IDPC4.VisibleIndex = 5;
+            this.SOTIEN_IDPC4.VisibleIndex = 6;
             this.SOTIEN_IDPC4.Width = 87;
             // 
             // SOTIEN_IDPC5
@@ -354,7 +362,7 @@
             this.SOTIEN_IDPC5.MinWidth = 25;
             this.SOTIEN_IDPC5.Name = "SOTIEN_IDPC5";
             this.SOTIEN_IDPC5.Visible = true;
-            this.SOTIEN_IDPC5.VisibleIndex = 6;
+            this.SOTIEN_IDPC5.VisibleIndex = 7;
             this.SOTIEN_IDPC5.Width = 138;
             // 
             // SOTIEN_IDPC2
@@ -366,7 +374,7 @@
             this.SOTIEN_IDPC2.MinWidth = 25;
             this.SOTIEN_IDPC2.Name = "SOTIEN_IDPC2";
             this.SOTIEN_IDPC2.Visible = true;
-            this.SOTIEN_IDPC2.VisibleIndex = 3;
+            this.SOTIEN_IDPC2.VisibleIndex = 4;
             this.SOTIEN_IDPC2.Width = 107;
             // 
             // SOTIEN_IDPC3
@@ -378,7 +386,7 @@
             this.SOTIEN_IDPC3.MinWidth = 25;
             this.SOTIEN_IDPC3.Name = "SOTIEN_IDPC3";
             this.SOTIEN_IDPC3.Visible = true;
-            this.SOTIEN_IDPC3.VisibleIndex = 4;
+            this.SOTIEN_IDPC3.VisibleIndex = 5;
             this.SOTIEN_IDPC3.Width = 71;
             // 
             // SOTIEN_IDPC6
@@ -388,7 +396,7 @@
             this.SOTIEN_IDPC6.MinWidth = 25;
             this.SOTIEN_IDPC6.Name = "SOTIEN_IDPC6";
             this.SOTIEN_IDPC6.Visible = true;
-            this.SOTIEN_IDPC6.VisibleIndex = 7;
+            this.SOTIEN_IDPC6.VisibleIndex = 8;
             this.SOTIEN_IDPC6.Width = 37;
             // 
             // SOTIEN_IDPC7
@@ -398,8 +406,18 @@
             this.SOTIEN_IDPC7.MinWidth = 25;
             this.SOTIEN_IDPC7.Name = "SOTIEN_IDPC7";
             this.SOTIEN_IDPC7.Visible = true;
-            this.SOTIEN_IDPC7.VisibleIndex = 8;
+            this.SOTIEN_IDPC7.VisibleIndex = 9;
             this.SOTIEN_IDPC7.Width = 37;
+            // 
+            // MAKYCONG
+            // 
+            this.MAKYCONG.Caption = "KỲ CÔNG";
+            this.MAKYCONG.FieldName = "MAKYCONG";
+            this.MAKYCONG.MinWidth = 25;
+            this.MAKYCONG.Name = "MAKYCONG";
+            this.MAKYCONG.Visible = true;
+            this.MAKYCONG.VisibleIndex = 2;
+            this.MAKYCONG.Width = 94;
             // 
             // splitContainer1
             // 
@@ -411,6 +429,10 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.spThang);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControl10);
+            this.splitContainer1.Panel1.Controls.Add(this.spNam);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControl9);
             this.splitContainer1.Panel1.Controls.Add(this.spP7);
             this.splitContainer1.Panel1.Controls.Add(this.spP6);
             this.splitContainer1.Panel1.Controls.Add(this.spP5);
@@ -436,6 +458,62 @@
             this.splitContainer1.SplitterDistance = 285;
             this.splitContainer1.TabIndex = 10;
             // 
+            // spThang
+            // 
+            this.spThang.EditValue = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.spThang.Location = new System.Drawing.Point(723, 28);
+            this.spThang.MenuManager = this.barManager1;
+            this.spThang.Name = "spThang";
+            this.spThang.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.spThang.Properties.Appearance.Options.UseFont = true;
+            this.spThang.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.spThang.Properties.ReadOnly = true;
+            this.spThang.Size = new System.Drawing.Size(218, 28);
+            this.spThang.TabIndex = 42;
+            // 
+            // labelControl10
+            // 
+            this.labelControl10.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl10.Appearance.Options.UseFont = true;
+            this.labelControl10.Location = new System.Drawing.Point(649, 30);
+            this.labelControl10.Name = "labelControl10";
+            this.labelControl10.Size = new System.Drawing.Size(68, 25);
+            this.labelControl10.TabIndex = 41;
+            this.labelControl10.Text = "Tháng:";
+            // 
+            // spNam
+            // 
+            this.spNam.EditValue = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.spNam.Location = new System.Drawing.Point(1126, 25);
+            this.spNam.MenuManager = this.barManager1;
+            this.spNam.Name = "spNam";
+            this.spNam.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.spNam.Properties.Appearance.Options.UseFont = true;
+            this.spNam.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.spNam.Properties.ReadOnly = true;
+            this.spNam.Size = new System.Drawing.Size(218, 28);
+            this.spNam.TabIndex = 40;
+            // 
+            // labelControl9
+            // 
+            this.labelControl9.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl9.Appearance.Options.UseFont = true;
+            this.labelControl9.Location = new System.Drawing.Point(1052, 27);
+            this.labelControl9.Name = "labelControl9";
+            this.labelControl9.Size = new System.Drawing.Size(52, 25);
+            this.labelControl9.TabIndex = 39;
+            this.labelControl9.Text = "Năm:";
+            // 
             // spP7
             // 
             this.spP7.EditValue = new decimal(new int[] {
@@ -443,7 +521,7 @@
             0,
             0,
             0});
-            this.spP7.Location = new System.Drawing.Point(947, 228);
+            this.spP7.Location = new System.Drawing.Point(1126, 84);
             this.spP7.MenuManager = this.barManager1;
             this.spP7.Name = "spP7";
             this.spP7.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -460,7 +538,7 @@
             0,
             0,
             0});
-            this.spP6.Location = new System.Drawing.Point(947, 153);
+            this.spP6.Location = new System.Drawing.Point(723, 196);
             this.spP6.MenuManager = this.barManager1;
             this.spP6.Name = "spP6";
             this.spP6.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -477,7 +555,7 @@
             0,
             0,
             0});
-            this.spP5.Location = new System.Drawing.Point(947, 88);
+            this.spP5.Location = new System.Drawing.Point(255, 193);
             this.spP5.MenuManager = this.barManager1;
             this.spP5.Name = "spP5";
             this.spP5.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -494,7 +572,7 @@
             0,
             0,
             0});
-            this.spP4.Location = new System.Drawing.Point(947, 24);
+            this.spP4.Location = new System.Drawing.Point(255, 141);
             this.spP4.MenuManager = this.barManager1;
             this.spP4.Name = "spP4";
             this.spP4.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -511,7 +589,7 @@
             0,
             0,
             0});
-            this.spP3.Location = new System.Drawing.Point(282, 228);
+            this.spP3.Location = new System.Drawing.Point(723, 142);
             this.spP3.MenuManager = this.barManager1;
             this.spP3.Name = "spP3";
             this.spP3.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -528,7 +606,7 @@
             0,
             0,
             0});
-            this.spP2.Location = new System.Drawing.Point(282, 150);
+            this.spP2.Location = new System.Drawing.Point(723, 88);
             this.spP2.MenuManager = this.barManager1;
             this.spP2.Name = "spP2";
             this.spP2.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -545,7 +623,7 @@
             0,
             0,
             0});
-            this.spP1.Location = new System.Drawing.Point(282, 85);
+            this.spP1.Location = new System.Drawing.Point(255, 85);
             this.spP1.MenuManager = this.barManager1;
             this.spP1.Name = "spP1";
             this.spP1.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -559,7 +637,7 @@
             // 
             this.labelControl8.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl8.Appearance.Options.UseFont = true;
-            this.labelControl8.Location = new System.Drawing.Point(806, 231);
+            this.labelControl8.Location = new System.Drawing.Point(985, 87);
             this.labelControl8.Name = "labelControl8";
             this.labelControl8.Size = new System.Drawing.Size(135, 25);
             this.labelControl8.TabIndex = 28;
@@ -569,7 +647,7 @@
             // 
             this.labelControl6.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl6.Appearance.Options.UseFont = true;
-            this.labelControl6.Location = new System.Drawing.Point(92, 231);
+            this.labelControl6.Location = new System.Drawing.Point(533, 144);
             this.labelControl6.Name = "labelControl6";
             this.labelControl6.Size = new System.Drawing.Size(184, 25);
             this.labelControl6.TabIndex = 26;
@@ -579,7 +657,7 @@
             // 
             this.labelControl5.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl5.Appearance.Options.UseFont = true;
-            this.labelControl5.Location = new System.Drawing.Point(738, 153);
+            this.labelControl5.Location = new System.Drawing.Point(514, 198);
             this.labelControl5.Name = "labelControl5";
             this.labelControl5.Size = new System.Drawing.Size(203, 25);
             this.labelControl5.TabIndex = 24;
@@ -589,7 +667,7 @@
             // 
             this.labelControl4.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl4.Appearance.Options.UseFont = true;
-            this.labelControl4.Location = new System.Drawing.Point(798, 88);
+            this.labelControl4.Location = new System.Drawing.Point(106, 195);
             this.labelControl4.Name = "labelControl4";
             this.labelControl4.Size = new System.Drawing.Size(143, 25);
             this.labelControl4.TabIndex = 22;
@@ -599,7 +677,7 @@
             // 
             this.labelControl3.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl3.Appearance.Options.UseFont = true;
-            this.labelControl3.Location = new System.Drawing.Point(746, 24);
+            this.labelControl3.Location = new System.Drawing.Point(54, 143);
             this.labelControl3.Name = "labelControl3";
             this.labelControl3.Size = new System.Drawing.Size(195, 25);
             this.labelControl3.TabIndex = 20;
@@ -609,7 +687,7 @@
             // 
             this.labelControl1.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl1.Appearance.Options.UseFont = true;
-            this.labelControl1.Location = new System.Drawing.Point(98, 153);
+            this.labelControl1.Location = new System.Drawing.Point(539, 90);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(178, 25);
             this.labelControl1.TabIndex = 18;
@@ -619,7 +697,7 @@
             // 
             this.labelControl2.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Location = new System.Drawing.Point(60, 88);
+            this.labelControl2.Location = new System.Drawing.Point(33, 87);
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(216, 25);
             this.labelControl2.TabIndex = 15;
@@ -627,7 +705,7 @@
             // 
             // searchMANV
             // 
-            this.searchMANV.Location = new System.Drawing.Point(282, 20);
+            this.searchMANV.Location = new System.Drawing.Point(160, 23);
             this.searchMANV.MenuManager = this.barManager1;
             this.searchMANV.Name = "searchMANV";
             this.searchMANV.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -637,7 +715,7 @@
             this.searchMANV.Properties.PopupView = this.searchLookUpEdit1View;
             this.searchMANV.Properties.ReadOnly = true;
             this.searchMANV.Properties.ShowClearButton = false;
-            this.searchMANV.Size = new System.Drawing.Size(325, 32);
+            this.searchMANV.Size = new System.Drawing.Size(313, 32);
             this.searchMANV.TabIndex = 13;
             // 
             // searchLookUpEdit1View
@@ -693,6 +771,8 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.spThang.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spNam.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.spP7.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.spP6.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.spP5.Properties)).EndInit();
@@ -755,5 +835,10 @@
         private DevExpress.XtraGrid.Views.Grid.GridView searchLookUpEdit1View;
         private DevExpress.XtraGrid.Columns.GridColumn colMANV;
         private DevExpress.XtraGrid.Columns.GridColumn colHOTEN;
+        private DevExpress.XtraEditors.LabelControl labelControl10;
+        private DevExpress.XtraEditors.LabelControl labelControl9;
+        private DevExpress.XtraEditors.SpinEdit spThang;
+        private DevExpress.XtraEditors.SpinEdit spNam;
+        private DevExpress.XtraGrid.Columns.GridColumn MAKYCONG;
     }
 }

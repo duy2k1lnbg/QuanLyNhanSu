@@ -298,10 +298,11 @@
           <Key>
             <PropertyRef Name="MANV" />
             <PropertyRef Name="IDPC" />
+            <PropertyRef Name="MAKYCONG" />
           </Key>
           <Property Name="MANV" Type="number" Precision="38" Scale="0" Nullable="false" />
           <Property Name="IDPC" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="NGAY" Type="date" />
+          <Property Name="MAKYCONG" Type="number" Precision="38" Scale="0" Nullable="false" />
           <Property Name="GHICHU" Type="nvarchar2" MaxLength="500" />
           <Property Name="SOTIEN" Type="float" Precision="126" Scale="0" />
           <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
@@ -1251,10 +1252,11 @@
           <Key>
             <PropertyRef Name="MANV" />
             <PropertyRef Name="IDPC" />
+            <PropertyRef Name="MAKYCONG" />
           </Key>
           <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
           <Property Name="IDPC" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
-          <Property Name="NGAY" Type="DateTime" />
+          <Property Name="MAKYCONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
           <Property Name="GHICHU" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
           <Property Name="SOTIEN" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
@@ -1975,7 +1977,7 @@
                 <ScalarProperty Name="UPDATED_BY" ColumnName="UPDATED_BY" />
                 <ScalarProperty Name="SOTIEN" ColumnName="SOTIEN" />
                 <ScalarProperty Name="GHICHU" ColumnName="GHICHU" />
-                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
+                <ScalarProperty Name="MAKYCONG" ColumnName="MAKYCONG" />
                 <ScalarProperty Name="IDPC" ColumnName="IDPC" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
               </MappingFragment>

@@ -58,6 +58,7 @@ namespace QLyNSu.FORM_CHAMCONG
                     return; // Dừng lại nếu không có giá trị
                 }
 
+                int makc = Convert.ToInt32(spNam.Text) * 100 + Convert.ToInt32(spP1.Text);
                 var nv = Convert.ToInt32(searchMANV.EditValue);
                 decimal sotienIdpc1 = Convert.ToDecimal(spP1.Text);
                 decimal sotienIdpc2 = Convert.ToDecimal(spP2.Text);
@@ -66,18 +67,18 @@ namespace QLyNSu.FORM_CHAMCONG
                 decimal sotienIdpc5 = Convert.ToDecimal(spP5.Text);
                 decimal sotienIdpc6 = Convert.ToDecimal(spP6.Text);
                 decimal sotienIdpc7 = Convert.ToDecimal(spP7.Text); 
-                _phucap.UpdatePhucap(nv, 1, sotienIdpc1);
-                _phucap.UpdatePhucap(nv, 2, sotienIdpc2);
-                _phucap.UpdatePhucap(nv, 3, sotienIdpc3);
-                _phucap.UpdatePhucap(nv, 4, sotienIdpc4);
-                _phucap.UpdatePhucap(nv, 5, sotienIdpc5);
-                _phucap.UpdatePhucap(nv, 6, sotienIdpc6);
-                _phucap.UpdatePhucap(nv, 7, sotienIdpc7);
+                _phucap.UpdatePhucap(nv, 1, sotienIdpc1, makc);
+                _phucap.UpdatePhucap(nv, 2, sotienIdpc2, makc);
+                _phucap.UpdatePhucap(nv, 3, sotienIdpc3, makc);
+                _phucap.UpdatePhucap(nv, 4, sotienIdpc4, makc);
+                _phucap.UpdatePhucap(nv, 5, sotienIdpc5, makc);
+                _phucap.UpdatePhucap(nv, 6, sotienIdpc6, makc);
+                _phucap.UpdatePhucap(nv, 7, sotienIdpc7, makc);
                 LoadData();
                 var manv = Convert.ToInt32(searchMANV.EditValue); 
                 var row = ((DataRowView)searchMANV.GetSelectedDataRow()).Row; 
                 var hoten = row["HOTEN"].ToString();
-                MessageBox.Show($"Cập nhật phụ cấp thành công cho nhân viên {manv} - {hoten}!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show($"Cập nhật phụ cấp thành công cho nhân viên {manv} - {hoten} có mã công {makc}!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -108,13 +109,26 @@ namespace QLyNSu.FORM_CHAMCONG
             if (gvDanhSach.FocusedRowHandle >= 0)
             {
                 searchMANV.EditValue = gvDanhSach.GetFocusedRowCellValue("MANV").ToString();
-                spP1.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC1").ToString();
-                spP2.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC2").ToString();
-                spP3.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC3").ToString();
-                spP4.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC4").ToString();
-                spP5.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC5").ToString();
-                spP6.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC6").ToString();
-                spP7.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC7").ToString();
+                //spP1.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC1").ToString() ?? "0";
+                //spP2.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC2").ToString() ?? "0";
+                //spP3.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC3").ToString() ?? "0";
+                //spP4.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC4").ToString() ?? "0";
+                //spP5.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC5").ToString() ?? "0";
+                //spP6.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC6").ToString() ?? "0";
+                //spP7.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC7").ToString() ?? "0";
+                spP1.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC1") ?? 0);
+                spP2.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC2") ?? 0);
+                spP3.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC3") ?? 0);
+                spP4.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC4") ?? 0);
+                spP5.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC5") ?? 0);
+                spP6.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC6") ?? 0);
+                spP7.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC7") ?? 0);
+                int makc = Convert.ToInt32(gvDanhSach.GetFocusedRowCellValue("MAKYCONG").ToString());
+                int year = makc / 100;
+                int month = makc % 100;
+
+                spNam.Text = year.ToString();
+                spThang.Text = month.ToString();
                 var ghiChuValue = gvDanhSach.GetFocusedRowCellValue("GHICHU");
             }
             splitContainer1.Panel1Collapsed = false;

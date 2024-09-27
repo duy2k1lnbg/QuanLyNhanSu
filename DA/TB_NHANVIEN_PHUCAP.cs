@@ -16,7 +16,7 @@ namespace DA
     {
         public decimal MANV { get; set; }
         public decimal IDPC { get; set; }
-        public Nullable<System.DateTime> NGAY { get; set; }
+        public decimal MAKYCONG { get; set; }
         public string GHICHU { get; set; }
         public Nullable<decimal> SOTIEN { get; set; }
         public Nullable<decimal> UPDATED_BY { get; set; }
