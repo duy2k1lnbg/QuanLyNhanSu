@@ -55,10 +55,20 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void gvDanhSach_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
         {
-            if (e.Column.Name == "DELETED_BY" && e.CellValue != null)
+            if (e.Column.Name == "DELETED_BY")
             {
-                Image img = Properties.Resources.del;
-                e.Graphics.DrawImage(img, e.Bounds.X, e.Bounds.Y);
+                Image img;
+
+                if (e.CellValue != null)
+                {
+                    img = Properties.Resources.del;
+                }
+                else
+                {
+                    img = Properties.Resources.no_del;
+                }
+                Rectangle rect = new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height);
+                e.Graphics.DrawImage(img, rect);
                 e.Handled = true;
             }
         }
