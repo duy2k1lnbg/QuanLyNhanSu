@@ -124,7 +124,7 @@ namespace QLyNSu
 
         private void ribbonControl1_Click(object sender, EventArgs e)
         {
-
+            
         }
 
         private void barButtonItem1_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -319,6 +319,16 @@ namespace QLyNSu
         private async void btnBangLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmBangLuong));
+        }
+
+        private void btnBaoCao_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+
+        }
+
+        private void btnExit3_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            _formManager.CloseAll();
         }
     }
 }

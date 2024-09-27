@@ -27,7 +27,6 @@
         <EntityTypeShape EntityType="Model.TB_PHONGBAN" Width="1.5" PointX="0.75" PointY="23" />
         <EntityTypeShape EntityType="Model.TB_PHUCAP" Width="1.5" PointX="6" PointY="17" />
         <EntityTypeShape EntityType="Model.TB_QUOCTICH" Width="1.5" PointX="0.75" PointY="33.375" />
-        <EntityTypeShape EntityType="Model.TB_TANGCA" Width="1.5" PointX="8.25" PointY="16.875" />
         <EntityTypeShape EntityType="Model.TB_TONGIAO" Width="1.5" PointX="0.75" PointY="26.25" />
         <EntityTypeShape EntityType="Model.TB_TRINHDO" Width="1.5" PointX="0.75" PointY="31" />
         <EntityTypeShape EntityType="Model.TB_UNGLUONG" Width="1.5" PointX="5.25" PointY="25.125" />
@@ -42,7 +41,6 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_GT_FK8" />
         <AssociationConnector Association="Model.TB_HOPDONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_KHENTHUONG_KYLUAT_NV_FK1" />
-        <AssociationConnector Association="Model.TB_TANGCA_LCA_FK1" />
         <AssociationConnector Association="Model.TB_NANGLUONG_NHANVIEN_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PB_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_NV_FK1" />
@@ -50,9 +48,11 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_TD_FK4" />
         <AssociationConnector Association="Model.TB_NHANVIEN_TG_FK7" />
         <AssociationConnector Association="Model.TB_NHANVIEN_THOIVIEC_NV_FK1" />
-        <AssociationConnector Association="Model.TB_TANGCA_NV_FK2" />
         <AssociationConnector Association="Model.TB_UNGLUONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2" />
+        <EntityTypeShape EntityType="Model.TB_TANGCA" Width="1.5" PointX="8.25" PointY="14.75" />
+        <AssociationConnector Association="Model.TB_TANGCA_LCA_FK1" />
+        <AssociationConnector Association="Model.TB_TANGCA_NV_FK2" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>
