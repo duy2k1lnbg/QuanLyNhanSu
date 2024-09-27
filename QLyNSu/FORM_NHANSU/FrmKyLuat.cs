@@ -102,10 +102,10 @@ namespace QLyNSu
         {
             splitContainer1.Panel1Collapsed = true;
             // Hiển thị hộp thoại xác nhận
-            if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show("Bạn có chắc là xoá đi không ?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 // Thực hiện xóa và tải lại dữ liệu
-                _ktkl.Delete(_SOQD);
+                _ktkl.Delete(_SOQD,1);
                 LoadData();
             }
         }
@@ -212,8 +212,8 @@ namespace QLyNSu
                     kl.TUNGAY = dtTuNgay.Value;
                     kl.DENNGAY = dtDenNgay.Value;
                     kl.MANV = int.Parse(searchMANV.EditValue.ToString());
-                    kl.CREATED_BY = 1;
-                    kl.CREATED_DATE = DateTime.Now;
+                    kl.UPDATED_BY = 1;
+                    kl.UPDATED_DATE = DateTime.Now;
                     _ktkl.Update(kl);
                 }
             }

@@ -34,5 +34,11 @@ namespace Bu.DTO
         public Nullable<decimal> IDQT { get; set; }
         public string TENQT { get; set; }
         public Nullable<decimal> DATHOIVIEC { get; set; }
+        public Nullable<decimal> CREATED_BY { get; set; }
+        public Nullable<System.DateTime> CREATED_DATE { get; set; }
+        public Nullable<decimal> UPDATED_BY { get; set; }
+        public Nullable<System.DateTime> UPDATED_DATE { get; set; }
+        public Nullable<decimal> DELETED_BY { get; set; }
+        public Nullable<System.DateTime> DELETED_DATE { get; set; }
     }
 }

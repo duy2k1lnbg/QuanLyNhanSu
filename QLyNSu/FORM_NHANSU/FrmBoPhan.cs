@@ -132,7 +132,7 @@ namespace QLyNSu
             }
 
             // Hiển thị hộp thoại xác nhận
-            if (MessageBox.Show("Mày có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (MessageBox.Show("Bạn có chắc là xoá đi không ?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _bophan.Delete(_IDBP);
