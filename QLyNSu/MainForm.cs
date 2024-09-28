@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Bu;
 using DevExpress.XtraSplashScreen;
+using QLyNSu.FORM_BAOCAO;
 using QLyNSu.FORM_CHAMCONG;
 
 namespace QLyNSu
@@ -316,9 +317,9 @@ namespace QLyNSu
             await _formManager.OpenFormWithSplashScreen(typeof(FrmBangLuong));
         }
 
-        private void btnBaoCao_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnBaoCao_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmBaoCaoChiTiet));
         }
 
         private void btnExit3_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
