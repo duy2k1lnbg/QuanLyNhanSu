@@ -35,7 +35,6 @@
         <EntityTypeShape EntityType="Model.TB_TANGCA" Width="1.5" PointX="8.25" PointY="16.875" />
         <EntityTypeShape EntityType="Model.TB_TONGIAO" Width="1.5" PointX="0.75" PointY="26" />
         <EntityTypeShape EntityType="Model.TB_TRINHDO" Width="1.5" PointX="0.75" PointY="15" />
-        <EntityTypeShape EntityType="Model.TB_UNGLUONG" Width="1.5" PointX="5.25" PointY="14.125" />
         <AssociationConnector Association="Model.TB_BANGCONG_LC_FK2" />
         <AssociationConnector Association="Model.TB_BANGCONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_BAOHIEM_NV_FK1" />
@@ -56,10 +55,11 @@
         <AssociationConnector Association="Model.TB_NHANVIEN_TG_FK7" />
         <AssociationConnector Association="Model.TB_NHANVIEN_THOIVIEC_NV_FK1" />
         <AssociationConnector Association="Model.TB_TANGCA_NV_FK2" />
-        <AssociationConnector Association="Model.TB_UNGLUONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2" />
         <EntityTypeShape EntityType="Model.TB_CONFIG" Width="1.5" PointX="10.375" PointY="3.75" />
         <EntityTypeShape EntityType="Model.TB_SYS_REPORT" Width="1.5" PointX="10.375" PointY="6.75" />
+        <EntityTypeShape EntityType="Model.TB_UNGLUONG" Width="1.5" PointX="5.25" PointY="53.25" />
+        <AssociationConnector Association="Model.TB_UNGLUONG_NV_FK1" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

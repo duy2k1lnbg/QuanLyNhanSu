@@ -93,6 +93,7 @@
     <Compile Include="CLASS_CHAMCONG\PHUCAP.cs" />
     <Compile Include="CLASS_CHAMCONG\SYS_CONFIG.cs" />
     <Compile Include="CLASS_CHAMCONG\TANGCA.cs" />
+    <Compile Include="CLASS_CHAMCONG\UNGLUONG.cs" />
     <Compile Include="CLASS_NHANSU\BOPHAN.cs" />
     <Compile Include="CLASS_NHANSU\CHUCVU.cs" />
     <Compile Include="CLASS_NHANSU\CONGTY.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="CLASS_NHANSU\NHANVIEN_THOIVIEC.cs" />
     <Compile Include="CLASS_NHANSU\PHONGBAN.cs" />
     <Compile Include="DTO\TANGCA_DTO.cs" />
+    <Compile Include="DTO\UNGLUONG_DTO.cs" />
     <Compile Include="GetData_Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CLASS_NHANSU\QUOCTICH.cs" />

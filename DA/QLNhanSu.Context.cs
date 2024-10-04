@@ -55,8 +55,8 @@ namespace DA
         public virtual DbSet<TB_TANGCA> TB_TANGCA { get; set; }
         public virtual DbSet<TB_TONGIAO> TB_TONGIAO { get; set; }
         public virtual DbSet<TB_TRINHDO> TB_TRINHDO { get; set; }
-        public virtual DbSet<TB_UNGLUONG> TB_UNGLUONG { get; set; }
         public virtual DbSet<TB_CONFIG> TB_CONFIG { get; set; }
         public virtual DbSet<TB_SYS_REPORT> TB_SYS_REPORT { get; set; }
+        public virtual DbSet<TB_UNGLUONG> TB_UNGLUONG { get; set; }
     }
 }
