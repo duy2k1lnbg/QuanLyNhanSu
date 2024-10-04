@@ -24,8 +24,8 @@ namespace DA
             this.TB_NANGLUONG_NHANVIEN = new HashSet<TB_NANGLUONG_NHANVIEN>();
             this.TB_NHANVIEN_PHUCAP = new HashSet<TB_NHANVIEN_PHUCAP>();
             this.TB_NHANVIEN_THOIVIEC = new HashSet<TB_NHANVIEN_THOIVIEC>();
-            this.TB_UNGLUONG = new HashSet<TB_UNGLUONG>();
             this.TB_TANGCA = new HashSet<TB_TANGCA>();
+            this.TB_UNGLUONG = new HashSet<TB_UNGLUONG>();
         }
     
         public decimal MANV { get; set; }
@@ -77,8 +77,8 @@ namespace DA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_NHANVIEN_THOIVIEC> TB_NHANVIEN_THOIVIEC { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<TB_UNGLUONG> TB_UNGLUONG { get; set; }
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_TANGCA> TB_TANGCA { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_UNGLUONG> TB_UNGLUONG { get; set; }
     }
 }

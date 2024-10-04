@@ -52,7 +52,7 @@ namespace Bu.CLASS_CHAMCONG
             catch (Exception ex)
             {
 
-                throw new Exception("Lỗi Add data " + ex.Message);
+                throw new Exception("Lỗi Update data " + ex.Message);
             }
         }
 

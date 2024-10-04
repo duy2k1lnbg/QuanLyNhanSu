@@ -334,6 +334,8 @@
             this.SOTIEN_IDPC1.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
             this.SOTIEN_IDPC1.AppearanceHeader.Options.UseFont = true;
             this.SOTIEN_IDPC1.Caption = "Phụ cấp trách nhiệm";
+            this.SOTIEN_IDPC1.DisplayFormat.FormatString = "n0";
+            this.SOTIEN_IDPC1.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Custom;
             this.SOTIEN_IDPC1.FieldName = "SOTIEN_IDPC1";
             this.SOTIEN_IDPC1.MinWidth = 25;
             this.SOTIEN_IDPC1.Name = "SOTIEN_IDPC1";
@@ -346,6 +348,8 @@
             this.SOTIEN_IDPC4.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
             this.SOTIEN_IDPC4.AppearanceHeader.Options.UseFont = true;
             this.SOTIEN_IDPC4.Caption = "Phụ cấp ngôn ngữ";
+            this.SOTIEN_IDPC4.DisplayFormat.FormatString = "n0";
+            this.SOTIEN_IDPC4.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Custom;
             this.SOTIEN_IDPC4.FieldName = "SOTIEN_IDPC4";
             this.SOTIEN_IDPC4.MinWidth = 25;
             this.SOTIEN_IDPC4.Name = "SOTIEN_IDPC4";
@@ -358,6 +362,8 @@
             this.SOTIEN_IDPC5.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
             this.SOTIEN_IDPC5.AppearanceHeader.Options.UseFont = true;
             this.SOTIEN_IDPC5.Caption = "Phụ cấp thâm niên";
+            this.SOTIEN_IDPC5.DisplayFormat.FormatString = "n0";
+            this.SOTIEN_IDPC5.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Custom;
             this.SOTIEN_IDPC5.FieldName = "SOTIEN_IDPC5";
             this.SOTIEN_IDPC5.MinWidth = 25;
             this.SOTIEN_IDPC5.Name = "SOTIEN_IDPC5";
@@ -370,6 +376,8 @@
             this.SOTIEN_IDPC2.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
             this.SOTIEN_IDPC2.AppearanceHeader.Options.UseFont = true;
             this.SOTIEN_IDPC2.Caption = "Phụ cấp chuyên cần";
+            this.SOTIEN_IDPC2.DisplayFormat.FormatString = "n0";
+            this.SOTIEN_IDPC2.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Custom;
             this.SOTIEN_IDPC2.FieldName = "SOTIEN_IDPC2";
             this.SOTIEN_IDPC2.MinWidth = 25;
             this.SOTIEN_IDPC2.Name = "SOTIEN_IDPC2";
@@ -382,6 +390,8 @@
             this.SOTIEN_IDPC3.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
             this.SOTIEN_IDPC3.AppearanceHeader.Options.UseFont = true;
             this.SOTIEN_IDPC3.Caption = "Phụ cấp nhà ở";
+            this.SOTIEN_IDPC3.DisplayFormat.FormatString = "n0";
+            this.SOTIEN_IDPC3.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Custom;
             this.SOTIEN_IDPC3.FieldName = "SOTIEN_IDPC3";
             this.SOTIEN_IDPC3.MinWidth = 25;
             this.SOTIEN_IDPC3.Name = "SOTIEN_IDPC3";
@@ -392,6 +402,8 @@
             // SOTIEN_IDPC6
             // 
             this.SOTIEN_IDPC6.Caption = "Phụ cấp phương tiện đi lại";
+            this.SOTIEN_IDPC6.DisplayFormat.FormatString = "n0";
+            this.SOTIEN_IDPC6.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Custom;
             this.SOTIEN_IDPC6.FieldName = "SOTIEN_IDPC6";
             this.SOTIEN_IDPC6.MinWidth = 25;
             this.SOTIEN_IDPC6.Name = "SOTIEN_IDPC6";
@@ -402,6 +414,8 @@
             // SOTIEN_IDPC7
             // 
             this.SOTIEN_IDPC7.Caption = "Phụ cấp khác";
+            this.SOTIEN_IDPC7.DisplayFormat.FormatString = "n0";
+            this.SOTIEN_IDPC7.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Custom;
             this.SOTIEN_IDPC7.FieldName = "SOTIEN_IDPC7";
             this.SOTIEN_IDPC7.MinWidth = 25;
             this.SOTIEN_IDPC7.Name = "SOTIEN_IDPC7";
