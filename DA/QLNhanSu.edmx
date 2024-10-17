@@ -917,6 +917,7 @@
           <EntitySet Name="TB_BAOHIEM" EntityType="Model.TB_BAOHIEM" />
           <EntitySet Name="TB_BOPHAN" EntityType="Model.TB_BOPHAN" />
           <EntitySet Name="TB_CHUCVU" EntityType="Model.TB_CHUCVU" />
+          <EntitySet Name="TB_CONFIG" EntityType="Model.TB_CONFIG" />
           <EntitySet Name="TB_CONGTY" EntityType="Model.TB_CONGTY" />
           <EntitySet Name="TB_DANTOC" EntityType="Model.TB_DANTOC" />
           <EntitySet Name="TB_DIEUCHUYEN_NHANVIEN" EntityType="Model.TB_DIEUCHUYEN_NHANVIEN" />
@@ -936,12 +937,14 @@
           <EntitySet Name="TB_QUOCTICH" EntityType="Model.TB_QUOCTICH" />
           <EntitySet Name="TB_SYS_FUNCTION" EntityType="Model.TB_SYS_FUNCTION" />
           <EntitySet Name="TB_SYS_GROUP" EntityType="Model.TB_SYS_GROUP" />
+          <EntitySet Name="TB_SYS_REPORT" EntityType="Model.TB_SYS_REPORT" />
           <EntitySet Name="TB_SYS_RIGHT" EntityType="Model.TB_SYS_RIGHT" />
           <EntitySet Name="TB_SYS_RIGHT_REPORT" EntityType="Model.TB_SYS_RIGHT_REPORT" />
           <EntitySet Name="TB_SYS_USER" EntityType="Model.TB_SYS_USER" />
           <EntitySet Name="TB_TANGCA" EntityType="Model.TB_TANGCA" />
           <EntitySet Name="TB_TONGIAO" EntityType="Model.TB_TONGIAO" />
           <EntitySet Name="TB_TRINHDO" EntityType="Model.TB_TRINHDO" />
+          <EntitySet Name="TB_UNGLUONG" EntityType="Model.TB_UNGLUONG" />
           <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Model.TB_BANGCONG_LC_FK2">
             <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
             <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
@@ -1022,16 +1025,13 @@
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_TANGCA" EntitySet="TB_TANGCA" />
           </AssociationSet>
-          <AssociationSet Name="TB_NHANVIEN_PHUCAP_PC_FK2" Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2">
-            <End Role="TB_PHUCAP" EntitySet="TB_PHUCAP" />
-            <End Role="TB_NHANVIEN_PHUCAP" EntitySet="TB_NHANVIEN_PHUCAP" />
-          </AssociationSet>
-          <EntitySet Name="TB_CONFIG" EntityType="Model.TB_CONFIG" />
-          <EntitySet Name="TB_SYS_REPORT" EntityType="Model.TB_SYS_REPORT" />
-          <EntitySet Name="TB_UNGLUONG" EntityType="Model.TB_UNGLUONG" />
           <AssociationSet Name="TB_UNGLUONG_NV_FK1" Association="Model.TB_UNGLUONG_NV_FK1">
             <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
             <End Role="TB_UNGLUONG" EntitySet="TB_UNGLUONG" />
+          </AssociationSet>
+          <AssociationSet Name="TB_NHANVIEN_PHUCAP_PC_FK2" Association="Model.TB_NHANVIEN_PHUCAP_PC_FK2">
+            <End Role="TB_PHUCAP" EntitySet="TB_PHUCAP" />
+            <End Role="TB_NHANVIEN_PHUCAP" EntitySet="TB_NHANVIEN_PHUCAP" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="TB_BANGCONG">
@@ -1104,6 +1104,14 @@
           <Property Name="IDCV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENCV" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_CV_FK3" FromRole="TB_CHUCVU" ToRole="TB_NHANVIEN" />
+        </EntityType>
+        <EntityType Name="TB_CONFIG">
+          <Key>
+            <PropertyRef Name="ID_CF" />
+          </Key>
+          <Property Name="ID_CF" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="VALUE" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="TB_CONGTY">
           <Key>
@@ -1445,6 +1453,19 @@
           <Property Name="ID_GROUP" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
           <Property Name="MEMBER" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
         </EntityType>
+        <EntityType Name="TB_SYS_REPORT">
+          <Key>
+            <PropertyRef Name="REP_CODE" />
+          </Key>
+          <Property Name="REP_CODE" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="DESCRIPTION" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="REP_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="VISIBLED" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="TUNGAY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="THANG_NAM" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MACTY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MADVI" Type="Decimal" Precision="38" Scale="0" />
+        </EntityType>
         <EntityType Name="TB_SYS_RIGHT">
           <Key>
             <PropertyRef Name="FUNCTION_CODE" />
@@ -1514,6 +1535,25 @@
           <Property Name="IDTD" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENTD" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_TD_FK4" FromRole="TB_TRINHDO" ToRole="TB_NHANVIEN" />
+        </EntityType>
+        <EntityType Name="TB_UNGLUONG">
+          <Key>
+            <PropertyRef Name="IDUL" />
+          </Key>
+          <Property Name="IDUL" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="SOTIENUNG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="GHICHU" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CREATED_DATE" Type="DateTime" />
+          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="UPDATED_DATE" Type="DateTime" />
+          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="DELETED_DATE" Type="DateTime" />
+          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_UNGLUONG" ToRole="TB_NHANVIEN" />
         </EntityType>
         <Association Name="TB_BANGCONG_LC_FK2">
           <End Type="Model.TB_LOAICONG" Role="TB_LOAICONG" Multiplicity="0..1">
@@ -1789,60 +1829,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="TB_NHANVIEN_PHUCAP_PC_FK2">
-          <End Type="Model.TB_PHUCAP" Role="TB_PHUCAP" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="Model.TB_NHANVIEN_PHUCAP" Role="TB_NHANVIEN_PHUCAP" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="TB_PHUCAP">
-              <PropertyRef Name="IDPC" />
-            </Principal>
-            <Dependent Role="TB_NHANVIEN_PHUCAP">
-              <PropertyRef Name="IDPC" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <EntityType Name="TB_CONFIG">
-          <Key>
-            <PropertyRef Name="ID_CF" />
-          </Key>
-          <Property Name="ID_CF" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="VALUE" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="TB_SYS_REPORT">
-          <Key>
-            <PropertyRef Name="REP_CODE" />
-          </Key>
-          <Property Name="REP_CODE" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
-          <Property Name="DESCRIPTION" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="REP_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="VISIBLED" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="TUNGAY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="THANG_NAM" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="MACTY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="MADVI" Type="Decimal" Precision="38" Scale="0" />
-        </EntityType>
-        <EntityType Name="TB_UNGLUONG">
-          <Key>
-            <PropertyRef Name="IDUL" />
-          </Key>
-          <Property Name="IDUL" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="SOTIENUNG" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="GHICHU" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
-          <Property Name="CREATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="CREATED_DATE" Type="DateTime" />
-          <Property Name="UPDATED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="UPDATED_DATE" Type="DateTime" />
-          <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="DELETED_DATE" Type="DateTime" />
-          <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_UNGLUONG_NV_FK1" FromRole="TB_UNGLUONG" ToRole="TB_NHANVIEN" />
-        </EntityType>
         <Association Name="TB_UNGLUONG_NV_FK1">
           <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
             <OnDelete Action="Cascade" />
@@ -1854,6 +1840,20 @@
             </Principal>
             <Dependent Role="TB_UNGLUONG">
               <PropertyRef Name="MANV" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="TB_NHANVIEN_PHUCAP_PC_FK2">
+          <End Type="Model.TB_PHUCAP" Role="TB_PHUCAP" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_NHANVIEN_PHUCAP" Role="TB_NHANVIEN_PHUCAP" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_PHUCAP">
+              <PropertyRef Name="IDPC" />
+            </Principal>
+            <Dependent Role="TB_NHANVIEN_PHUCAP">
+              <PropertyRef Name="IDPC" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1931,6 +1931,15 @@
               <MappingFragment StoreEntitySet="TB_CHUCVU">
                 <ScalarProperty Name="TENCV" ColumnName="TENCV" />
                 <ScalarProperty Name="IDCV" ColumnName="IDCV" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_CONFIG">
+            <EntityTypeMapping TypeName="Model.TB_CONFIG">
+              <MappingFragment StoreEntitySet="TB_CONFIG">
+                <ScalarProperty Name="VALUE" ColumnName="VALUE" />
+                <ScalarProperty Name="NAME" ColumnName="NAME" />
+                <ScalarProperty Name="ID_CF" ColumnName="ID_CF" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2254,6 +2263,20 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="TB_SYS_REPORT">
+            <EntityTypeMapping TypeName="Model.TB_SYS_REPORT">
+              <MappingFragment StoreEntitySet="TB_SYS_REPORT">
+                <ScalarProperty Name="MADVI" ColumnName="MADVI" />
+                <ScalarProperty Name="MACTY" ColumnName="MACTY" />
+                <ScalarProperty Name="THANG_NAM" ColumnName="THANG_NAM" />
+                <ScalarProperty Name="TUNGAY" ColumnName="TUNGAY" />
+                <ScalarProperty Name="VISIBLED" ColumnName="VISIBLED" />
+                <ScalarProperty Name="REP_NAME" ColumnName="REP_NAME" />
+                <ScalarProperty Name="DESCRIPTION" ColumnName="DESCRIPTION" />
+                <ScalarProperty Name="REP_CODE" ColumnName="REP_CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="TB_SYS_RIGHT">
             <EntityTypeMapping TypeName="Model.TB_SYS_RIGHT">
               <MappingFragment StoreEntitySet="TB_SYS_RIGHT">
@@ -2321,29 +2344,6 @@
               <MappingFragment StoreEntitySet="TB_TRINHDO">
                 <ScalarProperty Name="TENTD" ColumnName="TENTD" />
                 <ScalarProperty Name="IDTD" ColumnName="IDTD" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_CONFIG">
-            <EntityTypeMapping TypeName="Model.TB_CONFIG">
-              <MappingFragment StoreEntitySet="TB_CONFIG">
-                <ScalarProperty Name="VALUE" ColumnName="VALUE" />
-                <ScalarProperty Name="NAME" ColumnName="NAME" />
-                <ScalarProperty Name="ID_CF" ColumnName="ID_CF" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="TB_SYS_REPORT">
-            <EntityTypeMapping TypeName="Model.TB_SYS_REPORT">
-              <MappingFragment StoreEntitySet="TB_SYS_REPORT">
-                <ScalarProperty Name="MADVI" ColumnName="MADVI" />
-                <ScalarProperty Name="MACTY" ColumnName="MACTY" />
-                <ScalarProperty Name="THANG_NAM" ColumnName="THANG_NAM" />
-                <ScalarProperty Name="TUNGAY" ColumnName="TUNGAY" />
-                <ScalarProperty Name="VISIBLED" ColumnName="VISIBLED" />
-                <ScalarProperty Name="REP_NAME" ColumnName="REP_NAME" />
-                <ScalarProperty Name="DESCRIPTION" ColumnName="DESCRIPTION" />
-                <ScalarProperty Name="REP_CODE" ColumnName="REP_CODE" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

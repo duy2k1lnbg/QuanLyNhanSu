@@ -425,6 +425,11 @@
             0,
             0,
             0});
+            this.spSoTien.Properties.MaxValue = new decimal(new int[] {
+            1215752192,
+            23,
+            0,
+            0});
             this.spSoTien.Size = new System.Drawing.Size(319, 28);
             this.spSoTien.TabIndex = 2;
             // 

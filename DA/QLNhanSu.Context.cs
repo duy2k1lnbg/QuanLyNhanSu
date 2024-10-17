@@ -30,6 +30,7 @@ namespace DA
         public virtual DbSet<TB_BAOHIEM> TB_BAOHIEM { get; set; }
         public virtual DbSet<TB_BOPHAN> TB_BOPHAN { get; set; }
         public virtual DbSet<TB_CHUCVU> TB_CHUCVU { get; set; }
+        public virtual DbSet<TB_CONFIG> TB_CONFIG { get; set; }
         public virtual DbSet<TB_CONGTY> TB_CONGTY { get; set; }
         public virtual DbSet<TB_DANTOC> TB_DANTOC { get; set; }
         public virtual DbSet<TB_DIEUCHUYEN_NHANVIEN> TB_DIEUCHUYEN_NHANVIEN { get; set; }
@@ -49,14 +50,13 @@ namespace DA
         public virtual DbSet<TB_QUOCTICH> TB_QUOCTICH { get; set; }
         public virtual DbSet<TB_SYS_FUNCTION> TB_SYS_FUNCTION { get; set; }
         public virtual DbSet<TB_SYS_GROUP> TB_SYS_GROUP { get; set; }
+        public virtual DbSet<TB_SYS_REPORT> TB_SYS_REPORT { get; set; }
         public virtual DbSet<TB_SYS_RIGHT> TB_SYS_RIGHT { get; set; }
         public virtual DbSet<TB_SYS_RIGHT_REPORT> TB_SYS_RIGHT_REPORT { get; set; }
         public virtual DbSet<TB_SYS_USER> TB_SYS_USER { get; set; }
         public virtual DbSet<TB_TANGCA> TB_TANGCA { get; set; }
         public virtual DbSet<TB_TONGIAO> TB_TONGIAO { get; set; }
         public virtual DbSet<TB_TRINHDO> TB_TRINHDO { get; set; }
-        public virtual DbSet<TB_CONFIG> TB_CONFIG { get; set; }
-        public virtual DbSet<TB_SYS_REPORT> TB_SYS_REPORT { get; set; }
         public virtual DbSet<TB_UNGLUONG> TB_UNGLUONG { get; set; }
     }
 }
