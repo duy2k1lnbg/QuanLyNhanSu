@@ -5,29 +5,29 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="d4a7f28898b6445a91f22b92a3229ac9" Name="Diagram1" ZoomLevel="80">
-        <EntityTypeShape EntityType="Model.TB_BANGCONG" Width="1.5" PointX="5.25" PointY="22" />
+        <EntityTypeShape EntityType="Model.TB_BANGCONG" Width="1.5" PointX="8.25" PointY="18" />
         <EntityTypeShape EntityType="Model.TB_BANGCONG_CHITIET" Width="1.5" PointX="0.75" PointY="0.75" />
-        <EntityTypeShape EntityType="Model.TB_BAOHIEM" Width="1.5" PointX="5.25" PointY="9.625" />
+        <EntityTypeShape EntityType="Model.TB_BAOHIEM" Width="1.5" PointX="5.25" PointY="32.75" />
         <EntityTypeShape EntityType="Model.TB_BOPHAN" Width="1.5" PointX="0.75" PointY="36.5" />
-        <EntityTypeShape EntityType="Model.TB_CHUCVU" Width="1.5" PointX="0.75" PointY="29.5" />
+        <EntityTypeShape EntityType="Model.TB_CHUCVU" Width="1.5" PointX="0.75" PointY="30.875" />
         <EntityTypeShape EntityType="Model.TB_CONFIG" Width="1.5" PointX="2.75" PointY="0.75" />
-        <EntityTypeShape EntityType="Model.TB_CONGTY" Width="1.5" PointX="0.75" PointY="17.5" />
-        <EntityTypeShape EntityType="Model.TB_DANTOC" Width="1.5" PointX="0.75" PointY="34.125" />
-        <EntityTypeShape EntityType="Model.TB_DIEUCHUYEN_NHANVIEN" Width="1.5" PointX="5.25" PointY="12.75" />
-        <EntityTypeShape EntityType="Model.TB_GIOITINH" Width="1.5" PointX="0.75" PointY="23.875" />
-        <EntityTypeShape EntityType="Model.TB_HOPDONG" Width="1.5" PointX="5.25" PointY="44.25" />
-        <EntityTypeShape EntityType="Model.TB_KHENTHUONG_KYLUAT" Width="1.5" PointX="5.25" PointY="35.25" />
+        <EntityTypeShape EntityType="Model.TB_CONGTY" Width="1.5" PointX="0.75" PointY="33.25" />
+        <EntityTypeShape EntityType="Model.TB_DANTOC" Width="1.5" PointX="0.75" PointY="23.875" />
+        <EntityTypeShape EntityType="Model.TB_DIEUCHUYEN_NHANVIEN" Width="1.5" PointX="5.25" PointY="49.25" />
+        <EntityTypeShape EntityType="Model.TB_GIOITINH" Width="1.5" PointX="0.75" PointY="26.125" />
+        <EntityTypeShape EntityType="Model.TB_HOPDONG" Width="1.5" PointX="5.25" PointY="18.625" />
+        <EntityTypeShape EntityType="Model.TB_KHENTHUONG_KYLUAT" Width="1.5" PointX="5.25" PointY="9.625" />
         <EntityTypeShape EntityType="Model.TB_KYCONG" Width="1.5" PointX="2.75" PointY="3.75" />
         <EntityTypeShape EntityType="Model.TB_KYCONGCHITIET" Width="1.5" PointX="8.75" PointY="0.75" />
-        <EntityTypeShape EntityType="Model.TB_LOAICA" Width="1.5" PointX="6" PointY="40.125" />
-        <EntityTypeShape EntityType="Model.TB_LOAICONG" Width="1.5" PointX="3" PointY="16.125" />
-        <EntityTypeShape EntityType="Model.TB_NANGLUONG_NHANVIEN" Width="1.5" PointX="5.25" PointY="17.25" />
+        <EntityTypeShape EntityType="Model.TB_LOAICA" Width="1.5" PointX="6" PointY="5.125" />
+        <EntityTypeShape EntityType="Model.TB_LOAICONG" Width="1.5" PointX="6" PointY="28.125" />
+        <EntityTypeShape EntityType="Model.TB_NANGLUONG_NHANVIEN" Width="1.5" PointX="5.25" PointY="35.875" />
         <EntityTypeShape EntityType="Model.TB_NHANVIEN" Width="1.5" PointX="3" PointY="20.125" />
-        <EntityTypeShape EntityType="Model.TB_NHANVIEN_PHUCAP" Width="1.5" PointX="8.25" PointY="17.875" />
-        <EntityTypeShape EntityType="Model.TB_NHANVIEN_THOIVIEC" Width="1.5" PointX="5.25" PointY="27" />
-        <EntityTypeShape EntityType="Model.TB_PHONGBAN" Width="1.5" PointX="0.75" PointY="15.125" />
-        <EntityTypeShape EntityType="Model.TB_PHUCAP" Width="1.5" PointX="6" PointY="6.875" />
-        <EntityTypeShape EntityType="Model.TB_QUOCTICH" Width="1.5" PointX="0.75" PointY="27.125" />
+        <EntityTypeShape EntityType="Model.TB_NHANVIEN_PHUCAP" Width="1.5" PointX="5.25" PointY="23.875" />
+        <EntityTypeShape EntityType="Model.TB_NHANVIEN_THOIVIEC" Width="1.5" PointX="5.25" PointY="45" />
+        <EntityTypeShape EntityType="Model.TB_PHONGBAN" Width="1.5" PointX="0.75" PointY="19.875" />
+        <EntityTypeShape EntityType="Model.TB_PHUCAP" Width="1.5" PointX="3" PointY="30.875" />
+        <EntityTypeShape EntityType="Model.TB_QUOCTICH" Width="1.5" PointX="0.75" PointY="17.5" />
         <EntityTypeShape EntityType="Model.TB_SYS_FUNCTION" Width="1.5" PointX="4.75" PointY="0.75" />
         <EntityTypeShape EntityType="Model.TB_SYS_GROUP" Width="1.5" PointX="0.75" PointY="8.75" />
         <EntityTypeShape EntityType="Model.TB_SYS_REPORT" Width="1.5" PointX="10.75" PointY="0.75" />
@@ -35,9 +35,9 @@
         <EntityTypeShape EntityType="Model.TB_SYS_RIGHT_REPORT" Width="1.5" PointX="10.75" PointY="7.75" />
         <EntityTypeShape EntityType="Model.TB_SYS_USER" Width="1.5" PointX="10.75" PointY="10.75" />
         <EntityTypeShape EntityType="Model.TB_TANGCA" Width="1.5" PointX="8.25" PointY="22.5" />
-        <EntityTypeShape EntityType="Model.TB_TONGIAO" Width="1.5" PointX="0.75" PointY="20.75" />
-        <EntityTypeShape EntityType="Model.TB_TRINHDO" Width="1.5" PointX="0.75" PointY="31.875" />
-        <EntityTypeShape EntityType="Model.TB_UNGLUONG" Width="1.5" PointX="5.25" PointY="49.25" />
+        <EntityTypeShape EntityType="Model.TB_TONGIAO" Width="1.5" PointX="0.75" PointY="28.5" />
+        <EntityTypeShape EntityType="Model.TB_TRINHDO" Width="1.5" PointX="0.75" PointY="15.125" />
+        <EntityTypeShape EntityType="Model.TB_UNGLUONG" Width="1.5" PointX="5.25" PointY="40.5" />
         <AssociationConnector Association="Model.TB_BANGCONG_LC_FK2" />
         <AssociationConnector Association="Model.TB_BANGCONG_NV_FK1" />
         <AssociationConnector Association="Model.TB_BAOHIEM_NV_FK1" />
