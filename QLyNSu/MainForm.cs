@@ -326,5 +326,10 @@ namespace QLyNSu
         {
             _formManager.CloseAll();
         }
+
+        private void BtnExit_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            _formManager.CloseAll();
+        }
     }
 }
