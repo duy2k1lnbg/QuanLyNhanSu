@@ -1,11 +1,11 @@
-# My .NET Framework Project
+![image](https://github.com/user-attachments/assets/7a3468ce-931b-42fa-91e4-5c9898c5aaba)# My .NET Framework Project
 
 ## Mô tả dự án
 
 Dự án này được khởi tạo vào ngày 01/07/2024, sử dụng các công nghệ sau:
 - .NET Framework 4.7.2
 - Oracle Database 19c
-- Entity Framework 6 (EF6) 21.9.0
+- Entity Framework 6 (EF6) 23.7.0
 - Oracle.ManagedDataAccess.EntityFramework
 - DevExpress cho Windows
 
@@ -34,4 +34,4 @@ Tải và cài đặt [DevExpress](https://www.devexpress.com/Downloads/NET/).
 Mở `NuGet Package Manager Console` và chạy các lệnh sau để cài đặt các gói:
 
 ```sh
-Install-Package Oracle.ManagedDataAccess.EntityFramework -Version 21.9.0
+Install-Package Oracle.ManagedDataAccess.EntityFramework -Version 23.7.0
