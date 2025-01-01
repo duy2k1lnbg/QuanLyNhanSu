@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/7a3468ce-931b-42fa-91e4-5c9898c5aaba)# My .NET Framework Project
+# My .NET Framework Project
 
 ## Mô tả dự án
 
