@@ -12,6 +12,7 @@ using Bu;
 using DevExpress.XtraSplashScreen;
 using QLyNSu.FORM_BAOCAO;
 using QLyNSu.FORM_CHAMCONG;
+using QLyNSu.FORM_SYSTEM;
 
 namespace QLyNSu
 {
@@ -330,6 +331,11 @@ namespace QLyNSu
         private void BtnExit_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             _formManager.CloseAll();
+        }
+
+        private async void btnGroup_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(frmGroup));
         }
     }
 }

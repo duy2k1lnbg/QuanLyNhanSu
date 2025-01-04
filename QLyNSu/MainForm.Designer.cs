@@ -70,8 +70,15 @@
             this.btnBCCT_NV = new DevExpress.XtraBars.BarButtonItem();
             this.btnBaoCao = new DevExpress.XtraBars.BarButtonItem();
             this.btnExit3 = new DevExpress.XtraBars.BarButtonItem();
+            this.btnGroup = new DevExpress.XtraBars.BarButtonItem();
+            this.btnUser = new DevExpress.XtraBars.BarButtonItem();
+            this.btnUser_Update = new DevExpress.XtraBars.BarButtonItem();
+            this.btnChucNang = new DevExpress.XtraBars.BarButtonItem();
+            this.btnPQ_BaoCao = new DevExpress.XtraBars.BarButtonItem();
+            this.BtnExit = new DevExpress.XtraBars.BarButtonItem();
             this.ribbonMiniToolbar1 = new DevExpress.XtraBars.Ribbon.RibbonMiniToolbar(this.components);
             this.ribbonPage1 = new DevExpress.XtraBars.Ribbon.RibbonPage();
+            this.ribbonPageGroup3 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.ribbonPageGroup1 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
             this.ribbonPage2 = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.ribbonPageGroup2 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
@@ -90,15 +97,8 @@
             this.lstNangLuong = new DevExpress.XtraEditors.ListBoxControl();
             this.grSinhNhat = new DevExpress.XtraEditors.GroupControl();
             this.lstSinhNhat = new DevExpress.XtraEditors.ListBoxControl();
-            this.ribbonPageGroup3 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
-            this.btnGroup = new DevExpress.XtraBars.BarButtonItem();
-            this.btnUser = new DevExpress.XtraBars.BarButtonItem();
-            this.btnUser_Update = new DevExpress.XtraBars.BarButtonItem();
-            this.btnChucNang = new DevExpress.XtraBars.BarButtonItem();
-            this.btnPQ_BaoCao = new DevExpress.XtraBars.BarButtonItem();
             this.barButtonItem1 = new DevExpress.XtraBars.BarButtonItem();
             this.barButtonItem4 = new DevExpress.XtraBars.BarButtonItem();
-            this.BtnExit = new DevExpress.XtraBars.BarButtonItem();
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.documentManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabbedView1)).BeginInit();
@@ -176,7 +176,7 @@
             // 
             this.btnUser_pass.Caption = "Đổi Mật Khẩu";
             this.btnUser_pass.Id = 1;
-            this.btnUser_pass.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem1.ImageOptions.SvgImage")));
+            this.btnUser_pass.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnUser_pass.ImageOptions.SvgImage")));
             this.btnUser_pass.Name = "btnUser_pass";
             this.btnUser_pass.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem1_ItemClick);
             // 
@@ -184,7 +184,7 @@
             // 
             this.btnSaoLuu_DB.Caption = "Sao Lưu Dữ Liệu";
             this.btnSaoLuu_DB.Id = 2;
-            this.btnSaoLuu_DB.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem2.ImageOptions.SvgImage")));
+            this.btnSaoLuu_DB.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnSaoLuu_DB.ImageOptions.SvgImage")));
             this.btnSaoLuu_DB.Name = "btnSaoLuu_DB";
             this.btnSaoLuu_DB.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem2_ItemClick);
             // 
@@ -192,7 +192,7 @@
             // 
             this.btnPhucHoi_DB.Caption = "Phục Hồi Dữ Liệu";
             this.btnPhucHoi_DB.Id = 3;
-            this.btnPhucHoi_DB.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem3.ImageOptions.SvgImage")));
+            this.btnPhucHoi_DB.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPhucHoi_DB.ImageOptions.SvgImage")));
             this.btnPhucHoi_DB.Name = "btnPhucHoi_DB";
             this.btnPhucHoi_DB.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem3_ItemClick);
             // 
@@ -412,6 +412,50 @@
             this.btnExit3.Name = "btnExit3";
             this.btnExit3.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnExit3_ItemClick);
             // 
+            // btnGroup
+            // 
+            this.btnGroup.Caption = "Nhóm Người Dùng";
+            this.btnGroup.Id = 31;
+            this.btnGroup.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnGroup.ImageOptions.LargeImage")));
+            this.btnGroup.Name = "btnGroup";
+            this.btnGroup.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnGroup_ItemClick);
+            // 
+            // btnUser
+            // 
+            this.btnUser.Caption = "Người Dùng";
+            this.btnUser.Id = 32;
+            this.btnUser.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnUser.ImageOptions.LargeImage")));
+            this.btnUser.Name = "btnUser";
+            // 
+            // btnUser_Update
+            // 
+            this.btnUser_Update.Caption = "Cập Nhật Thông Tin";
+            this.btnUser_Update.Id = 33;
+            this.btnUser_Update.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnUser_Update.ImageOptions.LargeImage")));
+            this.btnUser_Update.Name = "btnUser_Update";
+            // 
+            // btnChucNang
+            // 
+            this.btnChucNang.Caption = "Phân Quyền Chức Năng";
+            this.btnChucNang.Id = 35;
+            this.btnChucNang.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnChucNang.ImageOptions.LargeImage")));
+            this.btnChucNang.Name = "btnChucNang";
+            // 
+            // btnPQ_BaoCao
+            // 
+            this.btnPQ_BaoCao.Caption = "Phân Quyền Báo Cáo";
+            this.btnPQ_BaoCao.Id = 36;
+            this.btnPQ_BaoCao.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnPQ_BaoCao.ImageOptions.LargeImage")));
+            this.btnPQ_BaoCao.Name = "btnPQ_BaoCao";
+            // 
+            // BtnExit
+            // 
+            this.BtnExit.Caption = "Thoát";
+            this.BtnExit.Id = 37;
+            this.BtnExit.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("BtnExit.ImageOptions.SvgImage")));
+            this.BtnExit.Name = "BtnExit";
+            this.BtnExit.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.BtnExit_ItemClick);
+            // 
             // ribbonMiniToolbar1
             // 
             this.ribbonMiniToolbar1.ParentControl = this;
@@ -423,6 +467,15 @@
             this.ribbonPageGroup1});
             this.ribbonPage1.Name = "ribbonPage1";
             this.ribbonPage1.Text = "Hệ Thống";
+            // 
+            // ribbonPageGroup3
+            // 
+            this.ribbonPageGroup3.ItemLinks.Add(this.btnGroup, true);
+            this.ribbonPageGroup3.ItemLinks.Add(this.btnUser, true);
+            this.ribbonPageGroup3.ItemLinks.Add(this.btnUser_Update, true);
+            this.ribbonPageGroup3.ItemLinks.Add(this.btnUser_pass, true);
+            this.ribbonPageGroup3.Name = "ribbonPageGroup3";
+            this.ribbonPageGroup3.Text = "Tài Khoản";
             // 
             // ribbonPageGroup1
             // 
@@ -637,55 +690,11 @@
             this.lstSinhNhat.Templates.Add(itemTemplateBase2);
             this.lstSinhNhat.CustomizeItem += new DevExpress.XtraEditors.CustomizeTemplatedItemEventHandler(this.lstSinhNhat_CustomizeItem);
             // 
-            // ribbonPageGroup3
-            // 
-            this.ribbonPageGroup3.ItemLinks.Add(this.btnGroup, true);
-            this.ribbonPageGroup3.ItemLinks.Add(this.btnUser, true);
-            this.ribbonPageGroup3.ItemLinks.Add(this.btnUser_Update, true);
-            this.ribbonPageGroup3.ItemLinks.Add(this.btnUser_pass, true);
-            this.ribbonPageGroup3.Name = "ribbonPageGroup3";
-            this.ribbonPageGroup3.Text = "Tài Khoản";
-            // 
-            // btnGroup
-            // 
-            this.btnGroup.Caption = "Nhóm Người Dùng";
-            this.btnGroup.Id = 31;
-            this.btnGroup.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem4.ImageOptions.LargeImage")));
-            this.btnGroup.Name = "btnGroup";
-            // 
-            // btnUser
-            // 
-            this.btnUser.Caption = "Người Dùng";
-            this.btnUser.Id = 32;
-            this.btnUser.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem5.ImageOptions.LargeImage")));
-            this.btnUser.Name = "btnUser";
-            // 
-            // btnUser_Update
-            // 
-            this.btnUser_Update.Caption = "Cập Nhật Thông Tin";
-            this.btnUser_Update.Id = 33;
-            this.btnUser_Update.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem6.ImageOptions.LargeImage")));
-            this.btnUser_Update.Name = "btnUser_Update";
-            // 
-            // btnChucNang
-            // 
-            this.btnChucNang.Caption = "Phân Quyền Chức Năng";
-            this.btnChucNang.Id = 35;
-            this.btnChucNang.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem7.ImageOptions.LargeImage")));
-            this.btnChucNang.Name = "btnChucNang";
-            // 
-            // btnPQ_BaoCao
-            // 
-            this.btnPQ_BaoCao.Caption = "Phân Quyền Báo Cáo";
-            this.btnPQ_BaoCao.Id = 36;
-            this.btnPQ_BaoCao.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("barButtonItem8.ImageOptions.LargeImage")));
-            this.btnPQ_BaoCao.Name = "btnPQ_BaoCao";
-            // 
             // barButtonItem1
             // 
             this.barButtonItem1.Caption = "Thoát";
             this.barButtonItem1.Id = 27;
-            this.barButtonItem1.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem1.ImageOptions.SvgImage1")));
+            this.barButtonItem1.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem1.ImageOptions.SvgImage")));
             this.barButtonItem1.Name = "barButtonItem1";
             // 
             // barButtonItem4
@@ -694,14 +703,6 @@
             this.barButtonItem4.Id = 27;
             this.barButtonItem4.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem4.ImageOptions.SvgImage")));
             this.barButtonItem4.Name = "barButtonItem4";
-            // 
-            // BtnExit
-            // 
-            this.BtnExit.Caption = "Thoát";
-            this.BtnExit.Id = 37;
-            this.BtnExit.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem5.ImageOptions.SvgImage")));
-            this.BtnExit.Name = "BtnExit";
-            this.BtnExit.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.BtnExit_ItemClick);
             // 
             // MainForm
             // 

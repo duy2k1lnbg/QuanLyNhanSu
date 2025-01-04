@@ -173,6 +173,12 @@
     <Compile Include="FORM_CHAMCONG\FrmUngLuong.Designer.cs">
       <DependentUpon>FrmUngLuong.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_SYSTEM\frmGroup.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\frmGroup.Designer.cs">
+      <DependentUpon>frmGroup.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmStartup.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -420,6 +426,9 @@
     <EmbeddedResource Include="FORM_NHANSU\FrmTrinhDo.resx">
       <DependentUpon>FrmTrinhDo.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\frmGroup.resx">
+      <DependentUpon>frmGroup.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FrmStartup.resx">
       <DependentUpon>FrmStartup.cs</DependentUpon>
     </EmbeddedResource>
@@ -495,9 +504,7 @@
   <ItemGroup>
     <None Include="image\NhanVien\noimage.png" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="FORM_LOGIN\" />
-  </ItemGroup>
+  <ItemGroup />
   <ItemGroup>
     <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
     <Content Include="image\Icon\del.png" />
