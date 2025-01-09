@@ -335,7 +335,7 @@ namespace QLyNSu
 
         private async void btnGroup_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await _formManager.OpenFormWithSplashScreen(typeof(frmGroup));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmShowUser_Group));
         }
     }
 }

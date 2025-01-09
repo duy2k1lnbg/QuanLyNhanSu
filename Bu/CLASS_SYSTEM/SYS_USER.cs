@@ -11,6 +11,10 @@ namespace Bu.CLASS_SYSTEM
     {
         MyEntities db = new MyEntities();
 
+        public TB_SYS_USER getItem(int iduser)
+        {
+            return db.TB_SYS_USER.FirstOrDefault(x => x.IDUSER == iduser);
+        }
         public List<TB_SYS_USER> getALL() 
         { 
             return db.TB_SYS_USER.ToList();
