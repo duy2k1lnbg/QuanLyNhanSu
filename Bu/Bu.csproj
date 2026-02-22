@@ -109,6 +109,7 @@
     <Compile Include="CLASS_NHANSU\CONGTY.cs" />
     <Compile Include="CLASS_NHANSU\DANTOC.cs" />
     <Compile Include="CLASS_NHANSU\DIEUCHUYEN_NHANVIEN.cs" />
+    <Compile Include="CLASS_SYSTEM\AI_READONLY.cs" />
     <Compile Include="CLASS_SYSTEM\SYS_FUNCTION.cs" />
     <Compile Include="CLASS_SYSTEM\SYS_PARAM.cs" />
     <Compile Include="CLASS_SYSTEM\SYS_USER.cs" />

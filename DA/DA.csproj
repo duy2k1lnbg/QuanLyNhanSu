@@ -96,22 +96,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AIEntities.Context.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AIEntities.Context.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AIEntities.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AIEntities.tt</DependentUpon>
+    </Compile>
+    <Compile Include="AIEntities.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>AIEntities.edmx</DependentUpon>
+    </Compile>
     <Compile Include="Class1.cs" />
-    <Compile Include="Model1.Context.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Model1.Context.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model1.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Model1.tt</DependentUpon>
-    </Compile>
-    <Compile Include="Model1.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Model1.edmx</DependentUpon>
-    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -238,57 +238,57 @@
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_BAOHIEM.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_BOPHAN.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_CHAMCONG.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_CHUCVU.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_DANTOC.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_EMP_WITH_DEPT.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_GIOITINH.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_NHANVIEN.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_PHONGBAN.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_PHUCAP.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_TANGCA.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_TONGIAO.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_TRINHDO.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_UNGLUONG.cs">
-      <DependentUpon>Model1.tt</DependentUpon>
+      <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <EntityDeploy Include="Model1.edmx">
+    <EntityDeploy Include="AIEntities.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>Model1.Designer.cs</LastGenOutput>
+      <LastGenOutput>AIEntities.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <None Include="Model1.edmx.diagram">
-      <DependentUpon>Model1.edmx</DependentUpon>
+    <None Include="AIEntities.edmx.diagram">
+      <DependentUpon>AIEntities.edmx</DependentUpon>
     </None>
+    <None Include="App.config" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
     </None>
@@ -315,18 +315,18 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="AIEntities.Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>AIEntities.edmx</DependentUpon>
+      <LastGenOutput>AIEntities.Context.cs</LastGenOutput>
+    </Content>
+    <Content Include="AIEntities.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <DependentUpon>AIEntities.edmx</DependentUpon>
+      <LastGenOutput>AIEntities.cs</LastGenOutput>
+    </Content>
     <Content Include="HR_backup.sql" />
     <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
-    <Content Include="Model1.Context.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>Model1.edmx</DependentUpon>
-      <LastGenOutput>Model1.Context.cs</LastGenOutput>
-    </Content>
-    <Content Include="Model1.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>Model1.edmx</DependentUpon>
-      <LastGenOutput>Model1.cs</LastGenOutput>
-    </Content>
     <Content Include="QLNhanSu.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <DependentUpon>QLNhanSu.edmx</DependentUpon>

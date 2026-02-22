@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="AImodel.Store" Provider="Oracle.ManagedDataAccess.Client" ProviderManifestToken="18.0" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+      <Schema Namespace="AI_READ.Store" Provider="Oracle.ManagedDataAccess.Client" ProviderManifestToken="18.0" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <!--Errors Found During Generation:
 warning 6002: The table/view 'AI_READONLY.V_AI_BAOHIEM' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="V_AI_BAOHIEM">
@@ -165,7 +165,7 @@ warning 6002: The table/view 'AI_READONLY.V_AI_UNGLUONG' does not have a primary
           <Property Name="SOTIENUNG" Type="float" Precision="126" Scale="0" />
           <Property Name="MANV" Type="number" Precision="38" Scale="0" />
         </EntityType>
-        <EntityContainer Name="AImodelStoreContainer">
+        <EntityContainer Name="AI_READStoreContainer">
           <EntitySet Name="V_AI_BAOHIEM" EntityType="Self.V_AI_BAOHIEM" store:Type="Views" store:Schema="AI_READONLY">
             <DefiningQuery>SELECT 
 "V_AI_BAOHIEM"."IDBH" AS "IDBH", 
@@ -285,31 +285,16 @@ FROM "AI_READONLY"."V_AI_TRINHDO" "V_AI_TRINHDO"</DefiningQuery>
 FROM "AI_READONLY"."V_AI_UNGLUONG" "V_AI_UNGLUONG"</DefiningQuery>
           </EntitySet>
         </EntityContainer>
-      </Schema></edmx:StorageModels>
+      </Schema>
+    </edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
-      <Schema Namespace="AImodel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityContainer Name="AIEntities" annotation:LazyLoadingEnabled="true" >
-          <EntitySet Name="V_AI_BAOHIEM" EntityType="AImodel.V_AI_BAOHIEM" />
-          <EntitySet Name="V_AI_BOPHAN" EntityType="AImodel.V_AI_BOPHAN" />
-          <EntitySet Name="V_AI_CHAMCONG" EntityType="AImodel.V_AI_CHAMCONG" />
-          <EntitySet Name="V_AI_CHUCVU" EntityType="AImodel.V_AI_CHUCVU" />
-          <EntitySet Name="V_AI_DANTOC" EntityType="AImodel.V_AI_DANTOC" />
-          <EntitySet Name="V_AI_EMP_WITH_DEPT" EntityType="AImodel.V_AI_EMP_WITH_DEPT" />
-          <EntitySet Name="V_AI_GIOITINH" EntityType="AImodel.V_AI_GIOITINH" />
-          <EntitySet Name="V_AI_NHANVIEN" EntityType="AImodel.V_AI_NHANVIEN" />
-          <EntitySet Name="V_AI_PHONGBAN" EntityType="AImodel.V_AI_PHONGBAN" />
-          <EntitySet Name="V_AI_PHUCAP" EntityType="AImodel.V_AI_PHUCAP" />
-          <EntitySet Name="V_AI_TANGCA" EntityType="AImodel.V_AI_TANGCA" />
-          <EntitySet Name="V_AI_TONGIAO" EntityType="AImodel.V_AI_TONGIAO" />
-          <EntitySet Name="V_AI_TRINHDO" EntityType="AImodel.V_AI_TRINHDO" />
-          <EntitySet Name="V_AI_UNGLUONG" EntityType="AImodel.V_AI_UNGLUONG" />
-        </EntityContainer>
+      <Schema Namespace="AI_READ" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityType Name="V_AI_BAOHIEM">
           <Key>
             <PropertyRef Name="IDBH" />
           </Key>
-          <Property Name="IDBH" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDBH" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="SOBH" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="NGAYCAP" Type="DateTime" />
           <Property Name="NOICAP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
@@ -320,14 +305,14 @@ FROM "AI_READONLY"."V_AI_UNGLUONG" "V_AI_UNGLUONG"</DefiningQuery>
           <Key>
             <PropertyRef Name="IDBP" />
           </Key>
-          <Property Name="IDBP" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDBP" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENBP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="V_AI_CHAMCONG">
           <Key>
             <PropertyRef Name="MABC" />
           </Key>
-          <Property Name="MABC" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MABC" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
@@ -342,21 +327,21 @@ FROM "AI_READONLY"."V_AI_UNGLUONG" "V_AI_UNGLUONG"</DefiningQuery>
           <Key>
             <PropertyRef Name="IDCV" />
           </Key>
-          <Property Name="IDCV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDCV" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENCV" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="V_AI_DANTOC">
           <Key>
             <PropertyRef Name="IDDT" />
           </Key>
-          <Property Name="IDDT" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDDT" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENDT" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="V_AI_EMP_WITH_DEPT">
           <Key>
             <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="TEN_PHONGBAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="TEN_BOPHAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
@@ -365,14 +350,14 @@ FROM "AI_READONLY"."V_AI_UNGLUONG" "V_AI_UNGLUONG"</DefiningQuery>
           <Key>
             <PropertyRef Name="IDGT" />
           </Key>
-          <Property Name="IDGT" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDGT" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENGT" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="V_AI_NHANVIEN">
           <Key>
             <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="IDGT" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAYSINH" Type="DateTime" />
@@ -390,21 +375,21 @@ FROM "AI_READONLY"."V_AI_UNGLUONG" "V_AI_UNGLUONG"</DefiningQuery>
           <Key>
             <PropertyRef Name="IDPB" />
           </Key>
-          <Property Name="IDPB" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDPB" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENPB" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="V_AI_PHUCAP">
           <Key>
             <PropertyRef Name="IDPC" />
           </Key>
-          <Property Name="IDPC" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+          <Property Name="IDPC" Type="Decimal" Precision="38" Scale="0" Nullable="false" />
           <Property Name="TENPC" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="V_AI_TANGCA">
           <Key>
             <PropertyRef Name="IDTCA" />
           </Key>
-          <Property Name="IDTCA" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDTCA" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
@@ -416,176 +401,192 @@ FROM "AI_READONLY"."V_AI_UNGLUONG" "V_AI_UNGLUONG"</DefiningQuery>
           <Key>
             <PropertyRef Name="IDTG" />
           </Key>
-          <Property Name="IDTG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDTG" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENTG" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="V_AI_TRINHDO">
           <Key>
             <PropertyRef Name="IDTD" />
           </Key>
-          <Property Name="IDTD" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDTD" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="TENTD" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="V_AI_UNGLUONG">
           <Key>
             <PropertyRef Name="IDUL" />
           </Key>
-          <Property Name="IDUL" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="IDUL" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="SOTIENUNG" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
         </EntityType>
+        <EntityContainer Name="AiEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="V_AI_BAOHIEM" EntityType="Self.V_AI_BAOHIEM" />
+          <EntitySet Name="V_AI_BOPHAN" EntityType="Self.V_AI_BOPHAN" />
+          <EntitySet Name="V_AI_CHAMCONG" EntityType="Self.V_AI_CHAMCONG" />
+          <EntitySet Name="V_AI_CHUCVU" EntityType="Self.V_AI_CHUCVU" />
+          <EntitySet Name="V_AI_DANTOC" EntityType="Self.V_AI_DANTOC" />
+          <EntitySet Name="V_AI_EMP_WITH_DEPT" EntityType="Self.V_AI_EMP_WITH_DEPT" />
+          <EntitySet Name="V_AI_GIOITINH" EntityType="Self.V_AI_GIOITINH" />
+          <EntitySet Name="V_AI_NHANVIEN" EntityType="Self.V_AI_NHANVIEN" />
+          <EntitySet Name="V_AI_PHONGBAN" EntityType="Self.V_AI_PHONGBAN" />
+          <EntitySet Name="V_AI_PHUCAP" EntityType="Self.V_AI_PHUCAP" />
+          <EntitySet Name="V_AI_TANGCA" EntityType="Self.V_AI_TANGCA" />
+          <EntitySet Name="V_AI_TONGIAO" EntityType="Self.V_AI_TONGIAO" />
+          <EntitySet Name="V_AI_TRINHDO" EntityType="Self.V_AI_TRINHDO" />
+          <EntitySet Name="V_AI_UNGLUONG" EntityType="Self.V_AI_UNGLUONG" />
+        </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
-        <EntityContainerMapping StorageEntityContainer="AImodelStoreContainer" CdmEntityContainer="AIEntities" >
+        <EntityContainerMapping StorageEntityContainer="AI_READStoreContainer" CdmEntityContainer="AiEntities">
           <EntitySetMapping Name="V_AI_BAOHIEM">
-            <EntityTypeMapping TypeName="AImodel.V_AI_BAOHIEM">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_BAOHIEM">
               <MappingFragment StoreEntitySet="V_AI_BAOHIEM">
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="NOIKHAMBENH" ColumnName="NOIKHAMBENH" />
-                <ScalarProperty Name="NOICAP" ColumnName="NOICAP" />
-                <ScalarProperty Name="NGAYCAP" ColumnName="NGAYCAP" />
-                <ScalarProperty Name="SOBH" ColumnName="SOBH" />
                 <ScalarProperty Name="IDBH" ColumnName="IDBH" />
+                <ScalarProperty Name="SOBH" ColumnName="SOBH" />
+                <ScalarProperty Name="NGAYCAP" ColumnName="NGAYCAP" />
+                <ScalarProperty Name="NOICAP" ColumnName="NOICAP" />
+                <ScalarProperty Name="NOIKHAMBENH" ColumnName="NOIKHAMBENH" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_BOPHAN">
-            <EntityTypeMapping TypeName="AImodel.V_AI_BOPHAN">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_BOPHAN">
               <MappingFragment StoreEntitySet="V_AI_BOPHAN">
-                <ScalarProperty Name="TENBP" ColumnName="TENBP" />
                 <ScalarProperty Name="IDBP" ColumnName="IDBP" />
+                <ScalarProperty Name="TENBP" ColumnName="TENBP" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_CHAMCONG">
-            <EntityTypeMapping TypeName="AImodel.V_AI_CHAMCONG">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_CHAMCONG">
               <MappingFragment StoreEntitySet="V_AI_CHAMCONG">
-                <ScalarProperty Name="IDLOAICONG" ColumnName="IDLOAICONG" />
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="PHUTRA" ColumnName="PHUTRA" />
-                <ScalarProperty Name="GIORA" ColumnName="GIORA" />
-                <ScalarProperty Name="PHUTVAO" ColumnName="PHUTVAO" />
-                <ScalarProperty Name="GIOVAO" ColumnName="GIOVAO" />
-                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
-                <ScalarProperty Name="THANG" ColumnName="THANG" />
-                <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="MABC" ColumnName="MABC" />
+                <ScalarProperty Name="NAM" ColumnName="NAM" />
+                <ScalarProperty Name="THANG" ColumnName="THANG" />
+                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
+                <ScalarProperty Name="GIOVAO" ColumnName="GIOVAO" />
+                <ScalarProperty Name="PHUTVAO" ColumnName="PHUTVAO" />
+                <ScalarProperty Name="GIORA" ColumnName="GIORA" />
+                <ScalarProperty Name="PHUTRA" ColumnName="PHUTRA" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="IDLOAICONG" ColumnName="IDLOAICONG" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_CHUCVU">
-            <EntityTypeMapping TypeName="AImodel.V_AI_CHUCVU">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_CHUCVU">
               <MappingFragment StoreEntitySet="V_AI_CHUCVU">
-                <ScalarProperty Name="TENCV" ColumnName="TENCV" />
                 <ScalarProperty Name="IDCV" ColumnName="IDCV" />
+                <ScalarProperty Name="TENCV" ColumnName="TENCV" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_DANTOC">
-            <EntityTypeMapping TypeName="AImodel.V_AI_DANTOC">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_DANTOC">
               <MappingFragment StoreEntitySet="V_AI_DANTOC">
-                <ScalarProperty Name="TENDT" ColumnName="TENDT" />
                 <ScalarProperty Name="IDDT" ColumnName="IDDT" />
+                <ScalarProperty Name="TENDT" ColumnName="TENDT" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_EMP_WITH_DEPT">
-            <EntityTypeMapping TypeName="AImodel.V_AI_EMP_WITH_DEPT">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_EMP_WITH_DEPT">
               <MappingFragment StoreEntitySet="V_AI_EMP_WITH_DEPT">
-                <ScalarProperty Name="TEN_BOPHAN" ColumnName="TEN_BOPHAN" />
-                <ScalarProperty Name="TEN_PHONGBAN" ColumnName="TEN_PHONGBAN" />
-                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
+                <ScalarProperty Name="TEN_PHONGBAN" ColumnName="TEN_PHONGBAN" />
+                <ScalarProperty Name="TEN_BOPHAN" ColumnName="TEN_BOPHAN" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_GIOITINH">
-            <EntityTypeMapping TypeName="AImodel.V_AI_GIOITINH">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_GIOITINH">
               <MappingFragment StoreEntitySet="V_AI_GIOITINH">
-                <ScalarProperty Name="TENGT" ColumnName="TENGT" />
                 <ScalarProperty Name="IDGT" ColumnName="IDGT" />
+                <ScalarProperty Name="TENGT" ColumnName="TENGT" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_NHANVIEN">
-            <EntityTypeMapping TypeName="AImodel.V_AI_NHANVIEN">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_NHANVIEN">
               <MappingFragment StoreEntitySet="V_AI_NHANVIEN">
-                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
-                <ScalarProperty Name="IDTG" ColumnName="IDTG" />
-                <ScalarProperty Name="IDDT" ColumnName="IDDT" />
-                <ScalarProperty Name="IDTD" ColumnName="IDTD" />
-                <ScalarProperty Name="IDCV" ColumnName="IDCV" />
-                <ScalarProperty Name="IDBP" ColumnName="IDBP" />
-                <ScalarProperty Name="IDPB" ColumnName="IDPB" />
-                <ScalarProperty Name="DIACHI" ColumnName="DIACHI" />
-                <ScalarProperty Name="DIENTHOAI" ColumnName="DIENTHOAI" />
-                <ScalarProperty Name="NGAYSINH" ColumnName="NGAYSINH" />
-                <ScalarProperty Name="IDGT" ColumnName="IDGT" />
-                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
+                <ScalarProperty Name="IDGT" ColumnName="IDGT" />
+                <ScalarProperty Name="NGAYSINH" ColumnName="NGAYSINH" />
+                <ScalarProperty Name="DIENTHOAI" ColumnName="DIENTHOAI" />
+                <ScalarProperty Name="DIACHI" ColumnName="DIACHI" />
+                <ScalarProperty Name="IDPB" ColumnName="IDPB" />
+                <ScalarProperty Name="IDBP" ColumnName="IDBP" />
+                <ScalarProperty Name="IDCV" ColumnName="IDCV" />
+                <ScalarProperty Name="IDTD" ColumnName="IDTD" />
+                <ScalarProperty Name="IDDT" ColumnName="IDDT" />
+                <ScalarProperty Name="IDTG" ColumnName="IDTG" />
+                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_PHONGBAN">
-            <EntityTypeMapping TypeName="AImodel.V_AI_PHONGBAN">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_PHONGBAN">
               <MappingFragment StoreEntitySet="V_AI_PHONGBAN">
-                <ScalarProperty Name="TENPB" ColumnName="TENPB" />
                 <ScalarProperty Name="IDPB" ColumnName="IDPB" />
+                <ScalarProperty Name="TENPB" ColumnName="TENPB" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_PHUCAP">
-            <EntityTypeMapping TypeName="AImodel.V_AI_PHUCAP">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_PHUCAP">
               <MappingFragment StoreEntitySet="V_AI_PHUCAP">
-                <ScalarProperty Name="TENPC" ColumnName="TENPC" />
                 <ScalarProperty Name="IDPC" ColumnName="IDPC" />
+                <ScalarProperty Name="TENPC" ColumnName="TENPC" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_TANGCA">
-            <EntityTypeMapping TypeName="AImodel.V_AI_TANGCA">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_TANGCA">
               <MappingFragment StoreEntitySet="V_AI_TANGCA">
-                <ScalarProperty Name="IDLOAICA" ColumnName="IDLOAICA" />
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="SOGIO" ColumnName="SOGIO" />
-                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
-                <ScalarProperty Name="THANG" ColumnName="THANG" />
-                <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="IDTCA" ColumnName="IDTCA" />
+                <ScalarProperty Name="NAM" ColumnName="NAM" />
+                <ScalarProperty Name="THANG" ColumnName="THANG" />
+                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
+                <ScalarProperty Name="SOGIO" ColumnName="SOGIO" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+                <ScalarProperty Name="IDLOAICA" ColumnName="IDLOAICA" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_TONGIAO">
-            <EntityTypeMapping TypeName="AImodel.V_AI_TONGIAO">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_TONGIAO">
               <MappingFragment StoreEntitySet="V_AI_TONGIAO">
-                <ScalarProperty Name="TENTG" ColumnName="TENTG" />
                 <ScalarProperty Name="IDTG" ColumnName="IDTG" />
+                <ScalarProperty Name="TENTG" ColumnName="TENTG" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_TRINHDO">
-            <EntityTypeMapping TypeName="AImodel.V_AI_TRINHDO">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_TRINHDO">
               <MappingFragment StoreEntitySet="V_AI_TRINHDO">
-                <ScalarProperty Name="TENTD" ColumnName="TENTD" />
                 <ScalarProperty Name="IDTD" ColumnName="IDTD" />
+                <ScalarProperty Name="TENTD" ColumnName="TENTD" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
           <EntitySetMapping Name="V_AI_UNGLUONG">
-            <EntityTypeMapping TypeName="AImodel.V_AI_UNGLUONG">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_UNGLUONG">
               <MappingFragment StoreEntitySet="V_AI_UNGLUONG">
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="SOTIENUNG" ColumnName="SOTIENUNG" />
-                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
-                <ScalarProperty Name="THANG" ColumnName="THANG" />
-                <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="IDUL" ColumnName="IDUL" />
+                <ScalarProperty Name="NAM" ColumnName="NAM" />
+                <ScalarProperty Name="THANG" ColumnName="THANG" />
+                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
+                <ScalarProperty Name="SOTIENUNG" ColumnName="SOTIENUNG" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

@@ -173,6 +173,12 @@
     <Compile Include="FORM_CHAMCONG\FrmUngLuong.Designer.cs">
       <DependentUpon>FrmUngLuong.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_SYSTEM\FrmAI.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmAI.Designer.cs">
+      <DependentUpon>FrmAI.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmGroup.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -437,6 +443,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmTrinhDo.resx">
       <DependentUpon>FrmTrinhDo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmAI.resx">
+      <DependentUpon>FrmAI.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmGroup.resx">
       <DependentUpon>FrmGroup.cs</DependentUpon>

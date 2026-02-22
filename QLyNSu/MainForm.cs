@@ -342,5 +342,10 @@ namespace QLyNSu
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmShowUser_Group));
         }
+
+        private async void barButtonItem2_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmAI));
+        }
     }
 }
