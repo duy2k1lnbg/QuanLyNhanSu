@@ -43,6 +43,9 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Oracle.ManagedDataAccess, Version=4.122.23.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
       <HintPath>..\packages\Oracle.ManagedDataAccess.23.7.0\lib\net472\Oracle.ManagedDataAccess.dll</HintPath>
     </Reference>
@@ -134,6 +137,9 @@
     <Compile Include="CLASS_NHANSU\QUOCTICH.cs" />
     <Compile Include="CLASS_NHANSU\TONGIAO.cs" />
     <Compile Include="CLASS_NHANSU\TRINHDO.cs" />
+    <Compile Include="Services\AILogService.cs" />
+    <Compile Include="Services\AIQueryService.cs" />
+    <Compile Include="Services\OllamaService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -345,7 +345,7 @@ namespace QLyNSu
 
         private async void barButtonItem2_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await _formManager.OpenFormWithSplashScreen(typeof(FrmAI));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmAI_Chat));
         }
     }
 }

@@ -72,6 +72,9 @@
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="Oracle.ManagedDataAccess, Version=4.122.23.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
       <HintPath>..\packages\Oracle.ManagedDataAccess.23.7.0\lib\net472\Oracle.ManagedDataAccess.dll</HintPath>
     </Reference>
@@ -178,6 +181,12 @@
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmAI.Designer.cs">
       <DependentUpon>FrmAI.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmAI_Chat.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmAI_Chat.Designer.cs">
+      <DependentUpon>FrmAI_Chat.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmGroup.cs">
       <SubType>Form</SubType>
@@ -446,6 +455,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmAI.resx">
       <DependentUpon>FrmAI.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmAI_Chat.resx">
+      <DependentUpon>FrmAI_Chat.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmGroup.resx">
       <DependentUpon>FrmGroup.cs</DependentUpon>
