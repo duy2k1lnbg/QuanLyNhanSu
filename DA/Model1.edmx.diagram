@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="1fa5edd947f645be9ae954da241601a6" Name="Diagram1" >
+        <EntityTypeShape EntityType="AImodel.V_AI_BAOHIEM" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_BOPHAN" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_CHAMCONG" Width="1.5" PointX="0.75" PointY="3.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_CHUCVU" Width="1.5" PointX="2.75" PointY="3.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_DANTOC" Width="1.5" PointX="4.75" PointY="0.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_EMP_WITH_DEPT" Width="1.5" PointX="4.75" PointY="3.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_GIOITINH" Width="1.5" PointX="6.75" PointY="0.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_NHANVIEN" Width="1.5" PointX="2.75" PointY="6.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_PHONGBAN" Width="1.5" PointX="6.75" PointY="3.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_PHUCAP" Width="1.5" PointX="4.75" PointY="6.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_TANGCA" Width="1.5" PointX="6.75" PointY="6.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_TONGIAO" Width="1.5" PointX="8.75" PointY="0.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_TRINHDO" Width="1.5" PointX="8.75" PointY="3.75" />
+        <EntityTypeShape EntityType="AImodel.V_AI_UNGLUONG" Width="1.5" PointX="8.75" PointY="6.75" />
+      </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

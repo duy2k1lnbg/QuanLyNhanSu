@@ -426,6 +426,7 @@
             this.btnUser.Id = 32;
             this.btnUser.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnUser.ImageOptions.LargeImage")));
             this.btnUser.Name = "btnUser";
+            this.btnUser.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnUser_ItemClick);
             // 
             // btnUser_Update
             // 

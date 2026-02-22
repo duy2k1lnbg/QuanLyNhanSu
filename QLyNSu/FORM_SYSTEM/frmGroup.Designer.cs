@@ -1,6 +1,6 @@
 ﻿namespace QLyNSu.FORM_SYSTEM
 {
-    partial class frmGroup
+    partial class FrmGroup
     {
         /// <summary>
         /// Required designer variable.
@@ -28,7 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmGroup));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmGroup));
             this.pageGroup = new DevExpress.XtraTab.XtraTabControl();
             this.tapNhom = new DevExpress.XtraTab.XtraTabPage();
             this.txtMoTa = new System.Windows.Forms.TextBox();

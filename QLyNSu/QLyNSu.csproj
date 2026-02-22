@@ -173,11 +173,11 @@
     <Compile Include="FORM_CHAMCONG\FrmUngLuong.Designer.cs">
       <DependentUpon>FrmUngLuong.cs</DependentUpon>
     </Compile>
-    <Compile Include="FORM_SYSTEM\frmGroup.cs">
+    <Compile Include="FORM_SYSTEM\FrmGroup.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FORM_SYSTEM\frmGroup.Designer.cs">
-      <DependentUpon>frmGroup.cs</DependentUpon>
+    <Compile Include="FORM_SYSTEM\FrmGroup.Designer.cs">
+      <DependentUpon>FrmGroup.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmShowUser_Group.cs">
       <SubType>Form</SubType>
@@ -307,6 +307,12 @@
       <DependentUpon>FrmWaiting.cs</DependentUpon>
     </Compile>
     <Compile Include="Functions\ChamCong_Functions.cs" />
+    <Compile Include="Functions\MyTreeViewCombo.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Functions\MyTreeViewCombo.Designer.cs">
+      <DependentUpon>MyTreeViewCombo.cs</DependentUpon>
+    </Compile>
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -432,8 +438,8 @@
     <EmbeddedResource Include="FORM_NHANSU\FrmTrinhDo.resx">
       <DependentUpon>FrmTrinhDo.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FORM_SYSTEM\frmGroup.resx">
-      <DependentUpon>frmGroup.cs</DependentUpon>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmGroup.resx">
+      <DependentUpon>FrmGroup.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmShowUser_Group.resx">
       <DependentUpon>FrmShowUser_Group.cs</DependentUpon>

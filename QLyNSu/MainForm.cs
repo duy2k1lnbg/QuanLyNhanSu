@@ -168,7 +168,7 @@ namespace QLyNSu
         {
             _nhanvien = new NHANVIEN();
             _hopdong = new HOPDONGLAODONG();
-            ribbonControl1.SelectedPage = ribbonPage3;
+            ribbonControl1.SelectedPage = ribbonPage1;
             await loadSinhNhat();
             await loadLenLuong();
         }
@@ -334,6 +334,11 @@ namespace QLyNSu
         }
 
         private async void btnGroup_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmGroup));
+        }
+
+        private async void btnUser_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmShowUser_Group));
         }

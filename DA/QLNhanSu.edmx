@@ -4,124 +4,124 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="Model.Store" Provider="Oracle.ManagedDataAccess.Client" ProviderManifestToken="18.0" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl" Alias="Self" Namespace="Model.Store" Provider="Oracle.ManagedDataAccess.Client" ProviderManifestToken="18.0">
         <EntityType Name="TB_BANGCONG">
           <Key>
             <PropertyRef Name="MABC" />
           </Key>
-          <Property Name="MABC" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
-          <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
-          <Property Name="GIOVAO" Type="number" Precision="38" Scale="0" />
-          <Property Name="PHUTVAO" Type="number" Precision="38" Scale="0" />
-          <Property Name="GIORA" Type="number" Precision="38" Scale="0" />
-          <Property Name="PHUTRA" Type="number" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDLOAICONG" Type="number" Precision="38" Scale="0" />
+          <Property Name="MABC" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="NAM" Precision="38" Scale="0" Type="number" />
+          <Property Name="THANG" Precision="38" Scale="0" Type="number" />
+          <Property Name="NGAY" Precision="38" Scale="0" Type="number" />
+          <Property Name="GIOVAO" Precision="38" Scale="0" Type="number" />
+          <Property Name="PHUTVAO" Precision="38" Scale="0" Type="number" />
+          <Property Name="GIORA" Precision="38" Scale="0" Type="number" />
+          <Property Name="PHUTRA" Precision="38" Scale="0" Type="number" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDLOAICONG" Precision="38" Scale="0" Type="number" />
         </EntityType>
         <EntityType Name="TB_BANGCONG_CHITIET">
           <Key>
             <PropertyRef Name="IDBANGCONGCT" />
           </Key>
-          <Property Name="IDBANGCONGCT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="MAKYCONG" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="IDBANGCONGCT" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="MAKYCONG" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDCTY" Precision="38" Scale="0" Type="number" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
+          <Property Name="HOTEN" MaxLength="50" Type="nvarchar2" />
           <Property Name="NGAY" Type="date" />
-          <Property Name="THU" Type="nvarchar2" MaxLength="50" />
-          <Property Name="GIOVAO" Type="nvarchar2" MaxLength="50" />
-          <Property Name="GIORA" Type="nvarchar2" MaxLength="50" />
-          <Property Name="NGAYPHEP" Type="float" Precision="126" Scale="0" />
-          <Property Name="CONGNGAYLE" Type="float" Precision="126" Scale="0" />
-          <Property Name="CONGCHUNHAT" Type="float" Precision="126" Scale="0" />
-          <Property Name="KYHIEU" Type="nvarchar2" MaxLength="50" />
-          <Property Name="GHICHU" Type="nvarchar2" MaxLength="500" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="THU" MaxLength="50" Type="nvarchar2" />
+          <Property Name="GIOVAO" MaxLength="50" Type="nvarchar2" />
+          <Property Name="GIORA" MaxLength="50" Type="nvarchar2" />
+          <Property Name="NGAYPHEP" Precision="126" Scale="0" Type="float" />
+          <Property Name="CONGNGAYLE" Precision="126" Scale="0" Type="float" />
+          <Property Name="CONGCHUNHAT" Precision="126" Scale="0" Type="float" />
+          <Property Name="KYHIEU" MaxLength="50" Type="nvarchar2" />
+          <Property Name="GHICHU" MaxLength="500" Type="nvarchar2" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
-          <Property Name="NGAYCONG" Type="float" Precision="126" Scale="0" />
+          <Property Name="NGAYCONG" Precision="126" Scale="0" Type="float" />
         </EntityType>
         <EntityType Name="TB_BAOHIEM">
           <Key>
             <PropertyRef Name="IDBH" />
           </Key>
-          <Property Name="IDBH" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="SOBH" Type="nvarchar2" MaxLength="50" />
+          <Property Name="IDBH" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="SOBH" MaxLength="50" Type="nvarchar2" />
           <Property Name="NGAYCAP" Type="date" />
-          <Property Name="NOICAP" Type="nvarchar2" MaxLength="50" />
-          <Property Name="NOIKHAMBENH" Type="nvarchar2" MaxLength="50" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
+          <Property Name="NOICAP" MaxLength="50" Type="nvarchar2" />
+          <Property Name="NOIKHAMBENH" MaxLength="50" Type="nvarchar2" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
         </EntityType>
         <EntityType Name="TB_BOPHAN">
           <Key>
             <PropertyRef Name="IDBP" />
           </Key>
-          <Property Name="IDBP" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENBP" Type="nvarchar2" MaxLength="50" />
+          <Property Name="IDBP" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENBP" MaxLength="50" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_CHUCVU">
           <Key>
             <PropertyRef Name="IDCV" />
           </Key>
-          <Property Name="IDCV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENCV" Type="nvarchar2" MaxLength="50" />
+          <Property Name="IDCV" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENCV" MaxLength="50" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_CONFIG">
           <Key>
             <PropertyRef Name="ID_CF" />
           </Key>
-          <Property Name="ID_CF" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="NAME" Type="nvarchar2" MaxLength="50" />
-          <Property Name="VALUE" Type="nvarchar2" MaxLength="50" />
+          <Property Name="ID_CF" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="NAME" MaxLength="50" Type="nvarchar2" />
+          <Property Name="VALUE" MaxLength="50" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_CONGTY">
           <Key>
             <PropertyRef Name="IDCTY" />
           </Key>
-          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENCTY" Type="nvarchar2" MaxLength="200" />
-          <Property Name="DIENTHOAICTY" Type="nvarchar2" MaxLength="50" />
-          <Property Name="EMAILCTY" Type="nvarchar2" MaxLength="100" />
-          <Property Name="DIACHICTY" Type="nvarchar2" MaxLength="500" />
-          <Property Name="MASOTHUECTY" Type="nvarchar2" MaxLength="50" />
-          <Property Name="DAIDIEN" Type="nvarchar2" MaxLength="100" />
+          <Property Name="IDCTY" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENCTY" MaxLength="200" Type="nvarchar2" />
+          <Property Name="DIENTHOAICTY" MaxLength="50" Type="nvarchar2" />
+          <Property Name="EMAILCTY" MaxLength="100" Type="nvarchar2" />
+          <Property Name="DIACHICTY" MaxLength="500" Type="nvarchar2" />
+          <Property Name="MASOTHUECTY" MaxLength="50" Type="nvarchar2" />
+          <Property Name="DAIDIEN" MaxLength="100" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_DANTOC">
           <Key>
             <PropertyRef Name="IDDT" />
           </Key>
-          <Property Name="IDDT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENDT" Type="nvarchar2" MaxLength="50" />
+          <Property Name="IDDT" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENDT" MaxLength="50" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_DIEUCHUYEN_NHANVIEN">
           <Key>
             <PropertyRef Name="SOQDDIEUCHUYEN" />
           </Key>
-          <Property Name="SOQDDIEUCHUYEN" Type="nvarchar2" MaxLength="50" Nullable="false" />
+          <Property Name="SOQDDIEUCHUYEN" Nullable="false" MaxLength="50" Type="nvarchar2" />
           <Property Name="NGAYDC" Type="date" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="MAPB" Type="number" Precision="38" Scale="0" />
-          <Property Name="MAPB2" Type="number" Precision="38" Scale="0" />
-          <Property Name="LYDODC" Type="nvarchar2" MaxLength="500" />
-          <Property Name="GHICHU" Type="nvarchar2" MaxLength="700" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
+          <Property Name="MAPB" Precision="38" Scale="0" Type="number" />
+          <Property Name="MAPB2" Precision="38" Scale="0" Type="number" />
+          <Property Name="LYDODC" MaxLength="500" Type="nvarchar2" />
+          <Property Name="GHICHU" MaxLength="700" Type="nvarchar2" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_GIOITINH">
           <Key>
             <PropertyRef Name="IDGT" />
           </Key>
-          <Property Name="IDGT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENGT" Type="nvarchar2" MaxLength="50" />
+          <Property Name="IDGT" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENGT" MaxLength="50" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_HOPDONG">
           <Key>
@@ -130,17 +130,17 @@
           <Property Name="NGAYBATDAU" Type="date" />
           <Property Name="NGAYKETTHUC" Type="date" />
           <Property Name="NGAYKY" Type="date" />
-          <Property Name="LANKY" Type="number" Precision="38" Scale="0" />
-          <Property Name="THOIHAN" Type="nvarchar2" MaxLength="50" />
-          <Property Name="HESOLUONG" Type="float" Precision="126" Scale="0" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="SOHD" Type="nvarchar2" MaxLength="100" Nullable="false" />
-          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
-          <Property Name="DEL_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="LANKY" Precision="38" Scale="0" Type="number" />
+          <Property Name="THOIHAN" MaxLength="50" Type="nvarchar2" />
+          <Property Name="HESOLUONG" Precision="126" Scale="0" Type="float" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
+          <Property Name="SOHD" Nullable="false" MaxLength="100" Type="nvarchar2" />
+          <Property Name="IDCTY" Precision="38" Scale="0" Type="number" />
+          <Property Name="DEL_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DEL_DATE" Type="date" />
-          <Property Name="UPDATE_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATE_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATE_DATE" Type="date" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
           <Property Name="NOIDUNG" Type="nclob" />
         </EntityType>
@@ -148,38 +148,38 @@
           <Key>
             <PropertyRef Name="SOQUYETDINH" />
           </Key>
-          <Property Name="NOIDUNG" Type="nvarchar2" MaxLength="500" />
+          <Property Name="NOIDUNG" MaxLength="500" Type="nvarchar2" />
           <Property Name="NGAY" Type="date" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="LOAI" Type="number" Precision="38" Scale="0" />
-          <Property Name="LYDO" Type="nvarchar2" MaxLength="1000" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
+          <Property Name="LOAI" Precision="38" Scale="0" Type="number" />
+          <Property Name="LYDO" MaxLength="1000" Type="nvarchar2" />
           <Property Name="TUNGAY" Type="date" />
           <Property Name="DENNGAY" Type="date" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
-          <Property Name="SOQUYETDINH" Type="nvarchar2" MaxLength="70" Nullable="false" />
+          <Property Name="SOQUYETDINH" Nullable="false" MaxLength="70" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_KYCONG">
           <Key>
             <PropertyRef Name="MAKYCONG" />
           </Key>
-          <Property Name="MAKYCONG" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
-          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
-          <Property Name="KHOA" Type="number" Precision="38" Scale="0" />
+          <Property Name="MAKYCONG" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="THANG" Precision="38" Scale="0" Type="number" />
+          <Property Name="NAM" Precision="38" Scale="0" Type="number" />
+          <Property Name="KHOA" Precision="38" Scale="0" Type="number" />
           <Property Name="NGAYTINHCONG" Type="date" />
-          <Property Name="NGAYCONGTRONGTHANG" Type="float" Precision="126" Scale="0" />
-          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
-          <Property Name="TRANGTHAI" Type="number" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="NGAYCONGTRONGTHANG" Precision="126" Scale="0" Type="float" />
+          <Property Name="IDCTY" Precision="38" Scale="0" Type="number" />
+          <Property Name="TRANGTHAI" Precision="38" Scale="0" Type="number" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_KYCONGCHITIET">
@@ -187,125 +187,125 @@
             <PropertyRef Name="MAKYCONG" />
             <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="MAKYCONG" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
-          <Property Name="D1" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D2" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D3" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D4" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D5" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D6" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D7" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D8" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D9" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D10" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D11" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D12" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D13" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D14" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D15" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D16" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D17" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D18" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D19" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D20" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D21" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D22" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D23" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D24" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D25" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D26" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D27" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D28" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D29" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D30" Type="nvarchar2" MaxLength="10" />
-          <Property Name="D31" Type="nvarchar2" MaxLength="10" />
-          <Property Name="NGAYCONG" Type="float" Precision="126" Scale="0" />
-          <Property Name="NGAYPHEP" Type="float" Precision="126" Scale="0" />
-          <Property Name="NGHIKHONGPHEP" Type="float" Precision="126" Scale="0" />
-          <Property Name="CONGNGAYLE" Type="float" Precision="126" Scale="0" />
-          <Property Name="CONGCHUNHAT" Type="float" Precision="126" Scale="0" />
-          <Property Name="TONGNGAYCONG" Type="float" Precision="126" Scale="0" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="MAKYCONG" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="MANV" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="HOTEN" MaxLength="50" Type="nvarchar2" />
+          <Property Name="D1" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D2" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D3" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D4" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D5" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D6" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D7" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D8" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D9" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D10" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D11" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D12" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D13" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D14" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D15" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D16" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D17" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D18" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D19" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D20" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D21" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D22" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D23" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D24" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D25" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D26" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D27" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D28" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D29" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D30" MaxLength="10" Type="nvarchar2" />
+          <Property Name="D31" MaxLength="10" Type="nvarchar2" />
+          <Property Name="NGAYCONG" Precision="126" Scale="0" Type="float" />
+          <Property Name="NGAYPHEP" Precision="126" Scale="0" Type="float" />
+          <Property Name="NGHIKHONGPHEP" Precision="126" Scale="0" Type="float" />
+          <Property Name="CONGNGAYLE" Precision="126" Scale="0" Type="float" />
+          <Property Name="CONGCHUNHAT" Precision="126" Scale="0" Type="float" />
+          <Property Name="TONGNGAYCONG" Precision="126" Scale="0" Type="float" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
+          <Property Name="IDCTY" Precision="38" Scale="0" Type="number" />
         </EntityType>
         <EntityType Name="TB_LOAICA">
           <Key>
             <PropertyRef Name="IDLOAICA" />
           </Key>
-          <Property Name="IDLOAICA" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENLOAICA" Type="nvarchar2" MaxLength="50" />
-          <Property Name="HESOLOAICA" Type="float" Precision="126" Scale="0" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="IDLOAICA" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENLOAICA" MaxLength="50" Type="nvarchar2" />
+          <Property Name="HESOLOAICA" Precision="126" Scale="0" Type="float" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_LOAICONG">
           <Key>
             <PropertyRef Name="IDLOAICONG" />
           </Key>
-          <Property Name="IDLOAICONG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENLC" Type="nvarchar2" MaxLength="50" />
-          <Property Name="HESOLOAICONG" Type="float" Precision="126" Scale="0" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="IDLOAICONG" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENLC" MaxLength="50" Type="nvarchar2" />
+          <Property Name="HESOLOAICONG" Precision="126" Scale="0" Type="float" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_NANGLUONG_NHANVIEN">
           <Key>
             <PropertyRef Name="SOQDNL" />
           </Key>
-          <Property Name="SOQDNL" Type="nvarchar2" MaxLength="100" Nullable="false" />
-          <Property Name="SOHD" Type="nvarchar2" MaxLength="100" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="HESOLUONG_NOW" Type="float" Precision="126" Scale="0" />
-          <Property Name="HESOLUONG_NEW" Type="float" Precision="126" Scale="0" />
+          <Property Name="SOQDNL" Nullable="false" MaxLength="100" Type="nvarchar2" />
+          <Property Name="SOHD" MaxLength="100" Type="nvarchar2" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
+          <Property Name="HESOLUONG_NOW" Precision="126" Scale="0" Type="float" />
+          <Property Name="HESOLUONG_NEW" Precision="126" Scale="0" Type="float" />
           <Property Name="NGAYLENLUONG" Type="date" />
           <Property Name="NGAYKYNL" Type="date" />
-          <Property Name="GHICHUNL" Type="nvarchar2" MaxLength="1000" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="GHICHUNL" MaxLength="1000" Type="nvarchar2" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_NHANVIEN">
           <Key>
             <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
-          <Property Name="IDGT" Type="number" Precision="38" Scale="0" />
+          <Property Name="MANV" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="HOTEN" MaxLength="50" Type="nvarchar2" />
+          <Property Name="IDGT" Precision="38" Scale="0" Type="number" />
           <Property Name="NGAYSINH" Type="date" />
-          <Property Name="DIENTHOAI" Type="nvarchar2" MaxLength="50" />
-          <Property Name="CCCD" Type="nvarchar2" MaxLength="50" />
-          <Property Name="DIACHI" Type="nvarchar2" MaxLength="300" />
+          <Property Name="DIENTHOAI" MaxLength="50" Type="nvarchar2" />
+          <Property Name="CCCD" MaxLength="50" Type="nvarchar2" />
+          <Property Name="DIACHI" MaxLength="300" Type="nvarchar2" />
           <Property Name="HINHANH" Type="blob" />
-          <Property Name="IDPB" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDBP" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDCV" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDTD" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDDT" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDTG" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDQT" Type="number" Precision="38" Scale="0" />
-          <Property Name="DATHOIVIEC" Type="number" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="IDPB" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDBP" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDCV" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDTD" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDDT" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDTG" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDCTY" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDQT" Precision="38" Scale="0" Type="number" />
+          <Property Name="DATHOIVIEC" Precision="38" Scale="0" Type="number" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_NHANVIEN_PHUCAP">
@@ -314,179 +314,179 @@
             <PropertyRef Name="IDPC" />
             <PropertyRef Name="MAKYCONG" />
           </Key>
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="IDPC" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="MAKYCONG" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="GHICHU" Type="nvarchar2" MaxLength="500" />
-          <Property Name="SOTIEN" Type="float" Precision="126" Scale="0" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="MANV" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDPC" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="MAKYCONG" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="GHICHU" MaxLength="500" Type="nvarchar2" />
+          <Property Name="SOTIEN" Precision="126" Scale="0" Type="float" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_NHANVIEN_THOIVIEC">
           <Key>
             <PropertyRef Name="SOQDTV" />
           </Key>
-          <Property Name="SOQDTV" Type="nvarchar2" MaxLength="100" Nullable="false" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
+          <Property Name="SOQDTV" Nullable="false" MaxLength="100" Type="nvarchar2" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
           <Property Name="NGAYNOPDON" Type="date" />
           <Property Name="NGAYNGHIVIEC" Type="date" />
-          <Property Name="LYDOTV" Type="nvarchar2" MaxLength="1000" />
-          <Property Name="GHICHUTV" Type="nvarchar2" MaxLength="1000" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="LYDOTV" MaxLength="1000" Type="nvarchar2" />
+          <Property Name="GHICHUTV" MaxLength="1000" Type="nvarchar2" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <EntityType Name="TB_PHONGBAN">
           <Key>
             <PropertyRef Name="IDPB" />
           </Key>
-          <Property Name="IDPB" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENPB" Type="nvarchar2" MaxLength="50" />
+          <Property Name="IDPB" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENPB" MaxLength="50" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_PHUCAP">
           <Key>
             <PropertyRef Name="IDPC" />
           </Key>
-          <Property Name="IDPC" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="TENPC" Type="nvarchar2" MaxLength="250" />
+          <Property Name="IDPC" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="TENPC" MaxLength="250" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_QUOCTICH">
           <Key>
             <PropertyRef Name="IDQT" />
           </Key>
-          <Property Name="IDQT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENQT" Type="nvarchar2" MaxLength="100" />
+          <Property Name="IDQT" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENQT" MaxLength="100" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_SYS_FUNCTION">
           <Key>
             <PropertyRef Name="FUNCTION_CODE" />
             <PropertyRef Name="SORT" />
           </Key>
-          <Property Name="FUNCTION_CODE" Type="nvarchar2" MaxLength="50" Nullable="false" />
-          <Property Name="SORT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="DESCRIPTION" Type="nvarchar2" MaxLength="250" />
-          <Property Name="ISGROUP" Type="number" Precision="38" Scale="0" />
-          <Property Name="PARENT" Type="nvarchar2" MaxLength="50" />
-          <Property Name="MENU" Type="number" Precision="38" Scale="0" />
-          <Property Name="TIPS" Type="nvarchar2" MaxLength="1000" />
+          <Property Name="FUNCTION_CODE" Nullable="false" MaxLength="50" Type="nvarchar2" />
+          <Property Name="SORT" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="DESCRIPTION" MaxLength="250" Type="nvarchar2" />
+          <Property Name="ISGROUP" Precision="38" Scale="0" Type="number" />
+          <Property Name="PARENT" MaxLength="50" Type="nvarchar2" />
+          <Property Name="MENU" Precision="38" Scale="0" Type="number" />
+          <Property Name="TIPS" MaxLength="1000" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_SYS_GROUP">
           <Key>
             <PropertyRef Name="ID_GROUP" />
             <PropertyRef Name="MEMBER" />
           </Key>
-          <Property Name="ID_GROUP" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="MEMBER" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="ID_GROUP" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="MEMBER" Nullable="false" Precision="38" Scale="0" Type="number" />
         </EntityType>
         <EntityType Name="TB_SYS_REPORT">
           <Key>
             <PropertyRef Name="REP_CODE" />
           </Key>
-          <Property Name="REP_CODE" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="DESCRIPTION" Type="nvarchar2" MaxLength="50" />
-          <Property Name="REP_NAME" Type="nvarchar2" MaxLength="50" />
-          <Property Name="VISIBLED" Type="number" Precision="38" Scale="0" />
-          <Property Name="TUNGAY" Type="number" Precision="38" Scale="0" />
-          <Property Name="THANG_NAM" Type="number" Precision="38" Scale="0" />
-          <Property Name="MACTY" Type="number" Precision="38" Scale="0" />
-          <Property Name="MADVI" Type="number" Precision="38" Scale="0" />
+          <Property Name="REP_CODE" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="DESCRIPTION" MaxLength="50" Type="nvarchar2" />
+          <Property Name="REP_NAME" MaxLength="50" Type="nvarchar2" />
+          <Property Name="VISIBLED" Precision="38" Scale="0" Type="number" />
+          <Property Name="TUNGAY" Precision="38" Scale="0" Type="number" />
+          <Property Name="THANG_NAM" Precision="38" Scale="0" Type="number" />
+          <Property Name="MACTY" Precision="38" Scale="0" Type="number" />
+          <Property Name="MADVI" Precision="38" Scale="0" Type="number" />
         </EntityType>
         <EntityType Name="TB_SYS_RIGHT">
           <Key>
             <PropertyRef Name="FUNCTION_CODE" />
             <PropertyRef Name="IDUSER" />
           </Key>
-          <Property Name="FUNCTION_CODE" Type="nvarchar2" MaxLength="50" Nullable="false" />
-          <Property Name="IDUSER" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="USER_RIGHT" Type="number" Precision="38" Scale="0" />
+          <Property Name="FUNCTION_CODE" Nullable="false" MaxLength="50" Type="nvarchar2" />
+          <Property Name="IDUSER" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="USER_RIGHT" Precision="38" Scale="0" Type="number" />
         </EntityType>
         <EntityType Name="TB_SYS_RIGHT_REPORT">
           <Key>
             <PropertyRef Name="REP_CODE" />
             <PropertyRef Name="IDUSER" />
           </Key>
-          <Property Name="REP_CODE" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="IDUSER" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="USER_RIGHT" Type="number" Precision="38" Scale="0" />
+          <Property Name="REP_CODE" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDUSER" Nullable="false" Precision="38" Scale="0" Type="number" />
+          <Property Name="USER_RIGHT" Precision="38" Scale="0" Type="number" />
         </EntityType>
         <EntityType Name="TB_SYS_USER">
           <Key>
             <PropertyRef Name="IDUSER" />
           </Key>
-          <Property Name="IDUSER" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="USERNAME" Type="nvarchar2" MaxLength="50" />
-          <Property Name="PASSWORD" Type="nvarchar2" MaxLength="50" />
-          <Property Name="FULLNAME" Type="nvarchar2" MaxLength="250" />
-          <Property Name="MACTY" Type="nvarchar2" MaxLength="10" />
-          <Property Name="MADVI" Type="nvarchar2" MaxLength="10" />
+          <Property Name="IDUSER" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="USERNAME" MaxLength="50" Type="nvarchar2" />
+          <Property Name="PASSWORD" MaxLength="50" Type="nvarchar2" />
+          <Property Name="FULLNAME" MaxLength="250" Type="nvarchar2" />
+          <Property Name="MACTY" MaxLength="10" Type="nvarchar2" />
+          <Property Name="MADVI" MaxLength="10" Type="nvarchar2" />
           <Property Name="LAST_PWD_CHANGED" Type="date" />
-          <Property Name="DISABLED" Type="number" Precision="38" Scale="0" />
-          <Property Name="ISGROUP" Type="number" Precision="38" Scale="0" />
+          <Property Name="DISABLED" Precision="38" Scale="0" Type="number" />
+          <Property Name="ISGROUP" Precision="38" Scale="0" Type="number" />
         </EntityType>
         <EntityType Name="TB_TANGCA">
           <Key>
             <PropertyRef Name="IDTCA" />
           </Key>
-          <Property Name="IDTCA" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
-          <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
-          <Property Name="SOGIO" Type="float" Precision="126" Scale="0" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDLOAICA" Type="number" Precision="38" Scale="0" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="IDTCA" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="NAM" Precision="38" Scale="0" Type="number" />
+          <Property Name="THANG" Precision="38" Scale="0" Type="number" />
+          <Property Name="NGAY" Precision="38" Scale="0" Type="number" />
+          <Property Name="SOGIO" Precision="126" Scale="0" Type="float" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
+          <Property Name="IDLOAICA" Precision="38" Scale="0" Type="number" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
-          <Property Name="GHICHU" Type="nvarchar2" MaxLength="500" />
-          <Property Name="SOTIENTC" Type="float" Precision="126" Scale="0" />
+          <Property Name="GHICHU" MaxLength="500" Type="nvarchar2" />
+          <Property Name="SOTIENTC" Precision="126" Scale="0" Type="float" />
         </EntityType>
         <EntityType Name="TB_TONGIAO">
           <Key>
             <PropertyRef Name="IDTG" />
           </Key>
-          <Property Name="IDTG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENTG" Type="nvarchar2" MaxLength="20" />
+          <Property Name="IDTG" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENTG" MaxLength="20" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_TRINHDO">
           <Key>
             <PropertyRef Name="IDTD" />
           </Key>
-          <Property Name="IDTD" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENTD" Type="nvarchar2" MaxLength="50" />
+          <Property Name="IDTD" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="TENTD" MaxLength="50" Type="nvarchar2" />
         </EntityType>
         <EntityType Name="TB_UNGLUONG">
           <Key>
             <PropertyRef Name="IDUL" />
           </Key>
-          <Property Name="IDUL" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
-          <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
-          <Property Name="SOTIENUNG" Type="float" Precision="126" Scale="0" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="GHICHU" Type="nvarchar2" MaxLength="500" />
-          <Property Name="CREATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="IDUL" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
+          <Property Name="NAM" Precision="38" Scale="0" Type="number" />
+          <Property Name="THANG" Precision="38" Scale="0" Type="number" />
+          <Property Name="NGAY" Precision="38" Scale="0" Type="number" />
+          <Property Name="SOTIENUNG" Precision="126" Scale="0" Type="float" />
+          <Property Name="MANV" Precision="38" Scale="0" Type="number" />
+          <Property Name="GHICHU" MaxLength="500" Type="nvarchar2" />
+          <Property Name="CREATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="CREATED_DATE" Type="date" />
-          <Property Name="UPDATED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="UPDATED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="UPDATED_DATE" Type="date" />
-          <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
+          <Property Name="DELETED_BY" Precision="38" Scale="0" Type="number" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
         <Association Name="TB_BANGCONG_LC_FK2">
-          <End Role="TB_LOAICONG" Type="Self.TB_LOAICONG" Multiplicity="0..1">
+          <End Type="Self.TB_LOAICONG" Multiplicity="0..1" Role="TB_LOAICONG">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_BANGCONG" Type="Self.TB_BANGCONG" Multiplicity="*" />
+          <End Type="Self.TB_BANGCONG" Multiplicity="*" Role="TB_BANGCONG" />
           <ReferentialConstraint>
             <Principal Role="TB_LOAICONG">
               <PropertyRef Name="IDLOAICONG" />
@@ -497,10 +497,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_BANGCONG_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="1">
+          <End Type="Self.TB_NHANVIEN" Multiplicity="1" Role="TB_NHANVIEN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_BANGCONG" Type="Self.TB_BANGCONG" Multiplicity="0..1" />
+          <End Type="Self.TB_BANGCONG" Multiplicity="0..1" Role="TB_BANGCONG" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -511,10 +511,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_BAOHIEM_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+          <End Type="Self.TB_NHANVIEN" Multiplicity="0..1" Role="TB_NHANVIEN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_BAOHIEM" Type="Self.TB_BAOHIEM" Multiplicity="*" />
+          <End Type="Self.TB_BAOHIEM" Multiplicity="*" Role="TB_BAOHIEM" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -525,8 +525,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_DIEUCHUYEN_NHANVIEN_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
-          <End Role="TB_DIEUCHUYEN_NHANVIEN" Type="Self.TB_DIEUCHUYEN_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="0..1" Role="TB_NHANVIEN" />
+          <End Type="Self.TB_DIEUCHUYEN_NHANVIEN" Multiplicity="*" Role="TB_DIEUCHUYEN_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -537,10 +537,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_HOPDONG_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+          <End Type="Self.TB_NHANVIEN" Multiplicity="0..1" Role="TB_NHANVIEN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_HOPDONG" Type="Self.TB_HOPDONG" Multiplicity="*" />
+          <End Type="Self.TB_HOPDONG" Multiplicity="*" Role="TB_HOPDONG" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -551,10 +551,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_KHENTHUONG_KYLUAT_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+          <End Type="Self.TB_NHANVIEN" Multiplicity="0..1" Role="TB_NHANVIEN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_KHENTHUONG_KYLUAT" Type="Self.TB_KHENTHUONG_KYLUAT" Multiplicity="*" />
+          <End Type="Self.TB_KHENTHUONG_KYLUAT" Multiplicity="*" Role="TB_KHENTHUONG_KYLUAT" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -565,8 +565,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NANGLUONG_NHANVIEN_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
-          <End Role="TB_NANGLUONG_NHANVIEN" Type="Self.TB_NANGLUONG_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="0..1" Role="TB_NHANVIEN" />
+          <End Type="Self.TB_NANGLUONG_NHANVIEN" Multiplicity="*" Role="TB_NANGLUONG_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -577,10 +577,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_BP_FK2">
-          <End Role="TB_BOPHAN" Type="Self.TB_BOPHAN" Multiplicity="0..1">
+          <End Type="Self.TB_BOPHAN" Multiplicity="0..1" Role="TB_BOPHAN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_BOPHAN">
               <PropertyRef Name="IDBP" />
@@ -591,10 +591,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_CTY_FK5">
-          <End Role="TB_CONGTY" Type="Self.TB_CONGTY" Multiplicity="0..1">
+          <End Type="Self.TB_CONGTY" Multiplicity="0..1" Role="TB_CONGTY">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_CONGTY">
               <PropertyRef Name="IDCTY" />
@@ -605,10 +605,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_CV_FK3">
-          <End Role="TB_CHUCVU" Type="Self.TB_CHUCVU" Multiplicity="0..1">
+          <End Type="Self.TB_CHUCVU" Multiplicity="0..1" Role="TB_CHUCVU">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_CHUCVU">
               <PropertyRef Name="IDCV" />
@@ -619,10 +619,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_DT_FK6">
-          <End Role="TB_DANTOC" Type="Self.TB_DANTOC" Multiplicity="0..1">
+          <End Type="Self.TB_DANTOC" Multiplicity="0..1" Role="TB_DANTOC">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_DANTOC">
               <PropertyRef Name="IDDT" />
@@ -633,10 +633,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_GT_FK8">
-          <End Role="TB_GIOITINH" Type="Self.TB_GIOITINH" Multiplicity="0..1">
+          <End Type="Self.TB_GIOITINH" Multiplicity="0..1" Role="TB_GIOITINH">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_GIOITINH">
               <PropertyRef Name="IDGT" />
@@ -647,10 +647,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PB_FK1">
-          <End Role="TB_PHONGBAN" Type="Self.TB_PHONGBAN" Multiplicity="0..1">
+          <End Type="Self.TB_PHONGBAN" Multiplicity="0..1" Role="TB_PHONGBAN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_PHONGBAN">
               <PropertyRef Name="IDPB" />
@@ -661,10 +661,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="1">
+          <End Type="Self.TB_NHANVIEN" Multiplicity="1" Role="TB_NHANVIEN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN_PHUCAP" Type="Self.TB_NHANVIEN_PHUCAP" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN_PHUCAP" Multiplicity="*" Role="TB_NHANVIEN_PHUCAP" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -675,10 +675,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_PHUCAP_PC_FK2">
-          <End Role="TB_PHUCAP" Type="Self.TB_PHUCAP" Multiplicity="1">
+          <End Type="Self.TB_PHUCAP" Multiplicity="1" Role="TB_PHUCAP">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN_PHUCAP" Type="Self.TB_NHANVIEN_PHUCAP" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN_PHUCAP" Multiplicity="*" Role="TB_NHANVIEN_PHUCAP" />
           <ReferentialConstraint>
             <Principal Role="TB_PHUCAP">
               <PropertyRef Name="IDPC" />
@@ -689,10 +689,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_QT_FK9">
-          <End Role="TB_QUOCTICH" Type="Self.TB_QUOCTICH" Multiplicity="0..1">
+          <End Type="Self.TB_QUOCTICH" Multiplicity="0..1" Role="TB_QUOCTICH">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_QUOCTICH">
               <PropertyRef Name="IDQT" />
@@ -703,10 +703,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_TD_FK4">
-          <End Role="TB_TRINHDO" Type="Self.TB_TRINHDO" Multiplicity="0..1">
+          <End Type="Self.TB_TRINHDO" Multiplicity="0..1" Role="TB_TRINHDO">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_TRINHDO">
               <PropertyRef Name="IDTD" />
@@ -717,10 +717,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_TG_FK7">
-          <End Role="TB_TONGIAO" Type="Self.TB_TONGIAO" Multiplicity="0..1">
+          <End Type="Self.TB_TONGIAO" Multiplicity="0..1" Role="TB_TONGIAO">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="*" Role="TB_NHANVIEN" />
           <ReferentialConstraint>
             <Principal Role="TB_TONGIAO">
               <PropertyRef Name="IDTG" />
@@ -731,8 +731,8 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_NHANVIEN_THOIVIEC_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1" />
-          <End Role="TB_NHANVIEN_THOIVIEC" Type="Self.TB_NHANVIEN_THOIVIEC" Multiplicity="*" />
+          <End Type="Self.TB_NHANVIEN" Multiplicity="0..1" Role="TB_NHANVIEN" />
+          <End Type="Self.TB_NHANVIEN_THOIVIEC" Multiplicity="*" Role="TB_NHANVIEN_THOIVIEC" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -743,10 +743,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_TANGCA_LCA_FK1">
-          <End Role="TB_LOAICA" Type="Self.TB_LOAICA" Multiplicity="0..1">
+          <End Type="Self.TB_LOAICA" Multiplicity="0..1" Role="TB_LOAICA">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_TANGCA" Type="Self.TB_TANGCA" Multiplicity="*" />
+          <End Type="Self.TB_TANGCA" Multiplicity="*" Role="TB_TANGCA" />
           <ReferentialConstraint>
             <Principal Role="TB_LOAICA">
               <PropertyRef Name="IDLOAICA" />
@@ -757,10 +757,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_TANGCA_NV_FK2">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+          <End Type="Self.TB_NHANVIEN" Multiplicity="0..1" Role="TB_NHANVIEN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_TANGCA" Type="Self.TB_TANGCA" Multiplicity="*" />
+          <End Type="Self.TB_TANGCA" Multiplicity="*" Role="TB_TANGCA" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -771,10 +771,10 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_UNGLUONG_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
+          <End Type="Self.TB_NHANVIEN" Multiplicity="0..1" Role="TB_NHANVIEN">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_UNGLUONG" Type="Self.TB_UNGLUONG" Multiplicity="*" />
+          <End Type="Self.TB_UNGLUONG" Multiplicity="*" Role="TB_UNGLUONG" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
@@ -819,92 +819,92 @@
           <EntitySet Name="TB_TRINHDO" EntityType="Self.TB_TRINHDO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_UNGLUONG" EntityType="Self.TB_UNGLUONG" Schema="HR" store:Type="Tables" />
           <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Self.TB_BANGCONG_LC_FK2">
-            <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
-            <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
+            <End EntitySet="TB_LOAICONG" Role="TB_LOAICONG" />
+            <End EntitySet="TB_BANGCONG" Role="TB_BANGCONG" />
           </AssociationSet>
           <AssociationSet Name="TB_BANGCONG_NV_FK1" Association="Self.TB_BANGCONG_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_BANGCONG" Role="TB_BANGCONG" />
           </AssociationSet>
           <AssociationSet Name="TB_BAOHIEM_NV_FK1" Association="Self.TB_BAOHIEM_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_BAOHIEM" EntitySet="TB_BAOHIEM" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_BAOHIEM" Role="TB_BAOHIEM" />
           </AssociationSet>
           <AssociationSet Name="TB_DIEUCHUYEN_NHANVIEN_NV_FK1" Association="Self.TB_DIEUCHUYEN_NHANVIEN_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_DIEUCHUYEN_NHANVIEN" EntitySet="TB_DIEUCHUYEN_NHANVIEN" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_DIEUCHUYEN_NHANVIEN" Role="TB_DIEUCHUYEN_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_HOPDONG_NV_FK1" Association="Self.TB_HOPDONG_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_HOPDONG" EntitySet="TB_HOPDONG" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_HOPDONG" Role="TB_HOPDONG" />
           </AssociationSet>
           <AssociationSet Name="TB_KHENTHUONG_KYLUAT_NV_FK1" Association="Self.TB_KHENTHUONG_KYLUAT_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_KHENTHUONG_KYLUAT" EntitySet="TB_KHENTHUONG_KYLUAT" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_KHENTHUONG_KYLUAT" Role="TB_KHENTHUONG_KYLUAT" />
           </AssociationSet>
           <AssociationSet Name="TB_NANGLUONG_NHANVIEN_FK1" Association="Self.TB_NANGLUONG_NHANVIEN_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_NANGLUONG_NHANVIEN" EntitySet="TB_NANGLUONG_NHANVIEN" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_NANGLUONG_NHANVIEN" Role="TB_NANGLUONG_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_BP_FK2" Association="Self.TB_NHANVIEN_BP_FK2">
-            <End Role="TB_BOPHAN" EntitySet="TB_BOPHAN" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_BOPHAN" Role="TB_BOPHAN" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_CTY_FK5" Association="Self.TB_NHANVIEN_CTY_FK5">
-            <End Role="TB_CONGTY" EntitySet="TB_CONGTY" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_CONGTY" Role="TB_CONGTY" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_CV_FK3" Association="Self.TB_NHANVIEN_CV_FK3">
-            <End Role="TB_CHUCVU" EntitySet="TB_CHUCVU" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_CHUCVU" Role="TB_CHUCVU" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_DT_FK6" Association="Self.TB_NHANVIEN_DT_FK6">
-            <End Role="TB_DANTOC" EntitySet="TB_DANTOC" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_DANTOC" Role="TB_DANTOC" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_GT_FK8" Association="Self.TB_NHANVIEN_GT_FK8">
-            <End Role="TB_GIOITINH" EntitySet="TB_GIOITINH" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_GIOITINH" Role="TB_GIOITINH" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_PB_FK1" Association="Self.TB_NHANVIEN_PB_FK1">
-            <End Role="TB_PHONGBAN" EntitySet="TB_PHONGBAN" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_PHONGBAN" Role="TB_PHONGBAN" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_PHUCAP_NV_FK1" Association="Self.TB_NHANVIEN_PHUCAP_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_NHANVIEN_PHUCAP" EntitySet="TB_NHANVIEN_PHUCAP" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_NHANVIEN_PHUCAP" Role="TB_NHANVIEN_PHUCAP" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_PHUCAP_PC_FK2" Association="Self.TB_NHANVIEN_PHUCAP_PC_FK2">
-            <End Role="TB_PHUCAP" EntitySet="TB_PHUCAP" />
-            <End Role="TB_NHANVIEN_PHUCAP" EntitySet="TB_NHANVIEN_PHUCAP" />
+            <End EntitySet="TB_PHUCAP" Role="TB_PHUCAP" />
+            <End EntitySet="TB_NHANVIEN_PHUCAP" Role="TB_NHANVIEN_PHUCAP" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_QT_FK9" Association="Self.TB_NHANVIEN_QT_FK9">
-            <End Role="TB_QUOCTICH" EntitySet="TB_QUOCTICH" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_QUOCTICH" Role="TB_QUOCTICH" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_TD_FK4" Association="Self.TB_NHANVIEN_TD_FK4">
-            <End Role="TB_TRINHDO" EntitySet="TB_TRINHDO" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_TRINHDO" Role="TB_TRINHDO" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_TG_FK7" Association="Self.TB_NHANVIEN_TG_FK7">
-            <End Role="TB_TONGIAO" EntitySet="TB_TONGIAO" />
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
+            <End EntitySet="TB_TONGIAO" Role="TB_TONGIAO" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
           </AssociationSet>
           <AssociationSet Name="TB_NHANVIEN_THOIVIEC_NV_FK1" Association="Self.TB_NHANVIEN_THOIVIEC_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_NHANVIEN_THOIVIEC" EntitySet="TB_NHANVIEN_THOIVIEC" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_NHANVIEN_THOIVIEC" Role="TB_NHANVIEN_THOIVIEC" />
           </AssociationSet>
           <AssociationSet Name="TB_TANGCA_LCA_FK1" Association="Self.TB_TANGCA_LCA_FK1">
-            <End Role="TB_LOAICA" EntitySet="TB_LOAICA" />
-            <End Role="TB_TANGCA" EntitySet="TB_TANGCA" />
+            <End EntitySet="TB_LOAICA" Role="TB_LOAICA" />
+            <End EntitySet="TB_TANGCA" Role="TB_TANGCA" />
           </AssociationSet>
           <AssociationSet Name="TB_TANGCA_NV_FK2" Association="Self.TB_TANGCA_NV_FK2">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_TANGCA" EntitySet="TB_TANGCA" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_TANGCA" Role="TB_TANGCA" />
           </AssociationSet>
           <AssociationSet Name="TB_UNGLUONG_NV_FK1" Association="Self.TB_UNGLUONG_NV_FK1">
-            <End Role="TB_NHANVIEN" EntitySet="TB_NHANVIEN" />
-            <End Role="TB_UNGLUONG" EntitySet="TB_UNGLUONG" />
+            <End EntitySet="TB_NHANVIEN" Role="TB_NHANVIEN" />
+            <End EntitySet="TB_UNGLUONG" Role="TB_UNGLUONG" />
           </AssociationSet>
         </EntityContainer>
       </Schema></edmx:StorageModels>

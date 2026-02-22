@@ -13,9 +13,9 @@ using System.Windows.Forms;
 
 namespace QLyNSu.FORM_SYSTEM
 {
-    public partial class frmGroup : DevExpress.XtraEditors.XtraForm
+    public partial class FrmGroup : DevExpress.XtraEditors.XtraForm
     {
-        public frmGroup()
+        public FrmGroup()
         {
             InitializeComponent();
         }

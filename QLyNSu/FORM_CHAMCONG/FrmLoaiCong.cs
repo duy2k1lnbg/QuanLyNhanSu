@@ -35,6 +35,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             _them = true;
+            txtTen.ReadOnly = false;
             showHide(false);
             txtTen.Text = string.Empty;
         }
@@ -42,6 +43,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             _them = false;
+            //txtTen.ReadOnly = true;
             showHide(false);
         }
 
