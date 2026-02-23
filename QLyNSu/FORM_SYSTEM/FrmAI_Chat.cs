@@ -14,73 +14,60 @@ namespace QLyNSu.FORM_SYSTEM
 {
     public partial class FrmAI_Chat : DevExpress.XtraEditors.XtraForm
     {
+        private readonly ChatboxManager _manager;
+
         public FrmAI_Chat()
         {
             InitializeComponent();
-            this.Text = "AI Query Assistant";
-            this.WindowState = FormWindowState.Maximized;
+            _manager = new ChatboxManager();
 
-            memoQuestion.Properties.ScrollBars = ScrollBars.Vertical;
-            memoQuestion.Properties.NullValuePrompt = "Nhập câu hỏi nhân sự...";
-
-            memoSql.Properties.ReadOnly = true;
-            memoSql.Properties.Appearance.Font = new Font("Consolas", 10);
-
-            gridViewAI.OptionsBehavior.Editable = false;
-            gridViewAI.OptionsView.ShowGroupPanel = false;
-
-            btnAsk.Text = "Ask AI";
+            // Set giao diện ban đầu
+            AppendLog("Trợ lý ", "Xin chào! Tôi có thể giúp gì cho bạn trong việc quản lý nhân sự hôm nay?");
         }
 
-        private readonly OllamaService _ollama = new OllamaService();
-        private readonly AIQueryService _aiQuery = new AIQueryService();
-
-        private void FrmAI_Chat_Load(object sender, EventArgs e)
+        private async void btnSend_Click(object sender, EventArgs e)
         {
+            string query = txtInput.Text.Trim();
+            if (string.IsNullOrEmpty(query)) return;
 
-        }
+            // Hiển thị câu hỏi của User
+            AppendLog("You", query);
+            txtInput.Text = string.Empty;
 
-        private async void btnAsk_Click(object sender, EventArgs e)
-        {
+            // Khóa UI chờ AI trả lời
+            btnSend.Enabled = false;
+            lblStatus.Text = "AI đang suy nghĩ...";
+
             try
             {
-                btnAsk.Enabled = false;
-                btnAsk.Text = "Đang xử lý...";
+                // Gọi sang tầng BUS để xử lý 14 Views và Ollama
+                string result = await _manager.ProcessQuery(query);
 
-                string question = memoQuestion.Text;
-
-                if (string.IsNullOrWhiteSpace(question))
-                {
-                    XtraMessageBox.Show("Vui lòng nhập câu hỏi.");
-                    return;
-                }
-
-                // 1️⃣ Gọi Ollama
-                string sql = await _ollama.GenerateSqlAsync(question);
-
-                memoSql.Text = sql;
-
-                // 2️⃣ Validate
-                if (!_aiQuery.IsSafeSelect(sql))
-                {
-                    XtraMessageBox.Show("SQL không hợp lệ hoặc không an toàn.");
-                    return;
-                }
-
-                // 3️⃣ Execute bằng AI_READONLY
-                var data = _aiQuery.Execute(sql);
-
-                gridControlAI.DataSource = data;
+                // Hiển thị câu trả lời
+                AppendLog("AI", result);
             }
             catch (Exception ex)
             {
-                XtraMessageBox.Show(ex.Message);
+                XtraMessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
-                btnAsk.Enabled = true;
-                btnAsk.Text = "Ask AI";
+                btnSend.Enabled = true;
+                lblStatus.Text = "Sẵn sàng";
+                txtInput.Focus();
             }
+        }
+
+        private void AppendLog(string sender, string msg)
+        {
+            string time = DateTime.Now.ToString("HH:mm");
+            string formattedMsg = $"[{time}] {sender.ToUpper()}: {msg}{Environment.NewLine}{Environment.NewLine}";
+
+            memChatLog.Text += formattedMsg;
+
+            // Tự động cuộn xuống dòng cuối cùng
+            memChatLog.SelectionStart = memChatLog.Text.Length;
+            memChatLog.ScrollToCaret();
         }
     }
 }

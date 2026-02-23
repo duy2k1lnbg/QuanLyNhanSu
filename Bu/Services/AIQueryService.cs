@@ -4,42 +4,47 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 
-public class AIQueryService
+namespace Bu.Services
 {
-    public bool IsSafeSelect(string sql)
+    public class AIQueryService
     {
-        sql = sql.ToUpper();
-        if (!sql.Trim().StartsWith("SELECT"))
-            return false;
-
-        string[] blocked = { "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "TRUNCATE", "MERGE" };
-        return !blocked.Any(b => sql.Contains(b));
-    }
-
-    public DataTable Execute(string sql)
-    {
-        using (var ctx = new AIEntities())
+        public bool IsSafeSelect(string sql)
         {
-            var result = ctx.Database.SqlQuery<object>(sql).ToList();
+            if (string.IsNullOrWhiteSpace(sql)) return false;
 
-            // Convert list sang DataTable
-            var dt = new DataTable();
-            if (result.Count > 0)
+            sql = sql.ToUpper().TrimStart();
+            if (!sql.StartsWith("SELECT"))
+                return false;
+
+            string[] blocked = { "INSERT", "UPDATE", "DELETE", "DROP", "ALTER", "TRUNCATE", "MERGE" };
+            return !blocked.Any(b => sql.Contains(b));
+        }
+
+        public DataTable Execute(string sql)
+        {
+            if (string.IsNullOrWhiteSpace(sql))
+                return new DataTable();
+
+            using (var ctx = new AIEntities())
             {
-                // Thêm cột từ property của object
-                foreach (var prop in result[0].GetType().GetProperties())
-                    dt.Columns.Add(prop.Name, prop.PropertyType);
+                var result = ctx.Database.SqlQuery<object>(sql).ToList();
 
-                // Thêm dữ liệu
-                foreach (var item in result)
+                var dt = new DataTable();
+                if (result.Count > 0)
                 {
-                    var row = dt.NewRow();
-                    foreach (var prop in item.GetType().GetProperties())
-                        row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
-                    dt.Rows.Add(row);
+                    foreach (var prop in result[0].GetType().GetProperties())
+                        dt.Columns.Add(prop.Name, prop.PropertyType);
+
+                    foreach (var item in result)
+                    {
+                        var row = dt.NewRow();
+                        foreach (var prop in item.GetType().GetProperties())
+                            row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                        dt.Rows.Add(row);
+                    }
                 }
+                return dt;
             }
-            return dt;
         }
     }
 }

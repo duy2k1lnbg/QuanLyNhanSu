@@ -1,48 +1,40 @@
 ﻿using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-public class OllamaService
+namespace Bu.Services
 {
-    private readonly HttpClient _client = new HttpClient();
-
-    public async Task<string> GenerateSqlAsync(string question)
+    public class OllamaService
     {
-        _client.Timeout = TimeSpan.FromSeconds(120); // 2 phút
-        string prompt = $@"
-Bạn là chuyên gia Oracle.
-Chỉ tạo câu SELECT.
-Không dùng INSERT, UPDATE, DELETE.
-Chỉ dùng các VIEW:
-V_EMPLOYEE, V_DEPARTMENT, V_SALARY.
-Luôn thêm FETCH FIRST 50 ROWS ONLY.
+        #region
+        private readonly string _url = "http://localhost:11434/api/chat";
 
-Câu hỏi:
-{question}
-";
-
-        var body = new
+        public async Task<string> SendChatRequest(List<ChatMessage> history)
         {
-            model = "llama3-8b-4q",
-            prompt = prompt,
-            stream = false
-        };
+            using (var client = new HttpClient())
+            {
+                client.Timeout = TimeSpan.FromMinutes(3);
+                var payload = new OllamaRequest { messages = history };
+                var json = JsonConvert.SerializeObject(payload);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var content = new StringContent(
-            JsonConvert.SerializeObject(body),
-            Encoding.UTF8,
-            "application/json");
-
-        var response = await _client.PostAsync(
-            "http://localhost:11434/api/generate",
-            content);
-
-        var json = await response.Content.ReadAsStringAsync();
-
-        dynamic result = JsonConvert.DeserializeObject(json);
-
-        return result.response.ToString();
+                try
+                {
+                    var response = await client.PostAsync(_url, content);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var resString = await response.Content.ReadAsStringAsync();
+                        dynamic resJson = JsonConvert.DeserializeObject(resString);
+                        return resJson.message.content;
+                    }
+                    return "Lỗi: Không thể nhận phản hồi từ AI.";
+                }
+                catch (Exception ex) { return "Lỗi kết nối: " + ex.Message; }
+            }
+        }
+        #endregion
     }
 }

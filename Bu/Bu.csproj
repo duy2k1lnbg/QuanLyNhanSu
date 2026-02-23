@@ -139,7 +139,11 @@
     <Compile Include="CLASS_NHANSU\TRINHDO.cs" />
     <Compile Include="Services\AILogService.cs" />
     <Compile Include="Services\AIQueryService.cs" />
+    <Compile Include="Services\AiRepository.cs" />
+    <Compile Include="Services\ChatboxManager.cs" />
+    <Compile Include="Services\ChatMessage.cs" />
     <Compile Include="Services\OllamaService.cs" />
+    <Compile Include="Services\TextProcessor.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
