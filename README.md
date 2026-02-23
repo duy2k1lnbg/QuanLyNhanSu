@@ -1,146 +1,83 @@
-🏢 Enterprise Human Resource Management System
+# 🏢 Enterprise Human Resource Management System (HRMS)
 
-An enterprise-grade Human Resource Management System (HRMS) built on the Microsoft .NET platform with Oracle Database integration and on-premise AI capabilities.
+[![Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blueviolet)](https://dotnet.microsoft.com/)
+[![Database](https://img.shields.io/badge/Oracle-19c-red)](https://www.oracle.com/database/)
+[![UI Component](https://img.shields.io/badge/UI%20Library-DevExpress-orange)](https://www.devexpress.com/)
+[![AI](https://img.shields.io/badge/AI-Ollama%20/%20Llama%203-blue)](https://ollama.com/)
 
-This project demonstrates enterprise application architecture, database integration, role-based authorization, and local AI assistant integration.
+An enterprise-grade **Human Resource Management System (HRMS)** architected on the Microsoft .NET ecosystem. This solution integrates **Oracle Database 19c** for robust data persistence and features an **On-Premise AI Assistant** powered by Llama 3 to ensure data privacy and intelligent decision-making.
 
-📌 Overview
+---
 
-This is a Windows desktop HR system developed using .NET Framework 4.7.2 and DevExpress WinForms.
-It connects to Oracle Database 19c using Entity Framework 6 (EF6).
+## 📌 Project Overview
 
-The system is designed for enterprise environments requiring:
+This system is engineered to handle complex organizational structures, providing a secure and scalable environment for managing corporate human capital. By leveraging **DevExpress WinForms**, it offers a high-performance desktop experience tailored for HR professionals.
 
-Structured employee management
+### Key Value Propositions:
+* **Data Sovereignty:** Local AI integration ensures sensitive HR data never leaves the corporate network.
+* **High Availability:** Built for Oracle 19c, ensuring enterprise-level reliability and performance.
+* **Rich UI/UX:** Advanced data grids and reporting tools via DevExpress components.
 
-Department and role management
+---
 
-Permission-based access control
+## 🏗 System Architecture
 
-Secure database connectivity
+The application follows a rigorous **N-Tier Architecture** to ensure maintainability and scalability:
 
-On-premise AI support (no cloud dependency)
+1.  **Presentation Layer:** WinForms integrated with DevExpress UI components for a modern, responsive interface.
+2.  **Business Logic Layer (BLL):** Handles validation, workflow orchestration, and core HR business rules.
+3.  **Data Access Layer (DAL):** Implemented via **Entity Framework 6 (EF6)** using the Oracle Managed Driver for seamless ORM mapping.
+4.  **Intelligence Layer:** A local HTTP-based interface connecting to the **Ollama** runtime for private AI processing.
 
-🛠 Technologies Used
+---
 
-.NET Framework 4.7.2
+## 🛠 Technology Stack
 
-Windows Forms + DevExpress
+| Component | Technology |
+| :--- | :--- |
+| **Runtime** | .NET Framework 4.7.2 |
+| **UI Library** | DevExpress WinForms |
+| **Database** | Oracle Database 19c (Enterprise Edition) |
+| **ORM** | Entity Framework 6.4 |
+| **AI Runtime** | Ollama (Local LLM Instance) |
+| **LLM Model** | Llama 3 8B Instruct (Quantized q4_1) |
 
-Oracle Database 19c
+---
 
-Entity Framework 6 (EF6)
+## 🔐 Core Features
 
-Oracle.ManagedDataAccess.EntityFramework
+* **Employee Lifecycle Management:** Comprehensive CRUD operations with detailed history tracking.
+* **Organizational Mapping:** Dynamic department and role hierarchy management.
+* **RBAC (Role-Based Access Control):** Granular permission system ensuring data security and compliance.
+* **Advanced Reporting:** Integrated analytics and export capabilities (Excel, PDF, Word).
+* **Private AI Assistant:** * Synthesize employee performance data.
+    * Automate internal HR queries.
+    * Draft HR communications and policy summaries.
 
-Ollama (Local AI Runtime)
+---
 
-Llama 3 8B Instruct (q4_1 quantized)
+## 🤖 AI Integration (On-Premise)
 
-🏗 Architecture
+Unlike traditional HR systems that rely on cloud APIs (OpenAI/Azure), this system prioritizes **Privacy First**:
+* **Deployment:** The model runs locally via **Ollama**.
+* **Model:** `llama3:8b-instruct-q4_1` provides a perfect balance between inference speed and reasoning capabilities.
+* **Security:** Zero data leakage risk as no external API calls are made.
 
-The system follows a layered enterprise structure:
+---
 
-Presentation Layer – WinForms + DevExpress UI
+## ⚙️ Installation & Configuration
 
-Business Logic Layer – Application rules and processing
+### 1. Prerequisites
+* Visual Studio 2022 (.NET Desktop Development workload).
+* Oracle Data Access Components (ODAC) 19c.
+* DevExpress WinForms Library.
+* Ollama Runtime.
 
-Data Access Layer – Entity Framework 6 with Oracle provider
-
-Database Layer – Oracle 19c
-
-AI integration runs locally via Ollama and communicates through HTTP API.
-
-🔐 Key Features
-
-Employee Management (CRUD operations)
-
-Department Management
-
-Role & Permission System
-
-Oracle-based data persistence
-
-Entity Framework ORM mapping
-
-On-premise AI assistant integration
-
-Secure local deployment
-
-🤖 AI Integration (On-Premise)
-
-This system integrates a local Large Language Model using:
-
-Ollama
-
-Llama 3 8B Instruct (q4_1)
-
-Benefits:
-
-Runs completely offline
-
-No external API cost
-
-Data privacy maintained
-
-Suitable for enterprise environments
-
-The AI layer can be used for:
-
-HR data analysis
-
-Intelligent reporting
-
-Internal assistant support
-
-Development productivity enhancement
-
-⚙️ Installation & Setup
-1. Requirements
-
-Visual Studio (.NET Desktop Development workload)
-
-Oracle Data Access Components (ODAC) 19c
-
-DevExpress WinForms
-
-Ollama (for AI integration)
-
-2. Clone Repository
-git clone https://github.com/your-username/QuanLyNhanSu.git
-3. Configure Database
-
-Update the connection string inside:
-
-App.config
-
-Example:
-
+### 2. Database Setup
+Update the `App.config` file with your Oracle connection string:
+```xml
 <connectionStrings>
-  <add name="HRDbContext"
-       connectionString="User Id=your_user;Password=your_password;Data Source=your_datasource"
+  <add name="HRDbContext" 
+       connectionString="User Id=your_user;Password=your_password;Data Source=your_oracle_datasource" 
        providerName="Oracle.ManagedDataAccess.Client" />
 </connectionStrings>
-4. Run Ollama (Optional – AI Feature)
-
-Install Ollama and pull the model:
-
-ollama pull llama3:8b-instruct-q4_1
-
-Start the Ollama service before running the application.
-
-🧠 Enterprise Focus
-
-This project is structured to simulate a real-world enterprise HR system:
-
-Database-first architecture
-
-Structured permission tables
-
-Layered design
-
-Local AI deployment for secure environments
-
-📄 License
-
-This project is developed for educational and enterprise demonstration purposes.
