@@ -76,6 +76,7 @@
             this.btnChucNang = new DevExpress.XtraBars.BarButtonItem();
             this.btnPQ_BaoCao = new DevExpress.XtraBars.BarButtonItem();
             this.BtnExit = new DevExpress.XtraBars.BarButtonItem();
+            this.BtnAI = new DevExpress.XtraBars.BarButtonItem();
             this.ribbonMiniToolbar1 = new DevExpress.XtraBars.Ribbon.RibbonMiniToolbar(this.components);
             this.ribbonPage1 = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.ribbonPageGroup3 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
@@ -99,7 +100,7 @@
             this.lstSinhNhat = new DevExpress.XtraEditors.ListBoxControl();
             this.barButtonItem1 = new DevExpress.XtraBars.BarButtonItem();
             this.barButtonItem4 = new DevExpress.XtraBars.BarButtonItem();
-            this.BtnAI = new DevExpress.XtraBars.BarButtonItem();
+            this.btnLogin = new DevExpress.XtraBars.BarButtonItem();
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.documentManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tabbedView1)).BeginInit();
@@ -156,10 +157,11 @@
             this.btnChucNang,
             this.btnPQ_BaoCao,
             this.BtnExit,
-            this.BtnAI});
+            this.BtnAI,
+            this.btnLogin});
             this.ribbonControl1.Location = new System.Drawing.Point(0, 0);
             this.ribbonControl1.Margin = new System.Windows.Forms.Padding(4);
-            this.ribbonControl1.MaxItemId = 39;
+            this.ribbonControl1.MaxItemId = 40;
             this.ribbonControl1.MiniToolbars.Add(this.ribbonMiniToolbar1);
             this.ribbonControl1.Name = "ribbonControl1";
             this.ribbonControl1.OptionsMenuMinWidth = 385;
@@ -459,6 +461,14 @@
             this.BtnExit.Name = "BtnExit";
             this.BtnExit.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.BtnExit_ItemClick);
             // 
+            // BtnAI
+            // 
+            this.BtnAI.Caption = "AI";
+            this.BtnAI.Id = 38;
+            this.BtnAI.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("BtnAI.ImageOptions.SvgImage")));
+            this.BtnAI.Name = "BtnAI";
+            this.BtnAI.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem2_ItemClick_1);
+            // 
             // ribbonMiniToolbar1
             // 
             this.ribbonMiniToolbar1.ParentControl = this;
@@ -473,10 +483,11 @@
             // 
             // ribbonPageGroup3
             // 
+            this.ribbonPageGroup3.ItemLinks.Add(this.btnLogin, true);
+            this.ribbonPageGroup3.ItemLinks.Add(this.btnUser_pass, true);
             this.ribbonPageGroup3.ItemLinks.Add(this.btnGroup, true);
             this.ribbonPageGroup3.ItemLinks.Add(this.btnUser, true);
             this.ribbonPageGroup3.ItemLinks.Add(this.btnUser_Update, true);
-            this.ribbonPageGroup3.ItemLinks.Add(this.btnUser_pass, true);
             this.ribbonPageGroup3.Name = "ribbonPageGroup3";
             this.ribbonPageGroup3.Text = "Tài Khoản";
             // 
@@ -708,13 +719,13 @@
             this.barButtonItem4.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem4.ImageOptions.SvgImage")));
             this.barButtonItem4.Name = "barButtonItem4";
             // 
-            // BtnAI
+            // btnLogin
             // 
-            this.BtnAI.Caption = "AI";
-            this.BtnAI.Id = 38;
-            this.BtnAI.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("barButtonItem2.ImageOptions.SvgImage")));
-            this.BtnAI.Name = "BtnAI";
-            this.BtnAI.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem2_ItemClick_1);
+            this.btnLogin.Caption = "Đăng Nhập";
+            this.btnLogin.Id = 39;
+            this.btnLogin.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLogin.ImageOptions.SvgImage")));
+            this.btnLogin.Name = "btnLogin";
+            this.btnLogin.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnLogin_ItemClick);
             // 
             // MainForm
             // 
@@ -809,6 +820,7 @@
         private DevExpress.XtraBars.BarButtonItem barButtonItem1;
         private DevExpress.XtraBars.BarButtonItem barButtonItem4;
         private DevExpress.XtraBars.BarButtonItem BtnAI;
+        private DevExpress.XtraBars.BarButtonItem btnLogin;
     }
 }
 

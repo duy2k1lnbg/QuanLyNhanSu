@@ -188,6 +188,12 @@
     <Compile Include="FORM_SYSTEM\FrmAI_Chat.Designer.cs">
       <DependentUpon>FrmAI_Chat.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_SYSTEM\FrmDangNhap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmDangNhap.Designer.cs">
+      <DependentUpon>FrmDangNhap.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmGroup.cs">
       <SubType>Form</SubType>
     </Compile>

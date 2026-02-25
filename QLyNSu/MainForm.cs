@@ -347,5 +347,10 @@ namespace QLyNSu
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmAI_Chat));
         }
+
+        private async void btnLogin_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmDangNhap));
+        }
     }
 }
