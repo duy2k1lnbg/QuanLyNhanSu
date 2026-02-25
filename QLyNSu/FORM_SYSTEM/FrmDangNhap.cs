@@ -1,75 +1,246 @@
-﻿using DA;
-using DevExpress.XtraEditors;
-using DevExpress.XtraSplashScreen;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
+﻿using System;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Drawing.Drawing2D;
+using System.IO;
 using System.Windows.Forms;
+using DevExpress.XtraEditors;
 
 namespace QLyNSu.FORM_SYSTEM
 {
-    public partial class FrmDangNhap : DevExpress.XtraEditors.XtraForm
+    public partial class FrmDangNhap : XtraForm
     {
+        private Timer glowTimer = new Timer();
+        private float glowIntensity = 0;
+        private bool glowIncreasing = true;
+
+        private float cardShadowOffset = 5;
+        private bool cardHover = false;
+
         public FrmDangNhap()
         {
             InitializeComponent();
-            txtPassword.ButtonClick += TxtPassword_ButtonClick;
+            this.DoubleBuffered = true;
+            this.AcceptButton = btnDangNhap;
+
+            this.BackgroundImage = Properties.Resources.background; // tên image trong resource
+            this.BackgroundImageLayout = ImageLayout.Stretch;
+
+            // Button hover
+            btnDangNhap.MouseEnter += BtnDangNhap_MouseEnter;
+            btnDangNhap.MouseLeave += BtnDangNhap_MouseLeave;
+
+            // Card hover
+            panelCard.MouseEnter += PanelCard_MouseEnter;
+            panelCard.MouseLeave += PanelCard_MouseLeave;
+
+            // TextEdit glow animation
+            txtTenDangNhap.Enter += TextEdit_Enter;
+            txtTenDangNhap.Leave += TextEdit_Leave;
+            txtMatKhau.Enter += TextEdit_Enter;
+            txtMatKhau.Leave += TextEdit_Leave;
+
+            // Timer animation
+            glowTimer.Interval = 20;
+            glowTimer.Tick += GlowTimer_Tick;
         }
-        private void TxtPassword_ButtonClick(object sender, DevExpress.XtraEditors.Controls.ButtonPressedEventArgs e)
+
+        protected override void OnPaintBackground(PaintEventArgs e)
         {
-            txtPassword.Properties.UseSystemPasswordChar = !txtPassword.Properties.UseSystemPasswordChar;
-            txtPassword.Properties.PasswordChar = txtPassword.Properties.UseSystemPasswordChar ? '\0' : '●';
+            // Vẽ background
+            if (this.BackgroundImage != null)
+            {
+                e.Graphics.DrawImage(this.BackgroundImage, this.ClientRectangle);
+            }
+            else
+            {
+                using (LinearGradientBrush brush = new LinearGradientBrush(
+                    this.ClientRectangle,
+                    Color.FromArgb(58, 123, 255),
+                    Color.FromArgb(142, 84, 233),
+                    45F))
+                {
+                    e.Graphics.FillRectangle(brush, this.ClientRectangle);
+                }
+            }
+
+            // Overlay gradient để card nổi bật
+            using (LinearGradientBrush overlay = new LinearGradientBrush(
+                this.ClientRectangle,
+                Color.FromArgb(100, 58, 123, 255),
+                Color.FromArgb(100, 142, 84, 233),
+                45F))
+            {
+                e.Graphics.FillRectangle(overlay, this.ClientRectangle);
+            }
+
+            // Shadow cho card
+            Rectangle shadowRect = panelCard.Bounds;
+            shadowRect.Offset((int)cardShadowOffset, (int)cardShadowOffset);
+            using (SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(60, 0, 0, 0)))
+            {
+                e.Graphics.FillRectangle(shadowBrush, shadowRect);
+            }
         }
 
-        private async void btnLogin_Click(object sender, EventArgs e)
+        private void FrmDangNhap_Load(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtUser.Text) || string.IsNullOrWhiteSpace(txtPassword.Text))
+            CenterCard();
+            txtTenDangNhap.Focus();
+        }
+
+        private void CenterCard()
+        {
+            panelCard.Left = (this.ClientSize.Width - panelCard.Width) / 2;
+            panelCard.Top = (this.ClientSize.Height - panelCard.Height) / 2;
+        }
+
+        protected override void OnResize(EventArgs e)
+        {
+            base.OnResize(e);
+            CenterCard();
+        }
+
+        //private void btnDangNhap_Click(object sender, EventArgs e)
+        //{
+        //    lblThongBao.Visible = false;
+        //    btnDangNhap.Enabled = false;
+        //    btnDangNhap.Text = "Đang xử lý...";
+
+        //    if (txtTenDangNhap.Text == "admin" && txtMatKhau.Text == "123")
+        //        DialogResult = DialogResult.OK;
+        //    else
+        //    {
+        //        lblThongBao.Text = "Tên đăng nhập hoặc mật khẩu không đúng.";
+        //        lblThongBao.Visible = true;
+        //    }
+
+        //    btnDangNhap.Enabled = true;
+        //    btnDangNhap.Text = "ĐĂNG NHẬP";
+        //}
+
+        private void btnDangNhap_Click(object sender, EventArgs e)
+        {
+            lblThongBao.Visible = false;
+
+            string username = txtTenDangNhap.Text.Trim();
+            string password = txtMatKhau.Text.Trim();
+
+            // Kiểm tra rỗng
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                txtUser.ErrorText = "Vui lòng nhập tài khoản";
-                return;
+                lblThongBao.Text = "Tên đăng nhập và mật khẩu không được để trống!";
+                lblThongBao.Appearance.ForeColor = Color.Red;
+                lblThongBao.Visible = true;
+                return; // Không tiếp tục xử lý
             }
 
-            // Hiển thị Overlay mờ ảo
-            var overlay = SplashScreenManager.ShowOverlayForm(this);
+            btnDangNhap.Enabled = false;
+            btnDangNhap.Text = "Đang xử lý...";
 
-            try
+            // Kiểm tra đăng nhập
+            if (username == "admin" && password == "123")
             {
-                string u = txtUser.Text;
-                string p = txtPassword.Text;
+                lblThongBao.Text = "Đăng nhập thành công!";
+                lblThongBao.Appearance.ForeColor = Color.Green;
+                lblThongBao.Visible = true;
 
-                // Kiểm tra database Oracle qua EF6 Task
-                bool isValid = await Task.Run(() => {
-                    using (var db = new MyEntities())
-                    {
-                        // EF6 + Oracle thường cần ép kiểu hoặc ToUpper nếu DB không phân biệt
-                        return db.TB_SYS_USER.Any(x => x.USERNAME.ToUpper() == u.ToUpper() && x.PASSWORD == p);
-                    }
-                });
-
-                if (isValid)
+                // Optional: đóng form sau 1 giây
+                var t = new Timer();
+                t.Interval = 1000;
+                t.Tick += (s, ev) =>
                 {
-                    this.DialogResult = DialogResult.OK;
-                    this.Close();
-                }
-                else
-                {
-                    XtraMessageBox.Show("Thông tin đăng nhập không chính xác.", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                }
+                    t.Stop();
+                    this.DialogResult = DialogResult.OK; // hoặc this.Close();
+                };
+                t.Start();
             }
-            catch (Exception ex)
+            else
             {
-                // Xử lý lỗi Oracle đặc thù (ORA-xxxxx)
-                XtraMessageBox.Show($"Lỗi Oracle: {ex.Message}", "Lỗi Kết Nối", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lblThongBao.Text = "Tên đăng nhập hoặc mật khẩu không đúng.";
+                lblThongBao.Appearance.ForeColor = Color.Red;
+                lblThongBao.Visible = true;
             }
-            finally
+
+            btnDangNhap.Enabled = true;
+            btnDangNhap.Text = "ĐĂNG NHẬP";
+        }
+
+        private void btnShowPassword_Click(object sender, EventArgs e)
+        {
+            txtMatKhau.Properties.PasswordChar =
+                txtMatKhau.Properties.PasswordChar == '\0' ? '●' : '\0';
+        }
+
+        // Button hover animation
+        private void BtnDangNhap_MouseEnter(object sender, EventArgs e)
+        {
+            btnDangNhap.Appearance.BackColor = Color.FromArgb(70, 140, 255);
+        }
+        private void BtnDangNhap_MouseLeave(object sender, EventArgs e)
+        {
+            btnDangNhap.Appearance.BackColor = Color.FromArgb(58, 123, 255);
+        }
+
+        // Card hover animation
+        private void PanelCard_MouseEnter(object sender, EventArgs e)
+        {
+            cardHover = true;
+            AnimateCardShadow(true);
+        }
+        private void PanelCard_MouseLeave(object sender, EventArgs e)
+        {
+            cardHover = false;
+            AnimateCardShadow(false);
+        }
+
+        private async void AnimateCardShadow(bool hover)
+        {
+            float targetOffset = hover ? 15f : 5f;
+            while ((hover && cardShadowOffset < targetOffset) || (!hover && cardShadowOffset > targetOffset))
             {
-                SplashScreenManager.CloseOverlayForm(overlay);
+                cardShadowOffset += hover ? 1f : -1f;
+                this.Invalidate();
+                await System.Threading.Tasks.Task.Delay(15);
             }
+            cardShadowOffset = targetOffset;
+            this.Invalidate();
+        }
+
+        // TextEdit glow animation
+        private void TextEdit_Enter(object sender, EventArgs e)
+        {
+            glowIntensity = 0;
+            glowIncreasing = true;
+            glowTimer.Tag = sender as TextEdit;
+            glowTimer.Start();
+        }
+
+        private void TextEdit_Leave(object sender, EventArgs e)
+        {
+            glowTimer.Stop();
+            var txt = sender as TextEdit;
+            txt.Properties.Appearance.BackColor = Color.White;
+            txt.Invalidate();
+        }
+
+        private void GlowTimer_Tick(object sender, EventArgs e)
+        {
+            var timer = sender as Timer;
+            var txt = timer.Tag as TextEdit;
+            if (txt == null) return;
+
+            if (glowIncreasing)
+                glowIntensity += 0.05f;
+            else
+                glowIntensity -= 0.05f;
+
+            if (glowIntensity >= 1f) glowIncreasing = false;
+            if (glowIntensity <= 0f) glowIncreasing = true;
+
+            int r = 230 + (int)(25 * glowIntensity);
+            int g = 245 + (int)(10 * glowIntensity);
+            int b = 255;
+            txt.Properties.Appearance.BackColor = Color.FromArgb(r, g, b);
         }
     }
 }

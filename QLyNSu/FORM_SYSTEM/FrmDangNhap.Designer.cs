@@ -1,120 +1,126 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Drawing;
+using System.Windows.Forms;
+using DevExpress.XtraEditors;
 
 namespace QLyNSu.FORM_SYSTEM
 {
     partial class FrmDangNhap
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
-        /// 
-        private System.ComponentModel.IContainer components = null;
+        private Panel panelCard;
+        private LabelControl lblTitle;
+        private TextEdit txtTenDangNhap;
+        private TextEdit txtMatKhau;
+        private SimpleButton btnDangNhap;
+        private SimpleButton btnShowPassword;
+        private LabelControl lblThongBao;
 
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
-
-        #region Windows Form Designer generated code
-
-        /// <summary>
-        /// Required method for Designer support - do not modify
-        /// the contents of this method with the code editor.
-        /// </summary>
         private void InitializeComponent()
         {
-            this.layoutControl1 = new DevExpress.XtraLayout.LayoutControl();
-            this.Root = new DevExpress.XtraLayout.LayoutControlGroup();
-            this.txtUser = new DevExpress.XtraEditors.TextEdit();
-            this.txtPassword = new DevExpress.XtraEditors.ButtonEdit();
-            this.btnLogin = new DevExpress.XtraEditors.SimpleButton();
-            this.btnExit = new DevExpress.XtraEditors.SimpleButton();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControl1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Root)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtUser.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtPassword.Properties)).BeginInit();
+            this.panelCard = new System.Windows.Forms.Panel();
+            this.lblTitle = new DevExpress.XtraEditors.LabelControl();
+            this.txtTenDangNhap = new DevExpress.XtraEditors.TextEdit();
+            this.txtMatKhau = new DevExpress.XtraEditors.TextEdit();
+            this.btnShowPassword = new DevExpress.XtraEditors.SimpleButton();
+            this.btnDangNhap = new DevExpress.XtraEditors.SimpleButton();
+            this.lblThongBao = new DevExpress.XtraEditors.LabelControl();
+            this.panelCard.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtTenDangNhap.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtMatKhau.Properties)).BeginInit();
             this.SuspendLayout();
             // 
-            // layoutControl1
+            // panelCard
             // 
-            this.layoutControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layoutControl1.Location = new System.Drawing.Point(0, 0);
-            this.layoutControl1.Name = "layoutControl1";
-            this.layoutControl1.Root = this.Root;
-            this.layoutControl1.Size = new System.Drawing.Size(400, 250);
-            this.layoutControl1.TabIndex = 0;
+            this.panelCard.BackColor = System.Drawing.Color.White;
+            this.panelCard.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panelCard.Controls.Add(this.lblTitle);
+            this.panelCard.Controls.Add(this.txtTenDangNhap);
+            this.panelCard.Controls.Add(this.txtMatKhau);
+            this.panelCard.Controls.Add(this.btnShowPassword);
+            this.panelCard.Controls.Add(this.btnDangNhap);
+            this.panelCard.Controls.Add(this.lblThongBao);
+            this.panelCard.Location = new System.Drawing.Point(0, 0);
+            this.panelCard.Name = "panelCard";
+            this.panelCard.Padding = new System.Windows.Forms.Padding(15);
+            this.panelCard.Size = new System.Drawing.Size(669, 457);
+            this.panelCard.TabIndex = 0;
             // 
-            // Root
+            // lblTitle
             // 
-            this.Root.Name = "Root";
-            this.Root.Size = new System.Drawing.Size(50, 25);
+            this.lblTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
+            this.lblTitle.Appearance.Options.UseFont = true;
+            this.lblTitle.Location = new System.Drawing.Point(120, 40);
+            this.lblTitle.Name = "lblTitle";
+            this.lblTitle.Size = new System.Drawing.Size(182, 41);
+            this.lblTitle.TabIndex = 0;
+            this.lblTitle.Text = "ĐĂNG NHẬP";
             // 
-            // txtUser
+            // txtTenDangNhap
             // 
-            this.txtUser.Location = new System.Drawing.Point(12, 30);
-            this.txtUser.Name = "txtUser";
-            this.txtUser.Size = new System.Drawing.Size(376, 30);
-            this.txtUser.TabIndex = 0;
+            this.txtTenDangNhap.Location = new System.Drawing.Point(60, 120);
+            this.txtTenDangNhap.Name = "txtTenDangNhap";
+            this.txtTenDangNhap.Properties.Appearance.ForeColor = System.Drawing.Color.Black;
+            this.txtTenDangNhap.Properties.Appearance.Options.UseForeColor = true;
+            this.txtTenDangNhap.Properties.NullValuePrompt = "Tên đăng nhập";
+            this.txtTenDangNhap.Size = new System.Drawing.Size(280, 22);
+            this.txtTenDangNhap.TabIndex = 1;
             // 
-            // txtPassword
+            // txtMatKhau
             // 
-            this.txtPassword.Location = new System.Drawing.Point(12, 80);
-            this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
-            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Glyph)});
-            this.txtPassword.Properties.PasswordChar = '●';
-            this.txtPassword.Size = new System.Drawing.Size(376, 30);
-            this.txtPassword.TabIndex = 0;
+            this.txtMatKhau.Location = new System.Drawing.Point(60, 170);
+            this.txtMatKhau.Name = "txtMatKhau";
+            this.txtMatKhau.Properties.Appearance.ForeColor = System.Drawing.Color.Black;
+            this.txtMatKhau.Properties.Appearance.Options.UseForeColor = true;
+            this.txtMatKhau.Properties.NullValuePrompt = "Mật khẩu";
+            this.txtMatKhau.Properties.PasswordChar = '●';
+            this.txtMatKhau.Size = new System.Drawing.Size(240, 22);
+            this.txtMatKhau.TabIndex = 2;
             // 
-            // btnLogin
+            // btnShowPassword
             // 
-            this.btnLogin.Appearance.BackColor = DevExpress.LookAndFeel.DXSkinColors.FillColors.Primary;
-            this.btnLogin.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.btnLogin.Appearance.Options.UseBackColor = true;
-            this.btnLogin.Appearance.Options.UseFont = true;
-            this.btnLogin.Location = new System.Drawing.Point(12, 130);
-            this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(376, 40);
-            this.btnLogin.TabIndex = 0;
-            this.btnLogin.Text = "ĐĂNG NHẬP HỆ THỐNG";
+            this.btnShowPassword.Location = new System.Drawing.Point(305, 170);
+            this.btnShowPassword.Name = "btnShowPassword";
+            this.btnShowPassword.Size = new System.Drawing.Size(35, 30);
+            this.btnShowPassword.TabIndex = 3;
+            this.btnShowPassword.Text = "👁";
+            this.btnShowPassword.Click += new System.EventHandler(this.btnShowPassword_Click);
             // 
-            // btnExit
+            // btnDangNhap
             // 
-            this.btnExit.Location = new System.Drawing.Point(0, 0);
-            this.btnExit.Name = "btnExit";
-            this.btnExit.Size = new System.Drawing.Size(94, 29);
-            this.btnExit.TabIndex = 0;
+            this.btnDangNhap.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(58)))), ((int)(((byte)(123)))), ((int)(((byte)(255)))));
+            this.btnDangNhap.Appearance.ForeColor = System.Drawing.Color.White;
+            this.btnDangNhap.Appearance.Options.UseBackColor = true;
+            this.btnDangNhap.Appearance.Options.UseForeColor = true;
+            this.btnDangNhap.Location = new System.Drawing.Point(60, 230);
+            this.btnDangNhap.Name = "btnDangNhap";
+            this.btnDangNhap.Size = new System.Drawing.Size(280, 45);
+            this.btnDangNhap.TabIndex = 4;
+            this.btnDangNhap.Text = "ĐĂNG NHẬP";
+            this.btnDangNhap.Click += new System.EventHandler(this.btnDangNhap_Click);
+            // 
+            // lblThongBao
+            // 
+            this.lblThongBao.Appearance.ForeColor = System.Drawing.Color.Red;
+            this.lblThongBao.Appearance.Options.UseForeColor = true;
+            this.lblThongBao.Location = new System.Drawing.Point(60, 290);
+            this.lblThongBao.Name = "lblThongBao";
+            this.lblThongBao.Size = new System.Drawing.Size(0, 16);
+            this.lblThongBao.TabIndex = 5;
             // 
             // FrmDangNhap
             // 
-            this.ClientSize = new System.Drawing.Size(757, 343);
-            this.Controls.Add(this.layoutControl1);
+            this.ClientSize = new System.Drawing.Size(900, 600);
+            this.Controls.Add(this.panelCard);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Name = "FrmDangNhap";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            ((System.ComponentModel.ISupportInitialize)(this.layoutControl1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.Root)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtUser.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtPassword.Properties)).EndInit();
+            this.Load += new System.EventHandler(this.FrmDangNhap_Load);
+            this.panelCard.ResumeLayout(false);
+            this.panelCard.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.txtTenDangNhap.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtMatKhau.Properties)).EndInit();
             this.ResumeLayout(false);
 
         }
-
-        private DevExpress.XtraLayout.LayoutControl layoutControl1;
-        private DevExpress.XtraEditors.TextEdit txtUser;
-        private DevExpress.XtraEditors.ButtonEdit txtPassword;
-        private DevExpress.XtraEditors.SimpleButton btnLogin;
-        private DevExpress.XtraEditors.SimpleButton btnExit;
-        private DevExpress.XtraLayout.LayoutControlGroup Root;
-
-        #endregion
     }
 }
