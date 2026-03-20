@@ -12,9 +12,13 @@ namespace DA
     using System;
     using System.Collections.Generic;
     
-    public partial class V_AI_PHUCAP
+    public partial class V_AI_ADVANCE
     {
-        public decimal IDPC { get; set; }
-        public string TENPC { get; set; }
+        public decimal MANV { get; set; }
+        public string HOTEN { get; set; }
+        public Nullable<decimal> NGAY { get; set; }
+        public Nullable<decimal> THANG { get; set; }
+        public Nullable<decimal> NAM { get; set; }
+        public Nullable<decimal> SOTIEN { get; set; }
     }
 }

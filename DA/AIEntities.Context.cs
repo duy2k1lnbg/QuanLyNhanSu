@@ -13,10 +13,10 @@ namespace DA
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class AIEntities : DbContext
+    public partial class AiEntities : DbContext
     {
-        public AIEntities()
-            : base("name=AIEntities")
+        public AiEntities()
+            : base("name=AiEntities")
         {
         }
     
@@ -25,19 +25,11 @@ namespace DA
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<V_AI_BAOHIEM> V_AI_BAOHIEM { get; set; }
-        public virtual DbSet<V_AI_BOPHAN> V_AI_BOPHAN { get; set; }
-        public virtual DbSet<V_AI_CHAMCONG> V_AI_CHAMCONG { get; set; }
-        public virtual DbSet<V_AI_CHUCVU> V_AI_CHUCVU { get; set; }
-        public virtual DbSet<V_AI_DANTOC> V_AI_DANTOC { get; set; }
-        public virtual DbSet<V_AI_EMP_WITH_DEPT> V_AI_EMP_WITH_DEPT { get; set; }
-        public virtual DbSet<V_AI_GIOITINH> V_AI_GIOITINH { get; set; }
-        public virtual DbSet<V_AI_NHANVIEN> V_AI_NHANVIEN { get; set; }
-        public virtual DbSet<V_AI_PHONGBAN> V_AI_PHONGBAN { get; set; }
-        public virtual DbSet<V_AI_PHUCAP> V_AI_PHUCAP { get; set; }
-        public virtual DbSet<V_AI_TANGCA> V_AI_TANGCA { get; set; }
-        public virtual DbSet<V_AI_TONGIAO> V_AI_TONGIAO { get; set; }
-        public virtual DbSet<V_AI_TRINHDO> V_AI_TRINHDO { get; set; }
-        public virtual DbSet<V_AI_UNGLUONG> V_AI_UNGLUONG { get; set; }
+        public virtual DbSet<V_AI_ADVANCE> V_AI_ADVANCE { get; set; }
+        public virtual DbSet<V_AI_ALLOWANCE> V_AI_ALLOWANCE { get; set; }
+        public virtual DbSet<V_AI_ATTENDANCE> V_AI_ATTENDANCE { get; set; }
+        public virtual DbSet<V_AI_EMPLOYEE> V_AI_EMPLOYEE { get; set; }
+        public virtual DbSet<V_AI_INSURANCE> V_AI_INSURANCE { get; set; }
+        public virtual DbSet<V_AI_OVERTIME> V_AI_OVERTIME { get; set; }
     }
 }

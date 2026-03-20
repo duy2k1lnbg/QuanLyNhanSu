@@ -4,588 +4,333 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-      <Schema Namespace="AI_READ.Store" Provider="Oracle.ManagedDataAccess.Client" ProviderManifestToken="18.0" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="AI_READ.Store" Provider="Oracle.ManagedDataAccess.Client" ProviderManifestToken="18.0" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_BAOHIEM' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_BAOHIEM">
+warning 6002: The table/view 'AI_READONLY.V_AI_ADVANCE' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="V_AI_ADVANCE">
           <Key>
-            <PropertyRef Name="IDBH" />
+            <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="IDBH" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="SOBH" Type="nvarchar2" MaxLength="50" />
-          <Property Name="NGAYCAP" Type="date" />
-          <Property Name="NOICAP" Type="nvarchar2" MaxLength="50" />
-          <Property Name="NOIKHAMBENH" Type="nvarchar2" MaxLength="50" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_BOPHAN' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_BOPHAN">
-          <Key>
-            <PropertyRef Name="IDBP" />
-          </Key>
-          <Property Name="IDBP" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENBP" Type="nvarchar2" MaxLength="50" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_CHAMCONG' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_CHAMCONG">
-          <Key>
-            <PropertyRef Name="MABC" />
-          </Key>
-          <Property Name="MABC" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
           <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
-          <Property Name="GIOVAO" Type="number" Precision="38" Scale="0" />
-          <Property Name="PHUTVAO" Type="number" Precision="38" Scale="0" />
-          <Property Name="GIORA" Type="number" Precision="38" Scale="0" />
-          <Property Name="PHUTRA" Type="number" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDLOAICONG" Type="number" Precision="38" Scale="0" />
+          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
+          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
+          <Property Name="SOTIEN" Type="float" Precision="126" Scale="0" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_CHUCVU' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_CHUCVU">
+warning 6002: The table/view 'AI_READONLY.V_AI_ALLOWANCE' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="V_AI_ALLOWANCE">
           <Key>
-            <PropertyRef Name="IDCV" />
+            <PropertyRef Name="MANV" />
+            <PropertyRef Name="KYCONG" />
           </Key>
-          <Property Name="IDCV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENCV" Type="nvarchar2" MaxLength="50" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="TENPC" Type="nvarchar2" MaxLength="250" />
+          <Property Name="SOTIEN" Type="float" Precision="126" Scale="0" />
+          <Property Name="KYCONG" Type="number" Precision="38" Scale="0" Nullable="false" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_DANTOC' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_DANTOC">
-          <Key>
-            <PropertyRef Name="IDDT" />
-          </Key>
-          <Property Name="IDDT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENDT" Type="nvarchar2" MaxLength="50" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_EMP_WITH_DEPT' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_EMP_WITH_DEPT">
+warning 6002: The table/view 'AI_READONLY.V_AI_ATTENDANCE' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="V_AI_ATTENDANCE">
           <Key>
             <PropertyRef Name="MANV" />
           </Key>
           <Property Name="MANV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
           <Property Name="TEN_PHONGBAN" Type="nvarchar2" MaxLength="50" />
-          <Property Name="TEN_BOPHAN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
+          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
+          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
+          <Property Name="GIOVAO" Type="number" Precision="38" Scale="0" />
+          <Property Name="PHUTVAO" Type="number" Precision="38" Scale="0" />
+          <Property Name="GIORA" Type="number" Precision="38" Scale="0" />
+          <Property Name="PHUTRA" Type="number" Precision="38" Scale="0" />
+          <Property Name="TIME_IN" Type="varchar2" MaxLength="81" />
+          <Property Name="TIME_OUT" Type="varchar2" MaxLength="81" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_GIOITINH' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_GIOITINH">
-          <Key>
-            <PropertyRef Name="IDGT" />
-          </Key>
-          <Property Name="IDGT" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENGT" Type="nvarchar2" MaxLength="50" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_NHANVIEN' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_NHANVIEN">
+warning 6002: The table/view 'AI_READONLY.V_AI_EMPLOYEE' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="V_AI_EMPLOYEE">
           <Key>
             <PropertyRef Name="MANV" />
           </Key>
           <Property Name="MANV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
-          <Property Name="IDGT" Type="number" Precision="38" Scale="0" />
           <Property Name="NGAYSINH" Type="date" />
           <Property Name="DIENTHOAI" Type="nvarchar2" MaxLength="50" />
           <Property Name="DIACHI" Type="nvarchar2" MaxLength="300" />
-          <Property Name="IDPB" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDBP" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDCV" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDTD" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDDT" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDTG" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
+          <Property Name="TEN_PHONGBAN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="TEN_BOPHAN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="TEN_CHUCVU" Type="nvarchar2" MaxLength="50" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_PHONGBAN' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_PHONGBAN">
+warning 6002: The table/view 'AI_READONLY.V_AI_INSURANCE' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="V_AI_INSURANCE">
           <Key>
-            <PropertyRef Name="IDPB" />
+            <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="IDPB" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENPB" Type="nvarchar2" MaxLength="50" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="SOBH" Type="nvarchar2" MaxLength="50" />
+          <Property Name="NGAYCAP" Type="date" />
+          <Property Name="NOICAP" Type="nvarchar2" MaxLength="50" />
+          <Property Name="NOIKHAMBENH" Type="nvarchar2" MaxLength="50" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_PHUCAP' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_PHUCAP">
+warning 6002: The table/view 'AI_READONLY.V_AI_OVERTIME' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+        <EntityType Name="V_AI_OVERTIME">
           <Key>
-            <PropertyRef Name="IDPC" />
+            <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="IDPC" Type="number" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="TENPC" Type="nvarchar2" MaxLength="250" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_TANGCA' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_TANGCA">
-          <Key>
-            <PropertyRef Name="IDTCA" />
-          </Key>
-          <Property Name="IDTCA" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="HOTEN" Type="nvarchar2" MaxLength="50" />
+          <Property Name="TEN_PHONGBAN" Type="nvarchar2" MaxLength="50" />
           <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
+          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
+          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
           <Property Name="SOGIO" Type="float" Precision="126" Scale="0" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
-          <Property Name="IDLOAICA" Type="number" Precision="38" Scale="0" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_TONGIAO' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_TONGIAO">
-          <Key>
-            <PropertyRef Name="IDTG" />
-          </Key>
-          <Property Name="IDTG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENTG" Type="nvarchar2" MaxLength="20" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_TRINHDO' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_TRINHDO">
-          <Key>
-            <PropertyRef Name="IDTD" />
-          </Key>
-          <Property Name="IDTD" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="TENTD" Type="nvarchar2" MaxLength="50" />
-        </EntityType>
-        <!--Errors Found During Generation:
-warning 6002: The table/view 'AI_READONLY.V_AI_UNGLUONG' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
-        <EntityType Name="V_AI_UNGLUONG">
-          <Key>
-            <PropertyRef Name="IDUL" />
-          </Key>
-          <Property Name="IDUL" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="NAM" Type="number" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="number" Precision="38" Scale="0" />
-          <Property Name="NGAY" Type="number" Precision="38" Scale="0" />
-          <Property Name="SOTIENUNG" Type="float" Precision="126" Scale="0" />
-          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
         </EntityType>
         <EntityContainer Name="AI_READStoreContainer">
-          <EntitySet Name="V_AI_BAOHIEM" EntityType="Self.V_AI_BAOHIEM" store:Type="Views" store:Schema="AI_READONLY">
+          <EntitySet Name="V_AI_ADVANCE" EntityType="Self.V_AI_ADVANCE" store:Type="Views" store:Schema="AI_READONLY">
             <DefiningQuery>SELECT 
-"V_AI_BAOHIEM"."IDBH" AS "IDBH", 
-"V_AI_BAOHIEM"."SOBH" AS "SOBH", 
-"V_AI_BAOHIEM"."NGAYCAP" AS "NGAYCAP", 
-"V_AI_BAOHIEM"."NOICAP" AS "NOICAP", 
-"V_AI_BAOHIEM"."NOIKHAMBENH" AS "NOIKHAMBENH", 
-"V_AI_BAOHIEM"."MANV" AS "MANV"
-FROM "AI_READONLY"."V_AI_BAOHIEM" "V_AI_BAOHIEM"</DefiningQuery>
+"V_AI_ADVANCE"."MANV" AS "MANV", 
+"V_AI_ADVANCE"."HOTEN" AS "HOTEN", 
+"V_AI_ADVANCE"."NGAY" AS "NGAY", 
+"V_AI_ADVANCE"."THANG" AS "THANG", 
+"V_AI_ADVANCE"."NAM" AS "NAM", 
+"V_AI_ADVANCE"."SOTIEN" AS "SOTIEN"
+FROM "AI_READONLY"."V_AI_ADVANCE" "V_AI_ADVANCE"</DefiningQuery>
           </EntitySet>
-          <EntitySet Name="V_AI_BOPHAN" EntityType="Self.V_AI_BOPHAN" store:Type="Views" store:Schema="AI_READONLY">
+          <EntitySet Name="V_AI_ALLOWANCE" EntityType="Self.V_AI_ALLOWANCE" store:Type="Views" store:Schema="AI_READONLY">
             <DefiningQuery>SELECT 
-"V_AI_BOPHAN"."IDBP" AS "IDBP", 
-"V_AI_BOPHAN"."TENBP" AS "TENBP"
-FROM "AI_READONLY"."V_AI_BOPHAN" "V_AI_BOPHAN"</DefiningQuery>
+"V_AI_ALLOWANCE"."MANV" AS "MANV", 
+"V_AI_ALLOWANCE"."HOTEN" AS "HOTEN", 
+"V_AI_ALLOWANCE"."TENPC" AS "TENPC", 
+"V_AI_ALLOWANCE"."SOTIEN" AS "SOTIEN", 
+"V_AI_ALLOWANCE"."KYCONG" AS "KYCONG"
+FROM "AI_READONLY"."V_AI_ALLOWANCE" "V_AI_ALLOWANCE"</DefiningQuery>
           </EntitySet>
-          <EntitySet Name="V_AI_CHAMCONG" EntityType="Self.V_AI_CHAMCONG" store:Type="Views" store:Schema="AI_READONLY">
+          <EntitySet Name="V_AI_ATTENDANCE" EntityType="Self.V_AI_ATTENDANCE" store:Type="Views" store:Schema="AI_READONLY">
             <DefiningQuery>SELECT 
-"V_AI_CHAMCONG"."MABC" AS "MABC", 
-"V_AI_CHAMCONG"."NAM" AS "NAM", 
-"V_AI_CHAMCONG"."THANG" AS "THANG", 
-"V_AI_CHAMCONG"."NGAY" AS "NGAY", 
-"V_AI_CHAMCONG"."GIOVAO" AS "GIOVAO", 
-"V_AI_CHAMCONG"."PHUTVAO" AS "PHUTVAO", 
-"V_AI_CHAMCONG"."GIORA" AS "GIORA", 
-"V_AI_CHAMCONG"."PHUTRA" AS "PHUTRA", 
-"V_AI_CHAMCONG"."MANV" AS "MANV", 
-"V_AI_CHAMCONG"."IDLOAICONG" AS "IDLOAICONG"
-FROM "AI_READONLY"."V_AI_CHAMCONG" "V_AI_CHAMCONG"</DefiningQuery>
+"V_AI_ATTENDANCE"."MANV" AS "MANV", 
+"V_AI_ATTENDANCE"."HOTEN" AS "HOTEN", 
+"V_AI_ATTENDANCE"."TEN_PHONGBAN" AS "TEN_PHONGBAN", 
+"V_AI_ATTENDANCE"."NGAY" AS "NGAY", 
+"V_AI_ATTENDANCE"."THANG" AS "THANG", 
+"V_AI_ATTENDANCE"."NAM" AS "NAM", 
+"V_AI_ATTENDANCE"."GIOVAO" AS "GIOVAO", 
+"V_AI_ATTENDANCE"."PHUTVAO" AS "PHUTVAO", 
+"V_AI_ATTENDANCE"."GIORA" AS "GIORA", 
+"V_AI_ATTENDANCE"."PHUTRA" AS "PHUTRA", 
+"V_AI_ATTENDANCE"."TIME_IN" AS "TIME_IN", 
+"V_AI_ATTENDANCE"."TIME_OUT" AS "TIME_OUT"
+FROM "AI_READONLY"."V_AI_ATTENDANCE" "V_AI_ATTENDANCE"</DefiningQuery>
           </EntitySet>
-          <EntitySet Name="V_AI_CHUCVU" EntityType="Self.V_AI_CHUCVU" store:Type="Views" store:Schema="AI_READONLY">
+          <EntitySet Name="V_AI_EMPLOYEE" EntityType="Self.V_AI_EMPLOYEE" store:Type="Views" store:Schema="AI_READONLY">
             <DefiningQuery>SELECT 
-"V_AI_CHUCVU"."IDCV" AS "IDCV", 
-"V_AI_CHUCVU"."TENCV" AS "TENCV"
-FROM "AI_READONLY"."V_AI_CHUCVU" "V_AI_CHUCVU"</DefiningQuery>
+"V_AI_EMPLOYEE"."MANV" AS "MANV", 
+"V_AI_EMPLOYEE"."HOTEN" AS "HOTEN", 
+"V_AI_EMPLOYEE"."NGAYSINH" AS "NGAYSINH", 
+"V_AI_EMPLOYEE"."DIENTHOAI" AS "DIENTHOAI", 
+"V_AI_EMPLOYEE"."DIACHI" AS "DIACHI", 
+"V_AI_EMPLOYEE"."TEN_PHONGBAN" AS "TEN_PHONGBAN", 
+"V_AI_EMPLOYEE"."TEN_BOPHAN" AS "TEN_BOPHAN", 
+"V_AI_EMPLOYEE"."TEN_CHUCVU" AS "TEN_CHUCVU"
+FROM "AI_READONLY"."V_AI_EMPLOYEE" "V_AI_EMPLOYEE"</DefiningQuery>
           </EntitySet>
-          <EntitySet Name="V_AI_DANTOC" EntityType="Self.V_AI_DANTOC" store:Type="Views" store:Schema="AI_READONLY">
+          <EntitySet Name="V_AI_INSURANCE" EntityType="Self.V_AI_INSURANCE" store:Type="Views" store:Schema="AI_READONLY">
             <DefiningQuery>SELECT 
-"V_AI_DANTOC"."IDDT" AS "IDDT", 
-"V_AI_DANTOC"."TENDT" AS "TENDT"
-FROM "AI_READONLY"."V_AI_DANTOC" "V_AI_DANTOC"</DefiningQuery>
+"V_AI_INSURANCE"."MANV" AS "MANV", 
+"V_AI_INSURANCE"."HOTEN" AS "HOTEN", 
+"V_AI_INSURANCE"."SOBH" AS "SOBH", 
+"V_AI_INSURANCE"."NGAYCAP" AS "NGAYCAP", 
+"V_AI_INSURANCE"."NOICAP" AS "NOICAP", 
+"V_AI_INSURANCE"."NOIKHAMBENH" AS "NOIKHAMBENH"
+FROM "AI_READONLY"."V_AI_INSURANCE" "V_AI_INSURANCE"</DefiningQuery>
           </EntitySet>
-          <EntitySet Name="V_AI_EMP_WITH_DEPT" EntityType="Self.V_AI_EMP_WITH_DEPT" store:Type="Views" store:Schema="AI_READONLY">
+          <EntitySet Name="V_AI_OVERTIME" EntityType="Self.V_AI_OVERTIME" store:Type="Views" store:Schema="AI_READONLY">
             <DefiningQuery>SELECT 
-"V_AI_EMP_WITH_DEPT"."MANV" AS "MANV", 
-"V_AI_EMP_WITH_DEPT"."HOTEN" AS "HOTEN", 
-"V_AI_EMP_WITH_DEPT"."TEN_PHONGBAN" AS "TEN_PHONGBAN", 
-"V_AI_EMP_WITH_DEPT"."TEN_BOPHAN" AS "TEN_BOPHAN"
-FROM "AI_READONLY"."V_AI_EMP_WITH_DEPT" "V_AI_EMP_WITH_DEPT"</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="V_AI_GIOITINH" EntityType="Self.V_AI_GIOITINH" store:Type="Views" store:Schema="AI_READONLY">
-            <DefiningQuery>SELECT 
-"V_AI_GIOITINH"."IDGT" AS "IDGT", 
-"V_AI_GIOITINH"."TENGT" AS "TENGT"
-FROM "AI_READONLY"."V_AI_GIOITINH" "V_AI_GIOITINH"</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="V_AI_NHANVIEN" EntityType="Self.V_AI_NHANVIEN" store:Type="Views" store:Schema="AI_READONLY">
-            <DefiningQuery>SELECT 
-"V_AI_NHANVIEN"."MANV" AS "MANV", 
-"V_AI_NHANVIEN"."HOTEN" AS "HOTEN", 
-"V_AI_NHANVIEN"."IDGT" AS "IDGT", 
-"V_AI_NHANVIEN"."NGAYSINH" AS "NGAYSINH", 
-"V_AI_NHANVIEN"."DIENTHOAI" AS "DIENTHOAI", 
-"V_AI_NHANVIEN"."DIACHI" AS "DIACHI", 
-"V_AI_NHANVIEN"."IDPB" AS "IDPB", 
-"V_AI_NHANVIEN"."IDBP" AS "IDBP", 
-"V_AI_NHANVIEN"."IDCV" AS "IDCV", 
-"V_AI_NHANVIEN"."IDTD" AS "IDTD", 
-"V_AI_NHANVIEN"."IDDT" AS "IDDT", 
-"V_AI_NHANVIEN"."IDTG" AS "IDTG", 
-"V_AI_NHANVIEN"."IDCTY" AS "IDCTY"
-FROM "AI_READONLY"."V_AI_NHANVIEN" "V_AI_NHANVIEN"</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="V_AI_PHONGBAN" EntityType="Self.V_AI_PHONGBAN" store:Type="Views" store:Schema="AI_READONLY">
-            <DefiningQuery>SELECT 
-"V_AI_PHONGBAN"."IDPB" AS "IDPB", 
-"V_AI_PHONGBAN"."TENPB" AS "TENPB"
-FROM "AI_READONLY"."V_AI_PHONGBAN" "V_AI_PHONGBAN"</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="V_AI_PHUCAP" EntityType="Self.V_AI_PHUCAP" store:Type="Views" store:Schema="AI_READONLY">
-            <DefiningQuery>SELECT 
-"V_AI_PHUCAP"."IDPC" AS "IDPC", 
-"V_AI_PHUCAP"."TENPC" AS "TENPC"
-FROM "AI_READONLY"."V_AI_PHUCAP" "V_AI_PHUCAP"</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="V_AI_TANGCA" EntityType="Self.V_AI_TANGCA" store:Type="Views" store:Schema="AI_READONLY">
-            <DefiningQuery>SELECT 
-"V_AI_TANGCA"."IDTCA" AS "IDTCA", 
-"V_AI_TANGCA"."NAM" AS "NAM", 
-"V_AI_TANGCA"."THANG" AS "THANG", 
-"V_AI_TANGCA"."NGAY" AS "NGAY", 
-"V_AI_TANGCA"."SOGIO" AS "SOGIO", 
-"V_AI_TANGCA"."MANV" AS "MANV", 
-"V_AI_TANGCA"."IDLOAICA" AS "IDLOAICA"
-FROM "AI_READONLY"."V_AI_TANGCA" "V_AI_TANGCA"</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="V_AI_TONGIAO" EntityType="Self.V_AI_TONGIAO" store:Type="Views" store:Schema="AI_READONLY">
-            <DefiningQuery>SELECT 
-"V_AI_TONGIAO"."IDTG" AS "IDTG", 
-"V_AI_TONGIAO"."TENTG" AS "TENTG"
-FROM "AI_READONLY"."V_AI_TONGIAO" "V_AI_TONGIAO"</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="V_AI_TRINHDO" EntityType="Self.V_AI_TRINHDO" store:Type="Views" store:Schema="AI_READONLY">
-            <DefiningQuery>SELECT 
-"V_AI_TRINHDO"."IDTD" AS "IDTD", 
-"V_AI_TRINHDO"."TENTD" AS "TENTD"
-FROM "AI_READONLY"."V_AI_TRINHDO" "V_AI_TRINHDO"</DefiningQuery>
-          </EntitySet>
-          <EntitySet Name="V_AI_UNGLUONG" EntityType="Self.V_AI_UNGLUONG" store:Type="Views" store:Schema="AI_READONLY">
-            <DefiningQuery>SELECT 
-"V_AI_UNGLUONG"."IDUL" AS "IDUL", 
-"V_AI_UNGLUONG"."NAM" AS "NAM", 
-"V_AI_UNGLUONG"."THANG" AS "THANG", 
-"V_AI_UNGLUONG"."NGAY" AS "NGAY", 
-"V_AI_UNGLUONG"."SOTIENUNG" AS "SOTIENUNG", 
-"V_AI_UNGLUONG"."MANV" AS "MANV"
-FROM "AI_READONLY"."V_AI_UNGLUONG" "V_AI_UNGLUONG"</DefiningQuery>
+"V_AI_OVERTIME"."MANV" AS "MANV", 
+"V_AI_OVERTIME"."HOTEN" AS "HOTEN", 
+"V_AI_OVERTIME"."TEN_PHONGBAN" AS "TEN_PHONGBAN", 
+"V_AI_OVERTIME"."NGAY" AS "NGAY", 
+"V_AI_OVERTIME"."THANG" AS "THANG", 
+"V_AI_OVERTIME"."NAM" AS "NAM", 
+"V_AI_OVERTIME"."SOGIO" AS "SOGIO"
+FROM "AI_READONLY"."V_AI_OVERTIME" "V_AI_OVERTIME"</DefiningQuery>
           </EntitySet>
         </EntityContainer>
-      </Schema>
-    </edmx:StorageModels>
+      </Schema></edmx:StorageModels>
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="AI_READ" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="V_AI_BAOHIEM">
+        <EntityContainer Name="AiEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="V_AI_ADVANCE" EntityType="AI_READ.V_AI_ADVANCE" />
+          <EntitySet Name="V_AI_ALLOWANCE" EntityType="AI_READ.V_AI_ALLOWANCE" />
+          <EntitySet Name="V_AI_ATTENDANCE" EntityType="AI_READ.V_AI_ATTENDANCE" />
+          <EntitySet Name="V_AI_EMPLOYEE" EntityType="AI_READ.V_AI_EMPLOYEE" />
+          <EntitySet Name="V_AI_INSURANCE" EntityType="AI_READ.V_AI_INSURANCE" />
+          <EntitySet Name="V_AI_OVERTIME" EntityType="AI_READ.V_AI_OVERTIME" />
+        </EntityContainer>
+        <EntityType Name="V_AI_ADVANCE">
           <Key>
-            <PropertyRef Name="IDBH" />
+            <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="IDBH" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="SOBH" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="NGAYCAP" Type="DateTime" />
-          <Property Name="NOICAP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="NOIKHAMBENH" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-        </EntityType>
-        <EntityType Name="V_AI_BOPHAN">
-          <Key>
-            <PropertyRef Name="IDBP" />
-          </Key>
-          <Property Name="IDBP" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENBP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="V_AI_CHAMCONG">
-          <Key>
-            <PropertyRef Name="MABC" />
-          </Key>
-          <Property Name="MABC" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="SOTIEN" Type="Decimal" Precision="38" Scale="0" />
+        </EntityType>
+        <EntityType Name="V_AI_ALLOWANCE">
+          <Key>
+            <PropertyRef Name="MANV" />
+            <PropertyRef Name="KYCONG" />
+          </Key>
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TENPC" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="SOTIEN" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="KYCONG" Type="Decimal" Nullable="false" Precision="38" Scale="0" />
+        </EntityType>
+        <EntityType Name="V_AI_ATTENDANCE">
+          <Key>
+            <PropertyRef Name="MANV" />
+          </Key>
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TEN_PHONGBAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="GIOVAO" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="PHUTVAO" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="GIORA" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="PHUTRA" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDLOAICONG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="TIME_IN" Type="String" MaxLength="81" FixedLength="false" Unicode="false" />
+          <Property Name="TIME_OUT" Type="String" MaxLength="81" FixedLength="false" Unicode="false" />
         </EntityType>
-        <EntityType Name="V_AI_CHUCVU">
-          <Key>
-            <PropertyRef Name="IDCV" />
-          </Key>
-          <Property Name="IDCV" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENCV" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="V_AI_DANTOC">
-          <Key>
-            <PropertyRef Name="IDDT" />
-          </Key>
-          <Property Name="IDDT" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENDT" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="V_AI_EMP_WITH_DEPT">
+        <EntityType Name="V_AI_EMPLOYEE">
           <Key>
             <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="TEN_PHONGBAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="TEN_BOPHAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="V_AI_GIOITINH">
-          <Key>
-            <PropertyRef Name="IDGT" />
-          </Key>
-          <Property Name="IDGT" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENGT" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="V_AI_NHANVIEN">
-          <Key>
-            <PropertyRef Name="MANV" />
-          </Key>
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="IDGT" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="NGAYSINH" Type="DateTime" />
           <Property Name="DIENTHOAI" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="DIACHI" Type="String" MaxLength="300" FixedLength="false" Unicode="true" />
-          <Property Name="IDPB" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDBP" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDCV" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDTD" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDDT" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDTG" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDCTY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="TEN_PHONGBAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TEN_BOPHAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TEN_CHUCVU" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="V_AI_PHONGBAN">
+        <EntityType Name="V_AI_INSURANCE">
           <Key>
-            <PropertyRef Name="IDPB" />
+            <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="IDPB" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENPB" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="SOBH" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NGAYCAP" Type="DateTime" />
+          <Property Name="NOICAP" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NOIKHAMBENH" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
         </EntityType>
-        <EntityType Name="V_AI_PHUCAP">
+        <EntityType Name="V_AI_OVERTIME">
           <Key>
-            <PropertyRef Name="IDPC" />
+            <PropertyRef Name="MANV" />
           </Key>
-          <Property Name="IDPC" Type="Decimal" Precision="38" Scale="0" Nullable="false" />
-          <Property Name="TENPC" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="V_AI_TANGCA">
-          <Key>
-            <PropertyRef Name="IDTCA" />
-          </Key>
-          <Property Name="IDTCA" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="MANV" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="HOTEN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="TEN_PHONGBAN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="SOGIO" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="IDLOAICA" Type="Decimal" Precision="38" Scale="0" />
         </EntityType>
-        <EntityType Name="V_AI_TONGIAO">
-          <Key>
-            <PropertyRef Name="IDTG" />
-          </Key>
-          <Property Name="IDTG" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENTG" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="V_AI_TRINHDO">
-          <Key>
-            <PropertyRef Name="IDTD" />
-          </Key>
-          <Property Name="IDTD" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="TENTD" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-        </EntityType>
-        <EntityType Name="V_AI_UNGLUONG">
-          <Key>
-            <PropertyRef Name="IDUL" />
-          </Key>
-          <Property Name="IDUL" Type="Decimal" Precision="38" Scale="0" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="NAM" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="THANG" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="NGAY" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="SOTIENUNG" Type="Decimal" Precision="38" Scale="0" />
-          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
-        </EntityType>
-        <EntityContainer Name="AiEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="V_AI_BAOHIEM" EntityType="Self.V_AI_BAOHIEM" />
-          <EntitySet Name="V_AI_BOPHAN" EntityType="Self.V_AI_BOPHAN" />
-          <EntitySet Name="V_AI_CHAMCONG" EntityType="Self.V_AI_CHAMCONG" />
-          <EntitySet Name="V_AI_CHUCVU" EntityType="Self.V_AI_CHUCVU" />
-          <EntitySet Name="V_AI_DANTOC" EntityType="Self.V_AI_DANTOC" />
-          <EntitySet Name="V_AI_EMP_WITH_DEPT" EntityType="Self.V_AI_EMP_WITH_DEPT" />
-          <EntitySet Name="V_AI_GIOITINH" EntityType="Self.V_AI_GIOITINH" />
-          <EntitySet Name="V_AI_NHANVIEN" EntityType="Self.V_AI_NHANVIEN" />
-          <EntitySet Name="V_AI_PHONGBAN" EntityType="Self.V_AI_PHONGBAN" />
-          <EntitySet Name="V_AI_PHUCAP" EntityType="Self.V_AI_PHUCAP" />
-          <EntitySet Name="V_AI_TANGCA" EntityType="Self.V_AI_TANGCA" />
-          <EntitySet Name="V_AI_TONGIAO" EntityType="Self.V_AI_TONGIAO" />
-          <EntitySet Name="V_AI_TRINHDO" EntityType="Self.V_AI_TRINHDO" />
-          <EntitySet Name="V_AI_UNGLUONG" EntityType="Self.V_AI_UNGLUONG" />
-        </EntityContainer>
       </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="AI_READStoreContainer" CdmEntityContainer="AiEntities">
-          <EntitySetMapping Name="V_AI_BAOHIEM">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_BAOHIEM">
-              <MappingFragment StoreEntitySet="V_AI_BAOHIEM">
-                <ScalarProperty Name="IDBH" ColumnName="IDBH" />
-                <ScalarProperty Name="SOBH" ColumnName="SOBH" />
-                <ScalarProperty Name="NGAYCAP" ColumnName="NGAYCAP" />
-                <ScalarProperty Name="NOICAP" ColumnName="NOICAP" />
-                <ScalarProperty Name="NOIKHAMBENH" ColumnName="NOIKHAMBENH" />
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_BOPHAN">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_BOPHAN">
-              <MappingFragment StoreEntitySet="V_AI_BOPHAN">
-                <ScalarProperty Name="IDBP" ColumnName="IDBP" />
-                <ScalarProperty Name="TENBP" ColumnName="TENBP" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_CHAMCONG">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_CHAMCONG">
-              <MappingFragment StoreEntitySet="V_AI_CHAMCONG">
-                <ScalarProperty Name="MABC" ColumnName="MABC" />
+          <EntitySetMapping Name="V_AI_ADVANCE">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_ADVANCE">
+              <MappingFragment StoreEntitySet="V_AI_ADVANCE">
+                <ScalarProperty Name="SOTIEN" ColumnName="SOTIEN" />
                 <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="THANG" ColumnName="THANG" />
                 <ScalarProperty Name="NGAY" ColumnName="NGAY" />
-                <ScalarProperty Name="GIOVAO" ColumnName="GIOVAO" />
-                <ScalarProperty Name="PHUTVAO" ColumnName="PHUTVAO" />
-                <ScalarProperty Name="GIORA" ColumnName="GIORA" />
-                <ScalarProperty Name="PHUTRA" ColumnName="PHUTRA" />
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="IDLOAICONG" ColumnName="IDLOAICONG" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_CHUCVU">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_CHUCVU">
-              <MappingFragment StoreEntitySet="V_AI_CHUCVU">
-                <ScalarProperty Name="IDCV" ColumnName="IDCV" />
-                <ScalarProperty Name="TENCV" ColumnName="TENCV" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_DANTOC">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_DANTOC">
-              <MappingFragment StoreEntitySet="V_AI_DANTOC">
-                <ScalarProperty Name="IDDT" ColumnName="IDDT" />
-                <ScalarProperty Name="TENDT" ColumnName="TENDT" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_EMP_WITH_DEPT">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_EMP_WITH_DEPT">
-              <MappingFragment StoreEntitySet="V_AI_EMP_WITH_DEPT">
-                <ScalarProperty Name="MANV" ColumnName="MANV" />
                 <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
-                <ScalarProperty Name="TEN_PHONGBAN" ColumnName="TEN_PHONGBAN" />
-                <ScalarProperty Name="TEN_BOPHAN" ColumnName="TEN_BOPHAN" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_GIOITINH">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_GIOITINH">
-              <MappingFragment StoreEntitySet="V_AI_GIOITINH">
-                <ScalarProperty Name="IDGT" ColumnName="IDGT" />
-                <ScalarProperty Name="TENGT" ColumnName="TENGT" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_NHANVIEN">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_NHANVIEN">
-              <MappingFragment StoreEntitySet="V_AI_NHANVIEN">
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
-                <ScalarProperty Name="IDGT" ColumnName="IDGT" />
-                <ScalarProperty Name="NGAYSINH" ColumnName="NGAYSINH" />
-                <ScalarProperty Name="DIENTHOAI" ColumnName="DIENTHOAI" />
-                <ScalarProperty Name="DIACHI" ColumnName="DIACHI" />
-                <ScalarProperty Name="IDPB" ColumnName="IDPB" />
-                <ScalarProperty Name="IDBP" ColumnName="IDBP" />
-                <ScalarProperty Name="IDCV" ColumnName="IDCV" />
-                <ScalarProperty Name="IDTD" ColumnName="IDTD" />
-                <ScalarProperty Name="IDDT" ColumnName="IDDT" />
-                <ScalarProperty Name="IDTG" ColumnName="IDTG" />
-                <ScalarProperty Name="IDCTY" ColumnName="IDCTY" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_PHONGBAN">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_PHONGBAN">
-              <MappingFragment StoreEntitySet="V_AI_PHONGBAN">
-                <ScalarProperty Name="IDPB" ColumnName="IDPB" />
-                <ScalarProperty Name="TENPB" ColumnName="TENPB" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_PHUCAP">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_PHUCAP">
-              <MappingFragment StoreEntitySet="V_AI_PHUCAP">
-                <ScalarProperty Name="IDPC" ColumnName="IDPC" />
+          <EntitySetMapping Name="V_AI_ALLOWANCE">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_ALLOWANCE">
+              <MappingFragment StoreEntitySet="V_AI_ALLOWANCE">
+                <ScalarProperty Name="KYCONG" ColumnName="KYCONG" />
+                <ScalarProperty Name="SOTIEN" ColumnName="SOTIEN" />
                 <ScalarProperty Name="TENPC" ColumnName="TENPC" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_TANGCA">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_TANGCA">
-              <MappingFragment StoreEntitySet="V_AI_TANGCA">
-                <ScalarProperty Name="IDTCA" ColumnName="IDTCA" />
-                <ScalarProperty Name="NAM" ColumnName="NAM" />
-                <ScalarProperty Name="THANG" ColumnName="THANG" />
-                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
-                <ScalarProperty Name="SOGIO" ColumnName="SOGIO" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
-                <ScalarProperty Name="IDLOAICA" ColumnName="IDLOAICA" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_TONGIAO">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_TONGIAO">
-              <MappingFragment StoreEntitySet="V_AI_TONGIAO">
-                <ScalarProperty Name="IDTG" ColumnName="IDTG" />
-                <ScalarProperty Name="TENTG" ColumnName="TENTG" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_TRINHDO">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_TRINHDO">
-              <MappingFragment StoreEntitySet="V_AI_TRINHDO">
-                <ScalarProperty Name="IDTD" ColumnName="IDTD" />
-                <ScalarProperty Name="TENTD" ColumnName="TENTD" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="V_AI_UNGLUONG">
-            <EntityTypeMapping TypeName="AI_READ.V_AI_UNGLUONG">
-              <MappingFragment StoreEntitySet="V_AI_UNGLUONG">
-                <ScalarProperty Name="IDUL" ColumnName="IDUL" />
+          <EntitySetMapping Name="V_AI_ATTENDANCE">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_ATTENDANCE">
+              <MappingFragment StoreEntitySet="V_AI_ATTENDANCE">
+                <ScalarProperty Name="TIME_OUT" ColumnName="TIME_OUT" />
+                <ScalarProperty Name="TIME_IN" ColumnName="TIME_IN" />
+                <ScalarProperty Name="PHUTRA" ColumnName="PHUTRA" />
+                <ScalarProperty Name="GIORA" ColumnName="GIORA" />
+                <ScalarProperty Name="PHUTVAO" ColumnName="PHUTVAO" />
+                <ScalarProperty Name="GIOVAO" ColumnName="GIOVAO" />
                 <ScalarProperty Name="NAM" ColumnName="NAM" />
                 <ScalarProperty Name="THANG" ColumnName="THANG" />
                 <ScalarProperty Name="NGAY" ColumnName="NGAY" />
-                <ScalarProperty Name="SOTIENUNG" ColumnName="SOTIENUNG" />
+                <ScalarProperty Name="TEN_PHONGBAN" ColumnName="TEN_PHONGBAN" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V_AI_EMPLOYEE">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_EMPLOYEE">
+              <MappingFragment StoreEntitySet="V_AI_EMPLOYEE">
+                <ScalarProperty Name="TEN_CHUCVU" ColumnName="TEN_CHUCVU" />
+                <ScalarProperty Name="TEN_BOPHAN" ColumnName="TEN_BOPHAN" />
+                <ScalarProperty Name="TEN_PHONGBAN" ColumnName="TEN_PHONGBAN" />
+                <ScalarProperty Name="DIACHI" ColumnName="DIACHI" />
+                <ScalarProperty Name="DIENTHOAI" ColumnName="DIENTHOAI" />
+                <ScalarProperty Name="NGAYSINH" ColumnName="NGAYSINH" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V_AI_INSURANCE">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_INSURANCE">
+              <MappingFragment StoreEntitySet="V_AI_INSURANCE">
+                <ScalarProperty Name="NOIKHAMBENH" ColumnName="NOIKHAMBENH" />
+                <ScalarProperty Name="NOICAP" ColumnName="NOICAP" />
+                <ScalarProperty Name="NGAYCAP" ColumnName="NGAYCAP" />
+                <ScalarProperty Name="SOBH" ColumnName="SOBH" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="V_AI_OVERTIME">
+            <EntityTypeMapping TypeName="AI_READ.V_AI_OVERTIME">
+              <MappingFragment StoreEntitySet="V_AI_OVERTIME">
+                <ScalarProperty Name="SOGIO" ColumnName="SOGIO" />
+                <ScalarProperty Name="NAM" ColumnName="NAM" />
+                <ScalarProperty Name="THANG" ColumnName="THANG" />
+                <ScalarProperty Name="NGAY" ColumnName="NGAY" />
+                <ScalarProperty Name="TEN_PHONGBAN" ColumnName="TEN_PHONGBAN" />
+                <ScalarProperty Name="HOTEN" ColumnName="HOTEN" />
                 <ScalarProperty Name="MANV" ColumnName="MANV" />
               </MappingFragment>
             </EntityTypeMapping>

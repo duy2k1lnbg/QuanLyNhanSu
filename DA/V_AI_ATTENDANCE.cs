@@ -12,17 +12,19 @@ namespace DA
     using System;
     using System.Collections.Generic;
     
-    public partial class V_AI_CHAMCONG
+    public partial class V_AI_ATTENDANCE
     {
-        public decimal MABC { get; set; }
-        public Nullable<decimal> NAM { get; set; }
-        public Nullable<decimal> THANG { get; set; }
+        public decimal MANV { get; set; }
+        public string HOTEN { get; set; }
+        public string TEN_PHONGBAN { get; set; }
         public Nullable<decimal> NGAY { get; set; }
+        public Nullable<decimal> THANG { get; set; }
+        public Nullable<decimal> NAM { get; set; }
         public Nullable<decimal> GIOVAO { get; set; }
         public Nullable<decimal> PHUTVAO { get; set; }
         public Nullable<decimal> GIORA { get; set; }
         public Nullable<decimal> PHUTRA { get; set; }
-        public Nullable<decimal> MANV { get; set; }
-        public Nullable<decimal> IDLOAICONG { get; set; }
+        public string TIME_IN { get; set; }
+        public string TIME_OUT { get; set; }
     }
 }

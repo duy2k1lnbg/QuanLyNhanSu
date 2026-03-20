@@ -12,9 +12,13 @@ namespace DA
     using System;
     using System.Collections.Generic;
     
-    public partial class V_AI_CHUCVU
+    public partial class V_AI_INSURANCE
     {
-        public decimal IDCV { get; set; }
-        public string TENCV { get; set; }
+        public decimal MANV { get; set; }
+        public string HOTEN { get; set; }
+        public string SOBH { get; set; }
+        public Nullable<System.DateTime> NGAYCAP { get; set; }
+        public string NOICAP { get; set; }
+        public string NOIKHAMBENH { get; set; }
     }
 }

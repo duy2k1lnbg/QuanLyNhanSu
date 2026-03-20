@@ -12,13 +12,12 @@ namespace DA
     using System;
     using System.Collections.Generic;
     
-    public partial class V_AI_BAOHIEM
+    public partial class V_AI_ALLOWANCE
     {
-        public decimal IDBH { get; set; }
-        public string SOBH { get; set; }
-        public Nullable<System.DateTime> NGAYCAP { get; set; }
-        public string NOICAP { get; set; }
-        public string NOIKHAMBENH { get; set; }
-        public Nullable<decimal> MANV { get; set; }
+        public decimal MANV { get; set; }
+        public string HOTEN { get; set; }
+        public string TENPC { get; set; }
+        public Nullable<decimal> SOTIEN { get; set; }
+        public decimal KYCONG { get; set; }
     }
 }

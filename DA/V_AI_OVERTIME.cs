@@ -12,9 +12,14 @@ namespace DA
     using System;
     using System.Collections.Generic;
     
-    public partial class V_AI_DANTOC
+    public partial class V_AI_OVERTIME
     {
-        public decimal IDDT { get; set; }
-        public string TENDT { get; set; }
+        public decimal MANV { get; set; }
+        public string HOTEN { get; set; }
+        public string TEN_PHONGBAN { get; set; }
+        public Nullable<decimal> NGAY { get; set; }
+        public Nullable<decimal> THANG { get; set; }
+        public Nullable<decimal> NAM { get; set; }
+        public Nullable<decimal> SOGIO { get; set; }
     }
 }

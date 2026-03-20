@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Bu.Services.AI_Servies;
+using Bu.Services.AI_Services;
 
 namespace QLyNSu.FORM_SYSTEM
 {

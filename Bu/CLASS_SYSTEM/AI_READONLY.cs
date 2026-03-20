@@ -11,11 +11,11 @@ namespace Bu.CLASS_SYSTEM
 {
     public class AI_READONLY
     {
-        AIEntities dbc = new AIEntities();
+        AiEntities dbc = new AiEntities();
 
-        public List<V_AI_NHANVIEN> GetAll()
+        public List<V_AI_EMPLOYEE> GetAll()
         {
-            return dbc.V_AI_NHANVIEN.ToList();
+            return dbc.V_AI_EMPLOYEE.ToList();
         }
     }
 }

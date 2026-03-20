@@ -237,46 +237,22 @@
     <Compile Include="TB_UNGLUONG.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
-    <Compile Include="V_AI_BAOHIEM.cs">
+    <Compile Include="V_AI_ADVANCE.cs">
       <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="V_AI_BOPHAN.cs">
+    <Compile Include="V_AI_ALLOWANCE.cs">
       <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="V_AI_CHAMCONG.cs">
+    <Compile Include="V_AI_ATTENDANCE.cs">
       <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="V_AI_CHUCVU.cs">
+    <Compile Include="V_AI_EMPLOYEE.cs">
       <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="V_AI_DANTOC.cs">
+    <Compile Include="V_AI_INSURANCE.cs">
       <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
-    <Compile Include="V_AI_EMP_WITH_DEPT.cs">
-      <DependentUpon>AIEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="V_AI_GIOITINH.cs">
-      <DependentUpon>AIEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="V_AI_NHANVIEN.cs">
-      <DependentUpon>AIEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="V_AI_PHONGBAN.cs">
-      <DependentUpon>AIEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="V_AI_PHUCAP.cs">
-      <DependentUpon>AIEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="V_AI_TANGCA.cs">
-      <DependentUpon>AIEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="V_AI_TONGIAO.cs">
-      <DependentUpon>AIEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="V_AI_TRINHDO.cs">
-      <DependentUpon>AIEntities.tt</DependentUpon>
-    </Compile>
-    <Compile Include="V_AI_UNGLUONG.cs">
+    <Compile Include="V_AI_OVERTIME.cs">
       <DependentUpon>AIEntities.tt</DependentUpon>
     </Compile>
   </ItemGroup>

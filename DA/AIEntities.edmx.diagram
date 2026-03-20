@@ -4,21 +4,13 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="3ec6aed54b4444dc803a47f8b88e69b3" Name="Diagram1">
-        <EntityTypeShape EntityType="AI_READ.V_AI_BAOHIEM" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_BOPHAN" Width="1.5" PointX="2.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_CHAMCONG" Width="1.5" PointX="0.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_CHUCVU" Width="1.5" PointX="2.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_DANTOC" Width="1.5" PointX="4.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_EMP_WITH_DEPT" Width="1.5" PointX="4.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_GIOITINH" Width="1.5" PointX="6.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_NHANVIEN" Width="1.5" PointX="2.75" PointY="6.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_PHONGBAN" Width="1.5" PointX="6.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_PHUCAP" Width="1.5" PointX="4.75" PointY="6.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_TANGCA" Width="1.5" PointX="6.75" PointY="6.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_TONGIAO" Width="1.5" PointX="8.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_TRINHDO" Width="1.5" PointX="8.75" PointY="3.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="AI_READ.V_AI_UNGLUONG" Width="1.5" PointX="8.75" PointY="6.75" IsExpanded="true" />
+      <Diagram DiagramId="3ec6aed54b4444dc803a47f8b88e69b3" Name="Diagram1" ZoomLevel="63">
+        <EntityTypeShape EntityType="AI_READ.V_AI_ADVANCE" Width="1.5" PointX="7" PointY="11.75" />
+        <EntityTypeShape EntityType="AI_READ.V_AI_ALLOWANCE" Width="1.5" PointX="4.875" PointY="11.75" />
+        <EntityTypeShape EntityType="AI_READ.V_AI_ATTENDANCE" Width="1.5" PointX="9" PointY="11.875" />
+        <EntityTypeShape EntityType="AI_READ.V_AI_EMPLOYEE" Width="1.5" PointX="0.75" PointY="11.75" />
+        <EntityTypeShape EntityType="AI_READ.V_AI_INSURANCE" Width="1.5" PointX="2.75" PointY="11.75" />
+        <EntityTypeShape EntityType="AI_READ.V_AI_OVERTIME" Width="1.5" PointX="10.875" PointY="11.625" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

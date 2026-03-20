@@ -12,20 +12,15 @@ namespace DA
     using System;
     using System.Collections.Generic;
     
-    public partial class V_AI_NHANVIEN
+    public partial class V_AI_EMPLOYEE
     {
         public decimal MANV { get; set; }
         public string HOTEN { get; set; }
-        public Nullable<decimal> IDGT { get; set; }
         public Nullable<System.DateTime> NGAYSINH { get; set; }
         public string DIENTHOAI { get; set; }
         public string DIACHI { get; set; }
-        public Nullable<decimal> IDPB { get; set; }
-        public Nullable<decimal> IDBP { get; set; }
-        public Nullable<decimal> IDCV { get; set; }
-        public Nullable<decimal> IDTD { get; set; }
-        public Nullable<decimal> IDDT { get; set; }
-        public Nullable<decimal> IDTG { get; set; }
-        public Nullable<decimal> IDCTY { get; set; }
+        public string TEN_PHONGBAN { get; set; }
+        public string TEN_BOPHAN { get; set; }
+        public string TEN_CHUCVU { get; set; }
     }
 }

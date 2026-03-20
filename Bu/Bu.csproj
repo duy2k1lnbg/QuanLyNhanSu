@@ -295,16 +295,13 @@
     <Compile Include="CLASS_NHANSU\QUOCTICH.cs" />
     <Compile Include="CLASS_NHANSU\TONGIAO.cs" />
     <Compile Include="CLASS_NHANSU\TRINHDO.cs" />
-    <Compile Include="Services\AI_Servies\Core\AiRouterService.cs" />
-    <Compile Include="Services\AI_Servies\Core\AiSchemaService.cs" />
-    <Compile Include="Services\AI_Servies\Core\QueryParser.cs" />
-    <Compile Include="Services\AI_Servies\Data\AttendanceRepository.cs" />
-    <Compile Include="Services\AI_Servies\ChatboxManager.cs" />
-    <Compile Include="Services\AI_Servies\Data\EmployeeRepository.cs" />
-    <Compile Include="Services\AI_Servies\Core\HybridRagService.cs" />
-    <Compile Include="Services\AI_Servies\Data\InsuranceRepository.cs" />
-    <Compile Include="Services\AI_Servies\LLM\OllamaService.cs" />
-    <Compile Include="Services\AI_Servies\Vector\VectorService.cs" />
+    <Compile Include="Services\AI_Services\Core\AiRouterService.cs" />
+    <Compile Include="Services\AI_Services\Core\AiSchemaService.cs" />
+    <Compile Include="Services\AI_Services\Core\SqlGeneratorService.cs" />
+    <Compile Include="Services\AI_Services\ChatboxManager.cs" />
+    <Compile Include="Services\AI_Services\Core\HybridRagService.cs" />
+    <Compile Include="Services\AI_Services\LLM\OllamaService.cs" />
+    <Compile Include="Services\AI_Services\Vector\VectorService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
