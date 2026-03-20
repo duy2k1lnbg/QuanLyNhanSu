@@ -100,64 +100,17 @@ namespace QLyNSu.FORM_SYSTEM
             CenterCard();
         }
 
-        //private void btnDangNhap_Click(object sender, EventArgs e)
-        //{
-        //    lblThongBao.Visible = false;
-        //    btnDangNhap.Enabled = false;
-        //    btnDangNhap.Text = "Đang xử lý...";
-
-        //    if (txtTenDangNhap.Text == "admin" && txtMatKhau.Text == "123")
-        //        DialogResult = DialogResult.OK;
-        //    else
-        //    {
-        //        lblThongBao.Text = "Tên đăng nhập hoặc mật khẩu không đúng.";
-        //        lblThongBao.Visible = true;
-        //    }
-
-        //    btnDangNhap.Enabled = true;
-        //    btnDangNhap.Text = "ĐĂNG NHẬP";
-        //}
-
         private void btnDangNhap_Click(object sender, EventArgs e)
         {
             lblThongBao.Visible = false;
-
-            string username = txtTenDangNhap.Text.Trim();
-            string password = txtMatKhau.Text.Trim();
-
-            // Kiểm tra rỗng
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-            {
-                lblThongBao.Text = "Tên đăng nhập và mật khẩu không được để trống!";
-                lblThongBao.Appearance.ForeColor = Color.Red;
-                lblThongBao.Visible = true;
-                return; // Không tiếp tục xử lý
-            }
-
             btnDangNhap.Enabled = false;
             btnDangNhap.Text = "Đang xử lý...";
 
-            // Kiểm tra đăng nhập
-            if (username == "admin" && password == "123")
-            {
-                lblThongBao.Text = "Đăng nhập thành công!";
-                lblThongBao.Appearance.ForeColor = Color.Green;
-                lblThongBao.Visible = true;
-
-                // Optional: đóng form sau 1 giây
-                var t = new Timer();
-                t.Interval = 1000;
-                t.Tick += (s, ev) =>
-                {
-                    t.Stop();
-                    this.DialogResult = DialogResult.OK; // hoặc this.Close();
-                };
-                t.Start();
-            }
+            if (txtTenDangNhap.Text == "admin" && txtMatKhau.Text == "123")
+                DialogResult = DialogResult.OK;
             else
             {
                 lblThongBao.Text = "Tên đăng nhập hoặc mật khẩu không đúng.";
-                lblThongBao.Appearance.ForeColor = Color.Red;
                 lblThongBao.Visible = true;
             }
 
