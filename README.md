@@ -2,82 +2,85 @@
 
 [![Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blueviolet)](https://dotnet.microsoft.com/)
 [![Database](https://img.shields.io/badge/Oracle-19c-red)](https://www.oracle.com/database/)
-[![UI Component](https://img.shields.io/badge/UI%20Library-DevExpress-orange)](https://www.devexpress.com/)
-[![AI](https://img.shields.io/badge/AI-Ollama%20/%20Llama%203-blue)](https://ollama.com/)
+[![UI Library](https://img.shields.io/badge/UI%20Library-DevExpress-orange)](https://www.devexpress.com/)
+[![AI-Engine](https://img.shields.io/badge/AI-Hybrid%20RAG-blue)](https://ollama.com/)
 
-An enterprise-grade **Human Resource Management System (HRMS)** architected on the Microsoft .NET ecosystem. This solution integrates **Oracle Database 19c** for robust data persistence and features an **On-Premise AI Assistant** powered by Llama 3 to ensure data privacy and intelligent decision-making.
+An enterprise-grade **Human Resource Management System (HRMS)** architected on the Microsoft .NET ecosystem. This solution integrates **Oracle Database 19c** for robust data persistence and features an **On-Premise AI Assistant** powered by Qwen 2.5 / Llama 3 to ensure data privacy and intelligent decision-making.
 
 ---
 
-## 📌 Project Overview
+## 🌎 Language Versions
+* [English Version](#english-overview)
+* [日本語概要 (Japanese Overview)](#-日本語概要-japanese-overview)
 
+---
+
+## 🇺🇸 English Overview
+
+### 📌 Project Overview
 This system is engineered to handle complex organizational structures, providing a secure and scalable environment for managing corporate human capital. By leveraging **DevExpress WinForms**, it offers a high-performance desktop experience tailored for HR professionals.
 
-### Key Value Propositions:
+* **Hybrid RAG Architecture:** Combines structured SQL querying with LLM reasoning for 100% data accuracy.
 * **Data Sovereignty:** Local AI integration ensures sensitive HR data never leaves the corporate network.
-* **High Availability:** Built for Oracle 19c, ensuring enterprise-level reliability and performance.
-* **Rich UI/UX:** Advanced data grids and reporting tools via DevExpress components.
+
+### 🏗 System Architecture
+1. **Presentation Layer:** DevExpress WinForms modern responsive interface.
+2. **Business Logic Layer (BLL):** Core HR services and workflow orchestration.
+3. **Intelligence Layer (Hybrid RAG):** NL2SQL engine with AiRouter, Cache, and History services.
+4. **Data Access Layer (DAL):** Entity Framework 6 (EF6) with Oracle Managed Driver.
+
+### 🤖 AI Intelligence & Security
+* **Natural Language to SQL (NL2SQL):** Translates Vietnamese/English queries into optimized Oracle SQL.
+* **Dedicated Read-Only Account:** The AI is assigned a specific database user with **Read-Only** privileges.
+* **View-Restricted Access:** Access is granted ONLY to predefined **Views** (e.g., `V_AI_EMPLOYEE`, `V_AI_ATTENDANCE`), isolating the AI from core business tables.
+* **SQL Injection Prevention:** Strict regex cleaning and keyword blacklisting (**DELETE, UPDATE, DROP, etc.**).
 
 ---
 
-## 🏗 System Architecture
+## 🇯🇵 日本語概要 (Japanese Overview)
 
-The application follows a rigorous **N-Tier Architecture** to ensure maintainability and scalability:
+### **エンタープライズ人事管理システム (HRMS) - AI統合型**
 
-1.  **Presentation Layer:** WinForms integrated with DevExpress UI components for a modern, responsive interface.
-2.  **Business Logic Layer (BLL):** Handles validation, workflow orchestration, and core HR business rules.
-3.  **Data Access Layer (DAL):** Implemented via **Entity Framework 6 (EF6)** using the Oracle Managed Driver for seamless ORM mapping.
-4.  **Intelligence Layer:** A local HTTP-based interface connecting to the **Ollama** runtime for private AI processing.
+本システムは、Microsoft .NET エコシステムと言語モデル（LLM）を融合させた次世代の人事管理ソリューションです。**Oracle Database 19c** による堅牢なデータ管理と、**Ollama** を活用したオンプレミス AI アシスタントにより、機密データの外部流出を完全に防ぎつつ、インテリジェントな意思決定を支援します。
+
+### **主な特徴 (Key Features)**
+
+* **ハイブリッド RAG アーキテクチャ:** 自然言語による質問を正確な SQL クエリに変換し、100% 正確なデータ参照を実現します。
+* **データ・ソブリンティ (データ主権):** ローカル環境で AI を実行するため、個人情報や給与データが企業ネットワーク外に出ることはありません。
+* **高パフォーマンス UI:** DevExpress WinForms を採用し、大量の勤怠・給与データも高速に処理・表示します。
+
+### **AI セキュリティとアクセス制御 (AI Security & Access Control)**
+
+業務データの安全性を最優先し、AI には厳格な制限を設けています。
+
+* **読み取り専用アカウント (Read-Only):** AI はデータの参照のみが許可された専用アカウントを使用します。
+* **ビュー限定アクセス (View-Restricted):** 基幹テーブルへの直接アクセスは禁止されており、事前定義された「参照専用ビュー」のみを介してデータを取得します。
+* **データ整合性の保護:** AI にはデータの追加・修正・削除（INSERT/UPDATE/DELETE）の権限が一切与えられていないため、ヒューマンエラーや AI の誤作動によるデータ破損のリスクがありません。
 
 ---
 
-## 🛠 Technology Stack
+## 🛠 Technology Stack / 技術スタック
 
-| Component | Technology |
+| Component | Technology / 技術仕様 |
 | :--- | :--- |
 | **Runtime** | .NET Framework 4.7.2 |
 | **UI Library** | DevExpress WinForms |
-| **Database** | Oracle Database 19c (Enterprise Edition) |
+| **Database** | Oracle Database 19c |
 | **ORM** | Entity Framework 6.4 |
-| **AI Runtime** | Ollama (Local LLM Instance) |
-| **LLM Model** | Llama 3 8B Instruct (Quantized q4_1) |
+| **AI Runtime** | Ollama (Local LLM) |
+| **Primary Model** | **Qwen 2.5** / **Llama 3** |
 
 ---
 
-## 🔐 Core Features
+## ⚙️ Configuration (App.config)
 
-* **Employee Lifecycle Management:** Comprehensive CRUD operations with detailed history tracking.
-* **Organizational Mapping:** Dynamic department and role hierarchy management.
-* **RBAC (Role-Based Access Control):** Granular permission system ensuring data security and compliance.
-* **Advanced Reporting:** Integrated analytics and export capabilities (Excel, PDF, Word).
-* **Private AI Assistant:** * Synthesize employee performance data.
-    * Automate internal HR queries.
-    * Draft HR communications and policy summaries.
-
----
-
-## 🤖 AI Integration (On-Premise)
-
-Unlike traditional HR systems that rely on cloud APIs (OpenAI/Azure), this system prioritizes **Privacy First**:
-* **Deployment:** The model runs locally via **Ollama**.
-* **Model:** `llama3:8b-instruct-q4_1` provides a perfect balance between inference speed and reasoning capabilities.
-* **Security:** Zero data leakage risk as no external API calls are made.
-
----
-
-## ⚙️ Installation & Configuration
-
-### 1. Prerequisites
-* Visual Studio 2022 (.NET Desktop Development workload).
-* Oracle Data Access Components (ODAC) 19c.
-* DevExpress WinForms Library.
-* Ollama Runtime.
-
-### 2. Database Setup
-Update the `App.config` file with your Oracle connection string:
 ```xml
-<connectionStrings>
-  <add name="HRDbContext" 
-       connectionString="User Id=your_user;Password=your_password;Data Source=your_oracle_datasource" 
-       providerName="Oracle.ManagedDataAccess.Client" />
-</connectionStrings>
+<configuration>
+  <connectionStrings>
+    <add name="AiEntities" connectionString="provider=Oracle.ManagedDataAccess.Client;..." />
+  </connectionStrings>
+  <appSettings>
+    <add key="OllamaUrl" value="http://localhost:11434/api/generate" />
+    <add key="DefaultModel" value="qwen2.5:latest" />
+  </appSettings>
+</configuration>
