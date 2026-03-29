@@ -3,71 +3,105 @@ using System;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
-namespace Bu.Services.AI_Services
+namespace Bu.Services.AI_Services.Core
 {
     public class OllamaService
     {
         private static readonly HttpClient _client = new HttpClient
         {
-            //Timeout = TimeSpan.FromMinutes(2)
-            Timeout = TimeSpan.FromSeconds(40)
+            //Timeout = TimeSpan.FromSeconds(50) // Tăng nhẹ timeout đề phòng model lớn
+            Timeout = TimeSpan.FromMinutes(2) // Tăng timeout lên 2 phút để đảm bảo model lớn có đủ thời gian phản hồi
         };
 
         private const string URL = "http://localhost:11434/api/generate";
         private const string MODEL = "qwen2.5:latest";
 
-        // ===== SQL MODE =====
+        // ===== SQL MODE & ROUTER MODE =====
+        // Dùng Temperature cực thấp (0.1) để AI không "sáng tạo" lung tung khi viết code
         public async Task<string> AskSql(string prompt)
         {
+            Debug.WriteLine($">>> [OLLAMA] SQL PROMPT:\n{prompt}");
+
             return await Send(prompt,
-                "Bạn là chuyên gia SQL Oracle. Chỉ trả về SELECT đúng.");
+                "Bạn là chuyên gia SQL Oracle. Chỉ trả về câu lệnh SELECT đúng, không giải thích, không dùng markdown.",
+                0.1, 250);
         }
 
-        // ===== CHAT MODE =====
-        public async Task<string> AskChat(string context, string question)
+        // ===== CHAT MODE (RAG) =====
+        // Dùng Temperature vừa phải (0.4 - 0.7) để câu trả lời tự nhiên, trôi chảy hơn
+        public async Task<string> AskChat(string context, string question, string history)
         {
             string fullPrompt = $@"
-Dữ liệu:
+[DỮ LIỆU HỆ THỐNG]
 {context}
 
-Câu hỏi:
+[LỊCH SỬ HỘI THOẠI]
+{history}
+
+[CÂU HỎI HIỆN TẠI]
 {question}
 
-Trả lời:
-- Nếu có dữ liệu → trả lời dựa trên dữ liệu
-- Nếu là câu hỏi chung → trả lời bình thường
-- Không bịa dữ liệu
+[YÊU CẦU TRẢ LỜI]
+- Nếu có dữ liệu hệ thống, hãy dùng nó để giải đáp chính xác.
+- Nếu là câu chào hỏi, hãy phản hồi thân thiện với tư cách trợ lý nhân sự HRM.
+- Không bịa đặt dữ liệu nếu không tìm thấy trong hệ thống.
+- Trình bày câu trả lời rõ ràng bằng tiếng Việt.
 ";
 
-            return await Send(fullPrompt, "Bạn là trợ lý nhân sự HRM.");
+            Debug.WriteLine($">>> [OLLAMA] CHAT PROMPT:\n{fullPrompt}");
+
+            return await Send(fullPrompt, "Bạn là trợ lý nhân sự HRM chuyên nghiệp.", 0.4, 600);
         }
 
-        private async Task<string> Send(string prompt, string system)
+        // ===== HÀM GỬI REQUEST TỔNG QUÁT =====
+        private async Task<string> Send(string prompt, string system, double temperature, int maxTokens)
         {
-            var body = new
+            try
             {
-                model = MODEL,
-                prompt = prompt,
-                system = system,
-                stream = false,
-                options = new { 
-                    temperature = 0.1,
-                    num_predict = 200
+                var body = new
+                {
+                    model = MODEL,
+                    prompt = prompt,
+                    system = system,
+                    stream = false,
+                    options = new
+                    {
+                        temperature = temperature,
+                        num_predict = maxTokens, // Giới hạn số lượng ký tự trả về
+                        top_k = 40,
+                        top_p = 0.9
+                    }
+                };
+
+                var json = JsonConvert.SerializeObject(body);
+                var contentString = new StringContent(json, Encoding.UTF8, "application/json");
+
+                var res = await _client.PostAsync(URL, contentString);
+
+                if (!res.IsSuccessStatusCode)
+                {
+                    Debug.WriteLine($">>> [OLLAMA ERROR]: HTTP {res.StatusCode}");
+                    return "Lỗi kết nối dịch vụ AI.";
                 }
-            };
 
-            var json = JsonConvert.SerializeObject(body);
+                var content = await res.Content.ReadAsStringAsync();
 
-            var res = await _client.PostAsync(
-                URL,
-                new StringContent(json, Encoding.UTF8, "application/json")
-            );
+                // Debug log raw content nếu cần kiểm tra lỗi parse
+                // Debug.WriteLine($">>> [OLLAMA RAW]: {content}");
 
-            var content = await res.Content.ReadAsStringAsync();
+                dynamic obj = JsonConvert.DeserializeObject(content);
+                string response = obj?.response?.ToString()?.Trim() ?? "AI không phản hồi.";
 
-            dynamic obj = JsonConvert.DeserializeObject(content);
-            return obj?.response?.ToString()?.Trim() ?? "AI lỗi";
+                Debug.WriteLine($">>> [OLLAMA RESPONSE]: {response}");
+                return response;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($">>> [SYSTEM ERROR]: {ex.Message}");
+                return "Hệ thống AI đang bận hoặc chưa khởi động.";
+            }
         }
     }
 }

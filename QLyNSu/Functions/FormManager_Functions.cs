@@ -1,4 +1,5 @@
 ﻿using DevExpress.XtraSplashScreen;
+using QLyNSu.Functions;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -88,6 +89,7 @@ namespace QLyNSu
                 DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn thoát không?", "Xác nhận thoát", MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
                 {
+                    AiBootstrap.StopOllama();
                     Application.Exit();
                 }
             }

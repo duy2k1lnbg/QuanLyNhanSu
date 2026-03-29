@@ -1,4 +1,10 @@
-﻿using System;
+﻿using Bu;
+using DevExpress.XtraSplashScreen;
+using QLyNSu.FORM_BAOCAO;
+using QLyNSu.FORM_CHAMCONG;
+using QLyNSu.FORM_SYSTEM;
+using QLyNSu.Functions;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -8,11 +14,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Bu;
-using DevExpress.XtraSplashScreen;
-using QLyNSu.FORM_BAOCAO;
-using QLyNSu.FORM_CHAMCONG;
-using QLyNSu.FORM_SYSTEM;
 
 namespace QLyNSu
 {
@@ -166,6 +167,7 @@ namespace QLyNSu
 
         private async void MainForm_Load(object sender, EventArgs e)
         {
+            _ = AiBootstrap.EnsureOllama();
             _nhanvien = new NHANVIEN();
             _hopdong = new HOPDONGLAODONG();
             ribbonControl1.SelectedPage = ribbonPage1;

@@ -227,6 +227,7 @@
     <Compile Include="FrmStartup.Designer.cs">
       <DependentUpon>FrmStartup.cs</DependentUpon>
     </Compile>
+    <Compile Include="Functions\AiBootstrap.cs" />
     <Compile Include="Functions\FormManager_Functions.cs" />
     <Compile Include="FORM_CHAMCONG\FrmBangCong.cs">
       <SubType>Form</SubType>

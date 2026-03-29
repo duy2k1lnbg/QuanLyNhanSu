@@ -1,4 +1,6 @@
-﻿namespace Bu.Services.AI_Services
+﻿using System;
+
+namespace Bu.Services.AI_Services
 {
     public class AiSchemaService
     {

@@ -1,30 +1,47 @@
-﻿namespace Bu.Services.AI_Services.Core
+﻿using System.Linq;
+using System.Threading.Tasks;
+using System.Diagnostics;
+
+namespace Bu.Services.AI_Services.Core
 {
     public class AiRouterService
     {
-        public string DetectIntent(string q)
+        private readonly OllamaService _ollama = new OllamaService();
+
+        public async Task<string> DetectIntent(string q)
         {
-            q = q.ToLower();
+            if (string.IsNullOrWhiteSpace(q)) return "GENERAL";
 
-            if (q.Contains("nhân viên") || q.Contains("tên") || q.Contains("mã"))
-                return "EMPLOYEE";
+            q = q.ToLower().Trim();
 
-            if (q.Contains("chấm công"))
-                return "ATTENDANCE";
+            string[] helloWords = { "hi", "hello", "xin chào", "chào", "hey", "chào bạn", "có ai ở đó không" };
+            if (helloWords.Any(w => q == w || q.StartsWith(w + " ")))
+            {
+                Debug.WriteLine($">>> RULE BASED: Greeting detected");
+                return "GENERAL";
+            }
 
-            if (q.Contains("tăng ca"))
-                return "OVERTIME";
+            return await AskAiToRoute(q);
+        }
 
-            if (q.Contains("bảo hiểm"))
-                return "INSURANCE";
+        private async Task<string> AskAiToRoute(string q)
+        {
+            string prompt = $@"
+Phân loại câu hỏi sau vào ĐÚNG 1 NHÃN duy nhất: EMPLOYEE, ATTENDANCE, OVERTIME, INSURANCE, ADVANCE, ALLOWANCE, GENERAL.
+Chỉ in ra tên nhãn, không giải thích.
 
-            if (q.Contains("ứng lương"))
-                return "ADVANCE";
+Câu hỏi: ""{q}""
+Nhãn:";
 
-            if (q.Contains("phụ cấp"))
-                return "ALLOWANCE";
+            Debug.WriteLine($">>> AI ROUTER PROMPT:\n{prompt}");
 
-            return "GENERAL";
+            var result = await _ollama.AskSql(prompt);
+            string intent = result.ToUpper().Trim().Replace(".", "");
+
+            Debug.WriteLine($">>> AI ROUTER RESULT: {intent}");
+
+            string[] validIntents = { "EMPLOYEE", "ATTENDANCE", "OVERTIME", "INSURANCE", "ADVANCE", "ALLOWANCE" };
+            return validIntents.Contains(intent) ? intent : "GENERAL";
         }
     }
 }

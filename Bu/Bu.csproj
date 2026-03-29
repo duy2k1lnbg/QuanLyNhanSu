@@ -275,6 +275,8 @@
     <Compile Include="CLASS_SYSTEM\SYS_PARAM.cs" />
     <Compile Include="CLASS_SYSTEM\SYS_USER.cs" />
     <Compile Include="DTO\DIEUCHUYEN_NHANVIEN_DTO.cs" />
+    <Compile Include="DTO\DTO_AI_VIEWS\AdvanceDto.cs" />
+    <Compile Include="DTO\DTO_AI_VIEWS\BaseAiDto.cs" />
     <Compile Include="DTO\HOPDONG_DTO.cs" />
     <Compile Include="DTO\KHENTHUONG_KYLUAT_DTO.cs" />
     <Compile Include="DTO\NANGLUONG_NHANVIEN_DTO.cs" />
@@ -301,6 +303,8 @@
     <Compile Include="Services\AI_Services\ChatboxManager.cs" />
     <Compile Include="Services\AI_Services\Core\HybridRagService.cs" />
     <Compile Include="Services\AI_Services\LLM\OllamaService.cs" />
+    <Compile Include="Services\AI_Services\Memory\AiCacheService.cs" />
+    <Compile Include="Services\AI_Services\Memory\AiChatHistory.cs" />
     <Compile Include="Services\AI_Services\Vector\VectorService.cs" />
   </ItemGroup>
   <ItemGroup>

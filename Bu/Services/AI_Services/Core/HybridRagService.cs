@@ -1,43 +1,75 @@
 ﻿using Bu.Services.AI_Services.Core;
+using Bu.DTO;
+using Bu.Services.AI_Services.Memory;
 using DA;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bu.Services.AI_Services
 {
     public class HybridRagService
     {
-        private readonly SqlGeneratorService _sqlService = new SqlGeneratorService();
+        private readonly SqlGeneratorService _sqlGenerator = new SqlGeneratorService();
+        private readonly AiRouterService _router = new AiRouterService();
+        private readonly OllamaService _ollama = new OllamaService();
+        private readonly AiChatHistory _history = new AiChatHistory();
 
         public async Task<string> Ask(string question)
         {
-            if (string.IsNullOrWhiteSpace(question))
-                return "Vui lòng nhập câu hỏi.";
+            try
+            {
+                // 1. Nhận diện ý định và lấy lịch sử chat
+                string intent = await _router.DetectIntent(question);
+                string currentHistory = _history.GetHistoryString();
 
-            // 1. SQL
-            string sql = await _sqlService.GenerateRawSql(question);
+                // 2. Xử lý trường hợp Giao tiếp chung (Greeting/General)
+                if (intent == "GENERAL")
+                {
+                    string botResponse = await _ollama.AskChat("", question, currentHistory);
+                    UpdateHistory(question, botResponse);
+                    return botResponse;
+                }
 
-            System.Diagnostics.Debug.WriteLine("SQL: " + sql);
+                // 3. Xử lý nghiệp vụ: Sinh SQL và Truy vấn dữ liệu
+                string sql = await _sqlGenerator.GenerateRawSql(question);
+                string dataContext = "Không tìm thấy dữ liệu liên quan trong hệ thống.";
 
-            if (sql == "NOT_SQL")
-                return "Không hiểu câu hỏi.";
+                if (sql != "NOT_SQL")
+                {
+                    var rawData = ExecuteSql(sql);
+                    if (rawData.Any())
+                    {
+                        // Chuyển đổi dữ liệu sang JSON để AI dễ đọc (Sử dụng DTO ngầm định)
+                        dataContext = JsonConvert.SerializeObject(rawData, Formatting.Indented);
+                    }
+                }
 
-            // 2. DB
-            var data = ExecuteSql(sql);
+                // 4. AI Tổng hợp câu trả lời dựa trên Dữ liệu (RAG) và Lịch sử
+                string finalResponse = await _ollama.AskChat(dataContext, question, currentHistory);
 
-            System.Diagnostics.Debug.WriteLine("DATA COUNT: " + data.Count);
+                // 5. Cập nhật trí nhớ cho AI
+                UpdateHistory(question, finalResponse);
 
-            if (!data.Any())
-                return "Không có dữ liệu.";
-
-            // 3. FORMAT
-            return FormatResult(data);
+                return finalResponse;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[RAG ERROR]: {ex.Message}");
+                return "Xin lỗi, tôi gặp chút trục trặc khi kết nối dữ liệu. Bạn thử hỏi lại nhé!";
+            }
         }
 
-        // ================= EXECUTE =================
+        private void UpdateHistory(string q, string a)
+        {
+            _history.AddMessage("User", q);
+            _history.AddMessage("AI", a);
+        }
+
+        // ================= TRUY VẤN DATABASE =================
         private List<Dictionary<string, object>> ExecuteSql(string sql)
         {
             var result = new List<Dictionary<string, object>>();
@@ -45,150 +77,36 @@ namespace Bu.Services.AI_Services
             using (var db = new AiEntities())
             {
                 var conn = db.Database.Connection;
-
-                if (conn.State != ConnectionState.Open)
-                    conn.Open();
+                if (conn.State != ConnectionState.Open) conn.Open();
 
                 using (var cmd = conn.CreateCommand())
                 {
                     cmd.CommandText = sql;
-
                     using (var reader = cmd.ExecuteReader())
                     {
                         while (reader.Read())
                         {
                             var row = new Dictionary<string, object>();
-
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
-                                row[reader.GetName(i)] =
-                                    reader.IsDBNull(i) ? null : reader.GetValue(i);
+                                string colName = reader.GetName(i);
+                                object value = reader.IsDBNull(i) ? null : reader.GetValue(i);
+                                row[colName] = value;
                             }
-
                             result.Add(row);
                         }
                     }
                 }
             }
-
             return result;
         }
 
-        // ================= FORMAT =================
-        private string FormatResult(List<Dictionary<string, object>> rows)
+        // ================= TÍNH NĂNG MỚI: CLEAR SESSION =================
+        public void ResetConversation()
         {
-            var first = rows.First();
-
-            if (first.ContainsKey("TEN_CHUCVU"))
-                return FormatEmployee(rows);
-
-            if (first.ContainsKey("GIOVAO"))
-                return FormatAttendance(rows);
-
-            if (first.ContainsKey("SOBH"))
-                return FormatInsurance(rows);
-
-            if (first.ContainsKey("SOTIENUNG"))
-                return FormatAdvance(rows);
-
-            if (first.ContainsKey("TENPC"))
-                return FormatAllowance(rows);
-
-            return FormatGeneric(rows);
-        }
-
-        private string FormatEmployee(List<Dictionary<string, object>> rows)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var r in rows)
-            {
-                sb.AppendLine($"👤 {r["HOTEN"]}");
-                sb.AppendLine($"- Mã NV: {r["MANV"]}");
-                sb.AppendLine($"- Phòng: {r["TEN_PHONGBAN"]}");
-                sb.AppendLine($"- Bộ phận: {r["TEN_BOPHAN"]}");
-                sb.AppendLine($"- Chức vụ: {r["TEN_CHUCVU"]}");
-                sb.AppendLine("------------------");
-            }
-
-            return sb.ToString();
-        }
-
-        private string FormatAttendance(List<Dictionary<string, object>> rows)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var r in rows)
-            {
-                sb.AppendLine($"👤 {r["HOTEN"]}");
-                sb.AppendLine($"- Ngày: {r["NGAY"]}/{r["THANG"]}/{r["NAM"]}");
-                sb.AppendLine($"- Vào: {r["GIOVAO"]}:{r["PHUTVAO"]}");
-                sb.AppendLine($"- Ra: {r["GIORA"]}:{r["PHUTRA"]}");
-                sb.AppendLine("------------------");
-            }
-
-            return sb.ToString();
-        }
-
-        private string FormatInsurance(List<Dictionary<string, object>> rows)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var r in rows)
-            {
-                sb.AppendLine($"👤 {r["HOTEN"]}");
-                sb.AppendLine($"- Số BH: {r["SOBH"]}");
-                sb.AppendLine($"- Nơi khám: {r["NOIKHAMBENH"]}");
-                sb.AppendLine("------------------");
-            }
-
-            return sb.ToString();
-        }
-
-        private string FormatAdvance(List<Dictionary<string, object>> rows)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var r in rows)
-            {
-                sb.AppendLine($"👤 {r["HOTEN"]}");
-                sb.AppendLine($"- Ngày: {r["NGAY"]}/{r["THANG"]}/{r["NAM"]}");
-                sb.AppendLine($"- Tiền ứng: {r["SOTIENUNG"]}");
-                sb.AppendLine("------------------");
-            }
-
-            return sb.ToString();
-        }
-
-        private string FormatAllowance(List<Dictionary<string, object>> rows)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var r in rows)
-            {
-                sb.AppendLine($"👤 {r["HOTEN"]}");
-                sb.AppendLine($"- Phụ cấp: {r["TENPC"]}");
-                sb.AppendLine($"- Số tiền: {r["SOTIEN"]}");
-                sb.AppendLine("------------------");
-            }
-
-            return sb.ToString();
-        }
-
-        private string FormatGeneric(List<Dictionary<string, object>> rows)
-        {
-            var sb = new StringBuilder();
-
-            foreach (var r in rows.Take(5))
-            {
-                foreach (var col in r)
-                {
-                    sb.Append($"{col.Key}: {col.Value} | ");
-                }
-                sb.AppendLine();
-            }
-
-            return sb.ToString();
+            _history.Clear();
+            // Có thể clear cache nếu muốn dữ liệu luôn mới nhất
+            // _cache.Clear(); 
         }
     }
 }

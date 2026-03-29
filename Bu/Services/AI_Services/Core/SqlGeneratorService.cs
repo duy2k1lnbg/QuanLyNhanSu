@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Bu.Services.AI_Services.Memory;
+using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -7,114 +8,109 @@ namespace Bu.Services.AI_Services.Core
     public class SqlGeneratorService
     {
         private readonly OllamaService _ollama = new OllamaService();
-
-        // ⚡ CACHE
-        private static Dictionary<string, string> _cache = new Dictionary<string, string>();
+        private readonly AiSchemaService _schema = new AiSchemaService();
+        private readonly AiCacheService _cache = new AiCacheService();
 
         public async Task<string> GenerateRawSql(string question)
         {
-            if (string.IsNullOrWhiteSpace(question))
-                return "NOT_SQL";
+            if (string.IsNullOrWhiteSpace(question)) return "NOT_SQL";
 
-            question = question.Trim();
+            // 1. Kiểm tra Cache
+            string cachedSql = _cache.Get(question);
+            if (cachedSql != null) return cachedSql;
 
-            // 🚀 CACHE HIT
-            if (_cache.ContainsKey(question))
-                return _cache[question];
-
-            // 🚀 HARD CODE
-            var fast = TryHardCode(question);
-            if (!string.IsNullOrEmpty(fast))
+            // 2. Xử lý nhanh (Hardcode) - Ưu tiên vì cực nhanh và chính xác 100%
+            var fastSql = TryHardCode(question);
+            if (fastSql != null)
             {
-                _cache[question] = fast;
-                return fast;
+                _cache.Set(question, fastSql);
+                return fastSql;
             }
 
-            // 🚀 AI fallback
-            string prompt = BuildPrompt(question);
+            // 3. Gọi AI với Schema đầy đủ
+            string prompt = BuildSqlPrompt(question);
+            var rawResponse = await _ollama.AskSql(prompt);
 
-            var raw = await _ollama.AskSql(prompt);
+            // 4. Làm sạch SQL
+            var cleanSql = CleanSql(rawResponse);
 
-            var clean = CleanSql(raw);
+            // 5. Lưu Cache
+            if (cleanSql != "NOT_SQL")
+            {
+                _cache.Set(question, cleanSql);
+            }
 
-            _cache[question] = clean;
-
-            return clean;
+            return cleanSql;
         }
 
-        // ================= HARD CODE =================
         private string TryHardCode(string q)
         {
-            var match = Regex.Match(q, @"\b\d+\b");
+            q = q.ToLower().Trim();
 
-            // tìm theo mã
-            if (q.ToLower().Contains("mã") && match.Success)
+            // Cải tiến Regex: Bắt tên nhân viên chính xác hơn (kể cả tên có dấu)
+            // Ví dụ: "thông tin nhân viên Nguyễn Thọ Duy" -> lấy được "Nguyễn Thọ Duy"
+            var nameMatch = Regex.Match(q, @"(?:nhân viên|tên|là|tìm|về)\s+([\p{L}\s]+)$");
+            if (nameMatch.Success)
             {
-                return $"SELECT * FROM V_AI_EMPLOYEE WHERE MANV = {match.Value}";
+                string name = nameMatch.Groups[1].Value.Trim();
+                if (name.Length > 1)
+                    return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(HOTEN) LIKE UPPER('%{name}%')";
             }
 
-            // tìm theo tên
-            if (q.ToLower().Contains("nhân viên"))
+            // Mẫu tìm theo mã số
+            var idMatch = Regex.Match(q, @"(?:mã|manv)\s*[:=]?\s*(\d+)");
+            if (idMatch.Success)
             {
-                var name = ExtractName(q);
-                if (!string.IsNullOrEmpty(name))
-                {
-                    return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(HOTEN) LIKE UPPER('%{name}%')";
-                }
+                return $"SELECT * FROM V_AI_EMPLOYEE WHERE MANV = {idMatch.Groups[1].Value}";
             }
 
             return null;
         }
 
-        private string ExtractName(string q)
+        private string BuildSqlPrompt(string question)
         {
-            var match = Regex.Match(q, @"nhân viên (.+)", RegexOptions.IgnoreCase);
-            return match.Success ? match.Groups[1].Value.Trim() : "";
-        }
-
-        // ================= PROMPT =================
-        private string BuildPrompt(string question)
-        {
+            // Sử dụng GetFullSchema() để AI biết rõ cột nào là NUMBER, cột nào là TEXT
             return $@"
-Bạn là AI viết SQL Oracle.
+{_schema.GetFullSchema()}
 
-CHỈ dùng các VIEW:
-- V_AI_EMPLOYEE(MANV, HOTEN, TEN_PHONGBAN, TEN_BOPHAN, TEN_CHUCVU)
-- V_AI_ATTENDANCE
-- V_AI_OVERTIME
-- V_AI_INSURANCE
-- V_AI_ADVANCE
-- V_AI_ALLOWANCE
+[NHIỆM VỤ]
+Chuyển câu hỏi người dùng thành 1 câu lệnh SQL Oracle duy nhất.
+Câu hỏi: ""{question}""
 
-QUY TẮC:
-1. CHỈ trả về SELECT
-2. KHÔNG giải thích
-3. KHÔNG dùng dấu ```
-4. MANV không có dấu '
-5. Tên dùng LIKE
+[VÍ DỤ MẪU]
+- User: Ai ở phòng kế toán?
+- SQL: SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(TEN_PHONGBAN) LIKE UPPER('%KẾ TOÁN%')
 
-Câu hỏi: {question}
-SQL:";
+Lệnh SQL:";
         }
 
-        // ================= CLEAN =================
         private string CleanSql(string raw)
         {
-            if (string.IsNullOrWhiteSpace(raw))
-                return "NOT_SQL";
+            if (string.IsNullOrWhiteSpace(raw)) return "NOT_SQL";
 
-            var clean = Regex.Replace(raw, "```sql|```", "").Trim();
+            // Loại bỏ Markdown
+            string clean = Regex.Replace(raw, @"```sql|```", "", RegexOptions.IgnoreCase).Trim();
 
-            if (clean.EndsWith(";"))
-                clean = clean.Substring(0, clean.Length - 1);
+            // Loại bỏ các tiền tố rác
+            clean = Regex.Replace(clean, @"^(SQL:|Lệnh SQL:|Output:)\s*", "", RegexOptions.IgnoreCase).Trim();
 
-            var upper = clean.ToUpper();
+            // Xử lý xuống dòng (AI đôi khi xuống dòng giữa câu SELECT)
+            clean = clean.Replace("\r", " ").Replace("\n", " ");
+            while (clean.Contains("  ")) clean = clean.Replace("  ", " ");
 
-            if (upper.Contains("DELETE") ||
-                upper.Contains("UPDATE") ||
-                upper.Contains("INSERT") ||
-                upper.Contains("DROP"))
-                return "NOT_SQL";
+            // Cắt dấu chấm phẩy
+            if (clean.EndsWith(";")) clean = clean.Substring(0, clean.Length - 1).Trim();
+
+            string upper = clean.ToUpper();
+
+            // Kiểm tra tính hợp lệ và an toàn
+            if (!upper.StartsWith("SELECT")) return "NOT_SQL";
+
+            string[] forbidden = { "DELETE", "UPDATE", "DROP", "TRUNCATE", "INSERT", "ALTER" };
+            foreach (var word in forbidden)
+            {
+                if (upper.Contains(word)) return "NOT_SQL";
+            }
 
             return clean;
         }
