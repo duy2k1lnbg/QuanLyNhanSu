@@ -1,98 +1,301 @@
-﻿using System;
+using System;
 using System.Drawing;
+using System.Windows.Forms;
 using DevExpress.XtraEditors;
 
 namespace QLyNSu.FORM_SYSTEM
 {
     partial class FrmDangNhap
     {
-        private PanelControl panelCard;
-        private LabelControl lblTitle;
+        private System.ComponentModel.IContainer components = null;
+        private System.Windows.Forms.Panel panelLeft;
+        private System.Windows.Forms.Panel panelRight;
+        private LabelControl lblLeftTitle;
+        private LabelControl lblLeftSub;
+        private LabelControl lblLeftSlogan;
+        private LabelControl lblLeftVersion;
+        private LabelControl lblRightTitle;
+        private LabelControl lblRightSub;
+        private LabelControl lblClose;
         private TextEdit txtTenDangNhap;
         private TextEdit txtMatKhau;
-        private SimpleButton btnDangNhap;
         private SimpleButton btnShowPassword;
+        private CheckEdit chkRememberMe;
         private LabelControl lblThongBao;
+        private SimpleButton btnDangNhap;
+        private SimpleButton btnThoat;
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing && (components != null))
+            {
+                components.Dispose();
+            }
+            base.Dispose(disposing);
+        }
 
         private void InitializeComponent()
         {
-            this.panelCard = new PanelControl();
-            this.lblTitle = new LabelControl();
-            this.txtTenDangNhap = new TextEdit();
-            this.txtMatKhau = new TextEdit();
-            this.btnDangNhap = new SimpleButton();
-            this.btnShowPassword = new SimpleButton();
-            this.lblThongBao = new LabelControl();
-
-            ((System.ComponentModel.ISupportInitialize)(this.panelCard)).BeginInit();
-            this.panelCard.SuspendLayout();
+            this.panelLeft = new System.Windows.Forms.Panel();
+            this.lblLeftTitle = new DevExpress.XtraEditors.LabelControl();
+            this.lblLeftSub = new DevExpress.XtraEditors.LabelControl();
+            this.lblLeftSlogan = new DevExpress.XtraEditors.LabelControl();
+            this.lblLeftVersion = new DevExpress.XtraEditors.LabelControl();
+            this.panelRight = new System.Windows.Forms.Panel();
+            this.lblClose = new DevExpress.XtraEditors.LabelControl();
+            this.lblRightTitle = new DevExpress.XtraEditors.LabelControl();
+            this.lblRightSub = new DevExpress.XtraEditors.LabelControl();
+            this.txtTenDangNhap = new DevExpress.XtraEditors.TextEdit();
+            this.txtMatKhau = new DevExpress.XtraEditors.TextEdit();
+            this.btnShowPassword = new DevExpress.XtraEditors.SimpleButton();
+            this.chkRememberMe = new DevExpress.XtraEditors.CheckEdit();
+            this.lblThongBao = new DevExpress.XtraEditors.LabelControl();
+            this.btnDangNhap = new DevExpress.XtraEditors.SimpleButton();
+            this.btnThoat = new DevExpress.XtraEditors.SimpleButton();
+            this.panelLeft.SuspendLayout();
+            this.panelRight.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtTenDangNhap.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtMatKhau.Properties)).BeginInit();
-
-            // Form
-            this.ClientSize = new Size(900, 600);
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Đăng nhập";
-            this.Load += new EventHandler(this.FrmDangNhap_Load);
-
-            // Panel Card
-            this.panelCard.Size = new Size(400, 320);
-            this.panelCard.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.panelCard.Appearance.BackColor = Color.White;
-            this.panelCard.Appearance.Options.UseBackColor = true;
-
-            // Title
-            this.lblTitle.Text = "ĐĂNG NHẬP";
-            this.lblTitle.Appearance.Font = new Font("Segoe UI", 18F, FontStyle.Bold);
-            this.lblTitle.Location = new Point(120, 30);
-
-            // Username
-            this.txtTenDangNhap.Location = new Point(60, 90);
-            this.txtTenDangNhap.Size = new Size(280, 30);
+            ((System.ComponentModel.ISupportInitialize)(this.chkRememberMe.Properties)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // panelLeft
+            // 
+            this.panelLeft.Controls.Add(this.lblLeftTitle);
+            this.panelLeft.Controls.Add(this.lblLeftSub);
+            this.panelLeft.Controls.Add(this.lblLeftSlogan);
+            this.panelLeft.Controls.Add(this.lblLeftVersion);
+            this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
+            this.panelLeft.Location = new System.Drawing.Point(0, 0);
+            this.panelLeft.Name = "panelLeft";
+            this.panelLeft.Size = new System.Drawing.Size(320, 480);
+            this.panelLeft.TabIndex = 0;
+            this.panelLeft.Paint += new System.Windows.Forms.PaintEventHandler(this.PanelLeft_Paint);
+            // 
+            // lblLeftTitle
+            // 
+            this.lblLeftTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 24F, System.Drawing.FontStyle.Bold);
+            this.lblLeftTitle.Appearance.ForeColor = System.Drawing.Color.White;
+            this.lblLeftTitle.Appearance.Options.UseFont = true;
+            this.lblLeftTitle.Appearance.Options.UseForeColor = true;
+            this.lblLeftTitle.Location = new System.Drawing.Point(40, 110);
+            this.lblLeftTitle.Name = "lblLeftTitle";
+            this.lblLeftTitle.Size = new System.Drawing.Size(256, 54);
+            this.lblLeftTitle.TabIndex = 0;
+            this.lblLeftTitle.Text = "HRM SYSTEM";
+            // 
+            // lblLeftSub
+            // 
+            this.lblLeftSub.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.2F);
+            this.lblLeftSub.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(220)))), ((int)(((byte)(220)))), ((int)(((byte)(220)))));
+            this.lblLeftSub.Appearance.Options.UseFont = true;
+            this.lblLeftSub.Appearance.Options.UseForeColor = true;
+            this.lblLeftSub.Location = new System.Drawing.Point(40, 165);
+            this.lblLeftSub.Name = "lblLeftSub";
+            this.lblLeftSub.Size = new System.Drawing.Size(253, 23);
+            this.lblLeftSub.TabIndex = 1;
+            this.lblLeftSub.Text = "Enterprise Management Platform";
+            // 
+            // lblLeftSlogan
+            // 
+            this.lblLeftSlogan.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Italic);
+            this.lblLeftSlogan.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(200)))), ((int)(((byte)(200)))));
+            this.lblLeftSlogan.Appearance.Options.UseFont = true;
+            this.lblLeftSlogan.Appearance.Options.UseForeColor = true;
+            this.lblLeftSlogan.Location = new System.Drawing.Point(40, 230);
+            this.lblLeftSlogan.Name = "lblLeftSlogan";
+            this.lblLeftSlogan.Size = new System.Drawing.Size(211, 63);
+            this.lblLeftSlogan.TabIndex = 2;
+            this.lblLeftSlogan.Text = "⚡   Local AI Assistant Integrated\r\n⚡   Oracle 19c Enterprise DB\r\n⚡    High-Securi" +
+    "ty Architecture";
+            // 
+            // lblLeftVersion
+            // 
+            this.lblLeftVersion.Appearance.Font = new System.Drawing.Font("Segoe UI", 8F);
+            this.lblLeftVersion.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.lblLeftVersion.Appearance.Options.UseFont = true;
+            this.lblLeftVersion.Appearance.Options.UseForeColor = true;
+            this.lblLeftVersion.Location = new System.Drawing.Point(40, 420);
+            this.lblLeftVersion.Name = "lblLeftVersion";
+            this.lblLeftVersion.Size = new System.Drawing.Size(102, 19);
+            this.lblLeftVersion.TabIndex = 3;
+            this.lblLeftVersion.Text = "Phiên bản v3.5.0";
+            // 
+            // panelRight
+            // 
+            this.panelRight.BackColor = System.Drawing.Color.White;
+            this.panelRight.Controls.Add(this.lblClose);
+            this.panelRight.Controls.Add(this.lblRightTitle);
+            this.panelRight.Controls.Add(this.lblRightSub);
+            this.panelRight.Controls.Add(this.txtTenDangNhap);
+            this.panelRight.Controls.Add(this.txtMatKhau);
+            this.panelRight.Controls.Add(this.btnShowPassword);
+            this.panelRight.Controls.Add(this.chkRememberMe);
+            this.panelRight.Controls.Add(this.lblThongBao);
+            this.panelRight.Controls.Add(this.btnDangNhap);
+            this.panelRight.Controls.Add(this.btnThoat);
+            this.panelRight.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panelRight.Location = new System.Drawing.Point(320, 0);
+            this.panelRight.Name = "panelRight";
+            this.panelRight.Size = new System.Drawing.Size(460, 480);
+            this.panelRight.TabIndex = 1;
+            // 
+            // lblClose
+            // 
+            this.lblClose.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.lblClose.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.lblClose.Appearance.Options.UseFont = true;
+            this.lblClose.Appearance.Options.UseForeColor = true;
+            this.lblClose.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.lblClose.Location = new System.Drawing.Point(425, 12);
+            this.lblClose.Name = "lblClose";
+            this.lblClose.Size = new System.Drawing.Size(17, 28);
+            this.lblClose.TabIndex = 0;
+            this.lblClose.Text = "✕";
+            this.lblClose.Click += new System.EventHandler(this.LblClose_Click);
+            this.lblClose.MouseEnter += new System.EventHandler(this.LblClose_MouseEnter);
+            this.lblClose.MouseLeave += new System.EventHandler(this.LblClose_MouseLeave);
+            // 
+            // lblRightTitle
+            // 
+            this.lblRightTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 18F, System.Drawing.FontStyle.Bold);
+            this.lblRightTitle.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(52)))), ((int)(((byte)(54)))));
+            this.lblRightTitle.Appearance.Options.UseFont = true;
+            this.lblRightTitle.Appearance.Options.UseForeColor = true;
+            this.lblRightTitle.Location = new System.Drawing.Point(50, 70);
+            this.lblRightTitle.Name = "lblRightTitle";
+            this.lblRightTitle.Size = new System.Drawing.Size(192, 41);
+            this.lblRightTitle.TabIndex = 1;
+            this.lblRightTitle.Text = "CHÀO MỪNG";
+            // 
+            // lblRightSub
+            // 
+            this.lblRightSub.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.lblRightSub.Appearance.ForeColor = System.Drawing.Color.Gray;
+            this.lblRightSub.Appearance.Options.UseFont = true;
+            this.lblRightSub.Appearance.Options.UseForeColor = true;
+            this.lblRightSub.Location = new System.Drawing.Point(50, 112);
+            this.lblRightSub.Name = "lblRightSub";
+            this.lblRightSub.Size = new System.Drawing.Size(268, 20);
+            this.lblRightSub.TabIndex = 2;
+            this.lblRightSub.Text = "Đăng nhập để tiếp tục truy cập hệ thống";
+            // 
+            // txtTenDangNhap
+            // 
+            this.txtTenDangNhap.Location = new System.Drawing.Point(50, 160);
+            this.txtTenDangNhap.Name = "txtTenDangNhap";
+            this.txtTenDangNhap.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.txtTenDangNhap.Properties.Appearance.Options.UseFont = true;
             this.txtTenDangNhap.Properties.NullValuePrompt = "Tên đăng nhập";
-            this.txtTenDangNhap.Properties.NullValuePromptShowForEmptyValue = true;
-
-            // Password
-            this.txtMatKhau.Location = new Point(60, 140);
-            this.txtMatKhau.Size = new Size(240, 30);
-            this.txtMatKhau.Properties.PasswordChar = '●';
+            this.txtTenDangNhap.Size = new System.Drawing.Size(360, 32);
+            this.txtTenDangNhap.TabIndex = 2;
+            // 
+            // txtMatKhau
+            // 
+            this.txtMatKhau.Location = new System.Drawing.Point(50, 215);
+            this.txtMatKhau.Name = "txtMatKhau";
+            this.txtMatKhau.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
+            this.txtMatKhau.Properties.Appearance.Options.UseFont = true;
             this.txtMatKhau.Properties.NullValuePrompt = "Mật khẩu";
-            this.txtMatKhau.Properties.NullValuePromptShowForEmptyValue = true;
-
-            // Show password button
-            this.btnShowPassword.Location = new Point(305, 140);
-            this.btnShowPassword.Size = new Size(35, 30);
+            this.txtMatKhau.Properties.PasswordChar = '●';
+            this.txtMatKhau.Size = new System.Drawing.Size(360, 32);
+            this.txtMatKhau.TabIndex = 3;
+            // 
+            // btnShowPassword
+            // 
+            this.btnShowPassword.Appearance.BackColor = System.Drawing.Color.White;
+            this.btnShowPassword.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.btnShowPassword.Appearance.ForeColor = System.Drawing.Color.Gray;
+            this.btnShowPassword.Appearance.Options.UseBackColor = true;
+            this.btnShowPassword.Appearance.Options.UseFont = true;
+            this.btnShowPassword.Appearance.Options.UseForeColor = true;
+            this.btnShowPassword.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.btnShowPassword.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnShowPassword.Location = new System.Drawing.Point(372, 222);
+            this.btnShowPassword.Name = "btnShowPassword";
+            this.btnShowPassword.ShowFocusRectangle = DevExpress.Utils.DefaultBoolean.False;
+            this.btnShowPassword.Size = new System.Drawing.Size(30, 24);
+            this.btnShowPassword.TabIndex = 4;
             this.btnShowPassword.Text = "👁";
-
-            // Login button
-            this.btnDangNhap.Location = new Point(60, 200);
-            this.btnDangNhap.Size = new Size(280, 45);
-            this.btnDangNhap.Text = "ĐĂNG NHẬP";
-            this.btnDangNhap.Appearance.BackColor = Color.FromArgb(58, 123, 255);
-            this.btnDangNhap.Appearance.ForeColor = Color.White;
-            this.btnDangNhap.Appearance.Options.UseBackColor = true;
-            this.btnDangNhap.Appearance.Options.UseForeColor = true;
-
-            // Thông báo
-            this.lblThongBao.Location = new Point(60, 260);
-            this.lblThongBao.Appearance.ForeColor = Color.Red;
+            this.btnShowPassword.Click += new System.EventHandler(this.btnShowPassword_Click);
+            // 
+            // chkRememberMe
+            // 
+            this.chkRememberMe.Location = new System.Drawing.Point(50, 268);
+            this.chkRememberMe.Name = "chkRememberMe";
+            this.chkRememberMe.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.chkRememberMe.Properties.Appearance.Options.UseFont = true;
+            this.chkRememberMe.Properties.Caption = "Ghi nhớ đăng nhập";
+            this.chkRememberMe.Size = new System.Drawing.Size(180, 24);
+            this.chkRememberMe.TabIndex = 5;
+            // 
+            // lblThongBao
+            // 
+            this.lblThongBao.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
+            this.lblThongBao.Appearance.ForeColor = System.Drawing.Color.Red;
+            this.lblThongBao.Appearance.Options.UseFont = true;
+            this.lblThongBao.Appearance.Options.UseForeColor = true;
+            this.lblThongBao.Location = new System.Drawing.Point(50, 305);
+            this.lblThongBao.Name = "lblThongBao";
+            this.lblThongBao.Size = new System.Drawing.Size(0, 20);
+            this.lblThongBao.TabIndex = 6;
             this.lblThongBao.Visible = false;
-
-            // Add controls
-            this.panelCard.Controls.Add(this.lblTitle);
-            this.panelCard.Controls.Add(this.txtTenDangNhap);
-            this.panelCard.Controls.Add(this.txtMatKhau);
-            this.panelCard.Controls.Add(this.btnShowPassword);
-            this.panelCard.Controls.Add(this.btnDangNhap);
-            this.panelCard.Controls.Add(this.lblThongBao);
-
-            this.Controls.Add(this.panelCard);
-
-            this.panelCard.ResumeLayout(false);
-            this.panelCard.PerformLayout();
+            // 
+            // btnDangNhap
+            // 
+            this.btnDangNhap.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(9)))), ((int)(((byte)(132)))), ((int)(((byte)(227)))));
+            this.btnDangNhap.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.btnDangNhap.Appearance.ForeColor = System.Drawing.Color.White;
+            this.btnDangNhap.Appearance.Options.UseBackColor = true;
+            this.btnDangNhap.Appearance.Options.UseFont = true;
+            this.btnDangNhap.Appearance.Options.UseForeColor = true;
+            this.btnDangNhap.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.Flat;
+            this.btnDangNhap.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnDangNhap.Location = new System.Drawing.Point(50, 340);
+            this.btnDangNhap.Name = "btnDangNhap";
+            this.btnDangNhap.Size = new System.Drawing.Size(360, 42);
+            this.btnDangNhap.TabIndex = 7;
+            this.btnDangNhap.Text = "ĐĂNG NHẬP";
+            this.btnDangNhap.Click += new System.EventHandler(this.btnDangNhap_Click);
+            // 
+            // btnThoat
+            // 
+            this.btnThoat.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(246)))), ((int)(((byte)(250)))));
+            this.btnThoat.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F, System.Drawing.FontStyle.Bold);
+            this.btnThoat.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(127)))), ((int)(((byte)(140)))), ((int)(((byte)(141)))));
+            this.btnThoat.Appearance.Options.UseBackColor = true;
+            this.btnThoat.Appearance.Options.UseFont = true;
+            this.btnThoat.Appearance.Options.UseForeColor = true;
+            this.btnThoat.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.Flat;
+            this.btnThoat.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnThoat.Location = new System.Drawing.Point(50, 395);
+            this.btnThoat.Name = "btnThoat";
+            this.btnThoat.Size = new System.Drawing.Size(360, 42);
+            this.btnThoat.TabIndex = 8;
+            this.btnThoat.Text = "THOÁT";
+            this.btnThoat.Click += new System.EventHandler(this.BtnThoat_Click);
+            // 
+            // FrmDangNhap
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
+            this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(780, 480);
+            this.Controls.Add(this.panelRight);
+            this.Controls.Add(this.panelLeft);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Name = "FrmDangNhap";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+            this.Text = "Hệ thống Đăng nhập";
+            this.Load += new System.EventHandler(this.FrmDangNhap_Load);
+            this.panelLeft.ResumeLayout(false);
+            this.panelLeft.PerformLayout();
+            this.panelRight.ResumeLayout(false);
+            this.panelRight.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtTenDangNhap.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtMatKhau.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkRememberMe.Properties)).EndInit();
+            this.ResumeLayout(false);
+
         }
     }
 }

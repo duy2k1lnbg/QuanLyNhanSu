@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -34,6 +34,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BCrypt.Net-Next">
+      <HintPath>..\packages\BCrypt.Net-Next.4.0.3\lib\net472\BCrypt.Net-Next.dll</HintPath>
+    </Reference>
     <Reference Include="Anthropic.SDK, Version=3.2.3.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Anthropic.SDK.3.2.3\lib\netstandard2.0\Anthropic.SDK.dll</HintPath>
     </Reference>
@@ -274,6 +277,8 @@
     <Compile Include="CLASS_SYSTEM\SYS_FUNCTION.cs" />
     <Compile Include="CLASS_SYSTEM\SYS_PARAM.cs" />
     <Compile Include="CLASS_SYSTEM\SYS_USER.cs" />
+    <Compile Include="CLASS_SYSTEM\UserSession.cs" />
+    <Compile Include="CLASS_SYSTEM\PasswordHasher.cs" />
     <Compile Include="DTO\DIEUCHUYEN_NHANVIEN_DTO.cs" />
     <Compile Include="DTO\DTO_AI_VIEWS\AdvanceDto.cs" />
     <Compile Include="DTO\DTO_AI_VIEWS\BaseAiDto.cs" />
@@ -300,6 +305,7 @@
     <Compile Include="Services\AI_Services\Core\AiRouterService.cs" />
     <Compile Include="Services\AI_Services\Core\AiSchemaService.cs" />
     <Compile Include="Services\AI_Services\Core\SqlGeneratorService.cs" />
+    <Compile Include="Services\AI_Services\Core\QueryPreprocessor.cs" />
     <Compile Include="Services\AI_Services\ChatboxManager.cs" />
     <Compile Include="Services\AI_Services\Core\HybridRagService.cs" />
     <Compile Include="Services\AI_Services\LLM\OllamaService.cs" />

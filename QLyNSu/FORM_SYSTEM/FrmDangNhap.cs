@@ -1,199 +1,211 @@
-﻿using System;
+using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.IO;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
+using Bu.CLASS_SYSTEM;
+using DA;
 
 namespace QLyNSu.FORM_SYSTEM
 {
     public partial class FrmDangNhap : XtraForm
     {
-        private Timer glowTimer = new Timer();
-        private float glowIntensity = 0;
-        private bool glowIncreasing = true;
+        private bool drag = false;
+        private Point startPoint = new Point(0, 0);
 
-        private float cardShadowOffset = 5;
-        private bool cardHover = false;
+        [System.Runtime.InteropServices.DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
+        private static extern IntPtr CreateRoundRectRgn(
+            int nLeftRect,     // x-coordinate of upper-left corner
+            int nTopRect,      // y-coordinate of upper-left corner
+            int nRightRect,    // x-coordinate of lower-right corner
+            int nBottomRect,   // y-coordinate of lower-right corner
+            int nWidthEllipse, // width of ellipse
+            int nHeightEllipse // height of ellipse
+        );
 
         public FrmDangNhap()
         {
             InitializeComponent();
-            this.DoubleBuffered = true;
+
+            // Set up dragging handlers to allow moving the borderless form
+            this.panelLeft.MouseDown += DragPanel_MouseDown;
+            this.panelLeft.MouseMove += DragPanel_MouseMove;
+            this.panelLeft.MouseUp += DragPanel_MouseUp;
+
+            this.panelRight.MouseDown += DragPanel_MouseDown;
+            this.panelRight.MouseMove += DragPanel_MouseMove;
+            this.panelRight.MouseUp += DragPanel_MouseUp;
+
+            // Configure DevExpress TextEdit focus styles programmatically
+            ConfigureInputFocusStyle(txtTenDangNhap);
+            ConfigureInputFocusStyle(txtMatKhau);
+
             this.AcceptButton = btnDangNhap;
-
-            this.BackgroundImage = Properties.Resources.background; // tên image trong resource
-            this.BackgroundImageLayout = ImageLayout.Stretch;
-
-            // Button hover
-            btnDangNhap.MouseEnter += BtnDangNhap_MouseEnter;
-            btnDangNhap.MouseLeave += BtnDangNhap_MouseLeave;
-
-            // Card hover
-            panelCard.MouseEnter += PanelCard_MouseEnter;
-            panelCard.MouseLeave += PanelCard_MouseLeave;
-
-            // TextEdit glow animation
-            txtTenDangNhap.Enter += TextEdit_Enter;
-            txtTenDangNhap.Leave += TextEdit_Leave;
-            txtMatKhau.Enter += TextEdit_Enter;
-            txtMatKhau.Leave += TextEdit_Leave;
-
-            // Timer animation
-            glowTimer.Interval = 20;
-            glowTimer.Tick += GlowTimer_Tick;
         }
 
-        protected override void OnPaintBackground(PaintEventArgs e)
+        private void ConfigureInputFocusStyle(TextEdit txt)
         {
-            // Vẽ background
-            if (this.BackgroundImage != null)
-            {
-                e.Graphics.DrawImage(this.BackgroundImage, this.ClientRectangle);
-            }
-            else
-            {
-                using (LinearGradientBrush brush = new LinearGradientBrush(
-                    this.ClientRectangle,
-                    Color.FromArgb(58, 123, 255),
-                    Color.FromArgb(142, 84, 233),
-                    45F))
-                {
-                    e.Graphics.FillRectangle(brush, this.ClientRectangle);
-                }
-            }
-
-            // Overlay gradient để card nổi bật
-            using (LinearGradientBrush overlay = new LinearGradientBrush(
-                this.ClientRectangle,
-                Color.FromArgb(100, 58, 123, 255),
-                Color.FromArgb(100, 142, 84, 233),
-                45F))
-            {
-                e.Graphics.FillRectangle(overlay, this.ClientRectangle);
-            }
-
-            // Shadow cho card
-            Rectangle shadowRect = panelCard.Bounds;
-            shadowRect.Offset((int)cardShadowOffset, (int)cardShadowOffset);
-            using (SolidBrush shadowBrush = new SolidBrush(Color.FromArgb(60, 0, 0, 0)))
-            {
-                e.Graphics.FillRectangle(shadowBrush, shadowRect);
-            }
+            txt.Properties.AppearanceFocused.BorderColor = Color.FromArgb(9, 132, 227);
+            txt.Properties.AppearanceFocused.Options.UseBorderColor = true;
         }
 
         private void FrmDangNhap_Load(object sender, EventArgs e)
         {
-            CenterCard();
+            // Apply rounded corners to the form
+            this.Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 16, 16));
+
+            // Load modern SVG icons into TextEdit controls on startup
+            try
+            {
+                var userSvg = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/icon builder/actions_user.svg");
+                if (userSvg != null)
+                {
+                    txtTenDangNhap.Properties.ContextImageOptions.SvgImage = userSvg;
+                }
+
+                var keySvg = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/icon builder/security_key.svg");
+                if (keySvg != null)
+                {
+                    txtMatKhau.Properties.ContextImageOptions.SvgImage = keySvg;
+                }
+            }
+            catch (Exception)
+            {
+                // Fallback silently if icons cannot be resolved
+            }
+
             txtTenDangNhap.Focus();
         }
 
-        private void CenterCard()
+        // Draw a beautiful custom gradient and decorative translucent shapes on the left branding panel
+        private void PanelLeft_Paint(object sender, PaintEventArgs e)
         {
-            panelCard.Left = (this.ClientSize.Width - panelCard.Width) / 2;
-            panelCard.Top = (this.ClientSize.Height - panelCard.Height) / 2;
+            Graphics g = e.Graphics;
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+
+            // Linear Gradient
+            using (LinearGradientBrush brush = new LinearGradientBrush(
+                panelLeft.ClientRectangle,
+                Color.FromArgb(9, 132, 227),  // Custom Blue
+                Color.FromArgb(108, 92, 231), // Custom Purple
+                45F))
+            {
+                g.FillRectangle(brush, panelLeft.ClientRectangle);
+            }
+
+            // Decorative Translucent Circles
+            using (SolidBrush circleBrush = new SolidBrush(Color.FromArgb(15, 255, 255, 255)))
+            {
+                g.FillEllipse(circleBrush, -60, -60, 220, 220);
+                g.FillEllipse(circleBrush, panelLeft.Width - 120, panelLeft.Height - 120, 180, 180);
+                g.FillEllipse(circleBrush, panelLeft.Width / 2 - 80, panelLeft.Height - 80, 120, 120);
+            }
         }
 
-        protected override void OnResize(EventArgs e)
+        // Draggable Window Logic
+        private void DragPanel_MouseDown(object sender, MouseEventArgs e)
         {
-            base.OnResize(e);
-            CenterCard();
+            drag = true;
+            startPoint = new Point(e.X, e.Y);
         }
 
+        private void DragPanel_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (drag)
+            {
+                Point p = PointToScreen(e.Location);
+                this.Location = new Point(p.X - startPoint.X, p.Y - startPoint.Y);
+            }
+        }
+
+        private void DragPanel_MouseUp(object sender, MouseEventArgs e)
+        {
+            drag = false;
+        }
+
+        // Close Label Actions
+        private void LblClose_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
+        }
+
+        private void LblClose_MouseEnter(object sender, EventArgs e)
+        {
+            lblClose.ForeColor = Color.FromArgb(231, 76, 60); // Red on hover
+        }
+
+        private void LblClose_MouseLeave(object sender, EventArgs e)
+        {
+            lblClose.ForeColor = Color.FromArgb(127, 140, 141); // Normal Gray
+        }
+
+        // Action Buttons
         private void btnDangNhap_Click(object sender, EventArgs e)
         {
             lblThongBao.Visible = false;
+            lblThongBao.Text = string.Empty;
+
+            string username = txtTenDangNhap.Text.Trim();
+            string password = txtMatKhau.Text.Trim();
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                lblThongBao.Text = "Vui lòng nhập tên đăng nhập và mật khẩu.";
+                lblThongBao.Visible = true;
+                return;
+            }
+
             btnDangNhap.Enabled = false;
             btnDangNhap.Text = "Đang xử lý...";
 
-            if (txtTenDangNhap.Text == "admin" && txtMatKhau.Text == "123")
-                DialogResult = DialogResult.OK;
-            else
+            try
             {
-                lblThongBao.Text = "Tên đăng nhập hoặc mật khẩu không đúng.";
+                var sysUser = new SYS_USER();
+                var user = sysUser.Login(username, password);
+                if (user != null)
+                {
+                    UserSession.CurrentUser = user;
+                    UserSession.UserRights = sysUser.GetRights(user.IDUSER);
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
+                else
+                {
+                    lblThongBao.Text = "Tên đăng nhập hoặc mật khẩu không đúng.";
+                    lblThongBao.Visible = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                lblThongBao.Text = "Lỗi kết nối cơ sở dữ liệu: " + ex.Message;
                 lblThongBao.Visible = true;
             }
+            finally
+            {
+                btnDangNhap.Enabled = true;
+                btnDangNhap.Text = "ĐĂNG NHẬP";
+            }
+        }
 
-            btnDangNhap.Enabled = true;
-            btnDangNhap.Text = "ĐĂNG NHẬP";
+        private void BtnThoat_Click(object sender, EventArgs e)
+        {
+            this.DialogResult = DialogResult.Cancel;
+            this.Close();
         }
 
         private void btnShowPassword_Click(object sender, EventArgs e)
         {
-            txtMatKhau.Properties.PasswordChar =
-                txtMatKhau.Properties.PasswordChar == '\0' ? '●' : '\0';
-        }
-
-        // Button hover animation
-        private void BtnDangNhap_MouseEnter(object sender, EventArgs e)
-        {
-            btnDangNhap.Appearance.BackColor = Color.FromArgb(70, 140, 255);
-        }
-        private void BtnDangNhap_MouseLeave(object sender, EventArgs e)
-        {
-            btnDangNhap.Appearance.BackColor = Color.FromArgb(58, 123, 255);
-        }
-
-        // Card hover animation
-        private void PanelCard_MouseEnter(object sender, EventArgs e)
-        {
-            cardHover = true;
-            AnimateCardShadow(true);
-        }
-        private void PanelCard_MouseLeave(object sender, EventArgs e)
-        {
-            cardHover = false;
-            AnimateCardShadow(false);
-        }
-
-        private async void AnimateCardShadow(bool hover)
-        {
-            float targetOffset = hover ? 15f : 5f;
-            while ((hover && cardShadowOffset < targetOffset) || (!hover && cardShadowOffset > targetOffset))
+            if (txtMatKhau.Properties.PasswordChar == '\0')
             {
-                cardShadowOffset += hover ? 1f : -1f;
-                this.Invalidate();
-                await System.Threading.Tasks.Task.Delay(15);
+                txtMatKhau.Properties.PasswordChar = '●';
+                btnShowPassword.Text = "👁";
             }
-            cardShadowOffset = targetOffset;
-            this.Invalidate();
-        }
-
-        // TextEdit glow animation
-        private void TextEdit_Enter(object sender, EventArgs e)
-        {
-            glowIntensity = 0;
-            glowIncreasing = true;
-            glowTimer.Tag = sender as TextEdit;
-            glowTimer.Start();
-        }
-
-        private void TextEdit_Leave(object sender, EventArgs e)
-        {
-            glowTimer.Stop();
-            var txt = sender as TextEdit;
-            txt.Properties.Appearance.BackColor = Color.White;
-            txt.Invalidate();
-        }
-
-        private void GlowTimer_Tick(object sender, EventArgs e)
-        {
-            var timer = sender as Timer;
-            var txt = timer.Tag as TextEdit;
-            if (txt == null) return;
-
-            if (glowIncreasing)
-                glowIntensity += 0.05f;
             else
-                glowIntensity -= 0.05f;
-
-            if (glowIntensity >= 1f) glowIncreasing = false;
-            if (glowIntensity <= 0f) glowIncreasing = true;
-
-            int r = 230 + (int)(25 * glowIntensity);
-            int g = 245 + (int)(10 * glowIntensity);
-            int b = 255;
-            txt.Properties.Appearance.BackColor = Color.FromArgb(r, g, b);
+            {
+                txtMatKhau.Properties.PasswordChar = '\0';
+                btnShowPassword.Text = "🙈";
+            }
         }
     }
 }

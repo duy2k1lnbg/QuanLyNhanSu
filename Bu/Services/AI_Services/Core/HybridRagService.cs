@@ -1,4 +1,4 @@
-﻿using Bu.Services.AI_Services.Core;
+using Bu.Services.AI_Services.Core;
 using Bu.DTO;
 using Bu.Services.AI_Services.Memory;
 using DA;
@@ -18,8 +18,18 @@ namespace Bu.Services.AI_Services
         private readonly OllamaService _ollama = new OllamaService();
         private readonly AiChatHistory _history = new AiChatHistory();
 
-        public async Task<string> Ask(string question)
+        public async Task<QueryResult> Ask(string question)
         {
+            // 0. Preprocess user query to restore diacritics and inject schema hints based on intent
+            question = QueryPreprocessor.Preprocess(question);
+
+            var result = new QueryResult
+            {
+                Answer = "Xin lỗi, tôi gặp chút trục trặc khi kết nối dữ liệu. Bạn thử hỏi lại nhé!",
+                SqlQuery = "",
+                Data = null
+            };
+
             try
             {
                 // 1. Nhận diện ý định và lấy lịch sử chat
@@ -31,20 +41,22 @@ namespace Bu.Services.AI_Services
                 {
                     string botResponse = await _ollama.AskChat("", question, currentHistory);
                     UpdateHistory(question, botResponse);
-                    return botResponse;
+                    result.Answer = botResponse;
+                    return result;
                 }
 
                 // 3. Xử lý nghiệp vụ: Sinh SQL và Truy vấn dữ liệu
                 string sql = await _sqlGenerator.GenerateRawSql(question);
                 string dataContext = "Không tìm thấy dữ liệu liên quan trong hệ thống.";
+                result.SqlQuery = sql;
 
-                if (sql != "NOT_SQL")
+                if (sql != "NOT_SQL" && !string.IsNullOrEmpty(sql))
                 {
-                    var rawData = ExecuteSql(sql);
-                    if (rawData.Any())
+                    var dt = ExecuteSqlToDataTable(sql);
+                    if (dt != null && dt.Rows.Count > 0)
                     {
-                        // Chuyển đổi dữ liệu sang JSON để AI dễ đọc (Sử dụng DTO ngầm định)
-                        dataContext = JsonConvert.SerializeObject(rawData, Formatting.Indented);
+                        result.Data = dt;
+                        dataContext = JsonConvert.SerializeObject(dt, Formatting.Indented);
                     }
                 }
 
@@ -54,12 +66,13 @@ namespace Bu.Services.AI_Services
                 // 5. Cập nhật trí nhớ cho AI
                 UpdateHistory(question, finalResponse);
 
-                return finalResponse;
+                result.Answer = finalResponse;
+                return result;
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[RAG ERROR]: {ex.Message}");
-                return "Xin lỗi, tôi gặp chút trục trặc khi kết nối dữ liệu. Bạn thử hỏi lại nhé!";
+                return result;
             }
         }
 
@@ -69,44 +82,45 @@ namespace Bu.Services.AI_Services
             _history.AddMessage("AI", a);
         }
 
-        // ================= TRUY VẤN DATABASE =================
-        private List<Dictionary<string, object>> ExecuteSql(string sql)
+        // ================= TRUY VẤN DATABASE SANG DATATABLE =================
+        private DataTable ExecuteSqlToDataTable(string sql)
         {
-            var result = new List<Dictionary<string, object>>();
-
-            using (var db = new AiEntities())
+            var dt = new DataTable();
+            try
             {
-                var conn = db.Database.Connection;
-                if (conn.State != ConnectionState.Open) conn.Open();
-
-                using (var cmd = conn.CreateCommand())
+                using (var db = new AiEntities())
                 {
-                    cmd.CommandText = sql;
-                    using (var reader = cmd.ExecuteReader())
+                    var conn = db.Database.Connection;
+                    if (conn.State != ConnectionState.Open) conn.Open();
+
+                    using (var cmd = conn.CreateCommand())
                     {
-                        while (reader.Read())
+                        cmd.CommandText = sql;
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            var row = new Dictionary<string, object>();
-                            for (int i = 0; i < reader.FieldCount; i++)
-                            {
-                                string colName = reader.GetName(i);
-                                object value = reader.IsDBNull(i) ? null : reader.GetValue(i);
-                                row[colName] = value;
-                            }
-                            result.Add(row);
+                            dt.Load(reader);
                         }
                     }
                 }
             }
-            return result;
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[DB SQL ERROR]: {ex.Message}");
+            }
+            return dt;
         }
 
         // ================= TÍNH NĂNG MỚI: CLEAR SESSION =================
         public void ResetConversation()
         {
             _history.Clear();
-            // Có thể clear cache nếu muốn dữ liệu luôn mới nhất
-            // _cache.Clear(); 
         }
+    }
+
+    public class QueryResult
+    {
+        public string Answer { get; set; }
+        public string SqlQuery { get; set; }
+        public DataTable Data { get; set; }
     }
 }

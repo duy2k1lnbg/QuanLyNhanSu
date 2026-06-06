@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
   <!-- EF Runtime content -->
   <edmx:Runtime>
@@ -422,7 +422,7 @@
           </Key>
           <Property Name="IDUSER" Nullable="false" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Type="number" />
           <Property Name="USERNAME" MaxLength="50" Type="nvarchar2" />
-          <Property Name="PASSWORD" MaxLength="50" Type="nvarchar2" />
+          <Property Name="PASSWORD" MaxLength="100" Type="nvarchar2" />
           <Property Name="FULLNAME" MaxLength="250" Type="nvarchar2" />
           <Property Name="MACTY" MaxLength="10" Type="nvarchar2" />
           <Property Name="MADVI" MaxLength="10" Type="nvarchar2" />
@@ -1490,7 +1490,7 @@
           </Key>
           <Property Name="IDUSER" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="USERNAME" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
-          <Property Name="PASSWORD" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="PASSWORD" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
           <Property Name="FULLNAME" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
           <Property Name="MACTY" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
           <Property Name="MADVI" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />

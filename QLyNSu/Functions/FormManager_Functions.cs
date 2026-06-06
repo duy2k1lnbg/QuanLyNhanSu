@@ -1,4 +1,4 @@
-﻿using DevExpress.XtraSplashScreen;
+using DevExpress.XtraSplashScreen;
 using QLyNSu.Functions;
 using System;
 using System.Collections.Generic;
@@ -95,43 +95,64 @@ namespace QLyNSu
             }
         }
 
-        public static void CustomView(DevExpress.XtraGrid.Views.Grid.GridView gridView, string layoutPath)
+        private static void ApplyModernGridStyle(DevExpress.XtraGrid.Views.Grid.GridView gridView)
         {
-            // Khôi phục layout từ file XML
-            gridView.RestoreLayoutFromXml(layoutPath);
-            //gridView.GridControl.DataSource = dataSource;
-            gridView.OptionsBehavior.Editable = false;
+            // Configure modern grid view appearance
+            gridView.OptionsView.ShowVerticalLines = DevExpress.Utils.DefaultBoolean.False;
+            gridView.OptionsView.ShowHorizontalLines = DevExpress.Utils.DefaultBoolean.True;
+            gridView.OptionsView.EnableAppearanceEvenRow = true;
 
-            // Căn giữa các tiêu đề cột
+            // Row heights for padding/spacing (web-like padding)
+            gridView.RowHeight = 36;
+            gridView.ColumnPanelRowHeight = 40;
+
+            // Soft selection and alternating row colors
+            gridView.Appearance.EvenRow.BackColor = System.Drawing.Color.FromArgb(248, 249, 250);
+            gridView.Appearance.OddRow.BackColor = System.Drawing.Color.White;
+            gridView.Appearance.FocusedRow.BackColor = System.Drawing.Color.FromArgb(222, 236, 253);
+            gridView.Appearance.FocusedRow.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+            gridView.Appearance.SelectedRow.BackColor = System.Drawing.Color.FromArgb(233, 242, 255);
+            gridView.Appearance.SelectedRow.ForeColor = System.Drawing.Color.FromArgb(33, 37, 41);
+
+            // Hide cell focus border rectangle for cleaner look
+            gridView.FocusRectStyle = DevExpress.XtraGrid.Views.Grid.DrawFocusRectStyle.RowFocus;
+
             foreach (DevExpress.XtraGrid.Columns.GridColumn column in gridView.Columns)
             {
                 column.AppearanceHeader.Options.UseTextOptions = true;
                 column.AppearanceHeader.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+
+                column.AppearanceHeader.Font = new System.Drawing.Font("Segoe UI", 10, System.Drawing.FontStyle.Bold);
+                column.AppearanceCell.Font = new System.Drawing.Font("Segoe UI", 10);
             }
+
+            gridView.Appearance.HeaderPanel.Options.UseFont = true;
+            gridView.Appearance.HeaderPanel.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+        }
+
+        public static void CustomView(DevExpress.XtraGrid.Views.Grid.GridView gridView, string layoutPath)
+        {
+            // Khôi phục layout từ file XML
+            gridView.RestoreLayoutFromXml(layoutPath);
+            gridView.OptionsBehavior.Editable = false;
+
+            ApplyModernGridStyle(gridView);
+
+            gridView.OptionsView.ColumnAutoWidth = true;
+            gridView.BestFitColumns();
         }
 
         public static void CustomView_Colums(DevExpress.XtraGrid.Views.Grid.GridView gridView)
         {
-            //gridView.GridControl.DataSource = dataSource;
             gridView.OptionsBehavior.Editable = false;
 
             gridView.OptionsMenu.EnableColumnMenu = false;
             gridView.OptionsMenu.EnableGroupPanelMenu = false;
             gridView.OptionsCustomization.AllowFilter = false;
-            //gridView.OptionsCustomization.AllowSort = false;
 
-            foreach (DevExpress.XtraGrid.Columns.GridColumn column in gridView.Columns)
-            {
-                column.AppearanceHeader.Options.UseTextOptions = true;
-                column.AppearanceHeader.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            ApplyModernGridStyle(gridView);
 
-                column.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 10, System.Drawing.FontStyle.Bold);
-                column.AppearanceCell.Font = new System.Drawing.Font("Tahoma", 10);
-            }
-            gridView.Appearance.HeaderPanel.Options.UseFont = true;
-            gridView.Appearance.HeaderPanel.Font = new Font("Tahoma", 12, FontStyle.Bold);
-            gridView.RowHeight = 28;
-            gridView.OptionsView.ColumnAutoWidth = false;
+            gridView.OptionsView.ColumnAutoWidth = true;
             gridView.BestFitColumns();
         }
 

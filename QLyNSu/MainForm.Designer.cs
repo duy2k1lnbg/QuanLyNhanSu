@@ -180,7 +180,7 @@
             // 
             this.btnPass.Caption = "Đổi Mật Khẩu";
             this.btnPass.Id = 1;
-            this.btnPass.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnUser_pass.ImageOptions.SvgImage")));
+            this.btnPass.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPass.ImageOptions.SvgImage")));
             this.btnPass.Name = "btnPass";
             this.btnPass.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem1_ItemClick);
             // 
@@ -615,10 +615,10 @@
             this.dockThongBao.Dock = DevExpress.XtraBars.Docking.DockingStyle.Right;
             this.dockThongBao.Font = new System.Drawing.Font("Times New Roman", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dockThongBao.ID = new System.Guid("9281a680-b277-4dd1-9393-0dca248d6f85");
-            this.dockThongBao.Location = new System.Drawing.Point(1012, 193);
+            this.dockThongBao.Location = new System.Drawing.Point(942, 193);
             this.dockThongBao.Name = "dockThongBao";
             this.dockThongBao.OriginalSize = new System.Drawing.Size(281, 200);
-            this.dockThongBao.Size = new System.Drawing.Size(281, 522);
+            this.dockThongBao.Size = new System.Drawing.Size(351, 522);
             this.dockThongBao.Text = "Thông Báo";
             // 
             // dockPanel1_Container
@@ -627,7 +627,7 @@
             this.dockPanel1_Container.Controls.Add(this.grSinhNhat);
             this.dockPanel1_Container.Location = new System.Drawing.Point(6, 32);
             this.dockPanel1_Container.Name = "dockPanel1_Container";
-            this.dockPanel1_Container.Size = new System.Drawing.Size(271, 486);
+            this.dockPanel1_Container.Size = new System.Drawing.Size(341, 486);
             this.dockPanel1_Container.TabIndex = 0;
             // 
             // grNangLuong
@@ -638,7 +638,7 @@
             this.grNangLuong.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grNangLuong.Location = new System.Drawing.Point(0, 370);
             this.grNangLuong.Name = "grNangLuong";
-            this.grNangLuong.Size = new System.Drawing.Size(271, 116);
+            this.grNangLuong.Size = new System.Drawing.Size(341, 116);
             this.grNangLuong.TabIndex = 2;
             this.grNangLuong.Text = "Tăng Lương";
             // 
@@ -650,7 +650,7 @@
             this.lstNangLuong.ItemHeight = 48;
             this.lstNangLuong.Location = new System.Drawing.Point(2, 28);
             this.lstNangLuong.Name = "lstNangLuong";
-            this.lstNangLuong.Size = new System.Drawing.Size(267, 86);
+            this.lstNangLuong.Size = new System.Drawing.Size(337, 86);
             this.lstNangLuong.TabIndex = 0;
             itemTemplateBase1.Columns.Add(tableColumnDefinition1);
             templatedItemElement1.FieldName = "HOTEN";
@@ -679,7 +679,7 @@
             this.grSinhNhat.Dock = System.Windows.Forms.DockStyle.Top;
             this.grSinhNhat.Location = new System.Drawing.Point(0, 0);
             this.grSinhNhat.Name = "grSinhNhat";
-            this.grSinhNhat.Size = new System.Drawing.Size(271, 370);
+            this.grSinhNhat.Size = new System.Drawing.Size(341, 370);
             this.grSinhNhat.TabIndex = 1;
             this.grSinhNhat.Text = "Sinh Nhật";
             // 
@@ -691,7 +691,7 @@
             this.lstSinhNhat.ItemHeight = 48;
             this.lstSinhNhat.Location = new System.Drawing.Point(2, 28);
             this.lstSinhNhat.Name = "lstSinhNhat";
-            this.lstSinhNhat.Size = new System.Drawing.Size(267, 340);
+            this.lstSinhNhat.Size = new System.Drawing.Size(337, 340);
             this.lstSinhNhat.TabIndex = 0;
             tableColumnDefinition2.Length.Type = DevExpress.XtraEditors.TableLayout.TableDefinitionLengthType.Pixel;
             tableColumnDefinition2.Length.Value = 263D;

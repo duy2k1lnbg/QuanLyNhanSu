@@ -1,4 +1,4 @@
-﻿namespace QLyNSu.FORM_SYSTEM
+namespace QLyNSu.FORM_SYSTEM
 {
     partial class FrmGroup
     {
@@ -31,8 +31,8 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmGroup));
             this.pageGroup = new DevExpress.XtraTab.XtraTabControl();
             this.tapNhom = new DevExpress.XtraTab.XtraTabPage();
-            this.txtMoTa = new System.Windows.Forms.TextBox();
-            this.txtTenNhom = new System.Windows.Forms.TextBox();
+            this.txtMoTa = new DevExpress.XtraEditors.TextEdit();
+            this.txtTenNhom = new DevExpress.XtraEditors.TextEdit();
             this.label2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.tapThanhVien = new DevExpress.XtraTab.XtraTabPage();
@@ -46,6 +46,8 @@
             this.btnLuu = new DevExpress.XtraEditors.SimpleButton();
             this.btnDong = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.pageGroup)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtTenNhom.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtMoTa.Properties)).BeginInit();
             this.pageGroup.SuspendLayout();
             this.tapNhom.SuspendLayout();
             this.tapThanhVien.SuspendLayout();
@@ -77,17 +79,19 @@
             // 
             // txtMoTa
             // 
-            this.txtMoTa.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtMoTa.Location = new System.Drawing.Point(283, 168);
             this.txtMoTa.Name = "txtMoTa";
+            this.txtMoTa.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtMoTa.Properties.Appearance.Options.UseFont = true;
             this.txtMoTa.Size = new System.Drawing.Size(344, 30);
             this.txtMoTa.TabIndex = 5;
             // 
             // txtTenNhom
             // 
-            this.txtTenNhom.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtTenNhom.Location = new System.Drawing.Point(283, 125);
             this.txtTenNhom.Name = "txtTenNhom";
+            this.txtTenNhom.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtTenNhom.Properties.Appearance.Options.UseFont = true;
             this.txtTenNhom.Size = new System.Drawing.Size(344, 30);
             this.txtTenNhom.TabIndex = 4;
             // 
@@ -231,6 +235,8 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Nhóm Người Dùng";
             this.Load += new System.EventHandler(this.frmGroup_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.txtTenNhom.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtMoTa.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pageGroup)).EndInit();
             this.pageGroup.ResumeLayout(false);
             this.tapNhom.ResumeLayout(false);
@@ -249,8 +255,8 @@
         private DevExpress.XtraTab.XtraTabPage tapThanhVien;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.TextBox txtMoTa;
-        private System.Windows.Forms.TextBox txtTenNhom;
+        private DevExpress.XtraEditors.TextEdit txtMoTa;
+        private DevExpress.XtraEditors.TextEdit txtTenNhom;
         private DevExpress.XtraEditors.SimpleButton btnLuu;
         private DevExpress.XtraEditors.SimpleButton btnDong;
         private DevExpress.XtraEditors.SimpleButton simpleButton3;

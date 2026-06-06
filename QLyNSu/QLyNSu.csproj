@@ -1,4 +1,4 @@
-﻿<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -50,6 +50,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="BCrypt.Net-Next">
+      <HintPath>..\packages\BCrypt.Net-Next.4.0.3\lib\net472\BCrypt.Net-Next.dll</HintPath>
+    </Reference>
     <Reference Include="DevExpress.BonusSkins.v24.1" />
     <Reference Include="DevExpress.Charts.v24.1.Core, Version=24.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.CodeParser.v24.1, Version=24.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
@@ -69,6 +72,7 @@
     <Reference Include="DevExpress.XtraBars.v24.1" />
     <Reference Include="DevExpress.Sparkline.v24.1.Core" />
     <Reference Include="DevExpress.XtraCharts.v24.1, Version=24.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraCharts.v24.1.UI, Version=24.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraEditors.v24.1" />
     <Reference Include="DevExpress.Drawing.v24.1" />
     <Reference Include="DevExpress.XtraGauges.v24.1.Core, Version=24.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
@@ -220,6 +224,36 @@
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmShowUser_Group.Designer.cs">
       <DependentUpon>FrmShowUser_Group.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmUser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmUser.Designer.cs">
+      <DependentUpon>FrmUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmChangePassword.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmChangePassword.Designer.cs">
+      <DependentUpon>FrmChangePassword.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmSetting.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmSetting.Designer.cs">
+      <DependentUpon>FrmSetting.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmPhanQuyenChucNang.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmPhanQuyenChucNang.Designer.cs">
+      <DependentUpon>FrmPhanQuyenChucNang.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmPhanQuyenBaoCao.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmPhanQuyenBaoCao.Designer.cs">
+      <DependentUpon>FrmPhanQuyenBaoCao.cs</DependentUpon>
     </Compile>
     <Compile Include="FrmStartup.cs">
       <SubType>Form</SubType>
@@ -489,6 +523,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmShowUser_Group.resx">
       <DependentUpon>FrmShowUser_Group.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmUser.resx">
+      <DependentUpon>FrmUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmChangePassword.resx">
+      <DependentUpon>FrmChangePassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmSetting.resx">
+      <DependentUpon>FrmSetting.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmPhanQuyenChucNang.resx">
+      <DependentUpon>FrmPhanQuyenChucNang.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmPhanQuyenBaoCao.resx">
+      <DependentUpon>FrmPhanQuyenBaoCao.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FrmStartup.resx">
       <DependentUpon>FrmStartup.cs</DependentUpon>
