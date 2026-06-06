@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using QLyNSu.Functions;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
@@ -51,6 +52,7 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void FrmDangNhap_Load(object sender, EventArgs e)
         {
+            TranslationManager.Translate(this);
             // Apply rounded corners to the form
             this.Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 16, 16));
 
@@ -151,13 +153,13 @@ namespace QLyNSu.FORM_SYSTEM
 
             if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
             {
-                lblThongBao.Text = "Vui lòng nhập tên đăng nhập và mật khẩu.";
+                lblThongBao.Text = TranslationManager.Translate("Vui lòng nhập tên đăng nhập và mật khẩu.");
                 lblThongBao.Visible = true;
                 return;
             }
 
             btnDangNhap.Enabled = false;
-            btnDangNhap.Text = "Đang xử lý...";
+            btnDangNhap.Text = TranslationManager.Translate("Đang xử lý...");
 
             try
             {
@@ -172,19 +174,19 @@ namespace QLyNSu.FORM_SYSTEM
                 }
                 else
                 {
-                    lblThongBao.Text = "Tên đăng nhập hoặc mật khẩu không đúng.";
+                    lblThongBao.Text = TranslationManager.Translate("Tên đăng nhập hoặc mật khẩu không đúng.");
                     lblThongBao.Visible = true;
                 }
             }
             catch (Exception ex)
             {
-                lblThongBao.Text = "Lỗi kết nối cơ sở dữ liệu: " + ex.Message;
+                lblThongBao.Text = TranslationManager.Translate("Lỗi kết nối cơ sở dữ liệu") + ": " + ex.Message;
                 lblThongBao.Visible = true;
             }
             finally
             {
                 btnDangNhap.Enabled = true;
-                btnDangNhap.Text = "ĐĂNG NHẬP";
+                btnDangNhap.Text = TranslationManager.Translate("ĐĂNG NHẬP");
             }
         }
 

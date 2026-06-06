@@ -18,6 +18,10 @@ namespace QLyNSu
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            // Load saved display language at startup
+            QLyNSu.Functions.TranslationManager.LoadLanguage();
+            QLyNSu.Functions.TranslationManager.InitializeHook();
+
             // Register DevExpress skins and enable form skinning
             DevExpress.UserSkins.BonusSkins.Register();
             DevExpress.Skins.SkinManager.EnableFormSkins();
@@ -32,6 +36,8 @@ namespace QLyNSu
             DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle("The Bezier", "Gleam");
 
             Application.Run(new MainForm());
+
+            QLyNSu.Functions.TranslationManager.ShutdownHook();
         }
     }
 }

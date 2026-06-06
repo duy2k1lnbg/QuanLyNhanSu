@@ -263,6 +263,7 @@
     </Compile>
     <Compile Include="Functions\AiBootstrap.cs" />
     <Compile Include="Functions\FormManager_Functions.cs" />
+    <Compile Include="Functions\TranslationManager.cs" />
     <Compile Include="FORM_CHAMCONG\FrmBangCong.cs">
       <SubType>Form</SubType>
     </Compile>

@@ -33,6 +33,7 @@ namespace QLyNSu
             }
 
             Form f = (Form)Activator.CreateInstance(typeForm);
+            TranslationManager.Translate(f);
             f.MdiParent = _parentForm;
             f.Show();
         }
@@ -74,6 +75,7 @@ namespace QLyNSu
             }
 
             Form f = (Form)Activator.CreateInstance(typeForm);
+            TranslationManager.Translate(f);
             f.MdiParent = _parentForm;
             await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => f.Show())));
         }
@@ -170,6 +172,7 @@ namespace QLyNSu
 
             // Tạo form mới và hiển thị
             Form form = (Form)Activator.CreateInstance(typeForm);
+            TranslationManager.Translate(form);
             form.Show();
         }
     }

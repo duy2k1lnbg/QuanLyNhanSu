@@ -180,6 +180,14 @@ namespace QLyNSu
                 MessageBox.Show("Lỗi khởi tạo dữ liệu hệ thống: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+            TranslationManager.LoadLanguage();
+            TranslationManager.Translate(this);
+            try
+            {
+                btnSetting.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/icon builder/actions_settings.svg");
+            }
+            catch { }
+
             _ = AiBootstrap.EnsureOllama();
             _nhanvien = new NHANVIEN();
             _hopdong = new HOPDONGLAODONG();
@@ -206,6 +214,7 @@ namespace QLyNSu
         {
             using (var loginForm = new FrmDangNhap())
             {
+                TranslationManager.Translate(loginForm);
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
                     ApplyAuthorization();
@@ -225,7 +234,7 @@ namespace QLyNSu
             if (UserSession.CurrentUser == null)
             {
                 // Disconnected state
-                btnLogin.Caption = "Đăng Nhập";
+                btnLogin.Caption = TranslationManager.Translate("Đăng Nhập");
                 
                 // Disable all controls except login and exit
                 btnPass.Enabled = false;
@@ -267,7 +276,7 @@ namespace QLyNSu
             else
             {
                 // Connected state
-                btnLogin.Caption = "Đăng Xuất (" + UserSession.CurrentUser.FULLNAME + ")";
+                btnLogin.Caption = TranslationManager.Translate("Đăng Xuất") + " (" + UserSession.CurrentUser.FULLNAME + ")";
                 
                 // Check rights
                 btnPass.Enabled = true;
@@ -493,7 +502,7 @@ namespace QLyNSu
         {
             if (UserSession.IsLoggedIn)
             {
-                var result = MessageBox.Show("Bạn có muốn đăng xuất không?", "Xác nhận đăng xuất", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var result = MessageBox.Show(TranslationManager.Translate("Bạn có muốn đăng xuất không?"), TranslationManager.Translate("Xác nhận đăng xuất"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
                     UserSession.Clear();
@@ -511,7 +520,23 @@ namespace QLyNSu
         {
             using (var frm = new FrmChangePassword())
             {
+                TranslationManager.Translate(frm);
                 frm.ShowDialog();
+            }
+        }
+
+        private void btnSetting_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            using (var frm = new FrmSetting())
+            {
+                TranslationManager.Translate(frm);
+                if (frm.ShowDialog() == DialogResult.OK)
+                {
+                    foreach (Form openForm in Application.OpenForms)
+                    {
+                        TranslationManager.Translate(openForm);
+                    }
+                }
             }
         }
 
@@ -520,6 +545,7 @@ namespace QLyNSu
             if (UserSession.CurrentUser == null) return;
             using (var frm = new FrmUser(UserSession.CurrentUser))
             {
+                TranslationManager.Translate(frm);
                 if (frm.ShowDialog() == DialogResult.OK)
                 {
                     ApplyAuthorization();

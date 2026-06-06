@@ -1,5 +1,6 @@
 using DevExpress.XtraEditors;
 using System;
+using QLyNSu.Functions;
 using System.IO;
 using System.Windows.Forms;
 using Newtonsoft.Json;
@@ -22,6 +23,8 @@ namespace QLyNSu.FORM_SYSTEM
             cboLanguage.Properties.Items.Add("Tiếng Việt");
             cboLanguage.Properties.Items.Add("Tiếng Anh");
             cboLanguage.Properties.Items.Add("Tiếng Nhật");
+            cboLanguage.Properties.Items.Add("Tiếng Trung");
+            cboLanguage.Properties.Items.Add("Tiếng Hàn");
 
             // Load saved language
             string currentLang = LoadLanguageSetting();
@@ -36,14 +39,25 @@ namespace QLyNSu.FORM_SYSTEM
         {
             if (cboLanguage.SelectedItem == null)
             {
-                MessageBox.Show("Vui lòng chọn ngôn ngữ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show(
+                    TranslationManager.Translate("Vui lòng chọn ngôn ngữ."), 
+                    TranslationManager.Translate("Thông báo"), 
+                    MessageBoxButtons.OK, 
+                    MessageBoxIcon.Warning);
                 return;
             }
 
             string selectedLang = cboLanguage.SelectedItem.ToString();
             SaveLanguageSetting(selectedLang);
 
-            MessageBox.Show($"Đã lưu cài đặt ngôn ngữ hệ thống: {selectedLang}.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            string translatedLangName = TranslationManager.Translate(selectedLang);
+            string saveMsg = TranslationManager.Translate("Đã lưu cài đặt ngôn ngữ hệ thống");
+            MessageBox.Show(
+                $"{saveMsg}: {translatedLangName}.", 
+                TranslationManager.Translate("Thông báo"), 
+                MessageBoxButtons.OK, 
+                MessageBoxIcon.Information);
+
             this.DialogResult = DialogResult.OK;
             this.Close();
         }
@@ -55,37 +69,13 @@ namespace QLyNSu.FORM_SYSTEM
 
         private string LoadLanguageSetting()
         {
-            try
-            {
-                if (File.Exists(_settingsPath))
-                {
-                    string json = File.ReadAllText(_settingsPath);
-                    var settings = JsonConvert.DeserializeObject<SystemSettings>(json);
-                    if (settings != null && !string.IsNullOrEmpty(settings.Language))
-                    {
-                        return settings.Language;
-                    }
-                }
-            }
-            catch
-            {
-                // Fallback to default
-            }
-            return "Tiếng Việt";
+            TranslationManager.LoadLanguage();
+            return TranslationManager.CurrentLanguage;
         }
 
         private void SaveLanguageSetting(string language)
         {
-            try
-            {
-                var settings = new SystemSettings { Language = language };
-                string json = JsonConvert.SerializeObject(settings, Formatting.Indented);
-                File.WriteAllText(_settingsPath, json);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Lỗi khi lưu cài đặt: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            TranslationManager.CurrentLanguage = language;
         }
 
         public class SystemSettings
