@@ -1,211 +1,482 @@
-# 🏢 Enterprise Human Resource Management System (HRMS) with Local AI Assistant
+# 🏢 Hệ Thống Quản Lý Nhân Sự Doanh Nghiệp (HRMS) với Trợ Lý AI Cục Bộ
 
-Hệ thống quản lý nhân sự cấp doanh nghiệp (Enterprise HRMS) phát triển trên nền tảng **.NET Framework 4.7.2** kết hợp thư viện giao diện cao cấp **DevExpress WinForms**. Hệ thống sử dụng cơ sở dữ liệu **Oracle Database 19c** để đảm bảo khả năng mở rộng và xử lý khối lượng dữ liệu lớn, đồng thời tích hợp **Trợ lý AI On-Premise** (Chạy ngoại tuyến) thông qua mô hình ngôn ngữ **Qwen 2.5** / **Llama 3** (Ollama), giúp tìm kiếm và phân tích dữ liệu nhân sự bằng ngôn ngữ tự nhiên một cách bảo mật tuyệt đối.
+> **Enterprise Human Resource Management System** — Ứng dụng Desktop WinForms quản lý toàn diện nhân sự, chấm công, tính lương tích hợp **AI On-Premise** (NL2SQL) chạy hoàn toàn ngoại tuyến, bảo mật tuyệt đối.
 
-[![Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blueviolet)](https://dotnet.microsoft.com/)
-[![Database](https://img.shields.io/badge/Oracle-19c-red)](https://www.oracle.com/database/)
-[![UI Library](https://img.shields.io/badge/UI%20Library-DevExpress-orange)](https://www.devexpress.com/)
-[![AI-Engine](https://img.shields.io/badge/AI-Hybrid%20RAG-blue)](https://ollama.com/)
-
----
-
-## 🌎 Ngôn ngữ / Languages
-* [🇻🇳 Tiếng Việt (Bản Chi Tiết)](#-tiếng-việt-bản-chi-tiết)
-* [🇺🇸 English (Detailed Overview)](#-english-detailed-overview)
-* [🇯🇵 日本語 (Japanese Summary)](#-日本語-japanese-summary)
+[![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blueviolet?logo=dotnet)](https://dotnet.microsoft.com/)
+[![Oracle DB](https://img.shields.io/badge/Oracle%20Database-19c-red?logo=oracle)](https://www.oracle.com/database/)
+[![DevExpress](https://img.shields.io/badge/UI-DevExpress%20WinForms-orange)](https://www.devexpress.com/)
+[![Entity Framework](https://img.shields.io/badge/ORM-Entity%20Framework%206.5-blue)](https://learn.microsoft.com/ef/)
+[![AI Engine](https://img.shields.io/badge/AI-Ollama%20%7C%20Hybrid%20RAG-brightgreen)](https://ollama.com/)
+[![License](https://img.shields.io/badge/License-Academic%20Project-lightgrey)]()
 
 ---
 
-## 🇻🇳 Tiếng Việt (Bản Chi Tiết)
+## 🌐 Ngôn ngữ / Languages
+- [🇻🇳 Tiếng Việt (Chi Tiết)](#-tiếng-việt)
+- [🇺🇸 English (Overview)](#-english)
+- [🇯🇵 日本語 (概要)](#-日本語)
+
+---
+
+## 🇻🇳 Tiếng Việt
 
 ### 📌 Tổng Quan Dự Án
-Dự án được xây dựng nhằm giải quyết bài toán quản trị nhân sự và chấm công - tính lương toàn diện cho doanh nghiệp. Điểm đặc biệt của hệ thống là việc ứng dụng kiến trúc **Hybrid RAG** (Sinh truy vấn lai ghép) kết hợp mô hình AI cục bộ, cho phép người quản lý tương tác với cơ sở dữ liệu bằng ngôn ngữ tự nhiên (Natural Language to SQL) mà không lo rò rỉ dữ liệu nhạy cảm ra ngoài internet.
 
-#### ✨ Các Tính Năng Nghiệp Vụ Chính:
-1. **Quản Lý Nhân Sự (HR Module):**
-   * **Quản lý Hồ sơ Nhân viên (`FrmNhanVien`):** Lưu trữ thông tin cá nhân, ảnh chân dung (BLOB), phòng ban, chức vụ, trình độ học vấn, dân tộc, tôn giáo, giới tính, thông tin liên lạc.
-   * **Điều chuyển Nhân sự (`FrmDieuChuyen_NhanVien`):** Lập quyết định và lưu trữ lịch sử luân chuyển phòng ban, bộ phận, chức vụ của nhân sự trong nội bộ công ty.
-   * **Hợp đồng Lao động (`FrmHopDongLaoDong`):** Quản lý thời hạn hợp đồng, số lần ký kết, hệ số lương cơ bản và lưu trữ nội dung chi tiết của hợp đồng.
-   * **Khen thưởng & Kỷ luật (`FrmKhenThuong`, `FrmKyLuat`):** Theo dõi việc ban hành quyết định khen thưởng hoặc kỷ luật của từng nhân sự kèm nội dung, ngày áp dụng.
-   * **Tăng lương (`FrmNangLuong_NhanVien`):** Lưu vết lộ trình tăng lương, điều chỉnh hệ số lương của nhân viên theo định kỳ.
-   * **Thôi việc (`FrmNhanVien_ThoiViec`):** Ghi nhận hồ sơ nghỉ việc, lý do thôi việc của nhân viên một cách có hệ thống.
-   * **Quản lý danh mục nền:** Công ty (`FrmCongTy`), Phòng ban (`FrmPhongBan`), Bộ phận (`FrmBoPhan`), Chức vụ (`FrmChucVu`), Trình độ (`FrmTrinhDo`), Dân tộc (`FrmDanToc`), Tôn giáo (`FrmTonGiao`).
-
-2. **Quản Lý Chấm Công & Tính Lương (Timekeeping & Payroll):**
-   * **Quản lý Ca làm việc (`FrmLoaiCa`):** Thiết lập danh mục ca làm việc (ca ngày, ca đêm, ca gãy) đi kèm hệ số tính lương riêng biệt.
-   * **Loại công (`FrmLoaiCong`):** Định nghĩa ngày công làm việc (ngày thường, nghỉ phép hưởng lương, nghỉ ốm, ngày lễ).
-   * **Bảng công tháng (`FrmBangCong`, `FrmBangCong_ChiTiet`):** Theo dõi chi tiết giờ check-in/check-out hàng ngày của nhân viên, số ngày công thực tế, ngày nghỉ phép. Hỗ trợ cập nhật ngày công (`FrmCapNhatNgayCong`).
-   * **Tăng ca (`FrmTangCa`):** Theo dõi số giờ tăng ca của nhân viên theo ngày, tháng, năm gắn với hệ số của loại ca tương ứng.
-   * **Phụ cấp (`FrmPhuCap`):** Cài đặt danh mục phụ cấp (phụ cấp ăn trưa, xăng xe, điện thoại, trách nhiệm) và phân bổ phụ cấp cho nhân viên (`TB_NHANVIEN_PHUCAP`).
-   * **Tạm ứng lương (`FrmUngLuong`):** Ghi nhận yêu cầu ứng lương giữa kỳ của nhân viên và duyệt trạng thái chi trả.
-   * **Bảng lương (`FrmBangLuong`):** Tự động tính toán tổng thu nhập thực nhận sau khi tổng hợp: Lương cơ bản (từ hợp đồng) x Hệ số ngày công thực tế + Lương tăng ca + Phụ cấp - Tạm ứng.
-   * **In ấn báo cáo (`FrmBangCongNV_IN`, `FrmBaoCaoChiTiet`):** Kết xuất dữ liệu bảng công, bảng lương ra biểu mẫu in ấn hoặc xuất file PDF/Excel cho nhân sự.
-
-3. **Trợ Lý AI HRM Thông Minh (AI Assistant - Local Hybrid RAG):**
-   * **Giao diện Chatbox (`FrmAI_Chat`):** Tích hợp trực tiếp trên ứng dụng desktop để HR trò chuyện tự nhiên với trợ lý AI.
-   * **Tự động dịch sang SQL (NL2SQL):** Nhận diện ý định câu hỏi của người dùng và chuyển dịch thành câu lệnh Oracle SQL chính xác (Ví dụ: *"Ai là nhân viên phòng kế toán?", "Tính tổng số giờ tăng ca tháng 5 của Nguyễn Văn A"*).
-   * **Trí nhớ Hội thoại (`AiChatHistory`):** Lưu trữ lịch sử chat ngắn hạn để AI hiểu ngữ cảnh của các câu hỏi tiếp theo.
-   * **Bộ đệm thông minh (`AiCacheService`):** Lưu trữ các truy vấn SQL đã sinh ra trước đó để phản hồi tức thì đối với các câu hỏi tương tự mà không cần gọi lại mô hình AI.
+Đây là hệ thống **Quản Lý Nhân Sự cấp doanh nghiệp** được xây dựng trên nền tảng **.NET Framework 4.7.2** với giao diện **DevExpress WinForms** cao cấp, sử dụng **Oracle Database 19c** làm hệ quản trị cơ sở dữ liệu. Điểm đột phá của hệ thống là tích hợp **Trợ Lý AI Cục Bộ (On-Premise AI Copilot)** với kiến trúc **Hybrid RAG** độc quyền: cho phép người quản lý đặt câu hỏi bằng tiếng Việt tự nhiên để truy vấn dữ liệu nhân sự mà không cần viết SQL, và toàn bộ xử lý diễn ra **nội bộ** — không một byte dữ liệu nào rời khỏi máy chủ công ty.
 
 ---
 
-### 🏗 Kiến Trúc Dự Án (System Architecture)
-Dự án tuân thủ mô hình thiết kế 3 lớp (3-Tier Architecture) giúp mã nguồn sạch sẽ, dễ bảo trì và mở rộng:
+### 🗂 Kiến Trúc Dự Án (3-Tier Architecture)
+
+Dự án tuân thủ mô hình **3 lớp (3-Tier)** tách biệt rõ ràng:
 
 ```
 QuanLyNhanSu.sln
- ├── 📂 QLyNSu          # Presentation Layer (WinForms, DevExpress) - Giao diện & Tương tác người dùng.
- ├── 📂 Bu              # Business Logic Layer (BLL) - Nghiệp vụ, Service AI, Cache & History.
- └── 📂 DA              # Data Access Layer (DAL) - Entity Framework 6, mô hình EDMX kết nối Oracle.
+ ├── 📂 QLyNSu/          ← Presentation Layer (WinForms + DevExpress)
+ │    ├── FORM_NHANSU/   ← Màn hình Quản lý Nhân sự
+ │    ├── FORM_CHAMCONG/ ← Màn hình Chấm công & Tính lương
+ │    ├── FORM_BAOCAO/   ← Màn hình In ấn & Báo cáo
+ │    ├── FORM_SYSTEM/   ← Màn hình Hệ thống (Login, Phân quyền, AI Chat)
+ │    └── Reports/       ← Crystal Reports / DevExpress Reports
+ │
+ ├── 📂 Bu/              ← Business Logic Layer (BLL)
+ │    ├── CLASS_NHANSU/  ← Nghiệp vụ Nhân sự
+ │    ├── CLASS_CHAMCONG/← Nghiệp vụ Chấm công & Lương
+ │    ├── CLASS_BAOCAO/  ← Nghiệp vụ Báo cáo
+ │    ├── CLASS_SYSTEM/  ← Nghiệp vụ Hệ thống & Phân quyền
+ │    ├── DTO/           ← Data Transfer Objects
+ │    └── Services/
+ │         └── AI_Services/
+ │              ├── Core/    ← HybridRagService, SqlGeneratorService, AiRouterService, ...
+ │              ├── LLM/     ← OllamaService (giao tiếp với Ollama server)
+ │              ├── Memory/  ← AiCacheService, AiChatHistory
+ │              └── Vector/  ← VectorService (tìm kiếm tương đồng ngữ nghĩa)
+ │
+ └── 📂 DA/              ← Data Access Layer (Entity Framework 6)
+      ├── QLNhanSu.edmx  ← EDMX model đầy đủ cho toàn bộ ứng dụng HR
+      └── AIEntities.edmx← EDMX model chỉ đọc (Read-Only) dành riêng cho AI
 ```
-
-1. **Lớp Giao Diện (Presentation Layer - `QLyNSu`):**
-   * Sử dụng DevExpress để hiển thị GridView, TreeList và các biểu mẫu nhập liệu mượt mà.
-   * Chứa form Chatbot AI (`FrmAI_Chat`) dùng để tương tác trực tiếp với trợ lý nhân sự.
-   * Chứa `AiBootstrap.cs` để khởi tạo kết nối ban đầu cho dịch vụ AI.
-2. **Lớp Nghiệp Vụ (Business Logic Layer - `Bu`):**
-   * Điều hướng xử lý dữ liệu và tính toán nghiệp vụ.
-   * Tích hợp **AI Services** bao gồm:
-     * `AiRouterService`: Phân loại ý định câu hỏi (Hỏi đáp chung vs. Truy vấn cơ sở dữ liệu).
-     * `SqlGeneratorService`: Sinh câu lệnh SQL từ câu hỏi tiếng Việt, làm sạch và kiểm duyệt SQL an toàn.
-     * `AiSchemaService`: Cung cấp cấu trúc schema cơ sở dữ liệu (View) cho AI hiểu cấu trúc bảng.
-     * `OllamaService`: Kết nối và gửi request tới server Ollama chạy cục bộ.
-     * `AiCacheService` & `AiChatHistory`: Quản lý bộ đệm và lịch sử hội thoại của AI.
-     * `HybridRagService`: Đầu mối điều phối luồng Hybrid RAG tổng thể.
-3. **Lớp Dữ Liệu (Data Access Layer - `DA`):**
-   * Định nghĩa các thực thể CSDL (Entity Framework 6.4) ánh xạ tới cơ sở dữ liệu Oracle Database 19c.
-   * Sử dụng hai kết nối riêng biệt để bảo vệ CSDL:
-     * `QLNhanSuEntities`: Dùng cho các tác vụ quản lý dữ liệu HR thông thường (quyền Đọc/Ghi).
-     * `AiEntities`: Chỉ ánh xạ các **View phục vụ AI** với quyền **Chỉ đọc (Read-Only)**.
 
 ---
 
-### 🤖 Quy Trình Hybrid RAG & Bảo Mật Dữ Liệu AI
+### ✨ Tính Năng Nghiệp Vụ
 
-#### 1. Luồng xử lý dữ liệu (RAG Workflow)
+#### 1. 👤 Quản Lý Nhân Sự (HR Module)
+
+| Form | Chức năng |
+|------|-----------|
+| `FrmNhanVien` | Hồ sơ nhân viên: thông tin cá nhân, ảnh BLOB, phòng ban, chức vụ, trình độ, dân tộc, tôn giáo |
+| `FrmDieuChuyen_NhanVien` | Lập quyết định và lưu lịch sử điều chuyển phòng ban / bộ phận / chức vụ |
+| `FrmHopDongLaoDong` | Quản lý hợp đồng lao động: số lần ký, thời hạn, hệ số lương cơ bản |
+| `FrmKhenThuong` | Quyết định khen thưởng: nội dung, ngày ban hành, đính kèm |
+| `FrmKyLuat` | Quyết định kỷ luật: hình thức, mức độ, ngày hiệu lực |
+| `FrmNangLuong_NhanVien` | Lộ trình tăng lương: lưu vết từng lần điều chỉnh hệ số lương |
+| `FrmNhanVien_ThoiViec` | Hồ sơ nghỉ việc: lý do, ngày nghỉ, ghi chú |
+| `FrmCongTy`, `FrmPhongBan`, `FrmBoPhan`, `FrmChucVu`, `FrmTrinhDo`, `FrmDanToc`, `FrmTonGiao` | Danh mục hệ thống (CRUD chuẩn) |
+
+#### 2. ⏱ Chấm Công & Tính Lương (Timekeeping & Payroll)
+
+| Form | Chức năng |
+|------|-----------|
+| `FrmLoaiCa` | Danh mục ca làm việc (ca ngày, ca đêm, ca gãy) + hệ số lương ca |
+| `FrmLoaiCong` | Định nghĩa loại ngày công (thường, nghỉ phép, nghỉ ốm, lễ) |
+| `FrmBangCong` | Bảng công tháng: tổng hợp ngày công thực tế, nghỉ phép của nhân viên |
+| `FrmBangCong_ChiTiet` | Chi tiết giờ check-in / check-out hàng ngày từng nhân viên |
+| `FrmCapNhatNgayCong` | Cập nhật, chỉnh sửa ngày công riêng lẻ |
+| `FrmTangCa` | Theo dõi giờ tăng ca theo ngày/tháng, gắn với hệ số ca |
+| `FrmPhuCap` | Danh mục phụ cấp (ăn trưa, xăng xe, điện thoại, trách nhiệm) + phân bổ cho nhân viên |
+| `FrmUngLuong` | Ghi nhận và duyệt yêu cầu tạm ứng lương giữa kỳ |
+| `FrmBangLuong` | **Tự động tính lương**: Lương CB × Hệ số ngày công + Lương tăng ca + Phụ cấp − Tạm ứng |
+
+> **Công thức tính lương:**
+> ```
+> Thực lĩnh = (Lương_CB_HĐ × Ngày_Công_Thực_Tế / Ngày_Công_Chuẩn)
+>            + (Giờ_Tăng_Ca × Hệ_Số_Ca × Lương_Giờ)
+>            + Tổng_Phụ_Cấp
+>            − Tổng_Tạm_Ứng
+> ```
+
+#### 3. 📄 In Ấn & Báo Cáo (Reports)
+
+| Report | Nội dung |
+|--------|----------|
+| `rptBangCongTongHop` | Bảng công tổng hợp toàn công ty theo tháng |
+| `rptBangCongCTNV` | Bảng công chi tiết từng nhân viên |
+| `rptBaoCaoLuongNV` | Phiếu lương cá nhân (hỗ trợ xuất PDF/Excel) |
+| `rptDSNhanVien` | Danh sách nhân viên theo phòng ban |
+| `rptHopDongLaoDong` | In hợp đồng lao động theo mẫu |
+| `rptKhenThuong` / `rptKyLuat` | In quyết định khen thưởng / kỷ luật |
+
+#### 4. 🔐 Quản Trị Hệ Thống (System Administration)
+
+| Form | Chức năng |
+|------|-----------|
+| `FrmDangNhap` | Đăng nhập với xác thực BCrypt + phân quyền theo nhóm |
+| `FrmUser` / `FrmGroup` | Quản lý tài khoản người dùng và nhóm quyền |
+| `FrmShowUser_Group` | Xem và gán thành viên vào nhóm |
+| `FrmPhanQuyenChucNang` | Phân quyền truy cập từng chức năng (menu) theo nhóm |
+| `FrmPhanQuyenBaoCao` | Phân quyền xem báo cáo theo nhóm |
+| `FrmChangePassword` | Đổi mật khẩu cá nhân |
+| `FrmSetting` | Cấu hình kết nối Ollama và model AI |
+| `FrmCreateAccount` | Tạo tài khoản mới kèm thiết lập quyền ban đầu |
+
+#### 5. 🤖 Trợ Lý AI Nhân Sự Thông Minh (AI Copilot)
+
+| Form / Service | Vai trò |
+|----------------|---------|
+| `FrmAI_Chat` | Giao diện chatbox tích hợp trực tiếp trên ứng dụng desktop |
+| `FrmAI` | Màn hình hiển thị kết quả truy vấn SQL dạng bảng dữ liệu |
+| `HybridRagService` | Điều phối toàn bộ luồng RAG (Orchestrator trung tâm) |
+| `AiRouterService` | Phân loại ý định: **GENERAL** (hỏi đáp thông thường) vs. **DATA** (truy vấn DB) |
+| `QueryPreprocessor` | Chuẩn hóa câu hỏi: khôi phục dấu tiếng Việt, inject gợi ý schema |
+| `SqlGeneratorService` | Sinh SQL từ câu hỏi tiếng Việt, làm sạch và kiểm duyệt an toàn |
+| `AiSchemaService` | Cung cấp định nghĩa các View AI cho LLM hiểu cấu trúc dữ liệu |
+| `OllamaService` | Gửi prompt và nhận phản hồi từ Ollama local server |
+| `AiCacheService` | Cache kết quả SQL đã sinh để phản hồi tức thì cho câu hỏi lặp |
+| `AiChatHistory` | Lưu lịch sử hội thoại ngắn hạn để AI hiểu ngữ cảnh đàm thoại |
+| `VectorService` | Tìm kiếm tương đồng ngữ nghĩa (Vector Similarity Search) |
+
+---
+
+### 🤖 Kiến Trúc Hybrid RAG & Bảo Mật AI
+
+#### Luồng Xử Lý (RAG Pipeline)
+
 ```mermaid
 graph TD
-    A[Người dùng gửi câu hỏi] --> B[AiRouterService: Phân tích ý định]
-    B -- Ý định Chào hỏi/Giao tiếp chung --> C[OllamaService: Sinh phản hồi tự nhiên]
-    B -- Ý định hỏi đáp Dữ liệu nhân sự --> D[SqlGeneratorService: Sinh SQL]
-    D --> E{Kiểm tra SQL An toàn?}
-    E -- Chứa từ khóa cấm/Không hợp lệ --> F[Báo lỗi & Từ chối thực thi SQL]
-    E -- Hợp lệ SELECT --> G[Thực thi SQL lên Oracle DB qua AiEntities]
-    G --> H[Chuyển kết quả sang JSON Context]
-    H --> I[Gửi JSON Context + Lịch sử + Câu hỏi vào Ollama]
-    I --> J[Ollama tổng hợp câu trả lời Tiếng Việt chính xác]
-    C --> K[Hiển thị kết quả lên Chatbox]
-    J --> K
+    A["👤 Người dùng gửi câu hỏi tiếng Việt"] --> B["QueryPreprocessor\n(Khôi phục dấu + chuẩn hóa)"]
+    B --> C["AiRouterService\n(Phân loại ý định)"]
+
+    C -- "GENERAL\n(Chào hỏi, hỏi thông thường)" --> D["OllamaService\n(Sinh phản hồi tự nhiên)"]
+    C -- "DATA\n(Truy vấn dữ liệu nhân sự)" --> E["AiCacheService\n(Kiểm tra cache)"]
+
+    E -- "Cache HIT ✅" --> I["Trả kết quả tức thì < 10ms"]
+    E -- "Cache MISS ❌" --> F["SqlGeneratorService\n(NL → SQL + AiSchemaService)"]
+
+    F --> G{"Kiểm tra SQL an toàn"}
+    G -- "Chứa INSERT/UPDATE/DELETE/DROP..." --> H["⛔ Từ chối & Báo lỗi"]
+    G -- "✅ Chỉ SELECT" --> J["Thực thi qua AiEntities\n(Read-Only Oracle Connection)"]
+
+    J --> K["Chuyển DataTable → JSON Context"]
+    K --> L["OllamaService\n(Tổng hợp câu trả lời bằng tiếng Việt)"]
+
+    D --> M["AiChatHistory\n(Cập nhật lịch sử)"]
+    L --> M
+    M --> N["💬 Hiển thị trên FrmAI_Chat"]
+    I --> N
 ```
 
-#### 2. Cơ chế Bảo mật thông tin (Security Safeguards)
-* **View-Restricted Access:** Tài khoản kết nối của AI (`AiEntities`) được phân quyền hạn chế ở mức CSDL. AI không được phép đọc trực tiếp các bảng gốc (`TB_NHANVIEN`, `TB_BANGCONG`, ...). Thay vào đó, AI chỉ được truy vấn qua các View được chuẩn hóa để che giấu các cột nhạy cảm hoặc không liên quan:
-  * `V_AI_EMPLOYEE`: Chi tiết hồ sơ cơ bản của nhân viên.
-  * `V_AI_ATTENDANCE`: Thông tin giờ vào/ra, chấm công hàng ngày.
-  * `V_AI_OVERTIME`: Thông tin số giờ tăng ca của nhân sự.
-  * `V_AI_INSURANCE`: Số sổ bảo hiểm, nơi cấp, nơi khám bệnh.
-  * `V_AI_ADVANCE`: Số tiền và ngày tạm ứng lương.
-  * `V_AI_ALLOWANCE`: Phụ cấp được nhận và kỳ công.
-* **SQL Injection & Command Prevention:** Lớp `SqlGeneratorService` lọc sạch câu lệnh SQL sinh ra bởi AI:
-  * Chỉ chấp nhận các câu lệnh khởi đầu bằng `SELECT`.
-  * Quét và loại bỏ tất cả các câu lệnh có chứa từ khóa thao tác dữ liệu: `INSERT`, `UPDATE`, `DELETE`, `DROP`, `TRUNCATE`, `ALTER`.
-* **Cơ chế Hardcode Fallback:** Tích hợp bộ phân tích mẫu Regex cho các câu hỏi tìm kiếm nhân viên theo Tên hoặc Mã số nhân viên để chạy câu lệnh SQL trực tiếp mà không cần gọi LLM, tăng tốc độ xử lý lên dưới 10ms và độ chính xác 100%.
+#### Cơ Chế Bảo Mật (Security Safeguards)
+
+| Cơ chế | Chi tiết |
+|--------|----------|
+| **Tài khoản DB phân tách** | `QLNhanSuEntities` (Admin, đọc/ghi toàn bộ) vs `AiEntities` (chỉ đọc View AI) |
+| **View-Restricted Access** | AI chỉ truy cập 6 View an toàn, không bao giờ động trực tiếp vào bảng gốc |
+| **SQL Sanitization** | Chỉ chấp nhận câu lệnh bắt đầu bằng `SELECT`; loại bỏ mọi từ khóa DML/DDL |
+| **Hardcode Regex Fallback** | Tìm kiếm nhân viên theo Tên/Mã số chạy trực tiếp không qua LLM, độ chính xác 100% |
+| **Local-Only Execution** | Ollama chạy hoàn toàn cục bộ — không một dữ liệu nào gửi lên internet |
+| **BCrypt Password Hashing** | Mật khẩu người dùng được băm bằng BCrypt.Net-Next trước khi lưu |
+
+##### View AI (Dữ liệu AI được phép truy cập):
+
+| View | Dữ liệu cung cấp |
+|------|-----------------|
+| `V_AI_EMPLOYEE` | Thông tin cơ bản nhân viên (tên, phòng ban, chức vụ, ngày vào làm) |
+| `V_AI_ATTENDANCE` | Giờ check-in/check-out, số ngày công hàng tháng |
+| `V_AI_OVERTIME` | Số giờ tăng ca theo ngày, hệ số ca |
+| `V_AI_INSURANCE` | Mã số bảo hiểm, nơi cấp, nơi khám bệnh |
+| `V_AI_ADVANCE` | Số tiền và ngày tạm ứng lương |
+| `V_AI_ALLOWANCE` | Phụ cấp được nhận theo kỳ công |
 
 ---
 
-### 🗄️ Cấu Trúc Cơ Sở Dữ Liệu (Database Schema)
-Hệ thống sử dụng cơ sở dữ liệu quan hệ được backup chi tiết tại file [HR_backup.sql](file:///d:/QL_NS/QuanLyNhanSu/HR_backup.sql):
+### 🗄️ Cơ Sở Dữ Liệu (Database Schema)
 
-* **Thông tin cá nhân & Tổ chức:** `TB_NHANVIEN` (Bảng trung tâm), `TB_CONGTY`, `TB_PHONGBAN`, `TB_BOPHAN`, `TB_CHUCVU`, `TB_TRINHDO`, `TB_DANTOC`, `TB_TONGIAO`, `TB_GIOITINH`.
-* **Quá trình làm việc & Biến động:** `TB_HOPDONG`, `TB_DIEUCHUYEN_NHANVIEN`, `TB_NHANVIEN_THOIVIEC`, `TB_NANGLUONG_NHANVIEN`, `TB_KHENTHUONG_KYLUAT`.
-* **Chấm công & Tài chính:** `TB_BANGCONG`, `TB_LOAICONG`, `TB_TANGCA`, `TB_LOAICA`, `TB_BAOHIEM`, `TB_UNGLUONG`, `TB_PHUCAP`, `TB_NHANVIEN_PHUCAP`.
+> File backup đầy đủ: [HR_backup.sql](./HR_backup.sql) | Script khởi tạo dữ liệu: [import_data.sql](./import_data.sql)
+
+#### Nhóm Bảng Nhân Sự & Tổ Chức
+
+```
+TB_NHANVIEN          — Bảng trung tâm, lưu toàn bộ hồ sơ nhân viên
+TB_CONGTY            — Thông tin công ty
+TB_PHONGBAN          — Danh mục phòng ban
+TB_BOPHAN            — Danh mục bộ phận (con của phòng ban)
+TB_CHUCVU            — Danh mục chức vụ
+TB_TRINHDO           — Danh mục trình độ học vấn
+TB_DANTOC            — Danh mục dân tộc
+TB_TONGIAO           — Danh mục tôn giáo
+TB_GIOITINH          — Danh mục giới tính
+TB_QUOCTICH          — Danh mục quốc tịch
+```
+
+#### Nhóm Bảng Biến Động Nhân Sự
+
+```
+TB_HOPDONG           — Hợp đồng lao động (số lần ký, hệ số lương)
+TB_DIEUCHUYEN_NHANVIEN — Lịch sử điều chuyển nội bộ
+TB_NANGLUONG_NHANVIEN  — Lộ trình tăng lương
+TB_KHENTHUONG_KYLUAT — Quyết định khen thưởng và kỷ luật
+TB_NHANVIEN_THOIVIEC — Hồ sơ thôi việc
+```
+
+#### Nhóm Bảng Chấm Công & Tài Chính
+
+```
+TB_LOAICA            — Danh mục ca làm việc + hệ số lương ca
+TB_LOAICONG          — Danh mục loại ngày công
+TB_BANGCONG          — Bảng công tháng (tổng hợp)
+TB_BANGCONG_CHITIET  — Chi tiết check-in/check-out hàng ngày
+TB_KYCONG            — Kỳ công (chu kỳ tính lương)
+TB_KYCONGCHITIET     — Chi tiết kỳ công từng nhân viên
+TB_TANGCA            — Giờ tăng ca
+TB_PHUCAP            — Danh mục phụ cấp
+TB_NHANVIEN_PHUCAP   — Phân bổ phụ cấp cho nhân viên
+TB_UNGLUONG          — Tạm ứng lương
+TB_BANGLUONG         — Bảng lương tổng hợp
+TB_BAOHIEM           — Thông tin bảo hiểm xã hội
+```
+
+#### Nhóm Bảng Hệ Thống (System Tables)
+
+```
+TB_SYS_USER          — Tài khoản người dùng (mật khẩu BCrypt)
+TB_SYS_GROUP         — Nhóm quyền và mối quan hệ thành viên
+TB_SYS_FUNCTION      — Danh mục chức năng trong hệ thống
+TB_SYS_RIGHT         — Phân quyền chức năng theo người dùng/nhóm
+TB_SYS_REPORT        — Danh mục báo cáo
+TB_SYS_RIGHT_REPORT  — Phân quyền xem báo cáo
+TB_CONFIG            — Cấu hình hệ thống (Ollama URL, model name, ...)
+```
+
+> **Trigger quan trọng:** [SYS_USER_triggers.sql](./DA/SYS_USER_triggers.sql) — Cascade delete khi xóa tài khoản người dùng (tự động dọn sạch nhóm, quyền hàm, quyền báo cáo).
 
 ---
 
-### 🛠 Công Nghệ Sử Dụng (Technology Stack)
+### 🛠 Công Nghệ Sử Dụng
 
-* **Runtime:** .NET Framework 4.7.2
-* **UI Library:** DevExpress WinForms
-* **Database Engine:** Oracle Database 19c
-* **ORM:** Entity Framework 6.4 (Database First via EDMX)
-* **AI Engine Runtime:** Ollama (Local Server)
-* **Primary LLM:** Qwen 2.5 (7B/14B) / Llama 3 (Mặc định cấu hình: `qwen2.5:latest`)
-* **Libraries:** `Newtonsoft.Json` (Xử lý định dạng trao đổi dữ liệu), `Oracle.ManagedDataAccess` (Trình điều khiển Oracle thuần .NET).
+| Thành phần | Phiên bản / Chi tiết |
+|-----------|----------------------|
+| **Runtime** | .NET Framework 4.7.2 |
+| **UI Library** | DevExpress WinForms (GridView, TreeList, RibbonControl) |
+| **Database** | Oracle Database 19c |
+| **ORM** | Entity Framework 6.5.1 (Database First — EDMX) |
+| **Oracle Driver** | Oracle.ManagedDataAccess 23.7.0 (Thuần .NET, không cần Oracle Client) |
+| **AI Runtime** | Ollama (Local Server, port 11434) |
+| **LLM Model** | Qwen 2.5 (7B/14B) hoặc Llama 3 — mặc định: `qwen2.5:latest` |
+| **JSON** | Newtonsoft.Json 13.0.4 |
+| **Security** | BCrypt.Net-Next 4.0.3 (Hash mật khẩu) |
+| **Async** | Microsoft.Bcl.AsyncInterfaces, System.Threading.Tasks |
 
 ---
 
-### ⚙️ Hướng Dẫn Cấu Hình & Khởi Chạy (Setup & Configuration)
+### ⚙️ Hướng Dẫn Cài Đặt & Khởi Chạy
 
-#### 1. Cấu hình Cơ sở dữ liệu Oracle 19c
-* Thực thi file backup [HR_backup.sql](file:///d:/QL_NS/QuanLyNhanSu/HR_backup.sql) trên công cụ quản trị (SQL Developer / PL/SQL Developer) của bạn để khởi tạo toàn bộ cấu trúc bảng và ràng buộc.
-* Tạo tài khoản quản trị hệ thống (ví dụ: `HR`) sở hữu các bảng để ứng dụng kết nối đọc ghi.
-* Tạo tài khoản phụ phục vụ AI (ví dụ: `HR_AI`) và chỉ gán quyền `SELECT` trên 6 View `V_AI_...`.
+#### Bước 1: Thiết Lập Oracle Database 19c
 
-#### 2. Cài đặt Ollama & Tải Model
-* Tải và cài đặt Ollama từ [trang chủ chính thức](https://ollama.com/).
-* Trong Terminal / CMD, chạy lệnh sau để tải và khởi động mô hình:
-  ```bash
-  ollama run qwen2.5:latest
-  ```
-* Đảm bảo Ollama API đang lắng nghe tại cổng mặc định `11434`.
+1. Tạo tablespace và user HR trong Oracle:
+   ```sql
+   CREATE USER HR IDENTIFIED BY your_password;
+   GRANT CONNECT, RESOURCE, DBA TO HR;
+   ```
 
-#### 3. Cập nhật tệp tin `App.config`
-Mở tệp tin `App.config` trong project `QLyNSu` và `Bu`, cập nhật chuỗi kết nối Oracle và đường dẫn Ollama phù hợp với môi trường của bạn:
+2. Thực thi file backup để tạo toàn bộ schema và dữ liệu mẫu:
+   ```sql
+   -- Chạy trong SQL Developer hoặc PL/SQL Developer
+   @HR_backup.sql
+   @import_data.sql
+   ```
+
+3. Tạo tài khoản phụ cho AI (chỉ đọc View):
+   ```sql
+   CREATE USER HR_AI IDENTIFIED BY ai_password;
+   GRANT CREATE SESSION TO HR_AI;
+   -- Chỉ cấp quyền SELECT trên 6 View AI
+   GRANT SELECT ON HR.V_AI_EMPLOYEE   TO HR_AI;
+   GRANT SELECT ON HR.V_AI_ATTENDANCE TO HR_AI;
+   GRANT SELECT ON HR.V_AI_OVERTIME   TO HR_AI;
+   GRANT SELECT ON HR.V_AI_INSURANCE  TO HR_AI;
+   GRANT SELECT ON HR.V_AI_ADVANCE    TO HR_AI;
+   GRANT SELECT ON HR.V_AI_ALLOWANCE  TO HR_AI;
+   ```
+
+4. Chạy trigger cascade delete:
+   ```sql
+   @DA/SYS_USER_triggers.sql
+   ```
+
+#### Bước 2: Cài Đặt Ollama & Tải Model AI
+
+```bash
+# 1. Tải và cài đặt Ollama từ https://ollama.com/
+# 2. Tải mô hình ngôn ngữ (chọn một trong hai):
+ollama pull qwen2.5:latest    # Khuyến nghị (tiếng Việt tốt hơn)
+ollama pull llama3:latest     # Tùy chọn thay thế
+
+# 3. Chạy server Ollama (mặc định port 11434)
+ollama serve
+```
+
+#### Bước 3: Cấu Hình `App.config`
+
+Cập nhật file `App.config` trong project **`QLyNSu`** và **`Bu`**:
 
 ```xml
 <configuration>
   <connectionStrings>
-    <!-- Chuỗi kết nối quyền Admin cho hệ thống HRM -->
-    <add name="QLNhanSuEntities" connectionString="metadata=res://*/QLNhanSu.csdl|...;provider=Oracle.ManagedDataAccess.Client;provider connection string=&quot;DATA SOURCE=localhost:1521/orcl;PASSWORD=your_password;USER ID=HR&quot;" providerName="System.Data.EntityClient" />
-    
-    <!-- Chuỗi kết nối quyền chỉ đọc (Read-Only) cho AI truy vấn -->
-    <add name="AiEntities" connectionString="metadata=res://*/AIEntities.csdl|...;provider=Oracle.ManagedDataAccess.Client;provider connection string=&quot;DATA SOURCE=localhost:1521/orcl;PASSWORD=your_ai_password;USER ID=HR_AI&quot;" providerName="System.Data.EntityClient" />
+    <!-- Kết nối chính: Quyền Admin cho toàn bộ hệ thống HR -->
+    <add name="QLNhanSuEntities"
+         connectionString="metadata=res://*/QLNhanSu.csdl|res://*/QLNhanSu.ssdl|res://*/QLNhanSu.msl;
+                           provider=Oracle.ManagedDataAccess.Client;
+                           provider connection string=&quot;DATA SOURCE=localhost:1521/ORCL;
+                           PASSWORD=your_password;USER ID=HR&quot;"
+         providerName="System.Data.EntityClient" />
+
+    <!-- Kết nối AI: Chỉ đọc, giới hạn trên 6 View an toàn -->
+    <add name="AiEntities"
+         connectionString="metadata=res://*/AIEntities.csdl|res://*/AIEntities.ssdl|res://*/AIEntities.msl;
+                           provider=Oracle.ManagedDataAccess.Client;
+                           provider connection string=&quot;DATA SOURCE=localhost:1521/ORCL;
+                           PASSWORD=ai_password;USER ID=HR_AI&quot;"
+         providerName="System.Data.EntityClient" />
   </connectionStrings>
-  
+
   <appSettings>
-    <!-- Đường dẫn dịch vụ Ollama cục bộ -->
+    <!-- URL Ollama server -->
     <add key="OllamaUrl" value="http://localhost:11434/api/generate" />
-    <!-- Mô hình ngôn ngữ sử dụng -->
+    <!-- Tên model AI đang dùng -->
     <add key="DefaultModel" value="qwen2.5:latest" />
   </appSettings>
 </configuration>
 ```
 
----
+#### Bước 4: Build & Chạy
 
-## 🇺🇸 English (Detailed Overview)
-
-### 📌 Project Description
-This application is an enterprise-grade **Human Resource Management System (HRMS)** built on the **Microsoft .NET Framework 4.7.2** ecosystem. It utilizes **DevExpress WinForms** for a fluid, high-performance desktop experience tailored for corporate HR operators. The backing storage is powered by **Oracle Database 19c** to ensure transaction integrity and high availability.
-
-A core innovation of this project is the integration of an **On-Premise AI Copilot** powered by **Ollama (Qwen 2.5 / Llama 3)**. By applying a custom **Hybrid RAG** (Retrieval-Augmented Generation) architecture, it allows administrators to search and analyze the employee database using plain natural language (NL2SQL) without compromising corporate data privacy.
-
-### 🏗 Key Architectural Components
-1. **Presentation Layer (`QLyNSu`):** A modern, responsive desktop interface designed using DevExpress components. It houses the visual windows for managing employees, attendance sheets, payroll, contracts, transfers, and system configurations.
-2. **Business Logic Layer (`Bu`):** Implements core HR logic, validations, and the advanced AI Orchestrator service.
-3. **Data Access Layer (`DA`):** Implements **Entity Framework 6.4 (EF6)** with Oracle Managed Driver for object-relational mapping.
-4. **AI Intelligence Layer:** Executes structured SQL retrieval through a localized LLM server. It classifies queries (General vs. Data Query), retrieves context via read-only DB views, and synthesizes natural language answers.
-
-### 🛡 AI Security & Isolation
-* **Role-Based Connection Contexts:** The main application operates under the full-access `QLNhanSuEntities` connection string, while the AI assistant is bound to the restricted, read-only `AiEntities` connection string.
-* **Restricted DB Views:** The database account dedicated to the AI has select-only permissions and is isolated to safe database views (prefixed with `V_AI_...`). Direct table access is completely disabled.
-* **SQL Sanitization:** The SQL generator validates query patterns, ensuring they begin with `SELECT` and contain no modification keywords (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `TRUNCATE`, `ALTER`).
-* **Optimized Local Execution:** Features regex parsing for quick common lookups and cache stores to bypass LLM latency for duplicate queries.
+1. Mở `QuanLyNhanSu.sln` bằng **Visual Studio 2019/2022**
+2. Restore NuGet packages: `Tools → NuGet Package Manager → Restore`
+3. Build Solution: `Ctrl + Shift + B`
+4. Chạy project `QLyNSu` (Set as Startup Project)
+5. Đăng nhập với tài khoản **Admin** được tạo từ `import_data.sql`
 
 ---
 
-## 🇯🇵 日本語 (Japanese Summary)
+### 📁 Cấu Trúc File Quan Trọng
+
+| File / Thư mục | Mô tả |
+|----------------|-------|
+| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | Solution file chứa 3 project |
+| [`HR_backup.sql`](./HR_backup.sql) | Script tạo toàn bộ schema Oracle (bảng, view, sequence, constraint) |
+| [`import_data.sql`](./import_data.sql) | Dữ liệu mẫu để test (nhân viên, phòng ban, tài khoản admin) |
+| [`DA/QLNhanSu.edmx`](./DA/QLNhanSu.edmx) | Entity Data Model đầy đủ (40+ bảng) |
+| [`DA/AIEntities.edmx`](./DA/AIEntities.edmx) | Entity Data Model chỉ đọc cho AI (6 View) |
+| [`DA/SYS_USER_triggers.sql`](./DA/SYS_USER_triggers.sql) | Oracle trigger cascade delete cho bảng người dùng |
+| [`Bu/Services/AI_Services/Core/HybridRagService.cs`](./Bu/Services/AI_Services/Core/HybridRagService.cs) | Orchestrator trung tâm của toàn bộ luồng AI |
+| [`Bu/Services/AI_Services/Core/SqlGeneratorService.cs`](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) | Dịch câu hỏi tiếng Việt → Oracle SQL |
+| [`QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs`](./QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs) | Giao diện Chatbox AI tích hợp |
+
+---
+
+### 🔧 Yêu Cầu Hệ Thống
+
+| Thành phần | Yêu cầu tối thiểu |
+|-----------|-------------------|
+| **OS** | Windows 10/11 (64-bit) |
+| **RAM** | 8 GB (16 GB khuyến nghị khi dùng AI) |
+| **CPU** | Intel Core i5 thế hệ 8+ hoặc AMD Ryzen 5 |
+| **GPU** | Tùy chọn — NVIDIA GPU (CUDA) tăng tốc Ollama đáng kể |
+| **Oracle** | Oracle Database 19c (Express Edition miễn phí) |
+| **Visual Studio** | 2019 / 2022 với workload ".NET Desktop Development" |
+| **DevExpress** | v23.x hoặc tương thích với .NET Framework 4.7.2 |
+| **Ollama** | Phiên bản mới nhất từ [ollama.com](https://ollama.com) |
+
+---
+
+## 🇺🇸 English
+
+### 📌 Project Overview
+
+This is an **enterprise-grade Human Resource Management System (HRMS)** built on **.NET Framework 4.7.2** with a rich **DevExpress WinForms** UI and **Oracle Database 19c** backend. The system's standout feature is an integrated **On-Premise AI Copilot** using a custom **Hybrid RAG architecture** that enables HR managers to query employee data in plain Vietnamese — without writing SQL — while keeping all corporate data completely offline and private.
+
+### 🏗 Architecture
+
+The solution follows a clean **3-Tier Architecture**:
+
+| Layer | Project | Responsibility |
+|-------|---------|---------------|
+| **Presentation** | `QLyNSu` | WinForms + DevExpress UI, Forms, Reports, AI Chatbox |
+| **Business Logic** | `Bu` | HR Rules, Payroll Calculation, AI Orchestration, Services |
+| **Data Access** | `DA` | Entity Framework 6.5 (Database First), Oracle Connection |
+
+### 🛡 AI Security Architecture
+
+The AI subsystem is isolated at **multiple levels**:
+
+1. **Separate DB Accounts**: The main app uses a full-access account (`HR`); the AI uses a read-only account (`HR_AI`) with no access to raw tables.
+2. **View-Only Access**: AI queries are restricted to 6 pre-defined sanitized views (`V_AI_*`) that expose only safe, non-sensitive fields.
+3. **SQL Sanitization**: All AI-generated SQL is validated — only `SELECT` statements are permitted; any DML/DDL keywords trigger an immediate rejection.
+4. **Local Execution**: Ollama runs 100% on-premise. Zero data egress to the internet.
+5. **Regex Fallback**: High-frequency queries (search by name/ID) are handled by deterministic regex patterns, bypassing the LLM entirely for sub-10ms responses.
+
+### 🛠 Technology Stack
+
+| Component | Technology |
+|-----------|-----------|
+| Runtime | .NET Framework 4.7.2 |
+| UI | DevExpress WinForms |
+| Database | Oracle 19c |
+| ORM | Entity Framework 6.5.1 (EDMX) |
+| AI Engine | Ollama (local, port 11434) |
+| LLM | Qwen 2.5 / Llama 3 |
+| Security | BCrypt.Net-Next password hashing |
+| JSON | Newtonsoft.Json 13.0.4 |
+
+### ⚙️ Quick Setup
+
+1. **Oracle**: Create `HR` (admin) and `HR_AI` (read-only) users, run `HR_backup.sql` and `import_data.sql`.
+2. **Ollama**: Install from [ollama.com](https://ollama.com), run `ollama pull qwen2.5:latest`.
+3. **App.config**: Update connection strings for both Oracle accounts and set `OllamaUrl`.
+4. **Build**: Open `QuanLyNhanSu.sln` in Visual Studio, restore NuGet packages, build and run `QLyNSu`.
+
+---
+
+## 🇯🇵 日本語
 
 ### 📌 プロジェクト概要
-本システムは、Microsoft .NET Framework 4.7.2 および DevExpress WinForms に基づいて開発されたエンタープライズ向けの人事・勤怠・給与管理システム (HRMS) です。データベースには **Oracle Database 19c** を採用し、大量の組織データの安定的かつ高速な処理を実現しています。
 
-本プロジェクトの最大の特徴は、**Ollama (Qwen 2.5 / Llama 3)** を利用した**オンプレミス AI アシスタント**との統合です。独自の **Hybrid RAG** アーキテクチャにより、機密性の高い個人情報や給与データを社外（クラウド環境）へ送信することなく、自然言語によるデータ検索や集計分析を安全に行うことができます。
+本システムは、**.NET Framework 4.7.2** と **DevExpress WinForms** を基盤とした、エンタープライズ向けの**人事・勤怠・給与管理システム (HRMS)** です。データベースには **Oracle Database 19c** を採用し、大規模な組織データの安定処理を実現しています。
 
-### 🏗 アーキテクチャとセキュリティ対策
-1. **プレゼンテーション層 (`QLyNSu`):** DevExpress コントロールを使用した高機能なデスクトップ画面を提供。
-2. **ビジネスロジック層 (`Bu`):** コア業務処理、および AI ルーティング、SQL生成ロジックの実装。
-3. **データアクセス層 (`DA`):** Entity Framework 6.4 を使用した Oracle 接続。
-4. **AI セキュリティ分離:**
-   * AI は参照専用アカウントを使用し、基幹テーブルにはアクセスせず、事前定義された安全なビュー（`V_AI_EMPLOYEE`, `V_AI_ATTENDANCE` 等）のみを参照します。
-   * AI が生成した SQL は実行前に厳しく検査され、データ操作文（`INSERT`, `UPDATE`, `DELETE` 等）が含まれている場合は即座に遮断されます。
-   * キャッシュ機能および正規表現パターンマッチングの導入により、AI 呼び出しの遅延を抑え、応答速度を最適化しています。
+最大の特徴は、**Ollama** による**オンプレミス AI アシスタント**の統合です。独自の **Hybrid RAG アーキテクチャ**により、人事担当者がベトナム語の自然文で質問するだけで、社内データベースを安全に検索・集計できます。AIの処理はすべてローカルで完結し、**一切のデータがインターネットへ送信されません**。
+
+### 🏗 システム構成
+
+| 層 | プロジェクト | 役割 |
+|----|------------|------|
+| **プレゼンテーション層** | `QLyNSu` | WinForms + DevExpress UI、帳票、AIチャット画面 |
+| **ビジネスロジック層** | `Bu` | 人事業務ロジック、給与計算、AI オーケストレーター |
+| **データアクセス層** | `DA` | Entity Framework 6.5 + Oracle 接続 (EDMX) |
+
+### 🛡 AIセキュリティ対策
+
+| 対策 | 詳細 |
+|------|------|
+| **DB アカウント分離** | HR (管理者) と HR_AI (読み取り専用) の 2 アカウント |
+| **ビュー制限** | AI は `V_AI_*` の 6 つのビューのみ参照可能。元テーブルへの直接アクセス不可 |
+| **SQLサニタイズ** | `SELECT` 文のみ許可。`INSERT`, `UPDATE`, `DELETE`, `DROP` 等は即時遮断 |
+| **ローカル実行** | Ollama はローカルサーバーで動作。データの外部送信なし |
+| **パスワード保護** | BCrypt による安全なパスワードハッシュ化 |
+
+### ⚙️ セットアップ手順
+
+1. Oracle 19c に `HR` (管理者) と `HR_AI` (読み取り専用) ユーザーを作成し、`HR_backup.sql` および `import_data.sql` を実行。
+2. [ollama.com](https://ollama.com) から Ollama をインストールし、`ollama pull qwen2.5:latest` を実行。
+3. `App.config` の接続文字列と `OllamaUrl` を環境に合わせて更新。
+4. Visual Studio で `QuanLyNhanSu.sln` を開き、NuGet パッケージを復元してビルド・実行。
+
+---
+
+## 📄 License
+
+本プロジェクトは学術・教育目的で開発されました。商業利用の場合は作者にお問い合わせください。
+
+This project was developed for academic/educational purposes. For commercial use, please contact the author.
+
+Dự án này được phát triển cho mục đích học thuật. Vui lòng liên hệ tác giả nếu có nhu cầu thương mại.
