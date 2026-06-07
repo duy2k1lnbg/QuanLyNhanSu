@@ -1,4 +1,4 @@
-using Bu;
+﻿using Bu;
 using Bu.CLASS_SYSTEM;
 using DevExpress.XtraSplashScreen;
 using QLyNSu.FORM_BAOCAO;
@@ -470,7 +470,7 @@ namespace QLyNSu
 
         private async void btnBaoCao_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await _formManager.OpenFormWithSplashScreen(typeof(FrmBaoCaoChiTiet));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmBaoCaoTongHop));
         }
 
         private void btnExit3_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
