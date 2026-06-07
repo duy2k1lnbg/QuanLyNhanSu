@@ -165,6 +165,18 @@
     <Compile Include="FORM_BAOCAO\FrmBaoCaoTongHop.Designer.cs">
       <DependentUpon>FrmBaoCaoTongHop.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_BAOCAO\FrmDashboardNhanSu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_BAOCAO\FrmDashboardNhanSu.Designer.cs">
+      <DependentUpon>FrmDashboardNhanSu.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_BAOCAO\FrmDashboardLuong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_BAOCAO\FrmDashboardLuong.Designer.cs">
+      <DependentUpon>FrmDashboardLuong.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_CHAMCONG\FrmBangCongNV_IN.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -455,6 +467,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_BAOCAO\FrmBaoCaoTongHop.resx">
       <DependentUpon>FrmBaoCaoTongHop.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_BAOCAO\FrmDashboardNhanSu.resx">
+      <DependentUpon>FrmDashboardNhanSu.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_BAOCAO\FrmDashboardLuong.resx">
+      <DependentUpon>FrmDashboardLuong.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_CHAMCONG\FrmBangCong.resx">
       <DependentUpon>FrmBangCong.cs</DependentUpon>

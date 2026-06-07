@@ -33,7 +33,6 @@ namespace QLyNSu.FORM_BAOCAO
             LoadCombo();
             lstBaoCao.SelectedIndex = 0; // Default selection
             UpdateFilterVisibility();
-            LoadDashboard();
         }
 
         private void LoadCombo()
@@ -471,79 +470,6 @@ namespace QLyNSu.FORM_BAOCAO
         private void btnDong_Click(object sender, EventArgs e)
         {
             this.Close();
-        }
-
-        private void tabControl_SelectedPageChanged(object sender, DevExpress.XtraTab.TabPageChangedEventArgs e)
-        {
-            if (tabControl.SelectedTabPage == tabDashboard)
-            {
-                LoadDashboard();
-            }
-        }
-
-        private void LoadDashboard()
-        {
-            try
-            {
-                // Chart 1: Cơ cấu nhân sự theo Phòng ban
-                chartPhongBan.Series.Clear();
-                var dataPB = (from nv in db.TB_NHANVIEN
-                              join pb in db.TB_PHONGBAN on nv.IDPB equals pb.IDPB
-                              where (nv.DATHOIVIEC ?? 0) == 0
-                              group nv by pb.TENPB into g
-                              select new {
-                                  PhongBan = g.Key,
-                                  SoLuong = g.Count()
-                              }).ToList();
-
-                Series seriesPB = new Series("Cơ cấu nhân sự theo phòng ban", ViewType.Pie);
-                foreach (var item in dataPB)
-                {
-                    seriesPB.Points.Add(new SeriesPoint(item.PhongBan, item.SoLuong));
-                }
-                chartPhongBan.Series.Add(seriesPB);
-                seriesPB.Label.TextPattern = "{A}: {V} ({VP:P0})";
-                seriesPB.LegendTextPattern = "{A}";
-                
-                // Set Pie Chart Title
-                ChartTitle titlePB = new ChartTitle();
-                titlePB.Text = "Cơ cấu nhân sự theo phòng ban (Số lượng nhân viên)";
-                chartPhongBan.Titles.Clear();
-                chartPhongBan.Titles.Add(titlePB);
-
-                // Chart 2: Xu hướng quỹ lương thực tế (6 tháng gần nhất)
-                chartLuong.Series.Clear();
-                var dataLuong = (from bl in db.TB_BANGLUONG
-                                 group bl by bl.MAKYCONG into g
-                                 orderby g.Key descending
-                                 select new {
-                                     KyCong = g.Key,
-                                     TongLuong = g.Sum(x => x.THUC_LINH ?? 0)
-                                 }).Take(6).ToList();
-
-                dataLuong = dataLuong.OrderBy(x => x.KyCong).ToList();
-
-                Series seriesLuong = new Series("Quỹ lương (VND)", ViewType.Bar);
-                foreach (var item in dataLuong)
-                {
-                    seriesLuong.Points.Add(new SeriesPoint(item.KyCong.ToString(), (double)item.TongLuong));
-                }
-                chartLuong.Series.Add(seriesLuong);
-                
-                // Set Bar Chart Title
-                ChartTitle titleLuong = new ChartTitle();
-                titleLuong.Text = "Xu hướng chi phí quỹ lương (6 tháng gần nhất)";
-                chartLuong.Titles.Clear();
-                chartLuong.Titles.Add(titleLuong);
-
-                // Enable labels
-                seriesLuong.LabelsVisibility = DefaultBoolean.True;
-                seriesLuong.Label.TextPattern = "{V:N0}";
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Lỗi load Dashboard: " + ex.Message);
-            }
         }
     }
 }

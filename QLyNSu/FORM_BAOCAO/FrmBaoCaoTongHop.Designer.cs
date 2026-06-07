@@ -17,8 +17,6 @@ namespace QLyNSu.FORM_BAOCAO
 
         private void InitializeComponent()
         {
-            this.tabControl = new DevExpress.XtraTab.XtraTabControl();
-            this.tabBaoCao = new DevExpress.XtraTab.XtraTabPage();
             this.splitContainer = new DevExpress.XtraEditors.SplitContainerControl();
             this.lstBaoCao = new DevExpress.XtraEditors.ListBoxControl();
             this.pnlFilters = new DevExpress.XtraEditors.PanelControl();
@@ -36,14 +34,7 @@ namespace QLyNSu.FORM_BAOCAO
             this.btnDong = new DevExpress.XtraEditors.SimpleButton();
             this.gcData = new DevExpress.XtraGrid.GridControl();
             this.gvData = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.tabDashboard = new DevExpress.XtraTab.XtraTabPage();
-            this.splitDashboard = new DevExpress.XtraEditors.SplitContainerControl();
-            this.chartPhongBan = new DevExpress.XtraCharts.ChartControl();
-            this.chartLuong = new DevExpress.XtraCharts.ChartControl();
 
-            ((System.ComponentModel.ISupportInitialize)(this.tabControl)).BeginInit();
-            this.tabControl.SuspendLayout();
-            this.tabBaoCao.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.lstBaoCao)).BeginInit();
@@ -55,30 +46,7 @@ namespace QLyNSu.FORM_BAOCAO
             ((System.ComponentModel.ISupportInitialize)(this.spinDays.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gcData)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvData)).BeginInit();
-            this.tabDashboard.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitDashboard)).BeginInit();
-            this.splitDashboard.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.chartPhongBan)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chartLuong)).BeginInit();
             this.SuspendLayout();
-
-            // tabControl
-            this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControl.Location = new System.Drawing.Point(0, 0);
-            this.tabControl.Name = "tabControl";
-            this.tabControl.SelectedTabPage = this.tabBaoCao;
-            this.tabControl.Size = new System.Drawing.Size(1200, 700);
-            this.tabControl.TabIndex = 0;
-            this.tabControl.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
-            this.tabBaoCao,
-            this.tabDashboard});
-            this.tabControl.SelectedPageChanged += new DevExpress.XtraTab.TabPageChangedEventHandler(this.tabControl_SelectedPageChanged);
-
-            // tabBaoCao
-            this.tabBaoCao.Controls.Add(this.splitContainer);
-            this.tabBaoCao.Name = "tabBaoCao";
-            this.tabBaoCao.Size = new System.Drawing.Size(1198, 665);
-            this.tabBaoCao.Text = "Báo Cáo & Thống Kê";
 
             // splitContainer
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -90,7 +58,7 @@ namespace QLyNSu.FORM_BAOCAO
             this.splitContainer.Panel2.Controls.Add(this.pnlFilters);
             this.splitContainer.Panel2.Text = "DataPanel";
             this.splitContainer.SplitterPosition = 280;
-            this.splitContainer.Size = new System.Drawing.Size(1198, 665);
+            this.splitContainer.Size = new System.Drawing.Size(1200, 700);
             this.splitContainer.TabIndex = 0;
 
             // lstBaoCao
@@ -105,7 +73,7 @@ namespace QLyNSu.FORM_BAOCAO
             "Phiếu chi tiết lương nhân viên"});
             this.lstBaoCao.Location = new System.Drawing.Point(0, 0);
             this.lstBaoCao.Name = "lstBaoCao";
-            this.lstBaoCao.Size = new System.Drawing.Size(280, 665);
+            this.lstBaoCao.Size = new System.Drawing.Size(280, 700);
             this.lstBaoCao.TabIndex = 0;
             this.lstBaoCao.SelectedIndexChanged += new System.EventHandler(this.lstBaoCao_SelectedIndexChanged);
 
@@ -125,7 +93,7 @@ namespace QLyNSu.FORM_BAOCAO
             this.pnlFilters.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlFilters.Location = new System.Drawing.Point(0, 0);
             this.pnlFilters.Name = "pnlFilters";
-            this.pnlFilters.Size = new System.Drawing.Size(908, 90);
+            this.pnlFilters.Size = new System.Drawing.Size(910, 90);
             this.pnlFilters.TabIndex = 0;
 
             // lblKyCong
@@ -245,7 +213,7 @@ namespace QLyNSu.FORM_BAOCAO
             this.gcData.Location = new System.Drawing.Point(0, 90);
             this.gcData.MainView = this.gvData;
             this.gcData.Name = "gcData";
-            this.gcData.Size = new System.Drawing.Size(908, 575);
+            this.gcData.Size = new System.Drawing.Size(910, 610);
             this.gcData.TabIndex = 1;
             this.gcData.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvData});
@@ -255,52 +223,16 @@ namespace QLyNSu.FORM_BAOCAO
             this.gvData.Name = "gvData";
             this.gvData.OptionsView.ShowGroupPanel = false;
 
-            // tabDashboard
-            this.tabDashboard.Controls.Add(this.splitDashboard);
-            this.tabDashboard.Name = "tabDashboard";
-            this.tabDashboard.Size = new System.Drawing.Size(1198, 665);
-            this.tabDashboard.Text = "Dashboard Phân Tích";
-
-            // splitDashboard
-            this.splitDashboard.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.splitDashboard.Horizontal = false;
-            this.splitDashboard.Location = new System.Drawing.Point(0, 0);
-            this.splitDashboard.Name = "splitDashboard";
-            this.splitDashboard.Panel1.Controls.Add(this.chartPhongBan);
-            this.splitDashboard.Panel1.Text = "PanelChartPB";
-            this.splitDashboard.Panel2.Controls.Add(this.chartLuong);
-            this.splitDashboard.Panel2.Text = "PanelChartLuong";
-            this.splitDashboard.SplitterPosition = 320;
-            this.splitDashboard.Size = new System.Drawing.Size(1198, 665);
-            this.splitDashboard.TabIndex = 0;
-
-            // chartPhongBan
-            this.chartPhongBan.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chartPhongBan.Location = new System.Drawing.Point(0, 0);
-            this.chartPhongBan.Name = "chartPhongBan";
-            this.chartPhongBan.Size = new System.Drawing.Size(1198, 320);
-            this.chartPhongBan.TabIndex = 0;
-
-            // chartLuong
-            this.chartLuong.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.chartLuong.Location = new System.Drawing.Point(0, 0);
-            this.chartLuong.Name = "chartLuong";
-            this.chartLuong.Size = new System.Drawing.Size(1198, 335);
-            this.chartLuong.TabIndex = 0;
-
             // FrmBaoCaoTongHop
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1200, 700);
-            this.Controls.Add(this.tabControl);
+            this.Controls.Add(this.splitContainer);
             this.Name = "FrmBaoCaoTongHop";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Trung Tâm Báo Cáo & Phân Tích Nhân Sự";
+            this.Text = "Trung Tâm Báo Cáo & Thống Kê Nhân Sự";
             this.Load += new System.EventHandler(this.FrmBaoCaoTongHop_Load);
 
-            ((System.ComponentModel.ISupportInitialize)(this.tabControl)).EndInit();
-            this.tabControl.ResumeLayout(false);
-            this.tabBaoCao.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.lstBaoCao)).EndInit();
@@ -313,19 +245,11 @@ namespace QLyNSu.FORM_BAOCAO
             ((System.ComponentModel.ISupportInitialize)(this.spinDays.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gcData)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvData)).EndInit();
-            this.tabDashboard.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.splitDashboard)).EndInit();
-            this.splitDashboard.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.chartPhongBan)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chartLuong)).EndInit();
             this.ResumeLayout(false);
         }
 
         #endregion
 
-        private DevExpress.XtraTab.XtraTabControl tabControl;
-        private DevExpress.XtraTab.XtraTabPage tabBaoCao;
-        private DevExpress.XtraTab.XtraTabPage tabDashboard;
         private DevExpress.XtraEditors.SplitContainerControl splitContainer;
         private DevExpress.XtraEditors.ListBoxControl lstBaoCao;
         private DevExpress.XtraEditors.PanelControl pnlFilters;
@@ -345,9 +269,5 @@ namespace QLyNSu.FORM_BAOCAO
         private DevExpress.XtraEditors.SimpleButton btnIn;
         private DevExpress.XtraEditors.SimpleButton btnExcel;
         private DevExpress.XtraEditors.SimpleButton btnDong;
-
-        private DevExpress.XtraEditors.SplitContainerControl splitDashboard;
-        private DevExpress.XtraCharts.ChartControl chartPhongBan;
-        private DevExpress.XtraCharts.ChartControl chartLuong;
     }
 }

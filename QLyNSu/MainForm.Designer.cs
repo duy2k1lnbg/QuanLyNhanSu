@@ -79,6 +79,8 @@ namespace QLyNSu
             this.BtnAI = new DevExpress.XtraBars.BarButtonItem();
             this.btnLogin = new DevExpress.XtraBars.BarButtonItem();
             this.btnSetting = new DevExpress.XtraBars.BarButtonItem();
+            this.btnDashboardNhanSu = new DevExpress.XtraBars.BarButtonItem();
+            this.btnDashboardLuong = new DevExpress.XtraBars.BarButtonItem();
             this.ribbonMiniToolbar1 = new DevExpress.XtraBars.Ribbon.RibbonMiniToolbar(this.components);
             this.ribbonPage1 = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.ribbonPageGroup3 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
@@ -160,10 +162,12 @@ namespace QLyNSu
             this.BtnExit,
             this.BtnAI,
             this.btnLogin,
-            this.btnSetting});
+            this.btnSetting,
+            this.btnDashboardNhanSu,
+            this.btnDashboardLuong});
             this.ribbonControl1.Location = new System.Drawing.Point(0, 0);
             this.ribbonControl1.Margin = new System.Windows.Forms.Padding(4);
-            this.ribbonControl1.MaxItemId = 41;
+            this.ribbonControl1.MaxItemId = 43;
             this.ribbonControl1.MiniToolbars.Add(this.ribbonMiniToolbar1);
             this.ribbonControl1.Name = "ribbonControl1";
             this.ribbonControl1.OptionsMenuMinWidth = 385;
@@ -410,6 +414,22 @@ namespace QLyNSu
             this.btnBaoCao.Name = "btnBaoCao";
             this.btnBaoCao.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnBaoCao_ItemClick);
             // 
+            // btnDashboardNhanSu
+            // 
+            this.btnDashboardNhanSu.Caption = "Dashboard Nhân Sự";
+            this.btnDashboardNhanSu.Id = 41;
+            this.btnDashboardNhanSu.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/chart/charttype_pie.svg");
+            this.btnDashboardNhanSu.Name = "btnDashboardNhanSu";
+            this.btnDashboardNhanSu.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnDashboardNhanSu_ItemClick);
+            // 
+            // btnDashboardLuong
+            // 
+            this.btnDashboardLuong.Caption = "Dashboard Lương";
+            this.btnDashboardLuong.Id = 42;
+            this.btnDashboardLuong.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/chart/charttype_line.svg");
+            this.btnDashboardLuong.Name = "btnDashboardLuong";
+            this.btnDashboardLuong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnDashboardLuong_ItemClick);
+            // 
             // btnExit3
             // 
             this.btnExit3.Caption = "Thoát";
@@ -590,6 +610,8 @@ namespace QLyNSu
             // ribbonPageGroup6
             // 
             this.ribbonPageGroup6.ItemLinks.Add(this.btnBaoCao, true);
+            this.ribbonPageGroup6.ItemLinks.Add(this.btnDashboardNhanSu, true);
+            this.ribbonPageGroup6.ItemLinks.Add(this.btnDashboardLuong, true);
             this.ribbonPageGroup6.ItemLinks.Add(this.btnExit3, true);
             this.ribbonPageGroup6.Name = "ribbonPageGroup6";
             // 
@@ -833,6 +855,8 @@ namespace QLyNSu
         private DevExpress.XtraBars.BarButtonItem BtnAI;
         private DevExpress.XtraBars.BarButtonItem btnLogin;
         private DevExpress.XtraBars.BarButtonItem btnSetting;
+        private DevExpress.XtraBars.BarButtonItem btnDashboardNhanSu;
+        private DevExpress.XtraBars.BarButtonItem btnDashboardLuong;
     }
 }
 

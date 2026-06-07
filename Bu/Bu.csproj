@@ -284,6 +284,7 @@
     <Compile Include="DTO\DTO_AI_VIEWS\AdvanceDto.cs" />
     <Compile Include="DTO\DTO_AI_VIEWS\BaseAiDto.cs" />
     <Compile Include="DTO\BANGLUONG_DTO.cs" />
+    <Compile Include="DTO\DASHBOARD_DTO.cs" />
     <Compile Include="DTO\HOPDONG_DTO.cs" />
     <Compile Include="DTO\KHENTHUONG_KYLUAT_DTO.cs" />
     <Compile Include="DTO\NANGLUONG_NHANVIEN_DTO.cs" />
