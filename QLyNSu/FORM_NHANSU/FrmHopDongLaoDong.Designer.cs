@@ -1,4 +1,4 @@
-﻿namespace QLyNSu
+namespace QLyNSu
 {
     partial class FrmHopDongLaoDong
     {
@@ -33,8 +33,11 @@
             DevExpress.XtraBars.Ribbon.GalleryItemGroup galleryItemGroup1 = new DevExpress.XtraBars.Ribbon.GalleryItemGroup();
             this.NGAYKETTHUC = new DevExpress.XtraGrid.Columns.GridColumn();
             this.HESOLUONG = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.LUONG_THOA_THUAN = new DevExpress.XtraGrid.Columns.GridColumn();
             this.LANKY = new DevExpress.XtraGrid.Columns.GridColumn();
             this.THOIHAN = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.spLuongThoaThuan = new DevExpress.XtraEditors.SpinEdit();
+            this.lblLuongThoaThuan = new DevExpress.XtraEditors.LabelControl();
             this.barManager1 = new DevExpress.XtraBars.BarManager(this.components);
             this.bar1 = new DevExpress.XtraBars.Bar();
             this.btnThem = new DevExpress.XtraBars.BarButtonItem();
@@ -201,6 +204,20 @@
             this.HESOLUONG.Visible = true;
             this.HESOLUONG.VisibleIndex = 7;
             this.HESOLUONG.Width = 191;
+            // 
+            // LUONG_THOA_THUAN
+            // 
+            this.LUONG_THOA_THUAN.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.LUONG_THOA_THUAN.AppearanceHeader.Options.UseFont = true;
+            this.LUONG_THOA_THUAN.Caption = "LƯƠNG THỎA THUẬN";
+            this.LUONG_THOA_THUAN.FieldName = "LUONG_THOA_THUAN";
+            this.LUONG_THOA_THUAN.MinWidth = 25;
+            this.LUONG_THOA_THUAN.Name = "LUONG_THOA_THUAN";
+            this.LUONG_THOA_THUAN.Visible = true;
+            this.LUONG_THOA_THUAN.VisibleIndex = 9;
+            this.LUONG_THOA_THUAN.Width = 191;
+            this.LUONG_THOA_THUAN.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.LUONG_THOA_THUAN.DisplayFormat.FormatString = "n0";
             // 
             // LANKY
             // 
@@ -959,6 +976,8 @@
             this.splitContainer1.Panel1.Controls.Add(this.labelControl8);
             this.splitContainer1.Panel1.Controls.Add(this.searchMANV);
             this.splitContainer1.Panel1.Controls.Add(this.spHeSoLuong);
+            this.splitContainer1.Panel1.Controls.Add(this.spLuongThoaThuan);
+            this.splitContainer1.Panel1.Controls.Add(this.lblLuongThoaThuan);
             this.splitContainer1.Panel1.Controls.Add(this.spLanKy);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl7);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl6);
@@ -1096,6 +1115,40 @@
             0});
             this.spHeSoLuong.Size = new System.Drawing.Size(125, 32);
             this.spHeSoLuong.TabIndex = 12;
+            // 
+            // spLuongThoaThuan
+            // 
+            this.spLuongThoaThuan.EditValue = new decimal(new int[] {
+            0,
+            0,
+            0,
+            0});
+            this.spLuongThoaThuan.Location = new System.Drawing.Point(989, 87);
+            this.spLuongThoaThuan.MenuManager = this.barManager1;
+            this.spLuongThoaThuan.Name = "spLuongThoaThuan";
+            this.spLuongThoaThuan.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.spLuongThoaThuan.Properties.Appearance.Options.UseFont = true;
+            this.spLuongThoaThuan.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.spLuongThoaThuan.Properties.Increment = new decimal(new int[] {
+            500000,
+            0,
+            0,
+            0});
+            this.spLuongThoaThuan.Properties.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.spLuongThoaThuan.Properties.DisplayFormat.FormatString = "n0";
+            this.spLuongThoaThuan.Size = new System.Drawing.Size(200, 32);
+            this.spLuongThoaThuan.TabIndex = 22;
+            // 
+            // lblLuongThoaThuan
+            // 
+            this.lblLuongThoaThuan.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLuongThoaThuan.Appearance.Options.UseFont = true;
+            this.lblLuongThoaThuan.Location = new System.Drawing.Point(820, 87);
+            this.lblLuongThoaThuan.Name = "lblLuongThoaThuan";
+            this.lblLuongThoaThuan.Size = new System.Drawing.Size(155, 25);
+            this.lblLuongThoaThuan.TabIndex = 21;
+            this.lblLuongThoaThuan.Text = "Lương thỏa thuận:";
             // 
             // spLanKy
             // 
@@ -1259,6 +1312,7 @@
             this.HESOLUONG,
             this.LANKY,
             this.NGAYKY,
+            this.LUONG_THOA_THUAN,
             this.DEL_BY});
             this.gvDsHDLD.GridControl = this.gcDsHDLD;
             this.gvDsHDLD.Name = "gvDsHDLD";
@@ -1432,6 +1486,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.searchMANV.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.searchLookUpEdit1View)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.spHeSoLuong.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spLuongThoaThuan.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.spLanKy.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gcDsHDLD)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvDsHDLD)).EndInit();
@@ -1571,6 +1626,9 @@
         private DevExpress.XtraRichEdit.UI.ShowTableOptionsFormItem showTableOptionsFormItem1;
         private DevExpress.XtraRichEdit.UI.RichEditBarController richEditBarController1;
         private DevExpress.XtraEditors.LabelControl labelControl9;
+        private DevExpress.XtraEditors.SpinEdit spLuongThoaThuan;
+        private DevExpress.XtraEditors.LabelControl lblLuongThoaThuan;
+        private DevExpress.XtraGrid.Columns.GridColumn LUONG_THOA_THUAN;
         private System.Windows.Forms.ComboBox cbThoiHan;
         private DevExpress.XtraGrid.Columns.GridColumn NGAYKY;
         private DevExpress.XtraGrid.Columns.GridColumn DEL_BY;

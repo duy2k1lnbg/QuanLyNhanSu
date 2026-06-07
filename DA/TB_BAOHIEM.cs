@@ -20,6 +20,7 @@ namespace DA
         public string NOICAP { get; set; }
         public string NOIKHAMBENH { get; set; }
         public Nullable<decimal> MANV { get; set; }
+        public Nullable<decimal> LUONG_BHXH { get; set; }
     
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }

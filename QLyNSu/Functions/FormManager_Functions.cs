@@ -1,5 +1,6 @@
 using DevExpress.XtraSplashScreen;
 using QLyNSu.Functions;
+using QLyNSu.FORM_SYSTEM;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -51,6 +52,43 @@ namespace QLyNSu
                 }
 
                 await OpenFormAsync(typeForm);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}");
+            }
+            finally
+            {
+                SplashScreenManager.CloseForm();
+                _semaphore.Release();
+            }
+        }
+
+        public async Task OpenShowUserGroupFormWithSplashScreen(int mode)
+        {
+            SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, false);
+
+            try
+            {
+                if (!_semaphore.Wait(0))
+                {
+                    MessageBox.Show("Hệ thống đang bận, vui lòng chờ một chút.");
+                    return;
+                }
+
+                foreach (var frm in _parentForm.MdiChildren)
+                {
+                    if (frm is FrmShowUser_Group showUserGroup && showUserGroup.Mode == mode)
+                    {
+                        frm.Activate();
+                        return;
+                    }
+                }
+
+                FrmShowUser_Group f = new FrmShowUser_Group(mode);
+                TranslationManager.Translate(f);
+                f.MdiParent = _parentForm;
+                await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => f.Show())));
             }
             catch (Exception ex)
             {

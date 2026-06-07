@@ -225,6 +225,9 @@
     <Compile Include="FORM_SYSTEM\FrmShowUser_Group.Designer.cs">
       <DependentUpon>FrmShowUser_Group.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_SYSTEM\FrmCreateAccount.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmUser.cs">
       <SubType>Form</SubType>
     </Compile>

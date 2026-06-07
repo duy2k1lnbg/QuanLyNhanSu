@@ -144,6 +144,9 @@
     <Compile Include="TB_BANGCONG_CHITIET.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_BANGLUONG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_BAOHIEM.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>

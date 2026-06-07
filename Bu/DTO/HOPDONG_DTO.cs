@@ -1,4 +1,4 @@
-﻿using DA;
+using DA;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +15,7 @@ namespace Bu.DTO
         public Nullable<decimal> LANKY { get; set; }
         public string THOIHAN { get; set; }
         public Nullable<decimal> HESOLUONG { get; set; }
+        public Nullable<decimal> LUONG_THOA_THUAN { get; set; }
         public Nullable<decimal> MANV { get; set; }
         public string SOHD { get; set; }
         public Nullable<decimal> IDCTY { get; set; }

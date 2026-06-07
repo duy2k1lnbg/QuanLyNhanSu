@@ -1,4 +1,4 @@
-﻿namespace QLyNSu.FORM_CHAMCONG
+namespace QLyNSu.FORM_CHAMCONG
 {
     partial class FrmPhuCap
     {
@@ -665,7 +665,7 @@
             this.labelControl6.Name = "labelControl6";
             this.labelControl6.Size = new System.Drawing.Size(184, 25);
             this.labelControl6.TabIndex = 26;
-            this.labelControl6.Text = "Phụ cấp thâm niên:";
+            this.labelControl6.Text = "Phụ cấp nhà ở:";
             // 
             // labelControl5
             // 
@@ -685,7 +685,7 @@
             this.labelControl4.Name = "labelControl4";
             this.labelControl4.Size = new System.Drawing.Size(143, 25);
             this.labelControl4.TabIndex = 22;
-            this.labelControl4.Text = "Phụ cấp nhà ở:";
+            this.labelControl4.Text = "Phụ cấp thâm niên:";
             // 
             // labelControl3
             // 
@@ -695,7 +695,7 @@
             this.labelControl3.Name = "labelControl3";
             this.labelControl3.Size = new System.Drawing.Size(195, 25);
             this.labelControl3.TabIndex = 20;
-            this.labelControl3.Text = "Phụ cấp chuyên cần:";
+            this.labelControl3.Text = "Phụ cấp ngôn ngữ:";
             // 
             // labelControl1
             // 
@@ -705,7 +705,7 @@
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(178, 25);
             this.labelControl1.TabIndex = 18;
-            this.labelControl1.Text = "Phụ cấp ngôn ngữ:";
+            this.labelControl1.Text = "Phụ cấp chuyên cần:";
             // 
             // labelControl2
             // 
@@ -715,7 +715,7 @@
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(216, 25);
             this.labelControl2.TabIndex = 15;
-            this.labelControl2.Text = "Phụ cấp tránh nghiệm:";
+            this.labelControl2.Text = "Phụ cấp trách nhiệm:";
             // 
             // searchMANV
             // 

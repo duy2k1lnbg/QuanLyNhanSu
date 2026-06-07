@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
@@ -66,6 +66,7 @@ namespace QLyNSu
             cboChucVu.Enabled = !kt;
             cboDanToc.Enabled = !kt;
             cboQuocTich.Enabled = !kt;
+            cboLoaiNV.Enabled = !kt;
             btnImage.Enabled = !kt;
             dateNgaySinh.Enabled = !kt;
         }
@@ -85,6 +86,7 @@ namespace QLyNSu
             cboChucVu.Text = "Vui lòng chọn chức vụ";
             cboDanToc.Text = "Vui lòng chọn dân tộc";
             cboQuocTich.Text = "Vui lòng chọn quốc tịch";
+            cboLoaiNV.SelectedValue = 1;
         }
 
         private void LoadData()
@@ -196,6 +198,7 @@ namespace QLyNSu
                     nv.IDTG = int.Parse(cboTonGiao.SelectedValue.ToString());
                     nv.IDQT = int.Parse(cboQuocTich.SelectedValue.ToString());
                     nv.IDCTY = int.Parse(cboCongTy.SelectedValue.ToString());
+                    nv.LOAI_NV = int.Parse(cboLoaiNV.SelectedValue.ToString());
                     nv.CREATED_BY = 1;
                     nv.CREATED_DATE = DateTime.Now;
                     _nhanvien.Add(nv);
@@ -220,6 +223,7 @@ namespace QLyNSu
                         nv.IDTG = int.Parse(cboTonGiao.SelectedValue.ToString());
                         nv.IDQT = int.Parse(cboQuocTich.SelectedValue.ToString());
                         nv.IDCTY = int.Parse(cboCongTy.SelectedValue.ToString());
+                        nv.LOAI_NV = int.Parse(cboLoaiNV.SelectedValue.ToString());
                         nv.UPDATED_BY = 1;
                         nv.UPDATED_DATE = DateTime.Now;
                         _nhanvien.Update(nv);
@@ -372,6 +376,7 @@ namespace QLyNSu
                 cboTonGiao.SelectedValue = nv?.IDTG ?? -1;
                 cboQuocTich.SelectedValue = nv?.IDQT ?? -1;
                 cboCongTy.SelectedValue = nv?.IDCTY ?? -1;
+                cboLoaiNV.SelectedValue = nv?.LOAI_NV ?? 1;
             }
         }
 
@@ -440,6 +445,16 @@ namespace QLyNSu
             cboCongTy.DataSource = _congty.getList();
             cboCongTy.DisplayMember = "TENCTY";
             cboCongTy.ValueMember = "IDCTY";
+
+            var loaiNvList = new List<object>
+            {
+                new { Value = 1, Name = "Nhân viên (Office)" },
+                new { Value = 2, Name = "Lái xe (Driver)" },
+                new { Value = 3, Name = "Công nhân (Worker)" }
+            };
+            cboLoaiNV.DataSource = loaiNvList;
+            cboLoaiNV.DisplayMember = "Name";
+            cboLoaiNV.ValueMember = "Value";
         }
 
         private void btnImage_Click(object sender, EventArgs e)

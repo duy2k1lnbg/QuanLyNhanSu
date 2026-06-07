@@ -490,7 +490,7 @@ namespace QLyNSu
 
         private async void btnUser_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await _formManager.OpenFormWithSplashScreen(typeof(FrmShowUser_Group));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmCreateAccount));
         }
 
         private async void barButtonItem2_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -505,6 +505,10 @@ namespace QLyNSu
                 var result = MessageBox.Show(TranslationManager.Translate("Bạn có muốn đăng xuất không?"), TranslationManager.Translate("Xác nhận đăng xuất"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (result == DialogResult.Yes)
                 {
+                    foreach (Form child in this.MdiChildren)
+                    {
+                        child.Close();
+                    }
                     UserSession.Clear();
                     ApplyAuthorization();
                     ShowLoginDialog();

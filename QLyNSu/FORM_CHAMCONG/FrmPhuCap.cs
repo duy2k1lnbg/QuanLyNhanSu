@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.DirectX.Common.DirectWrite;
@@ -58,7 +58,7 @@ namespace QLyNSu.FORM_CHAMCONG
                     return; // Dừng lại nếu không có giá trị
                 }
 
-                int makc = Convert.ToInt32(spNam.Text) * 100 + Convert.ToInt32(spP1.Text);
+                int makc = Convert.ToInt32(spNam.Text) * 100 + Convert.ToInt32(spThang.Text);
                 var nv = Convert.ToInt32(searchMANV.EditValue);
                 decimal sotienIdpc1 = Convert.ToDecimal(spP1.Text);
                 decimal sotienIdpc2 = Convert.ToDecimal(spP2.Text);

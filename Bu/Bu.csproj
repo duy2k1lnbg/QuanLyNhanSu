@@ -260,6 +260,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CLASS_CHAMCONG\BANGCONG_NV_CHITIET.cs" />
+    <Compile Include="CLASS_CHAMCONG\BANGLUONG.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONG.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONGCHITIET.cs" />
     <Compile Include="CLASS_CHAMCONG\LOAICA.cs" />
@@ -282,6 +283,7 @@
     <Compile Include="DTO\DIEUCHUYEN_NHANVIEN_DTO.cs" />
     <Compile Include="DTO\DTO_AI_VIEWS\AdvanceDto.cs" />
     <Compile Include="DTO\DTO_AI_VIEWS\BaseAiDto.cs" />
+    <Compile Include="DTO\BANGLUONG_DTO.cs" />
     <Compile Include="DTO\HOPDONG_DTO.cs" />
     <Compile Include="DTO\KHENTHUONG_KYLUAT_DTO.cs" />
     <Compile Include="DTO\NANGLUONG_NHANVIEN_DTO.cs" />

@@ -1,4 +1,4 @@
-﻿using Bu.DTO;
+using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -82,6 +82,7 @@ namespace Bu
                 nvDTO.UPDATED_DATE = item.UPDATED_DATE;
                 nvDTO.DELETED_BY = item.DELETED_BY;
                 nvDTO.DELETED_DATE = item.DELETED_DATE;
+                nvDTO.LOAI_NV = item.LOAI_NV;
 
                 lstNvDTO.Add(nvDTO);
 
@@ -136,6 +137,7 @@ namespace Bu
                 _nv.IDQT = nv.IDQT;
                 _nv.UPDATED_BY = nv.UPDATED_BY;
                 _nv.UPDATED_DATE = nv.UPDATED_DATE;
+                _nv.LOAI_NV = nv.LOAI_NV;
                 db.SaveChanges();
                 return nv;
             }

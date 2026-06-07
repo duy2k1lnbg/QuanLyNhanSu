@@ -1,4 +1,4 @@
-﻿namespace QLyNSu.Reports
+namespace QLyNSu.Reports
 {
     partial class rptHopDongLaoDong
     {
@@ -33,7 +33,6 @@
             this.TopMargin = new DevExpress.XtraReports.UI.TopMarginBand();
             this.BottomMargin = new DevExpress.XtraReports.UI.BottomMarginBand();
             this.Detail = new DevExpress.XtraReports.UI.DetailBand();
-            this.xrPdfContent1 = new DevExpress.XtraReports.UI.XRPdfContent();
             this.xrRichText1 = new DevExpress.XtraReports.UI.XRRichText();
             this.ReportHeader = new DevExpress.XtraReports.UI.ReportHeaderBand();
             this.xrLabel6 = new DevExpress.XtraReports.UI.XRLabel();
@@ -57,17 +56,9 @@
             // Detail
             // 
             this.Detail.Controls.AddRange(new DevExpress.XtraReports.UI.XRControl[] {
-            this.xrPdfContent1,
             this.xrRichText1});
-            this.Detail.HeightF = 393.8333F;
+            this.Detail.HeightF = 370.8333F;
             this.Detail.Name = "Detail";
-            // 
-            // xrPdfContent1
-            // 
-            this.xrPdfContent1.LocationFloat = new DevExpress.Utils.PointFloat(0F, 370.8333F);
-            this.xrPdfContent1.Name = "xrPdfContent1";
-            this.xrPdfContent1.SizeF = new System.Drawing.SizeF(627F, 23F);
-            this.xrPdfContent1.SourceUrl = "D:\\User\\Downloads\\Nguyen-Tho-Duy.pdf";
             // 
             // xrRichText1
             // 
@@ -204,6 +195,5 @@
         private DevExpress.XtraReports.UI.XRLabel xrLabel3;
         private DevExpress.XtraReports.UI.XRRichText xrRichText1;
         private DevExpress.XtraReports.UI.XRLabel xrLabel6;
-        private DevExpress.XtraReports.UI.XRPdfContent xrPdfContent1;
     }
 }

@@ -12,6 +12,8 @@ namespace DA
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class MyEntities : DbContext
     {
@@ -58,5 +60,36 @@ namespace DA
         public virtual DbSet<TB_TONGIAO> TB_TONGIAO { get; set; }
         public virtual DbSet<TB_TRINHDO> TB_TRINHDO { get; set; }
         public virtual DbSet<TB_UNGLUONG> TB_UNGLUONG { get; set; }
+        public virtual DbSet<TB_BANGLUONG> TB_BANGLUONG { get; set; }
+    
+        public virtual int ADD_JOB_HISTORY(Nullable<decimal> p_EMP_ID, Nullable<System.DateTime> p_START_DATE, Nullable<System.DateTime> p_END_DATE, string p_JOB_ID, Nullable<decimal> p_DEPARTMENT_ID)
+        {
+            var p_EMP_IDParameter = p_EMP_ID.HasValue ?
+                new ObjectParameter("P_EMP_ID", p_EMP_ID) :
+                new ObjectParameter("P_EMP_ID", typeof(decimal));
+    
+            var p_START_DATEParameter = p_START_DATE.HasValue ?
+                new ObjectParameter("P_START_DATE", p_START_DATE) :
+                new ObjectParameter("P_START_DATE", typeof(System.DateTime));
+    
+            var p_END_DATEParameter = p_END_DATE.HasValue ?
+                new ObjectParameter("P_END_DATE", p_END_DATE) :
+                new ObjectParameter("P_END_DATE", typeof(System.DateTime));
+    
+            var p_JOB_IDParameter = p_JOB_ID != null ?
+                new ObjectParameter("P_JOB_ID", p_JOB_ID) :
+                new ObjectParameter("P_JOB_ID", typeof(string));
+    
+            var p_DEPARTMENT_IDParameter = p_DEPARTMENT_ID.HasValue ?
+                new ObjectParameter("P_DEPARTMENT_ID", p_DEPARTMENT_ID) :
+                new ObjectParameter("P_DEPARTMENT_ID", typeof(decimal));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("ADD_JOB_HISTORY", p_EMP_IDParameter, p_START_DATEParameter, p_END_DATEParameter, p_JOB_IDParameter, p_DEPARTMENT_IDParameter);
+        }
+    
+        public virtual int SECURE_DML()
+        {
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("SECURE_DML");
+        }
     }
 }

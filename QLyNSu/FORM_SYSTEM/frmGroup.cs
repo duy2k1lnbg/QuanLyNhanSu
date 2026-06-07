@@ -22,6 +22,11 @@ namespace QLyNSu.FORM_SYSTEM
         private bool _them;
         private bool _dataSaved; // Track if database was modified to notify parent on Close
 
+        private DevExpress.XtraEditors.LookUpEdit cboNhom;
+        private DevExpress.XtraEditors.SimpleButton btnNewGroup;
+        private DevExpress.XtraEditors.SimpleButton btnXoaNhom;
+        private System.Windows.Forms.Label lblChonNhom;
+
         public FrmGroup()
         {
             InitializeComponent();
@@ -36,20 +41,187 @@ namespace QLyNSu.FORM_SYSTEM
             _them = false;
         }
 
+        private void SetupGroupSelection()
+        {
+            lblChonNhom = new Label();
+            lblChonNhom.Text = "Chọn Nhóm:";
+            lblChonNhom.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            lblChonNhom.Location = new Point(168, 53);
+            lblChonNhom.AutoSize = true;
+
+            cboNhom = new LookUpEdit();
+            cboNhom.Location = new Point(283, 50);
+            cboNhom.Size = new Size(344, 30);
+            cboNhom.Properties.Appearance.Font = new Font("Segoe UI", 10F);
+            cboNhom.Properties.Appearance.Options.UseFont = true;
+            cboNhom.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("USERNAME", "Tên nhóm"));
+            cboNhom.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("FULLNAME", "Mô tả"));
+            cboNhom.Properties.DisplayMember = "USERNAME";
+            cboNhom.Properties.ValueMember = "IDUSER";
+            cboNhom.Properties.NullText = "-- Chọn nhóm để xem/sửa --";
+            cboNhom.EditValueChanged += cboNhom_EditValueChanged;
+
+            btnNewGroup = new SimpleButton();
+            btnNewGroup.Text = "Tạo nhóm mới";
+            btnNewGroup.Size = new Size(150, 30);
+            btnNewGroup.Location = new Point(635, 50);
+            btnNewGroup.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnNewGroup.Click += btnNewGroup_Click;
+
+            // Xóa nhóm ở bottom (cùng hàng với btnLuu và btnDong, xếp ở X=585)
+            btnXoaNhom = new SimpleButton();
+            btnXoaNhom.Text = "Xóa nhóm";
+            btnXoaNhom.Size = new Size(120, 38);
+            btnXoaNhom.Location = new Point(585, 450);
+            btnXoaNhom.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnXoaNhom.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnXoaNhom.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/actions/del.svg");
+            btnXoaNhom.Click += btnXoaNhom_Click;
+
+            tapNhom.Controls.Add(lblChonNhom);
+            tapNhom.Controls.Add(cboNhom);
+            tapNhom.Controls.Add(btnNewGroup);
+            this.Controls.Add(btnXoaNhom);
+
+            // Căn lề pixel-perfect cho các nhãn và ô nhập trong nhóm (khoảng cách 60px)
+            label1.Location = new Point(174, 113);
+            label1.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            txtTenNhom.Location = new Point(283, 110);
+            txtTenNhom.Size = new Size(344, 30);
+
+            label2.Location = new Point(204, 173);
+            label2.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            txtMoTa.Location = new Point(283, 170);
+            txtMoTa.Size = new Size(344, 30);
+
+            // Cấu hình các nút chức năng ở bottom: căn phải (Right-align)
+            btnDong.Location = new Point(855, 450);
+            btnDong.Size = new Size(120, 38);
+            btnDong.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnDong.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+
+            btnLuu.Location = new Point(720, 450);
+            btnLuu.Size = new Size(120, 38);
+            btnLuu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnLuu.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+
+            // Cấu hình các nút thêm/xóa thành viên trong Tab Thành Viên: căn phải dưới lưới
+            simpleButton3.Size = new Size(100, 32);
+            simpleButton3.Location = new Point(758, 360);
+            simpleButton3.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            simpleButton3.Appearance.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+
+            simpleButton4.Size = new Size(100, 32);
+            simpleButton4.Location = new Point(873, 360);
+            simpleButton4.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            simpleButton4.Appearance.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+        }
+
+        private void loadGroups()
+        {
+            var groups = _sysUser.getALL().Where(x => (x.ISGROUP ?? 0) == 1).ToList();
+            cboNhom.Properties.DataSource = groups;
+        }
+
+        private void cboNhom_EditValueChanged(object sender, EventArgs e)
+        {
+            if (cboNhom.EditValue != null && cboNhom.EditValue != DBNull.Value)
+            {
+                decimal groupId = Convert.ToDecimal(cboNhom.EditValue);
+                _user = _sysUser.getItem(Convert.ToInt32(groupId));
+                if (_user != null)
+                {
+                    _them = false;
+                    txtTenNhom.Text = _user.USERNAME;
+                    txtTenNhom.Enabled = false;
+                    txtMoTa.Text = _user.FULLNAME;
+                    tapThanhVien.PageEnabled = true;
+                    if (btnXoaNhom != null) btnXoaNhom.Enabled = true;
+                    loadMembers();
+                }
+            }
+        }
+
+        private void btnNewGroup_Click(object sender, EventArgs e)
+        {
+            _them = true;
+            _user = null;
+            cboNhom.EditValue = null;
+            txtTenNhom.Text = string.Empty;
+            txtTenNhom.Enabled = true;
+            txtMoTa.Text = string.Empty;
+            tapThanhVien.PageEnabled = false;
+            if (btnXoaNhom != null) btnXoaNhom.Enabled = false;
+            txtTenNhom.Focus();
+        }
+
+        private void btnXoaNhom_Click(object sender, EventArgs e)
+        {
+            if (_user == null || _them) return;
+
+            if (_user.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Không thể xóa nhóm Quản trị hệ thống (ADMIN).", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            DialogResult confirm = MessageBox.Show(
+                $"Bạn có chắc chắn muốn xóa nhóm [{_user.USERNAME}] không?\nHành động này cũng sẽ xóa toàn bộ phân quyền và liên kết nhóm liên quan.",
+                "Xác nhận xóa",
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning
+            );
+
+            if (confirm == DialogResult.Yes)
+            {
+                try
+                {
+                    _sysUser.Delete(_user.IDUSER);
+                    MessageBox.Show("Xóa thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    _dataSaved = true;
+                    
+                    btnNewGroup_Click(null, null);
+                    loadGroups();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Lỗi khi xóa: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
         private void frmGroup_Load(object sender, EventArgs e)
         {
             // Register button click handlers for members management
             simpleButton3.Click += btnThemThanhVien_Click; // Add member
             simpleButton4.Click += btnXoaThanhVien_Click; // Remove member
 
+            SetupGroupSelection();
+            loadGroups();
+
             if (_them)
             {
                 this.Text = "Thêm nhóm mới";
                 tapThanhVien.PageEnabled = false; // Cannot add members until group is created and saved
+                if (btnXoaNhom != null) btnXoaNhom.Enabled = false;
+
+                if (_user != null)
+                {
+                    _them = false;
+                    cboNhom.EditValue = _user.IDUSER;
+                    cboNhom.Enabled = false;
+                    btnNewGroup.Enabled = false;
+                    if (btnXoaNhom != null) btnXoaNhom.Enabled = true;
+                }
             }
             else
             {
                 this.Text = "Chỉnh sửa nhóm";
+                cboNhom.EditValue = _user.IDUSER;
+                cboNhom.Enabled = false;
+                btnNewGroup.Enabled = false;
+                if (btnXoaNhom != null) btnXoaNhom.Enabled = true;
+
                 txtTenNhom.Text = _user.USERNAME;
                 txtTenNhom.Enabled = false; // Group name is permanent
                 txtMoTa.Text = _user.FULLNAME;
@@ -117,6 +289,12 @@ namespace QLyNSu.FORM_SYSTEM
                 _them = false;
                 _dataSaved = true;
                 
+                loadGroups();
+                if (cboNhom.Enabled)
+                {
+                    cboNhom.EditValue = _user.IDUSER;
+                }
+                
                 // Enable members tab for adding users now that ID is generated
                 tapThanhVien.PageEnabled = true;
                 pageGroup.SelectedTabPage = tapThanhVien;
@@ -130,9 +308,19 @@ namespace QLyNSu.FORM_SYSTEM
                 _sysUser.Update(_user);
                 _dataSaved = true;
                 
+                loadGroups();
+                if (cboNhom.Enabled)
+                {
+                    cboNhom.EditValue = _user.IDUSER;
+                }
+                
                 MessageBox.Show("Cập nhật thông tin nhóm thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.DialogResult = DialogResult.OK;
-                this.Close();
+                // Only close form if it was opened from list (i.e. cboNhom is disabled)
+                if (!cboNhom.Enabled)
+                {
+                    this.DialogResult = DialogResult.OK;
+                    this.Close();
+                }
             }
         }
 

@@ -14,6 +14,12 @@ namespace DA
     
     public partial class TB_KYCONG
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public TB_KYCONG()
+        {
+            this.TB_BANGLUONG = new HashSet<TB_BANGLUONG>();
+        }
+    
         public decimal MAKYCONG { get; set; }
         public Nullable<decimal> THANG { get; set; }
         public Nullable<decimal> NAM { get; set; }
@@ -28,5 +34,8 @@ namespace DA
         public Nullable<System.DateTime> UPDATED_DATE { get; set; }
         public Nullable<decimal> DELETED_BY { get; set; }
         public Nullable<System.DateTime> DELETED_DATE { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_BANGLUONG> TB_BANGLUONG { get; set; }
     }
 }

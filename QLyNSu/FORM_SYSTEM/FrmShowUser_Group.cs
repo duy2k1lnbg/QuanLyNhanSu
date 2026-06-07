@@ -18,24 +18,80 @@ namespace QLyNSu.FORM_SYSTEM
     {
         private SYS_USER _sysUser;
 
+        public int Mode { get; private set; }
+
         public FrmShowUser_Group()
         {
             InitializeComponent();
             _sysUser = new SYS_USER();
+            this.Mode = 0;
+        }
+
+        public FrmShowUser_Group(int mode)
+        {
+            InitializeComponent();
+            _sysUser = new SYS_USER();
+            this.Mode = mode;
+        }
+
+        private void SetupTopPanel()
+        {
+            // Hide the default BarManager bar to prevent merging or hiding issues in MDI child form
+            if (bar1 != null) bar1.Visible = false;
+
+            PanelControl pnlAction = new PanelControl();
+            pnlAction.Dock = DockStyle.Top;
+            pnlAction.Height = 55;
+            pnlAction.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            pnlAction.BackColor = Color.FromArgb(240, 240, 240);
+
+            SimpleButton btnAdd = new SimpleButton();
+            btnAdd.Text = "Thêm mới";
+            btnAdd.Size = new Size(120, 35);
+            btnAdd.Location = new Point(15, 10);
+            btnAdd.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnAdd.ImageOptions.SvgImage = btnThem.ImageOptions.SvgImage;
+            btnAdd.Click += (s, e) => btnThem_ItemClick(null, null);
+
+            SimpleButton btnEdit = new SimpleButton();
+            btnEdit.Text = "Chỉnh sửa";
+            btnEdit.Size = new Size(120, 35);
+            btnEdit.Location = new Point(145, 10);
+            btnEdit.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnEdit.ImageOptions.SvgImage = btnSua.ImageOptions.SvgImage;
+            btnEdit.Click += (s, e) => btnSua_ItemClick(null, null);
+
+            SimpleButton btnDelete = new SimpleButton();
+            btnDelete.Text = "Xóa";
+            btnDelete.Size = new Size(100, 35);
+            btnDelete.Location = new Point(275, 10);
+            btnDelete.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnDelete.ImageOptions.SvgImage = btnXoa.ImageOptions.SvgImage;
+            btnDelete.Click += (s, e) => btnXoa_ItemClick(null, null);
+
+            SimpleButton btnClose = new SimpleButton();
+            btnClose.Text = "Đóng";
+            btnClose.Size = new Size(100, 35);
+            btnClose.Location = new Point(this.ClientSize.Width - 115, 10);
+            btnClose.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            btnClose.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnClose.ImageOptions.SvgImage = btnDong.ImageOptions.SvgImage;
+            btnClose.Click += (s, e) => btnDong_ItemClick(null, null);
+
+            pnlAction.Controls.Add(btnAdd);
+            pnlAction.Controls.Add(btnEdit);
+            pnlAction.Controls.Add(btnDelete);
+            pnlAction.Controls.Add(btnClose);
+
+            this.Controls.Add(pnlAction);
+            pnlAction.BringToFront();
         }
 
         private void FrmShowUser_Group_Load(object sender, EventArgs e)
         {
-            // Register programmatic click event handlers for DevExpress Bar Items
-            btnThem.ItemClick += btnThem_ItemClick;
-            btnSua.ItemClick += btnSua_ItemClick;
-            btnXoa.ItemClick += btnXoa_ItemClick;
-            btnDong.ItemClick += btnDong_ItemClick;
+            this.Text = this.Mode == 1 ? "Danh Sách Nhóm Người Dùng" : "Danh Sách Tài Khoản Người Dùng";
 
-            // Hide unused buttons from standard toolbar
-            btnLuu.Visibility = DevExpress.XtraBars.BarItemVisibility.Never;
-            btnHuy.Visibility = DevExpress.XtraBars.BarItemVisibility.Never;
-            btnIn.Visibility = DevExpress.XtraBars.BarItemVisibility.Never;
+            SetupTopPanel();
 
             // Support double-clicking and key shortcuts for modern navigation
             gridView1.DoubleClick += gridView1_DoubleClick;
@@ -49,20 +105,31 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void loadData()
         {
-            gridControl1.DataSource = _sysUser.getALL();
+            var data = _sysUser.getALL().Where(x => (x.ISGROUP ?? 0) == this.Mode).ToList();
+            gridControl1.DataSource = data;
             FormManager_Functions.CustomView_Colums(gridView1);
             
             // Hide password hashes and sensitive change dates
             if (gridView1.Columns["PASSWORD"] != null) gridView1.Columns["PASSWORD"].Visible = false;
             if (gridView1.Columns["LAST_PWD_CHANGED"] != null) gridView1.Columns["LAST_PWD_CHANGED"].Visible = false;
 
+            // Hide ISGROUP column as it's redundant now
+            if (gridView1.Columns["ISGROUP"] != null) gridView1.Columns["ISGROUP"].Visible = false;
+
             // Give beautiful custom widths and headers
             if (gridView1.Columns["IDUSER"] != null) gridView1.Columns["IDUSER"].Caption = "Mã số";
-            if (gridView1.Columns["USERNAME"] != null) gridView1.Columns["USERNAME"].Caption = "Tên đăng nhập";
-            if (gridView1.Columns["FULLNAME"] != null) gridView1.Columns["FULLNAME"].Caption = "Họ và tên";
+            if (this.Mode == 1)
+            {
+                if (gridView1.Columns["USERNAME"] != null) gridView1.Columns["USERNAME"].Caption = "Tên nhóm";
+                if (gridView1.Columns["FULLNAME"] != null) gridView1.Columns["FULLNAME"].Caption = "Mô tả nhóm";
+            }
+            else
+            {
+                if (gridView1.Columns["USERNAME"] != null) gridView1.Columns["USERNAME"].Caption = "Tên đăng nhập";
+                if (gridView1.Columns["FULLNAME"] != null) gridView1.Columns["FULLNAME"].Caption = "Họ và tên";
+            }
             if (gridView1.Columns["MACTY"] != null) gridView1.Columns["MACTY"].Caption = "Mã Công ty";
             if (gridView1.Columns["MADVI"] != null) gridView1.Columns["MADVI"].Caption = "Mã Đơn vị";
-            if (gridView1.Columns["ISGROUP"] != null) gridView1.Columns["ISGROUP"].Caption = "Phân loại";
             if (gridView1.Columns["DISABLED"] != null) gridView1.Columns["DISABLED"].Caption = "Trạng thái";
         }
 
@@ -140,16 +207,9 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            DialogResult choice = MessageBox.Show(
-                "Bạn muốn tạo thêm NGƯỜI DÙNG (Chọn YES) hay NHÓM NGƯỜI DÙNG (Chọn NO)?", 
-                "Thêm mới hệ thống", 
-                MessageBoxButtons.YesNoCancel, 
-                MessageBoxIcon.Question
-            );
-
-            if (choice == DialogResult.Yes)
+            if (this.Mode == 1)
             {
-                using (var frm = new FrmUser())
+                using (var frm = new FrmGroup())
                 {
                     if (frm.ShowDialog() == DialogResult.OK)
                     {
@@ -157,9 +217,9 @@ namespace QLyNSu.FORM_SYSTEM
                     }
                 }
             }
-            else if (choice == DialogResult.No)
+            else
             {
-                using (var frm = new FrmGroup())
+                using (var frm = new FrmUser())
                 {
                     if (frm.ShowDialog() == DialogResult.OK)
                     {
@@ -244,7 +304,7 @@ namespace QLyNSu.FORM_SYSTEM
                 return;
             }
 
-            if (selectedUser.ISGROUP == 1)
+            if (this.Mode == 1)
             {
                 using (var frm = new FrmGroup(selectedUser))
                 {

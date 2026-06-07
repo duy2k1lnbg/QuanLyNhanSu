@@ -1,4 +1,4 @@
-﻿using Bu.DTO;
+using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -34,6 +34,7 @@ namespace Bu
                 hd_DTO.NGAYKY = " ngày " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(6);
                 hd_DTO.LANKY = item.LANKY;
                 hd_DTO.HESOLUONG = item.HESOLUONG;
+                hd_DTO.LUONG_THOA_THUAN = item.LUONG_THOA_THUAN;
                 hd_DTO.THOIHAN = item.THOIHAN;
                 hd_DTO.NOIDUNG = item.NOIDUNG;
 
@@ -101,6 +102,7 @@ namespace Bu
                 hd_DTO.NGAYKY = item.NGAYKY.Value.ToString("dd/MM/yyyy");
                 hd_DTO.LANKY = item.LANKY;
                 hd_DTO.HESOLUONG = item.HESOLUONG;
+                hd_DTO.LUONG_THOA_THUAN = item.LUONG_THOA_THUAN;
                 hd_DTO.THOIHAN = item.THOIHAN;
                 hd_DTO.NOIDUNG = item.NOIDUNG;
 
@@ -165,6 +167,7 @@ namespace Bu
                 _hd.NGAYKY = hd.NGAYKY;
                 _hd.LANKY = hd.LANKY;
                 _hd.HESOLUONG = hd.HESOLUONG;
+                _hd.LUONG_THOA_THUAN = hd.LUONG_THOA_THUAN;
                 _hd.NOIDUNG = hd.NOIDUNG;
                 _hd.THOIHAN = hd.THOIHAN;
                 _hd.SOHD = hd.SOHD;
@@ -230,6 +233,7 @@ namespace Bu
                 hd_DTO.NGAYKY = item.NGAYKY.Value.ToString("dd/MM/yyyy");
                 hd_DTO.LANKY = item.LANKY;
                 hd_DTO.HESOLUONG = item.HESOLUONG;
+                hd_DTO.LUONG_THOA_THUAN = item.LUONG_THOA_THUAN;
                 hd_DTO.THOIHAN = item.THOIHAN;
                 hd_DTO.NOIDUNG = item.NOIDUNG;
 

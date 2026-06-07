@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
@@ -55,6 +55,7 @@ namespace QLyNSu
             dtNgayBatDau.Enabled = !kt;
             dtNgayKy.Enabled = !kt;
             spHeSoLuong.Enabled = !kt;
+            spLuongThoaThuan.Enabled = !kt;
             spLanKy.Enabled = !kt;
             txtSoHD.Enabled =! kt;
             searchMANV.Enabled = !kt;
@@ -67,6 +68,7 @@ namespace QLyNSu
             dtNgayKy.Value = DateTime.Now;
             spLanKy.Text = "1";
             spHeSoLuong.Text = "1";
+            spLuongThoaThuan.EditValue = 0;
             searchMANV.Text = "Vui lòng chọn 1 nhân viên";
             txtNoiDung.Text = string.Empty;
         }
@@ -195,6 +197,7 @@ namespace QLyNSu
                     hd.NGAYKY = dtNgayKy.Value;
                     hd.THOIHAN = cbThoiHan.Text; 
                     hd.HESOLUONG = decimal.Parse(spHeSoLuong.EditValue.ToString());
+                    hd.LUONG_THOA_THUAN = decimal.Parse(spLuongThoaThuan.EditValue.ToString());
                     hd.LANKY = int.Parse(spLanKy.EditValue.ToString());
                     hd.MANV = int.Parse(searchMANV.EditValue.ToString());
                     hd.NOIDUNG = txtNoiDung.RtfText;
@@ -218,6 +221,7 @@ namespace QLyNSu
                     hd.NGAYKY = dtNgayKy.Value;
                     hd.THOIHAN = cbThoiHan.Text;
                     hd.HESOLUONG = decimal.Parse(spHeSoLuong.EditValue.ToString());
+                    hd.LUONG_THOA_THUAN = decimal.Parse(spLuongThoaThuan.EditValue.ToString());
                     hd.LANKY = int.Parse(spLanKy.EditValue.ToString());
                     hd.MANV = int.Parse(searchMANV.EditValue.ToString());
                     hd.NOIDUNG = txtNoiDung.RtfText;
@@ -247,6 +251,7 @@ namespace QLyNSu
                 dtNgayKy.Value = hd.NGAYKY.Value;
                 cbThoiHan.Text = hd.THOIHAN;
                 spHeSoLuong.Text= hd.HESOLUONG.ToString();
+                spLuongThoaThuan.EditValue = hd.LUONG_THOA_THUAN ?? 0;
                 spLanKy.Text = hd.LANKY.ToString();
                 searchMANV.EditValue = hd.MANV;
                 txtNoiDung.RtfText = hd.NOIDUNG;

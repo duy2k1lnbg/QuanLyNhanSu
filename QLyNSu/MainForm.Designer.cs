@@ -30,15 +30,15 @@ namespace QLyNSu
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            DevExpress.XtraEditors.TableLayout.ItemTemplateBase itemTemplateBase3 = new DevExpress.XtraEditors.TableLayout.ItemTemplateBase();
-            DevExpress.XtraEditors.TableLayout.TableColumnDefinition tableColumnDefinition3 = new DevExpress.XtraEditors.TableLayout.TableColumnDefinition();
-            DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement5 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
-            DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement6 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
-            DevExpress.XtraEditors.TableLayout.TableRowDefinition tableRowDefinition2 = new DevExpress.XtraEditors.TableLayout.TableRowDefinition();
             DevExpress.XtraEditors.TableLayout.ItemTemplateBase itemTemplateBase1 = new DevExpress.XtraEditors.TableLayout.ItemTemplateBase();
             DevExpress.XtraEditors.TableLayout.TableColumnDefinition tableColumnDefinition1 = new DevExpress.XtraEditors.TableLayout.TableColumnDefinition();
             DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement1 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
             DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement2 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
+            DevExpress.XtraEditors.TableLayout.TableRowDefinition tableRowDefinition1 = new DevExpress.XtraEditors.TableLayout.TableRowDefinition();
+            DevExpress.XtraEditors.TableLayout.ItemTemplateBase itemTemplateBase2 = new DevExpress.XtraEditors.TableLayout.ItemTemplateBase();
+            DevExpress.XtraEditors.TableLayout.TableColumnDefinition tableColumnDefinition2 = new DevExpress.XtraEditors.TableLayout.TableColumnDefinition();
+            DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement3 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
+            DevExpress.XtraEditors.TableLayout.TemplatedItemElement templatedItemElement4 = new DevExpress.XtraEditors.TableLayout.TemplatedItemElement();
             this.ribbonControl1 = new DevExpress.XtraBars.Ribbon.RibbonControl();
             this.btnPass = new DevExpress.XtraBars.BarButtonItem();
             this.btnSaoLuu_DB = new DevExpress.XtraBars.BarButtonItem();
@@ -428,7 +428,7 @@ namespace QLyNSu
             // 
             // btnUser
             // 
-            this.btnUser.Caption = "Người Dùng";
+            this.btnUser.Caption = "Tạo Tài Khoản";
             this.btnUser.Id = 32;
             this.btnUser.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnUser.ImageOptions.LargeImage")));
             this.btnUser.Name = "btnUser";
@@ -626,10 +626,10 @@ namespace QLyNSu
             this.dockThongBao.Dock = DevExpress.XtraBars.Docking.DockingStyle.Right;
             this.dockThongBao.Font = new System.Drawing.Font("Times New Roman", 13.8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.dockThongBao.ID = new System.Guid("9281a680-b277-4dd1-9393-0dca248d6f85");
-            this.dockThongBao.Location = new System.Drawing.Point(942, 193);
+            this.dockThongBao.Location = new System.Drawing.Point(1012, 193);
             this.dockThongBao.Name = "dockThongBao";
             this.dockThongBao.OriginalSize = new System.Drawing.Size(281, 200);
-            this.dockThongBao.Size = new System.Drawing.Size(351, 522);
+            this.dockThongBao.Size = new System.Drawing.Size(281, 522);
             this.dockThongBao.Text = "Thông Báo";
             // 
             // dockPanel1_Container
@@ -638,7 +638,7 @@ namespace QLyNSu
             this.dockPanel1_Container.Controls.Add(this.grSinhNhat);
             this.dockPanel1_Container.Location = new System.Drawing.Point(6, 32);
             this.dockPanel1_Container.Name = "dockPanel1_Container";
-            this.dockPanel1_Container.Size = new System.Drawing.Size(341, 486);
+            this.dockPanel1_Container.Size = new System.Drawing.Size(271, 486);
             this.dockPanel1_Container.TabIndex = 0;
             // 
             // grNangLuong
@@ -649,7 +649,7 @@ namespace QLyNSu
             this.grNangLuong.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grNangLuong.Location = new System.Drawing.Point(0, 370);
             this.grNangLuong.Name = "grNangLuong";
-            this.grNangLuong.Size = new System.Drawing.Size(341, 116);
+            this.grNangLuong.Size = new System.Drawing.Size(271, 116);
             this.grNangLuong.TabIndex = 2;
             this.grNangLuong.Text = "Tăng Lương";
             // 
@@ -661,25 +661,25 @@ namespace QLyNSu
             this.lstNangLuong.ItemHeight = 48;
             this.lstNangLuong.Location = new System.Drawing.Point(2, 28);
             this.lstNangLuong.Name = "lstNangLuong";
-            this.lstNangLuong.Size = new System.Drawing.Size(337, 86);
+            this.lstNangLuong.Size = new System.Drawing.Size(267, 86);
             this.lstNangLuong.TabIndex = 0;
-            itemTemplateBase3.Columns.Add(tableColumnDefinition3);
-            templatedItemElement5.FieldName = "HOTEN";
-            templatedItemElement5.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            templatedItemElement5.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
-            templatedItemElement5.Text = "HOTEN";
-            templatedItemElement5.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.TopLeft;
-            templatedItemElement6.AnchorElementIndex = 0;
-            templatedItemElement6.FieldName = "NGAYBATDAU";
-            templatedItemElement6.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            templatedItemElement6.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
-            templatedItemElement6.Text = "NGAYBATDAU";
-            templatedItemElement6.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            itemTemplateBase3.Elements.Add(templatedItemElement5);
-            itemTemplateBase3.Elements.Add(templatedItemElement6);
-            itemTemplateBase3.Name = "LenLuong_NV";
-            itemTemplateBase3.Rows.Add(tableRowDefinition2);
-            this.lstNangLuong.Templates.Add(itemTemplateBase3);
+            itemTemplateBase1.Columns.Add(tableColumnDefinition1);
+            templatedItemElement1.FieldName = "HOTEN";
+            templatedItemElement1.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            templatedItemElement1.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
+            templatedItemElement1.Text = "HOTEN";
+            templatedItemElement1.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.TopLeft;
+            templatedItemElement2.AnchorElementIndex = 0;
+            templatedItemElement2.FieldName = "NGAYBATDAU";
+            templatedItemElement2.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            templatedItemElement2.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
+            templatedItemElement2.Text = "NGAYBATDAU";
+            templatedItemElement2.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            itemTemplateBase1.Elements.Add(templatedItemElement1);
+            itemTemplateBase1.Elements.Add(templatedItemElement2);
+            itemTemplateBase1.Name = "LenLuong_NV";
+            itemTemplateBase1.Rows.Add(tableRowDefinition1);
+            this.lstNangLuong.Templates.Add(itemTemplateBase1);
             this.lstNangLuong.CustomizeItem += new DevExpress.XtraEditors.CustomizeTemplatedItemEventHandler(this.lstNangLuong_CustomizeItem);
             // 
             // grSinhNhat
@@ -690,7 +690,7 @@ namespace QLyNSu
             this.grSinhNhat.Dock = System.Windows.Forms.DockStyle.Top;
             this.grSinhNhat.Location = new System.Drawing.Point(0, 0);
             this.grSinhNhat.Name = "grSinhNhat";
-            this.grSinhNhat.Size = new System.Drawing.Size(341, 370);
+            this.grSinhNhat.Size = new System.Drawing.Size(271, 370);
             this.grSinhNhat.TabIndex = 1;
             this.grSinhNhat.Text = "Sinh Nhật";
             // 
@@ -702,26 +702,26 @@ namespace QLyNSu
             this.lstSinhNhat.ItemHeight = 48;
             this.lstSinhNhat.Location = new System.Drawing.Point(2, 28);
             this.lstSinhNhat.Name = "lstSinhNhat";
-            this.lstSinhNhat.Size = new System.Drawing.Size(337, 340);
+            this.lstSinhNhat.Size = new System.Drawing.Size(267, 340);
             this.lstSinhNhat.TabIndex = 0;
-            tableColumnDefinition1.Length.Type = DevExpress.XtraEditors.TableLayout.TableDefinitionLengthType.Pixel;
-            tableColumnDefinition1.Length.Value = 263D;
-            itemTemplateBase1.Columns.Add(tableColumnDefinition1);
-            templatedItemElement1.FieldName = "HOTEN";
-            templatedItemElement1.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            templatedItemElement1.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
-            templatedItemElement1.Text = "HOTEN";
-            templatedItemElement1.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.Manual;
-            templatedItemElement2.AnchorElementIndex = 0;
-            templatedItemElement2.FieldName = "NGAYSINH";
-            templatedItemElement2.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            templatedItemElement2.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
-            templatedItemElement2.Text = "NGAYSINH";
-            templatedItemElement2.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
-            itemTemplateBase1.Elements.Add(templatedItemElement1);
-            itemTemplateBase1.Elements.Add(templatedItemElement2);
-            itemTemplateBase1.Name = "SinhNhat_NV";
-            this.lstSinhNhat.Templates.Add(itemTemplateBase1);
+            tableColumnDefinition2.Length.Type = DevExpress.XtraEditors.TableLayout.TableDefinitionLengthType.Pixel;
+            tableColumnDefinition2.Length.Value = 263D;
+            itemTemplateBase2.Columns.Add(tableColumnDefinition2);
+            templatedItemElement3.FieldName = "HOTEN";
+            templatedItemElement3.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            templatedItemElement3.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
+            templatedItemElement3.Text = "HOTEN";
+            templatedItemElement3.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.Manual;
+            templatedItemElement4.AnchorElementIndex = 0;
+            templatedItemElement4.FieldName = "NGAYSINH";
+            templatedItemElement4.ImageOptions.ImageAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            templatedItemElement4.ImageOptions.ImageScaleMode = DevExpress.XtraEditors.TileItemImageScaleMode.ZoomInside;
+            templatedItemElement4.Text = "NGAYSINH";
+            templatedItemElement4.TextAlignment = DevExpress.XtraEditors.TileItemContentAlignment.MiddleCenter;
+            itemTemplateBase2.Elements.Add(templatedItemElement3);
+            itemTemplateBase2.Elements.Add(templatedItemElement4);
+            itemTemplateBase2.Name = "SinhNhat_NV";
+            this.lstSinhNhat.Templates.Add(itemTemplateBase2);
             this.lstSinhNhat.CustomizeItem += new DevExpress.XtraEditors.CustomizeTemplatedItemEventHandler(this.lstSinhNhat_CustomizeItem);
             // 
             // barButtonItem1

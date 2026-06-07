@@ -1,4 +1,4 @@
-﻿using DevExpress.XtraReports.UI;
+using DevExpress.XtraReports.UI;
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -39,9 +39,6 @@ namespace QLyNSu.Reports
             lblDT.DataBindings.Add("Text", _lstNV, "TENDT");
             lblTG.DataBindings.Add("Text", _lstNV, "TENTG");
             lblDC.DataBindings.Add("Text", _lstNV, "DIACHI");
-            lblMANV.DataBindings.Add("Text", _lstNV, "MANV");
-            lblMANV.DataBindings.Add("Text", _lstNV, "MANV");
-            lblMANV.DataBindings.Add("Text", _lstNV, "MANV");
         }
 
     }

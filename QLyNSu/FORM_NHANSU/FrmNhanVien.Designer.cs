@@ -1,4 +1,4 @@
-﻿namespace QLyNSu
+namespace QLyNSu
 {
     partial class FrmNhanVien
     {
@@ -31,6 +31,9 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmNhanVien));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.cboLoaiNV = new System.Windows.Forms.ComboBox();
+            this.labelControl15 = new DevExpress.XtraEditors.LabelControl();
+            this.LOAI_NV = new DevExpress.XtraGrid.Columns.GridColumn();
             this.cboCongTy = new System.Windows.Forms.ComboBox();
             this.labelControl14 = new DevExpress.XtraEditors.LabelControl();
             this.cboQuocTich = new System.Windows.Forms.ComboBox();
@@ -121,6 +124,8 @@
             // splitContainer1.Panel1
             // 
             this.splitContainer1.Panel1.Controls.Add(this.cboCongTy);
+            this.splitContainer1.Panel1.Controls.Add(this.cboLoaiNV);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControl15);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl14);
             this.splitContainer1.Panel1.Controls.Add(this.cboQuocTich);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl13);
@@ -166,6 +171,26 @@
             this.cboCongTy.Name = "cboCongTy";
             this.cboCongTy.Size = new System.Drawing.Size(597, 33);
             this.cboCongTy.TabIndex = 32;
+            // 
+            // cboLoaiNV
+            // 
+            this.cboLoaiNV.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboLoaiNV.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboLoaiNV.FormattingEnabled = true;
+            this.cboLoaiNV.Location = new System.Drawing.Point(960, 281);
+            this.cboLoaiNV.Name = "cboLoaiNV";
+            this.cboLoaiNV.Size = new System.Drawing.Size(304, 33);
+            this.cboLoaiNV.TabIndex = 34;
+            // 
+            // labelControl15
+            // 
+            this.labelControl15.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControl15.Appearance.Options.UseFont = true;
+            this.labelControl15.Location = new System.Drawing.Point(820, 284);
+            this.labelControl15.Name = "labelControl15";
+            this.labelControl15.Size = new System.Drawing.Size(134, 25);
+            this.labelControl15.TabIndex = 33;
+            this.labelControl15.Text = "Loại nhân sự:";
             // 
             // labelControl14
             // 
@@ -467,6 +492,7 @@
             // 
             this.gvDsNV.Columns.AddRange(new DevExpress.XtraGrid.Columns.GridColumn[] {
             this.MANV,
+            this.LOAI_NV,
             this.HOTEN,
             this.IDGT,
             this.TENGT,
@@ -759,6 +785,18 @@
             this.DELETED_BY.VisibleIndex = 0;
             this.DELETED_BY.Width = 30;
             // 
+            // LOAI_NV
+            // 
+            this.LOAI_NV.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.LOAI_NV.AppearanceHeader.Options.UseFont = true;
+            this.LOAI_NV.Caption = "LOẠI NV";
+            this.LOAI_NV.FieldName = "LOAI_NV";
+            this.LOAI_NV.MinWidth = 25;
+            this.LOAI_NV.Name = "LOAI_NV";
+            this.LOAI_NV.Visible = true;
+            this.LOAI_NV.VisibleIndex = 16;
+            this.LOAI_NV.Width = 94;
+            // 
             // barManager1
             // 
             this.barManager1.Bars.AddRange(new DevExpress.XtraBars.Bar[] {
@@ -1002,6 +1040,9 @@
         private DevExpress.XtraGrid.Columns.GridColumn IDQT;
         private DevExpress.XtraGrid.Columns.GridColumn TENQT;
         private System.Windows.Forms.ComboBox cboCongTy;
+        private System.Windows.Forms.ComboBox cboLoaiNV;
+        private DevExpress.XtraEditors.LabelControl labelControl15;
+        private DevExpress.XtraGrid.Columns.GridColumn LOAI_NV;
         private DevExpress.XtraEditors.LabelControl labelControl14;
         private DevExpress.XtraGrid.Columns.GridColumn DELETED_BY;
     }
