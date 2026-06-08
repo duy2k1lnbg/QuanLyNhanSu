@@ -278,6 +278,7 @@
     <Compile Include="CLASS_SYSTEM\SYS_FUNCTION.cs" />
     <Compile Include="CLASS_SYSTEM\SYS_PARAM.cs" />
     <Compile Include="CLASS_SYSTEM\SYS_USER.cs" />
+    <Compile Include="CLASS_SYSTEM\THONGBAO.cs" />
     <Compile Include="CLASS_SYSTEM\UserSession.cs" />
     <Compile Include="CLASS_SYSTEM\PasswordHasher.cs" />
     <Compile Include="DTO\DIEUCHUYEN_NHANVIEN_DTO.cs" />
@@ -291,6 +292,7 @@
     <Compile Include="DTO\NHANVIEN_DTO.cs" />
     <Compile Include="DTO\NHANVIEN_PHUCAP_DTO.cs" />
     <Compile Include="DTO\NHANVIEN_THOIVIEC_DTO.cs" />
+    <Compile Include="DTO\THONGBAO_DTO.cs" />
     <Compile Include="CLASS_NHANSU\GIOITINH.cs" />
     <Compile Include="CLASS_NHANSU\HOPDONGLAODONG.cs" />
     <Compile Include="CLASS_NHANSU\KHENTHUONG_KYLUAT.cs" />

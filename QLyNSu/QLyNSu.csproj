@@ -258,6 +258,12 @@
     <Compile Include="FORM_SYSTEM\FrmChangePassword.Designer.cs">
       <DependentUpon>FrmChangePassword.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_SYSTEM\FrmThongBao.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmThongBao.Designer.cs">
+      <DependentUpon>FrmThongBao.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmSetting.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -566,6 +572,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmChangePassword.resx">
       <DependentUpon>FrmChangePassword.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmThongBao.resx">
+      <DependentUpon>FrmThongBao.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmSetting.resx">
       <DependentUpon>FrmSetting.cs</DependentUpon>

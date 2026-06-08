@@ -1,5 +1,6 @@
 using Bu;
 using Bu.CLASS_SYSTEM;
+using Bu.DTO;
 using DevExpress.XtraSplashScreen;
 using QLyNSu.FORM_BAOCAO;
 using QLyNSu.FORM_CHAMCONG;
@@ -168,7 +169,7 @@ namespace QLyNSu
             await _formManager.OpenFormWithSplashScreen(typeof(FrmPhuCap));
         }
 
-        private async void MainForm_Load(object sender, EventArgs e)
+        private void MainForm_Load(object sender, EventArgs e)
         {
             try
             {
@@ -185,6 +186,7 @@ namespace QLyNSu
             try
             {
                 btnSetting.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/icon builder/actions_settings.svg");
+                btnThongBao.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/actions/about.svg");
             }
             catch { }
 
@@ -192,8 +194,7 @@ namespace QLyNSu
             _nhanvien = new NHANVIEN();
             _hopdong = new HOPDONGLAODONG();
             ribbonControl1.SelectedPage = ribbonPage1;
-            await loadSinhNhat();
-            await loadLenLuong();
+            loadMainFormThongBao();
 
             // Wire system menu events dynamically
             btnPass.ItemClick += btnPass_ItemClick;
@@ -202,6 +203,7 @@ namespace QLyNSu
             btnPQ_BaoCao.ItemClick += btnPQ_BaoCao_ItemClick;
             btnSaoLuu_DB.ItemClick += btnSaoLuu_DB_ItemClick;
             btnPhucHoi_DB.ItemClick += btnPhucHoi_DB_ItemClick;
+            btnThongBao.ItemClick += btnThongBao_ItemClick;
 
             // Apply default authorization (lock ui elements)
             ApplyAuthorization();
@@ -270,8 +272,7 @@ namespace QLyNSu
                 btnPQ_BaoCao.Enabled = false;
                 BtnAI.Enabled = false;
                 
-                lstSinhNhat.Enabled = false;
-                lstNangLuong.Enabled = false;
+                btnThongBao.Enabled = false;
             }
             else
             {
@@ -318,9 +319,9 @@ namespace QLyNSu
                 btnChucNang.Enabled = UserSession.CurrentUser.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase);
                 btnPQ_BaoCao.Enabled = UserSession.CurrentUser.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase);
                 
-                lstSinhNhat.Enabled = true;
-                lstNangLuong.Enabled = true;
+                btnThongBao.Enabled = true;
             }
+            loadMainFormThongBao();
         }
 
         private async void barButtonItem7_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -384,47 +385,90 @@ namespace QLyNSu
             await _formManager.OpenFormWithSplashScreen(typeof(FrmNangLuong_NhanVien));
         }
 
-        private async Task loadSinhNhat()
+        private void loadMainFormThongBao()
         {
-            lstSinhNhat.DataSource = await Task.Run(() => _nhanvien.getSinhNhat());
-            //lstSinhNhat.DataSource = _nhanvien.getSinhNhat();
-            lstSinhNhat.DisplayMember = "HOTEN";
-            lstSinhNhat.ValueMember = "MANV";
-        }
-
-        private async Task loadLenLuong()
-        {
-            //lstNangLuong.DataSource =  _hopdong.getLenLuong();
-            lstNangLuong.DataSource = await Task.Run(() => _hopdong.getLenLuong());
-            lstNangLuong.DisplayMember = "HOTEN";
-            lstNangLuong.ValueMember = "MANV";
-        }
-
-        private void lstSinhNhat_CustomizeItem(object sender, DevExpress.XtraEditors.CustomizeTemplatedItemEventArgs e)
-        {
-            DateTime parsedDate;
-
-            // Thử chuyển đổi chuỗi từ Elements[1].Text sang kiểu DateTime
-            if (DateTime.TryParse(e.TemplatedItem.Elements[1].Text, out parsedDate))
+            string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
+            try
             {
-                // Định dạng lại chuỗi theo định dạng dd/MM/yyyy
-                e.TemplatedItem.Elements[1].Text = parsedDate.ToString("dd/MM/yyyy");
+                System.IO.File.AppendAllText(logPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - loadMainFormThongBao called. CurrentUser: {UserSession.CurrentUser?.USERNAME ?? "null"}\r\n");
 
-                // Kiểm tra nếu ngày hiện tại và sinh nhật trùng nhau
-                if (parsedDate.Day == DateTime.Now.Day && parsedDate.Month == DateTime.Now.Month)
+                var allNotices = new THONGBAO().getListFull_DTO();
+                System.IO.File.AppendAllText(logPath, $"  Total notices in DB: {allNotices.Count}\r\n");
+
+                // Filter active notifications
+                var activeNotices = allNotices.Where(x => 
+                    x.TRANGTHAI == 1 && // Đã đăng
+                    (x.NGAY_HETHAN == null || x.NGAY_HETHAN >= DateTime.Now) // Chưa hết hạn
+                ).ToList();
+                System.IO.File.AppendAllText(logPath, $"  Active notices (TRANGTHAI=1 and not expired): {activeNotices.Count}\r\n");
+
+                // Filter by company/department if not admin
+                if (UserSession.CurrentUser != null)
                 {
-                    e.TemplatedItem.AppearanceItem.Normal.ForeColor = Color.DeepPink;
+                    if (!UserSession.CurrentUser.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase))
+                    {
+                        string userCty = UserSession.CurrentUser.MACTY;
+                        string userPb = UserSession.CurrentUser.MADVI;
+                        System.IO.File.AppendAllText(logPath, $"  Filtering for non-admin user. Company: '{userCty}', Dept/Div: '{userPb}'\r\n");
+
+                        activeNotices = activeNotices.Where(x => 
+                            (string.IsNullOrEmpty(x.MACTY) || x.MACTY == userCty) &&
+                            (string.IsNullOrEmpty(x.MAPB) || x.MAPB == userPb)
+                        ).ToList();
+                    }
+                }
+                else
+                {
+                    // If not logged in, only show notifications with no target company/department (public)
+                    System.IO.File.AppendAllText(logPath, "  Filtering for non-logged-in user (public only)\r\n");
+                    activeNotices = activeNotices.Where(x => string.IsNullOrEmpty(x.MACTY) && string.IsNullOrEmpty(x.MAPB)).ToList();
+                }
+
+                System.IO.File.AppendAllText(logPath, $"  Final notices to bind: {activeNotices.Count}\r\n");
+
+                lstThongBao.DataSource = null;
+                lstThongBao.Items.Clear();
+                foreach (var notice in activeNotices)
+                {
+                    lstThongBao.Items.Add(notice);
+                }
+                lstThongBao.DisplayMember = "DisplayText";
+                lstThongBao.ValueMember = "ID";
+                grThongKe.Text = TranslationManager.Translate("Thông Báo Mới");
+                
+                System.IO.File.AppendAllText(logPath, "  Successfully bound data source manually.\r\n");
+            }
+            catch (Exception ex)
+            {
+                lstThongBao.DataSource = null;
+                grThongKe.Text = TranslationManager.Translate("Thông Báo Mới (Lỗi)");
+                System.IO.File.AppendAllText(logPath, $"  ERROR: {ex}\r\n");
+            }
+        }
+
+        private void lstThongBao_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            int index = lstThongBao.IndexFromPoint(e.Location);
+            if (index != System.Windows.Forms.ListBox.NoMatches)
+            {
+                var item = lstThongBao.SelectedItem as THONGBAO_DTO;
+                if (item != null)
+                {
+                    string message = $"Tiêu đề: {item.TIEUDE}\n" +
+                                     $"Loại thông báo: {item.LOAI_TB}\n" +
+                                     $"Người đăng: {item.NGUOIDANG} ({item.NGAYDANG:dd/MM/yyyy HH:mm})\n";
+                    if (!string.IsNullOrEmpty(item.FILE_DINHKEM))
+                    {
+                        message += $"File đính kèm: {System.IO.Path.GetFileName(item.FILE_DINHKEM)}\n";
+                    }
+                    message += $"\nNội dung:\n{item.NOIDUNG}";
+
+                    DevExpress.XtraEditors.XtraMessageBox.Show(message, "Chi Tiết Thông Báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }
 
-        private void lstNangLuong_CustomizeItem(object sender, DevExpress.XtraEditors.CustomizeTemplatedItemEventArgs e)
-        {
-            if (e.TemplatedItem.Elements[1].Text.Substring(0,2) == DateTime.Now.Day.ToString())
-            {
-                e.TemplatedItem.AppearanceItem.Normal.ForeColor = Color.Blue;
-            }    
-        }
+
 
         private async void btnLoaiCa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
@@ -481,6 +525,11 @@ namespace QLyNSu
         private async void btnDashboardLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmDashboardLuong));
+        }
+
+        private async void btnThongBao_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmThongBao));
         }
 
         private void btnExit3_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
