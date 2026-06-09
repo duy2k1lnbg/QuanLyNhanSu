@@ -101,8 +101,8 @@ namespace QLyNSu
             this.dockThongBao.SuspendLayout();
             this.dockPanel1_Container.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.grThongKe)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.lstThongBao)).BeginInit();
             this.grThongKe.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.lstThongBao)).BeginInit();
             this.SuspendLayout();
             // 
             // ribbonControl1
@@ -675,9 +675,9 @@ namespace QLyNSu
             this.lstThongBao.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lstThongBao.Appearance.Options.UseFont = true;
             this.lstThongBao.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstThongBao.Location = new System.Drawing.Point(2, 28);
+            this.lstThongBao.Location = new System.Drawing.Point(2, 29);
             this.lstThongBao.Name = "lstThongBao";
-            this.lstThongBao.Size = new System.Drawing.Size(337, 456);
+            this.lstThongBao.Size = new System.Drawing.Size(337, 455);
             this.lstThongBao.TabIndex = 0;
             this.lstThongBao.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.lstThongBao_MouseDoubleClick);
             // 
@@ -716,7 +716,7 @@ namespace QLyNSu
             this.dockPanel1_Container.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.grThongKe)).EndInit();
             this.grThongKe.ResumeLayout(false);
-            this.grThongKe.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.lstThongBao)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

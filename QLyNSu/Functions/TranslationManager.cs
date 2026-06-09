@@ -212,7 +212,7 @@ namespace QLyNSu.Functions
             // FrmSetting
             { "Cấu Hinh Hệ Thống", ("System Configuration", "システム構成", "系统配置", "시스템 구성") },
             { "Cấu Hình Hệ Thống", ("System Configuration", "システム構成", "系统配置", "시스템 구성") },
-            { "Ngôn Ngữ Hệ Thống:", ("System Language:", "システム言語:", "系统语言:", "시스템 언어:") },
+            { "Ngôn Ngữ Hệ Thống", ("System Language", "システム言語", "系统语言", "시스템 언어") },
 
             // FrmDangNhap
             { "Vui lòng nhập tên đăng nhập và mật khẩu.", ("Please enter username and password.", "ユーザー名とパスワードを入力してください。", "请输入用户名和密码。", "사용자명과 비밀번호를 입력하십시오.") },
@@ -370,6 +370,17 @@ namespace QLyNSu.Functions
 
             foreach (Control ctrl in controls)
             {
+                // Skip translating text of ComboBox and LookUpEdit controls to prevent selection change re-entrancy
+                string typeName = ctrl.GetType().Name;
+                if (typeName.EndsWith("LookUpEdit") || typeName.EndsWith("ComboBoxEdit") || typeName == "ComboBox" || ctrl is ComboBox)
+                {
+                    if (ctrl.Controls != null && ctrl.Controls.Count > 0)
+                    {
+                        TranslateControls(ctrl.Controls);
+                    }
+                    continue;
+                }
+
                 // Translate control text
                 if (!string.IsNullOrEmpty(ctrl.Text))
                 {
@@ -444,6 +455,20 @@ namespace QLyNSu.Functions
                         }
                     }
                 }
+                else if (ctrl is DevExpress.XtraEditors.SearchLookUpEdit searchLookUp)
+                {
+                    if (searchLookUp.Properties != null && searchLookUp.Properties.PopupView != null)
+                    {
+                        TranslateGridView(searchLookUp.Properties.PopupView);
+                    }
+                }
+                else if (ctrl is DevExpress.XtraEditors.GridLookUpEdit gridLookUp)
+                {
+                    if (gridLookUp.Properties != null && gridLookUp.Properties.PopupView != null)
+                    {
+                        TranslateGridView(gridLookUp.Properties.PopupView);
+                    }
+                }
 
                 // Recurse children
                 if (ctrl.Controls != null && ctrl.Controls.Count > 0)
@@ -494,6 +519,23 @@ namespace QLyNSu.Functions
             }
         }
 
+        private static void TranslateGridView(DevExpress.XtraGrid.Views.Base.ColumnView gridView)
+        {
+            if (gridView == null) return;
+            foreach (DevExpress.XtraGrid.Columns.GridColumn col in gridView.Columns)
+            {
+                if (!string.IsNullOrEmpty(col.Caption))
+                {
+                    string origCaption = GetOriginalText(col, col.Caption);
+                    string translatedCaption = Translate(origCaption);
+                    if (col.Caption != translatedCaption)
+                    {
+                        col.Caption = translatedCaption;
+                    }
+                }
+            }
+        }
+
         private static void TranslateGrid(DevExpress.XtraGrid.GridControl grid)
         {
             if (grid == null) return;
@@ -502,18 +544,7 @@ namespace QLyNSu.Functions
             {
                 if (view is DevExpress.XtraGrid.Views.Grid.GridView gridView)
                 {
-                    foreach (DevExpress.XtraGrid.Columns.GridColumn col in gridView.Columns)
-                    {
-                        if (!string.IsNullOrEmpty(col.Caption))
-                        {
-                            string origCaption = GetOriginalText(col, col.Caption);
-                            string translatedCaption = Translate(origCaption);
-                            if (col.Caption != translatedCaption)
-                            {
-                                col.Caption = translatedCaption;
-                            }
-                        }
-                    }
+                    TranslateGridView(gridView);
                 }
             }
         }
@@ -552,6 +583,52 @@ namespace QLyNSu.Functions
             {
                 // Ignore save error
             }
+        }
+
+        public static string GetCanonicalLanguage(string translatedName)
+        {
+            if (string.IsNullOrEmpty(translatedName)) return "Tiếng Việt";
+            if (translatedName.Equals("Tiếng Việt", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("Vietnamese", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("ベトナム語", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("越南语", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("베트남어", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Tiếng Việt";
+            }
+            if (translatedName.Equals("Tiếng Anh", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("English", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("英語", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("英语", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("영어", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Tiếng Anh";
+            }
+            if (translatedName.Equals("Tiếng Nhật", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("Japanese", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("日本語", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("日语", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("일본어", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Tiếng Nhật";
+            }
+            if (translatedName.Equals("Tiếng Trung", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("Chinese", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("中国語", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("中文", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("중국어", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Tiếng Trung";
+            }
+            if (translatedName.Equals("Tiếng Hàn", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("Korean", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("韓国語", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("韩语", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("한국어", StringComparison.OrdinalIgnoreCase))
+            {
+                return "Tiếng Hàn";
+            }
+            return translatedName;
         }
 
         private class SystemSettings
