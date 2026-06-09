@@ -26,8 +26,6 @@ namespace Bu.Tests
 
                     int resignedEmp = db.TB_NHANVIEN_THOIVIEC.Count(x => x.NGAYNGHIVIEC >= startOfMonth && x.NGAYNGHIVIEC < nextMonth && x.DELETED_DATE == null);
                     Console.WriteLine($"Resigned employees this month: {resignedEmp}");
-
-                    Assert.Pass();
                 }
             }
             catch (Exception ex)

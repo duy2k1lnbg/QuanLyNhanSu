@@ -1,15 +1,22 @@
-﻿using Bu.Services.AI_Services.Memory;
+using Bu.Services.AI_Services.Memory;
+using Bu.Services.AI_Services.Interfaces;
 using System;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Bu.Services.AI_Services.Core
 {
-    public class SqlGeneratorService
+    public class SqlGeneratorService : ISqlGenerator
     {
-        private readonly OllamaService _ollama = new OllamaService();
-        private readonly AiSchemaService _schema = new AiSchemaService();
+        private readonly ILlmService _ollama;
+        private readonly IPromptManager _promptManager;
         private readonly AiCacheService _cache = new AiCacheService();
+
+        public SqlGeneratorService(ILlmService ollama, IPromptManager promptManager)
+        {
+            _ollama = ollama;
+            _promptManager = promptManager;
+        }
 
         public async Task<string> GenerateRawSql(string question)
         {
@@ -69,9 +76,13 @@ namespace Bu.Services.AI_Services.Core
 
         private string BuildSqlPrompt(string question)
         {
-            // Sử dụng GetFullSchema() để AI biết rõ cột nào là NUMBER, cột nào là TEXT
-            return $@"
-{_schema.GetFullSchema()}
+            string schemaText = _promptManager.GetSchema();
+            string template = _promptManager.GetPrompt("SqlPromptTemplate");
+            if (string.IsNullOrEmpty(template))
+            {
+                // Fallback nếu không tải được template
+                return $@"
+{schemaText}
 
 [NHIỆM VỤ]
 Chuyển câu hỏi người dùng thành 1 câu lệnh SQL Oracle duy nhất.
@@ -82,6 +93,9 @@ Câu hỏi: ""{question}""
 - SQL: SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(TEN_PHONGBAN) LIKE UPPER('%KẾ TOÁN%')
 
 Lệnh SQL:";
+            }
+            return template.Replace("{Schema}", schemaText)
+                           .Replace("{Question}", question);
         }
 
         private string CleanSql(string raw)

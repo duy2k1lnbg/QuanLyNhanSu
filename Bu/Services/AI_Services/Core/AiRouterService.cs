@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using Bu.Services.AI_Services.Interfaces;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Diagnostics;
 
@@ -6,7 +7,12 @@ namespace Bu.Services.AI_Services.Core
 {
     public class AiRouterService
     {
-        private readonly OllamaService _ollama = new OllamaService();
+        private readonly ILlmService _ollama;
+
+        public AiRouterService(ILlmService ollama)
+        {
+            _ollama = ollama;
+        }
 
         public async Task<string> DetectIntent(string q)
         {

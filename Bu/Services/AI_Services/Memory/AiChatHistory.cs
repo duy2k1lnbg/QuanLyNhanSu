@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Text;
 
 namespace Bu.Services.AI_Services.Memory
@@ -18,6 +18,11 @@ namespace Bu.Services.AI_Services.Memory
         {
             _messages.Add(new ChatMessage { Role = role, Content = content });
             if (_messages.Count > _maxHistory) _messages.RemoveAt(0);
+        }
+
+        public List<ChatMessage> GetMessages()
+        {
+            return new List<ChatMessage>(_messages);
         }
 
         public string GetHistoryString()

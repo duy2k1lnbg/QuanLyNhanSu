@@ -43,22 +43,29 @@ namespace QLyNSu.FORM_SYSTEM
                     int totalEmp = db.TB_NHANVIEN.Count();
                     int totalDept = db.TB_PHONGBAN.Count();
                     int activeContracts = db.TB_HOPDONG.Count();
-                    double avgSalaryCoeff = db.TB_HOPDONG.Average(h => (double?)h.HESOLUONG) ?? 2.5;
+                    decimal? avgSalaryCoeffVal = db.TB_HOPDONG.Average(h => h.HESOLUONG);
+                    double avgSalaryCoeff = avgSalaryCoeffVal.HasValue ? (double)avgSalaryCoeffVal.Value : 2.5;
 
                     lblKpiVal1.Text = totalEmp.ToString();
                     lblKpiVal2.Text = totalDept.ToString();
                     lblKpiVal3.Text = activeContracts.ToString();
                     lblKpiVal4.Text = avgSalaryCoeff.ToString("N2");
 
-                    // 2. Load Department Chart Data
-                    var deptStats = db.TB_NHANVIEN
+                    // 2. Load Department Chart Data (grouping in DB, mapping default values in memory)
+                    var deptStatsRaw = db.TB_NHANVIEN
                         .GroupBy(n => n.TB_PHONGBAN.TENPB)
                         .Select(g => new 
                         { 
-                            Department = g.Key ?? "Chưa phân phòng", 
+                            Department = g.Key, 
                             Count = g.Count() 
                         })
                         .ToList();
+
+                    var deptStats = deptStatsRaw.Select(x => new 
+                    {
+                        Department = x.Department ?? "Chưa phân phòng",
+                        Count = x.Count
+                    }).ToList();
 
                     var series = new DevExpress.XtraCharts.Series("Nhân viên theo phòng ban", DevExpress.XtraCharts.ViewType.Bar);
                     series.DataSource = deptStats;

@@ -96,6 +96,11 @@ namespace Bu
             {
                 db.TB_NHANVIEN.Add(nv);
                 db.SaveChanges();
+                try
+                {
+                    Bu.Services.AI_Services.Vector.AiDataSyncHub.NotifyEmployeeChanged((int)nv.MANV);
+                }
+                catch { }
                 return nv;
             }
             catch (DbEntityValidationException ex)
@@ -139,6 +144,11 @@ namespace Bu
                 _nv.UPDATED_DATE = nv.UPDATED_DATE;
                 _nv.LOAI_NV = nv.LOAI_NV;
                 db.SaveChanges();
+                try
+                {
+                    Bu.Services.AI_Services.Vector.AiDataSyncHub.NotifyEmployeeChanged((int)nv.MANV);
+                }
+                catch { }
                 return nv;
             }
             catch (Exception ex)
@@ -157,6 +167,11 @@ namespace Bu
                 _nv.DELETED_BY = iduser;
                 _nv.DELETED_DATE = DateTime.Now;
                 db.SaveChanges();
+                try
+                {
+                    Bu.Services.AI_Services.Vector.AiDataSyncHub.NotifyEmployeeDeleted(id);
+                }
+                catch { }
             }
             catch (Exception ex)
             {

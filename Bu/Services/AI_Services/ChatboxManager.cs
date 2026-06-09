@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 
 namespace Bu.Services.AI_Services
@@ -12,7 +13,7 @@ namespace Bu.Services.AI_Services
                 _rag = new HybridRagService();
         }
 
-        public async Task<QueryResult> ProcessQuery(string query)
+        public async Task<QueryResult> ProcessQuery(string query, Action<string> onTokenReceived = null)
         {
             if (string.IsNullOrWhiteSpace(query))
             {
@@ -24,7 +25,12 @@ namespace Bu.Services.AI_Services
                 };
             }
 
-            return await _rag.Ask(query);
+            return await _rag.Ask(query, onTokenReceived);
+        }
+
+        public System.Collections.Generic.List<Memory.ChatMessage> GetMessages()
+        {
+            return _rag?.GetMessages() ?? new System.Collections.Generic.List<Memory.ChatMessage>();
         }
 
         public void Reset()

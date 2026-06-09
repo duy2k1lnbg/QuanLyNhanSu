@@ -308,7 +308,6 @@
     <Compile Include="CLASS_NHANSU\TONGIAO.cs" />
     <Compile Include="CLASS_NHANSU\TRINHDO.cs" />
     <Compile Include="Services\AI_Services\Core\AiRouterService.cs" />
-    <Compile Include="Services\AI_Services\Core\AiSchemaService.cs" />
     <Compile Include="Services\AI_Services\Core\SqlGeneratorService.cs" />
     <Compile Include="Services\AI_Services\Core\QueryPreprocessor.cs" />
     <Compile Include="Services\AI_Services\ChatboxManager.cs" />
@@ -317,6 +316,13 @@
     <Compile Include="Services\AI_Services\Memory\AiCacheService.cs" />
     <Compile Include="Services\AI_Services\Memory\AiChatHistory.cs" />
     <Compile Include="Services\AI_Services\Vector\VectorService.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\ILlmService.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\IVectorService.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\ISqlGenerator.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\IPromptManager.cs" />
+    <Compile Include="Services\AI_Services\Core\JsonPromptManager.cs" />
+    <Compile Include="Services\AI_Services\AiServiceLocator.cs" />
+    <Compile Include="Services\AI_Services\Vector\AiDataSyncHub.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
