@@ -58,25 +58,63 @@ namespace Bu.CLASS_CHAMCONG
                 var lstKyCongChiTiet = db.TB_KYCONGCHITIET.Where(x => x.MAKYCONG == makycong).ToList();
                 if (lstKyCongChiTiet.Count == 0) return;
 
+                // Preload all entities in dictionaries to prevent N+1 queries
+                var lstAllNhanVien = db.TB_NHANVIEN.ToList().ToDictionary(x => Convert.ToInt32(x.MANV));
+                var lstAllHopDong = db.TB_HOPDONG
+                    .Where(x => x.NGAYBATDAU <= DateTime.Now)
+                    .ToList()
+                    .GroupBy(x => Convert.ToInt32(x.MANV))
+                    .ToDictionary(g => g.Key, g => g.OrderByDescending(x => x.NGAYBATDAU).ToList());
+
+                var lstAllPhuCap = db.TB_NHANVIEN_PHUCAP
+                    .Where(x => x.MAKYCONG == makycong)
+                    .ToList()
+                    .GroupBy(x => Convert.ToInt32(x.MANV))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var lstAllTangCa = db.TB_TANGCA
+                    .Where(x => x.THANG == thang && x.NAM == nam)
+                    .ToList()
+                    .GroupBy(x => Convert.ToInt32(x.MANV))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var lstAllLoaiCa = db.TB_LOAICA.ToList().ToDictionary(x => Convert.ToInt32(x.IDLOAICA));
+
+                var lstAllBaoHiem = db.TB_BAOHIEM
+                    .ToList()
+                    .GroupBy(x => Convert.ToInt32(x.MANV))
+                    .ToDictionary(g => g.Key, g => g.FirstOrDefault());
+
+                var lstAllUngLuong = db.TB_UNGLUONG
+                    .Where(x => x.THANG == thang && x.NAM == nam)
+                    .ToList()
+                    .GroupBy(x => Convert.ToInt32(x.MANV))
+                    .ToDictionary(g => g.Key, g => g.ToList());
+
+                var lstAllBangLuong = db.TB_BANGLUONG
+                    .Where(x => x.MAKYCONG == makycong)
+                    .ToList()
+                    .ToDictionary(x => Convert.ToInt32(x.MANV));
+
                 // Ngày công chuẩn trong tháng (ví dụ: mặc định là 26 ngày công chuẩn)
                 double congChuan = 26.0;
 
                 foreach (var kcct in lstKyCongChiTiet)
                 {
-                    int manv = (int)kcct.MANV;
+                    int manv = Convert.ToInt32(kcct.MANV);
 
                     // 1. Lấy thông tin nhân viên và Loại nhân viên
-                    var nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == manv);
-                    if (nv == null) continue;
+                    if (!lstAllNhanVien.TryGetValue(manv, out var nv)) continue;
 
                     // Lấy loại nhân viên: 1 = Office, 2 = Driver, 3 = Worker (mặc định 1)
-                    int loaiNV = nv.LOAI_NV != null ? (int)nv.LOAI_NV : 1;
+                    int loaiNV = nv.LOAI_NV != null ? Convert.ToInt32(nv.LOAI_NV) : 1;
 
                     // 2. Lấy thông tin Hợp đồng lao động mới nhất còn hiệu lực
-                    var hd = db.TB_HOPDONG
-                        .Where(x => x.MANV == manv && x.NGAYBATDAU <= DateTime.Now)
-                        .OrderByDescending(x => x.NGAYBATDAU)
-                        .FirstOrDefault();
+                    TB_HOPDONG hd = null;
+                    if (lstAllHopDong.TryGetValue(manv, out var hds))
+                    {
+                        hd = hds.FirstOrDefault();
+                    }
 
                     double luongThoaThuan = 0;
                     if (hd != null && hd.LUONG_THOA_THUAN != null)
@@ -142,7 +180,12 @@ namespace Bu.CLASS_CHAMCONG
                     }
 
                     // Đảm bảo và tự động khởi tạo/cập nhật phụ cấp mặc định trong CSDL
-                    var lstPc = db.TB_NHANVIEN_PHUCAP.Where(x => x.MANV == manv && x.MAKYCONG == makycong).ToList();
+                    List<TB_NHANVIEN_PHUCAP> lstPc;
+                    if (!lstAllPhuCap.TryGetValue(manv, out lstPc))
+                    {
+                        lstPc = new List<TB_NHANVIEN_PHUCAP>();
+                    }
+
                     for (int i = 1; i <= 7; i++)
                     {
                         var pcItem = lstPc.FirstOrDefault(x => x.IDPC == i);
@@ -173,7 +216,6 @@ namespace Bu.CLASS_CHAMCONG
                             pcItem.SOTIEN = (decimal)baseVal;
                         }
                     }
-                    db.SaveChanges();
 
                     // Đọc giá trị phụ cấp từ CSDL sau khi khởi tạo/cập nhật
                     double pcTrachNhiem = (double)(lstPc.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN ?? 0);
@@ -206,7 +248,11 @@ namespace Bu.CLASS_CHAMCONG
 
                     // 6. Tính tiền làm thêm giờ (Overtime)
                     double tienTangCa = 0;
-                    var lstTangCa = db.TB_TANGCA.Where(x => x.MANV == manv && x.THANG == thang && x.NAM == nam).ToList();
+                    List<TB_TANGCA> lstTangCa;
+                    if (!lstAllTangCa.TryGetValue(manv, out lstTangCa))
+                    {
+                        lstTangCa = new List<TB_TANGCA>();
+                    }
                     
                     // Mức lương cơ sở tính OT
                     double otRate = 0;
@@ -222,10 +268,13 @@ namespace Bu.CLASS_CHAMCONG
                     foreach (var tc in lstTangCa)
                     {
                         double heSoLoaiCa = 1.5;
-                        var loaiCa = db.TB_LOAICA.FirstOrDefault(x => x.IDLOAICA == tc.IDLOAICA);
-                        if (loaiCa != null && loaiCa.HESOLOAICA != null)
+                        if (tc.IDLOAICA != null)
                         {
-                            heSoLoaiCa = (double)loaiCa.HESOLOAICA;
+                            int idLoaiCa = Convert.ToInt32(tc.IDLOAICA);
+                            if (lstAllLoaiCa.TryGetValue(idLoaiCa, out var loaiCa) && loaiCa.HESOLOAICA != null)
+                            {
+                                heSoLoaiCa = (double)loaiCa.HESOLOAICA;
+                            }
                         }
 
                         double soGio = tc.SOGIO != null ? (double)tc.SOGIO : 0;
@@ -247,16 +296,20 @@ namespace Bu.CLASS_CHAMCONG
 
                     // 10. Giảm trừ Bảo hiểm xã hội trích vào lương (10.5% mức lương đóng BHXH)
                     double mucLuongDongBH = luongTinhBHXH;
-                    var bh = db.TB_BAOHIEM.FirstOrDefault(x => x.MANV == manv);
-                    if (bh != null && bh.LUONG_BHXH != null && bh.LUONG_BHXH > 0)
+                    TB_BAOHIEM bh = null;
+                    if (lstAllBaoHiem.TryGetValue(manv, out bh) && bh != null && bh.LUONG_BHXH != null && bh.LUONG_BHXH > 0)
                     {
                         mucLuongDongBH = (double)bh.LUONG_BHXH;
                     }
                     double tienBHXHTriCh = mucLuongDongBH * 0.105; // 8% BHXH + 1.5% BHYT + 1% BHTN
 
                     // 11. Các khoản tạm ứng lương từ TB_UNGLUONG
+                    List<TB_UNGLUONG> lstUng;
+                    if (!lstAllUngLuong.TryGetValue(manv, out lstUng))
+                    {
+                        lstUng = new List<TB_UNGLUONG>();
+                    }
                     double tienTamUng = 0;
-                    var lstUng = db.TB_UNGLUONG.Where(x => x.MANV == manv && x.THANG == thang && x.NAM == nam).ToList();
                     foreach (var ul in lstUng)
                     {
                         if (ul.SOTIENUNG != null)
@@ -274,10 +327,13 @@ namespace Bu.CLASS_CHAMCONG
                     foreach (var tc in lstTangCa)
                     {
                         double heSoLoaiCa = 1.5;
-                        var loaiCa = db.TB_LOAICA.FirstOrDefault(x => x.IDLOAICA == tc.IDLOAICA);
-                        if (loaiCa != null && loaiCa.HESOLOAICA != null)
+                        if (tc.IDLOAICA != null)
                         {
-                            heSoLoaiCa = (double)loaiCa.HESOLOAICA;
+                            int idLoaiCa = Convert.ToInt32(tc.IDLOAICA);
+                            if (lstAllLoaiCa.TryGetValue(idLoaiCa, out var loaiCa) && loaiCa.HESOLOAICA != null)
+                            {
+                                heSoLoaiCa = (double)loaiCa.HESOLOAICA;
+                            }
                         }
 
                         double soGio = tc.SOGIO != null ? (double)tc.SOGIO : 0;
@@ -325,9 +381,9 @@ namespace Bu.CLASS_CHAMCONG
                     double thucLinh = tongThuNhap - tienBHXHTriCh - tienTamUng - thueTNCN;
 
                     // 13. Lưu hoặc cập nhật kết quả vào TB_BANGLUONG
-                    var bl = db.TB_BANGLUONG.FirstOrDefault(x => x.MANV == manv && x.MAKYCONG == makycong);
+                    TB_BANGLUONG bl = null;
                     bool isNew = false;
-                    if (bl == null)
+                    if (!lstAllBangLuong.TryGetValue(manv, out bl) || bl == null)
                     {
                         bl = new TB_BANGLUONG();
                         isNew = true;
@@ -357,8 +413,9 @@ namespace Bu.CLASS_CHAMCONG
                     {
                         db.TB_BANGLUONG.Add(bl);
                     }
-                    db.SaveChanges();
                 }
+
+                db.SaveChanges();
             }
             catch (Exception ex)
             {

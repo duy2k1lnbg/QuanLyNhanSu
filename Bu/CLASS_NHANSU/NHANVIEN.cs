@@ -42,39 +42,39 @@ namespace Bu
 
                 nvDTO.IDTD = item.IDTD;
                 var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == item.IDTD);
-                nvDTO.TENTD = td.TENTD;
+                nvDTO.TENTD = td?.TENTD;
 
                 nvDTO.IDBP = item.IDBP;
                 var bp = db.TB_BOPHAN.FirstOrDefault( b=> b.IDBP == item.IDBP);
-                nvDTO.TENBP = bp.TENBP;
+                nvDTO.TENBP = bp?.TENBP;
 
                 nvDTO.IDPB = item.IDPB;
                 var pb = db.TB_PHONGBAN.FirstOrDefault(c => c.IDPB == item.IDPB);
-                nvDTO.TENPB = pb.TENPB;
+                nvDTO.TENPB = pb?.TENPB;
 
                 nvDTO.IDDT = item.IDDT;
                 var dt = db.TB_DANTOC.FirstOrDefault(e => e.IDDT == item.IDDT);
-                nvDTO.TENDT = dt.TENDT;
+                nvDTO.TENDT = dt?.TENDT;
 
                 nvDTO.IDCTY = item.IDCTY;
                 var cty = db.TB_CONGTY.FirstOrDefault(f => f.IDCTY == item.IDCTY);
-                nvDTO.TENCTY = cty.TENCTY;
+                nvDTO.TENCTY = cty?.TENCTY;
 
                 nvDTO.IDCV = item.IDCV;
                 var cv = db.TB_CHUCVU.FirstOrDefault(g => g.IDCV == item.IDCV);
-                nvDTO.TENCV = cv.TENCV;
+                nvDTO.TENCV = cv?.TENCV;
 
                 nvDTO.IDTG = item.IDTG;
                 var tg = db.TB_TONGIAO.FirstOrDefault(h => h.IDTG == item.IDTG);
-                nvDTO.TENTG = tg.TENTG;
+                nvDTO.TENTG = tg?.TENTG;
 
                 nvDTO.IDGT = item.IDGT;
                 var gt = db.TB_GIOITINH.FirstOrDefault(i => i.IDGT == item.IDGT);
-                nvDTO.TENGT = gt.TENGT;
+                nvDTO.TENGT = gt?.TENGT;
 
                 nvDTO.IDQT = item.IDQT;
                 var qt = db.TB_QUOCTICH.FirstOrDefault(k => k.IDQT == item.IDQT);
-                nvDTO.TENQT = qt.TENQT;
+                nvDTO.TENQT = qt?.TENQT;
 
                 nvDTO.CREATED_BY = item.CREATED_BY;
                 nvDTO.CREATED_DATE = item.CREATED_DATE;

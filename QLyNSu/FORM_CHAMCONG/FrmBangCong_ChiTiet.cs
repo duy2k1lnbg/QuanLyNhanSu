@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
@@ -73,7 +73,7 @@ namespace QLyNSu.FORM_CHAMCONG
             CustomView(int.Parse(cboThang.Text), int.Parse(cboNam.Text));
             gvBangCongChiTiet.OptionsBehavior.Editable = false;
         }
-        private void btnPhatSinhKyCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnPhatSinhKyCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             #region Check_Key
             SplashScreenManager.ShowForm(typeof(FrmWaiting), true, true);
@@ -91,58 +91,78 @@ namespace QLyNSu.FORM_CHAMCONG
             }
             #endregion
 
-            List<TB_NHANVIEN> lstNhanVien = _nhanvien.getList();
-            _kcct.phatSinhKyCongChiTiet(_macty, int.Parse(cboThang.Text), int.Parse(cboNam.Text) ,1);
+            int thang = int.Parse(cboThang.Text);
+            int nam = int.Parse(cboNam.Text);
+            int macty = _macty;
+            int makycong = _MAKYCONG;
 
-            foreach (var item in lstNhanVien)
+            try
             {
-                for (int i = 1; i <= GetDayNumber(int.Parse(cboThang.Text), int.Parse(cboNam.Text)); i++)
+                await Task.Run(() =>
                 {
-                    TB_BANGCONG_CHITIET bcct = new TB_BANGCONG_CHITIET();
-                    bcct.MANV = item.MANV;
-                    bcct.IDCTY = item.IDCTY;
-                    bcct.HOTEN = item.HOTEN;
-                    #region Cmt_Doi_May_Cham_Cong_Tu_Dong
-                    //if (bcct.IDCALAM == "1") // ca ngày
-                    //{
-                    //    bcct.GIOVAO = "08:00";
-                    //    bcct.GIORA = "17:00";
-                    //}    
-                    //else // ca đêm
-                    //{
-                    //    bcct.GIOVAO = "20:00";
-                    //    bcct.GIORA = "06:00";
-                    //}    
-                    #endregion
-                    bcct.GIOVAO = "08:00";
-                    bcct.GIORA = "17:00";              
-                    bcct.NGAY = DateTime.Parse(cboNam.Text+ "/" +cboThang.Text + "/" + i.ToString());
-                    bcct.THU = ChamCong_Functions.layThuTrongTuan(int.Parse(cboNam.Text), int.Parse(cboThang.Text), i);
-                    bcct.NGAYPHEP = 0;
-                    bcct.CONGNGAYLE = 0;
-                    bcct.CONGCHUNHAT = 0;
-                    if (bcct.THU == "Chủ nhật")
-                    {
-                        bcct.KYHIEU = "CN";
-                        bcct.NGAYCONG = 0;
-                    }    
-                    else
-                    {
-                        bcct.KYHIEU = "X";
-                        bcct.NGAYCONG = 1;
-                    }    
-                    bcct.MAKYCONG = _MAKYCONG;
-                    bcct.CREATED_BY = 1;
-                    bcct.CREATED_DATE = DateTime.Now;
-                    _bangcong_ct.Add(bcct);
-                }    
-            }    
+                    List<TB_NHANVIEN> lstNhanVien = _nhanvien.getList();
+                    _kcct.phatSinhKyCongChiTiet(macty, thang, nam, 1);
 
-            var kc =_kycong.getItem(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text));
-            kc.TRANGTHAI = 1;
-            _kycong.Update(kc);
-            SplashScreenManager.CloseForm();
-            loadBangCong();
+                    List<TB_BANGCONG_CHITIET> lstBcct = new List<TB_BANGCONG_CHITIET>();
+                    foreach (var item in lstNhanVien)
+                    {
+                        for (int i = 1; i <= GetDayNumber(thang, nam); i++)
+                        {
+                            TB_BANGCONG_CHITIET bcct = new TB_BANGCONG_CHITIET();
+                            bcct.MANV = item.MANV;
+                            bcct.IDCTY = item.IDCTY;
+                            bcct.HOTEN = item.HOTEN;
+                            #region Cmt_Doi_May_Cham_Cong_Tu_Dong
+                            //if (bcct.IDCALAM == "1") // ca ngày
+                            //{
+                            //    bcct.GIOVAO = "08:00";
+                            //    bcct.GIORA = "17:00";
+                            //}    
+                            //else // ca đêm
+                            //{
+                            //    bcct.GIOVAO = "20:00";
+                            //    bcct.GIORA = "06:00";
+                            //}    
+                            #endregion
+                            bcct.GIOVAO = "08:00";
+                            bcct.GIORA = "17:00";              
+                            bcct.NGAY = DateTime.Parse(nam + "/" + thang + "/" + i.ToString());
+                            bcct.THU = ChamCong_Functions.layThuTrongTuan(nam, thang, i);
+                            bcct.NGAYPHEP = 0;
+                            bcct.CONGNGAYLE = 0;
+                            bcct.CONGCHUNHAT = 0;
+                            if (bcct.THU == "Chủ nhật")
+                            {
+                                bcct.KYHIEU = "CN";
+                                bcct.NGAYCONG = 0;
+                            }    
+                            else
+                            {
+                                bcct.KYHIEU = "X";
+                                bcct.NGAYCONG = 1;
+                            }    
+                            bcct.MAKYCONG = makycong;
+                            bcct.CREATED_BY = 1;
+                            bcct.CREATED_DATE = DateTime.Now;
+                            lstBcct.Add(bcct);
+                        }    
+                    }    
+                    _bangcong_ct.AddRange(lstBcct);
+
+                    var kc = _kycong.getItem(nam * 100 + thang);
+                    kc.TRANGTHAI = 1;
+                    _kycong.Update(kc);
+                });
+
+                SplashScreenManager.CloseForm();
+                loadBangCong();
+                XtraMessageBox.Show("Phát sinh kỳ công thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+            catch (Exception ex)
+            {
+                SplashScreenManager.CloseForm();
+                XtraMessageBox.Show("Lỗi khi phát sinh kỳ công: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnRefresh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

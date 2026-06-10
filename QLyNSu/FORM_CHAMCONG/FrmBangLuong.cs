@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Bu.CLASS_CHAMCONG;
 using DA;
+using DevExpress.XtraSplashScreen;
 
 namespace QLyNSu.FORM_CHAMCONG
 {
@@ -57,18 +58,26 @@ namespace QLyNSu.FORM_CHAMCONG
             TinhLuong();
         }
 
-        private void TinhLuong()
+        private async void TinhLuong()
         {
             if (cboKyCong.SelectedValue != null && int.TryParse(cboKyCong.SelectedValue.ToString(), out int makycong))
             {
                 try
                 {
-                    _bangluong.TinhLuongKyCong(makycong, 1);
+                    SplashScreenManager.ShowForm(typeof(FrmWaiting), true, true);
+                    
+                    await Task.Run(() =>
+                    {
+                        _bangluong.TinhLuongKyCong(makycong, 1);
+                    });
+
                     LoadData();
+                    SplashScreenManager.CloseForm();
                     XtraMessageBox.Show("Tính lương thành công cho kỳ công " + makycong + "!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
                 {
+                    SplashScreenManager.CloseForm();
                     XtraMessageBox.Show("Lỗi khi tính lương: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }

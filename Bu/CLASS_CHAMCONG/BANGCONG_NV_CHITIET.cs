@@ -1,4 +1,4 @@
-﻿using DA;
+using DA;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
@@ -37,6 +37,19 @@ namespace Bu.CLASS_CHAMCONG
                 throw new Exception("Lỗi Add data " + ex.Message);
             }
             
+        }
+
+        public void AddRange(List<TB_BANGCONG_CHITIET> lstBcct)
+        {
+            try
+            {
+                db.TB_BANGCONG_CHITIET.AddRange(lstBcct);
+                db.SaveChanges();
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi AddRange data " + ex.Message);
+            }
         }
 
         public TB_BANGCONG_CHITIET Update(TB_BANGCONG_CHITIET bcct)

@@ -1,4 +1,4 @@
-﻿using DA;
+using DA;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -111,8 +111,8 @@ namespace Bu.CLASS_CHAMCONG
                     kycongchitiet.CREATED_BY = iduser;
                     kycongchitiet.CREATED_DATE = DateTime.Now;
                     db.TB_KYCONGCHITIET.Add(kycongchitiet);
-                    db.SaveChanges();
                 }
+                db.SaveChanges();
             }
             catch (Exception ex)
             {
