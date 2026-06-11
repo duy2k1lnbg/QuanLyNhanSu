@@ -147,10 +147,14 @@ namespace Bu.CLASS_SYSTEM
                 user = db.TB_SYS_USER.FirstOrDefault(x => x.USERNAME.Trim().ToLower() == trimmedUsername);
             }
 
-            if (user == null || user.DISABLED == 1) return null;
+            if (user == null) return null;
 
             if (PasswordHasher.VerifyPassword(password, user.PASSWORD))
             {
+                if (user.DISABLED == 1)
+                {
+                    throw new ApplicationException("ACCOUNT_LOCKED");
+                }
                 return user;
             }
             return null;
@@ -271,9 +275,13 @@ namespace Bu.CLASS_SYSTEM
                 {
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_GROUP", SORT = 1, DESCRIPTION = "Nhóm Người Dùng", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_USER", SORT = 2, DESCRIPTION = "Người Dùng", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_LOCK_USER", SORT = 2, DESCRIPTION = "Khóa Tài Khoản (Admin/Cấp quyền)", ISGROUP = 0, MENU = 0, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_SAULUU", SORT = 3, DESCRIPTION = "Sao Lưu Dữ Liệu", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_PHUCHOI", SORT = 4, DESCRIPTION = "Phục Hồi Dữ Liệu", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_AI", SORT = 5, DESCRIPTION = "Trợ Lý AI", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_SETTING", SORT = 6, DESCRIPTION = "Cấu Hình Ngôn Ngữ", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_NHANSU", SORT = 7, DESCRIPTION = "Dashboard Nhân Sự", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_LUONG", SORT = 8, DESCRIPTION = "Dashboard Lương", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_DANTOC", SORT = 10, DESCRIPTION = "Dân Tộc", ISGROUP = 0, MENU = 1, PARENT = "DM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_TONGIAO", SORT = 11, DESCRIPTION = "Tôn Giáo", ISGROUP = 0, MENU = 1, PARENT = "DM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_TRINHDO", SORT = 12, DESCRIPTION = "Trình Độ", ISGROUP = 0, MENU = 1, PARENT = "DM" },

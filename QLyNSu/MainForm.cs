@@ -28,6 +28,7 @@ namespace QLyNSu
         {
             InitializeComponent();
             _formManager = new FormManager_Functions(this); // Khởi tạo FormManager
+            InitializeNewSystemIcons(); // Apply modern premium custom icons
         }
 
         private NHANVIEN _nhanvien;
@@ -183,12 +184,7 @@ namespace QLyNSu
 
             TranslationManager.LoadLanguage();
             TranslationManager.Translate(this);
-            try
-            {
-                btnSetting.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/icon builder/actions_settings.svg");
-                btnThongBao.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/actions/about.svg");
-            }
-            catch { }
+            // Avoid overriding custom settings/notification icons
 
             _ = AiBootstrap.EnsureOllama();
             _nhanvien = new NHANVIEN();
@@ -207,13 +203,11 @@ namespace QLyNSu
 
             // Apply default authorization (lock ui elements)
             ApplyAuthorization();
-
-            // Prompt user login immediately after main form displays
-            this.BeginInvoke(new MethodInvoker(ShowLoginDialog));
         }
 
         private void ShowLoginDialog()
         {
+            this.Hide();
             using (var loginForm = new FrmDangNhap())
             {
                 TranslationManager.Translate(loginForm);
@@ -272,6 +266,10 @@ namespace QLyNSu
                 btnPQ_BaoCao.Enabled = false;
                 BtnAI.Enabled = false;
                 
+                btnSetting.Enabled = false;
+                btnDashboardNhanSu.Enabled = false;
+                btnDashboardLuong.Enabled = false;
+                
                 btnThongBao.Enabled = false;
             }
             else
@@ -288,6 +286,10 @@ namespace QLyNSu
                 btnSaoLuu_DB.Enabled = UserSession.HasRight("F_SYSTEM_SAULUU");
                 btnPhucHoi_DB.Enabled = UserSession.HasRight("F_SYSTEM_PHUCHOI");
                 BtnAI.Enabled = UserSession.HasRight("F_SYSTEM_AI");
+                
+                btnSetting.Enabled = UserSession.HasRight("F_SYSTEM_SETTING");
+                btnDashboardNhanSu.Enabled = UserSession.HasRight("F_DB_NHANSU");
+                btnDashboardLuong.Enabled = UserSession.HasRight("F_DB_LUONG");
                 
                 btnDanToc.Enabled = UserSession.HasRight("F_DM_DANTOC");
                 btnTonGiao.Enabled = UserSession.HasRight("F_DM_TONGIAO");
@@ -383,6 +385,17 @@ namespace QLyNSu
         private async void btnNangLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmNangLuong_NhanVien));
+        }
+
+        public void ActivateMdiChild(Form frm)
+        {
+            if (frm == null) return;
+            if (this.InvokeRequired)
+            {
+                this.Invoke(new Action(() => ActivateMdiChild(frm)));
+                return;
+            }
+            documentManager1.View.ActivateDocument(frm);
         }
 
         private void loadMainFormThongBao()
@@ -570,12 +583,39 @@ namespace QLyNSu
                     }
                     UserSession.Clear();
                     ApplyAuthorization();
-                    ShowLoginDialog();
+
+                    this.Hide();
+                    using (var loginForm = new FrmDangNhap())
+                    {
+                        TranslationManager.Translate(loginForm);
+                        if (loginForm.ShowDialog() == DialogResult.OK)
+                        {
+                            ApplyAuthorization();
+                            this.Show();
+                        }
+                        else
+                        {
+                            Application.Exit();
+                        }
+                    }
                 }
             }
             else
             {
-                ShowLoginDialog();
+                this.Hide();
+                using (var loginForm = new FrmDangNhap())
+                {
+                    TranslationManager.Translate(loginForm);
+                    if (loginForm.ShowDialog() == DialogResult.OK)
+                    {
+                        ApplyAuthorization();
+                        this.Show();
+                    }
+                    else
+                    {
+                        Application.Exit();
+                    }
+                }
             }
         }
 
@@ -635,7 +675,7 @@ namespace QLyNSu
                 sfd.Title = "Chọn nơi lưu tệp tin sao lưu dữ liệu";
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
-                    SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, false);
+                    SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
                     try
                     {
                         using (var db = new DA.MyEntities())
@@ -721,7 +761,7 @@ namespace QLyNSu
                 ofd.Title = "Chọn tệp tin sao lưu dữ liệu để khôi phục";
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
-                    SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, false);
+                    SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
                     try
                     {
                         string json = File.ReadAllText(ofd.FileName, Encoding.UTF8);

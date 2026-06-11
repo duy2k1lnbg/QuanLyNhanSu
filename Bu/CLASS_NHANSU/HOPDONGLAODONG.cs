@@ -20,65 +20,72 @@ namespace Bu
         }
         public List<HOPDONG_DTO> getItem_FULL(string sohd)
         {
-            List<TB_HOPDONG> lstHD = db.TB_HOPDONG.Where( x => x.SOHD == sohd).ToList();
-            List<HOPDONG_DTO> lstHD_DTO = new List<HOPDONG_DTO>();
-            HOPDONG_DTO hd_DTO;
-            foreach (var item in lstHD)
-            {
-                hd_DTO = new HOPDONG_DTO();
-                hd_DTO.SOHD = item.SOHD;
-                hd_DTO.NGAYBATDAU = "Từ ngày " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(6);
-                hd_DTO.NGAYKETTHUC = " ngày " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(6);
-                //hd_DTO.NGAYBATDAU = item.NGAYBATDAU.Value.ToString("dd/MM/yyyy");
-                //hd_DTO.NGAYKETTHUC = item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy");
-                hd_DTO.NGAYKY = " ngày " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(6);
-                hd_DTO.LANKY = item.LANKY;
-                hd_DTO.HESOLUONG = item.HESOLUONG;
-                hd_DTO.LUONG_THOA_THUAN = item.LUONG_THOA_THUAN;
-                hd_DTO.THOIHAN = item.THOIHAN;
-                hd_DTO.NOIDUNG = item.NOIDUNG;
-
-                hd_DTO.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(n => n.MANV == item.MANV);
-                hd_DTO.HOTEN = nv.HOTEN;
-                hd_DTO.CCCD = nv.CCCD;
-                hd_DTO.DIACHI = nv.DIACHI;
-                hd_DTO.NGAYSINH = nv.NGAYSINH.Value.ToString("dd/MM/yyyy");
-
-                hd_DTO.IDTD = nv.IDTD;
-                var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == nv.IDTD);
-                hd_DTO.TENTD = td?.TENTD;
-
-                hd_DTO.IDQT = nv.IDQT;
-                var qt = db.TB_QUOCTICH.FirstOrDefault(b => b.IDQT == nv.IDQT);
-                hd_DTO.TENQT = qt?.TENQT;
-
-                hd_DTO.IDBP = nv.IDBP;
-                var bp = db.TB_BOPHAN.FirstOrDefault(c => c.IDBP == nv.IDBP);
-                hd_DTO.TENBP = bp?.TENBP;
-
-                hd_DTO.IDCV = nv.IDCV;
-                var cv = db.TB_CHUCVU.FirstOrDefault(d => d.IDCV == nv.IDCV);
-                hd_DTO.TENCV = cv?.TENCV;
-
-                hd_DTO.IDCTY = nv.IDCTY;
-                var cty = db.TB_CONGTY.FirstOrDefault(e => e.IDCTY == nv.IDCTY);
-                hd_DTO.TENCTY = cty?.TENCTY;
-                hd_DTO.DAIDIEN = cty?.DAIDIEN;
-                hd_DTO.DIENTHOAICTY = cty?.DIENTHOAICTY;
-                hd_DTO.MASOTHUECTY = cty?.MASOTHUECTY;
-                hd_DTO.DIACHICTY = cty?.DIACHICTY;
-
-                hd_DTO.CREATED_BY = item.CREATED_BY;
-                hd_DTO.CREATED_DATE = item.CREATED_DATE;
-                hd_DTO.UPDATE_BY = item.UPDATE_BY;
-                hd_DTO.UPDATE_DATE = item.UPDATE_DATE;
-                hd_DTO.DEL_BY = item.DEL_BY;
-                hd_DTO.DEL_DATE = item.DEL_DATE;
-                hd_DTO.IDCTY = item.IDCTY;
-                lstHD_DTO.Add(hd_DTO);
-            }
-            return lstHD_DTO;
+            return (from hd in db.TB_HOPDONG
+                    where hd.SOHD == sohd
+                    join nv in db.TB_NHANVIEN on hd.MANV equals nv.MANV into nvGroup
+                    from nv in nvGroup.DefaultIfEmpty()
+                    join td in db.TB_TRINHDO on (nv != null ? nv.IDTD : null) equals td.IDTD into tdGroup
+                    from td in tdGroup.DefaultIfEmpty()
+                    join qt in db.TB_QUOCTICH on (nv != null ? nv.IDQT : null) equals qt.IDQT into qtGroup
+                    from qt in qtGroup.DefaultIfEmpty()
+                    join bp in db.TB_BOPHAN on (nv != null ? nv.IDBP : null) equals bp.IDBP into bpGroup
+                    from bp in bpGroup.DefaultIfEmpty()
+                    join cv in db.TB_CHUCVU on (nv != null ? nv.IDCV : null) equals cv.IDCV into cvGroup
+                    from cv in cvGroup.DefaultIfEmpty()
+                    join cty in db.TB_CONGTY on (nv != null ? nv.IDCTY : null) equals cty.IDCTY into ctyGroup
+                    from cty in ctyGroup.DefaultIfEmpty()
+                    select new
+                    {
+                        hd,
+                        nv,
+                        TENTD = td != null ? td.TENTD : null,
+                        TENQT = qt != null ? qt.TENQT : null,
+                        TENBP = bp != null ? bp.TENBP : null,
+                        TENCV = cv != null ? cv.TENCV : null,
+                        TENCTY = cty != null ? cty.TENCTY : null,
+                        DAIDIEN = cty != null ? cty.DAIDIEN : null,
+                        DIENTHOAICTY = cty != null ? cty.DIENTHOAICTY : null,
+                        MASOTHUECTY = cty != null ? cty.MASOTHUECTY : null,
+                        DIACHICTY = cty != null ? cty.DIACHICTY : null
+                    })
+                    .ToList()
+                    .Select(x => new HOPDONG_DTO
+                    {
+                        SOHD = x.hd.SOHD,
+                        NGAYBATDAU = x.hd.NGAYBATDAU.HasValue ? "Từ ngày " + x.hd.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + x.hd.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + x.hd.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(6) : "",
+                        NGAYKETTHUC = x.hd.NGAYKETTHUC.HasValue ? " ngày " + x.hd.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + x.hd.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + x.hd.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(6) : "Chưa xác định / Vô thời hạn",
+                        NGAYKY = x.hd.NGAYKY.HasValue ? " ngày " + x.hd.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + x.hd.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + x.hd.NGAYKY.Value.ToString("dd/MM/yyyy").Substring(6) : "",
+                        LANKY = x.hd.LANKY,
+                        HESOLUONG = x.hd.HESOLUONG,
+                        LUONG_THOA_THUAN = x.hd.LUONG_THOA_THUAN,
+                        THOIHAN = x.hd.THOIHAN,
+                        NOIDUNG = x.hd.NOIDUNG,
+                        MANV = x.hd.MANV,
+                        HOTEN = x.nv != null ? x.nv.HOTEN : null,
+                        CCCD = x.nv != null ? x.nv.CCCD : null,
+                        DIACHI = x.nv != null ? x.nv.DIACHI : null,
+                        NGAYSINH = x.nv != null && x.nv.NGAYSINH.HasValue ? x.nv.NGAYSINH.Value.ToString("dd/MM/yyyy") : "",
+                        IDTD = x.nv != null ? x.nv.IDTD : null,
+                        TENTD = x.TENTD,
+                        IDQT = x.nv != null ? x.nv.IDQT : null,
+                        TENQT = x.TENQT,
+                        IDBP = x.nv != null ? x.nv.IDBP : null,
+                        TENBP = x.TENBP,
+                        IDCV = x.nv != null ? x.nv.IDCV : null,
+                        TENCV = x.TENCV,
+                        IDCTY = x.nv != null ? x.nv.IDCTY : null,
+                        TENCTY = x.TENCTY,
+                        DAIDIEN = x.DAIDIEN,
+                        DIENTHOAICTY = x.DIENTHOAICTY,
+                        MASOTHUECTY = x.MASOTHUECTY,
+                        DIACHICTY = x.DIACHICTY,
+                        CREATED_BY = x.hd.CREATED_BY,
+                        CREATED_DATE = x.hd.CREATED_DATE,
+                        UPDATE_BY = x.hd.UPDATE_BY,
+                        UPDATE_DATE = x.hd.UPDATE_DATE,
+                        DEL_BY = x.hd.DEL_BY,
+                        DEL_DATE = x.hd.DEL_DATE
+                    }).ToList();
         }
         public List<TB_HOPDONG> getList()
         {
@@ -88,49 +95,49 @@ namespace Bu
 
         public List<HOPDONG_DTO> getlistFull_DTO() 
         { 
-            List<TB_HOPDONG> lstHD = db.TB_HOPDONG.ToList();
-            List<HOPDONG_DTO> lstHD_DTO = new List<HOPDONG_DTO>();
-            HOPDONG_DTO hd_DTO;
-            foreach (var item in lstHD)
-            {
-                hd_DTO = new HOPDONG_DTO();
-                hd_DTO.SOHD = item.SOHD;
-                hd_DTO.NGAYBATDAU = item.NGAYBATDAU.Value.ToString("dd/MM/yyyy");
-                hd_DTO.NGAYKETTHUC = item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy");
-                //hd_DTO.NGAYBATDAU = "Từ ngày " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(0,2) + " tháng " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(6);
-                //hd_DTO.NGAYKETTHUC = "Từ ngày " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(6);
-                hd_DTO.NGAYKY = item.NGAYKY.Value.ToString("dd/MM/yyyy");
-                hd_DTO.LANKY = item.LANKY;
-                hd_DTO.HESOLUONG = item.HESOLUONG;
-                hd_DTO.LUONG_THOA_THUAN = item.LUONG_THOA_THUAN;
-                hd_DTO.THOIHAN = item.THOIHAN;
-                hd_DTO.NOIDUNG = item.NOIDUNG;
-
-                hd_DTO.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(n => n.MANV == item.MANV);
-                hd_DTO.HOTEN = nv.HOTEN;
-                hd_DTO.CCCD = nv.CCCD;
-                hd_DTO.DIACHI = nv.DIACHI;
-                hd_DTO.NGAYSINH = nv.NGAYSINH.Value.ToString("dd/MM/yyyy");
-
-                hd_DTO.IDTD = nv.IDTD;
-                var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == nv.IDTD);
-                hd_DTO.TENTD = td?.TENTD;
-
-                hd_DTO.IDQT = nv.IDQT;
-                var qt = db.TB_QUOCTICH.FirstOrDefault(b => b.IDQT == nv.IDQT);
-                hd_DTO.TENQT = qt?.TENQT;
-
-                hd_DTO.CREATED_BY = item.CREATED_BY;
-                hd_DTO.CREATED_DATE = item.CREATED_DATE;
-                hd_DTO.UPDATE_BY = item.UPDATE_BY;
-                hd_DTO.UPDATE_DATE = item.UPDATE_DATE;
-                hd_DTO.DEL_BY = item.DEL_BY;
-                hd_DTO.DEL_DATE = item.DEL_DATE;
-                hd_DTO.IDCTY = item.IDCTY;
-                lstHD_DTO.Add(hd_DTO);
-            }
-            return lstHD_DTO;
+            return (from hd in db.TB_HOPDONG
+                    join nv in db.TB_NHANVIEN on hd.MANV equals nv.MANV into nvGroup
+                    from nv in nvGroup.DefaultIfEmpty()
+                    join td in db.TB_TRINHDO on (nv != null ? nv.IDTD : null) equals td.IDTD into tdGroup
+                    from td in tdGroup.DefaultIfEmpty()
+                    join qt in db.TB_QUOCTICH on (nv != null ? nv.IDQT : null) equals qt.IDQT into qtGroup
+                    from qt in qtGroup.DefaultIfEmpty()
+                    select new
+                    {
+                        hd,
+                        nv,
+                        TENTD = td != null ? td.TENTD : null,
+                        TENQT = qt != null ? qt.TENQT : null
+                    })
+                    .ToList()
+                    .Select(x => new HOPDONG_DTO
+                    {
+                        SOHD = x.hd.SOHD,
+                        NGAYBATDAU = x.hd.NGAYBATDAU.HasValue ? x.hd.NGAYBATDAU.Value.ToString("dd/MM/yyyy") : "",
+                        NGAYKETTHUC = x.hd.NGAYKETTHUC.HasValue ? x.hd.NGAYKETTHUC.Value.ToString("dd/MM/yyyy") : "",
+                        NGAYKY = x.hd.NGAYKY.HasValue ? x.hd.NGAYKY.Value.ToString("dd/MM/yyyy") : "",
+                        LANKY = x.hd.LANKY,
+                        HESOLUONG = x.hd.HESOLUONG,
+                        LUONG_THOA_THUAN = x.hd.LUONG_THOA_THUAN,
+                        THOIHAN = x.hd.THOIHAN,
+                        NOIDUNG = x.hd.NOIDUNG,
+                        MANV = x.hd.MANV,
+                        HOTEN = x.nv != null ? x.nv.HOTEN : null,
+                        CCCD = x.nv != null ? x.nv.CCCD : null,
+                        DIACHI = x.nv != null ? x.nv.DIACHI : null,
+                        NGAYSINH = x.nv != null && x.nv.NGAYSINH.HasValue ? x.nv.NGAYSINH.Value.ToString("dd/MM/yyyy") : "",
+                        IDTD = x.nv != null ? x.nv.IDTD : null,
+                        TENTD = x.TENTD,
+                        IDQT = x.nv != null ? x.nv.IDQT : null,
+                        TENQT = x.TENQT,
+                        CREATED_BY = x.hd.CREATED_BY,
+                        CREATED_DATE = x.hd.CREATED_DATE,
+                        UPDATE_BY = x.hd.UPDATE_BY,
+                        UPDATE_DATE = x.hd.UPDATE_DATE,
+                        DEL_BY = x.hd.DEL_BY,
+                        DEL_DATE = x.hd.DEL_DATE,
+                        IDCTY = x.hd.IDCTY
+                    }).ToList();
         }
         public TB_HOPDONG Add(TB_HOPDONG hd)
         {
@@ -215,53 +222,53 @@ namespace Bu
 
         public List<HOPDONG_DTO> getLenLuong()
         {
-            List<TB_HOPDONG> lstHD = db.TB_HOPDONG.Where(x => x.NGAYBATDAU.HasValue
-                && x.NGAYBATDAU.Value.Month == DateTime.Now.Month
-                && (DateTime.Now.Year - x.NGAYBATDAU.Value.Year) == 2).ToList();
-
-            //List<TB_HOPDONG> lstHD = db.TB_HOPDONG.Where(x => x.NGAYBATDAU.HasValue && x.NGAYBATDAU.Value.Year == 2022).ToList();
-            List<HOPDONG_DTO> lstHD_DTO = new List<HOPDONG_DTO>();
-            HOPDONG_DTO hd_DTO;
-            foreach (var item in lstHD)
-            {
-                hd_DTO = new HOPDONG_DTO();
-                hd_DTO.SOHD = item.SOHD;
-                hd_DTO.NGAYBATDAU = item.NGAYBATDAU.Value.ToString("dd/MM/yyyy");
-                hd_DTO.NGAYKETTHUC = item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy");
-                //hd_DTO.NGAYBATDAU = "Từ ngày " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(0,2) + " tháng " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYBATDAU.Value.ToString("dd/MM/yyyy").Substring(6);
-                //hd_DTO.NGAYKETTHUC = "Từ ngày " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(0, 2) + " tháng " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(3, 2) + " năm " + item.NGAYKETTHUC.Value.ToString("dd/MM/yyyy").Substring(6);
-                hd_DTO.NGAYKY = item.NGAYKY.Value.ToString("dd/MM/yyyy");
-                hd_DTO.LANKY = item.LANKY;
-                hd_DTO.HESOLUONG = item.HESOLUONG;
-                hd_DTO.LUONG_THOA_THUAN = item.LUONG_THOA_THUAN;
-                hd_DTO.THOIHAN = item.THOIHAN;
-                hd_DTO.NOIDUNG = item.NOIDUNG;
-
-                hd_DTO.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(n => n.MANV == item.MANV);
-                hd_DTO.HOTEN = nv.HOTEN;
-                hd_DTO.CCCD = nv.CCCD;
-                hd_DTO.DIACHI = nv.DIACHI;
-                hd_DTO.NGAYSINH = nv.NGAYSINH.Value.ToString("dd/MM/yyyy");
-
-                hd_DTO.IDTD = nv.IDTD;
-                var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == nv.IDTD);
-                hd_DTO.TENTD = td?.TENTD;
-
-                hd_DTO.IDQT = nv.IDQT;
-                var qt = db.TB_QUOCTICH.FirstOrDefault(b => b.IDQT == nv.IDQT);
-                hd_DTO.TENQT = qt?.TENQT;
-
-                hd_DTO.CREATED_BY = item.CREATED_BY;
-                hd_DTO.CREATED_DATE = item.CREATED_DATE;
-                hd_DTO.UPDATE_BY = item.UPDATE_BY;
-                hd_DTO.UPDATE_DATE = item.UPDATE_DATE;
-                hd_DTO.DEL_BY = item.DEL_BY;
-                hd_DTO.DEL_DATE = item.DEL_DATE;
-                hd_DTO.IDCTY = item.IDCTY;
-                lstHD_DTO.Add(hd_DTO);
-            }
-            return lstHD_DTO;
+            var now = DateTime.Now;
+            return (from hd in db.TB_HOPDONG
+                    join nv in db.TB_NHANVIEN on hd.MANV equals nv.MANV into nvGroup
+                    from nv in nvGroup.DefaultIfEmpty()
+                    join td in db.TB_TRINHDO on (nv != null ? nv.IDTD : null) equals td.IDTD into tdGroup
+                    from td in tdGroup.DefaultIfEmpty()
+                    join qt in db.TB_QUOCTICH on (nv != null ? nv.IDQT : null) equals qt.IDQT into qtGroup
+                    from qt in qtGroup.DefaultIfEmpty()
+                    select new
+                    {
+                        hd,
+                        nv,
+                        TENTD = td != null ? td.TENTD : null,
+                        TENQT = qt != null ? qt.TENQT : null
+                    })
+                    .ToList()
+                    .Where(x => x.hd.NGAYBATDAU.HasValue 
+                             && x.hd.NGAYBATDAU.Value.Month == now.Month 
+                             && (now.Year - x.hd.NGAYBATDAU.Value.Year) == 2)
+                    .Select(x => new HOPDONG_DTO
+                    {
+                        SOHD = x.hd.SOHD,
+                        NGAYBATDAU = x.hd.NGAYBATDAU.HasValue ? x.hd.NGAYBATDAU.Value.ToString("dd/MM/yyyy") : "",
+                        NGAYKETTHUC = x.hd.NGAYKETTHUC.HasValue ? x.hd.NGAYKETTHUC.Value.ToString("dd/MM/yyyy") : "",
+                        NGAYKY = x.hd.NGAYKY.HasValue ? x.hd.NGAYKY.Value.ToString("dd/MM/yyyy") : "",
+                        LANKY = x.hd.LANKY,
+                        HESOLUONG = x.hd.HESOLUONG,
+                        LUONG_THOA_THUAN = x.hd.LUONG_THOA_THUAN,
+                        THOIHAN = x.hd.THOIHAN,
+                        NOIDUNG = x.hd.NOIDUNG,
+                        MANV = x.hd.MANV,
+                        HOTEN = x.nv != null ? x.nv.HOTEN : null,
+                        CCCD = x.nv != null ? x.nv.CCCD : null,
+                        DIACHI = x.nv != null ? x.nv.DIACHI : null,
+                        NGAYSINH = x.nv != null && x.nv.NGAYSINH.HasValue ? x.nv.NGAYSINH.Value.ToString("dd/MM/yyyy") : "",
+                        IDTD = x.nv != null ? x.nv.IDTD : null,
+                        TENTD = x.TENTD,
+                        IDQT = x.nv != null ? x.nv.IDQT : null,
+                        TENQT = x.TENQT,
+                        CREATED_BY = x.hd.CREATED_BY,
+                        CREATED_DATE = x.hd.CREATED_DATE,
+                        UPDATE_BY = x.hd.UPDATE_BY,
+                        UPDATE_DATE = x.hd.UPDATE_DATE,
+                        DEL_BY = x.hd.DEL_BY,
+                        DEL_DATE = x.hd.DEL_DATE,
+                        IDCTY = x.hd.IDCTY
+                    }).ToList();
         }
     }
 }

@@ -64,7 +64,7 @@ namespace QLyNSu.FORM_CHAMCONG
             {
                 try
                 {
-                    SplashScreenManager.ShowForm(typeof(FrmWaiting), true, true);
+                    SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
                     
                     await Task.Run(() =>
                     {

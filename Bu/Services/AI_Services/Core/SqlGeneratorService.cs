@@ -61,7 +61,10 @@ namespace Bu.Services.AI_Services.Core
             {
                 string name = nameMatch.Groups[1].Value.Trim();
                 if (name.Length > 1)
-                    return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(HOTEN) LIKE UPPER('%{name}%')";
+                {
+                    string safeName = name.Replace("'", "''");
+                    return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(HOTEN) LIKE UPPER('%{safeName}%')";
+                }
             }
 
             // Mẫu tìm theo mã số
@@ -119,6 +122,32 @@ Lệnh SQL:";
 
             // Kiểm tra tính hợp lệ và an toàn
             if (!upper.StartsWith("SELECT")) return "NOT_SQL";
+
+            // Whitelist các view được phép truy cập cho AI RAG
+            string[] allowedViews = { 
+                "V_AI_EMPLOYEE", 
+                "V_AI_ATTENDANCE", 
+                "V_AI_OVERTIME", 
+                "V_AI_INSURANCE", 
+                "V_AI_ADVANCE", 
+                "V_AI_ALLOWANCE" 
+            };
+
+            bool isSafe = false;
+            foreach (var view in allowedViews)
+            {
+                if (upper.Contains(view))
+                {
+                    isSafe = true;
+                    break;
+                }
+            }
+
+            if (!isSafe)
+            {
+                System.Diagnostics.Debug.WriteLine($"[SECURITY WARNING] Blocked query pointing to unauthorized tables: {clean}");
+                return "NOT_SQL";
+            }
 
             string[] forbidden = { "DELETE", "UPDATE", "DROP", "TRUNCATE", "INSERT", "ALTER" };
             foreach (var word in forbidden)

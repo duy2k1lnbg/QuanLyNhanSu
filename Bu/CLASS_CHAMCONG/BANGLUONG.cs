@@ -14,36 +14,35 @@ namespace Bu.CLASS_CHAMCONG
 
         public List<BANGLUONG_DTO> getList(int makycong)
         {
-            var lst = db.TB_BANGLUONG.Where(x => x.MAKYCONG == makycong).ToList();
-            List<BANGLUONG_DTO> lstDTO = new List<BANGLUONG_DTO>();
-            foreach (var item in lst)
-            {
-                var dto = new BANGLUONG_DTO();
-                dto.IDBL = item.IDBL;
-                dto.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == item.MANV);
-                dto.HOTEN = nv != null ? nv.HOTEN : "";
-                dto.MAKYCONG = item.MAKYCONG;
-                dto.THANG = item.THANG;
-                dto.NAM = item.NAM;
-                dto.CONG_CHUAN = item.CONG_CHUAN;
-                dto.CONG_THUCTE = item.CONG_THUCTE;
-                dto.CONG_LAMDEM = item.CONG_LAMDEM;
-                dto.DAILY_RATE = item.DAILY_RATE;
-                dto.DAILY_ALLOWANCE = item.DAILY_ALLOWANCE;
-                dto.LUONG_CONG_THUCTE = item.LUONG_CONG_THUCTE;
-                dto.PHUCAP_CONG_THUCTE = item.PHUCAP_CONG_THUCTE;
-                dto.TIEN_TANGCA = item.TIEN_TANGCA;
-                dto.TIEN_CHUYENCAN = item.TIEN_CHUYENCAN;
-                dto.TIEN_AN_CA = item.TIEN_AN_CA;
-                dto.KHOAN_CONG_KHAC = item.KHOAN_CONG_KHAC;
-                dto.TIEN_BHXH_TRICH = item.TIEN_BHXH_TRICH;
-                dto.TIEN_TAMUNG = item.TIEN_TAMUNG;
-                dto.KHOAN_TRU_KHAC = item.KHOAN_TRU_KHAC;
-                dto.THUC_LINH = item.THUC_LINH;
-                lstDTO.Add(dto);
-            }
-            return lstDTO;
+            var query = from bl in db.TB_BANGLUONG
+                        where bl.MAKYCONG == makycong
+                        join nv in db.TB_NHANVIEN on bl.MANV equals nv.MANV into nvGroup
+                        from nv in nvGroup.DefaultIfEmpty()
+                        select new BANGLUONG_DTO
+                        {
+                            IDBL = bl.IDBL,
+                            MANV = bl.MANV,
+                            HOTEN = nv != null ? nv.HOTEN : "",
+                            MAKYCONG = bl.MAKYCONG,
+                            THANG = bl.THANG,
+                            NAM = bl.NAM,
+                            CONG_CHUAN = bl.CONG_CHUAN,
+                            CONG_THUCTE = bl.CONG_THUCTE,
+                            CONG_LAMDEM = bl.CONG_LAMDEM,
+                            DAILY_RATE = bl.DAILY_RATE,
+                            DAILY_ALLOWANCE = bl.DAILY_ALLOWANCE,
+                            LUONG_CONG_THUCTE = bl.LUONG_CONG_THUCTE,
+                            PHUCAP_CONG_THUCTE = bl.PHUCAP_CONG_THUCTE,
+                            TIEN_TANGCA = bl.TIEN_TANGCA,
+                            TIEN_CHUYENCAN = bl.TIEN_CHUYENCAN,
+                            TIEN_AN_CA = bl.TIEN_AN_CA,
+                            KHOAN_CONG_KHAC = bl.KHOAN_CONG_KHAC,
+                            TIEN_BHXH_TRICH = bl.TIEN_BHXH_TRICH,
+                            TIEN_TAMUNG = bl.TIEN_TAMUNG,
+                            KHOAN_TRU_KHAC = bl.KHOAN_TRU_KHAC,
+                            THUC_LINH = bl.THUC_LINH
+                        };
+            return query.ToList();
         }
 
         public void TinhLuongKyCong(int makycong, int iduser)

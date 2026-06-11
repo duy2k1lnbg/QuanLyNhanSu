@@ -121,6 +121,14 @@ namespace QLyNSu.Functions
                     Form form = Form.FromHandle(hWnd) as Form;
                     if (form != null)
                     {
+                        if (QLyNSu.Program.AppIcon != null && form.Icon != QLyNSu.Program.AppIcon)
+                        {
+                            try
+                            {
+                                form.Icon = QLyNSu.Program.AppIcon;
+                            }
+                            catch { }
+                        }
                         Translate(form);
                     }
                 }
@@ -240,6 +248,8 @@ namespace QLyNSu.Functions
             { "Bạn có chắc chắn muốn thoát không?", ("Are you sure you want to exit?", "終了してもよろしいですか？", "您确定要退出吗？", "정말로 종료하시겠습니까?") },
             { "Xác nhận thoát", ("Confirm Exit", "終了の確認", "确认退出", "종료 확인") },
             { "Hệ thống đang bận, vui lòng chờ một chút.", ("System is busy, please wait a moment.", "システムが混雑しています。しばらくお待ちください。", "系统忙，请稍候。", "시스템이 바쁩니다. 잠시만 기다려 주십시오.") },
+            { "Vui lòng đợi", ("Please wait", "お待ちください", "请稍候", "잠시만 chờ...") },
+            { "Đang xử lý dữ liệu...", ("Processing data...", "データを処理中...", "正在处理数据...", "데이터 처리 중...") },
             { "Có lỗi xảy ra", ("An error occurred", "エラーが発生しました", "发生错误", "오류가 발생했습니다") },
             { "Lỗi", ("Error", "エラー", "错误", "오류") },
             { "Cảnh báo", ("Warning", "警告", "警告", "경고") },

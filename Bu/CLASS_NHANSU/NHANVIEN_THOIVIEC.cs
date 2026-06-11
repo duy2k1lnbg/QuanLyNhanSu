@@ -1,4 +1,4 @@
-﻿using Bu.DTO;
+using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -22,31 +22,25 @@ namespace Bu
 
         public List<NHANVIEN_THOIVIEC_DTO> getListFull()
         {
-            var lstTV = db.TB_NHANVIEN_THOIVIEC.ToList();
-            List<NHANVIEN_THOIVIEC_DTO> lstDTO = new List<NHANVIEN_THOIVIEC_DTO>();
-            NHANVIEN_THOIVIEC_DTO nvDTO;
-            foreach (var item in lstTV)
-            {
-                nvDTO = new NHANVIEN_THOIVIEC_DTO();
-                nvDTO.SOQDTV = item.SOQDTV;
-
-                nvDTO.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(a => a.MANV == item.MANV);
-                nvDTO.HOTEN = nv.HOTEN;
-
-                nvDTO.NGAYNOPDON = item.NGAYNOPDON;
-                nvDTO.NGAYNGHIVIEC = item.NGAYNGHIVIEC;
-                nvDTO.LYDOTV = item.LYDOTV;
-                nvDTO.GHICHUTV = item.GHICHUTV;
-                nvDTO.CREATED_BY = item.CREATED_BY;
-                nvDTO.CREATED_DATE = item.CREATED_DATE;
-                nvDTO.UPDATED_BY = item.UPDATED_BY;
-                nvDTO.CREATED_DATE = item.CREATED_DATE;
-                nvDTO.DELETED_BY = item.DELETED_BY;
-                nvDTO.DELETED_DATE = item.DELETED_DATE;
-                lstDTO.Add(nvDTO);
-            }
-            return lstDTO;
+            return (from tv in db.TB_NHANVIEN_THOIVIEC
+                    join nv in db.TB_NHANVIEN on tv.MANV equals nv.MANV into nvGroup
+                    from nv in nvGroup.DefaultIfEmpty()
+                    select new NHANVIEN_THOIVIEC_DTO
+                    {
+                        SOQDTV = tv.SOQDTV,
+                        MANV = tv.MANV,
+                        HOTEN = nv != null ? nv.HOTEN : null,
+                        NGAYNOPDON = tv.NGAYNOPDON,
+                        NGAYNGHIVIEC = tv.NGAYNGHIVIEC,
+                        LYDOTV = tv.LYDOTV,
+                        GHICHUTV = tv.GHICHUTV,
+                        CREATED_BY = tv.CREATED_BY,
+                        CREATED_DATE = tv.CREATED_DATE,
+                        UPDATED_BY = tv.UPDATED_BY,
+                        UPDATED_DATE = tv.UPDATED_DATE,
+                        DELETED_BY = tv.DELETED_BY,
+                        DELETED_DATE = tv.DELETED_DATE
+                    }).ToList();
         }
         public TB_NHANVIEN_THOIVIEC Add(TB_NHANVIEN_THOIVIEC tv)
         {

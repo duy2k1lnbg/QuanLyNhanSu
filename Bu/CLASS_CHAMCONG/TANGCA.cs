@@ -1,4 +1,4 @@
-﻿using Bu.DTO;
+using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -24,38 +24,33 @@ namespace Bu.CLASS_CHAMCONG
 
         public List<TANGCA_DTO> getListFull()
         {
-            var lstTangcCa = db.TB_TANGCA.ToList();
-            List<TANGCA_DTO> lstDTO = new List<TANGCA_DTO>();
-            TANGCA_DTO tc;
-            foreach(var item in lstTangcCa)
-            {
-                tc = new TANGCA_DTO();
-                tc.IDTCA = item.IDTCA;
-                tc.NAM = item.NAM;
-                tc.THANG = item.THANG;
-                tc.NGAY = item.NGAY;
-                tc.SOGIO = item.SOGIO;
-                tc.GHICHU = item.GHICHU;
-
-                tc.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(a => a.MANV == item.MANV);
-                tc.HOTEN = nv.HOTEN;
-                
-                tc.IDLOAICA = item.IDLOAICA;
-                var lc = db.TB_LOAICA.FirstOrDefault(b => b.IDLOAICA == item.IDLOAICA);
-                tc.TENLOAICA = lc.TENLOAICA;
-                tc.HESOLOAICA = lc.HESOLOAICA;
-
-                tc.SOTIENTC = item.SOTIENTC;
-                tc.CREATED_BY = item.CREATED_BY;
-                tc.CREATED_DATE = item.CREATED_DATE;
-                tc.UPDATED_BY = item.UPDATED_BY;
-                tc.UPDATED_DATE = item.UPDATED_DATE;
-                tc.DELETED_BY = item.DELETED_BY;
-                tc.DELETED_DATE = item.DELETED_DATE;
-                lstDTO.Add(tc);
-            }    
-            return lstDTO;
+            var query = from tc in db.TB_TANGCA
+                        join nv in db.TB_NHANVIEN on tc.MANV equals nv.MANV into nvGroup
+                        from nv in nvGroup.DefaultIfEmpty()
+                        join lc in db.TB_LOAICA on tc.IDLOAICA equals lc.IDLOAICA into lcGroup
+                        from lc in lcGroup.DefaultIfEmpty()
+                        select new TANGCA_DTO
+                        {
+                            IDTCA = tc.IDTCA,
+                            NAM = tc.NAM,
+                            THANG = tc.THANG,
+                            NGAY = tc.NGAY,
+                            SOGIO = tc.SOGIO,
+                            GHICHU = tc.GHICHU,
+                            MANV = tc.MANV,
+                            HOTEN = nv != null ? nv.HOTEN : null,
+                            IDLOAICA = tc.IDLOAICA,
+                            TENLOAICA = lc != null ? lc.TENLOAICA : null,
+                            HESOLOAICA = lc != null ? lc.HESOLOAICA : null,
+                            SOTIENTC = tc.SOTIENTC,
+                            CREATED_BY = tc.CREATED_BY,
+                            CREATED_DATE = tc.CREATED_DATE,
+                            UPDATED_BY = tc.UPDATED_BY,
+                            UPDATED_DATE = tc.UPDATED_DATE,
+                            DELETED_BY = tc.DELETED_BY,
+                            DELETED_DATE = tc.DELETED_DATE
+                        };
+            return query.ToList();
         }
 
         public TB_TANGCA Add(TB_TANGCA lc)

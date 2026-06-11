@@ -76,7 +76,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private async void btnPhatSinhKyCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             #region Check_Key
-            SplashScreenManager.ShowForm(typeof(FrmWaiting), true, true);
+            SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
             if (_kycong.KiemTraMaKyCong(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text)) == 0)
             {
                 MessageBox.Show("Kỳ công này chưa được tạo vui lòng vào bảng công và thêm.", "Thông báo");

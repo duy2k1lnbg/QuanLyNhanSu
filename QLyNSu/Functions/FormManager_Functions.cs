@@ -28,7 +28,7 @@ namespace QLyNSu
             {
                 if (frm.GetType() == typeForm)
                 {
-                    frm.Activate();
+                    ActivateForm(frm);
                     return;
                 }
             }
@@ -37,12 +37,13 @@ namespace QLyNSu
             TranslationManager.Translate(f);
             f.MdiParent = _parentForm;
             f.Show();
+            ActivateForm(f);
         }
 
         public async Task OpenFormWithSplashScreen(Type typeForm)
         {
-            SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, false);
-
+            SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, ParentFormState.Locked);
+            Form openedForm = null;
             try
             {
                 if (!_semaphore.Wait(0))
@@ -51,7 +52,7 @@ namespace QLyNSu
                     return;
                 }
 
-                await OpenFormAsync(typeForm);
+                openedForm = await OpenFormAsync(typeForm);
             }
             catch (Exception ex)
             {
@@ -62,12 +63,17 @@ namespace QLyNSu
                 SplashScreenManager.CloseForm();
                 _semaphore.Release();
             }
+
+            if (openedForm != null)
+            {
+                ActivateForm(openedForm);
+            }
         }
 
         public async Task OpenShowUserGroupFormWithSplashScreen(int mode)
         {
-            SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, false);
-
+            SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, ParentFormState.Locked);
+            Form openedForm = null;
             try
             {
                 if (!_semaphore.Wait(0))
@@ -80,15 +86,22 @@ namespace QLyNSu
                 {
                     if (frm is FrmShowUser_Group showUserGroup && showUserGroup.Mode == mode)
                     {
-                        frm.Activate();
-                        return;
+                        openedForm = frm;
+                        break;
                     }
                 }
 
-                FrmShowUser_Group f = new FrmShowUser_Group(mode);
-                TranslationManager.Translate(f);
-                f.MdiParent = _parentForm;
-                await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => f.Show())));
+                if (openedForm == null)
+                {
+                    FrmShowUser_Group f = new FrmShowUser_Group(mode);
+                    TranslationManager.Translate(f);
+                    f.MdiParent = _parentForm;
+                    await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => 
+                    {
+                        f.Show();
+                    })));
+                    openedForm = f;
+                }
             }
             catch (Exception ex)
             {
@@ -99,23 +112,43 @@ namespace QLyNSu
                 SplashScreenManager.CloseForm();
                 _semaphore.Release();
             }
+
+            if (openedForm != null)
+            {
+                ActivateForm(openedForm);
+            }
         }
 
-        private async Task OpenFormAsync(Type typeForm)
+        private async Task<Form> OpenFormAsync(Type typeForm)
         {
             foreach (var frm in _parentForm.MdiChildren)
             {
                 if (frm.GetType() == typeForm)
                 {
-                    frm.Activate();
-                    return;
+                    return frm;
                 }
             }
 
             Form f = (Form)Activator.CreateInstance(typeForm);
             TranslationManager.Translate(f);
             f.MdiParent = _parentForm;
-            await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => f.Show())));
+            await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => 
+            {
+                f.Show();
+            })));
+            return f;
+        }
+
+        private void ActivateForm(Form frm)
+        {
+            if (_parentForm is MainForm mainForm)
+            {
+                mainForm.ActivateMdiChild(frm);
+            }
+            else
+            {
+                frm.Activate();
+            }
         }
 
         public void CloseAll()

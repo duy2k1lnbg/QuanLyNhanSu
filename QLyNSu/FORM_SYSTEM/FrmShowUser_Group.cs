@@ -243,6 +243,12 @@ namespace QLyNSu.FORM_SYSTEM
                 return;
             }
 
+            if (selectedUser.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Bạn không thể tự xóa tài khoản của chính mình.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             if (selectedUser.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Không thể xóa tài khoản Quản trị hệ thống (ADMIN).", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -262,6 +268,16 @@ namespace QLyNSu.FORM_SYSTEM
                 {
                     _sysUser.Delete(selectedUser.IDUSER);
                     MessageBox.Show("Xóa thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    
+                    // Log audit action for delete
+                    string type = selectedUser.ISGROUP == 1 ? "GROUP" : "USER";
+                    string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
+                    try
+                    {
+                        System.IO.File.AppendAllText(logPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - AUDIT: USER [{UserSession.CurrentUser?.USERNAME}] DELETED {type} [{selectedUser.USERNAME}]\r\n");
+                    }
+                    catch { }
+
                     loadData();
                 }
                 catch (Exception ex)

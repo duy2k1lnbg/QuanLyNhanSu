@@ -42,6 +42,9 @@ namespace QLyNSu.FORM_SYSTEM
             ConfigureInputFocusStyle(txtMatKhau);
 
             this.AcceptButton = btnDangNhap;
+
+            // Hide the old small btnShowPassword button as the checkbox replaces it
+            btnShowPassword.Visible = false;
         }
 
         private void ConfigureInputFocusStyle(TextEdit txt)
@@ -178,6 +181,11 @@ namespace QLyNSu.FORM_SYSTEM
                     lblThongBao.Visible = true;
                 }
             }
+            catch (ApplicationException appEx) when (appEx.Message == "ACCOUNT_LOCKED")
+            {
+                lblThongBao.Text = TranslationManager.Translate("Tài khoản đã bị khóa. Vui lòng liên hệ Quản trị viên.");
+                lblThongBao.Visible = true;
+            }
             catch (Exception ex)
             {
                 lblThongBao.Text = TranslationManager.Translate("Lỗi kết nối cơ sở dữ liệu") + ": " + ex.Message;
@@ -208,6 +216,25 @@ namespace QLyNSu.FORM_SYSTEM
                 txtMatKhau.Properties.PasswordChar = '\0';
                 btnShowPassword.Text = "🙈";
             }
+        }
+
+
+
+        private void ChkShowPassword_CheckedChanged(object sender, EventArgs e)
+        {
+            if (chkShowPassword.Checked)
+            {
+                txtMatKhau.Properties.PasswordChar = '\0'; // Show password characters
+            }
+            else
+            {
+                txtMatKhau.Properties.PasswordChar = '●'; // Hide password characters
+            }
+        }
+
+        private void txtMatKhau_EditValueChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace QLyNSu
+namespace QLyNSu
 {
     partial class FrmStartup
     {
@@ -44,16 +44,16 @@
             this.progressBarControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBarControl.EditValue = 0;
-            this.progressBarControl.Location = new System.Drawing.Point(32, 286);
+            this.progressBarControl.Location = new System.Drawing.Point(40, 360);
             this.progressBarControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.progressBarControl.Name = "progressBarControl";
-            this.progressBarControl.Size = new System.Drawing.Size(536, 15);
+            this.progressBarControl.Size = new System.Drawing.Size(670, 15);
             this.progressBarControl.TabIndex = 5;
             // 
             // labelCopyright
             // 
             this.labelCopyright.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.labelCopyright.Location = new System.Drawing.Point(32, 353);
+            this.labelCopyright.Location = new System.Drawing.Point(40, 440);
             this.labelCopyright.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.labelCopyright.Name = "labelCopyright";
             this.labelCopyright.Size = new System.Drawing.Size(54, 16);
@@ -62,7 +62,7 @@
             // 
             // labelStatus
             // 
-            this.labelStatus.Location = new System.Drawing.Point(32, 265);
+            this.labelStatus.Location = new System.Drawing.Point(40, 335);
             this.labelStatus.Margin = new System.Windows.Forms.Padding(4, 4, 4, 1);
             this.labelStatus.Name = "labelStatus";
             this.labelStatus.Size = new System.Drawing.Size(86, 16);
@@ -83,7 +83,7 @@
             this.peImage.Properties.ShowMenu = false;
             this.peImage.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Stretch;
             this.peImage.Properties.SvgImageColorizationMode = DevExpress.Utils.SvgImageColorizationMode.None;
-            this.peImage.Size = new System.Drawing.Size(598, 246);
+            this.peImage.Size = new System.Drawing.Size(748, 310);
             this.peImage.TabIndex = 9;
             // 
             // peLogo
@@ -91,7 +91,7 @@
             this.peLogo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.peLogo.EditValue = ((object)(resources.GetObject("peLogo.EditValue")));
-            this.peLogo.Location = new System.Drawing.Point(372, 329);
+            this.peLogo.Location = new System.Drawing.Point(500, 395);
             this.peLogo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.peLogo.Name = "peLogo";
             this.peLogo.Properties.AllowFocused = false;
@@ -100,22 +100,25 @@
             this.peLogo.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.peLogo.Properties.ShowMenu = false;
             this.peLogo.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Squeeze;
-            this.peLogo.Size = new System.Drawing.Size(211, 52);
+            this.peLogo.Size = new System.Drawing.Size(210, 52);
             this.peLogo.TabIndex = 8;
             // 
             // FrmStartup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(600, 394);
+            this.BackColor = System.Drawing.Color.White;
+            this.ClientSize = new System.Drawing.Size(750, 480);
             this.Controls.Add(this.peImage);
             this.Controls.Add(this.peLogo);
             this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.labelCopyright);
             this.Controls.Add(this.progressBarControl);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "FrmStartup";
             this.Padding = new System.Windows.Forms.Padding(1);
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "FrmStartup";
             ((System.ComponentModel.ISupportInitialize)(this.progressBarControl.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.peImage.Properties)).EndInit();

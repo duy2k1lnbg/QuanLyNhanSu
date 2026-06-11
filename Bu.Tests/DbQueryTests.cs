@@ -40,5 +40,53 @@ namespace Bu.Tests
                 Assert.Fail(ex.Message);
             }
         }
+
+        [Test]
+        public void TestDisabledUserLoginThrowsAccountLocked()
+        {
+            using (var db = new MyEntities())
+            {
+                // Find a non-admin user to test with
+                var testUser = db.TB_SYS_USER.FirstOrDefault(u => !u.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && (u.ISGROUP ?? 0) == 0);
+                if (testUser == null)
+                {
+                    Assert.Ignore("No non-admin user found to test disabled login.");
+                    return;
+                }
+
+                var sysUser = new Bu.CLASS_SYSTEM.SYS_USER();
+                decimal originalDisabled = testUser.DISABLED ?? 0;
+
+                try
+                {
+                    // 1. Set to disabled
+                    testUser.DISABLED = 1;
+                    db.SaveChanges();
+
+                    // We need a password to test. Let's set a temporary known password hash.
+                    string originalPassword = testUser.PASSWORD;
+                    testUser.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("temp_test_123");
+                    db.SaveChanges();
+
+                    // 2. Try to log in with correct password - should throw ApplicationException
+                    var ex = Assert.Throws<ApplicationException>(() => sysUser.Login(testUser.USERNAME, "temp_test_123"));
+                    Assert.AreEqual("ACCOUNT_LOCKED", ex.Message);
+
+                    // 3. Try to log in with incorrect password - should return null (not throw lock exception)
+                    var loginResult = sysUser.Login(testUser.USERNAME, "wrong_password");
+                    Assert.IsNull(loginResult);
+
+                    // Restore password
+                    testUser.PASSWORD = originalPassword;
+                    db.SaveChanges();
+                }
+                finally
+                {
+                    // Restore original disabled state
+                    testUser.DISABLED = originalDisabled;
+                    db.SaveChanges();
+                }
+            }
+        }
     }
 }

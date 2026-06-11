@@ -1,4 +1,4 @@
-﻿using Bu.DTO;
+using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -24,32 +24,27 @@ namespace Bu.CLASS_CHAMCONG
 
         public List<UNGLUONG_DTO> getListFull()
         {
-            var lstUngLuong = db.TB_UNGLUONG.ToList();
-            List<UNGLUONG_DTO> lstDTO = new List<UNGLUONG_DTO>();
-            UNGLUONG_DTO ul;
-            foreach (var item in lstUngLuong)
-            {
-                ul = new UNGLUONG_DTO();
-                ul.IDUL = item.IDUL;
-                ul.NAM = item.NAM;
-                ul.THANG = item.THANG;
-                ul.NGAY = item.NGAY;
-                ul.GHICHU = item.GHICHU;
-
-                ul.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(a => a.MANV == item.MANV);
-                ul.HOTEN = nv.HOTEN;
-
-                ul.SOTIENUNG = item.SOTIENUNG;
-                ul.CREATED_BY = item.CREATED_BY;
-                ul.CREATED_DATE = item.CREATED_DATE;
-                ul.UPDATED_BY = item.UPDATED_BY;
-                ul.UPDATED_DATE = item.UPDATED_DATE;
-                ul.DELETED_BY = item.DELETED_BY;
-                ul.DELETED_DATE = item.DELETED_DATE;
-                lstDTO.Add(ul);
-            }
-            return lstDTO;
+            var query = from ul in db.TB_UNGLUONG
+                        join nv in db.TB_NHANVIEN on ul.MANV equals nv.MANV into nvGroup
+                        from nv in nvGroup.DefaultIfEmpty()
+                        select new UNGLUONG_DTO
+                        {
+                            IDUL = ul.IDUL,
+                            NAM = ul.NAM,
+                            THANG = ul.THANG,
+                            NGAY = ul.NGAY,
+                            GHICHU = ul.GHICHU,
+                            MANV = ul.MANV,
+                            HOTEN = nv != null ? nv.HOTEN : null,
+                            SOTIENUNG = ul.SOTIENUNG,
+                            CREATED_BY = ul.CREATED_BY,
+                            CREATED_DATE = ul.CREATED_DATE,
+                            UPDATED_BY = ul.UPDATED_BY,
+                            UPDATED_DATE = ul.UPDATED_DATE,
+                            DELETED_BY = ul.DELETED_BY,
+                            DELETED_DATE = ul.DELETED_DATE
+                        };
+            return query.ToList();
         }
 
         public TB_UNGLUONG Add(TB_UNGLUONG ul)

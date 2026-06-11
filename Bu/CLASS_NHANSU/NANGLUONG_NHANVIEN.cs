@@ -1,4 +1,4 @@
-﻿using Bu.DTO;
+using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -24,33 +24,27 @@ namespace Bu
 
         public List<NANGLUONG_NHANVIEN_DTO> getListFull()
         {
-            var lstNL = db.TB_NANGLUONG_NHANVIEN.ToList();
-            List<NANGLUONG_NHANVIEN_DTO> lstDTO = new List<NANGLUONG_NHANVIEN_DTO>();
-            NANGLUONG_NHANVIEN_DTO nlDTO;
-            foreach (var item in lstNL)
-            {
-                nlDTO = new NANGLUONG_NHANVIEN_DTO();
-                nlDTO.SOQDNL = item.SOQDNL;
-                nlDTO.SOHD = item.SOHD;
-                nlDTO.HESOLUONG_NOW = item.HESOLUONG_NOW;
-                nlDTO.HESOLUONG_NEW = item.HESOLUONG_NEW;
-                nlDTO.GHICHUNL = item.GHICHUNL;
-                nlDTO.NGAYKYNL = item.NGAYKYNL;
-                nlDTO.NGAYLENLUONG = item.NGAYLENLUONG;
-
-                nlDTO.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(a => a.MANV == item.MANV);
-                nlDTO.HOTEN = nv.HOTEN;
-
-                nlDTO.CREATED_BY = item.CREATED_BY;
-                nlDTO.CREATED_DATE = item.CREATED_DATE;
-                nlDTO.UPDATED_BY = item.UPDATED_BY;
-                nlDTO.CREATED_DATE = item.CREATED_DATE;
-                nlDTO.DELETED_BY = item.DELETED_BY;
-                nlDTO.DELETED_DATE = item.DELETED_DATE;
-                lstDTO.Add(nlDTO);
-            }
-            return lstDTO;
+            return (from nl in db.TB_NANGLUONG_NHANVIEN
+                    join nv in db.TB_NHANVIEN on nl.MANV equals nv.MANV into nvGroup
+                    from nv in nvGroup.DefaultIfEmpty()
+                    select new NANGLUONG_NHANVIEN_DTO
+                    {
+                        SOQDNL = nl.SOQDNL,
+                        SOHD = nl.SOHD,
+                        HESOLUONG_NOW = nl.HESOLUONG_NOW,
+                        HESOLUONG_NEW = nl.HESOLUONG_NEW,
+                        GHICHUNL = nl.GHICHUNL,
+                        NGAYKYNL = nl.NGAYKYNL,
+                        NGAYLENLUONG = nl.NGAYLENLUONG,
+                        MANV = nl.MANV,
+                        HOTEN = nv != null ? nv.HOTEN : null,
+                        CREATED_BY = nl.CREATED_BY,
+                        CREATED_DATE = nl.CREATED_DATE,
+                        UPDATED_BY = nl.UPDATED_BY,
+                        UPDATED_DATE = nl.UPDATED_DATE,
+                        DELETED_BY = nl.DELETED_BY,
+                        DELETED_DATE = nl.DELETED_DATE
+                    }).ToList();
         }
 
         public TB_NANGLUONG_NHANVIEN Add(TB_NANGLUONG_NHANVIEN nl)

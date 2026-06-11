@@ -246,9 +246,9 @@ namespace QLyNSu
                 var hd = _hdld.getItem(_SOHD);
 
                 txtSoHD.Text = _SOHD;
-                dtNgayBatDau.Value = hd.NGAYBATDAU.Value;
-                dtNgayKetThuc.Value = hd.NGAYKETTHUC.Value ;
-                dtNgayKy.Value = hd.NGAYKY.Value;
+                dtNgayBatDau.Value = hd.NGAYBATDAU ?? DateTime.Now;
+                dtNgayKetThuc.Value = hd.NGAYKETTHUC ?? DateTime.Now;
+                dtNgayKy.Value = hd.NGAYKY ?? DateTime.Now;
                 cbThoiHan.Text = hd.THOIHAN;
                 spHeSoLuong.Text= hd.HESOLUONG.ToString();
                 spLuongThoaThuan.EditValue = hd.LUONG_THOA_THUAN ?? 0;

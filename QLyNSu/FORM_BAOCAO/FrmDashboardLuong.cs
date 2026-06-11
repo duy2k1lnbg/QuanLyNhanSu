@@ -8,6 +8,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 using Bu.DTO;
 
 namespace QLyNSu.FORM_BAOCAO
@@ -19,93 +20,98 @@ namespace QLyNSu.FORM_BAOCAO
             InitializeComponent();
         }
 
-        private void FrmDashboardLuong_Shown(object sender, EventArgs e)
+        private async void FrmDashboardLuong_Shown(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadDataAsync();
         }
 
-        private void LoadData()
+        private async Task LoadDataAsync()
         {
             try
             {
-                List<DashboardLuongDTO> dataLuong;
-                List<DashboardLuongBinhQuanDTO> dataLBP;
-                List<DashboardTangCaDTO> dataTC;
+                this.Cursor = Cursors.WaitCursor;
 
-                using (var db = new MyEntities())
+                List<DashboardLuongDTO> dataLuong = null;
+                List<DashboardLuongBinhQuanDTO> dataLBP = null;
+                List<DashboardTangCaDTO> dataTC = null;
+
+                await Task.Run(() =>
                 {
-                    // 1. Query 1: Get actual salary trend (last 6 months)
-                    var dataLuongRaw = db.TB_BANGLUONG
-                                         .Select(bl => new {
-                                             bl.MAKYCONG,
-                                             bl.THUC_LINH
+                    using (var db = new MyEntities())
+                    {
+                        // 1. Query 1: Get actual salary trend (last 6 months)
+                        var dataLuongRaw = db.TB_BANGLUONG
+                                             .Select(bl => new {
+                                                 bl.MAKYCONG,
+                                                 bl.THUC_LINH
+                                             })
+                                             .ToList()
+                                             .GroupBy(bl => bl.MAKYCONG)
+                                             .Select(g => new {
+                                                 KyCong = g.Key,
+                                                 TongLuong = g.Sum(x => x.THUC_LINH ?? 0)
+                                             })
+                                             .OrderByDescending(x => x.KyCong)
+                                             .Take(6)
+                                             .ToList();
+
+                        dataLuong = dataLuongRaw.Select(x => new DashboardLuongDTO {
+                                             KyCong = x.KyCong.ToString(),
+                                             TongLuong = (double)x.TongLuong
                                          })
-                                         .ToList()
-                                         .GroupBy(bl => bl.MAKYCONG)
-                                         .Select(g => new {
-                                             KyCong = g.Key,
-                                             TongLuong = g.Sum(x => x.THUC_LINH ?? 0)
-                                         })
-                                         .OrderByDescending(x => x.KyCong)
-                                         .Take(6)
+                                         .OrderBy(x => x.KyCong)
                                          .ToList();
 
-                    dataLuong = dataLuongRaw.Select(x => new DashboardLuongDTO {
-                                         KyCong = x.KyCong.ToString(),
-                                         TongLuong = (double)x.TongLuong
-                                     })
-                                     .OrderBy(x => x.KyCong)
-                                     .ToList();
+                        // 2. Query 2: Average wage by department
+                        var dataLBPRaw = (from bl in db.TB_BANGLUONG
+                                          join nv in db.TB_NHANVIEN on bl.MANV equals nv.MANV
+                                          join pb in db.TB_PHONGBAN on nv.IDPB equals pb.IDPB
+                                          select new {
+                                              TenPB = pb.TENPB,
+                                              ThucLinh = bl.THUC_LINH
+                                          })
+                                          .ToList()
+                                          .GroupBy(x => x.TenPB)
+                                          .Select(g => new {
+                                              PhongBan = g.Key,
+                                              LuongBinhQuan = g.Average(x => x.ThucLinh ?? 0)
+                                          })
+                                          .ToList();
 
-                    // 2. Query 2: Average wage by department
-                    var dataLBPRaw = (from bl in db.TB_BANGLUONG
-                                      join nv in db.TB_NHANVIEN on bl.MANV equals nv.MANV
-                                      join pb in db.TB_PHONGBAN on nv.IDPB equals pb.IDPB
-                                      select new {
-                                          TenPB = pb.TENPB,
-                                          ThucLinh = bl.THUC_LINH
+                        dataLBP = dataLBPRaw.Select(x => new DashboardLuongBinhQuanDTO {
+                                          PhongBan = x.PhongBan,
+                                          LuongBinhQuan = (double)x.LuongBinhQuan
+                                      }).ToList();
+
+                        // 3. Query 3: Overtime trend (last 6 months)
+                        var dataTCRaw = db.TB_TANGCA
+                                          .Select(tc => new {
+                                              tc.NAM,
+                                              tc.THANG,
+                                              tc.SOGIO
+                                          })
+                                          .ToList()
+                                          .Select(tc => new {
+                                              KyCongKey = (tc.NAM ?? 0) * 100 + (tc.THANG ?? 0),
+                                              Sogio = tc.SOGIO ?? 0
+                                          })
+                                          .GroupBy(tc => tc.KyCongKey)
+                                          .Select(g => new {
+                                              KyCong = g.Key,
+                                              TongGio = g.Sum(x => x.Sogio)
+                                          })
+                                          .OrderByDescending(x => x.KyCong)
+                                          .Take(6)
+                                          .ToList();
+
+                        dataTC = dataTCRaw.Select(x => new DashboardTangCaDTO {
+                                          KyCong = x.KyCong.ToString(),
+                                          TongGio = (double)x.TongGio
                                       })
-                                      .ToList()
-                                      .GroupBy(x => x.TenPB)
-                                      .Select(g => new {
-                                          PhongBan = g.Key,
-                                          LuongBinhQuan = g.Average(x => x.ThucLinh ?? 0)
-                                      })
+                                      .OrderBy(x => x.KyCong)
                                       .ToList();
-
-                    dataLBP = dataLBPRaw.Select(x => new DashboardLuongBinhQuanDTO {
-                                      PhongBan = x.PhongBan,
-                                      LuongBinhQuan = (double)x.LuongBinhQuan
-                                  }).ToList();
-
-                    // 3. Query 3: Overtime trend (last 6 months)
-                    var dataTCRaw = db.TB_TANGCA
-                                      .Select(tc => new {
-                                          tc.NAM,
-                                          tc.THANG,
-                                          tc.SOGIO
-                                      })
-                                      .ToList()
-                                      .Select(tc => new {
-                                          KyCongKey = (tc.NAM ?? 0) * 100 + (tc.THANG ?? 0),
-                                          Sogio = tc.SOGIO ?? 0
-                                      })
-                                      .GroupBy(tc => tc.KyCongKey)
-                                      .Select(g => new {
-                                          KyCong = g.Key,
-                                          TongGio = g.Sum(x => x.Sogio)
-                                      })
-                                      .OrderByDescending(x => x.KyCong)
-                                      .Take(6)
-                                      .ToList();
-
-                    dataTC = dataTCRaw.Select(x => new DashboardTangCaDTO {
-                                      KyCong = x.KyCong.ToString(),
-                                      TongGio = (double)x.TongGio
-                                  })
-                                  .OrderBy(x => x.KyCong)
-                                  .ToList();
-                }
+                    }
+                });
 
                 // Bind Chart 1: Xu hướng quỹ lương thực tế (6 tháng gần nhất)
                 chartLuong.Series.Clear();
@@ -178,6 +184,10 @@ namespace QLyNSu.FORM_BAOCAO
                     }
                 }
                 XtraMessageBox.Show("Lỗi tải dữ liệu phân tích lương: " + errMsg, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Default;
             }
         }
     }

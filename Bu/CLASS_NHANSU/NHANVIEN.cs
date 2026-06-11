@@ -24,70 +24,61 @@ namespace Bu
         }
         public List<NHANVIEN_DTO> getListFll_DTO() 
         { 
-            var lstNV = db.TB_NHANVIEN.ToList();
-            List<NHANVIEN_DTO > lstNvDTO = new List<NHANVIEN_DTO>();
-            NHANVIEN_DTO nvDTO;
-            foreach (var item in lstNV) 
-            {
-                nvDTO = new NHANVIEN_DTO();
-                nvDTO.MANV = item.MANV;
-                nvDTO.HOTEN = item.HOTEN;
-                nvDTO.IDGT = item.IDGT;
-                nvDTO.CCCD = item.CCCD;
-                nvDTO.NGAYSINH = item.NGAYSINH;
-                nvDTO.DIENTHOAI = item.DIENTHOAI;
-                nvDTO.DIACHI = item.DIACHI;
-                nvDTO.HINHANH = item.HINHANH;
-                nvDTO.DATHOIVIEC = item.DATHOIVIEC;
-
-                nvDTO.IDTD = item.IDTD;
-                var td = db.TB_TRINHDO.FirstOrDefault(a => a.IDTD == item.IDTD);
-                nvDTO.TENTD = td?.TENTD;
-
-                nvDTO.IDBP = item.IDBP;
-                var bp = db.TB_BOPHAN.FirstOrDefault( b=> b.IDBP == item.IDBP);
-                nvDTO.TENBP = bp?.TENBP;
-
-                nvDTO.IDPB = item.IDPB;
-                var pb = db.TB_PHONGBAN.FirstOrDefault(c => c.IDPB == item.IDPB);
-                nvDTO.TENPB = pb?.TENPB;
-
-                nvDTO.IDDT = item.IDDT;
-                var dt = db.TB_DANTOC.FirstOrDefault(e => e.IDDT == item.IDDT);
-                nvDTO.TENDT = dt?.TENDT;
-
-                nvDTO.IDCTY = item.IDCTY;
-                var cty = db.TB_CONGTY.FirstOrDefault(f => f.IDCTY == item.IDCTY);
-                nvDTO.TENCTY = cty?.TENCTY;
-
-                nvDTO.IDCV = item.IDCV;
-                var cv = db.TB_CHUCVU.FirstOrDefault(g => g.IDCV == item.IDCV);
-                nvDTO.TENCV = cv?.TENCV;
-
-                nvDTO.IDTG = item.IDTG;
-                var tg = db.TB_TONGIAO.FirstOrDefault(h => h.IDTG == item.IDTG);
-                nvDTO.TENTG = tg?.TENTG;
-
-                nvDTO.IDGT = item.IDGT;
-                var gt = db.TB_GIOITINH.FirstOrDefault(i => i.IDGT == item.IDGT);
-                nvDTO.TENGT = gt?.TENGT;
-
-                nvDTO.IDQT = item.IDQT;
-                var qt = db.TB_QUOCTICH.FirstOrDefault(k => k.IDQT == item.IDQT);
-                nvDTO.TENQT = qt?.TENQT;
-
-                nvDTO.CREATED_BY = item.CREATED_BY;
-                nvDTO.CREATED_DATE = item.CREATED_DATE;
-                nvDTO.UPDATED_BY = item.UPDATED_BY;
-                nvDTO.UPDATED_DATE = item.UPDATED_DATE;
-                nvDTO.DELETED_BY = item.DELETED_BY;
-                nvDTO.DELETED_DATE = item.DELETED_DATE;
-                nvDTO.LOAI_NV = item.LOAI_NV;
-
-                lstNvDTO.Add(nvDTO);
-
-            }
-            return lstNvDTO;
+            return (from nv in db.TB_NHANVIEN
+                    join td in db.TB_TRINHDO on nv.IDTD equals td.IDTD into tdGroup
+                    from td in tdGroup.DefaultIfEmpty()
+                    join bp in db.TB_BOPHAN on nv.IDBP equals bp.IDBP into bpGroup
+                    from bp in bpGroup.DefaultIfEmpty()
+                    join pb in db.TB_PHONGBAN on nv.IDPB equals pb.IDPB into pbGroup
+                    from pb in pbGroup.DefaultIfEmpty()
+                    join dt in db.TB_DANTOC on nv.IDDT equals dt.IDDT into dtGroup
+                    from dt in dtGroup.DefaultIfEmpty()
+                    join cty in db.TB_CONGTY on nv.IDCTY equals cty.IDCTY into ctyGroup
+                    from cty in ctyGroup.DefaultIfEmpty()
+                    join cv in db.TB_CHUCVU on nv.IDCV equals cv.IDCV into cvGroup
+                    from cv in cvGroup.DefaultIfEmpty()
+                    join tg in db.TB_TONGIAO on nv.IDTG equals tg.IDTG into tgGroup
+                    from tg in tgGroup.DefaultIfEmpty()
+                    join gt in db.TB_GIOITINH on nv.IDGT equals gt.IDGT into gtGroup
+                    from gt in gtGroup.DefaultIfEmpty()
+                    join qt in db.TB_QUOCTICH on nv.IDQT equals qt.IDQT into qtGroup
+                    from qt in qtGroup.DefaultIfEmpty()
+                    select new NHANVIEN_DTO
+                    {
+                        MANV = nv.MANV,
+                        HOTEN = nv.HOTEN,
+                        IDGT = nv.IDGT,
+                        CCCD = nv.CCCD,
+                        NGAYSINH = nv.NGAYSINH,
+                        DIENTHOAI = nv.DIENTHOAI,
+                        DIACHI = nv.DIACHI,
+                        HINHANH = nv.HINHANH,
+                        DATHOIVIEC = nv.DATHOIVIEC,
+                        IDTD = nv.IDTD,
+                        TENTD = td != null ? td.TENTD : null,
+                        IDBP = nv.IDBP,
+                        TENBP = bp != null ? bp.TENBP : null,
+                        IDPB = nv.IDPB,
+                        TENPB = pb != null ? pb.TENPB : null,
+                        IDDT = nv.IDDT,
+                        TENDT = dt != null ? dt.TENDT : null,
+                        IDCTY = nv.IDCTY,
+                        TENCTY = cty != null ? cty.TENCTY : null,
+                        IDCV = nv.IDCV,
+                        TENCV = cv != null ? cv.TENCV : null,
+                        IDTG = nv.IDTG,
+                        TENTG = tg != null ? tg.TENTG : null,
+                        TENGT = gt != null ? gt.TENGT : null,
+                        IDQT = nv.IDQT,
+                        TENQT = qt != null ? qt.TENQT : null,
+                        CREATED_BY = nv.CREATED_BY,
+                        CREATED_DATE = nv.CREATED_DATE,
+                        UPDATED_BY = nv.UPDATED_BY,
+                        UPDATED_DATE = nv.UPDATED_DATE,
+                        DELETED_BY = nv.DELETED_BY,
+                        DELETED_DATE = nv.DELETED_DATE,
+                        LOAI_NV = nv.LOAI_NV
+                    }).ToList();
         }
 
         public TB_NHANVIEN Add(TB_NHANVIEN nv)

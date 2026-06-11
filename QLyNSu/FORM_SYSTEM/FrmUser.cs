@@ -41,13 +41,30 @@ namespace QLyNSu.FORM_SYSTEM
                 txtUsername.Enabled = false; // Cannot edit username
                 txtFullName.Text = _selectedUser.FULLNAME;
                 chkDisabled.Checked = _selectedUser.DISABLED == 1;
+                chkDisabled.Enabled = !_selectedUser.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && 
+                                      !_selectedUser.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase) && 
+                                      UserSession.HasRight("F_SYSTEM_LOCK_USER");
                 txtPassword.Properties.NullValuePrompt = "Để trống nếu không muốn đổi mật khẩu";
                 txtPassword.Properties.NullValuePromptShowForEmptyValue = true;
+
+                // If editing own account, hide password fields and shift layout up
+                if (_selectedUser.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase))
+                {
+                    labelControl3.Visible = false;
+                    lblPasswordRequired.Visible = false;
+                    txtPassword.Visible = false;
+
+                    chkDisabled.Location = new Point(chkDisabled.Location.X, chkDisabled.Location.Y - 50);
+                    btnLuu.Location = new Point(btnLuu.Location.X, btnLuu.Location.Y - 50);
+                    btnDong.Location = new Point(btnDong.Location.X, btnDong.Location.Y - 50);
+                    this.Height -= 50;
+                }
             }
             else
             {
                 this.Text = "Thêm người dùng mới";
                 lblPasswordRequired.Visible = true;
+                chkDisabled.Enabled = UserSession.HasRight("F_SYSTEM_LOCK_USER");
             }
         }
 
@@ -94,6 +111,12 @@ namespace QLyNSu.FORM_SYSTEM
                     return;
                 }
 
+                if (chkDisabled.Checked && !UserSession.HasRight("F_SYSTEM_LOCK_USER"))
+                {
+                    MessageBox.Show("Bạn không có quyền tạo tài khoản ở trạng thái khóa.", "Lỗi phân quyền", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 var newUser = new TB_SYS_USER
                 {
                     USERNAME = username,
@@ -110,10 +133,42 @@ namespace QLyNSu.FORM_SYSTEM
             }
             else
             {
+                if (_selectedUser.DISABLED != (chkDisabled.Checked ? 1 : 0))
+                {
+                    if (!UserSession.HasRight("F_SYSTEM_LOCK_USER"))
+                    {
+                        MessageBox.Show("Bạn không có quyền thay đổi trạng thái khóa tài khoản.", "Lỗi phân quyền", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    if (_selectedUser.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase))
+                    {
+                        MessageBox.Show("Bạn không thể tự khóa tài khoản của chính mình.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                if (_selectedUser.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && chkDisabled.Checked)
+                {
+                    MessageBox.Show("Không thể khóa tài khoản Quản trị hệ thống (ADMIN).", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Log audit action if status changed
+                if (_selectedUser.DISABLED != (chkDisabled.Checked ? 1 : 0))
+                {
+                    string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
+                    try
+                    {
+                        string action = chkDisabled.Checked ? "LOCKED" : "UNLOCKED";
+                        System.IO.File.AppendAllText(logPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - AUDIT: USER [{UserSession.CurrentUser?.USERNAME}] {action} account [{_selectedUser.USERNAME}]\r\n");
+                    }
+                    catch { }
+                }
+
                 _selectedUser.FULLNAME = fullname;
                 _selectedUser.DISABLED = chkDisabled.Checked ? 1 : 0;
                 
-                if (!string.IsNullOrEmpty(password))
+                if (!string.IsNullOrEmpty(password) && !_selectedUser.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase))
                 {
                     _selectedUser.PASSWORD = PasswordHasher.HashPassword(password);
                 }

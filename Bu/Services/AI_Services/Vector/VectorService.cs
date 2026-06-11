@@ -35,10 +35,25 @@ namespace Bu.Services.AI_Services
         private static bool _isOllamaActive = true;
         private static DateTime _lastOllamaFailureTime = DateTime.MinValue;
         private static readonly object _circuitLock = new object();
+        private static readonly Dictionary<string, float[]> _embedCache = new Dictionary<string, float[]>();
 
         private float[] Embed(string text)
         {
+            if (string.IsNullOrWhiteSpace(text)) return new float[DIM];
+
+            // 1. Kiểm tra cache
+            lock (_embedCache)
+            {
+                if (_embedCache.TryGetValue(text, out var cachedVec))
+                {
+                    return cachedVec;
+                }
+            }
+
+            float[] vec = null;
+
             // Kiểm tra Circuit Breaker (Bộ ngắt mạch) để tránh dồn ứ request khi Ollama lỗi
+            bool checkOllama = true;
             lock (_circuitLock)
             {
                 if (!_isOllamaActive)
@@ -51,38 +66,54 @@ namespace Bu.Services.AI_Services
                     }
                     else
                     {
-                        return EmbedFeatureHashing(text);
+                        checkOllama = false;
                     }
                 }
             }
 
-            try
+            if (checkOllama)
             {
-                using (var cts = new System.Threading.CancellationTokenSource(1200))
+                try
                 {
-                    var task = _llm.GetEmbedding(text, cts.Token);
-                    // Đợi tối đa 1.2s kết hợp cancellation token
-                    if (task.Wait(1200, cts.Token))
+                    using (var cts = new System.Threading.CancellationTokenSource(1200))
                     {
-                        var vec = task.Result;
-                        if (vec != null) return vec;
+                        var task = _llm.GetEmbedding(text, cts.Token);
+                        // Đợi tối đa 1.2s kết hợp cancellation token
+                        if (task.Wait(1200, cts.Token))
+                        {
+                            vec = task.Result;
+                        }
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Embed Ollama Timeout/Error]: {ex.Message}");
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[Embed Ollama Timeout/Error]: {ex.Message}");
+                }
+
+                if (vec != null)
+                {
+                    lock (_embedCache)
+                    {
+                        _embedCache[text] = vec;
+                    }
+                    return vec;
+                }
+
+                // Nếu đi đến đây tức là bị lỗi kết nối hoặc timeout (1.2s)
+                lock (_circuitLock)
+                {
+                    _isOllamaActive = false;
+                    _lastOllamaFailureTime = DateTime.UtcNow;
+                    System.Diagnostics.Debug.WriteLine("[VectorDB Circuit Breaker]: Ollama offline/timeout, tripping circuit breaker to use Hashing fallback.");
+                }
             }
 
-            // Nếu đi đến đây tức là bị lỗi kết nối hoặc timeout (1.2s)
-            lock (_circuitLock)
+            vec = EmbedFeatureHashing(text);
+            lock (_embedCache)
             {
-                _isOllamaActive = false;
-                _lastOllamaFailureTime = DateTime.UtcNow;
-                System.Diagnostics.Debug.WriteLine("[VectorDB Circuit Breaker]: Ollama offline/timeout, tripping circuit breaker to use Hashing fallback.");
+                _embedCache[text] = vec;
             }
-
-            return EmbedFeatureHashing(text);
+            return vec;
         }
 
         private float[] EmbedFeatureHashing(string text)

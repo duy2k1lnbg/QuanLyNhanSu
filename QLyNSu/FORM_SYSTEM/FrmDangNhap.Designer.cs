@@ -21,6 +21,7 @@ namespace QLyNSu.FORM_SYSTEM
         private TextEdit txtMatKhau;
         private SimpleButton btnShowPassword;
         private CheckEdit chkRememberMe;
+        private CheckEdit chkShowPassword;
         private LabelControl lblThongBao;
         private SimpleButton btnDangNhap;
         private SimpleButton btnThoat;
@@ -49,6 +50,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.txtMatKhau = new DevExpress.XtraEditors.TextEdit();
             this.btnShowPassword = new DevExpress.XtraEditors.SimpleButton();
             this.chkRememberMe = new DevExpress.XtraEditors.CheckEdit();
+            this.chkShowPassword = new DevExpress.XtraEditors.CheckEdit();
             this.lblThongBao = new DevExpress.XtraEditors.LabelControl();
             this.btnDangNhap = new DevExpress.XtraEditors.SimpleButton();
             this.btnThoat = new DevExpress.XtraEditors.SimpleButton();
@@ -57,6 +59,7 @@ namespace QLyNSu.FORM_SYSTEM
             ((System.ComponentModel.ISupportInitialize)(this.txtTenDangNhap.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtMatKhau.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkRememberMe.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkShowPassword.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // panelLeft
@@ -131,6 +134,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.panelRight.Controls.Add(this.txtMatKhau);
             this.panelRight.Controls.Add(this.btnShowPassword);
             this.panelRight.Controls.Add(this.chkRememberMe);
+            this.panelRight.Controls.Add(this.chkShowPassword);
             this.panelRight.Controls.Add(this.lblThongBao);
             this.panelRight.Controls.Add(this.btnDangNhap);
             this.panelRight.Controls.Add(this.btnThoat);
@@ -200,6 +204,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.txtMatKhau.Properties.PasswordChar = '●';
             this.txtMatKhau.Size = new System.Drawing.Size(360, 32);
             this.txtMatKhau.TabIndex = 3;
+            this.txtMatKhau.EditValueChanged += new System.EventHandler(this.txtMatKhau_EditValueChanged);
             // 
             // btnShowPassword
             // 
@@ -228,6 +233,17 @@ namespace QLyNSu.FORM_SYSTEM
             this.chkRememberMe.Properties.Caption = "Ghi nhớ đăng nhập";
             this.chkRememberMe.Size = new System.Drawing.Size(180, 24);
             this.chkRememberMe.TabIndex = 5;
+            // 
+            // chkShowPassword
+            // 
+            this.chkShowPassword.Location = new System.Drawing.Point(245, 268);
+            this.chkShowPassword.Name = "chkShowPassword";
+            this.chkShowPassword.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.chkShowPassword.Properties.Appearance.Options.UseFont = true;
+            this.chkShowPassword.Properties.Caption = "Hiển thị mật khẩu";
+            this.chkShowPassword.Size = new System.Drawing.Size(165, 24);
+            this.chkShowPassword.TabIndex = 6;
+            this.chkShowPassword.CheckedChanged += new System.EventHandler(this.ChkShowPassword_CheckedChanged);
             // 
             // lblThongBao
             // 
@@ -294,6 +310,7 @@ namespace QLyNSu.FORM_SYSTEM
             ((System.ComponentModel.ISupportInitialize)(this.txtTenDangNhap.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtMatKhau.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkRememberMe.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkShowPassword.Properties)).EndInit();
             this.ResumeLayout(false);
 
         }

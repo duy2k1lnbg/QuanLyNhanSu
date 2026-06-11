@@ -1,4 +1,4 @@
-﻿using Bu.DTO;
+using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -24,38 +24,32 @@ namespace Bu
 
         public List<DIEUCHUYEN_NHANVIEN_DTO> getListFull()
         {
-            var lstDC = db.TB_DIEUCHUYEN_NHANVIEN.ToList();
-            List<DIEUCHUYEN_NHANVIEN_DTO> lstDTO = new List<DIEUCHUYEN_NHANVIEN_DTO>();
-            DIEUCHUYEN_NHANVIEN_DTO nvDTO;
-            foreach (var item in lstDC)
-            { 
-                nvDTO = new DIEUCHUYEN_NHANVIEN_DTO();
-                nvDTO.SOQDDIEUCHUYEN = item.SOQDDIEUCHUYEN;
-
-                nvDTO.MANV = item.MANV;
-                var nv = db.TB_NHANVIEN.FirstOrDefault(a => a.MANV == item.MANV);
-                nvDTO.HOTEN = nv.HOTEN;
-
-                nvDTO.MAPB = item.MAPB;
-                var pb = db.TB_PHONGBAN.FirstOrDefault(b => b.IDPB == item.MAPB);
-                nvDTO.TENPB = pb.TENPB;
-
-                nvDTO.MAPB2 = item.MAPB2;
-                var pb2 = db.TB_PHONGBAN.FirstOrDefault(c => c.IDPB == item.MAPB2);
-                nvDTO.TENPB2 = pb2.TENPB;
-
-                nvDTO.NGAYDC = item.NGAYDC;
-                nvDTO.LYDODC = item.LYDODC;
-                nvDTO.GHICHU = item.GHICHU;
-                nvDTO.CREATED_BY = item.CREATED_BY;
-                nvDTO.CREATED_DATE = item.CREATED_DATE;
-                nvDTO.UPDATED_BY = item.UPDATED_BY;
-                nvDTO.CREATED_DATE = item.CREATED_DATE;
-                nvDTO.DELETED_BY = item.DELETED_BY;
-                nvDTO.DELETED_DATE = item.DELETED_DATE;
-                lstDTO.Add(nvDTO);
-            }
-            return lstDTO;
+            return (from dc in db.TB_DIEUCHUYEN_NHANVIEN
+                    join nv in db.TB_NHANVIEN on dc.MANV equals nv.MANV into nvGroup
+                    from nv in nvGroup.DefaultIfEmpty()
+                    join pb1 in db.TB_PHONGBAN on dc.MAPB equals pb1.IDPB into pb1Group
+                    from pb1 in pb1Group.DefaultIfEmpty()
+                    join pb2 in db.TB_PHONGBAN on dc.MAPB2 equals pb2.IDPB into pb2Group
+                    from pb2 in pb2Group.DefaultIfEmpty()
+                    select new DIEUCHUYEN_NHANVIEN_DTO
+                    {
+                        SOQDDIEUCHUYEN = dc.SOQDDIEUCHUYEN,
+                        NGAYDC = dc.NGAYDC,
+                        MANV = dc.MANV,
+                        MAPB = dc.MAPB,
+                        MAPB2 = dc.MAPB2,
+                        LYDODC = dc.LYDODC,
+                        GHICHU = dc.GHICHU,
+                        CREATED_BY = dc.CREATED_BY,
+                        CREATED_DATE = dc.CREATED_DATE,
+                        UPDATED_BY = dc.UPDATED_BY,
+                        UPDATED_DATE = dc.UPDATED_DATE,
+                        DELETED_BY = dc.DELETED_BY,
+                        DELETED_DATE = dc.DELETED_DATE,
+                        HOTEN = nv != null ? nv.HOTEN : null,
+                        TENPB = pb1 != null ? pb1.TENPB : null,
+                        TENPB2 = pb2 != null ? pb2.TENPB : null
+                    }).ToList();
         }
 
         public TB_DIEUCHUYEN_NHANVIEN Add(TB_DIEUCHUYEN_NHANVIEN dc)

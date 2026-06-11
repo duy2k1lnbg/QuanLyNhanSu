@@ -276,6 +276,7 @@ namespace QLyNSu.FORM_SYSTEM
             cboTaiKhoan.Properties.Appearance.Options.UseFont = true;
             cboTaiKhoan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("USERNAME", "Tên đăng nhập"));
             cboTaiKhoan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("FULLNAME", "Họ và tên"));
+            cboTaiKhoan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TRANGTHAI", "Trạng thái"));
             cboTaiKhoan.Properties.DisplayMember = "USERNAME";
             cboTaiKhoan.Properties.ValueMember = "IDUSER";
             cboTaiKhoan.Properties.NullText = "-- Chọn tài khoản để xem/sửa --";
@@ -307,11 +308,18 @@ namespace QLyNSu.FORM_SYSTEM
         {
             loadAccounts();
             btnNewAccount_Click(null, null);
+            chkDisabled.Enabled = UserSession.HasRight("F_SYSTEM_LOCK_USER");
         }
 
         private void loadAccounts()
         {
-            var accounts = db.TB_SYS_USER.Where(x => (x.ISGROUP ?? 0) == 0).ToList();
+            var accounts = db.TB_SYS_USER.Where(x => (x.ISGROUP ?? 0) == 0)
+                .Select(x => new {
+                    x.IDUSER,
+                    x.USERNAME,
+                    x.FULLNAME,
+                    TRANGTHAI = x.DISABLED == 1 ? "Đã khóa" : "Hoạt động"
+                }).ToList();
             cboTaiKhoan.Properties.DataSource = accounts;
         }
 
@@ -330,6 +338,9 @@ namespace QLyNSu.FORM_SYSTEM
                     txtPassword.Text = string.Empty; // Don't show password hashes
                     txtPassword.Properties.NullValuePrompt = "Để trống nếu không muốn đổi mật khẩu";
                     chkDisabled.Checked = _user.DISABLED == 1;
+                    chkDisabled.Enabled = !_user.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && 
+                                          !_user.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase) && 
+                                          UserSession.HasRight("F_SYSTEM_LOCK_USER");
                     
                     tapNhomCuaUser.PageEnabled = true;
                     btnXoaTK.Enabled = true;
@@ -349,6 +360,7 @@ namespace QLyNSu.FORM_SYSTEM
             txtPassword.Text = string.Empty;
             txtPassword.Properties.NullValuePrompt = "Nhập mật khẩu cho tài khoản mới";
             chkDisabled.Checked = false;
+            chkDisabled.Enabled = UserSession.HasRight("F_SYSTEM_LOCK_USER");
             
             tapNhomCuaUser.PageEnabled = false;
             btnXoaTK.Enabled = false;
@@ -411,6 +423,12 @@ namespace QLyNSu.FORM_SYSTEM
                     return;
                 }
 
+                if (chkDisabled.Checked && !UserSession.HasRight("F_SYSTEM_LOCK_USER"))
+                {
+                    MessageBox.Show("Bạn không có quyền tạo tài khoản ở trạng thái khóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
                 _user = new TB_SYS_USER
                 {
                     USERNAME = username,
@@ -438,6 +456,38 @@ namespace QLyNSu.FORM_SYSTEM
             }
             else
             {
+                if (_user.DISABLED != (chkDisabled.Checked ? 1 : 0))
+                {
+                    if (!UserSession.HasRight("F_SYSTEM_LOCK_USER"))
+                    {
+                        MessageBox.Show("Bạn không có quyền thay đổi trạng thái khóa tài khoản.", "Lỗi phân quyền", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    if (_user.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase))
+                    {
+                        MessageBox.Show("Bạn không thể tự khóa tài khoản của chính mình.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                }
+
+                if (_user.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && chkDisabled.Checked)
+                {
+                    MessageBox.Show("Không thể khóa tài khoản Quản trị hệ thống (ADMIN).", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+
+                // Log audit action if status changed
+                if (_user.DISABLED != (chkDisabled.Checked ? 1 : 0))
+                {
+                    string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
+                    try
+                    {
+                        string action = chkDisabled.Checked ? "LOCKED" : "UNLOCKED";
+                        System.IO.File.AppendAllText(logPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - AUDIT: USER [{UserSession.CurrentUser?.USERNAME}] {action} account [{_user.USERNAME}]\r\n");
+                    }
+                    catch { }
+                }
+
                 _user.FULLNAME = fullname;
                 _user.DISABLED = chkDisabled.Checked ? 1 : 0;
                 
@@ -459,6 +509,12 @@ namespace QLyNSu.FORM_SYSTEM
         private void btnXoaTK_Click(object sender, EventArgs e)
         {
             if (_user == null || _them) return;
+
+            if (_user.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase))
+            {
+                MessageBox.Show("Bạn không thể tự xóa tài khoản của chính mình.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
             if (_user.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
             {
@@ -495,6 +551,14 @@ namespace QLyNSu.FORM_SYSTEM
                     db.SaveChanges();
                     MessageBox.Show("Xóa tài khoản thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     _dataSaved = true;
+
+                    // Log audit action for delete
+                    string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
+                    try
+                    {
+                        System.IO.File.AppendAllText(logPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - AUDIT: USER [{UserSession.CurrentUser?.USERNAME}] DELETED account [{_user.USERNAME}]\r\n");
+                    }
+                    catch { }
 
                     btnNewAccount_Click(null, null);
                     loadAccounts();
