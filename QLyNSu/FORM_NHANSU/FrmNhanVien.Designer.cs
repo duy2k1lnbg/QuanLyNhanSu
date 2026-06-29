@@ -31,10 +31,9 @@ namespace QLyNSu
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmNhanVien));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.cboLoaiNV = new System.Windows.Forms.ComboBox();
-            this.labelControl15 = new DevExpress.XtraEditors.LabelControl();
-            this.LOAI_NV = new DevExpress.XtraGrid.Columns.GridColumn();
             this.cboCongTy = new System.Windows.Forms.ComboBox();
+            this.cboLoaiNV = new System.Windows.Forms.ComboBox();
+            this.lblLoaiNV = new DevExpress.XtraEditors.LabelControl();
             this.labelControl14 = new DevExpress.XtraEditors.LabelControl();
             this.cboQuocTich = new System.Windows.Forms.ComboBox();
             this.labelControl13 = new DevExpress.XtraEditors.LabelControl();
@@ -59,7 +58,7 @@ namespace QLyNSu
             this.txtDiaChi = new System.Windows.Forms.TextBox();
             this.labelControl4 = new DevExpress.XtraEditors.LabelControl();
             this.txtCCCD = new System.Windows.Forms.TextBox();
-            this.labelControl3 = new DevExpress.XtraEditors.LabelControl();
+            this.lblCCCD = new DevExpress.XtraEditors.LabelControl();
             this.txtSDT = new System.Windows.Forms.TextBox();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             this.txtHoTen = new System.Windows.Forms.TextBox();
@@ -67,6 +66,7 @@ namespace QLyNSu
             this.gcDsNV = new DevExpress.XtraGrid.GridControl();
             this.gvDsNV = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.MANV = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.LOAI_NV = new DevExpress.XtraGrid.Columns.GridColumn();
             this.HOTEN = new DevExpress.XtraGrid.Columns.GridColumn();
             this.IDGT = new DevExpress.XtraGrid.Columns.GridColumn();
             this.TENGT = new DevExpress.XtraGrid.Columns.GridColumn();
@@ -125,7 +125,7 @@ namespace QLyNSu
             // 
             this.splitContainer1.Panel1.Controls.Add(this.cboCongTy);
             this.splitContainer1.Panel1.Controls.Add(this.cboLoaiNV);
-            this.splitContainer1.Panel1.Controls.Add(this.labelControl15);
+            this.splitContainer1.Panel1.Controls.Add(this.lblLoaiNV);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl14);
             this.splitContainer1.Panel1.Controls.Add(this.cboQuocTich);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl13);
@@ -150,7 +150,7 @@ namespace QLyNSu
             this.splitContainer1.Panel1.Controls.Add(this.txtDiaChi);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl4);
             this.splitContainer1.Panel1.Controls.Add(this.txtCCCD);
-            this.splitContainer1.Panel1.Controls.Add(this.labelControl3);
+            this.splitContainer1.Panel1.Controls.Add(this.lblCCCD);
             this.splitContainer1.Panel1.Controls.Add(this.txtSDT);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl2);
             this.splitContainer1.Panel1.Controls.Add(this.txtHoTen);
@@ -182,15 +182,15 @@ namespace QLyNSu
             this.cboLoaiNV.Size = new System.Drawing.Size(304, 33);
             this.cboLoaiNV.TabIndex = 34;
             // 
-            // labelControl15
+            // lblLoaiNV
             // 
-            this.labelControl15.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl15.Appearance.Options.UseFont = true;
-            this.labelControl15.Location = new System.Drawing.Point(820, 284);
-            this.labelControl15.Name = "labelControl15";
-            this.labelControl15.Size = new System.Drawing.Size(134, 25);
-            this.labelControl15.TabIndex = 33;
-            this.labelControl15.Text = "Loại nhân sự:";
+            this.lblLoaiNV.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblLoaiNV.Appearance.Options.UseFont = true;
+            this.lblLoaiNV.Location = new System.Drawing.Point(820, 284);
+            this.lblLoaiNV.Name = "lblLoaiNV";
+            this.lblLoaiNV.Size = new System.Drawing.Size(131, 25);
+            this.lblLoaiNV.TabIndex = 33;
+            this.lblLoaiNV.Text = "Loại nhân sự:";
             // 
             // labelControl14
             // 
@@ -430,15 +430,15 @@ namespace QLyNSu
             this.txtCCCD.Size = new System.Drawing.Size(380, 33);
             this.txtCCCD.TabIndex = 3;
             // 
-            // labelControl3
+            // lblCCCD
             // 
-            this.labelControl3.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelControl3.Appearance.Options.UseFont = true;
-            this.labelControl3.Location = new System.Drawing.Point(277, 220);
-            this.labelControl3.Name = "labelControl3";
-            this.labelControl3.Size = new System.Drawing.Size(71, 25);
-            this.labelControl3.TabIndex = 2;
-            this.labelControl3.Text = "CCCD:";
+            this.lblCCCD.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblCCCD.Appearance.Options.UseFont = true;
+            this.lblCCCD.Location = new System.Drawing.Point(277, 220);
+            this.lblCCCD.Name = "lblCCCD";
+            this.lblCCCD.Size = new System.Drawing.Size(71, 25);
+            this.lblCCCD.TabIndex = 2;
+            this.lblCCCD.Text = "CCCD:";
             // 
             // txtSDT
             // 
@@ -534,6 +534,18 @@ namespace QLyNSu
             this.MANV.Visible = true;
             this.MANV.VisibleIndex = 1;
             this.MANV.Width = 94;
+            // 
+            // LOAI_NV
+            // 
+            this.LOAI_NV.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.LOAI_NV.AppearanceHeader.Options.UseFont = true;
+            this.LOAI_NV.Caption = "LOẠI NV";
+            this.LOAI_NV.FieldName = "LOAI_NV";
+            this.LOAI_NV.MinWidth = 25;
+            this.LOAI_NV.Name = "LOAI_NV";
+            this.LOAI_NV.Visible = true;
+            this.LOAI_NV.VisibleIndex = 16;
+            this.LOAI_NV.Width = 94;
             // 
             // HOTEN
             // 
@@ -785,18 +797,6 @@ namespace QLyNSu
             this.DELETED_BY.VisibleIndex = 0;
             this.DELETED_BY.Width = 30;
             // 
-            // LOAI_NV
-            // 
-            this.LOAI_NV.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
-            this.LOAI_NV.AppearanceHeader.Options.UseFont = true;
-            this.LOAI_NV.Caption = "LOẠI NV";
-            this.LOAI_NV.FieldName = "LOAI_NV";
-            this.LOAI_NV.MinWidth = 25;
-            this.LOAI_NV.Name = "LOAI_NV";
-            this.LOAI_NV.Visible = true;
-            this.LOAI_NV.VisibleIndex = 16;
-            this.LOAI_NV.Width = 94;
-            // 
             // barManager1
             // 
             this.barManager1.Bars.AddRange(new DevExpress.XtraBars.Bar[] {
@@ -996,7 +996,7 @@ namespace QLyNSu
         private System.Windows.Forms.TextBox txtDiaChi;
         private DevExpress.XtraEditors.LabelControl labelControl4;
         private System.Windows.Forms.TextBox txtCCCD;
-        private DevExpress.XtraEditors.LabelControl labelControl3;
+        private DevExpress.XtraEditors.LabelControl lblCCCD;
         private System.Windows.Forms.TextBox txtSDT;
         private DevExpress.XtraEditors.LabelControl labelControl2;
         private System.Windows.Forms.PictureBox pictureHinhanh;
@@ -1041,7 +1041,7 @@ namespace QLyNSu
         private DevExpress.XtraGrid.Columns.GridColumn TENQT;
         private System.Windows.Forms.ComboBox cboCongTy;
         private System.Windows.Forms.ComboBox cboLoaiNV;
-        private DevExpress.XtraEditors.LabelControl labelControl15;
+        private DevExpress.XtraEditors.LabelControl lblLoaiNV;
         private DevExpress.XtraGrid.Columns.GridColumn LOAI_NV;
         private DevExpress.XtraEditors.LabelControl labelControl14;
         private DevExpress.XtraGrid.Columns.GridColumn DELETED_BY;

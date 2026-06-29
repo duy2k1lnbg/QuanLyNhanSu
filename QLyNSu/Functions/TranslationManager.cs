@@ -142,6 +142,17 @@ namespace QLyNSu.Functions
         private static readonly Dictionary<string, (string English, string Japanese, string Chinese, string Korean)> _dictionary = 
             new Dictionary<string, (string, string, string, string)>(StringComparer.OrdinalIgnoreCase)
         {
+            { "CCCD:", ("Citizen ID:", "国民ID:", "身份证:", "주민등록번호:") },
+            { "Loại nhân sự:", ("Employee Type:", "従業員タイプ:", "员工类型:", "직원 유형:") },
+            { "HRM SYSTEM", ("HRM SYSTEM", "人事管理システム", "人力资源管理系统", "인사 관리 시스템") },
+            { "Enterprise Management Platform", ("Enterprise Management Platform", "企業管理プラットフォーム", "企业管理平台", "기업 관리 플랫폼") },
+            { "⚡   Local AI Assistant Integrated\r\n⚡   Oracle 19c Enterprise DB\r\n⚡    High-Security Architecture", ("⚡   Local AI Assistant Integrated\r\n⚡   Oracle 19c Enterprise DB\r\n⚡    High-Security Architecture", "⚡   ローカルAIアシスタント統合\r\n⚡   Oracle 19c エンタープライズDB\r\n⚡    高セキュリティアーキテクチャ", "⚡   集成人工智能助手\r\n⚡   Oracle 19c 企业级数据库\r\n⚡    高安全性架构", "⚡   로컬 AI 어시스턴트 통합\r\n⚡   Oracle 19c 엔터프라이즈 DB\r\n⚡    고보안 아키텍처") },
+            { "Nhân viên (Office)", ("Office Worker", "オフィスワーカー", "办公室职员", "사무직") },
+            { "Lái xe (Driver)", ("Driver", "運転手", "司机", "운전기사") },
+            { "Công nhân (Worker)", ("Worker", "作業員", "工人", "근로자") },
+            { "Nam", ("Male", "男性", "男", "남성") },
+            { "Nữ", ("Female", "女性", "女", "여성") },
+
             // Main menu tabs
             { "Hệ Thống", ("System", "システム", "系统", "시스템") },
             { "Nhân Sự", ("HR", "人事", "人事", "인사") },
@@ -341,10 +352,13 @@ namespace QLyNSu.Functions
 
                         foreach (var r in group)
                         {
-                            if (r.LANGUAGE_CODE != null && r.LANGUAGE_CODE.ToUpper() == "EN") en = r.VALUE;
-                            if (r.LANGUAGE_CODE != null && r.LANGUAGE_CODE.ToUpper() == "JA") ja = r.VALUE;
-                            if (r.LANGUAGE_CODE != null && r.LANGUAGE_CODE.ToUpper() == "ZH") zh = r.VALUE;
-                            if (r.LANGUAGE_CODE != null && r.LANGUAGE_CODE.ToUpper() == "KO") ko = r.VALUE;
+                            if (r.LANGUAGE_CODE != null && !string.IsNullOrWhiteSpace(r.VALUE) && r.VALUE != viText)
+                            {
+                                if (r.LANGUAGE_CODE.ToUpper() == "EN") en = r.VALUE;
+                                else if (r.LANGUAGE_CODE.ToUpper() == "JA") ja = r.VALUE;
+                                else if (r.LANGUAGE_CODE.ToUpper() == "ZH") zh = r.VALUE;
+                                else if (r.LANGUAGE_CODE.ToUpper() == "KO") ko = r.VALUE;
+                            }
                         }
 
                         // Override or append database translation onto the hardcoded dictionary base
@@ -496,6 +510,10 @@ namespace QLyNSu.Functions
                         groupControl.Text = translatedGroupText;
                     }
                 }
+                else if (ctrl is DevExpress.XtraBars.BarDockControl barDockControl && barDockControl.Manager != null)
+                {
+                    TranslateBarManager(barDockControl.Manager);
+                }
                 else if (ctrl is DevExpress.XtraBars.Docking.DockPanel dockPanel)
                 {
                     string origDockText = GetOriginalText(dockPanel, dockPanel.Text);
@@ -548,6 +566,24 @@ namespace QLyNSu.Functions
                 if (ctrl.Controls != null && ctrl.Controls.Count > 0)
                 {
                     TranslateControls(ctrl.Controls);
+                }
+            }
+        }
+
+        
+        private static void TranslateBarManager(DevExpress.XtraBars.BarManager manager)
+        {
+            if (manager == null) return;
+            foreach (DevExpress.XtraBars.BarItem item in manager.Items)
+            {
+                if (!string.IsNullOrEmpty(item.Caption))
+                {
+                    string origCaption = GetOriginalText(item, item.Caption);
+                    string translatedCaption = Translate(origCaption);
+                    if (item.Caption != translatedCaption)
+                    {
+                        item.Caption = translatedCaption;
+                    }
                 }
             }
         }

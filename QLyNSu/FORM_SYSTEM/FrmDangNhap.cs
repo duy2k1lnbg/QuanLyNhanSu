@@ -56,6 +56,18 @@ namespace QLyNSu.FORM_SYSTEM
         private void FrmDangNhap_Load(object sender, EventArgs e)
         {
             TranslationManager.Translate(this);
+            try {
+                string bgPath = System.IO.Path.Combine(Application.StartupPath, "Resources", "login_bg.png");
+                if (System.IO.File.Exists(bgPath)) {
+                    this.panelLeft.BackgroundImage = Image.FromFile(bgPath);
+                    this.panelLeft.BackgroundImageLayout = ImageLayout.Stretch;
+                    // Make labels transparent so background shows through
+                    this.lblLeftTitle.BackColor = Color.Transparent;
+                    this.lblLeftSub.BackColor = Color.Transparent;
+                    this.lblLeftSlogan.BackColor = Color.Transparent;
+                    this.lblLeftVersion.BackColor = Color.Transparent;
+                }
+            } catch { }
             // Apply rounded corners to the form
             this.Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 16, 16));
 

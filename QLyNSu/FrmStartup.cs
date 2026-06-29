@@ -11,6 +11,12 @@ namespace QLyNSu
         public FrmStartup()
         {
             InitializeComponent();
+            try {
+                string bgPath = System.IO.Path.Combine(Application.StartupPath, "Resources", "splash_bg.png");
+                if (System.IO.File.Exists(bgPath)) {
+                    this.peImage.EditValue = Image.FromFile(bgPath);
+                }
+            } catch { }
             this.labelCopyright.Text = "Copyright © 1998-" + DateTime.Now.Year.ToString() + " HRM OC System. All rights reserved.";
             
             // Set Form Icon if loaded

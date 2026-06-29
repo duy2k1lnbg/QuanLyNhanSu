@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
@@ -353,7 +353,7 @@ namespace QLyNSu
                 var nv = _nhanvien.getItem(_MANV);
 
                 txtHoTen.Text = string.IsNullOrEmpty(nv?.HOTEN) ? "null" : nv.HOTEN;
-                cboGioiTinh.SelectedValue = nv?.IDGT ?? -1;
+                cboGioiTinh.SelectedValue = (int)(nv?.IDGT ?? -1);
                 dateNgaySinh.Value = nv?.NGAYSINH ?? DateTime.Now;
                 txtSDT.Text = string.IsNullOrEmpty(nv?.DIENTHOAI) ? "null" : nv.DIENTHOAI;
                 txtCCCD.Text = string.IsNullOrEmpty(nv?.CCCD) ? "null" : nv.CCCD;
@@ -368,15 +368,15 @@ namespace QLyNSu
                     pictureHinhanh.Image = null; // Hoặc thiết lập hình ảnh mặc định
                 }
 
-                cboBoPhan.SelectedValue = nv?.IDBP ?? -1;
+                cboBoPhan.SelectedValue = (int)(nv?.IDBP ?? -1);
                 cboPhongBan.SelectedValue = nv?.IDPB ?? -1;
-                cboTrinhDo.SelectedValue = nv?.IDTD ?? -1;
+                cboTrinhDo.SelectedValue = (int)(nv?.IDTD ?? -1);
                 cboChucVu.SelectedValue = nv?.IDCV ?? -1;
-                cboDanToc.SelectedValue = nv?.IDDT ?? -1;
-                cboTonGiao.SelectedValue = nv?.IDTG ?? -1;
-                cboQuocTich.SelectedValue = nv?.IDQT ?? -1;
+                cboDanToc.SelectedValue = (int)(nv?.IDDT ?? -1);
+                cboTonGiao.SelectedValue = (int)(nv?.IDTG ?? -1);
+                cboQuocTich.SelectedValue = (int)(nv?.IDQT ?? -1);
                 cboCongTy.SelectedValue = nv?.IDCTY ?? -1;
-                cboLoaiNV.SelectedValue = nv?.LOAI_NV ?? 1;
+                cboLoaiNV.SelectedValue = (int)(nv?.LOAI_NV ?? 1);
             }
         }
 

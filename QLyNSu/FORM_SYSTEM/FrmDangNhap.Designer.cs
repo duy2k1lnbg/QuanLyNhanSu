@@ -71,9 +71,9 @@ namespace QLyNSu.FORM_SYSTEM
             this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelLeft.Location = new System.Drawing.Point(0, 0);
             this.panelLeft.Name = "panelLeft";
-            this.panelLeft.Size = new System.Drawing.Size(320, 480);
+            this.panelLeft.Size = new System.Drawing.Size(350, 550);
             this.panelLeft.TabIndex = 0;
-            this.panelLeft.Paint += new System.Windows.Forms.PaintEventHandler(this.PanelLeft_Paint);
+            
             // 
             // lblLeftTitle
             // 
@@ -139,9 +139,9 @@ namespace QLyNSu.FORM_SYSTEM
             this.panelRight.Controls.Add(this.btnDangNhap);
             this.panelRight.Controls.Add(this.btnThoat);
             this.panelRight.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panelRight.Location = new System.Drawing.Point(320, 0);
+            this.panelRight.Location = new System.Drawing.Point(350, 0);
             this.panelRight.Name = "panelRight";
-            this.panelRight.Size = new System.Drawing.Size(460, 480);
+            this.panelRight.Size = new System.Drawing.Size(550, 550);
             this.panelRight.TabIndex = 1;
             // 
             // lblClose
@@ -151,7 +151,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblClose.Appearance.Options.UseFont = true;
             this.lblClose.Appearance.Options.UseForeColor = true;
             this.lblClose.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblClose.Location = new System.Drawing.Point(425, 12);
+            this.lblClose.Location = new System.Drawing.Point(515, 12);
             this.lblClose.Name = "lblClose";
             this.lblClose.Size = new System.Drawing.Size(17, 28);
             this.lblClose.TabIndex = 0;
@@ -166,7 +166,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblRightTitle.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(45)))), ((int)(((byte)(52)))), ((int)(((byte)(54)))));
             this.lblRightTitle.Appearance.Options.UseFont = true;
             this.lblRightTitle.Appearance.Options.UseForeColor = true;
-            this.lblRightTitle.Location = new System.Drawing.Point(50, 70);
+            this.lblRightTitle.Location = new System.Drawing.Point(95, 105);
             this.lblRightTitle.Name = "lblRightTitle";
             this.lblRightTitle.Size = new System.Drawing.Size(192, 41);
             this.lblRightTitle.TabIndex = 1;
@@ -178,15 +178,15 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblRightSub.Appearance.ForeColor = System.Drawing.Color.Gray;
             this.lblRightSub.Appearance.Options.UseFont = true;
             this.lblRightSub.Appearance.Options.UseForeColor = true;
-            this.lblRightSub.Location = new System.Drawing.Point(50, 112);
+            this.lblRightSub.Location = new System.Drawing.Point(95, 147);
             this.lblRightSub.Name = "lblRightSub";
-            this.lblRightSub.Size = new System.Drawing.Size(268, 20);
+            this.lblRightSub.Size = new System.Drawing.Size(400, 20);
             this.lblRightSub.TabIndex = 2;
             this.lblRightSub.Text = "Đăng nhập để tiếp tục truy cập hệ thống";
             // 
             // txtTenDangNhap
             // 
-            this.txtTenDangNhap.Location = new System.Drawing.Point(50, 160);
+            this.txtTenDangNhap.Location = new System.Drawing.Point(95, 195);
             this.txtTenDangNhap.Name = "txtTenDangNhap";
             this.txtTenDangNhap.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.txtTenDangNhap.Properties.Appearance.Options.UseFont = true;
@@ -196,7 +196,7 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // txtMatKhau
             // 
-            this.txtMatKhau.Location = new System.Drawing.Point(50, 215);
+            this.txtMatKhau.Location = new System.Drawing.Point(95, 250);
             this.txtMatKhau.Name = "txtMatKhau";
             this.txtMatKhau.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.txtMatKhau.Properties.Appearance.Options.UseFont = true;
@@ -216,7 +216,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnShowPassword.Appearance.Options.UseForeColor = true;
             this.btnShowPassword.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnShowPassword.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnShowPassword.Location = new System.Drawing.Point(372, 222);
+            this.btnShowPassword.Location = new System.Drawing.Point(417, 257);
             this.btnShowPassword.Name = "btnShowPassword";
             this.btnShowPassword.ShowFocusRectangle = DevExpress.Utils.DefaultBoolean.False;
             this.btnShowPassword.Size = new System.Drawing.Size(30, 24);
@@ -226,7 +226,7 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // chkRememberMe
             // 
-            this.chkRememberMe.Location = new System.Drawing.Point(50, 268);
+            this.chkRememberMe.Location = new System.Drawing.Point(95, 303);
             this.chkRememberMe.Name = "chkRememberMe";
             this.chkRememberMe.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.chkRememberMe.Properties.Appearance.Options.UseFont = true;
@@ -236,7 +236,7 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // chkShowPassword
             // 
-            this.chkShowPassword.Location = new System.Drawing.Point(245, 268);
+            this.chkShowPassword.Location = new System.Drawing.Point(290, 303);
             this.chkShowPassword.Name = "chkShowPassword";
             this.chkShowPassword.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.chkShowPassword.Properties.Appearance.Options.UseFont = true;
@@ -251,9 +251,9 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblThongBao.Appearance.ForeColor = System.Drawing.Color.Red;
             this.lblThongBao.Appearance.Options.UseFont = true;
             this.lblThongBao.Appearance.Options.UseForeColor = true;
-            this.lblThongBao.Location = new System.Drawing.Point(50, 305);
+            this.lblThongBao.Location = new System.Drawing.Point(95, 340);
             this.lblThongBao.Name = "lblThongBao";
-            this.lblThongBao.Size = new System.Drawing.Size(0, 20);
+            this.lblThongBao.Size = new System.Drawing.Size(450, 20);
             this.lblThongBao.TabIndex = 6;
             this.lblThongBao.Visible = false;
             // 
@@ -267,7 +267,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnDangNhap.Appearance.Options.UseForeColor = true;
             this.btnDangNhap.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.Flat;
             this.btnDangNhap.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnDangNhap.Location = new System.Drawing.Point(50, 340);
+            this.btnDangNhap.Location = new System.Drawing.Point(95, 375);
             this.btnDangNhap.Name = "btnDangNhap";
             this.btnDangNhap.Size = new System.Drawing.Size(360, 42);
             this.btnDangNhap.TabIndex = 7;
@@ -284,7 +284,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnThoat.Appearance.Options.UseForeColor = true;
             this.btnThoat.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.Flat;
             this.btnThoat.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnThoat.Location = new System.Drawing.Point(50, 395);
+            this.btnThoat.Location = new System.Drawing.Point(95, 430);
             this.btnThoat.Name = "btnThoat";
             this.btnThoat.Size = new System.Drawing.Size(360, 42);
             this.btnThoat.TabIndex = 8;
@@ -295,7 +295,7 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(780, 480);
+            this.ClientSize = new System.Drawing.Size(900, 550);
             this.Controls.Add(this.panelRight);
             this.Controls.Add(this.panelLeft);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;

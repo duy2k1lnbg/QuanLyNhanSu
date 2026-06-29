@@ -44,17 +44,17 @@ namespace QLyNSu
             this.progressBarControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBarControl.EditValue = 0;
-            this.progressBarControl.Location = new System.Drawing.Point(40, 360);
-            this.progressBarControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.progressBarControl.Location = new System.Drawing.Point(40, 440);
+            this.progressBarControl.Margin = new System.Windows.Forms.Padding(4);
             this.progressBarControl.Name = "progressBarControl";
-            this.progressBarControl.Size = new System.Drawing.Size(670, 15);
+            this.progressBarControl.Size = new System.Drawing.Size(720, 15);
             this.progressBarControl.TabIndex = 5;
             // 
             // labelCopyright
             // 
             this.labelCopyright.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
-            this.labelCopyright.Location = new System.Drawing.Point(40, 440);
-            this.labelCopyright.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.labelCopyright.Location = new System.Drawing.Point(650, 415);
+            this.labelCopyright.Margin = new System.Windows.Forms.Padding(4);
             this.labelCopyright.Name = "labelCopyright";
             this.labelCopyright.Size = new System.Drawing.Size(54, 16);
             this.labelCopyright.TabIndex = 6;
@@ -62,7 +62,7 @@ namespace QLyNSu
             // 
             // labelStatus
             // 
-            this.labelStatus.Location = new System.Drawing.Point(40, 335);
+            this.labelStatus.Location = new System.Drawing.Point(40, 415);
             this.labelStatus.Margin = new System.Windows.Forms.Padding(4, 4, 4, 1);
             this.labelStatus.Name = "labelStatus";
             this.labelStatus.Size = new System.Drawing.Size(86, 16);
@@ -74,7 +74,7 @@ namespace QLyNSu
             this.peImage.Dock = System.Windows.Forms.DockStyle.Top;
             this.peImage.EditValue = ((object)(resources.GetObject("peImage.EditValue")));
             this.peImage.Location = new System.Drawing.Point(1, 1);
-            this.peImage.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.peImage.Margin = new System.Windows.Forms.Padding(4);
             this.peImage.Name = "peImage";
             this.peImage.Properties.AllowFocused = false;
             this.peImage.Properties.Appearance.BackColor = System.Drawing.Color.Transparent;
@@ -83,7 +83,7 @@ namespace QLyNSu
             this.peImage.Properties.ShowMenu = false;
             this.peImage.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Stretch;
             this.peImage.Properties.SvgImageColorizationMode = DevExpress.Utils.SvgImageColorizationMode.None;
-            this.peImage.Size = new System.Drawing.Size(748, 310);
+            this.peImage.Size = new System.Drawing.Size(800, 400);
             this.peImage.TabIndex = 9;
             // 
             // peLogo
@@ -91,8 +91,8 @@ namespace QLyNSu
             this.peLogo.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.peLogo.EditValue = ((object)(resources.GetObject("peLogo.EditValue")));
-            this.peLogo.Location = new System.Drawing.Point(500, 395);
-            this.peLogo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.peLogo.Location = new System.Drawing.Point(1, 355);
+            this.peLogo.Margin = new System.Windows.Forms.Padding(4);
             this.peLogo.Name = "peLogo";
             this.peLogo.Properties.AllowFocused = false;
             this.peLogo.Properties.Appearance.BackColor = System.Drawing.Color.Transparent;
@@ -102,20 +102,21 @@ namespace QLyNSu
             this.peLogo.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Squeeze;
             this.peLogo.Size = new System.Drawing.Size(210, 52);
             this.peLogo.TabIndex = 8;
+            this.peLogo.Visible = false;
             // 
             // FrmStartup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(750, 480);
+            this.ClientSize = new System.Drawing.Size(800, 480);
             this.Controls.Add(this.peImage);
             this.Controls.Add(this.peLogo);
             this.Controls.Add(this.labelStatus);
             this.Controls.Add(this.labelCopyright);
             this.Controls.Add(this.progressBarControl);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FrmStartup";
             this.Padding = new System.Windows.Forms.Padding(1);
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
