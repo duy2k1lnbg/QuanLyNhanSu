@@ -159,7 +159,9 @@ namespace QLyNSu
             }
             else
             {
-                DialogResult result = MessageBox.Show("Bạn có chắc chắn muốn thoát không?", "Xác nhận thoát", MessageBoxButtons.YesNo);
+                string message = QLyNSu.Functions.TranslationManager.Translate("Bạn có chắc chắn muốn thoát không?");
+                string title = QLyNSu.Functions.TranslationManager.Translate("Xác nhận thoát");
+                DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
                 {
                     AiBootstrap.StopOllama();

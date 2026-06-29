@@ -63,6 +63,10 @@
         <EntityTypeShape EntityType="Model.TB_BANGLUONG" Width="1.5" PointX="11.25" PointY="15" />
         <AssociationConnector Association="Model.TB_BANGLUONG_KC_FK" />
         <AssociationConnector Association="Model.TB_BANGLUONG_NV_FK" />
+        <EntityTypeShape EntityType="Model.TB_LANGUAGES" Width="1.5" PointX="13.375" PointY="1.125" />
+        <EntityTypeShape EntityType="Model.TB_THONGBAO" Width="1.5" PointX="7.375" PointY="11.75" />
+        <EntityTypeShape EntityType="Model.TB_TRANSLATIONS" Width="1.5" PointX="15.625" PointY="1" />
+        <AssociationConnector Association="Model.FK_TRANSLATIONS_LANG" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

@@ -1,4 +1,4 @@
-﻿using DevExpress.XtraEditors;
+using DevExpress.XtraEditors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,9 +36,9 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        private void LoadData()
+        public void LoadData()
         {
-            gcDsCV.DataSource = _chucvu.getList();
+            gcDsCV.DataSource = _chucvu.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
             gvDsCV.OptionsBehavior.Editable = false;
             FormManager_Functions.CustomView_Colums(gvDsCV);
         }

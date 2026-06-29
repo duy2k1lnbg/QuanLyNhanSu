@@ -183,6 +183,9 @@
     <Compile Include="TB_KYCONGCHITIET.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_LANGUAGES.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_LOAICA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
@@ -228,11 +231,16 @@
     <Compile Include="TB_SYS_USER.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
-    <Compile Include="TB_THONGBAO.cs" />
+    <Compile Include="TB_THONGBAO.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_TANGCA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_TONGIAO.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_TRANSLATIONS.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_TRINHDO.cs">

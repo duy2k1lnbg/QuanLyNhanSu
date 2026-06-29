@@ -40,7 +40,7 @@ namespace Bu
             }
         }
 
-        public List<THONGBAO_DTO> getListFull_DTO()
+        public List<THONGBAO_DTO> getListFull_DTO(string langCode = "vi")
         {
             try
             {
@@ -49,7 +49,7 @@ namespace Bu
                 ).ToList();
 
                 var lstCT = db.TB_CONGTY.ToList();
-                var lstPB = db.TB_PHONGBAN.ToList();
+                var lstPB = new PHONGBAN().getListDTO(langCode);
 
                 var lstDTO = new List<THONGBAO_DTO>();
                 foreach (var item in lstTB)
@@ -62,8 +62,8 @@ namespace Bu
                         NGUOIDANG = item.NGUOIDANG,
                         NGAYDANG = item.NGAYDANG,
                         LOAI_TB = item.LOAI_TB,
-                        IS_PINNED = item.IS_PINNED,
-                        TRANGTHAI = item.TRANGTHAI,
+                        IS_PINNED = item.IS_PINNED.HasValue ? (item.IS_PINNED.Value ? 1 : 0) : (decimal?)null,
+                        TRANGTHAI = item.TRANGTHAI.HasValue ? (item.TRANGTHAI.Value ? 1 : 0) : (decimal?)null,
                         NGAY_HETHAN = item.NGAY_HETHAN,
                         FILE_DINHKEM = item.FILE_DINHKEM,
                         MACTY = item.MACTY,

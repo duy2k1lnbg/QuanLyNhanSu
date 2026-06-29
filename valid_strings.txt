@@ -1,0 +1,425 @@
+﻿[NGAY]
+[SOQUYETDINH]
+[TENCTY]
+⚡   Local AI Assistant Integrated\r\n⚡   Oracle 19c Enterprise DB\r\n⚡    High-Securi
+39\r\n
+41\r\n
+AI
+AI Analytics Dashboard & Query Hub
+AI HR COPILOT
+AI HR Copilot Assistant
+Bảng Công
+Bảng Công Chi Tiết
+Bảng công chi tiết 1 nhân viên
+BẢNG CÔNG NHÂN VIÊN
+BẢNG CÔNG TỔNG HỢP THÁNG ........ NĂM ........
+Bảng Lương
+Bảng lương tháng ... năm ....
+Báo Biểu
+Báo Cáo
+Báo Cáo Chi Tiết Lương 1 Nhân Viên
+BHTN(1%)
+BHXH TRỪ
+BHXH(8%)
+BHYT(1,5%)
+Bộ phận
+Bộ phận:
+Các khoản cộng cho người lao động
+Cập Nhật
+Cập nhật ngày công
+Cập Nhật Thông Tin
+Cấu Hình Hệ Thống
+Cấu Hinh Ngôn Ngữ
+Cấu Hình Ngôn Ngữ Hệ Thống
+CCCD
+CCCD/CMND
+CCCD:
+Chấm Công
+CHÀO MỪNG
+CHI TIẾT NGÀY CÔNG
+Chỉ tiêu
+Chọn hình ảnh.....
+Chọn Kỳ Công:
+Chọn Nhân Viên:
+Chủ nhật
+CHỨC VỤ
+Chức vụ:
+CHUYÊN CẦN
+CHUYỂN ĐẾN
+Chuyển Đến:
+CN
+CÒN LĨNH THỰC TẾ
+Công
+CÔNG CHUẨN
+CÔNG CN
+CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM
+CỘNG KHÁC
+CÔNG LỄ
+CÔNG THỰC TẾ
+Công Ty
+Công ty:
+Copyright
+Đại Diện
+Đại diện:
+DÂN TỘC
+Dân tộc:
+Đăng Nhập
+Đăng nhập để tiếp tục truy cập hệ thống
+Danh Mục Dùng Chung
+DANH SÁCH NHÂN VIÊN
+Danh Sách Nhân Viên Thôi Việc
+Dashboard
+Dashboard Lương
+Dashboard Nhân Sự
+Dashboard Phân Tích Lương & Chi Phí
+Dashboard Phân Tích Nhân Sự & Cơ Cấu
+DataPanel
+DEL
+ĐẾN NGÀY
+Đến Ngày: 
+ĐỊA CHỈ
+Địa Chỉ Email
+Địa chỉ:
+ĐIỆN THOẠI
+Điện thoại:
+Điều Chuyển
+Điều Chuyển Nhân Viên
+Đính kèm:
+Độc lập - Tự do - Hạnh phúc 
+Độc lập - Tự do - Hạnh phúc\r\n
+Đổi Mật Khẩu
+Đợi một chút
+ĐƠN VỊ HIỆN TẠI
+Đóng
+Email:
+Enterprise Management Platform
+Form1
+FrmStartup
+FULLNAME
+Ghi chú
+Ghi Chú:
+Ghi nhớ đăng nhập
+Ghim
+Ghim đầu trang
+Giờ ra
+Giờ vào
+GIÓI TÍNH
+GIỚI TÍNH
+Giới tính:
+GROUP
+Gửi
+HỆ SỐ
+HỆ SỐ LƯƠNG
+HỆ SỐ LƯƠNG TRUNG BÌNH
+Hệ Số Lương:
+Hệ Số:
+Hệ Thống
+Hệ thống Đăng nhập
+Hết Hạn
+Hết hạn:
+Hiển thị mật khẩu
+HÌNH ẢNH
+HỌ TÊN
+Họ tên:
+Họ và Tên
+Họ Và Tên:
+Hợp Đồng
+HỢP ĐỒNG ĐANG CHẠY
+HỢP ĐỒNG LAO ĐỘNG XÁC ĐỊNH THỜI HẠN
+HRM SYSTEM
+HSL CŨ
+HSL Hiện Tại:
+HSL MỚI
+HSL Mới:
+Huỷ
+ID
+ID Bộ Phận
+ID Chức Vụ
+ID Công Ty
+ID Dân Tộc
+ID Phòng Ban
+ID Tôn Giáo
+ID Trình Độ
+ID:
+IDBP
+IDCTY
+IDCV
+IDDT
+IDGT
+IDKC
+IDPB
+IDQT
+IDTD
+IDTG
+In
+In Bảng Lương
+IN BÁO CÁO
+KC_
+Khen Thưởng
+Khoá
+Khóa tài khoản (Disabled)
+KHÔNG PHÉP
+Kích hoạt
+KỲ CÔNG
+Kỳ Công:
+Ký hiệu
+Kỷ Luật
+LẦN KÝ
+Lần Ký:
+lblHOTEN
+lblMANV
+Lễ
+ListBaoCaoPanel
+Loại Ca
+Loại Ca:
+Loại Công
+Loại Công:
+Loại nhân sự:
+LOẠI NV
+Loại TB:
+Loại Tin
+Lương
+Lương căn cứ tính BHXH
+Lương cơ bản
+LƯƠNG CÔNG TT
+Lương làm Ca ĐÊM Chính thức
+Lương làm Ca ĐÊM Thử việc
+Lương làm Ca NGÀY Chính thức
+Lương làm Ca NGÀY Thử việc
+LƯƠNG NGÀY
+Lương phụ cấp
+LƯƠNG THỎA THUẬN
+Lương thỏa thuận:
+Lưu
+LÝ DO ĐIỀU CHUYỂN
+Lý Do Điều Chuyển:
+LÝ DO KHEN THƯỞNG
+Lý Do Khen Thưởng:
+LÝ DO KỶ LUẬT
+Lý Do Kỷ Luật:
+LÝ DO THÔI VIỆC
+Lý Do Thôi Việc:
+Mã
+Mã Code:
+Mã công:
+MÃ KỲ CÔNG
+Mã nhân viên:
+MÃ NV
+Mã Số Thuế
+Mã số thuế:
+MACTY
+MADVI
+MANV
+MAPB
+MAPB2
+Mật Khẩu Cũ:
+Mật Khẩu Mới:
+Mật Khẩu:
+Mô Tả:
+Mục
+Mức tiền để tính 1 giờ Overtime
+NĂM
+Năm:
+Nâng Lương Nhân Viên
+NGÀY
+NGÀY BẮT ĐẦU
+Ngày Bắt Đầu:
+Ngày công
+Ngày Đăng
+Ngày Đăng:
+NGÀY KẾT THÚC
+Ngày Kết Thúc:
+NGÀY KÝ
+Ngày Ký:
+Ngày Ký: 
+Ngày lễ
+NGÀY LÊN LƯƠNG
+Ngày Lên Lương: 
+NGÀY NGHỈ VIỆC
+Ngày Nghỉ: 
+NGÀY NỘP ĐƠN
+Ngày Nộp Đơn: 
+NGÀY PHÉP
+NGÀY SINH
+Ngày sinh:
+Ngày Tạo
+NGÀY TÍNH CÔNG
+NGÀY TRONG THÁNG
+NGÀY ỨNG
+Ngày.... tháng ..... năm 2024
+Ngày: 
+Nghỉ hưởng 70% lương cơ bản
+Nghỉ phép năm
+Nghiệp Vụ
+Ngôn Ngữ Hệ Thống:
+Người Đăng
+Người Đăng:
+Người Dùng
+Người lao động bồi thường
+NGƯỜI LẬP
+Nhân Sự
+Nhân Viên
+Nhân Viên:
+Nhập Lại Mật Khẩu:
+Nhóm Người Dùng
+No/STT
+NỘI DUNG
+Nội Dung:
+Panel1
+Panel2
+Phầm Mềm Quản Lý Nhân Sự
+Phân Quyền Báo Cáo
+Phân Quyền Báo Cáo Hệ Thống
+Phân Quyền Chức Năng
+Phân Quyền Chức Năng Hệ Thống
+Phát Sinh Kỳ Công
+Phép
+PHÍ CÔNG ĐOÀN
+Phiên bản v3.5.0
+PHÒNG BAN
+Phòng ban:
+Phụ Cấp
+Phụ cấp Chuyên cần
+Phụ cấp chuyên cần:
+Phụ cấp khác
+Phụ cấp khác:
+Phụ cấp ngôn ngữ
+Phụ cấp ngôn ngữ:
+Phụ cấp nhà ở
+Phụ cấp nhà ở:
+Phụ cấp phương tiện đi lại
+Phụ cấp phương tiện:
+Phụ cấp thâm niên
+Phụ cấp thâm niên:
+Phụ cấp Trách nhiệm
+Phụ cấp trách nhiệm:
+Phục Hồi Dữ Liệu
+progressPanel1
+Quản Lý Chấm Công
+Quản lý CSDL
+Quản Lý Thông Báo
+QUỐC TỊCH
+Quốc Tịch:
+Quyết toán và trả lại tiền thuế thừa của năm 2023
+Refresh
+Sao Lưu Dữ Liệu
+Số Điện Thoại
+SỐ GIỜ
+Số giờ Tăng ca  ĐÊM 5h30-6h  THỬ VIỆC 200%*85%
+Số giờ Tăng ca  NGÀY CHỦ NHẬT 8h-22h 200%
+Số giờ Tăng ca  NGÀY sau 22h-6h  200%
+Số giờ Tăng ca 5h30-6h ĐÊM 200%
+Số giờ Tăng ca CHỦ NHẬT 8h-22h THỬ VIỆC 200%*85%
+Số giờ Tăng ca ĐÊM  6h-8h  180%
+Số giờ Tăng ca ĐÊM 6h-8h THỬ VIỆC 180%*85%
+Số giờ Tăng ca NGÀY 6h-8h 17h - 22h  150%
+Số giờ Tăng ca NGÀY 6h-8h 17h-22h THỬ VIỆC 150%*85%
+Số giờ Tăng ca NGÀY CHỦ NHẬT sau 22h-6h 270%
+Số giờ Tăng ca NGÀY LỄ 8h-22h 300%
+Số giờ Tăng ca NGÀY LỄ 8h-22h THỬ VIỆC 300%*85%
+Số giờ Tăng ca NGÀY LỄ sau 22h  390%
+Số giờ Tăng ca NGÀY LỄ sau 22h THỬ VIỆC 390%*85%
+Số giờ Tăng ca NGÀY sau 22h-6h THỬ VIỆC 200%*85%
+Số Giờ:
+Số h Tăng ca NGÀY CHỦ NHẬT sau 22h-6h THỬ VIỆC 270%*85%
+SỐ HĐ
+SỐ HĐ:
+SỐ HỢP ĐỒNG
+Số Hợp Đồng:
+Số lượng
+Số ngày công tiêu chuẩn trong tháng
+Số ngày:
+Số QĐ:
+SỐ QUYẾT ĐỊNH
+SỐ TIỀN
+SỐ TIỀN ỨNG
+Số Tiền:
+Số tiếng làm CA ĐÊM CHỦ NHẬT 20h-8h 270%
+Số tiếng làm ĐÊM CHỦ NHẬT 20h-8h THỬ VIỆC 270%*85%
+Số:
+Status bar
+STT
+Sửa
+Tài Khoản
+TẠM ỨNG
+Tăng Ca
+Tên
+Tên Bộ Phận
+Tên Bộ Phận:
+Tên Chức Vụ
+Tên Chức Vụ:
+Tên Công Ty
+Tên CTY:
+Tên Dân Tộc
+Tên Dân Tộc:
+Tên Đăng Nhập:
+Tên Ngôn Ngữ
+Tên Ngôn Ngữ:
+Tên Nhóm:
+Tên Phòng Ban
+Tên Phòng Ban:
+Tên Tôn Giáo
+Tên Tôn Giáo:
+Tên Trình Độ
+Tên Trình Độ:
+Tên, mã
+Tháng
+Tháng:
+Thành tiền
+Thành Viên
+Thêm
+THOÁT
+Thời Gian Nghỉ
+THỜI HẠN
+Thời Hạn:
+Thôi Việc
+Thông Báo
+Thông Báo Mới
+Thông Tin
+THÔNG TIN NHÂN VIÊN
+Thông Tin Nhóm
+Thứ
+THỰC LĨNH
+THUẾ TNCN
+Tiền Lương 1 ngày hưởng 100% lương cơ bản
+Tiêu Đề
+Tiêu Đề:
+Tìm kiếm AI
+Tính Lương
+TÔN GIÁO
+Tôn giáo:
+Tổng
+TỔNG CƠ BẢN + TRỢ CẤP :
+TỔNG CỘNG
+TỔNG CỘNG 
+TỔNG NGÀY CÔNG
+TỔNG SỐ NHÂN SỰ
+TỔNG SỐ PHÒNG BAN
+TỔNG TIỀN NGÀY CÔNG THỰC TẾ
+Tools
+TRẠNG THÁI
+Trạng thái:
+TRÌNH ĐỘ
+Trình độ:
+Trợ cấp Chuyên cần
+Trợ cấp tiền ăn
+Trò chuyện AI
+Trừ tiền tạm ứng 
+Trung Tâm Báo Cáo & Thống Kê Nhân Sự
+TRƯỞNG ĐƠN VỊ
+Truy vấn tự nhiên bằng AI:
+TỪ NGÀY
+Từ Ngày: 
+Ứng Lương
+USERNAME
+Vắng
+Xem Bảng Công
+XEM BÁO CÁO
+Xin chờ...........
+Xoá
+Xóa lịch sử
+XUẤT EXCEL
+🎂 Sinh nhật
+🏢 Phòng ban
+👥 Nhân viên
+📈 Lên lương
