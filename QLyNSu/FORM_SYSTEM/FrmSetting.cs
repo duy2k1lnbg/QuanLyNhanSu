@@ -1,5 +1,6 @@
 using DevExpress.XtraEditors;
 using System;
+using System.Linq;
 using QLyNSu.Functions;
 using System.IO;
 using System.Windows.Forms;
@@ -16,24 +17,72 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void FrmSetting_Load(object sender, EventArgs e)
         {
-            // Populate Language ComboBox with native names (industry best practice)
-            cboLanguage.Properties.Items.Clear();
-            cboLanguage.Properties.Items.Add("Tiếng Việt");
-            cboLanguage.Properties.Items.Add("English");
-            cboLanguage.Properties.Items.Add("日本語");
-            cboLanguage.Properties.Items.Add("中文");
-            cboLanguage.Properties.Items.Add("한국어");
+            LoadLanguagesToCombo();
 
-            // Load saved language
-            string currentLang = LoadLanguageSetting();
+            // Load saved language code (e.g. "en", "vi")
+            string currentLangCode = LoadLanguageSetting();
 
             // Select the item corresponding to the current language
-            if (currentLang == "Tiếng Việt") cboLanguage.SelectedItem = "Tiếng Việt";
-            else if (currentLang == "Tiếng Anh") cboLanguage.SelectedItem = "English";
-            else if (currentLang == "Tiếng Nhật") cboLanguage.SelectedItem = "日本語";
-            else if (currentLang == "Tiếng Trung") cboLanguage.SelectedItem = "中文";
-            else if (currentLang == "Tiếng Hàn") cboLanguage.SelectedItem = "한국어";
-            else cboLanguage.SelectedIndex = 0;
+            bool found = false;
+            foreach (LangItem item in cboLanguage.Properties.Items)
+            {
+                if (TranslationManager.GetCanonicalLanguage(item.Name) == currentLangCode)
+                {
+                    cboLanguage.SelectedItem = item;
+                    found = true;
+                    break;
+                }
+            }
+
+            if (!found)
+            {
+                // Fallback to select first item if present
+                if (cboLanguage.Properties.Items.Count > 0)
+                    cboLanguage.SelectedIndex = 0;
+            }
+        }
+
+        private void LoadLanguagesToCombo()
+        {
+            cboLanguage.Properties.Items.Clear();
+            try
+            {
+                var sysLang = new Bu.CLASS_SYSTEM.SYS_LANGUAGE();
+                var dbLangs = sysLang.getList()
+                                     .Where(l => l.IS_ACTIVE)
+                                     .GroupBy(l => l.NAME)
+                                     .Select(g => g.First())
+                                     .ToList();
+                if (dbLangs.Count > 0)
+                {
+                    foreach (var lang in dbLangs)
+                    {
+                        cboLanguage.Properties.Items.Add(new LangItem { Name = lang.NAME });
+                    }
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("[FrmSetting DB Load Error]: " + ex.Message);
+            }
+
+            // Mặc định dự phòng nếu lỗi CSDL
+            cboLanguage.Properties.Items.Add(new LangItem { Name = "Tiếng Việt" });
+            cboLanguage.Properties.Items.Add(new LangItem { Name = "Tiếng Anh" });
+            cboLanguage.Properties.Items.Add(new LangItem { Name = "Tiếng Nhật" });
+            cboLanguage.Properties.Items.Add(new LangItem { Name = "Tiếng Trung" });
+            cboLanguage.Properties.Items.Add(new LangItem { Name = "Tiếng Hàn" });
+        }
+
+        private void btnManage_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmLanguages())
+            {
+                TranslationManager.Translate(frm);
+                frm.ShowDialog();
+            }
+            LoadLanguagesToCombo();
         }
 
         private void btnLuu_Click(object sender, EventArgs e)
@@ -48,7 +97,7 @@ namespace QLyNSu.FORM_SYSTEM
                 return;
             }
 
-            string selectedDisplay = cboLanguage.SelectedItem.ToString();
+            string selectedDisplay = ((LangItem)cboLanguage.SelectedItem).Name;
             string selectedLang = TranslationManager.GetCanonicalLanguage(selectedDisplay);
             SaveLanguageSetting(selectedLang);
 
@@ -79,11 +128,21 @@ namespace QLyNSu.FORM_SYSTEM
         private void SaveLanguageSetting(string language)
         {
             TranslationManager.CurrentLanguage = language;
+            TranslationManager.TranslateAllOpenForms();
         }
 
         public class SystemSettings
         {
             public string Language { get; set; }
+        }
+
+        private class LangItem
+        {
+            public string Name { get; set; }
+            public override string ToString()
+            {
+                return TranslationManager.Translate(Name);
+            }
         }
     }
 }

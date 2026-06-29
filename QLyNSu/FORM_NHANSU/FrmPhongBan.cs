@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using DevExpress.XtraEditors;
 using System;
 using System.Collections.Generic;
@@ -36,9 +36,9 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        private void LoadData()
+        public void LoadData()
         {
-            gcDsPB.DataSource = _phongban.getList();
+            gcDsPB.DataSource = _phongban.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
             FormManager_Functions.CustomView_Colums(gvDsPB);
         }
 

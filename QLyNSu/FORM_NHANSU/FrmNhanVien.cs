@@ -1,4 +1,4 @@
-using Bu;
+﻿using Bu;
 using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
@@ -410,37 +410,37 @@ namespace QLyNSu
 
         private void LoadCombo()
         {
-            cboBoPhan.DataSource = _bophan.getList();
-            cboBoPhan.DisplayMember = "TENBP";
-            cboBoPhan.ValueMember = "IDBP";
+            cboBoPhan.DataSource = _bophan.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboBoPhan.DisplayMember = "TEN";
+            cboBoPhan.ValueMember = "ID";
 
-            cboPhongBan.DataSource = _phongban.getList();
+            cboPhongBan.DataSource = _phongban.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
             cboPhongBan.DisplayMember = "TENPB";
             cboPhongBan.ValueMember = "IDPB";
 
-            cboTrinhDo.DataSource = _trinhdo.getList();
-            cboTrinhDo.DisplayMember = "TENTD";
-            cboTrinhDo.ValueMember = "IDTD";
+            cboTrinhDo.DataSource = _trinhdo.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboTrinhDo.DisplayMember = "TEN";
+            cboTrinhDo.ValueMember = "ID";
 
-            cboChucVu.DataSource = _chucvu.getList();
+            cboChucVu.DataSource = _chucvu.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
             cboChucVu.DisplayMember = "TENCV";
             cboChucVu.ValueMember = "IDCV";
 
-            cboDanToc.DataSource = _dantoc.getList();
-            cboDanToc.DisplayMember = "TENDT";
-            cboDanToc.ValueMember = "IDDT";
+            cboDanToc.DataSource = _dantoc.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboDanToc.DisplayMember = "TEN";
+            cboDanToc.ValueMember = "ID";
 
-            cboTonGiao.DataSource = _tongiao.getList();
-            cboTonGiao.DisplayMember = "TENTG";
-            cboTonGiao.ValueMember = "IDTG";
+            cboTonGiao.DataSource = _tongiao.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboTonGiao.DisplayMember = "TEN";
+            cboTonGiao.ValueMember = "ID";
 
-            cboGioiTinh.DataSource = _gioitinh.getList();
-            cboGioiTinh.DisplayMember = "TENGT";
-            cboGioiTinh.ValueMember = "IDGT";
+            cboGioiTinh.DataSource = _gioitinh.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboGioiTinh.DisplayMember = "TEN";
+            cboGioiTinh.ValueMember = "ID";
 
-            cboQuocTich.DataSource = _quoctich.getList();
-            cboQuocTich.DisplayMember = "TENQT";
-            cboQuocTich.ValueMember = "IDQT";
+            cboQuocTich.DataSource = _quoctich.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboQuocTich.DisplayMember = "TEN";
+            cboQuocTich.ValueMember = "ID";
 
             cboCongTy.DataSource = _congty.getList();
             cboCongTy.DisplayMember = "TENCTY";
@@ -448,9 +448,9 @@ namespace QLyNSu
 
             var loaiNvList = new List<object>
             {
-                new { Value = 1, Name = "Nhân viên (Office)" },
-                new { Value = 2, Name = "Lái xe (Driver)" },
-                new { Value = 3, Name = "Công nhân (Worker)" }
+                new { Value = 1, Name = QLyNSu.Functions.TranslationManager.Translate("Nhân viên (Office)") },
+                new { Value = 2, Name = QLyNSu.Functions.TranslationManager.Translate("Lái xe (Driver)") },
+                new { Value = 3, Name = QLyNSu.Functions.TranslationManager.Translate("Công nhân (Worker)") }
             };
             cboLoaiNV.DataSource = loaiNvList;
             cboLoaiNV.DisplayMember = "Name";

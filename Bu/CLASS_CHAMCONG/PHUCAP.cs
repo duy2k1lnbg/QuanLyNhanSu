@@ -1,7 +1,8 @@
-﻿using Bu.DTO;
+using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -143,6 +144,133 @@ namespace Bu.CLASS_CHAMCONG
         public TB_PHUCAP getItemPC(int id)
         {
             return db.TB_PHUCAP.FirstOrDefault(x=>x.IDPC == id);
+        }
+
+        public List<Bu.DTO.PhuCapDTO> getListPC_DTO(string langCode = "vi")
+        {
+            var list = new List<Bu.DTO.PhuCapDTO>();
+            try
+            {
+                var conn = db.Database.Connection;
+                if (conn.State != ConnectionState.Open) conn.Open();
+
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT 
+                            pc.idpc, 
+                            pc.tenpc as tenpc_vi,
+                            COALESCE(t.value, pc.tenpc) as tenpc,
+                            COALESCE(t.description, '') as description
+                        FROM TB_PHUCAP pc
+                        LEFT JOIN TB_TRANSLATIONS t 
+                            ON t.table_name = 'TB_PHUCAP' 
+                            AND t.record_id = TO_CHAR(pc.idpc) 
+                            AND t.column_name = 'TENPC' 
+                            AND LOWER(t.language_code) = :langCode
+                        ORDER BY pc.idpc ASC";
+
+                    var pLang = cmd.CreateParameter();
+                    pLang.ParameterName = "langCode";
+                    pLang.Value = string.IsNullOrEmpty(langCode) ? "vi" : langCode.Trim().ToLower();
+                    cmd.Parameters.Add(pLang);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            list.Add(new Bu.DTO.PhuCapDTO
+                            {
+                                IDPC = reader.GetDecimal(0),
+                                TENPC_VI = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                                TENPC = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                                DESCRIPTION = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
+                            });
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var rawList = db.TB_PHUCAP.ToList();
+                list.Clear();
+                foreach (var item in rawList)
+                {
+                    list.Add(new Bu.DTO.PhuCapDTO
+                    {
+                        IDPC = item.IDPC,
+                        TENPC_VI = item.TENPC,
+                        TENPC = item.TENPC,
+                        DESCRIPTION = string.Empty
+                    });
+                }
+            }
+            return list;
+        }
+
+        public Bu.DTO.PhuCapDTO getItemPC_DTO(int id, string langCode = "vi")
+        {
+            try
+            {
+                var conn = db.Database.Connection;
+                if (conn.State != ConnectionState.Open) conn.Open();
+
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT 
+                            pc.idpc, 
+                            pc.tenpc as tenpc_vi,
+                            COALESCE(t.value, pc.tenpc) as tenpc,
+                            COALESCE(t.description, '') as description
+                        FROM TB_PHUCAP pc
+                        LEFT JOIN TB_TRANSLATIONS t 
+                            ON t.table_name = 'TB_PHUCAP' 
+                            AND t.record_id = TO_CHAR(pc.idpc) 
+                            AND t.column_name = 'TENPC' 
+                            AND LOWER(t.language_code) = :langCode
+                        WHERE pc.idpc = :id";
+
+                    var pLang = cmd.CreateParameter();
+                    pLang.ParameterName = "langCode";
+                    pLang.Value = string.IsNullOrEmpty(langCode) ? "vi" : langCode.Trim().ToLower();
+                    cmd.Parameters.Add(pLang);
+
+                    var pId = cmd.CreateParameter();
+                    pId.ParameterName = "id";
+                    pId.Value = id;
+                    cmd.Parameters.Add(pId);
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new Bu.DTO.PhuCapDTO
+                            {
+                                IDPC = reader.GetDecimal(0),
+                                TENPC_VI = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                                TENPC = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                                DESCRIPTION = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                var rawItem = getItemPC(id);
+                if (rawItem != null)
+                {
+                    return new Bu.DTO.PhuCapDTO
+                    {
+                        IDPC = rawItem.IDPC,
+                        TENPC_VI = rawItem.TENPC,
+                        TENPC = rawItem.TENPC,
+                        DESCRIPTION = string.Empty
+                    };
+                }
+            }
+            return null;
         }
 
         //public void UpdatePhucap(int manv, int idpc, decimal sotien)

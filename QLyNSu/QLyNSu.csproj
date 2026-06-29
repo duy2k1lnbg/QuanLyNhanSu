@@ -54,6 +54,9 @@
     <Reference Include="BCrypt.Net-Next">
       <HintPath>..\packages\BCrypt.Net-Next.4.0.3\lib\net472\BCrypt.Net-Next.dll</HintPath>
     </Reference>
+    <Reference Include="Bu.Fakes">
+      <HintPath>FakesAssemblies\Bu.Fakes.dll</HintPath>
+    </Reference>
     <Reference Include="DevExpress.BonusSkins.v24.1" />
     <Reference Include="DevExpress.Charts.v24.1.Core, Version=24.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.CodeParser.v24.1, Version=24.1.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
@@ -91,6 +94,9 @@
     </Reference>
     <Reference Include="Microsoft.Bcl.AsyncInterfaces, Version=9.0.0.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Bcl.AsyncInterfaces.9.0.0\lib\net462\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
@@ -271,6 +277,12 @@
     <Compile Include="FORM_SYSTEM\FrmSetting.Designer.cs">
       <DependentUpon>FrmSetting.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_SYSTEM\FrmLanguages.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmLanguages.Designer.cs">
+      <DependentUpon>FrmLanguages.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmPhanQuyenChucNang.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -292,6 +304,7 @@
     <Compile Include="Functions\AiBootstrap.cs" />
     <Compile Include="Functions\FormManager_Functions.cs" />
     <Compile Include="Functions\TranslationManager.cs" />
+    <Compile Include="Functions\TranslationMockDataSeeder.cs" />
     <Compile Include="FORM_CHAMCONG\FrmBangCong.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -584,6 +597,9 @@
     <EmbeddedResource Include="FORM_SYSTEM\FrmSetting.resx">
       <DependentUpon>FrmSetting.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmLanguages.resx">
+      <DependentUpon>FrmLanguages.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmPhanQuyenChucNang.resx">
       <DependentUpon>FrmPhanQuyenChucNang.cs</DependentUpon>
     </EmbeddedResource>
@@ -632,6 +648,7 @@
       <DependentUpon>rptKyLuat.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="App.config" />
+    <Fakes Include="Fakes\Bu.fakes" />
     <None Include="Oracle.DataAccess.Common.Configuration.Section.xsd">
       <SubType>Designer</SubType>
     </None>

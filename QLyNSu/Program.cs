@@ -33,6 +33,7 @@ namespace QLyNSu
 
             // Load saved display language at startup
             QLyNSu.Functions.TranslationManager.LoadLanguage();
+            QLyNSu.Functions.TranslationManager.LoadDictionaryFromDB();
             QLyNSu.Functions.TranslationManager.InitializeHook();
 
             // Register DevExpress skins and enable form skinning

@@ -12,6 +12,7 @@ namespace Bu
 {
     public class NHANVIEN
     {
+        public static Func<string, string> TranslateDelegate { get; set; }
         MyEntities db = new MyEntities();
 
         public TB_NHANVIEN getItem(int id)
@@ -22,9 +23,9 @@ namespace Bu
         {
             return db.TB_NHANVIEN.ToList();
         }
-        public List<NHANVIEN_DTO> getListFll_DTO() 
+        public List<NHANVIEN_DTO> getListFll_DTO(string langCode = "vi") 
         { 
-            return (from nv in db.TB_NHANVIEN
+            var rawList = (from nv in db.TB_NHANVIEN
                     join td in db.TB_TRINHDO on nv.IDTD equals td.IDTD into tdGroup
                     from td in tdGroup.DefaultIfEmpty()
                     join bp in db.TB_BOPHAN on nv.IDBP equals bp.IDBP into bpGroup
@@ -79,6 +80,89 @@ namespace Bu
                         DELETED_DATE = nv.DELETED_DATE,
                         LOAI_NV = nv.LOAI_NV
                     }).ToList();
+
+            if (string.IsNullOrEmpty(langCode) || langCode.ToLower() == "vi")
+            {
+                return rawList;
+            }
+
+            try
+            {
+                var translations = db.Database.SqlQuery<TB_TRANSLATION_RECORD>(@"
+                    SELECT table_name, record_id, column_name, value 
+                    FROM TB_TRANSLATIONS 
+                    WHERE LOWER(language_code) = :p0", langCode.ToLower()).ToList();
+
+                var transDict = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                foreach (var t in translations)
+                {
+                    string key = $"{t.TABLE_NAME}_{t.RECORD_ID}_{t.COLUMN_NAME}";
+                    if (!transDict.ContainsKey(key))
+                    {
+                        transDict[key] = t.VALUE;
+                    }
+                }
+
+                foreach (var item in rawList)
+                {
+                    if (item.IDPB.HasValue)
+                    {
+                        string k = $"TB_PHONGBAN_{item.IDPB.Value}_TENPB";
+                        if (transDict.TryGetValue(k, out string v)) item.TENPB = v;
+                        else if (TranslateDelegate != null) item.TENPB = TranslateDelegate(item.TENPB);
+                    }
+                    if (item.IDCV.HasValue)
+                    {
+                        string k = $"TB_CHUCVU_{item.IDCV.Value}_TENCV";
+                        if (transDict.TryGetValue(k, out string v)) item.TENCV = v;
+                        else if (TranslateDelegate != null) item.TENCV = TranslateDelegate(item.TENCV);
+                    }
+                    if (item.IDDT.HasValue)
+                    {
+                        string k = $"TB_DANTOC_{item.IDDT.Value}_TENDT";
+                        if (transDict.TryGetValue(k, out string v)) item.TENDT = v;
+                        else if (TranslateDelegate != null) item.TENDT = TranslateDelegate(item.TENDT);
+                    }
+                    if (item.IDTG.HasValue)
+                    {
+                        string k = $"TB_TONGIAO_{item.IDTG.Value}_TENTG";
+                        if (transDict.TryGetValue(k, out string v)) item.TENTG = v;
+                        else if (TranslateDelegate != null) item.TENTG = TranslateDelegate(item.TENTG);
+                    }
+                    if (item.IDTD.HasValue)
+                    {
+                        string k = $"TB_TRINHDO_{item.IDTD.Value}_TENTD";
+                        if (transDict.TryGetValue(k, out string v)) item.TENTD = v;
+                        else if (TranslateDelegate != null) item.TENTD = TranslateDelegate(item.TENTD);
+                    }
+                    if (item.IDBP.HasValue)
+                    {
+                        string k = $"TB_BOPHAN_{item.IDBP.Value}_TENBP";
+                        if (transDict.TryGetValue(k, out string v)) item.TENBP = v;
+                        else if (TranslateDelegate != null) item.TENBP = TranslateDelegate(item.TENBP);
+                    }
+                    if (item.IDQT.HasValue)
+                    {
+                        string k = $"TB_QUOCTICH_{item.IDQT.Value}_TENQT";
+                        if (transDict.TryGetValue(k, out string v)) item.TENQT = v;
+                        else if (TranslateDelegate != null) item.TENQT = TranslateDelegate(item.TENQT);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("[NHANVIEN DTO Translation Error]: " + ex.Message);
+            }
+
+            return rawList;
+        }
+
+        private class TB_TRANSLATION_RECORD
+        {
+            public string TABLE_NAME { get; set; }
+            public string RECORD_ID { get; set; }
+            public string COLUMN_NAME { get; set; }
+            public string VALUE { get; set; }
         }
 
         public TB_NHANVIEN Add(TB_NHANVIEN nv)

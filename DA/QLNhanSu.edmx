@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
   <!-- EF Runtime content -->
   <edmx:Runtime>
@@ -260,6 +260,15 @@
           <Property Name="UPDATED_DATE" Type="date" />
           <Property Name="IDCTY" Type="number" Precision="38" Scale="0" />
         </EntityType>
+        <EntityType Name="TB_LANGUAGES">
+          <Key>
+            <PropertyRef Name="CODE" />
+          </Key>
+          <Property Name="CODE" Type="varchar2" MaxLength="5" Nullable="false" />
+          <Property Name="NAME" Type="varchar2" MaxLength="50" Nullable="false" />
+          <Property Name="IS_ACTIVE" Type="number" Precision="1" Scale="0" Nullable="false" />
+          <Property Name="CREATED_AT" Type="timestamp" Precision="6" />
+        </EntityType>
         <EntityType Name="TB_LOAICA">
           <Key>
             <PropertyRef Name="IDLOAICA" />
@@ -478,12 +487,43 @@
           <Property Name="GHICHU" Type="nvarchar2" MaxLength="500" />
           <Property Name="SOTIENTC" Type="float" Precision="126" Scale="0" />
         </EntityType>
+        <EntityType Name="TB_THONGBAO">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TIEUDE" Type="nvarchar2" MaxLength="200" Nullable="false" />
+          <Property Name="NOIDUNG" Type="nclob" Nullable="false" />
+          <Property Name="NGUOIDANG" Type="nvarchar2" MaxLength="50" Nullable="false" />
+          <Property Name="NGAYDANG" Type="timestamp" Precision="6" Nullable="false" />
+          <Property Name="LOAI_TB" Type="nvarchar2" MaxLength="100" />
+          <Property Name="IS_PINNED" Type="number" Precision="1" Scale="0" />
+          <Property Name="TRANGTHAI" Type="number" Precision="1" Scale="0" />
+          <Property Name="NGAY_HETHAN" Type="timestamp" Precision="6" />
+          <Property Name="FILE_DINHKEM" Type="nvarchar2" MaxLength="500" />
+          <Property Name="MACTY" Type="nvarchar2" MaxLength="50" />
+          <Property Name="MAPB" Type="nvarchar2" MaxLength="50" />
+        </EntityType>
         <EntityType Name="TB_TONGIAO">
           <Key>
             <PropertyRef Name="IDTG" />
           </Key>
           <Property Name="IDTG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="TENTG" Type="nvarchar2" MaxLength="20" />
+        </EntityType>
+        <EntityType Name="TB_TRANSLATIONS">
+          <Key>
+            <PropertyRef Name="TABLE_NAME" />
+            <PropertyRef Name="RECORD_ID" />
+            <PropertyRef Name="COLUMN_NAME" />
+            <PropertyRef Name="LANGUAGE_CODE" />
+          </Key>
+          <Property Name="TABLE_NAME" Type="varchar2" MaxLength="50" Nullable="false" />
+          <Property Name="RECORD_ID" Type="varchar2" MaxLength="50" Nullable="false" />
+          <Property Name="COLUMN_NAME" Type="varchar2" MaxLength="50" Nullable="false" />
+          <Property Name="LANGUAGE_CODE" Type="varchar2" MaxLength="5" Nullable="false" />
+          <Property Name="VALUE" Type="varchar2" MaxLength="2000" Nullable="false" />
+          <Property Name="DESCRIPTION" Type="varchar2" MaxLength="2000" />
         </EntityType>
         <EntityType Name="TB_TRINHDO">
           <Key>
@@ -510,6 +550,20 @@
           <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
           <Property Name="DELETED_DATE" Type="date" />
         </EntityType>
+        <Association Name="FK_TRANSLATIONS_LANG">
+          <End Role="TB_LANGUAGES" Type="Self.TB_LANGUAGES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="TB_TRANSLATIONS" Type="Self.TB_TRANSLATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_LANGUAGES">
+              <PropertyRef Name="CODE" />
+            </Principal>
+            <Dependent Role="TB_TRANSLATIONS">
+              <PropertyRef Name="LANGUAGE_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="TB_BANGCONG_LC_FK2">
           <End Role="TB_LOAICONG" Type="Self.TB_LOAICONG" Multiplicity="0..1">
             <OnDelete Action="Cascade" />
@@ -864,6 +918,7 @@
           <EntitySet Name="TB_KHENTHUONG_KYLUAT" EntityType="Self.TB_KHENTHUONG_KYLUAT" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_KYCONG" EntityType="Self.TB_KYCONG" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_KYCONGCHITIET" EntityType="Self.TB_KYCONGCHITIET" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_LANGUAGES" EntityType="Self.TB_LANGUAGES" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_LOAICA" EntityType="Self.TB_LOAICA" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_LOAICONG" EntityType="Self.TB_LOAICONG" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_NANGLUONG_NHANVIEN" EntityType="Self.TB_NANGLUONG_NHANVIEN" Schema="HR" store:Type="Tables" />
@@ -880,9 +935,15 @@
           <EntitySet Name="TB_SYS_RIGHT_REPORT" EntityType="Self.TB_SYS_RIGHT_REPORT" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_USER" EntityType="Self.TB_SYS_USER" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_TANGCA" EntityType="Self.TB_TANGCA" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_THONGBAO" EntityType="Self.TB_THONGBAO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_TONGIAO" EntityType="Self.TB_TONGIAO" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_TRANSLATIONS" EntityType="Self.TB_TRANSLATIONS" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_TRINHDO" EntityType="Self.TB_TRINHDO" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_UNGLUONG" EntityType="Self.TB_UNGLUONG" Schema="HR" store:Type="Tables" />
+          <AssociationSet Name="FK_TRANSLATIONS_LANG" Association="Self.FK_TRANSLATIONS_LANG">
+            <End Role="TB_LANGUAGES" EntitySet="TB_LANGUAGES" />
+            <End Role="TB_TRANSLATIONS" EntitySet="TB_TRANSLATIONS" />
+          </AssociationSet>
           <AssociationSet Name="TB_BANGCONG_LC_FK2" Association="Self.TB_BANGCONG_LC_FK2">
             <End Role="TB_LOAICONG" EntitySet="TB_LOAICONG" />
             <End Role="TB_BANGCONG" EntitySet="TB_BANGCONG" />
@@ -1123,6 +1184,13 @@
             <Parameter Name="P_DEPARTMENT_ID" Mode="In" Type="Decimal" />
           </FunctionImport>
           <FunctionImport Name="SECURE_DML" />
+          <EntitySet Name="TB_LANGUAGES" EntityType="Model.TB_LANGUAGES" />
+          <EntitySet Name="TB_THONGBAO" EntityType="Model.TB_THONGBAO" />
+          <EntitySet Name="TB_TRANSLATIONS" EntityType="Model.TB_TRANSLATIONS" />
+          <AssociationSet Name="FK_TRANSLATIONS_LANG" Association="Model.FK_TRANSLATIONS_LANG">
+            <End Role="TB_LANGUAGES" EntitySet="TB_LANGUAGES" />
+            <End Role="TB_TRANSLATIONS" EntitySet="TB_TRANSLATIONS" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="TB_BANGCONG">
           <Key>
@@ -2007,6 +2075,62 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="TB_LANGUAGES">
+          <Key>
+            <PropertyRef Name="CODE" />
+          </Key>
+          <Property Name="CODE" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="NAME" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="IS_ACTIVE" Type="Boolean" Nullable="false" />
+          <Property Name="CREATED_AT" Type="DateTime" Precision="6" />
+          <NavigationProperty Name="TB_TRANSLATIONS" Relationship="Model.FK_TRANSLATIONS_LANG" FromRole="TB_LANGUAGES" ToRole="TB_TRANSLATIONS" />
+        </EntityType>
+        <EntityType Name="TB_THONGBAO">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TIEUDE" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="true" />
+          <Property Name="NOIDUNG" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="NGUOIDANG" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="NGAYDANG" Type="DateTime" Nullable="false" Precision="6" />
+          <Property Name="LOAI_TB" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="IS_PINNED" Type="Boolean" />
+          <Property Name="TRANGTHAI" Type="Boolean" />
+          <Property Name="NGAY_HETHAN" Type="DateTime" Precision="6" />
+          <Property Name="FILE_DINHKEM" Type="String" MaxLength="500" FixedLength="false" Unicode="true" />
+          <Property Name="MACTY" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="MAPB" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="TB_TRANSLATIONS">
+          <Key>
+            <PropertyRef Name="TABLE_NAME" />
+            <PropertyRef Name="RECORD_ID" />
+            <PropertyRef Name="COLUMN_NAME" />
+            <PropertyRef Name="LANGUAGE_CODE" />
+          </Key>
+          <Property Name="TABLE_NAME" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="RECORD_ID" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="COLUMN_NAME" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="LANGUAGE_CODE" Type="String" Nullable="false" MaxLength="5" FixedLength="false" Unicode="false" />
+          <Property Name="VALUE" Type="String" Nullable="false" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <Property Name="DESCRIPTION" Type="String" MaxLength="2000" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="TB_LANGUAGES" Relationship="Model.FK_TRANSLATIONS_LANG" FromRole="TB_TRANSLATIONS" ToRole="TB_LANGUAGES" />
+        </EntityType>
+        <Association Name="FK_TRANSLATIONS_LANG">
+          <End Type="Model.TB_LANGUAGES" Role="TB_LANGUAGES" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="Model.TB_TRANSLATIONS" Role="TB_TRANSLATIONS" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="TB_LANGUAGES">
+              <PropertyRef Name="CODE" />
+            </Principal>
+            <Dependent Role="TB_TRANSLATIONS">
+              <PropertyRef Name="LANGUAGE_CODE" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2547,6 +2671,46 @@
           </EntitySetMapping>
           <FunctionImportMapping FunctionImportName="ADD_JOB_HISTORY" FunctionName="Model.Store.ADD_JOB_HISTORY" />
           <FunctionImportMapping FunctionImportName="SECURE_DML" FunctionName="Model.Store.SECURE_DML" />
+          <EntitySetMapping Name="TB_LANGUAGES">
+            <EntityTypeMapping TypeName="Model.TB_LANGUAGES">
+              <MappingFragment StoreEntitySet="TB_LANGUAGES">
+                <ScalarProperty Name="CREATED_AT" ColumnName="CREATED_AT" />
+                <ScalarProperty Name="IS_ACTIVE" ColumnName="IS_ACTIVE" />
+                <ScalarProperty Name="NAME" ColumnName="NAME" />
+                <ScalarProperty Name="CODE" ColumnName="CODE" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_THONGBAO">
+            <EntityTypeMapping TypeName="Model.TB_THONGBAO">
+              <MappingFragment StoreEntitySet="TB_THONGBAO">
+                <ScalarProperty Name="MAPB" ColumnName="MAPB" />
+                <ScalarProperty Name="MACTY" ColumnName="MACTY" />
+                <ScalarProperty Name="FILE_DINHKEM" ColumnName="FILE_DINHKEM" />
+                <ScalarProperty Name="NGAY_HETHAN" ColumnName="NGAY_HETHAN" />
+                <ScalarProperty Name="TRANGTHAI" ColumnName="TRANGTHAI" />
+                <ScalarProperty Name="IS_PINNED" ColumnName="IS_PINNED" />
+                <ScalarProperty Name="LOAI_TB" ColumnName="LOAI_TB" />
+                <ScalarProperty Name="NGAYDANG" ColumnName="NGAYDANG" />
+                <ScalarProperty Name="NGUOIDANG" ColumnName="NGUOIDANG" />
+                <ScalarProperty Name="NOIDUNG" ColumnName="NOIDUNG" />
+                <ScalarProperty Name="TIEUDE" ColumnName="TIEUDE" />
+                <ScalarProperty Name="ID" ColumnName="ID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_TRANSLATIONS">
+            <EntityTypeMapping TypeName="Model.TB_TRANSLATIONS">
+              <MappingFragment StoreEntitySet="TB_TRANSLATIONS">
+                <ScalarProperty Name="DESCRIPTION" ColumnName="DESCRIPTION" />
+                <ScalarProperty Name="VALUE" ColumnName="VALUE" />
+                <ScalarProperty Name="LANGUAGE_CODE" ColumnName="LANGUAGE_CODE" />
+                <ScalarProperty Name="COLUMN_NAME" ColumnName="COLUMN_NAME" />
+                <ScalarProperty Name="RECORD_ID" ColumnName="RECORD_ID" />
+                <ScalarProperty Name="TABLE_NAME" ColumnName="TABLE_NAME" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>

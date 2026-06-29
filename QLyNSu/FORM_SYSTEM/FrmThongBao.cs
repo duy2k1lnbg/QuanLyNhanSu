@@ -37,7 +37,7 @@ namespace QLyNSu.FORM_SYSTEM
             gvDanhSach.CustomColumnDisplayText += gvDanhSach_CustomColumnDisplayText;
         }
 
-        private void LoadCombo()
+        public void LoadCombo()
         {
             try
             {
@@ -65,7 +65,7 @@ namespace QLyNSu.FORM_SYSTEM
                 cboCongTy.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TENCTY", "Tên Công ty"));
 
                 // 4. Load cboPhongBan list from Database
-                var listPhongBan = new PHONGBAN().getList();
+                var listPhongBan = new PHONGBAN().getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
                 cboPhongBan.Properties.DataSource = listPhongBan;
                 cboPhongBan.Properties.DisplayMember = "TENPB";
                 cboPhongBan.Properties.ValueMember = "IDPB";
@@ -156,11 +156,11 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void LoadData()
+        public void LoadData()
         {
             try
             {
-                gcDanhSach.DataSource = _thongbao.getListFull_DTO();
+                gcDanhSach.DataSource = _thongbao.getListFull_DTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
                 FormManager_Functions.CustomView_Colums(gvDanhSach);
             }
             catch (Exception ex)
@@ -193,8 +193,8 @@ namespace QLyNSu.FORM_SYSTEM
                         NGUOIDANG = UserSession.CurrentUser != null ? UserSession.CurrentUser.FULLNAME : "ADMIN",
                         NGAYDANG = DateTime.Now,
                         LOAI_TB = cboLoaiTB.Text,
-                        IS_PINNED = chkGhim.Checked ? 1 : 0,
-                        TRANGTHAI = cboTrangThai.SelectedIndex,
+                        IS_PINNED = chkGhim.Checked,
+                        TRANGTHAI = cboTrangThai.SelectedIndex == 1,
                         NGAY_HETHAN = dtNgayHetHan.EditValue != null ? (DateTime?)dtNgayHetHan.DateTime : null,
                         FILE_DINHKEM = txtFileDinhKem.Text.Trim(),
                         MACTY = cboCongTy.EditValue != null ? cboCongTy.EditValue.ToString() : null,
@@ -212,8 +212,8 @@ namespace QLyNSu.FORM_SYSTEM
                         tb.NGUOIDANG = UserSession.CurrentUser != null ? UserSession.CurrentUser.FULLNAME : "ADMIN";
                         tb.NGAYDANG = DateTime.Now;
                         tb.LOAI_TB = cboLoaiTB.Text;
-                        tb.IS_PINNED = chkGhim.Checked ? 1 : 0;
-                        tb.TRANGTHAI = cboTrangThai.SelectedIndex;
+                        tb.IS_PINNED = chkGhim.Checked;
+                        tb.TRANGTHAI = cboTrangThai.SelectedIndex == 1;
                         tb.NGAY_HETHAN = dtNgayHetHan.EditValue != null ? (DateTime?)dtNgayHetHan.DateTime : null;
                         tb.FILE_DINHKEM = txtFileDinhKem.Text.Trim();
                         tb.MACTY = cboCongTy.EditValue != null ? cboCongTy.EditValue.ToString() : null;

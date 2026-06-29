@@ -1368,3 +1368,9 @@ The AI subsystem is isolated at **multiple levels**:
 This project was developed for academic/educational purposes. For commercial use, please contact the author.
 
 Dự án này được phát triển cho mục đích học thuật. Vui lòng liên hệ tác giả nếu có nhu cầu thương mại.
+
+
+### 🌐 Kiến Trúc Đa Ngôn Ngữ (Multilingual Architecture)
+Hệ thống Quản Lý Nhân Sự được thiết kế với kiến trúc đa ngôn ngữ kép (Hybrid Translation System) nhằm mục đích tối ưu hóa hiệu suất và tính mềm dẻo:
+- **Từ điển Fix cứng (Hardcoded Dictionary):** Hơn 4000 từ vựng giao diện (UI Labels) được khai báo sẵn dưới dạng biến toàn cục `_dictionary` trong `TranslationManager.cs`. Cơ chế này giúp ứng dụng khởi động cực kỳ nhanh, dịch toàn bộ nút bấm, tiêu đề mà không gây tải lên Oracle DB.
+- **Từ điển Database (Dynamic Data):** Ứng dụng đồng thời truy vấn bảng `TB_TRANSLATIONS` để nạp các dữ liệu động lên để **bổ sung và ghi đè (override)**. Nếu có bất kỳ sự chỉnh sửa nào trong Database, nó sẽ ngay lập tức được áp dụng thay thế cho từ vựng gốc bản, xóa bỏ nhược điểm phải Build lại code để sửa chính tả hay từ ngữ. Tất cả các Combo Box Data cũng dùng model chẩn `ComboDTO` để trích xuất ngôn ngữ từ Database này.

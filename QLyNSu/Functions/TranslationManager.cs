@@ -294,6 +294,70 @@ namespace QLyNSu.Functions
             LoadLanguage();
         }
 
+        
+        public static string GetCurrentLanguageCode()
+        {
+            if (_currentLanguage == null) return "vi";
+            if (_currentLanguage.Contains("Anh") || _currentLanguage.Contains("English")) return "en";
+            if (_currentLanguage.Contains("Nh") || _currentLanguage.Contains("Japanese") || _currentLanguage.Contains("Nihongo")) return "ja";
+            if (_currentLanguage.Contains("Trung") || _currentLanguage.Contains("Chinese")) return "zh";
+            if (_currentLanguage.Contains("H") || _currentLanguage.Contains("Korean") || _currentLanguage.Contains("Han")) return "ko";
+            return "vi";
+        }
+
+        public static void TranslateAllOpenForms()
+        {
+            if (System.Windows.Forms.Application.OpenForms == null) return;
+            var forms = new System.Collections.ArrayList(System.Windows.Forms.Application.OpenForms);
+            foreach (System.Windows.Forms.Form form in forms)
+            {
+                Translate(form);
+            }
+        }
+
+        public static void LoadDictionaryFromDB()
+        {
+            try
+            {
+                using (var db = new DA.MyEntities())
+                {
+                    var records = System.Linq.Enumerable.ToList(System.Linq.Queryable.Where(db.TB_TRANSLATIONS, t => t.TABLE_NAME == "UI_LABEL"));
+                    var grouped = System.Linq.Enumerable.GroupBy(records, t => t.COLUMN_NAME);
+                    foreach (var group in grouped)
+                    {
+                        string viText = group.Key;
+                        if (string.IsNullOrEmpty(viText)) continue;
+
+                        string en = viText, ja = viText, zh = viText, ko = viText;
+                        
+                        // Láº¥y dá»¯ liá»u cÅ© tá»« fix cá»©ng Äá» KHÃNG lÃ m máº¥t cÃ¡c ngÃ´n ngá»¯ khÃ´ng cÃ³ trong DB
+                        if (_dictionary.TryGetValue(viText, out var existing))
+                        {
+                            en = existing.English;
+                            ja = existing.Japanese;
+                            zh = existing.Chinese;
+                            ko = existing.Korean;
+                        }
+
+                        foreach (var r in group)
+                        {
+                            if (r.LANGUAGE_CODE != null && r.LANGUAGE_CODE.ToUpper() == "EN") en = r.VALUE;
+                            if (r.LANGUAGE_CODE != null && r.LANGUAGE_CODE.ToUpper() == "JA") ja = r.VALUE;
+                            if (r.LANGUAGE_CODE != null && r.LANGUAGE_CODE.ToUpper() == "ZH") zh = r.VALUE;
+                            if (r.LANGUAGE_CODE != null && r.LANGUAGE_CODE.ToUpper() == "KO") ko = r.VALUE;
+                        }
+
+                        // Override or append database translation onto the hardcoded dictionary base
+                        _dictionary[viText] = (en, ja, zh, ko);
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Error loading DB translations: " + ex.Message);
+            }
+        }
+
         public static string CurrentLanguage
         {
             get => _currentLanguage;

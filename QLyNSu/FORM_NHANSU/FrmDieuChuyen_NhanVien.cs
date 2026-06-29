@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using DA;
 using DevExpress.XtraEditors;
 using System;
@@ -170,9 +170,9 @@ namespace QLyNSu
             FormManager_Functions.CustomView_Colums(gvDsDC);
         }
 
-        private void LoadDonVi()
+        public void LoadDonVi()
         {
-            cboDieuChuyen.DataSource = _phongban.getList();
+            cboDieuChuyen.DataSource = _phongban.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
             cboDieuChuyen.ValueMember = "IDPB";
             cboDieuChuyen.DisplayMember = "TENPB";
         }
