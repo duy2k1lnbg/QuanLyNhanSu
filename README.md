@@ -1374,3 +1374,29 @@ Dự án này được phát triển cho mục đích học thuật. Vui lòng l
 Hệ thống Quản Lý Nhân Sự được thiết kế với kiến trúc đa ngôn ngữ kép (Hybrid Translation System) nhằm mục đích tối ưu hóa hiệu suất và tính mềm dẻo:
 - **Từ điển Fix cứng (Hardcoded Dictionary):** Hơn 4000 từ vựng giao diện (UI Labels) được khai báo sẵn dưới dạng biến toàn cục `_dictionary` trong `TranslationManager.cs`. Cơ chế này giúp ứng dụng khởi động cực kỳ nhanh, dịch toàn bộ nút bấm, tiêu đề mà không gây tải lên Oracle DB.
 - **Từ điển Database (Dynamic Data):** Ứng dụng đồng thời truy vấn bảng `TB_TRANSLATIONS` để nạp các dữ liệu động lên để **bổ sung và ghi đè (override)**. Nếu có bất kỳ sự chỉnh sửa nào trong Database, nó sẽ ngay lập tức được áp dụng thay thế cho từ vựng gốc bản, xóa bỏ nhược điểm phải Build lại code để sửa chính tả hay từ ngữ. Tất cả các Combo Box Data cũng dùng model chẩn `ComboDTO` để trích xuất ngôn ngữ từ Database này.
+
+### 🔌 Cấu Hình Cơ Sở Dữ Liệu Động (Dynamic EF Connection)
+Hệ thống được thiết kế linh hoạt để triển khai trên mọi môi trường mạng mà không cần biên dịch lại mã nguồn (Zero-recompile Deployment):
+- **Giao diện cấu hình trực quan**: Tích hợp sẵn nút "Cấu hình DB" (⚙) ngay tại màn hình đăng nhập, cho phép kỹ thuật viên thiết lập thông số Oracle (Server IP, Port, Service Name, Username, Password).
+- **Lưu trữ JSON độc lập**: Cấu hình được lưu an toàn tại tệp QLyNSu_DBConfig.json nằm cùng cấp với tệp thực thi.
+- **Tiêm (Inject) Connection String tự động**: Ngay khi phần mềm khởi động (Program.cs), hệ thống sẽ đọc JSON, trích xuất ServerIP và Database, sau đó tự động định dạng thành chuỗi kết nối chuẩn của Entity Framework và ghi đè vào hệ thống mạng.
+- **Khắc phục lỗi App.config**: Giải quyết triệt để bài toán mất chuỗi kết nối MyEntities hoặc lỗi The underlying provider failed on Open khi sao chép tệp thực thi (publish) sang các máy tính Client khác nhau.
+
+---
+
+### 🚀 Các Cập Nhật & Bổ Sung Mới Nhất (Recent Updates)
+Trong phiên bản cập nhật gần đây nhất, hệ thống đã được bổ sung thêm một số Form và tính năng cốt lõi sau:
+
+#### 1. Bổ sung Form chức năng mới
+- **Thêm Form FrmDatabaseConfig**: Đây là màn hình cấu hình Cấu trúc Cơ sở dữ liệu (Database Configuration) dành cho kỹ thuật viên hoặc người quản trị. Form này cho phép người dùng nhập trực tiếp thông tin kết nối tới Oracle (như Server IP, Port, Username, Password, và tên Database) mà không cần can thiệp vào Source Code.
+
+#### 2. Nâng cấp cốt lõi hệ thống & Entity Framework
+- **Quản lý chuỗi kết nối động (Dynamic Connection String)**: 
+  - Khắc phục hoàn toàn sự cố mất chuỗi kết nối (No connection string 'MyEntities') khi mang file thực thi .exe sang máy tính khác.
+  - Thông số cấu hình nay được lưu trữ an toàn dưới dạng file **QLyNSu_DBConfig.json** nằm cùng cấp với file chạy.
+  - Tại trạm trung chuyển Program.cs, hệ thống sẽ tự động đọc file JSON này, trích xuất ServerIP và Database, sau đó linh hoạt tái cấu trúc (inject) thành chuỗi kết nối chuẩn xác để tiêm vào Entity Framework trước khi ứng dụng khởi chạy.
+
+#### 3. Cải tiến giao diện (UI/UX)
+- **Tối giản hóa Màn hình Đăng Nhập (FrmDangNhap)**: Chuyển đổi 2 nút "Ngôn ngữ" và "Cấu hình DB" từ dạng nút bấm (Button) truyền thống sang dạng **Biểu tượng phẳng (Flat Icons)** (sử dụng ký tự Unicode 🌐 và ⚙) giống hệt như nút Exit (✕), mang lại trải nghiệm tối giản và liền mạch hơn cho màn hình Welcome.
+- **Sửa lỗi mất tài nguyên khi Đóng gói (Publish)**: Cấu hình lại tệp .csproj để đảm bảo ảnh nền (login_bg.png) luôn được tự động copy (PreserveNewest) theo tệp thực thi khi xuất xưởng.
+

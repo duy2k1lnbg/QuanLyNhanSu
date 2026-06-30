@@ -39,6 +39,7 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmDangNhap));
             this.panelLeft = new System.Windows.Forms.Panel();
             this.lblLeftTitle = new DevExpress.XtraEditors.LabelControl();
             this.lblLeftSub = new DevExpress.XtraEditors.LabelControl();
@@ -72,6 +73,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.panelLeft.Controls.Add(this.lblLeftSub);
             this.panelLeft.Controls.Add(this.lblLeftSlogan);
             this.panelLeft.Controls.Add(this.lblLeftVersion);
+            this.panelLeft.Controls.Add(this.btnServerConfig);
             this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelLeft.Location = new System.Drawing.Point(0, 0);
             this.panelLeft.Name = "panelLeft";
@@ -134,12 +136,11 @@ namespace QLyNSu.FORM_SYSTEM
             this.panelRight.Controls.Add(this.lblRightTitle);
             this.panelRight.Controls.Add(this.lblRightSub);
             this.panelRight.Controls.Add(this.txtTenDangNhap);
+            this.panelRight.Controls.Add(this.btnLanguage);
             this.panelRight.Controls.Add(this.txtMatKhau);
             this.panelRight.Controls.Add(this.btnShowPassword);
             this.panelRight.Controls.Add(this.chkRememberMe);
             this.panelRight.Controls.Add(this.chkShowPassword);
-            this.panelRight.Controls.Add(this.btnServerConfig);
-            this.panelRight.Controls.Add(this.btnLanguage);
             this.panelRight.Controls.Add(this.lblThongBao);
             this.panelRight.Controls.Add(this.btnDangNhap);
             this.panelRight.Controls.Add(this.btnThoat);
@@ -156,7 +157,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblClose.Appearance.Options.UseFont = true;
             this.lblClose.Appearance.Options.UseForeColor = true;
             this.lblClose.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.lblClose.Location = new System.Drawing.Point(515, 12);
+            this.lblClose.Location = new System.Drawing.Point(647, 12);
             this.lblClose.Name = "lblClose";
             this.lblClose.Size = new System.Drawing.Size(17, 28);
             this.lblClose.TabIndex = 0;
@@ -253,27 +254,31 @@ namespace QLyNSu.FORM_SYSTEM
             // btnServerConfig
             // 
             this.btnServerConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnServerConfig.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.btnServerConfig.Appearance.Font = new System.Drawing.Font("Segoe UI", 16F);
             this.btnServerConfig.Appearance.Options.UseFont = true;
+            this.btnServerConfig.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnServerConfig.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnServerConfig.Location = new System.Drawing.Point(559, 587);
+            this.btnServerConfig.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnServerConfig.ImageOptions.SvgImage")));
+            this.btnServerConfig.Location = new System.Drawing.Point(3, 3);
             this.btnServerConfig.Name = "btnServerConfig";
-            this.btnServerConfig.Size = new System.Drawing.Size(110, 35);
+            this.btnServerConfig.Size = new System.Drawing.Size(40, 40);
             this.btnServerConfig.TabIndex = 10;
-            this.btnServerConfig.Text = "Cấu hình DB";
+            this.btnServerConfig.ToolTip = "Cấu hình cơ sở dữ liệu";
             this.btnServerConfig.Click += new System.EventHandler(this.btnServerConfig_Click);
             // 
             // btnLanguage
             // 
             this.btnLanguage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnLanguage.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.btnLanguage.Appearance.Font = new System.Drawing.Font("Segoe UI", 14F);
             this.btnLanguage.Appearance.Options.UseFont = true;
+            this.btnLanguage.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btnLanguage.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.btnLanguage.Location = new System.Drawing.Point(453, 587);
+            this.btnLanguage.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLanguage.ImageOptions.SvgImage")));
+            this.btnLanguage.Location = new System.Drawing.Point(633, 579);
             this.btnLanguage.Name = "btnLanguage";
-            this.btnLanguage.Size = new System.Drawing.Size(100, 35);
+            this.btnLanguage.Size = new System.Drawing.Size(40, 40);
             this.btnLanguage.TabIndex = 9;
-            this.btnLanguage.Text = "Ngôn ngữ";
+            this.btnLanguage.ToolTip = "Ngôn ngữ";
             this.btnLanguage.Click += new System.EventHandler(this.btnLanguage_Click);
             // 
             // lblThongBao
