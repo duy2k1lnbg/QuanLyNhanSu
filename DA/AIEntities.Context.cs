@@ -15,8 +15,10 @@ namespace DA
     
     public partial class AiEntities : DbContext
     {
+        public static string GlobalConnectionString { get; set; } = null;
         private static string GetConnectionString()
         {
+            if (!string.IsNullOrEmpty(GlobalConnectionString)) return GlobalConnectionString;
             string envConn = Environment.GetEnvironmentVariable("AI_DB_CONNECTION");
             return !string.IsNullOrEmpty(envConn) ? envConn : "name=AiEntities";
         }

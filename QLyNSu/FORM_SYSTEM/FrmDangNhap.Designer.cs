@@ -25,6 +25,8 @@ namespace QLyNSu.FORM_SYSTEM
         private LabelControl lblThongBao;
         private SimpleButton btnDangNhap;
         private SimpleButton btnThoat;
+        private SimpleButton btnLanguage;
+        private SimpleButton btnServerConfig;
 
         protected override void Dispose(bool disposing)
         {
@@ -51,6 +53,8 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnShowPassword = new DevExpress.XtraEditors.SimpleButton();
             this.chkRememberMe = new DevExpress.XtraEditors.CheckEdit();
             this.chkShowPassword = new DevExpress.XtraEditors.CheckEdit();
+            this.btnServerConfig = new DevExpress.XtraEditors.SimpleButton();
+            this.btnLanguage = new DevExpress.XtraEditors.SimpleButton();
             this.lblThongBao = new DevExpress.XtraEditors.LabelControl();
             this.btnDangNhap = new DevExpress.XtraEditors.SimpleButton();
             this.btnThoat = new DevExpress.XtraEditors.SimpleButton();
@@ -71,9 +75,8 @@ namespace QLyNSu.FORM_SYSTEM
             this.panelLeft.Dock = System.Windows.Forms.DockStyle.Left;
             this.panelLeft.Location = new System.Drawing.Point(0, 0);
             this.panelLeft.Name = "panelLeft";
-            this.panelLeft.Size = new System.Drawing.Size(350, 550);
+            this.panelLeft.Size = new System.Drawing.Size(350, 622);
             this.panelLeft.TabIndex = 0;
-            
             // 
             // lblLeftTitle
             // 
@@ -135,13 +138,15 @@ namespace QLyNSu.FORM_SYSTEM
             this.panelRight.Controls.Add(this.btnShowPassword);
             this.panelRight.Controls.Add(this.chkRememberMe);
             this.panelRight.Controls.Add(this.chkShowPassword);
+            this.panelRight.Controls.Add(this.btnServerConfig);
+            this.panelRight.Controls.Add(this.btnLanguage);
             this.panelRight.Controls.Add(this.lblThongBao);
             this.panelRight.Controls.Add(this.btnDangNhap);
             this.panelRight.Controls.Add(this.btnThoat);
             this.panelRight.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panelRight.Location = new System.Drawing.Point(350, 0);
             this.panelRight.Name = "panelRight";
-            this.panelRight.Size = new System.Drawing.Size(550, 550);
+            this.panelRight.Size = new System.Drawing.Size(676, 622);
             this.panelRight.TabIndex = 1;
             // 
             // lblClose
@@ -180,7 +185,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblRightSub.Appearance.Options.UseForeColor = true;
             this.lblRightSub.Location = new System.Drawing.Point(95, 147);
             this.lblRightSub.Name = "lblRightSub";
-            this.lblRightSub.Size = new System.Drawing.Size(400, 20);
+            this.lblRightSub.Size = new System.Drawing.Size(268, 20);
             this.lblRightSub.TabIndex = 2;
             this.lblRightSub.Text = "Đăng nhập để tiếp tục truy cập hệ thống";
             // 
@@ -245,6 +250,32 @@ namespace QLyNSu.FORM_SYSTEM
             this.chkShowPassword.TabIndex = 6;
             this.chkShowPassword.CheckedChanged += new System.EventHandler(this.ChkShowPassword_CheckedChanged);
             // 
+            // btnServerConfig
+            // 
+            this.btnServerConfig.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnServerConfig.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.btnServerConfig.Appearance.Options.UseFont = true;
+            this.btnServerConfig.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnServerConfig.Location = new System.Drawing.Point(559, 587);
+            this.btnServerConfig.Name = "btnServerConfig";
+            this.btnServerConfig.Size = new System.Drawing.Size(110, 35);
+            this.btnServerConfig.TabIndex = 10;
+            this.btnServerConfig.Text = "Cấu hình DB";
+            this.btnServerConfig.Click += new System.EventHandler(this.btnServerConfig_Click);
+            // 
+            // btnLanguage
+            // 
+            this.btnLanguage.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLanguage.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.btnLanguage.Appearance.Options.UseFont = true;
+            this.btnLanguage.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btnLanguage.Location = new System.Drawing.Point(453, 587);
+            this.btnLanguage.Name = "btnLanguage";
+            this.btnLanguage.Size = new System.Drawing.Size(100, 35);
+            this.btnLanguage.TabIndex = 9;
+            this.btnLanguage.Text = "Ngôn ngữ";
+            this.btnLanguage.Click += new System.EventHandler(this.btnLanguage_Click);
+            // 
             // lblThongBao
             // 
             this.lblThongBao.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Italic);
@@ -253,7 +284,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblThongBao.Appearance.Options.UseForeColor = true;
             this.lblThongBao.Location = new System.Drawing.Point(95, 340);
             this.lblThongBao.Name = "lblThongBao";
-            this.lblThongBao.Size = new System.Drawing.Size(450, 20);
+            this.lblThongBao.Size = new System.Drawing.Size(0, 20);
             this.lblThongBao.TabIndex = 6;
             this.lblThongBao.Visible = false;
             // 
@@ -293,9 +324,10 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // FrmDangNhap
             // 
+            this.AcceptButton = this.btnDangNhap;
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(900, 550);
+            this.ClientSize = new System.Drawing.Size(1026, 622);
             this.Controls.Add(this.panelRight);
             this.Controls.Add(this.panelLeft);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;

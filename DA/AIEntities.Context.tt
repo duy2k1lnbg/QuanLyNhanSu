@@ -1,4 +1,4 @@
-﻿<#@ template language="C#" debug="false" hostspecific="true"#>
+<#@ template language="C#" debug="false" hostspecific="true"#>
 <#@ include file="EF6.Utility.CS.ttinclude"#><#@
  output extension=".cs"#><#
 
@@ -55,8 +55,16 @@ using System.Linq;
 
 <#=Accessibility.ForType(container)#> partial class <#=code.Escape(container)#> : DbContext
 {
+    public static string GlobalConnectionString { get; set; } = null;
+    private static string GetConnectionString()
+    {
+        if (!string.IsNullOrEmpty(GlobalConnectionString)) return GlobalConnectionString;
+        string envConn = Environment.GetEnvironmentVariable("AI_DB_CONNECTION");
+        return !string.IsNullOrEmpty(envConn) ? envConn : "name=<#=container.Name#>";
+    }
+
     public <#=code.Escape(container)#>()
-        : base("name=<#=container.Name#>")
+        : base(GetConnectionString())
     {
 <#
 if (!loader.IsLazyLoadingEnabled(container))

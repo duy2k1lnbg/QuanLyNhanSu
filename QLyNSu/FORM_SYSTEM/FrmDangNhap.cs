@@ -248,5 +248,23 @@ namespace QLyNSu.FORM_SYSTEM
         {
 
         }
+
+        private void btnLanguage_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmSetting())
+            {
+                QLyNSu.Functions.TranslationManager.Translate(frm);
+                frm.ShowDialog();
+            }
+        }
+
+        private void btnServerConfig_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmDatabaseConfig())
+            {
+                QLyNSu.Functions.TranslationManager.Translate(frm);
+                frm.ShowDialog();
+            }
+        }
     }
 }
