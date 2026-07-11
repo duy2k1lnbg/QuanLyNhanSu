@@ -8,6 +8,7 @@ namespace Bu.CLASS_SYSTEM
     {
         public static TB_SYS_USER CurrentUser { get; set; }
         public static List<string> UserRights { get; set; } = new List<string>();
+        public static decimal CurrentLoginId { get; set; }
 
         public static bool IsLoggedIn => CurrentUser != null;
 

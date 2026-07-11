@@ -1,0 +1,7 @@
+<svg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <circle cx='12' cy='13' r='5' stroke='#64748b' stroke-width='2'/>
+  <circle cx='12' cy='13' r='1.5' fill='#64748b'/>
+  <path d='M12 7V8M12 18V19M6 13H7M17 13H18M8 9L9 10M15 16L16 17M15 9L14 10M8 16L7 17' stroke='#64748b' stroke-width='1.5'/>
+  <circle cx='21' cy='21' r='4' stroke='#475569' stroke-width='2'/>
+  <circle cx='21' cy='21' r='1' fill='#475569'/>
+</svg>

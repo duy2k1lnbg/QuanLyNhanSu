@@ -1,0 +1,7 @@
+<svg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <path d='M6 7H26V14C26 19.5 21.5 24 16 24C10.5 24 6 19.5 6 14V7Z' stroke='#eab308' stroke-width='2' fill='#fef08a'/>
+  <path d='M6 10H3C1.89543 10 1 10.8954 1 12C1 14.5 2.5 16 5 16H6' stroke='#eab308' stroke-width='2'/>
+  <path d='M26 10H29C30.1046 10 31 10.8954 31 12C31 14.5 29.5 16 27 16H26' stroke='#eab308' stroke-width='2'/>
+  <path d='M16 24V28' stroke='#eab308' stroke-width='2' stroke-linecap='round'/>
+  <path d='M10 28H22' stroke='#eab308' stroke-width='2' stroke-linecap='round'/>
+</svg>

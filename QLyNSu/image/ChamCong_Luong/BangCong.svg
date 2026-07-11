@@ -1,0 +1,11 @@
+<svg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <rect x='4' y='6' width='24' height='22' rx='3' stroke='#0d9488' stroke-width='2'/>
+  <line x1='4' y1='12' x2='28' y2='12' stroke='#0d9488' stroke-width='2'/>
+  <line x1='10' y1='6' x2='10' y2='12' stroke='#0d9488' stroke-width='2'/>
+  <line x1='22' y1='6' x2='22' y2='12' stroke='#0d9488' stroke-width='2'/>
+  <circle cx='9' cy='17' r='1.5' fill='#0d9488'/>
+  <circle cx='16' cy='17' r='1.5' fill='#0d9488'/>
+  <circle cx='23' cy='17' r='1.5' fill='#0d9488'/>
+  <circle cx='9' cy='23' r='1.5' fill='#0d9488'/>
+  <circle cx='16' cy='23' r='1.5' fill='#0d9488'/>
+</svg>

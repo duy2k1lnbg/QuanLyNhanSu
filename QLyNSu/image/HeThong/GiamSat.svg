@@ -1,0 +1,7 @@
+<svg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <path d='M4 28H28' stroke='#6366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+  <path d='M8 28V14' stroke='#6366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+  <path d='M16 28V8' stroke='#6366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+  <path d='M24 28V18' stroke='#6366f1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+  <circle cx='16' cy='8' r='3' fill='#4f46e5'/>
+</svg>

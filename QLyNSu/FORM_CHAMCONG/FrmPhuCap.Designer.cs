@@ -237,11 +237,13 @@ namespace QLyNSu.FORM_CHAMCONG
             // btnThem
             // 
             this.btnThem.Id = 88;
+            this.btnThem.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnThem.ImageOptions.SvgImage")));
             this.btnThem.Name = "btnThem";
             // 
             // btnXoa
             // 
             this.btnXoa.Id = 89;
+            this.btnXoa.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnXoa.ImageOptions.SvgImage")));
             this.btnXoa.Name = "btnXoa";
             // 
             // repositoryItemBorderLineStyle1

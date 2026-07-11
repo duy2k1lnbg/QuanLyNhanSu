@@ -1,0 +1,5 @@
+<svg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <path d='M24 4H8C5.79086 4 4 5.79086 4 8V24C4 26.2091 5.79086 28 8 28H24C26.2091 28 28 26.2091 28 24V8L24 4Z' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+  <path d='M20 28V16H12V28' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+  <path d='M10 4V10H20V4' stroke='#3b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/>
+</svg>

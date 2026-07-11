@@ -1,0 +1,5 @@
+<svg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <path d='M16 4C16 4 11 9 11 13C11 15.7614 13.2386 18 16 18C18.7614 18 21 15.7614 21 13C21 9 16 4 16 4Z' fill='#f59e0b'/>
+  <path d='M8 26C8 21 12 20 16 20C20 20 24 21 24 26' stroke='#64748b' stroke-width='2' stroke-linecap='round'/>
+  <path d='M16 20V28' stroke='#64748b' stroke-width='1.5'/>
+</svg>

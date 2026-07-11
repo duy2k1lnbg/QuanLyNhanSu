@@ -422,6 +422,35 @@
           <Property Name="ID_GROUP" Type="number" Precision="38" Scale="0" Nullable="false" />
           <Property Name="MEMBER" Type="number" Precision="38" Scale="0" Nullable="false" />
         </EntityType>
+        <EntityType Name="TB_SYS_LOG">
+          <Key>
+            <PropertyRef Name="ID_LOG" />
+          </Key>
+          <Property Name="ID_LOG" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="MANV_THUCHIEN" Type="number" Precision="38" Scale="0" />
+          <Property Name="TEN_THUCHIEN" Type="nvarchar2" MaxLength="100" />
+          <Property Name="HANHDONG" Type="varchar2" MaxLength="50" />
+          <Property Name="TEN_BANG" Type="varchar2" MaxLength="100" />
+          <Property Name="ID_BAN_GHI" Type="varchar2" MaxLength="100" />
+          <Property Name="DU_LIEU_CU" Type="clob" />
+          <Property Name="DU_LIEU_MOI" Type="clob" />
+          <Property Name="IP_ADDRESS" Type="varchar2" MaxLength="50" />
+          <Property Name="MAC_ADDRESS" Type="varchar2" MaxLength="100" />
+          <Property Name="TEN_MAY_TINH" Type="varchar2" MaxLength="100" />
+          <Property Name="THOIGIAN" Type="timestamp" Precision="6" />
+        </EntityType>
+        <EntityType Name="TB_SYS_LOGIN_HISTORY">
+          <Key>
+            <PropertyRef Name="ID_LOGIN" />
+          </Key>
+          <Property Name="ID_LOGIN" Type="number" Precision="38" Scale="0" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="ID_USER" Type="number" Precision="38" Scale="0" />
+          <Property Name="THOIGIAN" Type="timestamp" Precision="6" />
+          <Property Name="IP_ADDRESS" Type="varchar2" MaxLength="50" />
+          <Property Name="MAC_ADDRESS" Type="varchar2" MaxLength="100" />
+          <Property Name="TEN_MAY_TINH" Type="varchar2" MaxLength="100" />
+          <Property Name="TRANGTHAI" Type="nvarchar2" MaxLength="50" />
+        </EntityType>
         <EntityType Name="TB_SYS_REPORT">
           <Key>
             <PropertyRef Name="REP_CODE" />
@@ -466,6 +495,7 @@
           <Property Name="LAST_PWD_CHANGED" Type="date" />
           <Property Name="DISABLED" Type="number" Precision="38" Scale="0" />
           <Property Name="ISGROUP" Type="number" Precision="38" Scale="0" />
+          <Property Name="ALLOWED_IPS" Type="varchar2" MaxLength="500" />
         </EntityType>
         <EntityType Name="TB_TANGCA">
           <Key>
@@ -520,9 +550,9 @@
           </Key>
           <Property Name="TABLE_NAME" Type="varchar2" MaxLength="50" Nullable="false" />
           <Property Name="RECORD_ID" Type="varchar2" MaxLength="50" Nullable="false" />
-          <Property Name="COLUMN_NAME" Type="varchar2" MaxLength="50" Nullable="false" />
+          <Property Name="COLUMN_NAME" Type="nvarchar2" MaxLength="500" Nullable="false" />
           <Property Name="LANGUAGE_CODE" Type="varchar2" MaxLength="5" Nullable="false" />
-          <Property Name="VALUE" Type="varchar2" MaxLength="2000" Nullable="false" />
+          <Property Name="VALUE" Type="nvarchar2" MaxLength="500" Nullable="false" />
           <Property Name="DESCRIPTION" Type="varchar2" MaxLength="2000" />
         </EntityType>
         <EntityType Name="TB_TRINHDO">
@@ -930,6 +960,8 @@
           <EntitySet Name="TB_QUOCTICH" EntityType="Self.TB_QUOCTICH" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_FUNCTION" EntityType="Self.TB_SYS_FUNCTION" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_GROUP" EntityType="Self.TB_SYS_GROUP" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_SYS_LOG" EntityType="Self.TB_SYS_LOG" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_SYS_LOGIN_HISTORY" EntityType="Self.TB_SYS_LOGIN_HISTORY" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_REPORT" EntityType="Self.TB_SYS_REPORT" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_RIGHT" EntityType="Self.TB_SYS_RIGHT" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_RIGHT_REPORT" EntityType="Self.TB_SYS_RIGHT_REPORT" Schema="HR" store:Type="Tables" />
@@ -1191,6 +1223,8 @@
             <End Role="TB_LANGUAGES" EntitySet="TB_LANGUAGES" />
             <End Role="TB_TRANSLATIONS" EntitySet="TB_TRANSLATIONS" />
           </AssociationSet>
+          <EntitySet Name="TB_SYS_LOG" EntityType="Model.TB_SYS_LOG" />
+          <EntitySet Name="TB_SYS_LOGIN_HISTORY" EntityType="Model.TB_SYS_LOGIN_HISTORY" />
         </EntityContainer>
         <EntityType Name="TB_BANGCONG">
           <Key>
@@ -1660,6 +1694,7 @@
           <Property Name="LAST_PWD_CHANGED" Type="DateTime" />
           <Property Name="DISABLED" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="ISGROUP" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="ALLOWED_IPS" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="TB_TANGCA">
           <Key>
@@ -2131,6 +2166,35 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="TB_SYS_LOG">
+          <Key>
+            <PropertyRef Name="ID_LOG" />
+          </Key>
+          <Property Name="ID_LOG" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="MANV_THUCHIEN" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="TEN_THUCHIEN" Type="String" MaxLength="100" FixedLength="false" Unicode="true" />
+          <Property Name="HANHDONG" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="TEN_BANG" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ID_BAN_GHI" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="DU_LIEU_CU" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="DU_LIEU_MOI" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="IP_ADDRESS" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MAC_ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="TEN_MAY_TINH" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="THOIGIAN" Type="DateTime" Precision="6" />
+        </EntityType>
+        <EntityType Name="TB_SYS_LOGIN_HISTORY">
+          <Key>
+            <PropertyRef Name="ID_LOGIN" />
+          </Key>
+          <Property Name="ID_LOGIN" Type="Decimal" Nullable="false" Precision="38" Scale="0" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="ID_USER" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="THOIGIAN" Type="DateTime" Precision="6" />
+          <Property Name="IP_ADDRESS" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MAC_ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="TEN_MAY_TINH" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="TRANGTHAI" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+        </EntityType>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -2575,6 +2639,7 @@
           <EntitySetMapping Name="TB_SYS_USER">
             <EntityTypeMapping TypeName="Model.TB_SYS_USER">
               <MappingFragment StoreEntitySet="TB_SYS_USER">
+                <ScalarProperty Name="ALLOWED_IPS" ColumnName="ALLOWED_IPS" />
                 <ScalarProperty Name="ISGROUP" ColumnName="ISGROUP" />
                 <ScalarProperty Name="DISABLED" ColumnName="DISABLED" />
                 <ScalarProperty Name="LAST_PWD_CHANGED" ColumnName="LAST_PWD_CHANGED" />
@@ -2708,6 +2773,37 @@
                 <ScalarProperty Name="COLUMN_NAME" ColumnName="COLUMN_NAME" />
                 <ScalarProperty Name="RECORD_ID" ColumnName="RECORD_ID" />
                 <ScalarProperty Name="TABLE_NAME" ColumnName="TABLE_NAME" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_SYS_LOG">
+            <EntityTypeMapping TypeName="Model.TB_SYS_LOG">
+              <MappingFragment StoreEntitySet="TB_SYS_LOG">
+                <ScalarProperty Name="THOIGIAN" ColumnName="THOIGIAN" />
+                <ScalarProperty Name="TEN_MAY_TINH" ColumnName="TEN_MAY_TINH" />
+                <ScalarProperty Name="MAC_ADDRESS" ColumnName="MAC_ADDRESS" />
+                <ScalarProperty Name="IP_ADDRESS" ColumnName="IP_ADDRESS" />
+                <ScalarProperty Name="DU_LIEU_MOI" ColumnName="DU_LIEU_MOI" />
+                <ScalarProperty Name="DU_LIEU_CU" ColumnName="DU_LIEU_CU" />
+                <ScalarProperty Name="ID_BAN_GHI" ColumnName="ID_BAN_GHI" />
+                <ScalarProperty Name="TEN_BANG" ColumnName="TEN_BANG" />
+                <ScalarProperty Name="HANHDONG" ColumnName="HANHDONG" />
+                <ScalarProperty Name="TEN_THUCHIEN" ColumnName="TEN_THUCHIEN" />
+                <ScalarProperty Name="MANV_THUCHIEN" ColumnName="MANV_THUCHIEN" />
+                <ScalarProperty Name="ID_LOG" ColumnName="ID_LOG" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_SYS_LOGIN_HISTORY">
+            <EntityTypeMapping TypeName="Model.TB_SYS_LOGIN_HISTORY">
+              <MappingFragment StoreEntitySet="TB_SYS_LOGIN_HISTORY">
+                <ScalarProperty Name="TRANGTHAI" ColumnName="TRANGTHAI" />
+                <ScalarProperty Name="TEN_MAY_TINH" ColumnName="TEN_MAY_TINH" />
+                <ScalarProperty Name="MAC_ADDRESS" ColumnName="MAC_ADDRESS" />
+                <ScalarProperty Name="IP_ADDRESS" ColumnName="IP_ADDRESS" />
+                <ScalarProperty Name="THOIGIAN" ColumnName="THOIGIAN" />
+                <ScalarProperty Name="ID_USER" ColumnName="ID_USER" />
+                <ScalarProperty Name="ID_LOGIN" ColumnName="ID_LOGIN" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

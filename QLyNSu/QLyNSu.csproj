@@ -249,6 +249,9 @@
     <Compile Include="FORM_SYSTEM\FrmDangNhap.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="FORM_SYSTEM\FrmUserDashboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmDatabaseConfig.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -257,6 +260,9 @@
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmDangNhap.Designer.cs">
       <DependentUpon>FrmDangNhap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmUserDashboard.Designer.cs">
+      <DependentUpon>FrmUserDashboard.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmGroup.cs">
       <SubType>Form</SubType>

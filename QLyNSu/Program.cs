@@ -88,13 +88,13 @@ namespace QLyNSu
             DevExpress.Skins.SkinManager.EnableFormSkins();
 
             // Set global DevExpress settings for a modern premium aesthetic
-            DevExpress.XtraEditors.WindowsFormsSettings.ForceDirectXPaint();
-            DevExpress.XtraEditors.WindowsFormsSettings.DefaultFont = new System.Drawing.Font("Segoe UI", 9.5F);
-            DevExpress.XtraEditors.WindowsFormsSettings.DefaultMenuFont = new System.Drawing.Font("Segoe UI", 9.5F);
-            DevExpress.XtraEditors.WindowsFormsSettings.ScrollUIMode = DevExpress.XtraEditors.ScrollUIMode.Touch;
+            // DevExpress.XtraEditors.WindowsFormsSettings.ForceDirectXPaint();
+            // DevExpress.XtraEditors.WindowsFormsSettings.DefaultFont = new System.Drawing.Font("Segoe UI", 9.5F);
+            // DevExpress.XtraEditors.WindowsFormsSettings.DefaultMenuFont = new System.Drawing.Font("Segoe UI", 9.5F);
+            // DevExpress.XtraEditors.WindowsFormsSettings.ScrollUIMode = DevExpress.XtraEditors.ScrollUIMode.Touch;
 
             // Apply "The Bezier" skin with "Gleam" palette as default
-            DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle("The Bezier", "Gleam");
+            // DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle("The Bezier", "Gleam");
 
             // 1. Show Splash Form
             using (var splash = new FrmStartup())

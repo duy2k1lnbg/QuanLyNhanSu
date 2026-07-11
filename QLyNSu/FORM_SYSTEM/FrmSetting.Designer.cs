@@ -28,6 +28,7 @@ namespace QLyNSu.FORM_SYSTEM
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmSetting));
             this.lblNgonNgu = new DevExpress.XtraEditors.LabelControl();
             this.cboLanguage = new DevExpress.XtraEditors.ComboBoxEdit();
             this.btnLuu = new DevExpress.XtraEditors.SimpleButton();
@@ -63,6 +64,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnLuu.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold);
             this.btnLuu.Appearance.Options.UseFont = true;
             this.btnLuu.Location = new System.Drawing.Point(210, 99);
+            this.btnLuu.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLuu.ImageOptions.SvgImage")));
             this.btnLuu.Name = "btnLuu";
             this.btnLuu.Size = new System.Drawing.Size(115, 38);
             this.btnLuu.TabIndex = 2;
@@ -74,6 +76,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnDong.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold);
             this.btnDong.Appearance.Options.UseFont = true;
             this.btnDong.Location = new System.Drawing.Point(345, 99);
+            this.btnDong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnDong.ImageOptions.SvgImage")));
             this.btnDong.Name = "btnDong";
             this.btnDong.Size = new System.Drawing.Size(115, 38);
             this.btnDong.TabIndex = 3;

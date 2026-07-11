@@ -28,7 +28,30 @@ namespace QLyNSu
         {
             InitializeComponent();
             _formManager = new FormManager_Functions(this); // Khởi tạo FormManager
-            InitializeNewSystemIcons(); // Apply modern premium custom icons
+            // InitializeNewSystemIcons(); // Vô hiệu hóa tính năng này để giao diện VS và Runtime giống hệt nhau
+            
+            this.FormClosing += MainForm_FormClosing;
+        }
+
+        private async void btnLoginDashboard_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FORM_SYSTEM.FrmUserDashboard));
+        }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (UserSession.CurrentLoginId > 0)
+            {
+                try
+                {
+                    using (var db = new DA.MyEntities())
+                    {
+                        db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_LOGIN_HISTORY SET THOIGIAN_DANGXUAT = CURRENT_TIMESTAMP WHERE ID_LOGIN = :p0", 
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p0", UserSession.CurrentLoginId));
+                    }
+                }
+                catch { } // Ignore on closing
+            }
         }
 
         private NHANVIEN _nhanvien;
@@ -201,8 +224,8 @@ namespace QLyNSu
             btnPhucHoi_DB.ItemClick += btnPhucHoi_DB_ItemClick;
             btnThongBao.ItemClick += btnThongBao_ItemClick;
 
-            // Apply default authorization (lock ui elements)
-            ApplyAuthorization();
+            // Apply default authorization (lock ui elements) - deferred to avoid Ribbon initialization overwriting it
+            this.BeginInvoke(new Action(() => ApplyAuthorization()));
         }
 
         private void ShowLoginDialog()
@@ -213,12 +236,14 @@ namespace QLyNSu
                 TranslationManager.Translate(loginForm);
                 if (loginForm.ShowDialog() == DialogResult.OK)
                 {
+                    this.Show();
                     ApplyAuthorization();
                 }
                 else
                 {
                     if (UserSession.CurrentUser == null)
                     {
+                        this.Show();
                         ApplyAuthorization();
                     }
                 }
@@ -256,6 +281,7 @@ namespace QLyNSu
                 btnBoPhan.Enabled = false;
                 btnChucVu.Enabled = false;
                 btnKyLuat.Enabled = false;
+                btnGiamSat.Enabled = false;
                 btnNangLuong.Enabled = false;
                 btnBCCT_NV.Enabled = false;
                 btnBaoCao.Enabled = false;
@@ -276,6 +302,7 @@ namespace QLyNSu
             {
                 // Connected state
                 btnLogin.Caption = TranslationManager.Translate("Đăng Xuất") + " (" + UserSession.CurrentUser.FULLNAME + ")";
+                if (ribbonControl1 != null) ribbonControl1.Refresh();
                 
                 // Check rights
                 btnPass.Enabled = true;
@@ -290,6 +317,7 @@ namespace QLyNSu
                 btnSetting.Enabled = UserSession.HasRight("F_SYSTEM_SETTING");
                 btnDashboardNhanSu.Enabled = UserSession.HasRight("F_DB_NHANSU");
                 btnDashboardLuong.Enabled = UserSession.HasRight("F_DB_LUONG");
+                btnGiamSat.Enabled = UserSession.HasRight("F_SYSTEM_GIAMSAT");
                 
                 btnDanToc.Enabled = UserSession.HasRight("F_DM_DANTOC");
                 btnTonGiao.Enabled = UserSession.HasRight("F_DM_TONGIAO");
@@ -590,8 +618,8 @@ namespace QLyNSu
                         TranslationManager.Translate(loginForm);
                         if (loginForm.ShowDialog() == DialogResult.OK)
                         {
-                            ApplyAuthorization();
                             this.Show();
+                            ApplyAuthorization();
                         }
                         else
                         {
@@ -608,8 +636,8 @@ namespace QLyNSu
                     TranslationManager.Translate(loginForm);
                     if (loginForm.ShowDialog() == DialogResult.OK)
                     {
-                        ApplyAuthorization();
                         this.Show();
+                        ApplyAuthorization();
                     }
                     else
                     {
@@ -639,6 +667,7 @@ namespace QLyNSu
                     {
                         TranslationManager.Translate(openForm);
                     }
+                    ApplyAuthorization(); // Re-apply dynamic captions that might have been overwritten by TranslationManager
                 }
             }
         }

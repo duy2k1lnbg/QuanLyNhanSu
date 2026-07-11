@@ -23,5 +23,6 @@ namespace DA
         public Nullable<System.DateTime> LAST_PWD_CHANGED { get; set; }
         public Nullable<decimal> DISABLED { get; set; }
         public Nullable<decimal> ISGROUP { get; set; }
+        public string ALLOWED_IPS { get; set; }
     }
 }

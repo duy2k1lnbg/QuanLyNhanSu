@@ -49,6 +49,9 @@
     <Reference Include="Oracle.ManagedDataAccess.EntityFramework, Version=6.122.23.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
       <HintPath>..\packages\Oracle.ManagedDataAccess.EntityFramework.23.7.0\lib\net472\Oracle.ManagedDataAccess.EntityFramework.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.13.0.4\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
@@ -112,6 +115,7 @@
       <DependentUpon>AIEntities.edmx</DependentUpon>
     </Compile>
     <Compile Include="Class1.cs" />
+    <Compile Include="MyEntities.Audit.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -217,6 +221,12 @@
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_SYS_GROUP.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_SYS_LOG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_SYS_LOGIN_HISTORY.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_SYS_REPORT.cs">

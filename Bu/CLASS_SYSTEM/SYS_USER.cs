@@ -140,14 +140,25 @@ namespace Bu.CLASS_SYSTEM
         {
             string trimmedUsername = username.Trim().ToLower();
             
-            // Prefer individual users (ISGROUP = 0), but fallback to any match (e.g. if ADMIN was saved with ISGROUP = 1)
+            // Prefer individual users (ISGROUP = 0), but fallback to any match
             var user = db.TB_SYS_USER.FirstOrDefault(x => x.USERNAME.Trim().ToLower() == trimmedUsername && x.ISGROUP == 0);
             if (user == null)
             {
                 user = db.TB_SYS_USER.FirstOrDefault(x => x.USERNAME.Trim().ToLower() == trimmedUsername);
             }
 
-            if (user == null) return null;
+            if (user == null) return null; // Username not found
+
+            // Check if user is locked temporarily
+            var lockoutInfo = db.Database.SqlQuery<DateTime?>("SELECT LOCKOUT_END FROM HR.TB_SYS_USER WHERE IDUSER = :id", 
+                new Oracle.ManagedDataAccess.Client.OracleParameter("id", user.IDUSER)).FirstOrDefault();
+
+            if (lockoutInfo.HasValue && lockoutInfo.Value > DateTime.Now)
+            {
+                var remaining = (int)(lockoutInfo.Value - DateTime.Now).TotalMinutes;
+                if (remaining <= 0) remaining = 1;
+                throw new ApplicationException($"TEMPORARY_LOCKED|{remaining}");
+            }
 
             if (PasswordHasher.VerifyPassword(password, user.PASSWORD))
             {
@@ -155,9 +166,32 @@ namespace Bu.CLASS_SYSTEM
                 {
                     throw new ApplicationException("ACCOUNT_LOCKED");
                 }
+                
+                // Reset failed login count
+                db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_USER SET FAILED_LOGIN_COUNT = 0, LOCKOUT_END = NULL WHERE IDUSER = :id", 
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("id", user.IDUSER));
+                    
                 return user;
             }
-            return null;
+            else
+            {
+                // Wrong password
+                db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_USER SET FAILED_LOGIN_COUNT = NVL(FAILED_LOGIN_COUNT, 0) + 1 WHERE IDUSER = :id", 
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("id", user.IDUSER));
+                    
+                var failedCount = db.Database.SqlQuery<decimal>("SELECT NVL(FAILED_LOGIN_COUNT, 0) FROM HR.TB_SYS_USER WHERE IDUSER = :id", 
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("id", user.IDUSER)).FirstOrDefault();
+                    
+                if (failedCount >= 5)
+                {
+                    db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_USER SET LOCKOUT_END = :lockTime WHERE IDUSER = :id", 
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("lockTime", DateTime.Now.AddMinutes(15)),
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("id", user.IDUSER));
+                    throw new ApplicationException("ACCOUNT_LOCKED_NOW");
+                }
+                
+                throw new ApplicationException("WRONG_PASSWORD");
+            }
         }
 
         public List<string> GetRights(decimal idUser)
@@ -280,6 +314,7 @@ namespace Bu.CLASS_SYSTEM
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_PHUCHOI", SORT = 4, DESCRIPTION = "Phục Hồi Dữ Liệu", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_AI", SORT = 5, DESCRIPTION = "Trợ Lý AI", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_SETTING", SORT = 6, DESCRIPTION = "Cấu Hình Ngôn Ngữ", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_GIAMSAT", SORT = 9, DESCRIPTION = "Giám Sát Đăng Nhập", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_NHANSU", SORT = 7, DESCRIPTION = "Dashboard Nhân Sự", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_LUONG", SORT = 8, DESCRIPTION = "Dashboard Lương", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_DANTOC", SORT = 10, DESCRIPTION = "Dân Tộc", ISGROUP = 0, MENU = 1, PARENT = "DM" },
@@ -378,6 +413,31 @@ namespace Bu.CLASS_SYSTEM
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[SEED ERROR]: {ex.Message}");
+            }
+        }
+        public List<Bu.DTO.USER_LOGIN_INFO_DTO> GetDashboardUserLoginInfo()
+        {
+            using (var db = new MyEntities())
+            {
+                string sql = @"
+                    SELECT 
+                        u.IDUSER, u.USERNAME, u.FULLNAME, 
+                        CASE WHEN NVL(u.DISABLED, 0) = 1 THEN 'Bị khóa' ELSE 'Đang hoạt động' END as TRANGTHAI_HOATDONG,
+                        lh.IP_ADDRESS, lh.MAC_ADDRESS, lh.TEN_MAY_TINH, 
+                        lh.THOIGIAN AS THOIGIAN_DANGNHAP, lh.THOIGIAN_DANGXUAT, lh.TRANGTHAI AS TRANGTHAI_DANGNHAP,
+                        CASE 
+                            WHEN lh.THOIGIAN IS NOT NULL AND lh.THOIGIAN_DANGXUAT IS NULL AND lh.TRANGTHAI = 'Thành công' THEN 'Đang Online'
+                            ELSE 'Offline'
+                        END AS TRANGTHAI_ONLINE
+                    FROM HR.TB_SYS_USER u
+                    LEFT JOIN (
+                        SELECT ID_USER, IP_ADDRESS, MAC_ADDRESS, TEN_MAY_TINH, THOIGIAN, THOIGIAN_DANGXUAT, TRANGTHAI,
+                               ROW_NUMBER() OVER(PARTITION BY ID_USER ORDER BY THOIGIAN DESC) as rn
+                        FROM HR.TB_SYS_LOGIN_HISTORY
+                    ) lh ON u.IDUSER = lh.ID_USER AND lh.rn = 1
+                    ORDER BY u.IDUSER ASC";
+                
+                return db.Database.SqlQuery<Bu.DTO.USER_LOGIN_INFO_DTO>(sql).ToList();
             }
         }
     }

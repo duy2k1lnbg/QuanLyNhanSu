@@ -1,0 +1,7 @@
+<svg viewBox='0 0 32 32' fill='none' xmlns='http://www.w3.org/2000/svg'>
+  <rect x='5' y='5' width='22' height='22' rx='2' stroke='#64748b' stroke-width='2'/>
+  <path d='M12 5V27' stroke='#64748b' stroke-width='2'/>
+  <path d='M20 5V27' stroke='#64748b' stroke-width='2'/>
+  <path d='M5 12H27' stroke='#64748b' stroke-width='2'/>
+  <path d='M5 20H27' stroke='#64748b' stroke-width='2'/>
+</svg>

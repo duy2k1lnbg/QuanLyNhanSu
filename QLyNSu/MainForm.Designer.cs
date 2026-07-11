@@ -73,6 +73,7 @@ namespace QLyNSu
             this.btnDashboardNhanSu = new DevExpress.XtraBars.BarButtonItem();
             this.btnDashboardLuong = new DevExpress.XtraBars.BarButtonItem();
             this.btnThongBao = new DevExpress.XtraBars.BarButtonItem();
+            this.btnGiamSat = new DevExpress.XtraBars.BarButtonItem();
             this.ribbonMiniToolbar1 = new DevExpress.XtraBars.Ribbon.RibbonMiniToolbar(this.components);
             this.ribbonPage1 = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.ribbonPageGroup3 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
@@ -152,7 +153,8 @@ namespace QLyNSu
             this.btnSetting,
             this.btnDashboardNhanSu,
             this.btnDashboardLuong,
-            this.btnThongBao});
+            this.btnThongBao,
+            this.btnGiamSat});
             this.ribbonControl1.Location = new System.Drawing.Point(0, 0);
             this.ribbonControl1.Margin = new System.Windows.Forms.Padding(4);
             this.ribbonControl1.MaxItemId = 44;
@@ -207,6 +209,7 @@ namespace QLyNSu
             this.btnTonGiao.Caption = "Tôn Giáo";
             this.btnTonGiao.Id = 5;
             this.btnTonGiao.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnTonGiao.ImageOptions.LargeImage")));
+            this.btnTonGiao.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnTonGiao.ImageOptions.SvgImage")));
             this.btnTonGiao.Name = "btnTonGiao";
             this.btnTonGiao.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem5_ItemClick);
             // 
@@ -223,6 +226,7 @@ namespace QLyNSu
             this.btnPhongBan.Caption = "Phòng Ban";
             this.btnPhongBan.Id = 7;
             this.btnPhongBan.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnPhongBan.ImageOptions.LargeImage")));
+            this.btnPhongBan.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPhongBan.ImageOptions.SvgImage")));
             this.btnPhongBan.Name = "btnPhongBan";
             this.btnPhongBan.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem7_ItemClick);
             // 
@@ -231,6 +235,7 @@ namespace QLyNSu
             this.btnNhanVien.Caption = "Nhân Viên";
             this.btnNhanVien.Id = 8;
             this.btnNhanVien.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnNhanVien.ImageOptions.LargeImage")));
+            this.btnNhanVien.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnNhanVien.ImageOptions.SvgImage")));
             this.btnNhanVien.Name = "btnNhanVien";
             this.btnNhanVien.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem8_ItemClick);
             // 
@@ -239,6 +244,7 @@ namespace QLyNSu
             this.btnHopDong.Caption = "Hợp Đồng";
             this.btnHopDong.Id = 9;
             this.btnHopDong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnHopDong.ImageOptions.LargeImage")));
+            this.btnHopDong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnHopDong.ImageOptions.SvgImage")));
             this.btnHopDong.Name = "btnHopDong";
             this.btnHopDong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem9_ItemClick);
             // 
@@ -247,6 +253,7 @@ namespace QLyNSu
             this.btnKhenThuong.Caption = "Khen Thưởng";
             this.btnKhenThuong.Id = 10;
             this.btnKhenThuong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnKhenThuong.ImageOptions.LargeImage")));
+            this.btnKhenThuong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnKhenThuong.ImageOptions.SvgImage")));
             this.btnKhenThuong.Name = "btnKhenThuong";
             this.btnKhenThuong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnKhenThuong_ItemClick);
             // 
@@ -255,6 +262,7 @@ namespace QLyNSu
             this.btnDieuChuyen.Caption = "Điều Chuyển";
             this.btnDieuChuyen.Id = 11;
             this.btnDieuChuyen.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnDieuChuyen.ImageOptions.LargeImage")));
+            this.btnDieuChuyen.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnDieuChuyen.ImageOptions.SvgImage")));
             this.btnDieuChuyen.Name = "btnDieuChuyen";
             this.btnDieuChuyen.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem11_ItemClick);
             // 
@@ -271,6 +279,7 @@ namespace QLyNSu
             this.btnLoaiCa.Caption = "Loại Ca";
             this.btnLoaiCa.Id = 13;
             this.btnLoaiCa.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnLoaiCa.ImageOptions.LargeImage")));
+            this.btnLoaiCa.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLoaiCa.ImageOptions.SvgImage")));
             this.btnLoaiCa.Name = "btnLoaiCa";
             this.btnLoaiCa.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnLoaiCa_ItemClick);
             // 
@@ -279,6 +288,7 @@ namespace QLyNSu
             this.btnLoaiCong.Caption = "Loại Công";
             this.btnLoaiCong.Id = 14;
             this.btnLoaiCong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnLoaiCong.ImageOptions.LargeImage")));
+            this.btnLoaiCong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLoaiCong.ImageOptions.SvgImage")));
             this.btnLoaiCong.Name = "btnLoaiCong";
             this.btnLoaiCong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnLoaiCong_ItemClick);
             // 
@@ -287,6 +297,7 @@ namespace QLyNSu
             this.btnPhuCap.Caption = "Phụ cấp";
             this.btnPhuCap.Id = 15;
             this.btnPhuCap.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnPhuCap.ImageOptions.LargeImage")));
+            this.btnPhuCap.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPhuCap.ImageOptions.SvgImage")));
             this.btnPhuCap.Name = "btnPhuCap";
             this.btnPhuCap.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem15_ItemClick);
             // 
@@ -295,6 +306,7 @@ namespace QLyNSu
             this.btnTangCa.Caption = "Tăng Ca";
             this.btnTangCa.Id = 16;
             this.btnTangCa.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnTangCa.ImageOptions.LargeImage")));
+            this.btnTangCa.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnTangCa.ImageOptions.SvgImage")));
             this.btnTangCa.Name = "btnTangCa";
             this.btnTangCa.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnTangCa_ItemClick);
             // 
@@ -303,6 +315,7 @@ namespace QLyNSu
             this.btnUngLuong.Caption = "Ứng Lương";
             this.btnUngLuong.Id = 17;
             this.btnUngLuong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnUngLuong.ImageOptions.LargeImage")));
+            this.btnUngLuong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnUngLuong.ImageOptions.SvgImage")));
             this.btnUngLuong.Name = "btnUngLuong";
             this.btnUngLuong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnUngLuong_ItemClick);
             // 
@@ -311,6 +324,7 @@ namespace QLyNSu
             this.btnBangCong.Caption = "Bảng Công";
             this.btnBangCong.Id = 18;
             this.btnBangCong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnBangCong.ImageOptions.LargeImage")));
+            this.btnBangCong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnBangCong.ImageOptions.SvgImage")));
             this.btnBangCong.Name = "btnBangCong";
             this.btnBangCong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnBangCong_ItemClick);
             // 
@@ -319,6 +333,7 @@ namespace QLyNSu
             this.btnBangLuong.Caption = "Bảng Lương";
             this.btnBangLuong.Id = 19;
             this.btnBangLuong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnBangLuong.ImageOptions.LargeImage")));
+            this.btnBangLuong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnBangLuong.ImageOptions.SvgImage")));
             this.btnBangLuong.Name = "btnBangLuong";
             this.btnBangLuong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnBangLuong_ItemClick);
             // 
@@ -415,6 +430,7 @@ namespace QLyNSu
             this.btnGroup.Caption = "Nhóm Người Dùng";
             this.btnGroup.Id = 31;
             this.btnGroup.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnGroup.ImageOptions.LargeImage")));
+            this.btnGroup.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnGroup.ImageOptions.SvgImage")));
             this.btnGroup.Name = "btnGroup";
             this.btnGroup.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnGroup_ItemClick);
             // 
@@ -423,6 +439,7 @@ namespace QLyNSu
             this.btnUser.Caption = "Tài Khoản";
             this.btnUser.Id = 32;
             this.btnUser.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnUser.ImageOptions.LargeImage")));
+            this.btnUser.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnUser.ImageOptions.SvgImage")));
             this.btnUser.Name = "btnUser";
             this.btnUser.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnUser_ItemClick);
             // 
@@ -431,6 +448,7 @@ namespace QLyNSu
             this.btnUser_Update.Caption = "Cập Nhật Thông Tin";
             this.btnUser_Update.Id = 33;
             this.btnUser_Update.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnUser_Update.ImageOptions.LargeImage")));
+            this.btnUser_Update.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnUser_Update.ImageOptions.SvgImage")));
             this.btnUser_Update.Name = "btnUser_Update";
             // 
             // btnChucNang
@@ -438,6 +456,7 @@ namespace QLyNSu
             this.btnChucNang.Caption = "Phân Quyền Chức Năng";
             this.btnChucNang.Id = 35;
             this.btnChucNang.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnChucNang.ImageOptions.LargeImage")));
+            this.btnChucNang.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnChucNang.ImageOptions.SvgImage")));
             this.btnChucNang.Name = "btnChucNang";
             // 
             // btnPQ_BaoCao
@@ -445,6 +464,7 @@ namespace QLyNSu
             this.btnPQ_BaoCao.Caption = "Phân Quyền Báo Cáo";
             this.btnPQ_BaoCao.Id = 36;
             this.btnPQ_BaoCao.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnPQ_BaoCao.ImageOptions.LargeImage")));
+            this.btnPQ_BaoCao.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPQ_BaoCao.ImageOptions.SvgImage")));
             this.btnPQ_BaoCao.Name = "btnPQ_BaoCao";
             // 
             // BtnExit
@@ -476,6 +496,7 @@ namespace QLyNSu
             this.btnSetting.Caption = "Cấu Hinh Ngôn Ngữ";
             this.btnSetting.Id = 40;
             this.btnSetting.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnSetting.ImageOptions.LargeImage")));
+            this.btnSetting.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnSetting.ImageOptions.SvgImage")));
             this.btnSetting.Name = "btnSetting";
             this.btnSetting.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnSetting_ItemClick);
             // 
@@ -501,6 +522,14 @@ namespace QLyNSu
             this.btnThongBao.Id = 43;
             this.btnThongBao.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnThongBao.ImageOptions.SvgImage")));
             this.btnThongBao.Name = "btnThongBao";
+            // 
+            // btnGiamSat
+            // 
+            this.btnGiamSat.Caption = "Giám Sát";
+            this.btnGiamSat.Id = 44;
+            this.btnGiamSat.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnGiamSat.ImageOptions.SvgImage")));
+            this.btnGiamSat.Name = "btnGiamSat";
+            this.btnGiamSat.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnLoginDashboard_ItemClick);
             // 
             // ribbonMiniToolbar1
             // 
@@ -533,6 +562,7 @@ namespace QLyNSu
             this.ribbonPageGroup1.ItemLinks.Add(this.BtnAI, true);
             this.ribbonPageGroup1.ItemLinks.Add(this.btnSetting, true);
             this.ribbonPageGroup1.ItemLinks.Add(this.btnThongBao, true);
+            this.ribbonPageGroup1.ItemLinks.Add(this.btnGiamSat, true);
             this.ribbonPageGroup1.ItemLinks.Add(this.BtnExit, true);
             this.ribbonPageGroup1.Name = "ribbonPageGroup1";
             this.ribbonPageGroup1.Text = "Hệ Thống";
@@ -769,6 +799,7 @@ namespace QLyNSu
         private DevExpress.XtraEditors.GroupControl grThongKe;
         private DevExpress.XtraEditors.ListBoxControl lstThongBao;
         private DevExpress.XtraBars.BarButtonItem btnThongBao;
+        private DevExpress.XtraBars.BarButtonItem btnGiamSat;
         private DevExpress.XtraBars.BarButtonItem btnThoat2;
         private DevExpress.XtraBars.BarButtonItem btnBCCT_NV;
         private DevExpress.XtraBars.BarButtonItem btnBaoCao;

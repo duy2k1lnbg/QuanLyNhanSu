@@ -6,6 +6,10 @@ using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using Bu.CLASS_SYSTEM;
 using DA;
+using System.Net;
+using System.Net.NetworkInformation;
+using System.Net.Sockets;
+using System.Linq;
 
 namespace QLyNSu.FORM_SYSTEM
 {
@@ -45,6 +49,39 @@ namespace QLyNSu.FORM_SYSTEM
 
             // Hide the old small btnShowPassword button as the checkbox replaces it
             btnShowPassword.Visible = false;
+        }
+
+        private string GetLocalIPAddress()
+        {
+            try
+            {
+                var host = Dns.GetHostEntry(Dns.GetHostName());
+                foreach (var ip in host.AddressList)
+                {
+                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    {
+                        return ip.ToString();
+                    }
+                }
+            }
+            catch { }
+            return "Unknown";
+        }
+
+        private string GetMacAddress()
+        {
+            try
+            {
+                foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
+                {
+                    if (nic.OperationalStatus == OperationalStatus.Up && nic.NetworkInterfaceType != NetworkInterfaceType.Loopback)
+                    {
+                        return nic.GetPhysicalAddress().ToString();
+                    }
+                }
+            }
+            catch { }
+            return "Unknown";
         }
 
         private void ConfigureInputFocusStyle(TextEdit txt)
@@ -180,22 +217,92 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 var sysUser = new SYS_USER();
                 var user = sysUser.Login(username, password);
+                
+                string currentIp = GetLocalIPAddress();
+                string currentMac = GetMacAddress();
+                string pcName = Environment.MachineName;
+
                 if (user != null)
                 {
+                    // Check IP Whitelist
+                    using (var db = new MyEntities())
+                    {
+                        var pId = new Oracle.ManagedDataAccess.Client.OracleParameter("id", user.IDUSER);
+                        string allowedIps = db.Database.SqlQuery<string>("SELECT ALLOWED_IPS FROM HR.TB_SYS_USER WHERE IDUSER = :id", pId).FirstOrDefault();
+                        
+                        if (!string.IsNullOrEmpty(allowedIps))
+                        {
+                            var allowedList = allowedIps.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+                            if (!allowedList.Contains(currentIp))
+                            {
+                                db.Database.ExecuteSqlCommand("INSERT INTO HR.TB_SYS_LOGIN_HISTORY (ID_USER, IP_ADDRESS, MAC_ADDRESS, TEN_MAY_TINH, TRANGTHAI, THOIGIAN) VALUES (:p1, :p2, :p3, :p4, :p5, CURRENT_TIMESTAMP)", 
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p1", user.IDUSER),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p2", currentIp ?? (object)DBNull.Value),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p3", currentMac ?? (object)DBNull.Value),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p4", pcName ?? (object)DBNull.Value),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p5", "Thất bại - Sai IP"));
+                                    
+                                lblThongBao.Text = TranslationManager.Translate("IP không được phép đăng nhập.");
+                                lblThongBao.Visible = true;
+                                return;
+                            }
+                        }
+
+                        // Success Login
+                        db.Database.ExecuteSqlCommand("INSERT INTO HR.TB_SYS_LOGIN_HISTORY (ID_USER, IP_ADDRESS, MAC_ADDRESS, TEN_MAY_TINH, TRANGTHAI, THOIGIAN) VALUES (:p1, :p2, :p3, :p4, :p5, CURRENT_TIMESTAMP)", 
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p1", user.IDUSER),
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p2", currentIp ?? (object)DBNull.Value),
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p3", currentMac ?? (object)DBNull.Value),
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p4", pcName ?? (object)DBNull.Value),
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p5", "Thành công"));
+                            
+                        // Retrieve the inserted ID_LOGIN
+                        var insertedId = db.Database.SqlQuery<decimal>("SELECT ID_LOGIN FROM (SELECT ID_LOGIN FROM HR.TB_SYS_LOGIN_HISTORY WHERE ID_USER = :p1 ORDER BY THOIGIAN DESC) WHERE ROWNUM = 1", 
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p1", user.IDUSER)).FirstOrDefault();
+                        UserSession.CurrentLoginId = insertedId;
+                    }
+
                     UserSession.CurrentUser = user;
                     UserSession.UserRights = sysUser.GetRights(user.IDUSER);
+                    
+                    // Set Global Audit properties
+                    MyEntities.CurrentAuditUserId = (int)user.IDUSER;
+                    MyEntities.CurrentAuditUsername = user.FULLNAME;
+
                     this.DialogResult = DialogResult.OK;
                     this.Close();
                 }
                 else
                 {
+                    // Log fail (Optional, user is null so we don't know who tried, but maybe we could log username attempted)
+                    // For now just show error
                     lblThongBao.Text = TranslationManager.Translate("Tên đăng nhập hoặc mật khẩu không đúng.");
                     lblThongBao.Visible = true;
                 }
             }
-            catch (ApplicationException appEx) when (appEx.Message == "ACCOUNT_LOCKED")
+            catch (ApplicationException appEx)
             {
-                lblThongBao.Text = TranslationManager.Translate("Tài khoản đã bị khóa. Vui lòng liên hệ Quản trị viên.");
+                if (appEx.Message == "ACCOUNT_LOCKED")
+                {
+                    lblThongBao.Text = TranslationManager.Translate("Tài khoản đã bị khóa vĩnh viễn. Vui lòng liên hệ Quản trị viên.");
+                }
+                else if (appEx.Message == "ACCOUNT_LOCKED_NOW")
+                {
+                    lblThongBao.Text = TranslationManager.Translate("Nhập sai 5 lần. Tài khoản bị khóa tạm thời 15 phút.");
+                }
+                else if (appEx.Message == "WRONG_PASSWORD")
+                {
+                    lblThongBao.Text = TranslationManager.Translate("Tên đăng nhập hoặc mật khẩu không đúng.");
+                }
+                else if (appEx.Message.StartsWith("TEMPORARY_LOCKED"))
+                {
+                    string mins = appEx.Message.Split('|')[1];
+                    lblThongBao.Text = TranslationManager.Translate($"Tài khoản đang bị khóa tạm thời. Vui lòng thử lại sau {mins} phút.");
+                }
+                else
+                {
+                    lblThongBao.Text = TranslationManager.Translate("Lỗi: ") + appEx.Message;
+                }
                 lblThongBao.Visible = true;
             }
             catch (Exception ex)
