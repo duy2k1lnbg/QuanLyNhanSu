@@ -1400,3 +1400,20 @@ Trong phiên bản cập nhật gần đây nhất, hệ thống đã được b
 - **Tối giản hóa Màn hình Đăng Nhập (FrmDangNhap)**: Chuyển đổi 2 nút "Ngôn ngữ" và "Cấu hình DB" từ dạng nút bấm (Button) truyền thống sang dạng **Biểu tượng phẳng (Flat Icons)** (sử dụng ký tự Unicode 🌐 và ⚙) giống hệt như nút Exit (✕), mang lại trải nghiệm tối giản và liền mạch hơn cho màn hình Welcome.
 - **Sửa lỗi mất tài nguyên khi Đóng gói (Publish)**: Cấu hình lại tệp .csproj để đảm bảo ảnh nền (login_bg.png) luôn được tự động copy (PreserveNewest) theo tệp thực thi khi xuất xưởng.
 
+
+#### 4. Quản lý thiết bị / Device Management / デバイス管理
+
+**🇻🇳 Tiếng Việt:**
+- **Giám sát thiết bị & Đăng nhập (User & Device Dashboard)**: Tích hợp hệ thống theo dõi và giám sát các phiên đăng nhập. Cho phép quản trị viên xem chi tiết thông tin thiết bị, địa chỉ IP và trạng thái hoạt động của người dùng theo thời gian thực.
+- **Phân quyền linh hoạt**: Chức năng được kiểm soát chặt chẽ qua mã quyền F_SYSTEM_GIAMSAT, đảm bảo chỉ có cấp quản lý mới được phép truy cập và quản lý thiết bị.
+- **Đa ngôn ngữ**: Giao diện Giám sát thiết bị được hỗ trợ đồng bộ hoàn toàn bằng 5 ngôn ngữ thông qua cơ sở dữ liệu.
+
+**🇬🇧 English:**
+- **User & Device Dashboard**: Integrated a monitoring system for login sessions. Allows administrators to view detailed device information, IP addresses, and real-time user activity status.
+- **Flexible Authorization**: Strictly controlled via the F_SYSTEM_GIAMSAT permission code, ensuring only management levels can access and intervene in device sessions.
+- **Multilingual Support**: The Device Monitoring interface is fully supported and synchronized in 5 languages via the database.
+
+**🇯🇵 日本語:**
+- **ユーザーおよびデバイス監視ダッシュボード**: ログインセッションの監視システムを統合しました。管理者はデバイスの詳細情報、IPアドレス、およびリアルタイムのユーザー活動状況を確認できます。
+- **柔軟な権限管理**: F_SYSTEM_GIAMSAT 権限コードによる厳密な制御により、管理者層のみがデバイスセッションにアクセスして管理できるように設計されています。
+- **多言語対応**: デバイス監視画面はデータベースを介して5つの言語で完全に同期・サポートされています。
