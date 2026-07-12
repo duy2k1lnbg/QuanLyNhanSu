@@ -49,7 +49,6 @@ namespace QLyNSu.FORM_SYSTEM
         public FrmCreateAccount()
         {
             InitializeComponent();
-            SetupAccountSelection();
         }
 
         protected override void Dispose(bool disposing)
@@ -63,10 +62,12 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmGroup));
             this.pageAccount = new DevExpress.XtraTab.XtraTabControl();
             this.tapTaiKhoan = new DevExpress.XtraTab.XtraTabPage();
-            this.tapNhomCuaUser = new DevExpress.XtraTab.XtraTabPage();
+            this.lblChonTaiKhoan = new System.Windows.Forms.Label();
+            this.cboTaiKhoan = new DevExpress.XtraEditors.LookUpEdit();
+            this.btnNewAccount = new DevExpress.XtraEditors.SimpleButton();
+            this.btnXoaTK = new DevExpress.XtraEditors.SimpleButton();
             this.txtFullName = new DevExpress.XtraEditors.TextEdit();
             this.txtUsername = new DevExpress.XtraEditors.TextEdit();
             this.txtPassword = new DevExpress.XtraEditors.TextEdit();
@@ -74,42 +75,42 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblFullName = new System.Windows.Forms.Label();
             this.lblUsername = new System.Windows.Forms.Label();
             this.lblPassword = new System.Windows.Forms.Label();
-            
+            this.tapNhomCuaUser = new DevExpress.XtraTab.XtraTabPage();
             this.btnRemoveGroup = new DevExpress.XtraEditors.SimpleButton();
             this.btnThemNhom = new DevExpress.XtraEditors.SimpleButton();
             this.gcNhom = new DevExpress.XtraGrid.GridControl();
             this.gvNhom = new DevExpress.XtraGrid.Views.Grid.GridView();
-            
             this.btnLuu = new DevExpress.XtraEditors.SimpleButton();
             this.btnDong = new DevExpress.XtraEditors.SimpleButton();
-
             ((System.ComponentModel.ISupportInitialize)(this.pageAccount)).BeginInit();
             this.pageAccount.SuspendLayout();
             this.tapTaiKhoan.SuspendLayout();
-            this.tapNhomCuaUser.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtFullName.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtUsername.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtPassword.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkDisabled.Properties)).BeginInit();
+            this.tapNhomCuaUser.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gcNhom)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvNhom)).BeginInit();
             this.SuspendLayout();
-            
+            // 
             // pageAccount
+            // 
             this.pageAccount.Dock = System.Windows.Forms.DockStyle.Top;
             this.pageAccount.Location = new System.Drawing.Point(0, 0);
             this.pageAccount.Name = "pageAccount";
-            this.pageAccount.Size = new System.Drawing.Size(990, 445);
+            this.pageAccount.SelectedTabPage = this.tapTaiKhoan;
+            this.pageAccount.Size = new System.Drawing.Size(990, 418);
             this.pageAccount.TabIndex = 0;
             this.pageAccount.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
-                this.tapTaiKhoan,
-                this.tapNhomCuaUser
-            });
-
+            this.tapTaiKhoan,
+            this.tapNhomCuaUser});
+            // 
             // tapTaiKhoan
-            this.tapTaiKhoan.Name = "tapTaiKhoan";
-            this.tapTaiKhoan.Size = new System.Drawing.Size(988, 415);
-            this.tapTaiKhoan.Text = "Thông Tin Tài Khoản";
+            // 
+            this.tapTaiKhoan.Controls.Add(this.lblChonTaiKhoan);
+            this.tapTaiKhoan.Controls.Add(this.cboTaiKhoan);
+            this.tapTaiKhoan.Controls.Add(this.btnNewAccount);
             this.tapTaiKhoan.Controls.Add(this.txtFullName);
             this.tapTaiKhoan.Controls.Add(this.txtUsername);
             this.tapTaiKhoan.Controls.Add(this.txtPassword);
@@ -117,127 +118,210 @@ namespace QLyNSu.FORM_SYSTEM
             this.tapTaiKhoan.Controls.Add(this.lblFullName);
             this.tapTaiKhoan.Controls.Add(this.lblUsername);
             this.tapTaiKhoan.Controls.Add(this.lblPassword);
-
-            // txtUsername
-            this.txtUsername.Location = new System.Drawing.Point(283, 110);
-            this.txtUsername.Name = "txtUsername";
-            this.txtUsername.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.txtUsername.Properties.Appearance.Options.UseFont = true;
-            this.txtUsername.Size = new System.Drawing.Size(344, 30);
-
+            this.tapTaiKhoan.Name = "tapTaiKhoan";
+            this.tapTaiKhoan.Size = new System.Drawing.Size(988, 388);
+            this.tapTaiKhoan.Text = "Thông Tin Tài Khoản";
+            // 
             // txtFullName
-            this.txtFullName.Location = new System.Drawing.Point(283, 170);
+            // 
+            this.txtFullName.Location = new System.Drawing.Point(280, 169);
             this.txtFullName.Name = "txtFullName";
             this.txtFullName.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtFullName.Properties.Appearance.Options.UseFont = true;
-            this.txtFullName.Size = new System.Drawing.Size(344, 30);
-
+            this.txtFullName.Size = new System.Drawing.Size(350, 30);
+            this.txtFullName.TabIndex = 0;
+            // 
+            // txtUsername
+            // 
+            this.txtUsername.Location = new System.Drawing.Point(280, 109);
+            this.txtUsername.Name = "txtUsername";
+            this.txtUsername.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.txtUsername.Properties.Appearance.Options.UseFont = true;
+            this.txtUsername.Size = new System.Drawing.Size(350, 30);
+            this.txtUsername.TabIndex = 1;
+            // 
             // txtPassword
-            this.txtPassword.Location = new System.Drawing.Point(283, 230);
+            // 
+            this.txtPassword.Location = new System.Drawing.Point(280, 229);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtPassword.Properties.Appearance.Options.UseFont = true;
             this.txtPassword.Properties.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(344, 30);
-
+            this.txtPassword.Size = new System.Drawing.Size(350, 30);
+            this.txtPassword.TabIndex = 2;
+            // 
             // chkDisabled
-            this.chkDisabled.Location = new System.Drawing.Point(283, 280);
+            // 
+            this.chkDisabled.Location = new System.Drawing.Point(280, 280);
             this.chkDisabled.Name = "chkDisabled";
-            this.chkDisabled.Properties.Caption = "Khóa tài khoản";
             this.chkDisabled.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.chkDisabled.Properties.Appearance.Options.UseFont = true;
-            this.chkDisabled.Size = new System.Drawing.Size(150, 28);
-
-            // lblUsername
-            this.lblUsername.Text = "Tên đăng nhập:";
-            this.lblUsername.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblUsername.Location = new System.Drawing.Point(150, 113);
-            this.lblUsername.AutoSize = true;
-
+            this.chkDisabled.Properties.Caption = "Khóa tài khoản";
+            this.chkDisabled.Size = new System.Drawing.Size(150, 27);
+            this.chkDisabled.TabIndex = 3;
+            // 
+            // lblChonTaiKhoan
+            // 
+            this.lblChonTaiKhoan.AutoSize = false;
+            this.lblChonTaiKhoan.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblChonTaiKhoan.Location = new System.Drawing.Point(145, 52);
+            this.lblChonTaiKhoan.Name = "lblChonTaiKhoan";
+            this.lblChonTaiKhoan.Size = new System.Drawing.Size(130, 25);
+            this.lblChonTaiKhoan.TabIndex = 7;
+            this.lblChonTaiKhoan.Text = "Chọn Tài Khoản:";
+            this.lblChonTaiKhoan.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cboTaiKhoan
+            // 
+            this.cboTaiKhoan.Location = new System.Drawing.Point(280, 50);
+            this.cboTaiKhoan.Name = "cboTaiKhoan";
+            this.cboTaiKhoan.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.cboTaiKhoan.Properties.Appearance.Options.UseFont = true;
+            this.cboTaiKhoan.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboTaiKhoan.Properties.Columns.AddRange(new DevExpress.XtraEditors.Controls.LookUpColumnInfo[] {
+            new DevExpress.XtraEditors.Controls.LookUpColumnInfo("USERNAME", "Tên đăng nhập"),
+            new DevExpress.XtraEditors.Controls.LookUpColumnInfo("FULLNAME", "Họ và tên"),
+            new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TRANGTHAI", "Trạng thái")});
+            this.cboTaiKhoan.Properties.DisplayMember = "USERNAME";
+            this.cboTaiKhoan.Properties.NullText = "-- Chọn tài khoản để xem/sửa --";
+            this.cboTaiKhoan.Properties.ValueMember = "IDUSER";
+            this.cboTaiKhoan.Size = new System.Drawing.Size(350, 30);
+            this.cboTaiKhoan.TabIndex = 8;
+            this.cboTaiKhoan.EditValueChanged += new System.EventHandler(this.cboTaiKhoan_EditValueChanged);
+            // 
+            // btnNewAccount
+            // 
+            this.btnNewAccount.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnNewAccount.Appearance.Options.UseFont = true;
+            this.btnNewAccount.Location = new System.Drawing.Point(645, 46);
+            this.btnNewAccount.Name = "btnNewAccount";
+            this.btnNewAccount.Size = new System.Drawing.Size(155, 38);
+            this.btnNewAccount.TabIndex = 9;
+            this.btnNewAccount.Text = "Tạo tài khoản mới";
+            this.btnNewAccount.Click += new System.EventHandler(this.btnNewAccount_Click);
+            // 
             // lblFullName
-            this.lblFullName.Text = "Họ và tên:";
+            // 
+            this.lblFullName.AutoSize = false;
             this.lblFullName.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblFullName.Location = new System.Drawing.Point(184, 173);
-            this.lblFullName.AutoSize = true;
-
+            this.lblFullName.Location = new System.Drawing.Point(145, 172);
+            this.lblFullName.Name = "lblFullName";
+            this.lblFullName.Size = new System.Drawing.Size(130, 25);
+            this.lblFullName.TabIndex = 4;
+            this.lblFullName.Text = "Họ và tên:";
+            this.lblFullName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // lblUsername
+            // 
+            this.lblUsername.AutoSize = false;
+            this.lblUsername.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblUsername.Location = new System.Drawing.Point(145, 112);
+            this.lblUsername.Name = "lblUsername";
+            this.lblUsername.Size = new System.Drawing.Size(130, 25);
+            this.lblUsername.TabIndex = 5;
+            this.lblUsername.Text = "Tên đăng nhập:";
+            this.lblUsername.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // lblPassword
-            this.lblPassword.Text = "Mật khẩu:";
+            // 
+            this.lblPassword.AutoSize = false;
             this.lblPassword.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
-            this.lblPassword.Location = new System.Drawing.Point(184, 233);
-            this.lblPassword.AutoSize = true;
-
+            this.lblPassword.Location = new System.Drawing.Point(145, 232);
+            this.lblPassword.Name = "lblPassword";
+            this.lblPassword.Size = new System.Drawing.Size(130, 25);
+            this.lblPassword.TabIndex = 6;
+            this.lblPassword.Text = "Mật khẩu:";
+            this.lblPassword.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // tapNhomCuaUser
-            this.tapNhomCuaUser.Name = "tapNhomCuaUser";
-            this.tapNhomCuaUser.Size = new System.Drawing.Size(988, 415);
-            this.tapNhomCuaUser.Text = "Nhóm Người Dùng";
+            // 
             this.tapNhomCuaUser.Controls.Add(this.btnRemoveGroup);
             this.tapNhomCuaUser.Controls.Add(this.btnThemNhom);
             this.tapNhomCuaUser.Controls.Add(this.gcNhom);
-
+            this.tapNhomCuaUser.Name = "tapNhomCuaUser";
+            this.tapNhomCuaUser.Size = new System.Drawing.Size(988, 415);
+            this.tapNhomCuaUser.Text = "Nhóm Người Dùng";
+            // 
+            // btnRemoveGroup
+            // 
+            this.btnRemoveGroup.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnRemoveGroup.Appearance.Options.UseFont = true;
+            this.btnRemoveGroup.Location = new System.Drawing.Point(873, 360);
+            this.btnRemoveGroup.Name = "btnRemoveGroup";
+            this.btnRemoveGroup.Size = new System.Drawing.Size(100, 32);
+            this.btnRemoveGroup.TabIndex = 3;
+            this.btnRemoveGroup.Text = "Xoá";
+            // 
+            // btnThemNhom
+            // 
+            this.btnThemNhom.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnThemNhom.Appearance.Options.UseFont = true;
+            this.btnThemNhom.Location = new System.Drawing.Point(758, 360);
+            this.btnThemNhom.Name = "btnThemNhom";
+            this.btnThemNhom.Size = new System.Drawing.Size(100, 32);
+            this.btnThemNhom.TabIndex = 2;
+            this.btnThemNhom.Text = "Thêm";
+            // 
             // gcNhom
+            // 
             this.gcNhom.Dock = System.Windows.Forms.DockStyle.Top;
             this.gcNhom.Location = new System.Drawing.Point(0, 0);
             this.gcNhom.MainView = this.gvNhom;
             this.gcNhom.Name = "gcNhom";
             this.gcNhom.Size = new System.Drawing.Size(988, 343);
             this.gcNhom.TabIndex = 0;
-            this.gcNhom.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { this.gvNhom });
-
+            this.gcNhom.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gvNhom});
+            // 
             // gvNhom
+            // 
             this.gvNhom.GridControl = this.gcNhom;
             this.gvNhom.Name = "gvNhom";
             this.gvNhom.OptionsView.ShowGroupPanel = false;
-
-            // btnThemNhom
-            this.btnThemNhom.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnThemNhom.Appearance.Options.UseFont = true;
-            this.btnThemNhom.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("simpleButton3.ImageOptions.SvgImage")));
-            this.btnThemNhom.Location = new System.Drawing.Point(758, 360);
-            this.btnThemNhom.Name = "btnThemNhom";
-            this.btnThemNhom.Size = new System.Drawing.Size(100, 32);
-            this.btnThemNhom.TabIndex = 2;
-            this.btnThemNhom.Text = "Thêm";
-            this.btnThemNhom.Click += btnThemNhom_Click;
-
-            // btnRemoveGroup
-            this.btnRemoveGroup.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnRemoveGroup.Appearance.Options.UseFont = true;
-            this.btnRemoveGroup.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("simpleButton4.ImageOptions.SvgImage")));
-            this.btnRemoveGroup.Location = new System.Drawing.Point(873, 360);
-            this.btnRemoveGroup.Name = "btnRemoveGroup";
-            this.btnRemoveGroup.Size = new System.Drawing.Size(100, 32);
-            this.btnRemoveGroup.TabIndex = 3;
-            this.btnRemoveGroup.Text = "Xoá";
-            this.btnRemoveGroup.Click += btnRemoveGroup_Click;
-
+            // 
+            // btnXoaTK
+            // 
+            this.btnXoaTK.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnXoaTK.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.btnXoaTK.Appearance.Options.UseFont = true;
+            this.btnXoaTK.Location = new System.Drawing.Point(20, 451);
+            this.btnXoaTK.Name = "btnXoaTK";
+            this.btnXoaTK.Size = new System.Drawing.Size(160, 40);
+            this.btnXoaTK.TabIndex = 13;
+            this.btnXoaTK.Text = "Xóa tài khoản";
+            this.btnXoaTK.Click += new System.EventHandler(this.btnXoaTK_Click);
+            // 
             // btnLuu
-            this.btnLuu.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            // 
+            this.btnLuu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLuu.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.btnLuu.Appearance.Options.UseFont = true;
-            this.btnLuu.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLuu.ImageOptions.SvgImage")));
-            this.btnLuu.Location = new System.Drawing.Point(720, 450);
+            this.btnLuu.Location = new System.Drawing.Point(646, 451);
             this.btnLuu.Name = "btnLuu";
-            this.btnLuu.Size = new System.Drawing.Size(120, 38);
+            this.btnLuu.Size = new System.Drawing.Size(160, 40);
             this.btnLuu.TabIndex = 1;
             this.btnLuu.Text = "Lưu";
-            this.btnLuu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
-
+            // 
             // btnDong
-            this.btnDong.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            // 
+            this.btnDong.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDong.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.btnDong.Appearance.Options.UseFont = true;
-            this.btnDong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnDong.ImageOptions.SvgImage")));
-            this.btnDong.Location = new System.Drawing.Point(855, 450);
+            this.btnDong.Location = new System.Drawing.Point(818, 451);
             this.btnDong.Name = "btnDong";
-            this.btnDong.Size = new System.Drawing.Size(120, 38);
+            this.btnDong.Size = new System.Drawing.Size(160, 40);
             this.btnDong.TabIndex = 2;
             this.btnDong.Text = "Đóng";
-            this.btnDong.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             this.btnDong.Click += new System.EventHandler(this.btnDong_Click);
-
+            // 
             // FrmCreateAccount
+            // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(990, 503);
+            this.Controls.Add(this.btnXoaTK);
             this.Controls.Add(this.btnDong);
             this.Controls.Add(this.btnLuu);
             this.Controls.Add(this.pageAccount);
@@ -251,58 +335,18 @@ namespace QLyNSu.FORM_SYSTEM
             this.pageAccount.ResumeLayout(false);
             this.tapTaiKhoan.ResumeLayout(false);
             this.tapTaiKhoan.PerformLayout();
-            this.tapNhomCuaUser.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.txtFullName.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtUsername.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtPassword.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.chkDisabled.Properties)).EndInit();
+            this.tapNhomCuaUser.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gcNhom)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvNhom)).EndInit();
             this.ResumeLayout(false);
+
         }
 
-        private void SetupAccountSelection()
-        {
-            lblChonTaiKhoan = new Label();
-            lblChonTaiKhoan.Text = "Chọn Tài Khoản:";
-            lblChonTaiKhoan.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            lblChonTaiKhoan.Location = new Point(140, 53);
-            lblChonTaiKhoan.AutoSize = true;
 
-            cboTaiKhoan = new LookUpEdit();
-            cboTaiKhoan.Location = new Point(283, 50);
-            cboTaiKhoan.Size = new Size(344, 30);
-            cboTaiKhoan.Properties.Appearance.Font = new Font("Segoe UI", 10F);
-            cboTaiKhoan.Properties.Appearance.Options.UseFont = true;
-            cboTaiKhoan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("USERNAME", "Tên đăng nhập"));
-            cboTaiKhoan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("FULLNAME", "Họ và tên"));
-            cboTaiKhoan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TRANGTHAI", "Trạng thái"));
-            cboTaiKhoan.Properties.DisplayMember = "USERNAME";
-            cboTaiKhoan.Properties.ValueMember = "IDUSER";
-            cboTaiKhoan.Properties.NullText = "-- Chọn tài khoản để xem/sửa --";
-            cboTaiKhoan.EditValueChanged += cboTaiKhoan_EditValueChanged;
-
-            btnNewAccount = new SimpleButton();
-            btnNewAccount.Text = "Tạo tài khoản mới";
-            btnNewAccount.Size = new Size(150, 30);
-            btnNewAccount.Location = new Point(635, 50);
-            btnNewAccount.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnNewAccount.Click += btnNewAccount_Click;
-
-            btnXoaTK = new SimpleButton();
-            btnXoaTK.Text = "Xóa tài khoản";
-            btnXoaTK.Size = new Size(120, 38);
-            btnXoaTK.Location = new Point(585, 450);
-            btnXoaTK.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnXoaTK.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnXoaTK.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/actions/del.svg");
-            btnXoaTK.Click += btnXoaTK_Click;
-
-            tapTaiKhoan.Controls.Add(lblChonTaiKhoan);
-            tapTaiKhoan.Controls.Add(cboTaiKhoan);
-            tapTaiKhoan.Controls.Add(btnNewAccount);
-            this.Controls.Add(btnXoaTK);
-        }
 
         private void FrmCreateAccount_Load(object sender, EventArgs e)
         {

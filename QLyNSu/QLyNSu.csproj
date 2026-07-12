@@ -603,6 +603,9 @@
     <EmbeddedResource Include="FORM_SYSTEM\FrmAI_Chat.resx">
       <DependentUpon>FrmAI_Chat.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmCreateAccount.resx">
+      <DependentUpon>FrmCreateAccount.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmDangNhap.resx">
       <DependentUpon>FrmDangNhap.cs</DependentUpon>
     </EmbeddedResource>

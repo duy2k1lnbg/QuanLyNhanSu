@@ -22,10 +22,7 @@ namespace QLyNSu.FORM_SYSTEM
         private bool _them;
         private bool _dataSaved; // Track if database was modified to notify parent on Close
 
-        private DevExpress.XtraEditors.LookUpEdit cboNhom;
-        private DevExpress.XtraEditors.SimpleButton btnNewGroup;
-        private DevExpress.XtraEditors.SimpleButton btnXoaNhom;
-        private System.Windows.Forms.Label lblChonNhom;
+
 
         public FrmGroup()
         {
@@ -41,81 +38,7 @@ namespace QLyNSu.FORM_SYSTEM
             _them = false;
         }
 
-        private void SetupGroupSelection()
-        {
-            lblChonNhom = new Label();
-            lblChonNhom.Text = "Chọn Nhóm:";
-            lblChonNhom.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            lblChonNhom.Location = new Point(168, 53);
-            lblChonNhom.AutoSize = true;
 
-            cboNhom = new LookUpEdit();
-            cboNhom.Location = new Point(283, 50);
-            cboNhom.Size = new Size(344, 30);
-            cboNhom.Properties.Appearance.Font = new Font("Segoe UI", 10F);
-            cboNhom.Properties.Appearance.Options.UseFont = true;
-            cboNhom.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("USERNAME", "Tên nhóm"));
-            cboNhom.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("FULLNAME", "Mô tả"));
-            cboNhom.Properties.DisplayMember = "USERNAME";
-            cboNhom.Properties.ValueMember = "IDUSER";
-            cboNhom.Properties.NullText = "-- Chọn nhóm để xem/sửa --";
-            cboNhom.EditValueChanged += cboNhom_EditValueChanged;
-
-            btnNewGroup = new SimpleButton();
-            btnNewGroup.Text = "Tạo nhóm mới";
-            btnNewGroup.Size = new Size(150, 30);
-            btnNewGroup.Location = new Point(635, 50);
-            btnNewGroup.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnNewGroup.Click += btnNewGroup_Click;
-
-            // Xóa nhóm ở bottom (cùng hàng với btnLuu và btnDong, xếp ở X=585)
-            btnXoaNhom = new SimpleButton();
-            btnXoaNhom.Text = "Xóa nhóm";
-            btnXoaNhom.Size = new Size(120, 38);
-            btnXoaNhom.Location = new Point(585, 450);
-            btnXoaNhom.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnXoaNhom.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-            btnXoaNhom.ImageOptions.SvgImage = DevExpress.Images.ImageResourceCache.Default.GetSvgImage("svgimages/actions/del.svg");
-            btnXoaNhom.Click += btnXoaNhom_Click;
-
-            tapNhom.Controls.Add(lblChonNhom);
-            tapNhom.Controls.Add(cboNhom);
-            tapNhom.Controls.Add(btnNewGroup);
-            this.Controls.Add(btnXoaNhom);
-
-            // Căn lề pixel-perfect cho các nhãn và ô nhập trong nhóm (khoảng cách 60px)
-            label1.Location = new Point(174, 113);
-            label1.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            txtTenNhom.Location = new Point(283, 110);
-            txtTenNhom.Size = new Size(344, 30);
-
-            label2.Location = new Point(204, 173);
-            label2.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
-            txtMoTa.Location = new Point(283, 170);
-            txtMoTa.Size = new Size(344, 30);
-
-            // Cấu hình các nút chức năng ở bottom: căn phải (Right-align)
-            btnDong.Location = new Point(855, 450);
-            btnDong.Size = new Size(120, 38);
-            btnDong.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnDong.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-
-            btnLuu.Location = new Point(720, 450);
-            btnLuu.Size = new Size(120, 38);
-            btnLuu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            btnLuu.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
-
-            // Cấu hình các nút thêm/xóa thành viên trong Tab Thành Viên: căn phải dưới lưới
-            simpleButton3.Size = new Size(100, 32);
-            simpleButton3.Location = new Point(758, 360);
-            simpleButton3.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            simpleButton3.Appearance.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-
-            simpleButton4.Size = new Size(100, 32);
-            simpleButton4.Location = new Point(873, 360);
-            simpleButton4.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
-            simpleButton4.Appearance.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-        }
 
         private void loadGroups()
         {
@@ -196,7 +119,6 @@ namespace QLyNSu.FORM_SYSTEM
             simpleButton3.Click += btnThemThanhVien_Click; // Add member
             simpleButton4.Click += btnXoaThanhVien_Click; // Remove member
 
-            SetupGroupSelection();
             loadGroups();
 
             if (_them)

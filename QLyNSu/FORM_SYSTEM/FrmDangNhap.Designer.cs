@@ -312,7 +312,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblThongBao.Appearance.ForeColor = System.Drawing.Color.Red;
             this.lblThongBao.Appearance.Options.UseFont = true;
             this.lblThongBao.Appearance.Options.UseForeColor = true;
-            this.lblThongBao.Location = new System.Drawing.Point(95, 340);
+            this.lblThongBao.Location = new System.Drawing.Point(157, 423);
             this.lblThongBao.Name = "lblThongBao";
             this.lblThongBao.Size = new System.Drawing.Size(0, 20);
             this.lblThongBao.TabIndex = 6;

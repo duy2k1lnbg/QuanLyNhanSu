@@ -31,6 +31,9 @@ namespace QLyNSu.FORM_SYSTEM
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FrmGroup));
             this.pageGroup = new DevExpress.XtraTab.XtraTabControl();
             this.tapNhom = new DevExpress.XtraTab.XtraTabPage();
+            this.lblChonNhom = new System.Windows.Forms.Label();
+            this.cboNhom = new DevExpress.XtraEditors.LookUpEdit();
+            this.btnNewGroup = new DevExpress.XtraEditors.SimpleButton();
             this.txtMoTa = new DevExpress.XtraEditors.TextEdit();
             this.txtTenNhom = new DevExpress.XtraEditors.TextEdit();
             this.label2 = new System.Windows.Forms.Label();
@@ -45,11 +48,13 @@ namespace QLyNSu.FORM_SYSTEM
             this.FULLNAME = new DevExpress.XtraGrid.Columns.GridColumn();
             this.btnLuu = new DevExpress.XtraEditors.SimpleButton();
             this.btnDong = new DevExpress.XtraEditors.SimpleButton();
+            this.btnXoaNhom = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.pageGroup)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtTenNhom.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtMoTa.Properties)).BeginInit();
             this.pageGroup.SuspendLayout();
             this.tapNhom.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboNhom.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtMoTa.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtTenNhom.Properties)).BeginInit();
             this.tapThanhVien.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gcThanhVien)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvThanhVien)).BeginInit();
@@ -69,51 +74,95 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // tapNhom
             // 
+            this.tapNhom.Controls.Add(this.lblChonNhom);
+            this.tapNhom.Controls.Add(this.cboNhom);
+            this.tapNhom.Controls.Add(this.btnNewGroup);
             this.tapNhom.Controls.Add(this.txtMoTa);
             this.tapNhom.Controls.Add(this.txtTenNhom);
             this.tapNhom.Controls.Add(this.label2);
             this.tapNhom.Controls.Add(this.label1);
             this.tapNhom.Name = "tapNhom";
             this.tapNhom.Size = new System.Drawing.Size(988, 415);
-            this.tapNhom.Text = "Thông Tin Nhóm";
+            this.tapNhom.Text = "Thông Tin Nhóm";            // 
+            // lblChonNhom
+            // 
+            this.lblChonNhom.AutoSize = false;
+            this.lblChonNhom.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.lblChonNhom.Location = new System.Drawing.Point(145, 52);
+            this.lblChonNhom.Name = "lblChonNhom";
+            this.lblChonNhom.Size = new System.Drawing.Size(130, 25);
+            this.lblChonNhom.TabIndex = 10;
+            this.lblChonNhom.Text = "Chọn Nhóm:";
+            this.lblChonNhom.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // cboNhom
+            // 
+            this.cboNhom.Location = new System.Drawing.Point(280, 50);
+            this.cboNhom.Name = "cboNhom";
+            this.cboNhom.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
+            this.cboNhom.Properties.Appearance.Options.UseFont = true;
+            this.cboNhom.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cboNhom.Properties.Columns.AddRange(new DevExpress.XtraEditors.Controls.LookUpColumnInfo[] {
+            new DevExpress.XtraEditors.Controls.LookUpColumnInfo("USERNAME", "Tên nhóm"),
+            new DevExpress.XtraEditors.Controls.LookUpColumnInfo("FULLNAME", "Mô tả")});
+            this.cboNhom.Properties.DisplayMember = "USERNAME";
+            this.cboNhom.Properties.NullText = "-- Chọn nhóm để xem/sửa --";
+            this.cboNhom.Properties.ValueMember = "IDUSER";
+            this.cboNhom.Size = new System.Drawing.Size(350, 30);
+            this.cboNhom.TabIndex = 11;
+            this.cboNhom.EditValueChanged += new System.EventHandler(this.cboNhom_EditValueChanged);
+            // 
+            // btnNewGroup
+            // 
+            this.btnNewGroup.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.5F, System.Drawing.FontStyle.Bold);
+            this.btnNewGroup.Appearance.Options.UseFont = true;
+            this.btnNewGroup.Location = new System.Drawing.Point(645, 46);
+            this.btnNewGroup.Name = "btnNewGroup";
+            this.btnNewGroup.Size = new System.Drawing.Size(155, 38);
+            this.btnNewGroup.TabIndex = 12;
+            this.btnNewGroup.Text = "Tạo nhóm mới";
+            this.btnNewGroup.Click += new System.EventHandler(this.btnNewGroup_Click);
             // 
             // txtMoTa
             // 
-            this.txtMoTa.Location = new System.Drawing.Point(283, 168);
+            this.txtMoTa.Location = new System.Drawing.Point(280, 142);
             this.txtMoTa.Name = "txtMoTa";
             this.txtMoTa.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtMoTa.Properties.Appearance.Options.UseFont = true;
-            this.txtMoTa.Size = new System.Drawing.Size(344, 30);
+            this.txtMoTa.Size = new System.Drawing.Size(350, 30);
             this.txtMoTa.TabIndex = 5;
             // 
             // txtTenNhom
             // 
-            this.txtTenNhom.Location = new System.Drawing.Point(283, 125);
+            this.txtTenNhom.Location = new System.Drawing.Point(280, 96);
             this.txtTenNhom.Name = "txtTenNhom";
             this.txtTenNhom.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
             this.txtTenNhom.Properties.Appearance.Options.UseFont = true;
-            this.txtTenNhom.Size = new System.Drawing.Size(344, 30);
+            this.txtTenNhom.Size = new System.Drawing.Size(350, 30);
             this.txtTenNhom.TabIndex = 4;
             // 
             // label2
             // 
-            this.label2.AutoSize = true;
-            this.label2.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(204, 175);
+            this.label2.AutoSize = false;
+            this.label2.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.label2.Location = new System.Drawing.Point(145, 144);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(73, 23);
+            this.label2.Size = new System.Drawing.Size(130, 25);
             this.label2.TabIndex = 3;
             this.label2.Text = "Mô Tả:";
+            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // label1
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(174, 125);
+            this.label1.AutoSize = false;
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+            this.label1.Location = new System.Drawing.Point(145, 98);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(103, 23);
+            this.label1.Size = new System.Drawing.Size(130, 25);
             this.label1.TabIndex = 2;
             this.label1.Text = "Tên Nhóm:";
+            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // tapThanhVien
             // 
@@ -152,7 +201,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.gcThanhVien.Location = new System.Drawing.Point(0, 0);
             this.gcThanhVien.MainView = this.gvThanhVien;
             this.gcThanhVien.Name = "gcThanhVien";
-            this.gcThanhVien.Size = new System.Drawing.Size(988, 343);
+            this.gcThanhVien.Size = new System.Drawing.Size(988, 274);
             this.gcThanhVien.TabIndex = 0;
             this.gcThanhVien.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvThanhVien});
@@ -197,50 +246,66 @@ namespace QLyNSu.FORM_SYSTEM
             this.FULLNAME.VisibleIndex = 2;
             this.FULLNAME.Width = 94;
             // 
+            // btnXoaNhom
+            // 
+            this.btnXoaNhom.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnXoaNhom.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
+            this.btnXoaNhom.Appearance.Options.UseFont = true;
+            this.btnXoaNhom.Location = new System.Drawing.Point(20, 451);
+            this.btnXoaNhom.Name = "btnXoaNhom";
+            this.btnXoaNhom.Size = new System.Drawing.Size(160, 40);
+            this.btnXoaNhom.TabIndex = 13;
+            this.btnXoaNhom.Text = "Xóa nhóm";
+            this.btnXoaNhom.Click += new System.EventHandler(this.btnXoaNhom_Click);
+            // 
             // btnLuu
             // 
-            this.btnLuu.Appearance.Font = new System.Drawing.Font("Tahoma", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLuu.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnLuu.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.btnLuu.Appearance.Options.UseFont = true;
             this.btnLuu.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLuu.ImageOptions.SvgImage")));
-            this.btnLuu.Location = new System.Drawing.Point(12, 451);
+            this.btnLuu.Location = new System.Drawing.Point(646, 451);
             this.btnLuu.Name = "btnLuu";
-            this.btnLuu.Size = new System.Drawing.Size(166, 40);
+            this.btnLuu.Size = new System.Drawing.Size(160, 40);
             this.btnLuu.TabIndex = 1;
             this.btnLuu.Text = "Lưu";
             this.btnLuu.Click += new System.EventHandler(this.btnLuu_Click);
             // 
             // btnDong
             // 
-            this.btnDong.Appearance.Font = new System.Drawing.Font("Tahoma", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDong.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDong.Appearance.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
             this.btnDong.Appearance.Options.UseFont = true;
             this.btnDong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnDong.ImageOptions.SvgImage")));
-            this.btnDong.Location = new System.Drawing.Point(184, 450);
+            this.btnDong.Location = new System.Drawing.Point(818, 451);
             this.btnDong.Name = "btnDong";
-            this.btnDong.Size = new System.Drawing.Size(166, 40);
+            this.btnDong.Size = new System.Drawing.Size(160, 40);
             this.btnDong.TabIndex = 2;
             this.btnDong.Text = "Đóng";
             this.btnDong.Click += new System.EventHandler(this.btnDong_Click);
-            // 
-            // frmGroup
+            //
+            // FrmGroup
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(990, 503);
+            this.Controls.Add(this.btnXoaNhom);
             this.Controls.Add(this.btnDong);
             this.Controls.Add(this.btnLuu);
             this.Controls.Add(this.pageGroup);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "frmGroup";
+            this.Name = "FrmGroup";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Nhóm Người Dùng";
             this.Load += new System.EventHandler(this.frmGroup_Load);
-            ((System.ComponentModel.ISupportInitialize)(this.txtTenNhom.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtMoTa.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pageGroup)).EndInit();
             this.pageGroup.ResumeLayout(false);
             this.tapNhom.ResumeLayout(false);
             this.tapNhom.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboNhom.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtMoTa.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtTenNhom.Properties)).EndInit();
             this.tapThanhVien.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gcThanhVien)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvThanhVien)).EndInit();
@@ -266,5 +331,9 @@ namespace QLyNSu.FORM_SYSTEM
         private DevExpress.XtraGrid.Columns.GridColumn IDUSER;
         private DevExpress.XtraGrid.Columns.GridColumn USERNAME;
         private DevExpress.XtraGrid.Columns.GridColumn FULLNAME;
+        private System.Windows.Forms.Label lblChonNhom;
+        private DevExpress.XtraEditors.LookUpEdit cboNhom;
+        private DevExpress.XtraEditors.SimpleButton btnNewGroup;
+        private DevExpress.XtraEditors.SimpleButton btnXoaNhom;
     }
 }
