@@ -232,6 +232,23 @@ namespace QLyNSu.Functions
             { "Cấu Hinh Hệ Thống", ("System Configuration", "システム構成", "系统配置", "시스템 구성") },
             { "Cấu Hình Hệ Thống", ("System Configuration", "システム構成", "系统配置", "시스템 구성") },
             { "Ngôn Ngữ Hệ Thống", ("System Language", "システム言語", "系统语言", "시스템 언어") },
+            { "Cài Đặt Chung", ("General Settings", "一般設定", "常规设置", "일반 설정") },
+            { "Công Cụ Quản Trị", ("Admin Tools", "管理ツール", "管理工具", "관리 도구") },
+            { "Quản lý CSDL", ("Database Management", "データベース管理", "数据库管理", "데이터베이스 관리") },
+            { "Cấu hình AI", ("AI Config", "AI設定", "AI配置", "AI 구성") },
+
+            // FrmOllamaConfig & Messages
+            { "Cấu Hình Kết Nối AI (Ollama)", ("AI Connection (Ollama)", "AI接続 (Ollama)", "AI连接 (Ollama)", "AI 연결 (Ollama)") },
+            { "Kiểm Tra Kết Nối", ("Test Connection", "接続テスト", "测试连接", "연결 테스트") },
+            { "Đang thử...", ("Testing...", "テスト中...", "测试中...", "테스트 중...") },
+            { "Lưu Thiết Lập", ("Save Settings", "設定を保存", "保存设置", "설정 저장") },
+            { "Kết nối đến Ollama Server thành công!", ("Connected to Ollama Server successfully!", "Ollama Serverに正常に接続しました！", "成功连接到Ollama服务器！", "Ollama 서버에 성공적으로 연결되었습니다!") },
+            { "Kết nối thất bại. Mã lỗi:", ("Connection failed. Error code:", "接続に失敗しました。エラーコード:", "连接失败。错误代码:", "연결 실패. 오류 코드:") },
+            { "Không thể kết nối. Vui lòng kiểm tra lại địa chỉ IP, port, mạng.", ("Cannot connect. Please check IP, port, network.", "接続できません。IP、ポート、ネットワークを確認してください。", "无法连接。请检查IP、端口、网络。", "연결할 수 없습니다. IP, 포트, 네트워크를 확인하세요.") },
+            { "Chi tiết lỗi:", ("Error details:", "エラーの詳細:", "错误详情:", "오류 세부 정보:") },
+            { "Vui lòng điền đầy đủ thông tin.", ("Please fill in all information.", "すべての情報を入力してください。", "请填写所有信息。", "모든 정보를 입력하십시오.") },
+            { "Đã lưu thiết lập cấu hình AI.", ("AI configuration saved.", "AI設定が保存されました。", "AI配置已保存。", "AI 구성이 저장되었습니다.") },
+            { "Lỗi khi lưu cấu hình:", ("Error saving config:", "設定の保存エラー:", "保存配置时出错:", "구성 저장 중 오류:") },
 
             // FrmDangNhap
             { "Vui lòng nhập tên đăng nhập và mật khẩu.", ("Please enter username and password.", "ユーザー名とパスワードを入力してください。", "请输入用户名和密码。", "사용자명과 비밀번호를 입력하십시오.") },
@@ -469,8 +486,11 @@ namespace QLyNSu.Functions
                     continue;
                 }
 
+                // KHÔNG dịch thuộc tính Text của các ô nhập liệu vì đó là nội dung người dùng gõ vào
+                bool isInputControl = ctrl is TextBox || ctrl is DevExpress.XtraEditors.TextEdit || ctrl is DevExpress.XtraEditors.MemoEdit;
+
                 // Translate control text
-                if (!string.IsNullOrEmpty(ctrl.Text))
+                if (!isInputControl && !string.IsNullOrEmpty(ctrl.Text))
                 {
                     string origText = GetOriginalText(ctrl, ctrl.Text);
                     string translatedText = Translate(origText);

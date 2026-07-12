@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace QLyNSu.Functions
 {
     public static class AiBootstrap
     {
-        private const string OLLAMA_URL = "http://localhost:11434/api/tags";
+        private static string OLLAMA_URL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("OllamaHost", "http://localhost:11434") + "/api/tags";
         private static readonly HttpClient _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(2) };
 
         /// <summary>

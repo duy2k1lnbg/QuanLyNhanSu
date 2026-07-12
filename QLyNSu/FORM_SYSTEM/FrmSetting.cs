@@ -38,8 +38,13 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 // Fallback to select first item if present
                 if (cboLanguage.Properties.Items.Count > 0)
+                {
                     cboLanguage.SelectedIndex = 0;
+                }
             }
+
+            // Phân quyền hiển thị nút Cấu hình AI
+            btnOllamaConfig.Enabled = Bu.CLASS_SYSTEM.UserSession.HasRight("F_SYSTEM_AI_CONFIG");
         }
 
         private void LoadLanguagesToCombo()
@@ -83,6 +88,15 @@ namespace QLyNSu.FORM_SYSTEM
                 frm.ShowDialog();
             }
             LoadLanguagesToCombo();
+        }
+
+        private void btnOllamaConfig_Click(object sender, EventArgs e)
+        {
+            using (var frm = new FrmOllamaConfig())
+            {
+                TranslationManager.Translate(frm);
+                frm.ShowDialog();
+            }
         }
 
         private void btnLuu_Click(object sender, EventArgs e)

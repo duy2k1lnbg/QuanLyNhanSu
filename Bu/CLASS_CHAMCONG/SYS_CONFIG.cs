@@ -1,4 +1,4 @@
-﻿using DA;
+using DA;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,6 +14,27 @@ namespace Bu.CLASS_CHAMCONG
         public TB_CONFIG getItem(string name)
         {
             return db.TB_CONFIG.FirstOrDefault(x => x.NAME == name);
+        }
+
+        public string getValue(string name, string defaultValue = "")
+        {
+            var item = db.TB_CONFIG.FirstOrDefault(x => x.NAME == name);
+            return item != null ? item.VALUE : defaultValue;
+        }
+
+        public void setItem(string name, string value)
+        {
+            var item = db.TB_CONFIG.FirstOrDefault(x => x.NAME == name);
+            if (item != null)
+            {
+                item.VALUE = value;
+            }
+            else
+            {
+                decimal newId = db.TB_CONFIG.Any() ? db.TB_CONFIG.Max(x => x.ID_CF) + 1 : 1;
+                db.TB_CONFIG.Add(new TB_CONFIG { ID_CF = newId, NAME = name, VALUE = value });
+            }
+            db.SaveChanges();
         }
     }
 }

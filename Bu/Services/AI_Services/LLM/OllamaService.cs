@@ -16,8 +16,9 @@ namespace Bu.Services.AI_Services.Core
             Timeout = TimeSpan.FromMinutes(2) // 2 minutes timeout for large local models
         };
 
-        private const string URL = "http://localhost:11434/api/generate";
-        private const string MODEL = "qwen2.5:latest";
+        private string URL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("OllamaHost", "http://localhost:11434") + "/api/generate";
+        private string EMBEDDING_URL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("OllamaHost", "http://localhost:11434") + "/api/embeddings";
+        private string MODEL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("AiModel", "qwen2.5:latest");
         private readonly IPromptManager _promptManager;
 
         public OllamaService(IPromptManager promptManager)
@@ -67,7 +68,7 @@ namespace Bu.Services.AI_Services.Core
                 var contentString = new StringContent(json, Encoding.UTF8, "application/json");
 
                 // Call local Ollama embeddings endpoint with cancellation token
-                var res = await _client.PostAsync("http://localhost:11434/api/embeddings", contentString, cancellationToken);
+                var res = await _client.PostAsync(EMBEDDING_URL, contentString, cancellationToken);
                 if (res.IsSuccessStatusCode)
                 {
                     var content = await res.Content.ReadAsStringAsync();

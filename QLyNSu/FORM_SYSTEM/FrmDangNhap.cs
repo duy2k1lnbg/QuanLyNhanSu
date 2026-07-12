@@ -93,6 +93,25 @@ namespace QLyNSu.FORM_SYSTEM
         private void FrmDangNhap_Load(object sender, EventArgs e)
         {
             TranslationManager.Translate(this);
+
+            // Tải thông tin tài khoản đã ghi nhớ
+            try
+            {
+                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\QLyNSu\Login"))
+                {
+                    if (key != null)
+                    {
+                        string savedUser = key.GetValue("SavedUsername") as string;
+                        if (!string.IsNullOrEmpty(savedUser))
+                        {
+                            txtTenDangNhap.Text = savedUser;
+                            chkRememberMe.Checked = true;
+                        }
+                    }
+                }
+            }
+            catch { }
+
             try {
                 string bgPath = System.IO.Path.Combine(Application.StartupPath, "Resources", "login_bg.png");
                 if (System.IO.File.Exists(bgPath)) {
@@ -186,12 +205,19 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void LblClose_MouseEnter(object sender, EventArgs e)
         {
-            lblClose.ForeColor = Color.FromArgb(231, 76, 60); // Red on hover
+            var lbl = sender as DevExpress.XtraEditors.LabelControl;
+            if (lbl != null) lbl.ForeColor = Color.FromArgb(231, 76, 60); // Red on hover
         }
 
         private void LblClose_MouseLeave(object sender, EventArgs e)
         {
-            lblClose.ForeColor = Color.FromArgb(127, 140, 141); // Normal Gray
+            var lbl = sender as DevExpress.XtraEditors.LabelControl;
+            if (lbl != null) lbl.ForeColor = Color.FromArgb(127, 140, 141); // Normal Gray
+        }
+
+        private void LblMinimize_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
         }
 
         // Action Buttons
@@ -268,6 +294,25 @@ namespace QLyNSu.FORM_SYSTEM
                     // Set Global Audit properties
                     MyEntities.CurrentAuditUserId = (int)user.IDUSER;
                     MyEntities.CurrentAuditUsername = user.FULLNAME;
+
+                    // Ghi nhớ đăng nhập
+                    try
+                    {
+                        using (var key = Microsoft.Win32.Registry.CurrentUser.CreateSubKey(@"SOFTWARE\QLyNSu\Login"))
+                        {
+                            if (chkRememberMe.Checked)
+                            {
+                                key.SetValue("SavedUsername", username);
+                            }
+                            else
+                            {
+                                key.DeleteValue("SavedUsername", false);
+                            }
+                            // Luôn xóa password cũ nếu có
+                            key.DeleteValue("SavedPassword", false);
+                        }
+                    }
+                    catch { }
 
                     this.DialogResult = DialogResult.OK;
                     this.Close();

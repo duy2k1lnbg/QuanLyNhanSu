@@ -314,6 +314,7 @@ namespace Bu.CLASS_SYSTEM
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_PHUCHOI", SORT = 4, DESCRIPTION = "Phục Hồi Dữ Liệu", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_AI", SORT = 5, DESCRIPTION = "Trợ Lý AI", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_SETTING", SORT = 6, DESCRIPTION = "Cấu Hình Ngôn Ngữ", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_AI_CONFIG", SORT = 7, DESCRIPTION = "Cấu Hình AI Server", ISGROUP = 0, MENU = 0, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_GIAMSAT", SORT = 9, DESCRIPTION = "Giám Sát Đăng Nhập", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_NHANSU", SORT = 7, DESCRIPTION = "Dashboard Nhân Sự", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_LUONG", SORT = 8, DESCRIPTION = "Dashboard Lương", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
@@ -409,6 +410,50 @@ namespace Bu.CLASS_SYSTEM
                     db.SaveChanges();
                     System.Diagnostics.Debug.WriteLine($"[MIGRATION]: Successfully hashed {unhashedUsers.Count} legacy plain text passwords in Oracle.");
                 }
+
+                // 5. Seed Translations for AI Form
+                var newTranslations = new List<TB_TRANSLATIONS>
+                {
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu hình AI", LANGUAGE_CODE = "EN", VALUE = "AI Config" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu hình AI", LANGUAGE_CODE = "JA", VALUE = "AI設定" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu hình AI", LANGUAGE_CODE = "ZH", VALUE = "AI配置" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu hình AI", LANGUAGE_CODE = "KO", VALUE = "AI 구성" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình Kết Nối AI (Ollama)", LANGUAGE_CODE = "EN", VALUE = "AI Connection (Ollama)" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình Kết Nối AI (Ollama)", LANGUAGE_CODE = "JA", VALUE = "AI接続 (Ollama)" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình Kết Nối AI (Ollama)", LANGUAGE_CODE = "ZH", VALUE = "AI连接 (Ollama)" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình Kết Nối AI (Ollama)", LANGUAGE_CODE = "KO", VALUE = "AI 연결 (Ollama)" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Kiểm Tra Kết Nối", LANGUAGE_CODE = "EN", VALUE = "Test Connection" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Kiểm Tra Kết Nối", LANGUAGE_CODE = "JA", VALUE = "接続テスト" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Kiểm Tra Kết Nối", LANGUAGE_CODE = "ZH", VALUE = "测试连接" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Kiểm Tra Kết Nối", LANGUAGE_CODE = "KO", VALUE = "연결 테스트" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Lưu Thiết Lập", LANGUAGE_CODE = "EN", VALUE = "Save Settings" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Lưu Thiết Lập", LANGUAGE_CODE = "JA", VALUE = "設定を保存" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Lưu Thiết Lập", LANGUAGE_CODE = "ZH", VALUE = "保存设置" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Lưu Thiết Lập", LANGUAGE_CODE = "KO", VALUE = "설정 저장" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Đang thử...", LANGUAGE_CODE = "EN", VALUE = "Testing..." },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Đang thử...", LANGUAGE_CODE = "JA", VALUE = "テスト中..." },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Đang thử...", LANGUAGE_CODE = "ZH", VALUE = "测试中..." },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Đang thử...", LANGUAGE_CODE = "KO", VALUE = "테스트 중..." },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình AI Server", LANGUAGE_CODE = "EN", VALUE = "AI Server Config" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình AI Server", LANGUAGE_CODE = "JA", VALUE = "AIサーバー設定" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình AI Server", LANGUAGE_CODE = "ZH", VALUE = "AI服务器配置" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình AI Server", LANGUAGE_CODE = "KO", VALUE = "AI 서버 구성" },
+                };
+
+                foreach (var trans in newTranslations)
+                {
+                    if (!db.TB_TRANSLATIONS.Any(t => t.TABLE_NAME == trans.TABLE_NAME && t.COLUMN_NAME == trans.COLUMN_NAME && t.LANGUAGE_CODE == trans.LANGUAGE_CODE))
+                    {
+                        trans.RECORD_ID = Guid.NewGuid().ToString();
+                        db.TB_TRANSLATIONS.Add(trans);
+                    }
+                }
+                db.SaveChanges();
             }
             catch (Exception ex)
             {

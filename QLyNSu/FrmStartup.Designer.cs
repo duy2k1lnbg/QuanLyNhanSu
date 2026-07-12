@@ -44,10 +44,10 @@ namespace QLyNSu
             this.progressBarControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.progressBarControl.EditValue = 0;
-            this.progressBarControl.Location = new System.Drawing.Point(40, 440);
+            this.progressBarControl.Location = new System.Drawing.Point(40, 474);
             this.progressBarControl.Margin = new System.Windows.Forms.Padding(4);
             this.progressBarControl.Name = "progressBarControl";
-            this.progressBarControl.Size = new System.Drawing.Size(720, 15);
+            this.progressBarControl.Size = new System.Drawing.Size(1019, 22);
             this.progressBarControl.TabIndex = 5;
             // 
             // labelCopyright
@@ -83,7 +83,7 @@ namespace QLyNSu
             this.peImage.Properties.ShowMenu = false;
             this.peImage.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Stretch;
             this.peImage.Properties.SvgImageColorizationMode = DevExpress.Utils.SvgImageColorizationMode.None;
-            this.peImage.Size = new System.Drawing.Size(800, 400);
+            this.peImage.Size = new System.Drawing.Size(1097, 406);
             this.peImage.TabIndex = 9;
             // 
             // peLogo
@@ -100,7 +100,7 @@ namespace QLyNSu
             this.peLogo.Properties.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.peLogo.Properties.ShowMenu = false;
             this.peLogo.Properties.SizeMode = DevExpress.XtraEditors.Controls.PictureSizeMode.Squeeze;
-            this.peLogo.Size = new System.Drawing.Size(210, 52);
+            this.peLogo.Size = new System.Drawing.Size(509, 52);
             this.peLogo.TabIndex = 8;
             this.peLogo.Visible = false;
             // 
@@ -109,7 +109,7 @@ namespace QLyNSu
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(800, 480);
+            this.ClientSize = new System.Drawing.Size(1099, 583);
             this.Controls.Add(this.peImage);
             this.Controls.Add(this.peLogo);
             this.Controls.Add(this.labelStatus);
