@@ -252,6 +252,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnRemoveGroup.Size = new System.Drawing.Size(100, 32);
             this.btnRemoveGroup.TabIndex = 3;
             this.btnRemoveGroup.Text = "Xoá";
+            this.btnRemoveGroup.Click += new System.EventHandler(this.btnRemoveGroup_Click);
             // 
             // btnThemNhom
             // 
@@ -262,6 +263,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnThemNhom.Size = new System.Drawing.Size(100, 32);
             this.btnThemNhom.TabIndex = 2;
             this.btnThemNhom.Text = "Thêm";
+            this.btnThemNhom.Click += new System.EventHandler(this.btnThemNhom_Click);
             // 
             // gcNhom
             // 
@@ -427,6 +429,13 @@ namespace QLyNSu.FORM_SYSTEM
                 if (gvNhom.Columns["IDUSER"] != null) gvNhom.Columns["IDUSER"].Caption = "Mã số";
                 if (gvNhom.Columns["USERNAME"] != null) gvNhom.Columns["USERNAME"].Caption = "Tên nhóm";
                 if (gvNhom.Columns["FULLNAME"] != null) gvNhom.Columns["FULLNAME"].Caption = "Mô tả nhóm";
+
+                // Hide extra columns that don't make sense for a group view
+                foreach (DevExpress.XtraGrid.Columns.GridColumn col in gvNhom.Columns)
+                {
+                    if (col.FieldName != "IDUSER" && col.FieldName != "USERNAME" && col.FieldName != "FULLNAME")
+                        col.Visible = false;
+                }
             }
         }
 
