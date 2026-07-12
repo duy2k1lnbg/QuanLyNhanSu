@@ -191,7 +191,11 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void CustomView(int thang, int nam)
         {
-            gvBangCongChiTiet.RestoreLayoutFromXml(Application.StartupPath + @"\BangCong_Layout.xml");
+            string layoutPath = Application.StartupPath + @"\BangCong_Layout.xml";
+            if (System.IO.File.Exists(layoutPath))
+            {
+                gvBangCongChiTiet.RestoreLayoutFromXml(layoutPath);
+            }
             int i;
             foreach (GridColumn gridColumn in gvBangCongChiTiet.Columns)
             {

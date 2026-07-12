@@ -298,6 +298,10 @@ namespace QLyNSu.Functions
             { "Thêm thành công.", ("Added successfully.", "正常に追加されました。", "添加成功。", "성공적으로 추가되었습니다.") },
             { "Cập nhật thành công.", ("Updated successfully.", "正常に更新されました。", "更新成功。", "성공적으로 업데이트되었습니다.") },
             { "Vui lòng chọn", ("Please select", "選択してください", "请选择", "선택해 주십시오") },
+            { "Hiển thị mật khẩu", ("Show password", "パスワードを表示", "显示密码", "비밀번호 표시") },
+            { "Giám Sát", ("Monitor", "監視", "监控", "모니터링") },
+            { "Thông Báo Mới", ("New Notification", "新着通知", "新通知", "새 알림") },
+            { "Phần Mềm Quản Lý Nhân Sự", ("Human Resources Management System", "人事管理システム", "人力资源管理系统", "인사 관리 시스템") },
             { "Vui lòng điền", ("Please enter", "入力してください", "请输入", "입력해 주십시오") },
             { "Xác nhận xóa", ("Confirm Delete", "削除の確認", "确认删除", "삭제 확인") },
 
