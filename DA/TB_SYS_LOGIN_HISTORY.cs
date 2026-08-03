@@ -21,5 +21,6 @@ namespace DA
         public string MAC_ADDRESS { get; set; }
         public string TEN_MAY_TINH { get; set; }
         public string TRANGTHAI { get; set; }
+        public Nullable<System.DateTime> THOIGIAN_DANGXUAT { get; set; }
     }
 }

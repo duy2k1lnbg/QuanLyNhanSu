@@ -438,6 +438,10 @@
           <Property Name="MAC_ADDRESS" Type="varchar2" MaxLength="100" />
           <Property Name="TEN_MAY_TINH" Type="varchar2" MaxLength="100" />
           <Property Name="THOIGIAN" Type="timestamp" Precision="6" />
+          <Property Name="SESSION_ID" Type="varchar2" MaxLength="50" />
+          <Property Name="MODULE_NAME" Type="varchar2" MaxLength="50" />
+          <Property Name="APP_VERSION" Type="varchar2" MaxLength="20" />
+          <Property Name="CHANGED_FIELDS" Type="varchar2" MaxLength="4000" />
         </EntityType>
         <EntityType Name="TB_SYS_LOGIN_HISTORY">
           <Key>
@@ -450,6 +454,7 @@
           <Property Name="MAC_ADDRESS" Type="varchar2" MaxLength="100" />
           <Property Name="TEN_MAY_TINH" Type="varchar2" MaxLength="100" />
           <Property Name="TRANGTHAI" Type="nvarchar2" MaxLength="50" />
+          <Property Name="THOIGIAN_DANGXUAT" Type="timestamp" Precision="6" />
         </EntityType>
         <EntityType Name="TB_SYS_REPORT">
           <Key>
@@ -496,6 +501,8 @@
           <Property Name="DISABLED" Type="number" Precision="38" Scale="0" />
           <Property Name="ISGROUP" Type="number" Precision="38" Scale="0" />
           <Property Name="ALLOWED_IPS" Type="varchar2" MaxLength="500" />
+          <Property Name="FAILED_LOGIN_COUNT" Type="number" Precision="38" Scale="0" />
+          <Property Name="LOCKOUT_END" Type="timestamp" Precision="6" />
         </EntityType>
         <EntityType Name="TB_TANGCA">
           <Key>
@@ -1695,6 +1702,8 @@
           <Property Name="DISABLED" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="ISGROUP" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="ALLOWED_IPS" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
+          <Property Name="FAILED_LOGIN_COUNT" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="LOCKOUT_END" Type="DateTime" Precision="6" />
         </EntityType>
         <EntityType Name="TB_TANGCA">
           <Key>
@@ -2182,6 +2191,10 @@
           <Property Name="MAC_ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="TEN_MAY_TINH" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="THOIGIAN" Type="DateTime" Precision="6" />
+          <Property Name="SESSION_ID" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="MODULE_NAME" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="APP_VERSION" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="CHANGED_FIELDS" Type="String" MaxLength="4000" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="TB_SYS_LOGIN_HISTORY">
           <Key>
@@ -2194,6 +2207,7 @@
           <Property Name="MAC_ADDRESS" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="TEN_MAY_TINH" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="TRANGTHAI" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="THOIGIAN_DANGXUAT" Type="DateTime" Precision="6" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -2639,6 +2653,8 @@
           <EntitySetMapping Name="TB_SYS_USER">
             <EntityTypeMapping TypeName="Model.TB_SYS_USER">
               <MappingFragment StoreEntitySet="TB_SYS_USER">
+                <ScalarProperty Name="LOCKOUT_END" ColumnName="LOCKOUT_END" />
+                <ScalarProperty Name="FAILED_LOGIN_COUNT" ColumnName="FAILED_LOGIN_COUNT" />
                 <ScalarProperty Name="ALLOWED_IPS" ColumnName="ALLOWED_IPS" />
                 <ScalarProperty Name="ISGROUP" ColumnName="ISGROUP" />
                 <ScalarProperty Name="DISABLED" ColumnName="DISABLED" />
@@ -2779,6 +2795,10 @@
           <EntitySetMapping Name="TB_SYS_LOG">
             <EntityTypeMapping TypeName="Model.TB_SYS_LOG">
               <MappingFragment StoreEntitySet="TB_SYS_LOG">
+                <ScalarProperty Name="CHANGED_FIELDS" ColumnName="CHANGED_FIELDS" />
+                <ScalarProperty Name="APP_VERSION" ColumnName="APP_VERSION" />
+                <ScalarProperty Name="MODULE_NAME" ColumnName="MODULE_NAME" />
+                <ScalarProperty Name="SESSION_ID" ColumnName="SESSION_ID" />
                 <ScalarProperty Name="THOIGIAN" ColumnName="THOIGIAN" />
                 <ScalarProperty Name="TEN_MAY_TINH" ColumnName="TEN_MAY_TINH" />
                 <ScalarProperty Name="MAC_ADDRESS" ColumnName="MAC_ADDRESS" />
@@ -2797,6 +2817,7 @@
           <EntitySetMapping Name="TB_SYS_LOGIN_HISTORY">
             <EntityTypeMapping TypeName="Model.TB_SYS_LOGIN_HISTORY">
               <MappingFragment StoreEntitySet="TB_SYS_LOGIN_HISTORY">
+                <ScalarProperty Name="THOIGIAN_DANGXUAT" ColumnName="THOIGIAN_DANGXUAT" />
                 <ScalarProperty Name="TRANGTHAI" ColumnName="TRANGTHAI" />
                 <ScalarProperty Name="TEN_MAY_TINH" ColumnName="TEN_MAY_TINH" />
                 <ScalarProperty Name="MAC_ADDRESS" ColumnName="MAC_ADDRESS" />

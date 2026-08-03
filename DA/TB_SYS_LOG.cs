@@ -26,5 +26,9 @@ namespace DA
         public string MAC_ADDRESS { get; set; }
         public string TEN_MAY_TINH { get; set; }
         public Nullable<System.DateTime> THOIGIAN { get; set; }
+        public string SESSION_ID { get; set; }
+        public string MODULE_NAME { get; set; }
+        public string APP_VERSION { get; set; }
+        public string CHANGED_FIELDS { get; set; }
     }
 }

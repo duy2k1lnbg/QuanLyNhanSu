@@ -158,8 +158,11 @@ namespace QLyNSu
             #endregion
             try
             {
-                // Kiểm tra hình ảnh có null không, nếu null thì gán hình ảnh mặc định
-                Image imageToSave = pictureHinhanh.Image ?? Image.FromFile(@"image\NhanVien\noimage.png");
+                byte[] imageBytes = null;
+                if (pictureHinhanh.Image != null)
+                {
+                    imageBytes = ImageToBase64(pictureHinhanh.Image, pictureHinhanh.Image.RawFormat);
+                }
 
                 // Kiểm tra các trường thông tin cần thiết
                 if (string.IsNullOrWhiteSpace(txtHoTen.Text) ||
@@ -189,7 +192,7 @@ namespace QLyNSu
                     nv.DIENTHOAI = txtSDT.Text;
                     nv.CCCD = txtCCCD.Text;
                     nv.DIACHI = txtDiaChi.Text;
-                    nv.HINHANH = ImageToBase64(imageToSave, imageToSave.RawFormat);
+                    nv.HINHANH = imageBytes;
                     nv.IDPB = int.Parse(cboPhongBan.SelectedValue.ToString());
                     nv.IDBP = int.Parse(cboBoPhan.SelectedValue.ToString());
                     nv.IDCV = int.Parse(cboChucVu.SelectedValue.ToString());
@@ -214,7 +217,7 @@ namespace QLyNSu
                         nv.DIENTHOAI = txtSDT.Text;
                         nv.CCCD = txtCCCD.Text;
                         nv.DIACHI = txtDiaChi.Text;
-                        nv.HINHANH = ImageToBase64(imageToSave, imageToSave.RawFormat);
+                        nv.HINHANH = imageBytes;
                         nv.IDPB = int.Parse(cboPhongBan.SelectedValue.ToString());
                         nv.IDBP = int.Parse(cboBoPhan.SelectedValue.ToString());
                         nv.IDCV = int.Parse(cboChucVu.SelectedValue.ToString());

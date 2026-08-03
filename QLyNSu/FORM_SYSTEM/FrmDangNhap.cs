@@ -294,6 +294,7 @@ namespace QLyNSu.FORM_SYSTEM
                     // Set Global Audit properties
                     MyEntities.CurrentAuditUserId = (int)user.IDUSER;
                     MyEntities.CurrentAuditUsername = user.FULLNAME;
+                    MyEntities.CurrentSessionId = Guid.NewGuid().ToString();
 
                     // Ghi nhớ đăng nhập
                     try
