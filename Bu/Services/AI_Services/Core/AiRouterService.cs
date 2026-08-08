@@ -27,6 +27,14 @@ namespace Bu.Services.AI_Services.Core
                 return "GENERAL";
             }
 
+            // Rule-based: Nhận diện nếu người dùng chỉ gõ một cái tên (ví dụ: "Trần Thanh Tâm")
+            var wordCount = q.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).Length;
+            if (wordCount >= 2 && wordCount <= 6 && System.Text.RegularExpressions.Regex.IsMatch(q, @"^[\p{L}\s]+$"))
+            {
+                Debug.WriteLine($">>> RULE BASED: Name detected, routed to EMPLOYEE");
+                return "EMPLOYEE";
+            }
+
             return await AskAiToRoute(q);
         }
 
@@ -41,7 +49,7 @@ Nhãn:";
 
             Debug.WriteLine($">>> AI ROUTER PROMPT:\n{prompt}");
 
-            var result = await _ollama.AskSql(prompt);
+            var result = await _ollama.AskIntent(prompt);
             string intent = result.ToUpper().Trim().Replace(".", "");
 
             Debug.WriteLine($">>> AI ROUTER RESULT: {intent}");

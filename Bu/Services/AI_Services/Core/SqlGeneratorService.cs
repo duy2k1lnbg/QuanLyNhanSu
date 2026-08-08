@@ -54,9 +54,19 @@ namespace Bu.Services.AI_Services.Core
         {
             q = q.ToLower().Trim();
 
-            // Cải tiến Regex: Bắt tên nhân viên chính xác hơn (kể cả tên có dấu)
+            // Xóa theo yêu cầu: Bỏ luồng SQL Hardcode, để hệ thống thuần túy phụ thuộc Vector Search. Bỏ comment nếu cần bật lại.
+            /*
+            // Xử lý trường hợp người dùng CHỈ gõ 1 cái tên (VD: "Trần Thanh Tâm")
+            var wordCount = q.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length;
+            if (wordCount >= 2 && wordCount <= 6 && Regex.IsMatch(q, @"^[\p{L}\s]+$"))
+            {
+                string safeName = q.Replace("'", "''");
+                return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(HOTEN) LIKE UPPER('%{safeName}%')";
+            }
+
+            // Cải tiến Regex: Bắt tên nhân viên có tiền tố
             // Ví dụ: "thông tin nhân viên Nguyễn Thọ Duy" -> lấy được "Nguyễn Thọ Duy"
-            var nameMatch = Regex.Match(q, @"(?:nhân viên|tên|là|tìm|về)\s+([\p{L}\s]+)$");
+            var nameMatch = Regex.Match(q, @"(?:thông tin nhân viên tên là|thông tin nhân viên tên|thông tin nhân viên|nhân viên tên là|nhân viên tên|tìm nhân viên tên|tìm nhân viên|nhân viên|tên là|tên|là|tìm|về)\s+([\p{L}\s]+)$");
             if (nameMatch.Success)
             {
                 string name = nameMatch.Groups[1].Value.Trim();
@@ -73,6 +83,7 @@ namespace Bu.Services.AI_Services.Core
             {
                 return $"SELECT * FROM V_AI_EMPLOYEE WHERE MANV = {idMatch.Groups[1].Value}";
             }
+            */
 
             return null;
         }

@@ -18,6 +18,7 @@ namespace Bu.Services.AI_Services
         private readonly ISqlGenerator _sqlGenerator;
         private readonly ILlmService _ollama;
         private readonly IVectorService _vectorService;
+        private readonly AiRouterService _aiRouter;
         private readonly AiChatHistory _history = new AiChatHistory();
 
         public HybridRagService()
@@ -25,92 +26,14 @@ namespace Bu.Services.AI_Services
             _sqlGenerator = AiServiceLocator.GetService<ISqlGenerator>();
             _ollama = AiServiceLocator.GetService<ILlmService>();
             _vectorService = AiServiceLocator.GetService<IVectorService>();
+            _aiRouter = AiServiceLocator.GetService<AiRouterService>();
         }
 
         private bool _isVectorDbInitialized = false;
         private readonly object _vectorDbLock = new object();
 
-        private async Task EnsureVectorDbInitialized()
-        {
-            if (_isVectorDbInitialized) return;
 
-            await Task.Run(() =>
-            {
-                lock (_vectorDbLock)
-                {
-                    if (_isVectorDbInitialized) return;
 
-                    try
-                    {
-                        using (var db = new AiEntities())
-                        {
-                            // 1. Load Employees
-                            var employees = db.V_AI_EMPLOYEE.ToList();
-                            foreach (var emp in employees)
-                            {
-                                string text = $"Nhân viên {emp.HOTEN} (Mã NV: {emp.MANV}), sinh ngày {emp.NGAYSINH:dd/MM/yyyy}, " +
-                                              $"thuộc phòng ban {emp.TEN_PHONGBAN}, chức vụ {emp.TEN_CHUCVU}, bộ phận {emp.TEN_BOPHAN}, " +
-                                              $"số điện thoại {emp.DIENTHOAI}, địa chỉ {emp.DIACHI}.";
-                                _vectorService.Add(text, "EMPLOYEE");
-                            }
-
-                            // 2. Load Insurances
-                            var insurances = db.V_AI_INSURANCE.ToList();
-                            foreach (var ins in insurances)
-                            {
-                                string text = $"Nhân viên {ins.HOTEN} (Mã NV: {ins.MANV}) có số bảo hiểm là {ins.SOBH}, " +
-                                              $"cấp ngày {ins.NGAYCAP:dd/MM/yyyy} tại {ins.NOICAP}, đăng ký khám tại {ins.NOIKHAMBENH}.";
-                                _vectorService.Add(text, "INSURANCE");
-                            }
-
-                            // 3. Load Allowances
-                            var allowances = db.V_AI_ALLOWANCE.ToList();
-                            foreach (var al in allowances)
-                            {
-                                string text = $"Nhân viên {al.HOTEN} (Mã NV: {al.MANV}) nhận phụ cấp {al.TENPC} với số tiền {al.SOTIEN:N0} VNĐ cho kỳ công {al.KYCONG}.";
-                                _vectorService.Add(text, "ALLOWANCE");
-                            }
-                        }
-                        _isVectorDbInitialized = true;
-                        System.Diagnostics.Debug.WriteLine("[VectorDB] Loaded vector data successfully.");
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine($"[VectorDB ERROR]: {ex.Message}");
-                    }
-                }
-            });
-        }
-
-        private bool IsLikelyDbQuery(string q)
-        {
-            if (string.IsNullOrWhiteSpace(q)) return false;
-            q = q.ToLower().Trim();
-
-            // Business keywords related to our database views
-            string[] keywords = { 
-                "nhân viên", "nv", "phòng", "ban", "lương", "thu nhập", "tăng ca", "overtime", "ot",
-                "bảo hiểm", "bh", "ứng", "phụ cấp", "trợ cấp", "sinh nhật", "sn", "ngày sinh", "chấm công", 
-                "giờ vào", "giờ ra", "time in", "time out", "mã", "manv", "tên", "hoten", "họ tên", 
-                "danh sách", "ds", "thống kê", "báo cáo", "tìm", "ai là", "thông tin", "hợp đồng", "hdld",
-                "chức vụ", "bộ phận", "địa chỉ", "điện thoại"
-            };
-
-            return keywords.Any(k => q.Contains(k));
-        }
-
-        private string GetTagFromSql(string sql)
-        {
-            if (string.IsNullOrEmpty(sql)) return null;
-            string upper = sql.ToUpper();
-            if (upper.Contains("V_AI_EMPLOYEE")) return "EMPLOYEE";
-            if (upper.Contains("V_AI_ATTENDANCE")) return "ATTENDANCE";
-            if (upper.Contains("V_AI_OVERTIME")) return "OVERTIME";
-            if (upper.Contains("V_AI_INSURANCE")) return "INSURANCE";
-            if (upper.Contains("V_AI_ADVANCE")) return "ADVANCE";
-            if (upper.Contains("V_AI_ALLOWANCE")) return "ALLOWANCE";
-            return null;
-        }
 
         public async Task<QueryResult> Ask(string question, Action<string> onTokenReceived = null)
         {
@@ -126,19 +49,23 @@ namespace Bu.Services.AI_Services
 
             try
             {
-                // Ensure vector DB is initialized (non-blocking after first load)
-                await EnsureVectorDbInitialized();
+
 
                 string currentHistory = _history.GetHistoryString();
                 string vectorContext = "";
                 string sql = "";
                 string dataContext = "";
 
-                bool likelyDbQuery = IsLikelyDbQuery(question);
+                // 1. Phân loại luồng câu hỏi bằng AiRouterService
+                string intent = await _aiRouter.DetectIntent(question);
+                bool isGeneral = intent == "GENERAL";
+                bool likelyDbQuery = !isGeneral;
 
                 if (likelyDbQuery)
                 {
-                    // 1. Generate SQL
+                    // [ĐÃ TẮT SQL]: Chế độ Thuần Vector Search. Bỏ comment đoạn này nếu muốn bật lại Hybrid RAG.
+                    /*
+                    // 2. Generate SQL
                     sql = await _sqlGenerator.GenerateRawSql(question);
                     result.SqlQuery = sql;
 
@@ -151,13 +78,12 @@ namespace Bu.Services.AI_Services
                             dataContext = FormatDataTableToTextContext(dt);
                         }
                     }
+                    */
                 }
 
-                // 2. Search vector DB for additional context
-                string searchTag = likelyDbQuery ? GetTagFromSql(sql) : null;
-                if (_isVectorDbInitialized)
-                {
-                    var vectorMatches = _vectorService.Search(question, searchTag);
+                // 3. Search vector DB for additional context
+                string searchTag = likelyDbQuery ? intent : null;
+                var vectorMatches = _vectorService.Search(question, searchTag);
                     
                     // Fallback to all tags if intent search returned nothing
                     if (vectorMatches.Count == 0 && searchTag != null)
@@ -170,26 +96,18 @@ namespace Bu.Services.AI_Services
                         vectorContext = "Dữ liệu tìm kiếm tương đồng (Vector Search):\n" +
                                         string.Join("\n", vectorMatches.Select(m => $"- {m}"));
                     }
-                }
 
-                // 3. Combine SQL context and Vector context in a clean, non-conflicting way
+
                 string combinedContext = "";
-                if (!string.IsNullOrEmpty(dataContext))
+                
+                // Fallback to vector context (Pure Vector Search)
+                if (!string.IsNullOrEmpty(vectorContext))
                 {
-                    // If we have precise SQL results, use them exclusively to avoid vector search noise
-                    combinedContext = "Dữ liệu cấu trúc truy vấn (SQL Database):\n" + dataContext;
+                    combinedContext = vectorContext;
                 }
                 else
                 {
-                    // Fallback to vector context
-                    if (!string.IsNullOrEmpty(vectorContext))
-                    {
-                        combinedContext = vectorContext;
-                    }
-                    else
-                    {
-                        combinedContext = "Không tìm thấy dữ liệu liên quan trong hệ thống.";
-                    }
+                    combinedContext = "Không tìm thấy dữ liệu liên quan trong hệ thống.";
                 }
 
                 // 4. AI Tổng hợp câu trả lời dựa trên Dữ liệu (RAG) và Lịch sử

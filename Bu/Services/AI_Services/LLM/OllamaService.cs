@@ -19,6 +19,7 @@ namespace Bu.Services.AI_Services.Core
         private string URL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("OllamaHost", "http://localhost:11434") + "/api/generate";
         private string EMBEDDING_URL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("OllamaHost", "http://localhost:11434") + "/api/embeddings";
         private string MODEL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("AiModel", "qwen2.5:latest");
+        private string EMBEDDING_MODEL => "bge-m3";
         private readonly IPromptManager _promptManager;
 
         public OllamaService(IPromptManager promptManager)
@@ -34,6 +35,16 @@ namespace Bu.Services.AI_Services.Core
             return await Send(prompt,
                 "Bạn là chuyên gia SQL Oracle. Chỉ trả về câu lệnh SELECT đúng, không giải thích, không dùng markdown.",
                 0.1, 250);
+        }
+
+        public async Task<string> AskIntent(string prompt)
+        {
+            Debug.WriteLine($">>> [OLLAMA] INTENT PROMPT:\n{prompt}");
+
+            // Cực kỳ tiết kiệm: temperature = 0.0, maxTokens = 10 vì chỉ cần 1 từ khóa
+            return await Send(prompt,
+                "Bạn là hệ thống phân loại câu hỏi (Router). Chỉ in ra đúng 1 từ khóa nhãn (Label), không giải thích.",
+                0.0, 10);
         }
 
         // ===== CHAT MODE (RAG) =====
@@ -61,17 +72,19 @@ namespace Bu.Services.AI_Services.Core
             {
                 var body = new
                 {
-                    model = MODEL,
+                    model = EMBEDDING_MODEL,
                     prompt = text
                 };
                 var json = JsonConvert.SerializeObject(body);
                 var contentString = new StringContent(json, Encoding.UTF8, "application/json");
 
                 // Call local Ollama embeddings endpoint with cancellation token
+                Console.WriteLine("EMBEDDING URL: " + EMBEDDING_URL);
                 var res = await _client.PostAsync(EMBEDDING_URL, contentString, cancellationToken);
                 if (res.IsSuccessStatusCode)
                 {
                     var content = await res.Content.ReadAsStringAsync();
+                    Console.WriteLine("RAW OLLAMA: " + content);
                     dynamic obj = JsonConvert.DeserializeObject(content);
                     var embedList = obj?.embedding?.ToObject<List<float>>();
                     if (embedList != null)
@@ -79,12 +92,17 @@ namespace Bu.Services.AI_Services.Core
                         return embedList.ToArray();
                     }
                 }
+                else
+                {
+                    var err = await res.Content.ReadAsStringAsync();
+                    Console.WriteLine($"[OLLAMA EMBEDDING ERROR STATUS]: {res.StatusCode} - {err}");
+                }
             }
             catch (Exception ex)
             {
                 if (!(ex is OperationCanceledException) && !(ex is TaskCanceledException))
                 {
-                    Debug.WriteLine($">>> [OLLAMA EMBEDDING ERROR]: {ex.Message}");
+                    Console.WriteLine($">>> [OLLAMA EMBEDDING ERROR]: {ex.Message}");
                 }
             }
             return null;
@@ -105,8 +123,10 @@ namespace Bu.Services.AI_Services.Core
                     {
                         temperature = temperature,
                         num_predict = maxTokens,
-                        top_k = 40,
-                        top_p = 0.9
+                        num_ctx = 3072,        // Giới hạn Context Window (Khoảng 3K tokens) để tiết kiệm RAM và tăng tốc độ đọc Prompt
+                        top_k = 30,            // Giảm từ 40 -> 30 để thu hẹp không gian chọn từ, giúp AI phản xạ nhanh hơn
+                        top_p = 0.8,           // Giảm từ 0.9 -> 0.8 để câu trả lời đi thẳng vào vấn đề, bớt lan man
+                        repeat_penalty = 1.15  // Thêm chốt chặn phạt lặp từ (ngăn AI bị kẹt trong vòng lặp 'suy nghĩ' vô tận)
                     }
                 };
 
@@ -173,13 +193,13 @@ namespace Bu.Services.AI_Services.Core
                     dynamic obj = JsonConvert.DeserializeObject(content);
                     string response = obj?.response?.ToString()?.Trim() ?? "AI không phản hồi.";
 
-                    Debug.WriteLine($">>> [OLLAMA RESPONSE]: {response}");
+                    Console.WriteLine($">>> [OLLAMA RESPONSE]: {response}");
                     return response;
                 }
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($">>> [SYSTEM ERROR]: {ex.Message}");
+                Console.WriteLine($">>> [SYSTEM ERROR]: {ex.Message}");
                 return "Hệ thống AI đang bận hoặc chưa khởi động.";
             }
         }

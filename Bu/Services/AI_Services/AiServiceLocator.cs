@@ -14,13 +14,15 @@ namespace Bu.Services.AI_Services
             // Register concrete service implementations
             var promptManager = new JsonPromptManager();
             var llmService = new OllamaService(promptManager);
-            var vectorService = new VectorService(llmService);
+            var vectorService = new Vector.QdrantService(llmService);
             var sqlGenerator = new SqlGeneratorService(llmService, promptManager);
+            var router = new AiRouterService(llmService);
 
             _services[typeof(IPromptManager)] = promptManager;
             _services[typeof(ILlmService)] = llmService;
             _services[typeof(IVectorService)] = vectorService;
             _services[typeof(ISqlGenerator)] = sqlGenerator;
+            _services[typeof(AiRouterService)] = router;
         }
 
         public static T GetService<T>()
