@@ -42,11 +42,16 @@ namespace QLyNSu
 
         public async Task OpenFormWithSplashScreen(Type typeForm)
         {
-            SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, ParentFormState.Locked);
+            if (SplashScreenManager.Default == null || !SplashScreenManager.Default.IsSplashFormVisible)
+            {
+                SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, ParentFormState.Locked);
+            }
             Form openedForm = null;
+            bool semaphoreAcquired = false;
             try
             {
-                if (!_semaphore.Wait(0))
+                semaphoreAcquired = _semaphore.Wait(0);
+                if (!semaphoreAcquired)
                 {
                     MessageBox.Show("Hệ thống đang bận, vui lòng chờ một chút.");
                     return;
@@ -60,8 +65,14 @@ namespace QLyNSu
             }
             finally
             {
-                SplashScreenManager.CloseForm();
-                _semaphore.Release();
+                if (SplashScreenManager.Default != null && SplashScreenManager.Default.IsSplashFormVisible)
+                {
+                    SplashScreenManager.CloseForm();
+                }
+                if (semaphoreAcquired)
+                {
+                    _semaphore.Release();
+                }
             }
 
             if (openedForm != null)
@@ -72,11 +83,16 @@ namespace QLyNSu
 
         public async Task OpenShowUserGroupFormWithSplashScreen(int mode)
         {
-            SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, ParentFormState.Locked);
+            if (SplashScreenManager.Default == null || !SplashScreenManager.Default.IsSplashFormVisible)
+            {
+                SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, ParentFormState.Locked);
+            }
             Form openedForm = null;
+            bool semaphoreAcquired = false;
             try
             {
-                if (!_semaphore.Wait(0))
+                semaphoreAcquired = _semaphore.Wait(0);
+                if (!semaphoreAcquired)
                 {
                     MessageBox.Show("Hệ thống đang bận, vui lòng chờ một chút.");
                     return;
@@ -109,8 +125,14 @@ namespace QLyNSu
             }
             finally
             {
-                SplashScreenManager.CloseForm();
-                _semaphore.Release();
+                if (SplashScreenManager.Default != null && SplashScreenManager.Default.IsSplashFormVisible)
+                {
+                    SplashScreenManager.CloseForm();
+                }
+                if (semaphoreAcquired)
+                {
+                    _semaphore.Release();
+                }
             }
 
             if (openedForm != null)

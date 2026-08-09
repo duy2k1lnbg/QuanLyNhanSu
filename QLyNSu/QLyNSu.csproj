@@ -121,6 +121,8 @@
       <HintPath>..\packages\Oracle.ManagedDataAccess.EntityFramework.23.7.0\lib\net472\Oracle.ManagedDataAccess.EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
@@ -173,6 +175,24 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FORM_SYSTEM\FrmBackupWizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmBackupWizard.Designer.cs">
+      <DependentUpon>FrmBackupWizard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmWorksheet.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmWorksheet.Designer.cs">
+      <DependentUpon>FrmWorksheet.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmRestoreWizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmRestoreWizard.Designer.cs">
+      <DependentUpon>FrmRestoreWizard.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_BAOCAO\FrmBaoCaoChiTiet.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -603,6 +623,9 @@
     <EmbeddedResource Include="FORM_SYSTEM\FrmAI_Chat.resx">
       <DependentUpon>FrmAI_Chat.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmBackupWizard.resx">
+      <DependentUpon>FrmBackupWizard.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmCreateAccount.resx">
       <DependentUpon>FrmCreateAccount.cs</DependentUpon>
     </EmbeddedResource>
@@ -614,6 +637,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmGroup.resx">
       <DependentUpon>FrmGroup.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmRestoreWizard.resx">
+      <DependentUpon>FrmRestoreWizard.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmShowUser_Group.resx">
       <DependentUpon>FrmShowUser_Group.cs</DependentUpon>

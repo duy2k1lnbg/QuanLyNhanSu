@@ -178,7 +178,7 @@ namespace QLyNSu
             this.btnPass.Id = 1;
             this.btnPass.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPass.ImageOptions.SvgImage")));
             this.btnPass.Name = "btnPass";
-            this.btnPass.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem1_ItemClick);
+            this.btnPass.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnPass_ItemClick);
             // 
             // btnSaoLuu_DB
             // 
@@ -186,7 +186,7 @@ namespace QLyNSu
             this.btnSaoLuu_DB.Id = 2;
             this.btnSaoLuu_DB.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnSaoLuu_DB.ImageOptions.SvgImage")));
             this.btnSaoLuu_DB.Name = "btnSaoLuu_DB";
-            this.btnSaoLuu_DB.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem2_ItemClick);
+            this.btnSaoLuu_DB.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnSaoLuu_DB_ItemClick);
             // 
             // btnPhucHoi_DB
             // 
@@ -194,7 +194,7 @@ namespace QLyNSu
             this.btnPhucHoi_DB.Id = 3;
             this.btnPhucHoi_DB.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPhucHoi_DB.ImageOptions.SvgImage")));
             this.btnPhucHoi_DB.Name = "btnPhucHoi_DB";
-            this.btnPhucHoi_DB.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem3_ItemClick);
+            this.btnPhucHoi_DB.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnPhucHoi_DB_ItemClick);
             // 
             // btnDanToc
             // 
@@ -450,6 +450,7 @@ namespace QLyNSu
             this.btnUser_Update.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnUser_Update.ImageOptions.LargeImage")));
             this.btnUser_Update.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnUser_Update.ImageOptions.SvgImage")));
             this.btnUser_Update.Name = "btnUser_Update";
+            this.btnUser_Update.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnUser_Update_ItemClick);
             // 
             // btnChucNang
             // 
@@ -458,6 +459,7 @@ namespace QLyNSu
             this.btnChucNang.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnChucNang.ImageOptions.LargeImage")));
             this.btnChucNang.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnChucNang.ImageOptions.SvgImage")));
             this.btnChucNang.Name = "btnChucNang";
+            this.btnChucNang.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnChucNang_ItemClick);
             // 
             // btnPQ_BaoCao
             // 
@@ -466,6 +468,7 @@ namespace QLyNSu
             this.btnPQ_BaoCao.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnPQ_BaoCao.ImageOptions.LargeImage")));
             this.btnPQ_BaoCao.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPQ_BaoCao.ImageOptions.SvgImage")));
             this.btnPQ_BaoCao.Name = "btnPQ_BaoCao";
+            this.btnPQ_BaoCao.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnPQ_BaoCao_ItemClick);
             // 
             // BtnExit
             // 
@@ -522,6 +525,7 @@ namespace QLyNSu
             this.btnThongBao.Id = 43;
             this.btnThongBao.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnThongBao.ImageOptions.SvgImage")));
             this.btnThongBao.Name = "btnThongBao";
+            this.btnThongBao.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnThongBao_ItemClick);
             // 
             // btnGiamSat
             // 
