@@ -483,33 +483,40 @@ The application covers the full HR lifecycle: employee profile management, inter
 
 ### 🗂 Project Architecture (3-Tier)
 
-The solution enforces a clean separation of concerns across three projects:
+The solution enforces a clean separation of concerns across five projects:
 
 ```
 QuanLyNhanSu.sln
  ├── 📂 QLyNSu/          ← Presentation Layer (WinForms + DevExpress)
  │    ├── FORM_NHANSU/   ← HR Management Screens
  │    ├── FORM_CHAMCONG/ ← Timekeeping & Payroll Screens
- │    ├── FORM_BAOCAO/   ← Reports & Print Preview Screens
- │    ├── FORM_SYSTEM/   ← System Screens (Login, Permissions, AI Chat)
- │    └── Reports/       ← DevExpress Report Layouts (.cs/.resx)
+ │    ├── FORM_BAOCAO/   ← Dashboard & Reports
+ │    ├── FORM_SYSTEM/   ← System (Login, Permissions, AI Chat, Import/Export, Notifications)
+ │    ├── Reports/       ← DevExpress XtraReports (printable reports)
+ │    └── Functions/     ← Shared utilities (TranslationManager, AiBootstrap, FormManager)
  │
  ├── 📂 Bu/              ← Business Logic Layer (BLL)
  │    ├── CLASS_NHANSU/  ← HR Business Rules
  │    ├── CLASS_CHAMCONG/← Timekeeping & Payroll Logic
- │    ├── CLASS_BAOCAO/  ← Report Logic
  │    ├── CLASS_SYSTEM/  ← System & Permission Logic
  │    ├── DTO/           ← Data Transfer Objects
  │    └── Services/
  │         └── AI_Services/
- │              ├── Core/    ← HybridRagService, SqlGeneratorService, AiRouterService, ...
- │              ├── LLM/     ← OllamaService (communicates with Ollama local server)
- │              ├── Memory/  ← AiCacheService, AiChatHistory
- │              └── Vector/  ← VectorService (semantic similarity search)
+ │              ├── AiServiceLocator.cs  ← Service Locator (singleton registry)
+ │              ├── ChatboxManager.cs    ← Facade for HybridRagService
+ │              ├── Core/       ← HybridRagService, SqlGeneratorService, AiRouterService, QueryPreprocessor, JsonPromptManager
+ │              ├── Interfaces/ ← ILlmService, IPromptManager, ISqlGenerator, IVectorService
+ │              ├── LLM/        ← OllamaService (communicates with Ollama local server)
+ │              ├── Memory/     ← AiCacheService, AiChatHistory
+ │              └── Vector/     ← QdrantService (semantic search via Qdrant), AiDataSyncHub
  │
- └── 📂 DA/              ← Data Access Layer (Entity Framework 6)
-      ├── QLNhanSu.edmx  ← Full EDMX model for the entire HR application
-      └── AIEntities.edmx← Read-Only EDMX model exclusively for the AI subsystem
+ ├── 📂 DA/              ← Data Access Layer (Entity Framework 6)
+ │    ├── QLNhanSu.edmx  ← Full EDMX model for the entire HR application
+ │    └── AIEntities.edmx← Read-Only EDMX model exclusively for the AI subsystem
+ │
+ ├── 📂 Bu.Tests/        ← Unit Tests (NUnit)
+ │
+ └── 📂 VectorDataSync/  ← Console tool to seed employee data into Qdrant
 ```
 
 ---
@@ -561,6 +568,12 @@ QuanLyNhanSu.sln
 | `rptDSNhanVien` | Employee directory filtered by department |
 | `rptHopDongLaoDong` | Printable labor contract form |
 | `rptKhenThuong` / `rptKyLuat` | Commendation / disciplinary decision forms |
+| `rptDSHopDongHetHan` | Expiring labor contracts list |
+| `rptDSTangCa` | Overtime hours summary report by pay cycle |
+| `FrmDashboardNhanSu` | Dashboard charts: department structure, gender, education, age distribution |
+| `FrmDashboardLuong` | Payroll dashboard charts by department and pay cycle |
+| `FrmBaoCaoTongHop` | Consolidated report center (select report type, filter by cycle/employee) |
+| `FrmBaoCaoChiTiet` | Detailed report by pay cycle and employee |
 
 #### 4. 🔐 System Administration
 
@@ -574,6 +587,13 @@ QuanLyNhanSu.sln
 | `FrmChangePassword` | Personal password change (BCrypt re-hash) |
 | `FrmSetting` | Configure Ollama server URL and AI model name |
 | `FrmCreateAccount` | Create new user accounts with initial permission assignment |
+| `FrmDatabaseConfig` | Multi-profile Oracle connection configurator (Server IP, Port, SID/Service Name, Auth) |
+| `FrmOllamaConfig` | Ollama server settings (URL, model name) with test connection button |
+| `FrmThongBao` | Internal notification management (pin, type, status, expiry, per company/department) |
+| `FrmLanguages` | System language catalog management (add/edit/delete, toggle active) |
+| `FrmDataExport` | Export Oracle schema and data (SQL/JSON/XML, table selection, DDL/Data, ZIP compression) |
+| `FrmDataImport` | Import data from SQL/JSON files into Oracle (Truncate, Disable Constraints/Triggers) |
+| `FrmUserDashboard` | User login session monitoring dashboard (device, IP, timestamps) |
 
 #### 5. 🤖 AI HR Copilot
 
@@ -589,7 +609,12 @@ QuanLyNhanSu.sln
 | `OllamaService` | Sends prompts to and receives completions from the local Ollama server |
 | `AiCacheService` | Caches previously generated SQL for instant replies to repeated questions |
 | `AiChatHistory` | Maintains short-term conversation history so the AI understands follow-up context |
-| `VectorService` | Semantic similarity search over employee knowledge |
+| `QdrantService` | Semantic similarity search via Qdrant vector database (Cosine, top-K=5) |
+| `AiDataSyncHub` | Event hub for automatic employee data sync to Qdrant on changes |
+| `AiServiceLocator` | Service Locator with singleton registration for AI services |
+| `ChatboxManager` | Facade providing simple API: `ProcessQuery()`, `GetMessages()`, `Reset()` |
+| `JsonPromptManager` | Manages prompt templates from external `ai_prompts.json` file (no rebuild needed) |
+| `AiBootstrap` | Auto-detect/start Ollama on app launch, auto-kill on exit |
 
 ---
 
@@ -647,7 +672,7 @@ graph TD
 
 ### 🗄️ Database Schema
 
-> Full backup script: [HR_backup.sql](./HR_backup.sql) | Sample data: [import_data.sql](./import_data.sql)
+> Full backup script: [HR_backup.sql](./HR_backup.sql)
 
 #### Employee & Organization Tables
 
@@ -700,7 +725,12 @@ TB_SYS_FUNCTION          — System function / menu item catalog
 TB_SYS_RIGHT             — Function-level permissions per user or group
 TB_SYS_REPORT            — Report catalog
 TB_SYS_RIGHT_REPORT      — Report-level permissions per user or group
-TB_CONFIG                — System configuration (Ollama URL, model name, ...)
+TB_CONFIG                — System configuration (Ollama URL, Qdrant URL, model name, ...)
+TB_SYS_LOG               — System activity log
+TB_SYS_LOGIN_HISTORY     — Login history (device, IP, timestamp)
+TB_THONGBAO              — Internal notifications (title, content, pinned, status, expiry)
+TB_LANGUAGES             — UI language catalog
+TB_TRANSLATIONS          — UI translation dictionary (key-value per language)
 ```
 
 > **Important trigger:** [SYS_USER_triggers.sql](./DA/SYS_USER_triggers.sql) — Cascade delete when a user account is removed (automatically cleans up group membership, function rights, and report rights).
@@ -718,6 +748,7 @@ TB_CONFIG                — System configuration (Ollama URL, model name, ...)
 | **Oracle Driver** | Oracle.ManagedDataAccess 23.7.0 (Pure managed .NET — no Oracle Client required) |
 | **AI Runtime** | Ollama (Local Server, port 11434) |
 | **LLM Model** | Qwen 2.5 (7B/14B) or Llama 3 — default: `qwen2.5:latest` |
+| **Vector Database** | Qdrant (Local Server, port 6333) — optional |
 | **JSON** | Newtonsoft.Json 13.0.4 |
 | **Security** | BCrypt.Net-Next 4.0.3 |
 | **Async Support** | Microsoft.Bcl.AsyncInterfaces, System.Threading.Tasks.Extensions |
@@ -738,7 +769,6 @@ TB_CONFIG                — System configuration (Ollama URL, model name, ...)
    ```sql
    -- Run in SQL Developer or PL/SQL Developer
    @HR_backup.sql
-   @import_data.sql
    ```
 
 3. Create the restricted AI read-only user:
@@ -810,7 +840,7 @@ Update `App.config` in both the **`QLyNSu`** and **`Bu`** projects:
 2. Restore NuGet packages: `Tools → NuGet Package Manager → Restore Packages`
 3. Build the solution: `Ctrl + Shift + B`
 4. Set `QLyNSu` as the startup project and run (`F5`)
-5. Log in using the **Admin** account created by `import_data.sql`
+5. Log in using the **Admin** account created by `HR_backup.sql`
 
 ---
 
@@ -818,15 +848,19 @@ Update `App.config` in both the **`QLyNSu`** and **`Bu`** projects:
 
 | File / Directory | Description |
 |-----------------|-------------|
-| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | Visual Studio solution containing all 3 projects |
-| [`HR_backup.sql`](./HR_backup.sql) | Full Oracle schema script (tables, views, sequences, constraints) |
-| [`import_data.sql`](./import_data.sql) | Sample seed data (employees, departments, admin account) |
+| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | Visual Studio solution containing all 5 projects |
+| [`HR_backup.sql`](./HR_backup.sql) | Full Oracle schema + sample data (tables, views, sequences, constraints, admin account) |
 | [`DA/QLNhanSu.edmx`](./DA/QLNhanSu.edmx) | Full Entity Data Model (40+ tables) |
 | [`DA/AIEntities.edmx`](./DA/AIEntities.edmx) | Read-only Entity Data Model for AI (6 Views only) |
 | [`DA/SYS_USER_triggers.sql`](./DA/SYS_USER_triggers.sql) | Oracle cascade delete trigger for user accounts |
 | [`Bu/Services/AI_Services/Core/HybridRagService.cs`](./Bu/Services/AI_Services/Core/HybridRagService.cs) | Central orchestrator of the entire AI pipeline |
 | [`Bu/Services/AI_Services/Core/SqlGeneratorService.cs`](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) | Vietnamese natural language → Oracle SQL translator |
+| [`Bu/Services/AI_Services/Vector/QdrantService.cs`](./Bu/Services/AI_Services/Vector/QdrantService.cs) | Semantic search via Qdrant vector database |
+| [`Bu/Services/AI_Services/AiServiceLocator.cs`](./Bu/Services/AI_Services/AiServiceLocator.cs) | Service Locator with singleton AI service registry |
 | [`QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs`](./QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs) | Embedded AI chatbox UI form |
+| [`QLyNSu/ai_prompts.json`](./QLyNSu/ai_prompts.json) | AI prompt templates (editable without rebuild) |
+| [`VectorDataSync/Program.cs`](./VectorDataSync/Program.cs) | Console tool to seed employee data into Qdrant |
+| [`HRMS_SetupScript.iss`](./HRMS_SetupScript.iss) | Inno Setup installer script v3.5.0 |
 
 ---
 
@@ -867,6 +901,7 @@ The system includes the **`Bu.Tests`** project, utilizing **NUnit** to cover cor
 | **Visual Studio** | 2019 / 2022 with ".NET Desktop Development" workload |
 | **DevExpress** | v23.x or compatible with .NET Framework 4.7.2 |
 | **Ollama** | Latest version from [ollama.com](https://ollama.com) |
+| **Qdrant** | Optional — [qdrant.tech](https://qdrant.tech) or Docker `qdrant/qdrant` |
 
 ---
 
@@ -880,8 +915,8 @@ To meet the requirements of large-scale enterprise deployments, the application 
 2. **AI Security Hardening & Jailbreak Prevention**:
    * Replaced the blacklist approach in [SqlGeneratorService.cs](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) with a strict **SQL Whitelist**. The AI is now restricted to SELECT queries targeting the 6 dedicated AI Views. Any prompt injection, jailbreaking, or attempts to query system tables (like user accounts `TB_SYS_USER`) are instantly blocked.
    * Patched **SQL Injection** vulnerabilities by escaping single quotes (`'`) in user-supplied search parameters.
-3. **Local Embedding Vector Caching**:
-   * Implemented an in-memory embedding cache in [VectorService.cs](./Bu/Services/AI_Services/Vector/VectorService.cs) to store previously calculated text vectors from Ollama. This bypasses redundant HTTP calls to the local LLM server, greatly accelerating AI chat responses.
+3. **Upgraded Vector Search to Qdrant**:
+   * Replaced the in-memory `VectorService` with [QdrantService.cs](./Bu/Services/AI_Services/Vector/QdrantService.cs) — communicates directly with Qdrant vector database via HTTP. Supports Cosine similarity (threshold 0.6, top-K=5), auto-syncs employee data on changes via `AiDataSyncHub` events. Includes CLI tool [VectorDataSync](./VectorDataSync/Program.cs) to seed all employee data from Oracle into Qdrant.
 4. **UI Fluidity & MDI Tab Activation Fixes**:
    * Converted payroll dashboard loading to asynchronous operations (`LoadDataAsync()`) via `Task.Run` in [FrmDashboardLuong.cs](./QLyNSu/FORM_BAOCAO/FrmDashboardLuong.cs) to prevent UI thread blocking.
    * Fixed DevExpress `DocumentManager` MDI tab switching issues in [FormManager_Functions.cs](./QLyNSu/Functions/FormManager_Functions.cs). Tabs are now explicitly activated and brought to the foreground immediately after the lock splash screen is dismissed.
@@ -911,26 +946,33 @@ QuanLyNhanSu.sln
  ├── 📂 QLyNSu/          ← プレゼンテーション層 (WinForms + DevExpress)
  │    ├── FORM_NHANSU/   ← 人事管理画面
  │    ├── FORM_CHAMCONG/ ← 勤怠管理・給与計算画面
- │    ├── FORM_BAOCAO/   ← 帳票・レポート画面
- │    ├── FORM_SYSTEM/   ← システム管理画面 (ログイン・権限・AIチャット)
- │    └── Reports/       ← DevExpress レポートレイアウト
+ │    ├── FORM_BAOCAO/   ← ダッシュボード & レポート画面
+ │    ├── FORM_SYSTEM/   ← システム管理 (ログイン・権限・AIチャット・Import/Export・通知)
+ │    ├── Reports/       ← DevExpress XtraReports (印刷帳票)
+ │    └── Functions/     ← 共通ユーティリティ (TranslationManager, AiBootstrap, FormManager)
  │
  ├── 📂 Bu/              ← ビジネスロジック層 (BLL)
  │    ├── CLASS_NHANSU/  ← 人事業務ロジック
  │    ├── CLASS_CHAMCONG/← 勤怠・給与計算ロジック
- │    ├── CLASS_BAOCAO/  ← レポート生成ロジック
  │    ├── CLASS_SYSTEM/  ← システム・権限管理ロジック
  │    ├── DTO/           ← データ転送オブジェクト
  │    └── Services/
  │         └── AI_Services/
- │              ├── Core/    ← HybridRagService, SqlGeneratorService, AiRouterService ...
- │              ├── LLM/     ← OllamaService (ローカル Ollama サーバーと通信)
- │              ├── Memory/  ← AiCacheService, AiChatHistory
- │              └── Vector/  ← VectorService (意味的類似度検索)
+ │              ├── AiServiceLocator.cs  ← Service Locator (シングルトン登録)
+ │              ├── ChatboxManager.cs    ← HybridRagService の Facade
+ │              ├── Core/       ← HybridRagService, SqlGeneratorService, AiRouterService, QueryPreprocessor, JsonPromptManager
+ │              ├── Interfaces/ ← ILlmService, IPromptManager, ISqlGenerator, IVectorService
+ │              ├── LLM/        ← OllamaService (ローカル Ollama サーバーと通信)
+ │              ├── Memory/     ← AiCacheService, AiChatHistory
+ │              └── Vector/     ← QdrantService (Qdrant 経由の意味的類似度検索), AiDataSyncHub
  │
- └── 📂 DA/              ← データアクセス層 (Entity Framework 6)
-      ├── QLNhanSu.edmx  ← HR システム全体の EDMX モデル (40+ テーブル)
-      └── AIEntities.edmx← AI 専用読み取り専用 EDMX モデル (6 ビューのみ)
+ ├── 📂 DA/              ← データアクセス層 (Entity Framework 6)
+ │    ├── QLNhanSu.edmx  ← HR システム全体の EDMX モデル (40+ テーブル)
+ │    └── AIEntities.edmx← AI 専用読み取り専用 EDMX モデル (6 ビューのみ)
+ │
+ ├── 📂 Bu.Tests/        ← ユニットテスト (NUnit)
+ │
+ └── 📂 VectorDataSync/  ← 従業員データを Qdrant にシードするコンソールツール
 ```
 
 ---
@@ -982,6 +1024,12 @@ QuanLyNhanSu.sln
 | `rptDSNhanVien` | 部門別従業員名簿 |
 | `rptHopDongLaoDong` | 労働契約書の印刷フォーム |
 | `rptKhenThuong` / `rptKyLuat` | 表彰・懲戒決定書の印刷フォーム |
+| `rptDSHopDongHetHan` | 満了間近の労働契約一覧 |
+| `rptDSTangCa` | 給与期間別残業時間集計レポート |
+| `FrmDashboardNhanSu` | ダッシュボード: 部門構成・性別・学歴・年齢分布のチャート |
+| `FrmDashboardLuong` | 部門別・給与期間別の給与ダッシュボード |
+| `FrmBaoCaoTongHop` | 統合レポートセンター (レポート種別選択・期間/従業員フィルター) |
+| `FrmBaoCaoChiTiet` | 給与期間別・従業員別の詳細レポート |
 
 #### 4. 🔐 システム管理モジュール
 
@@ -995,6 +1043,13 @@ QuanLyNhanSu.sln
 | `FrmChangePassword` | 個人パスワードの変更 (BCrypt 再ハッシュ化) |
 | `FrmSetting` | Ollama サーバー URL と AI モデル名の設定 |
 | `FrmCreateAccount` | 新規ユーザーアカウントの作成と初期権限設定 |
+| `FrmDatabaseConfig` | マルチプロファイル Oracle 接続設定 (Server IP, Port, SID/Service Name, Auth) |
+| `FrmOllamaConfig` | Ollama サーバー設定 (URL, モデル名) + 接続テストボタン |
+| `FrmThongBao` | 社内通知管理 (ピン留め・種別・ステータス・期限・会社/部門別) |
+| `FrmLanguages` | システム言語カタログ管理 (追加/編集/削除・有効/無効切り替え) |
+| `FrmDataExport` | Oracle スキーマとデータのエクスポート (SQL/JSON/XML, テーブル選択, DDL/Data, ZIP圧縮) |
+| `FrmDataImport` | SQL/JSON ファイルから Oracle へのデータインポート (Truncate, 制約/トリガー無効化) |
+| `FrmUserDashboard` | ユーザーログインセッション監視ダッシュボード (デバイス, IP, タイムスタンプ) |
 
 #### 5. 🤖 AI 人事アシスタント
 
@@ -1010,7 +1065,12 @@ QuanLyNhanSu.sln
 | `OllamaService` | ローカル Ollama サーバーへのプロンプト送信と応答受信 |
 | `AiCacheService` | 生成済み SQL をキャッシュし、同一質問に即座に応答 |
 | `AiChatHistory` | フォローアップ質問の文脈理解のための短期会話履歴管理 |
-| `VectorService` | 従業員知識ベースに対する意味的類似度検索 |
+| `QdrantService` | Qdrant ベクトルDB経由の意味的類似度検索 (Cosine, top-K=5) |
+| `AiDataSyncHub` | 従業員データ変更時に Qdrant へ自動同期するイベントハブ |
+| `AiServiceLocator` | AI サービスのシングルトン登録用 Service Locator |
+| `ChatboxManager` | シンプルな API を提供する Facade: `ProcessQuery()`, `GetMessages()`, `Reset()` |
+| `JsonPromptManager` | 外部 `ai_prompts.json` ファイルからプロンプトテンプレートを管理 (再ビルド不要) |
+| `AiBootstrap` | アプリ起動時に Ollama を自動検出/起動、終了時に自動停止 |
 
 ---
 
@@ -1068,7 +1128,7 @@ graph TD
 
 ### 🗄️ データベーススキーマ
 
-> フルバックアップスクリプト: [HR_backup.sql](./HR_backup.sql) | サンプルデータ: [import_data.sql](./import_data.sql)
+> フルバックアップスクリプト: [HR_backup.sql](./HR_backup.sql)
 
 #### 従業員・組織テーブル
 
@@ -1121,7 +1181,12 @@ TB_SYS_FUNCTION          — システム機能・メニュー項目カタログ
 TB_SYS_RIGHT             — ユーザー/グループ別機能アクセス権限
 TB_SYS_REPORT            — レポートカタログ
 TB_SYS_RIGHT_REPORT      — ユーザー/グループ別レポート閲覧権限
-TB_CONFIG                — システム設定 (Ollama URL、モデル名 等)
+TB_CONFIG                — システム設定 (Ollama URL、Qdrant URL、モデル名 等)
+TB_SYS_LOG               — システム活動ログ
+TB_SYS_LOGIN_HISTORY     — ログイン履歴 (デバイス、IP、タイムスタンプ)
+TB_THONGBAO              — 社内通知 (タイトル、内容、ピン留め、ステータス、期限)
+TB_LANGUAGES             — UI 言語カタログ
+TB_TRANSLATIONS          — UI 翻訳辞書 (言語別キーバリュー)
 ```
 
 > **重要なトリガー:** [SYS_USER_triggers.sql](./DA/SYS_USER_triggers.sql) — ユーザーアカウント削除時のカスケード削除 (グループメンバーシップ・機能権限・レポート権限を自動クリーンアップ)。
@@ -1139,6 +1204,7 @@ TB_CONFIG                — システム設定 (Ollama URL、モデル名 等)
 | **Oracle ドライバー** | Oracle.ManagedDataAccess 23.7.0 (純粋マネージド .NET — Oracle Client 不要) |
 | **AI ランタイム** | Ollama (ローカルサーバー、ポート 11434) |
 | **LLM モデル** | Qwen 2.5 (7B/14B) または Llama 3 — デフォルト: `qwen2.5:latest` |
+| **ベクトルDB** | Qdrant (ローカルサーバー, ポート 6333) — 任意 |
 | **JSON** | Newtonsoft.Json 13.0.4 |
 | **セキュリティ** | BCrypt.Net-Next 4.0.3 |
 | **非同期サポート** | Microsoft.Bcl.AsyncInterfaces, System.Threading.Tasks.Extensions |
@@ -1159,7 +1225,6 @@ TB_CONFIG                — システム設定 (Ollama URL、モデル名 等)
    ```sql
    -- SQL Developer または PL/SQL Developer で実行
    @HR_backup.sql
-   @import_data.sql
    ```
 
 3. AI 専用の読み取り専用ユーザーの作成:
@@ -1231,7 +1296,7 @@ ollama serve
 2. NuGet パッケージを復元: `ツール → NuGet パッケージ マネージャー → ソリューションの NuGet パッケージの復元`
 3. ソリューションをビルド: `Ctrl + Shift + B`
 4. `QLyNSu` をスタートアッププロジェクトに設定して実行 (`F5`)
-5. `import_data.sql` で作成された **Admin** アカウントでログイン
+5. `HR_backup.sql` で作成された **Admin** アカウントでログイン
 
 ---
 
@@ -1239,15 +1304,19 @@ ollama serve
 
 | ファイル / ディレクトリ | 説明 |
 |---------------------|------|
-| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | 3 プロジェクトを含む Visual Studio ソリューション |
-| [`HR_backup.sql`](./HR_backup.sql) | 完全な Oracle スキーマスクリプト (テーブル・ビュー・シーケンス・制約) |
-| [`import_data.sql`](./import_data.sql) | サンプルシードデータ (従業員・部門・管理者アカウント) |
+| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | 5 プロジェクトを含む Visual Studio ソリューション |
+| [`HR_backup.sql`](./HR_backup.sql) | 完全な Oracle スキーマ + サンプルデータ (テーブル・ビュー・シーケンス・制約・管理者アカウント) |
 | [`DA/QLNhanSu.edmx`](./DA/QLNhanSu.edmx) | 完全なエンティティデータモデル (40+ テーブル) |
 | [`DA/AIEntities.edmx`](./DA/AIEntities.edmx) | AI 専用読み取り専用エンティティデータモデル (6 ビューのみ) |
 | [`DA/SYS_USER_triggers.sql`](./DA/SYS_USER_triggers.sql) | ユーザーアカウントのカスケード削除トリガー |
 | [`Bu/Services/AI_Services/Core/HybridRagService.cs`](./Bu/Services/AI_Services/Core/HybridRagService.cs) | AI パイプライン全体の中央オーケストレーター |
 | [`Bu/Services/AI_Services/Core/SqlGeneratorService.cs`](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) | ベトナム語自然言語 → Oracle SQL 変換器 |
+| [`Bu/Services/AI_Services/Vector/QdrantService.cs`](./Bu/Services/AI_Services/Vector/QdrantService.cs) | Qdrant ベクトルDB経由の意味検索 |
+| [`Bu/Services/AI_Services/AiServiceLocator.cs`](./Bu/Services/AI_Services/AiServiceLocator.cs) | AI サービスのシングルトン登録用 Service Locator |
 | [`QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs`](./QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs) | 組み込み AI チャットボット UI フォーム |
+| [`QLyNSu/ai_prompts.json`](./QLyNSu/ai_prompts.json) | AI プロンプトテンプレート (再ビルド不要) |
+| [`VectorDataSync/Program.cs`](./VectorDataSync/Program.cs) | 従業員データを Qdrant にシードするコンソールツール |
+| [`HRMS_SetupScript.iss`](./HRMS_SetupScript.iss) | Inno Setup インストーラースクリプト v3.5.0 |
 
 ---
 
@@ -1288,6 +1357,7 @@ ollama serve
 | **Visual Studio** | 2019 / 2022 (".NET デスクトップ開発" ワークロード必須) |
 | **DevExpress** | v23.x または .NET Framework 4.7.2 対応バージョン |
 | **Ollama** | [ollama.com](https://ollama.com) の最新バージョン |
+| **Qdrant** | 任意 — [qdrant.tech](https://qdrant.tech) または Docker `qdrant/qdrant` |
 
 ---
 
@@ -1301,8 +1371,8 @@ ollama serve
 2. **AIセキュリティの強化とジェイルブレイク（脱獄）対策**:
    * [SqlGeneratorService.cs](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) の SQL 生成処理において、従来のブラックリスト方式を廃止し、厳格な **ホワイトリスト方式** に変更。AIは指定された6つの安全なビューのみクエリ可能です。ユーザー情報テーブル（`TB_SYS_USER`）へのアクセスや、インジェクションによる脱獄行為は即座にブロックされます。
    * ユーザー入力パラメータのシングルクォーテーション（`'`）を自動エスケープし、**SQLインジェクション**の脆弱性を完全に修正しました。
-3. **ローカルのベクター埋め込み（Embedding）キャッシュ**:
-   * [VectorService.cs](./Bu/Services/AI_Services/Vector/VectorService.cs) 内にインメモリのキャッシュ領域を構築。以前に生成したテキストのベクトルデータを一時保持し、ローカルの Ollama サーバーに対する冗長な HTTP リクエストを回避することで、AI チャットの応答速度を大幅に高速化しました。
+3. **ベクトル検索を Qdrant にアップグレード**:
+   * インメモリの `VectorService` を [QdrantService.cs](./Bu/Services/AI_Services/Vector/QdrantService.cs) に置換。Qdrant ベクトルDB と HTTP 経由で直接通信。Cosine 類似度 (閾値 0.6, top-K=5)、`AiDataSyncHub` イベントによる従業員データの自動同期。CLI ツール [VectorDataSync](./VectorDataSync/Program.cs) で Oracle から Qdrant へのデータシードも可能。
 4. **UI の非同期化と DevExpress MDI タブ切り替えバグの修正**:
    * [FrmDashboardLuong.cs](./QLyNSu/FORM_BAOCAO/FrmDashboardLuong.cs) の給与ダッシュボード読み込みを `Task.Run` による非同期処理（`LoadDataAsync()`）に変更し、描画時の画面フリーズを解消。
    * [FormManager_Functions.cs](./QLyNSu/Functions/FormManager_Functions.cs) における DevExpress `DocumentManager` のタブ切り替え処理を改善。待機画面（SplashScreen）が完全に閉じられ、親フォームのロックが解除された直後に新しいタブを明示的に最前面にアクティブ化する仕組みを導入しました。
@@ -1320,136 +1390,3 @@ This project was developed for academic/educational purposes. For commercial use
 Dự án này được phát triển cho mục đích học thuật. Vui lòng liên hệ tác giả nếu có nhu cầu thương mại.
 
 
-### 🏗 Architecture
-
-The solution follows a clean **3-Tier Architecture**:
-
-| Layer | Project | Responsibility |
-|-------|---------|---------------|
-| **Presentation** | `QLyNSu` | WinForms + DevExpress UI, Forms, Reports, AI Chatbox |
-| **Business Logic** | `Bu` | HR Rules, Payroll Calculation, AI Orchestration, Services |
-| **Data Access** | `DA` | Entity Framework 6.5 (Database First), Oracle Connection |
-
-### 🛡 AI Security Architecture
-
-The AI subsystem is isolated at **multiple levels**:
-
-1. **Separate DB Accounts**: The main app uses a full-access account (`HR`); the AI uses a read-only account (`HR_AI`) with no access to raw tables.
-2. **View-Only Access**: AI queries are restricted to 6 pre-defined sanitized views (`V_AI_*`) that expose only safe, non-sensitive fields.
-3. **SQL Sanitization**: All AI-generated SQL is validated — only `SELECT` statements are permitted; any DML/DDL keywords trigger an immediate rejection.
-4. **Local Execution**: Ollama runs 100% on-premise. Zero data egress to the internet.
-5. **Regex Fallback**: High-frequency queries (search by name/ID) are handled by deterministic regex patterns, bypassing the LLM entirely for sub-10ms responses.
-
-### 🛠 Technology Stack
-
-| Component | Technology |
-|-----------|-----------|
-| Runtime | .NET Framework 4.7.2 |
-| UI | DevExpress WinForms |
-| Database | Oracle 19c |
-| ORM | Entity Framework 6.5.1 (EDMX) |
-| AI Engine | Ollama (local, port 11434) |
-| LLM | Qwen 2.5 / Llama 3 |
-| Security | BCrypt.Net-Next password hashing |
-| JSON | Newtonsoft.Json 13.0.4 |
-
-### ⚙️ Quick Setup
-
-1. **Oracle**: Create `HR` (admin) and `HR_AI` (read-only) users, run `HR_backup.sql` and `import_data.sql`.
-2. **Ollama**: Install from [ollama.com](https://ollama.com), run `ollama pull qwen2.5:latest`.
-3. **App.config**: Update connection strings for both Oracle accounts and set `OllamaUrl`.
-4. **Build**: Open `QuanLyNhanSu.sln` in Visual Studio, restore NuGet packages, build and run `QLyNSu`.
-
----
-
-## 🇯🇵 日本語
-
-### 📌 プロジェクト概要
-
-本システムは、**.NET Framework 4.7.2** と **DevExpress WinForms** を基盤とした、エンタープライズ向けの**人事・勤怠・給与管理システム (HRMS)** です。データベースには **Oracle Database 19c** を採用し、大規模な組織データの安定処理を実現しています。
-
-最大の特徴は、**Ollama** による**オンプレミス AI アシスタント**の統合です。独自の **Hybrid RAG アーキテクチャ**により、人事担当者がベトナム語の自然文で質問するだけで、社内データベースを安全に検索・集計できます。AIの処理はすべてローカルで完結し、**一切のデータがインターネットへ送信されません**。
-
-### 🏗 システム構成
-
-| 層 | プロジェクト | 役割 |
-|----|------------|------|
-| **プレゼンテーション層** | `QLyNSu` | WinForms + DevExpress UI、帳票、AIチャット画面 |
-| **ビジネスロジック層** | `Bu` | 人事業務ロジック、給与計算、AI オーケストレーター |
-| **データアクセス層** | `DA` | Entity Framework 6.5 + Oracle 接続 (EDMX) |
-
-### 🛡 AIセキュリティ対策
-
-| 対策 | 詳細 |
-|------|------|
-| **DB アカウント分離** | HR (管理者) と HR_AI (読み取り専用) の 2 アカウント |
-| **ビュー制限** | AI は `V_AI_*` の 6 つのビューのみ参照可能。元テーブルへの直接アクセス不可 |
-| **SQLサニタイズ** | `SELECT` 文のみ許可。`INSERT`, `UPDATE`, `DELETE`, `DROP` 等は即時遮断 |
-| **ローカル実行** | Ollama はローカルサーバーで動作。データの外部送信なし |
-| **パスワード保護** | BCrypt による安全なパスワードハッシュ化 |
-
-### ⚙️ セットアップ手順
-
-1. Oracle 19c に `HR` (管理者) と `HR_AI` (読み取り専用) ユーザーを作成し、`HR_backup.sql` および `import_data.sql` を実行。
-2. [ollama.com](https://ollama.com) から Ollama をインストールし、`ollama pull qwen2.5:latest` を実行。
-3. `App.config` の接続文字列と `OllamaUrl` を環境に合わせて更新。
-4. Visual Studio で `QuanLyNhanSu.sln` を開き、NuGet パッケージを復元してビルド・実行。
-
----
-
-## 📄 License
-
-本プロジェクトは学術・教育目的で開発されました。商業利用の場合は作者にお問い合わせください。
-
-This project was developed for academic/educational purposes. For commercial use, please contact the author.
-
-Dự án này được phát triển cho mục đích học thuật. Vui lòng liên hệ tác giả nếu có nhu cầu thương mại.
-
-
-### 🌐 Kiến Trúc Đa Ngôn Ngữ (Multilingual Architecture)
-Hệ thống Quản Lý Nhân Sự được thiết kế với kiến trúc đa ngôn ngữ kép (Hybrid Translation System) nhằm mục đích tối ưu hóa hiệu suất và tính mềm dẻo:
-- **Từ điển Fix cứng (Hardcoded Dictionary):** Hơn 4000 từ vựng giao diện (UI Labels) được khai báo sẵn dưới dạng biến toàn cục `_dictionary` trong `TranslationManager.cs`. Cơ chế này giúp ứng dụng khởi động cực kỳ nhanh, dịch toàn bộ nút bấm, tiêu đề mà không gây tải lên Oracle DB.
-- **Từ điển Database (Dynamic Data):** Ứng dụng đồng thời truy vấn bảng `TB_TRANSLATIONS` để nạp các dữ liệu động lên để **bổ sung và ghi đè (override)**. Nếu có bất kỳ sự chỉnh sửa nào trong Database, nó sẽ ngay lập tức được áp dụng thay thế cho từ vựng gốc bản, xóa bỏ nhược điểm phải Build lại code để sửa chính tả hay từ ngữ. Tất cả các Combo Box Data cũng dùng model chẩn `ComboDTO` để trích xuất ngôn ngữ từ Database này.
-
-### 🔌 Cấu Hình Cơ Sở Dữ Liệu Động (Dynamic EF Connection)
-Hệ thống được thiết kế linh hoạt để triển khai trên mọi môi trường mạng mà không cần biên dịch lại mã nguồn (Zero-recompile Deployment):
-- **Giao diện cấu hình trực quan**: Tích hợp sẵn nút "Cấu hình DB" (⚙) ngay tại màn hình đăng nhập, cho phép kỹ thuật viên thiết lập thông số Oracle (Server IP, Port, Service Name, Username, Password).
-- **Lưu trữ JSON độc lập**: Cấu hình được lưu an toàn tại tệp QLyNSu_DBConfig.json nằm cùng cấp với tệp thực thi.
-- **Tiêm (Inject) Connection String tự động**: Ngay khi phần mềm khởi động (Program.cs), hệ thống sẽ đọc JSON, trích xuất ServerIP và Database, sau đó tự động định dạng thành chuỗi kết nối chuẩn của Entity Framework và ghi đè vào hệ thống mạng.
-- **Khắc phục lỗi App.config**: Giải quyết triệt để bài toán mất chuỗi kết nối MyEntities hoặc lỗi The underlying provider failed on Open khi sao chép tệp thực thi (publish) sang các máy tính Client khác nhau.
-
----
-
-### 🚀 Các Cập Nhật & Bổ Sung Mới Nhất (Recent Updates)
-Trong phiên bản cập nhật gần đây nhất, hệ thống đã được bổ sung thêm một số Form và tính năng cốt lõi sau:
-
-#### 1. Bổ sung Form chức năng mới
-- **Thêm Form FrmDatabaseConfig**: Đây là màn hình cấu hình Cấu trúc Cơ sở dữ liệu (Database Configuration) dành cho kỹ thuật viên hoặc người quản trị. Form này cho phép người dùng nhập trực tiếp thông tin kết nối tới Oracle (như Server IP, Port, Username, Password, và tên Database) mà không cần can thiệp vào Source Code.
-
-#### 2. Nâng cấp cốt lõi hệ thống & Entity Framework
-- **Quản lý chuỗi kết nối động (Dynamic Connection String)**: 
-  - Khắc phục hoàn toàn sự cố mất chuỗi kết nối (No connection string 'MyEntities') khi mang file thực thi .exe sang máy tính khác.
-  - Thông số cấu hình nay được lưu trữ an toàn dưới dạng file **QLyNSu_DBConfig.json** nằm cùng cấp với file chạy.
-  - Tại trạm trung chuyển Program.cs, hệ thống sẽ tự động đọc file JSON này, trích xuất ServerIP và Database, sau đó linh hoạt tái cấu trúc (inject) thành chuỗi kết nối chuẩn xác để tiêm vào Entity Framework trước khi ứng dụng khởi chạy.
-
-#### 3. Cải tiến giao diện (UI/UX)
-- **Tối giản hóa Màn hình Đăng Nhập (FrmDangNhap)**: Chuyển đổi 2 nút "Ngôn ngữ" và "Cấu hình DB" từ dạng nút bấm (Button) truyền thống sang dạng **Biểu tượng phẳng (Flat Icons)** (sử dụng ký tự Unicode 🌐 và ⚙) giống hệt như nút Exit (✕), mang lại trải nghiệm tối giản và liền mạch hơn cho màn hình Welcome.
-- **Sửa lỗi mất tài nguyên khi Đóng gói (Publish)**: Cấu hình lại tệp .csproj để đảm bảo ảnh nền (login_bg.png) luôn được tự động copy (PreserveNewest) theo tệp thực thi khi xuất xưởng.
-
-
-#### 4. Quản lý thiết bị / Device Management / デバイス管理
-
-**🇻🇳 Tiếng Việt:**
-- **Giám sát thiết bị & Đăng nhập (User & Device Dashboard)**: Tích hợp hệ thống theo dõi và giám sát các phiên đăng nhập. Cho phép quản trị viên xem chi tiết thông tin thiết bị, địa chỉ IP và trạng thái hoạt động của người dùng theo thời gian thực.
-- **Phân quyền linh hoạt**: Chức năng được kiểm soát chặt chẽ qua mã quyền F_SYSTEM_GIAMSAT, đảm bảo chỉ có cấp quản lý mới được phép truy cập và quản lý thiết bị.
-- **Đa ngôn ngữ**: Giao diện Giám sát thiết bị được hỗ trợ đồng bộ hoàn toàn bằng 5 ngôn ngữ thông qua cơ sở dữ liệu.
-
-**🇬🇧 English:**
-- **User & Device Dashboard**: Integrated a monitoring system for login sessions. Allows administrators to view detailed device information, IP addresses, and real-time user activity status.
-- **Flexible Authorization**: Strictly controlled via the F_SYSTEM_GIAMSAT permission code, ensuring only management levels can access and intervene in device sessions.
-- **Multilingual Support**: The Device Monitoring interface is fully supported and synchronized in 5 languages via the database.
-
-**🇯🇵 日本語:**
-- **ユーザーおよびデバイス監視ダッシュボード**: ログインセッションの監視システムを統合しました。管理者はデバイスの詳細情報、IPアドレス、およびリアルタイムのユーザー活動状況を確認できます。
-- **柔軟な権限管理**: F_SYSTEM_GIAMSAT 権限コードによる厳密な制御により、管理者層のみがデバイスセッションにアクセスして管理できるように設計されています。
-- **多言語対応**: デバイス監視画面はデータベースを介して5つの言語で完全に同期・サポートされています。
