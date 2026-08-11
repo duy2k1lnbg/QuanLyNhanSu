@@ -673,11 +673,11 @@ namespace QLyNSu
 
         private async void btnSaoLuu_DB_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await _formManager.OpenFormWithSplashScreen(typeof(FrmBackupWizard));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmDataExport));
         }
         private async void btnPhucHoi_DB_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await _formManager.OpenFormWithSplashScreen(typeof(FrmRestoreWizard));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmDataImport));
         }
     }
 

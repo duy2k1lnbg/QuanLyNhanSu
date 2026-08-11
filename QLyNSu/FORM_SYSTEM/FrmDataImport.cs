@@ -10,9 +10,9 @@ using DevExpress.XtraEditors;
 
 namespace QLyNSu.FORM_SYSTEM
 {
-    public partial class FrmRestoreWizard : DevExpress.XtraEditors.XtraForm
+    public partial class FrmDataImport : DevExpress.XtraEditors.XtraForm
     {
-        public FrmRestoreWizard()
+        public FrmDataImport()
         {
             InitializeComponent();
             InitData();

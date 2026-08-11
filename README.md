@@ -35,26 +35,33 @@ QuanLyNhanSu.sln
  ├── 📂 QLyNSu/          ← Presentation Layer (WinForms + DevExpress)
  │    ├── FORM_NHANSU/   ← Màn hình Quản lý Nhân sự
  │    ├── FORM_CHAMCONG/ ← Màn hình Chấm công & Tính lương
- │    ├── FORM_BAOCAO/   ← Màn hình In ấn & Báo cáo
- │    ├── FORM_SYSTEM/   ← Màn hình Hệ thống (Login, Phân quyền, AI Chat)
- │    └── Reports/       ← Crystal Reports / DevExpress Reports
+ │    ├── FORM_BAOCAO/   ← Dashboard & Báo cáo
+ │    ├── FORM_SYSTEM/   ← Hệ thống (Login, Phân quyền, AI Chat, Import/Export, Thông báo)
+ │    ├── Reports/       ← DevExpress XtraReports (báo cáo in ấn)
+ │    └── Functions/     ← Tiện ích dùng chung (TranslationManager, AiBootstrap, FormManager)
  │
  ├── 📂 Bu/              ← Business Logic Layer (BLL)
  │    ├── CLASS_NHANSU/  ← Nghiệp vụ Nhân sự
  │    ├── CLASS_CHAMCONG/← Nghiệp vụ Chấm công & Lương
- │    ├── CLASS_BAOCAO/  ← Nghiệp vụ Báo cáo
  │    ├── CLASS_SYSTEM/  ← Nghiệp vụ Hệ thống & Phân quyền
  │    ├── DTO/           ← Data Transfer Objects
  │    └── Services/
  │         └── AI_Services/
- │              ├── Core/    ← HybridRagService, SqlGeneratorService, AiRouterService, ...
- │              ├── LLM/     ← OllamaService (giao tiếp với Ollama server)
- │              ├── Memory/  ← AiCacheService, AiChatHistory
- │              └── Vector/  ← VectorService (tìm kiếm tương đồng ngữ nghĩa)
+ │              ├── AiServiceLocator.cs  ← Service Locator (đăng ký singleton)
+ │              ├── ChatboxManager.cs    ← Facade cho HybridRagService
+ │              ├── Core/       ← HybridRagService, SqlGeneratorService, AiRouterService, QueryPreprocessor, JsonPromptManager
+ │              ├── Interfaces/ ← ILlmService, IPromptManager, ISqlGenerator, IVectorService
+ │              ├── LLM/        ← OllamaService (giao tiếp với Ollama server)
+ │              ├── Memory/     ← AiCacheService, AiChatHistory
+ │              └── Vector/     ← QdrantService (tìm kiếm ngữ nghĩa qua Qdrant), AiDataSyncHub
  │
- └── 📂 DA/              ← Data Access Layer (Entity Framework 6)
-      ├── QLNhanSu.edmx  ← EDMX model đầy đủ cho toàn bộ ứng dụng HR
-      └── AIEntities.edmx← EDMX model chỉ đọc (Read-Only) dành riêng cho AI
+ ├── 📂 DA/              ← Data Access Layer (Entity Framework 6)
+ │    ├── QLNhanSu.edmx  ← EDMX model đầy đủ cho toàn bộ ứng dụng HR
+ │    └── AIEntities.edmx← EDMX model chỉ đọc (Read-Only) dành riêng cho AI
+ │
+ ├── 📂 Bu.Tests/        ← Unit Test (NUnit)
+ │
+ └── 📂 VectorDataSync/  ← Console tool nạp dữ liệu nhân viên vào Qdrant
 ```
 
 ---
@@ -106,6 +113,12 @@ QuanLyNhanSu.sln
 | `rptDSNhanVien` | Danh sách nhân viên theo phòng ban |
 | `rptHopDongLaoDong` | In hợp đồng lao động theo mẫu |
 | `rptKhenThuong` / `rptKyLuat` | In quyết định khen thưởng / kỷ luật |
+| `rptDSHopDongHetHan` | Danh sách hợp đồng lao động sắp hết hạn |
+| `rptDSTangCa` | Báo cáo tổng hợp giờ tăng ca theo kỳ công |
+| `FrmDashboardNhanSu` | Dashboard biểu đồ: cơ cấu phòng ban, giới tính, trình độ, độ tuổi |
+| `FrmDashboardLuong` | Dashboard biểu đồ lương theo phòng ban, kỳ công |
+| `FrmBaoCaoTongHop` | Trung tâm báo cáo tổng hợp (chọn loại báo cáo, lọc kỳ công/nhân viên) |
+| `FrmBaoCaoChiTiet` | Báo cáo chi tiết theo kỳ công và nhân viên |
 
 #### 4. 🔐 Quản Trị Hệ Thống (System Administration)
 
@@ -119,6 +132,13 @@ QuanLyNhanSu.sln
 | `FrmChangePassword` | Đổi mật khẩu cá nhân |
 | `FrmSetting` | Cấu hình kết nối Ollama và model AI |
 | `FrmCreateAccount` | Tạo tài khoản mới kèm thiết lập quyền ban đầu |
+| `FrmDatabaseConfig` | Cấu hình kết nối Oracle đa profile (Server IP, Port, SID/Service Name, Auth) |
+| `FrmOllamaConfig` | Cấu hình Ollama server (URL, tên model) với nút kiểm tra kết nối |
+| `FrmThongBao` | Quản lý thông báo nội bộ (ghim, loại, trạng thái, hạn, phân theo công ty/phòng ban) |
+| `FrmLanguages` | Quản lý danh mục ngôn ngữ hệ thống (thêm/sửa/xóa, bật/tắt active) |
+| `FrmDataExport` | Xuất cấu trúc và dữ liệu Oracle (SQL/JSON/XML, chọn bảng, DDL/Data, nén ZIP) |
+| `FrmDataImport` | Nhập dữ liệu từ file SQL/JSON vào Oracle (Truncate, Disable Constraints/Triggers) |
+| `FrmUserDashboard` | Dashboard giám sát phiên đăng nhập, thiết bị, IP người dùng |
 
 #### 5. 🤖 Trợ Lý AI Nhân Sự Thông Minh (AI Copilot)
 
@@ -134,7 +154,12 @@ QuanLyNhanSu.sln
 | `OllamaService` | Gửi prompt và nhận phản hồi từ Ollama local server |
 | `AiCacheService` | Cache kết quả SQL đã sinh để phản hồi tức thì cho câu hỏi lặp |
 | `AiChatHistory` | Lưu lịch sử hội thoại ngắn hạn để AI hiểu ngữ cảnh đàm thoại |
-| `VectorService` | Tìm kiếm tương đồng ngữ nghĩa (Vector Similarity Search) |
+| `QdrantService` | Tìm kiếm tương đồng ngữ nghĩa qua Qdrant vector database (Cosine, top-K=5) |
+| `AiDataSyncHub` | Event hub tự động đồng bộ dữ liệu nhân viên vào Qdrant khi có thay đổi |
+| `AiServiceLocator` | Service Locator đăng ký singleton cho các dịch vụ AI |
+| `ChatboxManager` | Facade cung cấp API đơn giản: `ProcessQuery()`, `GetMessages()`, `Reset()` |
+| `JsonPromptManager` | Quản lý prompt template từ file `ai_prompts.json` bên ngoài (không cần build lại) |
+| `AiBootstrap` | Tự động phát hiện/khởi động Ollama khi mở ứng dụng, kill khi thoát |
 
 ---
 
@@ -192,7 +217,7 @@ graph TD
 
 ### 🗄️ Cơ Sở Dữ Liệu (Database Schema)
 
-> File backup đầy đủ: [HR_backup.sql](./HR_backup.sql) | Script khởi tạo dữ liệu: [import_data.sql](./import_data.sql)
+> File backup đầy đủ: [HR_backup.sql](./HR_backup.sql)
 
 #### Nhóm Bảng Nhân Sự & Tổ Chức
 
@@ -245,7 +270,12 @@ TB_SYS_FUNCTION      — Danh mục chức năng trong hệ thống
 TB_SYS_RIGHT         — Phân quyền chức năng theo người dùng/nhóm
 TB_SYS_REPORT        — Danh mục báo cáo
 TB_SYS_RIGHT_REPORT  — Phân quyền xem báo cáo
-TB_CONFIG            — Cấu hình hệ thống (Ollama URL, model name, ...)
+TB_CONFIG            — Cấu hình hệ thống (Ollama URL, Qdrant URL, model name, ...)
+TB_SYS_LOG           — Nhật ký hoạt động hệ thống
+TB_SYS_LOGIN_HISTORY — Lịch sử đăng nhập (thiết bị, IP, thời gian)
+TB_THONGBAO          — Thông báo nội bộ (tiêu đề, nội dung, ghim, trạng thái, hết hạn)
+TB_LANGUAGES         — Danh mục ngôn ngữ giao diện
+TB_TRANSLATIONS      — Từ điển dịch UI (key-value theo ngôn ngữ)
 ```
 
 > **Trigger quan trọng:** [SYS_USER_triggers.sql](./DA/SYS_USER_triggers.sql) — Cascade delete khi xóa tài khoản người dùng (tự động dọn sạch nhóm, quyền hàm, quyền báo cáo).
@@ -263,6 +293,7 @@ TB_CONFIG            — Cấu hình hệ thống (Ollama URL, model name, ...)
 | **Oracle Driver** | Oracle.ManagedDataAccess 23.7.0 (Thuần .NET, không cần Oracle Client) |
 | **AI Runtime** | Ollama (Local Server, port 11434) |
 | **LLM Model** | Qwen 2.5 (7B/14B) hoặc Llama 3 — mặc định: `qwen2.5:latest` |
+| **Vector Database** | Qdrant (Local Server, port 6333) — tùy chọn |
 | **JSON** | Newtonsoft.Json 13.0.4 |
 | **Security** | BCrypt.Net-Next 4.0.3 (Hash mật khẩu) |
 | **Async** | Microsoft.Bcl.AsyncInterfaces, System.Threading.Tasks |
@@ -355,7 +386,7 @@ Cập nhật file `App.config` trong project **`QLyNSu`** và **`Bu`**:
 2. Restore NuGet packages: `Tools → NuGet Package Manager → Restore`
 3. Build Solution: `Ctrl + Shift + B`
 4. Chạy project `QLyNSu` (Set as Startup Project)
-5. Đăng nhập với tài khoản **Admin** được tạo từ `import_data.sql`
+5. Đăng nhập với tài khoản **Admin** được tạo từ `HR_backup.sql`
 
 ---
 
@@ -363,15 +394,19 @@ Cập nhật file `App.config` trong project **`QLyNSu`** và **`Bu`**:
 
 | File / Thư mục | Mô tả |
 |----------------|-------|
-| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | Solution file chứa 3 project |
-| [`HR_backup.sql`](./HR_backup.sql) | Script tạo toàn bộ schema Oracle (bảng, view, sequence, constraint) |
-| [`import_data.sql`](./import_data.sql) | Dữ liệu mẫu để test (nhân viên, phòng ban, tài khoản admin) |
+| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | Solution file chứa 5 project |
+| [`HR_backup.sql`](./HR_backup.sql) | Script tạo toàn bộ schema Oracle + dữ liệu mẫu (bảng, view, sequence, constraint, tài khoản admin) |
 | [`DA/QLNhanSu.edmx`](./DA/QLNhanSu.edmx) | Entity Data Model đầy đủ (40+ bảng) |
 | [`DA/AIEntities.edmx`](./DA/AIEntities.edmx) | Entity Data Model chỉ đọc cho AI (6 View) |
 | [`DA/SYS_USER_triggers.sql`](./DA/SYS_USER_triggers.sql) | Oracle trigger cascade delete cho bảng người dùng |
 | [`Bu/Services/AI_Services/Core/HybridRagService.cs`](./Bu/Services/AI_Services/Core/HybridRagService.cs) | Orchestrator trung tâm của toàn bộ luồng AI |
 | [`Bu/Services/AI_Services/Core/SqlGeneratorService.cs`](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) | Dịch câu hỏi tiếng Việt → Oracle SQL |
+| [`Bu/Services/AI_Services/Vector/QdrantService.cs`](./Bu/Services/AI_Services/Vector/QdrantService.cs) | Tìm kiếm ngữ nghĩa qua Qdrant vector database |
+| [`Bu/Services/AI_Services/AiServiceLocator.cs`](./Bu/Services/AI_Services/AiServiceLocator.cs) | Service Locator đăng ký singleton cho AI |
 | [`QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs`](./QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs) | Giao diện Chatbox AI tích hợp |
+| [`QLyNSu/ai_prompts.json`](./QLyNSu/ai_prompts.json) | Template prompt AI (có thể sửa mà không cần build lại) |
+| [`VectorDataSync/Program.cs`](./VectorDataSync/Program.cs) | Console tool nạp dữ liệu nhân viên vào Qdrant |
+| [`HRMS_SetupScript.iss`](./HRMS_SetupScript.iss) | Inno Setup script tạo bộ cài đặt v3.5.0 |
 
 ---
 
@@ -412,6 +447,7 @@ Hệ thống đi kèm với dự án kiểm thử tự động **`Bu.Tests`** s�
 | **Visual Studio** | 2019 / 2022 với workload ".NET Desktop Development" |
 | **DevExpress** | v23.x hoặc tương thích với .NET Framework 4.7.2 |
 | **Ollama** | Phiên bản mới nhất từ [ollama.com](https://ollama.com) |
+| **Qdrant** | Tùy chọn — [qdrant.tech](https://qdrant.tech) hoặc Docker `qdrant/qdrant` |
 
 ---
 
@@ -425,8 +461,8 @@ Nhằm đáp ứng yêu cầu vận hành ở quy mô doanh nghiệp lớn, dự
 2. **Thắt chặt bảo mật & Chống Jailbreak cho AI (NL2SQL)**:
    * Chuyển đổi bộ lọc bảo vệ của trợ lý AI trong [SqlGeneratorService.cs](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) từ **Blacklist** sang **Whitelist** nghiêm ngặt. Hệ thống chỉ cho phép thực thi các câu lệnh SELECT nhắm vào 6 View AI được chỉ định. Mọi nỗ lực truy vấn bảng nhạy cảm như tài khoản người dùng (`TB_SYS_USER`) hoặc các kỹ thuật AI Jailbreak đều bị chặn đứng.
    * Ngăn chặn hoàn toàn lỗi **SQL Injection** bằng cách tự động escape dấu nháy đơn (`'`) của người dùng nhập vào trước khi ghép chuỗi.
-3. **Bộ nhớ đệm Embedding Vector (Local Embedding Cache)**:
-   * Tích hợp cơ chế cache vector nhúng dạng in-memory trong [VectorService.cs](./Bu/Services/AI_Services/Vector/VectorService.cs), lưu trữ các embedding đã tạo từ Ollama. Nhờ đó, loại bỏ được các request HTTP trùng lặp sang server Ollama, giúp chatbot phản hồi nhanh chóng và mượt mà hơn.
+3. **Nâng cấp Vector Search sang Qdrant**:
+   * Thay thế `VectorService` (in-memory) bằng [QdrantService.cs](./Bu/Services/AI_Services/Vector/QdrantService.cs) — giao tiếp trực tiếp với Qdrant vector database qua HTTP. Hỗ trợ Cosine similarity (threshold 0.6, top-K=5), tự động đồng bộ dữ liệu nhân viên khi có thay đổi qua event `AiDataSyncHub`. Kèm theo tool CLI [VectorDataSync](./VectorDataSync/Program.cs) để seed toàn bộ dữ liệu nhân viên từ Oracle vào Qdrant.
 4. **Trải nghiệm Giao diện Bất đồng bộ & Mượt mà**:
    * Chuyển đổi hàm tải biểu đồ lương `LoadData()` sang dạng bất đồng bộ `LoadDataAsync()` sử dụng `Task.Run` trong [FrmDashboardLuong.cs](./QLyNSu/FORM_BAOCAO/FrmDashboardLuong.cs), giúp giao diện chính không bị đơ cứng (freeze) khi tải các báo cáo lương lớn.
    * Giải quyết triệt để lỗi chuyển đổi tab của DevExpress `DocumentManager` (Tabbed MDI) trong [FormManager_Functions.cs](./QLyNSu/Functions/FormManager_Functions.cs). Hệ thống tự động kích hoạt đưa tab tương ứng lên hàng đầu ngay sau khi màn hình chờ (SplashScreen) đóng hẳn và mở khóa giao diện chính.

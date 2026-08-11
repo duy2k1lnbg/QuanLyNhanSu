@@ -182,7 +182,7 @@ namespace QLyNSu
             // 
             // btnSaoLuu_DB
             // 
-            this.btnSaoLuu_DB.Caption = "Sao Lưu Dữ Liệu";
+            this.btnSaoLuu_DB.Caption = "Export";
             this.btnSaoLuu_DB.Id = 2;
             this.btnSaoLuu_DB.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnSaoLuu_DB.ImageOptions.SvgImage")));
             this.btnSaoLuu_DB.Name = "btnSaoLuu_DB";
@@ -190,7 +190,7 @@ namespace QLyNSu
             // 
             // btnPhucHoi_DB
             // 
-            this.btnPhucHoi_DB.Caption = "Phục Hồi Dữ Liệu";
+            this.btnPhucHoi_DB.Caption = "Import";
             this.btnPhucHoi_DB.Id = 3;
             this.btnPhucHoi_DB.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPhucHoi_DB.ImageOptions.SvgImage")));
             this.btnPhucHoi_DB.Name = "btnPhucHoi_DB";

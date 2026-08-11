@@ -15,7 +15,7 @@ using System.Xml;
 
 namespace QLyNSu.FORM_SYSTEM
 {
-    public partial class FrmBackupWizard : DevExpress.XtraEditors.XtraForm
+    public partial class FrmDataExport : DevExpress.XtraEditors.XtraForm
     {
         private DevExpress.XtraEditors.CheckEdit chkHeaderData;
         private DevExpress.XtraEditors.LabelControl lblDelimiter;
@@ -29,7 +29,7 @@ namespace QLyNSu.FORM_SYSTEM
         private DevExpress.XtraEditors.CheckEdit chkQueryWorksheetName;
         private DevExpress.XtraEditors.TextEdit txtQueryWorksheetName;
 
-        public FrmBackupWizard()
+        public FrmDataExport()
         {
             InitializeComponent();
             this.Load += FrmBackupWizard_Load;

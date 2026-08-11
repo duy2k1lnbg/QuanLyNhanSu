@@ -1,6 +1,6 @@
 namespace QLyNSu.FORM_SYSTEM
 {
-    partial class FrmRestoreWizard
+    partial class FrmDataImport
     {
         private System.ComponentModel.IContainer components = null;
 

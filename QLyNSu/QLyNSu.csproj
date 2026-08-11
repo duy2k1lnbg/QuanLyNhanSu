@@ -175,11 +175,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FORM_SYSTEM\FrmBackupWizard.cs">
+    <Compile Include="FORM_SYSTEM\FrmDataExport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FORM_SYSTEM\FrmBackupWizard.Designer.cs">
-      <DependentUpon>FrmBackupWizard.cs</DependentUpon>
+    <Compile Include="FORM_SYSTEM\FrmDataExport.Designer.cs">
+      <DependentUpon>FrmDataExport.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmWorksheet.cs">
       <SubType>Form</SubType>
@@ -187,11 +187,11 @@
     <Compile Include="FORM_SYSTEM\FrmWorksheet.Designer.cs">
       <DependentUpon>FrmWorksheet.cs</DependentUpon>
     </Compile>
-    <Compile Include="FORM_SYSTEM\FrmRestoreWizard.cs">
+    <Compile Include="FORM_SYSTEM\FrmDataImport.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FORM_SYSTEM\FrmRestoreWizard.Designer.cs">
-      <DependentUpon>FrmRestoreWizard.cs</DependentUpon>
+    <Compile Include="FORM_SYSTEM\FrmDataImport.Designer.cs">
+      <DependentUpon>FrmDataImport.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_BAOCAO\FrmBaoCaoChiTiet.cs">
       <SubType>Form</SubType>
@@ -623,8 +623,8 @@
     <EmbeddedResource Include="FORM_SYSTEM\FrmAI_Chat.resx">
       <DependentUpon>FrmAI_Chat.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FORM_SYSTEM\FrmBackupWizard.resx">
-      <DependentUpon>FrmBackupWizard.cs</DependentUpon>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmDataExport.resx">
+      <DependentUpon>FrmDataExport.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmCreateAccount.resx">
       <DependentUpon>FrmCreateAccount.cs</DependentUpon>
@@ -638,8 +638,8 @@
     <EmbeddedResource Include="FORM_SYSTEM\FrmGroup.resx">
       <DependentUpon>FrmGroup.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FORM_SYSTEM\FrmRestoreWizard.resx">
-      <DependentUpon>FrmRestoreWizard.cs</DependentUpon>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmDataImport.resx">
+      <DependentUpon>FrmDataImport.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmShowUser_Group.resx">
       <DependentUpon>FrmShowUser_Group.cs</DependentUpon>
