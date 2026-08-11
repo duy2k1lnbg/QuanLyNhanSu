@@ -20,13 +20,20 @@ namespace QLyNSu.FORM_SYSTEM
             this.txtUrl = new DevExpress.XtraEditors.TextEdit();
             this.lblModel = new DevExpress.XtraEditors.LabelControl();
             this.txtModel = new DevExpress.XtraEditors.TextEdit();
+            this.lblQdrant = new DevExpress.XtraEditors.LabelControl();
+            this.txtQdrant = new DevExpress.XtraEditors.TextEdit();
             this.btnTest = new DevExpress.XtraEditors.SimpleButton();
+            this.gcQdrant = new DevExpress.XtraEditors.GroupControl();
+            this.btnTestQdrant = new DevExpress.XtraEditors.SimpleButton();
             this.btnSave = new DevExpress.XtraEditors.SimpleButton();
             this.btnCancel = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)(this.gcMain)).BeginInit();
             this.gcMain.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gcQdrant)).BeginInit();
+            this.gcQdrant.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtUrl.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtModel.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtQdrant.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // gcMain
@@ -42,7 +49,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.gcMain.Name = "gcMain";
             this.gcMain.Size = new System.Drawing.Size(550, 180);
             this.gcMain.TabIndex = 0;
-            this.gcMain.Text = "Cấu Hình Kết Nối AI (Ollama)";
+            this.gcMain.Text = "Cấu Hình Kết Nối Ollama";
             // 
             // lblUrl
             // 
@@ -82,6 +89,50 @@ namespace QLyNSu.FORM_SYSTEM
             this.txtModel.Size = new System.Drawing.Size(350, 30);
             this.txtModel.TabIndex = 3;
             // 
+            // 
+            // gcQdrant
+            // 
+            this.gcQdrant.AppearanceCaption.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold);
+            this.gcQdrant.AppearanceCaption.Options.UseFont = true;
+            this.gcQdrant.Controls.Add(this.btnTestQdrant);
+            this.gcQdrant.Controls.Add(this.txtQdrant);
+            this.gcQdrant.Controls.Add(this.lblQdrant);
+            this.gcQdrant.Location = new System.Drawing.Point(20, 210);
+            this.gcQdrant.Name = "gcQdrant";
+            this.gcQdrant.Size = new System.Drawing.Size(550, 140);
+            this.gcQdrant.TabIndex = 8;
+            this.gcQdrant.Text = "Cấu Hình Kết Nối Qdrant";
+            // 
+            // lblQdrant
+            // 
+            this.lblQdrant.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.2F);
+            this.lblQdrant.Appearance.Options.UseFont = true;
+            this.lblQdrant.Location = new System.Drawing.Point(30, 50);
+            this.lblQdrant.Name = "lblQdrant";
+            this.lblQdrant.Size = new System.Drawing.Size(120, 23);
+            this.lblQdrant.TabIndex = 5;
+            this.lblQdrant.Text = "Qdrant URL:";
+            // 
+            // txtQdrant
+            // 
+            this.txtQdrant.Location = new System.Drawing.Point(170, 47);
+            this.txtQdrant.Name = "txtQdrant";
+            this.txtQdrant.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.2F);
+            this.txtQdrant.Properties.Appearance.Options.UseFont = true;
+            this.txtQdrant.Size = new System.Drawing.Size(350, 30);
+            this.txtQdrant.TabIndex = 6;
+            // 
+            // btnTestQdrant
+            // 
+            this.btnTestQdrant.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnTestQdrant.Appearance.Options.UseFont = true;
+            this.btnTestQdrant.Location = new System.Drawing.Point(170, 95);
+            this.btnTestQdrant.Name = "btnTestQdrant";
+            this.btnTestQdrant.Size = new System.Drawing.Size(140, 30);
+            this.btnTestQdrant.TabIndex = 9;
+            this.btnTestQdrant.Text = "Kiểm Tra Kết Nối";
+            this.btnTestQdrant.Click += new System.EventHandler(this.btnTestQdrant_Click);
+            // 
             // btnTest
             // 
             this.btnTest.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
@@ -89,7 +140,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnTest.Location = new System.Drawing.Point(170, 135);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(140, 30);
-            this.btnTest.TabIndex = 4;
+            this.btnTest.TabIndex = 7;
             this.btnTest.Text = "Kiểm Tra Kết Nối";
             this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
             // 
@@ -97,7 +148,7 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             this.btnSave.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold);
             this.btnSave.Appearance.Options.UseFont = true;
-            this.btnSave.Location = new System.Drawing.Point(300, 220);
+            this.btnSave.Location = new System.Drawing.Point(300, 370);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(120, 40);
             this.btnSave.TabIndex = 1;
@@ -108,7 +159,7 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             this.btnCancel.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.2F, System.Drawing.FontStyle.Bold);
             this.btnCancel.Appearance.Options.UseFont = true;
-            this.btnCancel.Location = new System.Drawing.Point(440, 220);
+            this.btnCancel.Location = new System.Drawing.Point(440, 370);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(120, 40);
             this.btnCancel.TabIndex = 2;
@@ -119,9 +170,10 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(590, 280);
+            this.ClientSize = new System.Drawing.Size(590, 430);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnSave);
+            this.Controls.Add(this.gcQdrant);
             this.Controls.Add(this.gcMain);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
@@ -133,18 +185,26 @@ namespace QLyNSu.FORM_SYSTEM
             ((System.ComponentModel.ISupportInitialize)(this.gcMain)).EndInit();
             this.gcMain.ResumeLayout(false);
             this.gcMain.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gcQdrant)).EndInit();
+            this.gcQdrant.ResumeLayout(false);
+            this.gcQdrant.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.txtUrl.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtModel.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtQdrant.Properties)).EndInit();
             this.ResumeLayout(false);
 
         }
 
         private DevExpress.XtraEditors.GroupControl gcMain;
+        private DevExpress.XtraEditors.GroupControl gcQdrant;
         private DevExpress.XtraEditors.LabelControl lblUrl;
         private DevExpress.XtraEditors.TextEdit txtUrl;
         private DevExpress.XtraEditors.LabelControl lblModel;
         private DevExpress.XtraEditors.TextEdit txtModel;
+        private DevExpress.XtraEditors.LabelControl lblQdrant;
+        private DevExpress.XtraEditors.TextEdit txtQdrant;
         private DevExpress.XtraEditors.SimpleButton btnTest;
+        private DevExpress.XtraEditors.SimpleButton btnTestQdrant;
         private DevExpress.XtraEditors.SimpleButton btnSave;
         private DevExpress.XtraEditors.SimpleButton btnCancel;
     }

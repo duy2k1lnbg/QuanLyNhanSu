@@ -35,6 +35,11 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 ; Lấy toàn bộ file từ thư mục Release (Hãy chắc chắn bạn đã Build chế độ Release trong Visual Studio)
 Source: "QLyNSu\bin\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "QLyNSu\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+; Cập nhật: Include file cấu hình prompt AI
+Source: "QLyNSu\ai_prompts.json"; DestDir: "{app}"; Flags: ignoreversion
+
+
 ; LƯU Ý: Không dùng cờ "ignoreversion" trên các file hệ thống dùng chung
 
 [Icons]
