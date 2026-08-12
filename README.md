@@ -1,6 +1,10 @@
-# 🏢 Hệ Thống Quản Lý Nhân Sự Doanh Nghiệp (HRMS) với Trợ Lý AI Cục Bộ
+# 🏢 Hệ Thống Quản Lý Nhân Sự (HRMS) với Trợ Lý AI Cục Bộ
 
-> **Enterprise Human Resource Management System** — Ứng dụng Desktop WinForms quản lý toàn diện nhân sự, chấm công, tính lương tích hợp **AI On-Premise** (NL2SQL) chạy hoàn toàn ngoại tuyến, bảo mật tuyệt đối.
+Ứng dụng desktop Windows xây dựng trên .NET Framework 4.7.2, DevExpress WinForms và Oracle Database 19c, hỗ trợ quản lý nhân sự, chấm công, tính lương, báo cáo và phân quyền.
+
+Hệ thống tích hợp trợ lý AI chạy cục bộ thông qua Ollama. Phần AI hiện sử dụng Qdrant cho tìm kiếm ngữ nghĩa và đang tiếp tục hoàn thiện pipeline Hybrid RAG/NL2SQL để so sánh và lựa chọn hướng triển khai phù hợp.
+
+> **Lưu ý:** Đây là dự án đang được phát triển. Một số thành phần AI, hiệu năng và cơ chế truy vấn vẫn đang trong quá trình thử nghiệm và benchmark; README không coi các kết quả hiện tại là chứng nhận production hoặc bảo mật tuyệt đối.
 
 [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blueviolet?logo=dotnet)](https://dotnet.microsoft.com/)
 [![Oracle DB](https://img.shields.io/badge/Oracle%20Database-19c-red?logo=oracle)](https://www.oracle.com/database/)
@@ -22,7 +26,33 @@
 
 ### 📌 Tổng Quan Dự Án
 
-Đây là hệ thống **Quản Lý Nhân Sự cấp doanh nghiệp** được xây dựng trên nền tảng **.NET Framework 4.7.2** với giao diện **DevExpress WinForms** cao cấp, sử dụng **Oracle Database 19c** làm hệ quản trị cơ sở dữ liệu. Điểm đột phá của hệ thống là tích hợp **Trợ Lý AI Cục Bộ (On-Premise AI Copilot)** với kiến trúc **Hybrid RAG** độc quyền: cho phép người quản lý đặt câu hỏi bằng tiếng Việt tự nhiên để truy vấn dữ liệu nhân sự mà không cần viết SQL, và toàn bộ xử lý diễn ra **nội bộ** — không một byte dữ liệu nào rời khỏi máy chủ công ty.
+Đây là hệ thống **Quản Lý Nhân Sự cấp doanh nghiệp** được xây dựng trên nền tảng **.NET Framework 4.7.2** với giao diện **DevExpress WinForms**, sử dụng **Oracle Database 19c** làm hệ quản trị cơ sở dữ liệu. Điểm đột phá của hệ thống là tích hợp **Trợ Lý AI Cục Bộ (On-Premise AI Copilot)** với kiến trúc **Hybrid RAG**: cho phép người quản lý đặt câu hỏi bằng tiếng Việt tự nhiên để truy vấn dữ liệu nhân sự mà không cần viết SQL, và toàn bộ xử lý diễn ra **nội bộ** — không một byte dữ liệu nào rời khỏi máy chủ công ty.
+
+---
+
+## 🚧 Project Status
+
+The project is under active development.
+
+### Stable / actively used
+- HR management
+- Attendance and payroll
+- Reporting
+- User/group permissions
+- Local Ollama integration
+- Qdrant semantic retrieval
+
+### In active development
+- Hybrid RAG orchestration
+- NL2SQL pipeline
+- Qdrant retrieval quality and ranking
+- AI data synchronization and evaluation
+
+### Not production-certified
+This repository has not been formally security-audited, load-tested, or
+validated against a production-scale deployment. Performance and security
+claims should therefore be considered implementation goals rather than
+formal guarantees.
 
 ---
 
@@ -68,127 +98,46 @@ QuanLyNhanSu.sln
 
 ### ✨ Tính Năng Nghiệp Vụ
 
-#### 1. 👤 Quản Lý Nhân Sự (HR Module)
+Danh sách chi tiết các Form và chức năng của các phân hệ:
+- Quản lý Nhân sự
+- Chấm công & Tính lương
+- Báo cáo
+- Quản trị hệ thống
+- AI Copilot
 
-| Form | Chức năng |
-|------|-----------|
-| `FrmNhanVien` | Hồ sơ nhân viên: thông tin cá nhân, ảnh BLOB, phòng ban, chức vụ, trình độ, dân tộc, tôn giáo |
-| `FrmDieuChuyen_NhanVien` | Lập quyết định và lưu lịch sử điều chuyển phòng ban / bộ phận / chức vụ |
-| `FrmHopDongLaoDong` | Quản lý hợp đồng lao động: số lần ký, thời hạn, hệ số lương cơ bản |
-| `FrmKhenThuong` | Quyết định khen thưởng: nội dung, ngày ban hành, đính kèm |
-| `FrmKyLuat` | Quyết định kỷ luật: hình thức, mức độ, ngày hiệu lực |
-| `FrmNangLuong_NhanVien` | Lộ trình tăng lương: lưu vết từng lần điều chỉnh hệ số lương |
-| `FrmNhanVien_ThoiViec` | Hồ sơ nghỉ việc: lý do, ngày nghỉ, ghi chú |
-| `FrmCongTy`, `FrmPhongBan`, `FrmBoPhan`, `FrmChucVu`, `FrmTrinhDo`, `FrmDanToc`, `FrmTonGiao` | Danh mục hệ thống (CRUD chuẩn) |
-
-#### 2. ⏱ Chấm Công & Tính Lương (Timekeeping & Payroll)
-
-| Form | Chức năng |
-|------|-----------|
-| `FrmLoaiCa` | Danh mục ca làm việc (ca ngày, ca đêm, ca gãy) + hệ số lương ca |
-| `FrmLoaiCong` | Định nghĩa loại ngày công (thường, nghỉ phép, nghỉ ốm, lễ) |
-| `FrmBangCong` | Bảng công tháng: tổng hợp ngày công thực tế, nghỉ phép của nhân viên |
-| `FrmBangCong_ChiTiet` | Chi tiết giờ check-in / check-out hàng ngày từng nhân viên |
-| `FrmCapNhatNgayCong` | Cập nhật, chỉnh sửa ngày công riêng lẻ |
-| `FrmTangCa` | Theo dõi giờ tăng ca theo ngày/tháng, gắn với hệ số ca |
-| `FrmPhuCap` | Danh mục phụ cấp (ăn trưa, xăng xe, điện thoại, trách nhiệm) + phân bổ cho nhân viên |
-| `FrmUngLuong` | Ghi nhận và duyệt yêu cầu tạm ứng lương giữa kỳ |
-| `FrmBangLuong` | **Tự động tính lương**: Lương CB × Hệ số ngày công + Lương tăng ca + Phụ cấp − Tạm ứng |
-
-> **Công thức tính lương:**
-> ```
-> Thực lĩnh = (Lương_CB_HĐ × Ngày_Công_Thực_Tế / Ngày_Công_Chuẩn)
->            + (Giờ_Tăng_Ca × Hệ_Số_Ca × Lương_Giờ)
->            + Tổng_Phụ_Cấp
->            − Tổng_Tạm_Ứng
-> ```
-
-#### 3. 📄 In Ấn & Báo Cáo (Reports)
-
-| Report | Nội dung |
-|--------|----------|
-| `rptBangCongTongHop` | Bảng công tổng hợp toàn công ty theo tháng |
-| `rptBangCongCTNV` | Bảng công chi tiết từng nhân viên |
-| `rptBaoCaoLuongNV` | Phiếu lương cá nhân (hỗ trợ xuất PDF/Excel) |
-| `rptDSNhanVien` | Danh sách nhân viên theo phòng ban |
-| `rptHopDongLaoDong` | In hợp đồng lao động theo mẫu |
-| `rptKhenThuong` / `rptKyLuat` | In quyết định khen thưởng / kỷ luật |
-| `rptDSHopDongHetHan` | Danh sách hợp đồng lao động sắp hết hạn |
-| `rptDSTangCa` | Báo cáo tổng hợp giờ tăng ca theo kỳ công |
-| `FrmDashboardNhanSu` | Dashboard biểu đồ: cơ cấu phòng ban, giới tính, trình độ, độ tuổi |
-| `FrmDashboardLuong` | Dashboard biểu đồ lương theo phòng ban, kỳ công |
-| `FrmBaoCaoTongHop` | Trung tâm báo cáo tổng hợp (chọn loại báo cáo, lọc kỳ công/nhân viên) |
-| `FrmBaoCaoChiTiet` | Báo cáo chi tiết theo kỳ công và nhân viên |
-
-#### 4. 🔐 Quản Trị Hệ Thống (System Administration)
-
-| Form | Chức năng |
-|------|-----------|
-| `FrmDangNhap` | Đăng nhập với xác thực BCrypt + phân quyền theo nhóm |
-| `FrmUser` / `FrmGroup` | Quản lý tài khoản người dùng và nhóm quyền |
-| `FrmShowUser_Group` | Xem và gán thành viên vào nhóm |
-| `FrmPhanQuyenChucNang` | Phân quyền truy cập từng chức năng (menu) theo nhóm |
-| `FrmPhanQuyenBaoCao` | Phân quyền xem báo cáo theo nhóm |
-| `FrmChangePassword` | Đổi mật khẩu cá nhân |
-| `FrmSetting` | Cấu hình kết nối Ollama và model AI |
-| `FrmCreateAccount` | Tạo tài khoản mới kèm thiết lập quyền ban đầu |
-| `FrmDatabaseConfig` | Cấu hình kết nối Oracle đa profile (Server IP, Port, SID/Service Name, Auth) |
-| `FrmOllamaConfig` | Cấu hình Ollama server (URL, tên model) với nút kiểm tra kết nối |
-| `FrmThongBao` | Quản lý thông báo nội bộ (ghim, loại, trạng thái, hạn, phân theo công ty/phòng ban) |
-| `FrmLanguages` | Quản lý danh mục ngôn ngữ hệ thống (thêm/sửa/xóa, bật/tắt active) |
-| `FrmDataExport` | Xuất cấu trúc và dữ liệu Oracle (SQL/JSON/XML, chọn bảng, DDL/Data, nén ZIP) |
-| `FrmDataImport` | Nhập dữ liệu từ file SQL/JSON vào Oracle (Truncate, Disable Constraints/Triggers) |
-| `FrmUserDashboard` | Dashboard giám sát phiên đăng nhập, thiết bị, IP người dùng |
-
-#### 5. 🤖 Trợ Lý AI Nhân Sự Thông Minh (AI Copilot)
-
-| Form / Service | Vai trò |
-|----------------|---------|
-| `FrmAI_Chat` | Giao diện chatbox tích hợp trực tiếp trên ứng dụng desktop |
-| `FrmAI` | Màn hình hiển thị kết quả truy vấn SQL dạng bảng dữ liệu |
-| `HybridRagService` | Điều phối toàn bộ luồng RAG (Orchestrator trung tâm) |
-| `AiRouterService` | Phân loại ý định: **GENERAL** (hỏi đáp thông thường) vs. **DATA** (truy vấn DB) |
-| `QueryPreprocessor` | Chuẩn hóa câu hỏi: khôi phục dấu tiếng Việt, inject gợi ý schema |
-| `SqlGeneratorService` | Sinh SQL từ câu hỏi tiếng Việt, làm sạch và kiểm duyệt an toàn |
-| `AiSchemaService` | Cung cấp định nghĩa các View AI cho LLM hiểu cấu trúc dữ liệu |
-| `OllamaService` | Gửi prompt và nhận phản hồi từ Ollama local server |
-| `AiCacheService` | Cache kết quả SQL đã sinh để phản hồi tức thì cho câu hỏi lặp |
-| `AiChatHistory` | Lưu lịch sử hội thoại ngắn hạn để AI hiểu ngữ cảnh đàm thoại |
-| `QdrantService` | Tìm kiếm tương đồng ngữ nghĩa qua Qdrant vector database (Cosine, top-K=5) |
-| `AiDataSyncHub` | Event hub tự động đồng bộ dữ liệu nhân viên vào Qdrant khi có thay đổi |
-| `AiServiceLocator` | Service Locator đăng ký singleton cho các dịch vụ AI |
-| `ChatboxManager` | Facade cung cấp API đơn giản: `ProcessQuery()`, `GetMessages()`, `Reset()` |
-| `JsonPromptManager` | Quản lý prompt template từ file `ai_prompts.json` bên ngoài (không cần build lại) |
-| `AiBootstrap` | Tự động phát hiện/khởi động Ollama khi mở ứng dụng, kill khi thoát |
+👉 **Xem chi tiết tại: [docs/technical_reference.md](docs/technical_reference.md)**
 
 ---
 
-### 🤖 Kiến Trúc Hybrid RAG & Bảo Mật AI
+### 🤖 Kiến Trúc AI
 
 #### Luồng Xử Lý (RAG Pipeline)
 
-```mermaid
-graph TD
-    A["👤 Người dùng gửi câu hỏi tiếng Việt"] --> B["QueryPreprocessor\n(Khôi phục dấu + chuẩn hóa)"]
-    B --> C["AiRouterService\n(Phân loại ý định)"]
+```text
+Hiện tại
+────────────────────────────────
 
-    C -- "GENERAL\n(Chào hỏi, hỏi thông thường)" --> D["OllamaService\n(Sinh phản hồi tự nhiên)"]
-    C -- "DATA\n(Truy vấn dữ liệu nhân sự)" --> E["AiCacheService\n(Kiểm tra cache)"]
+Question
+   ↓
+Query Preprocessor
+   ↓
+Router
+   ↓
+Qdrant semantic search
+   ↓
+Ollama
+   ↓
+Answer
 
-    E -- "Cache HIT ✅" --> I["Trả kết quả tức thì < 10ms"]
-    E -- "Cache MISS ❌" --> F["SqlGeneratorService\n(NL → SQL + AiSchemaService)"]
 
-    F --> G{"Kiểm tra SQL an toàn"}
-    G -- "Chứa INSERT/UPDATE/DELETE/DROP..." --> H["⛔ Từ chối & Báo lỗi"]
-    G -- "✅ Chỉ SELECT" --> J["Thực thi qua AiEntities\n(Read-Only Oracle Connection)"]
+Định hướng / chế độ thử nghiệm
+────────────────────────────────
 
-    J --> K["Chuyển DataTable → JSON Context"]
-    K --> L["OllamaService\n(Tổng hợp câu trả lời bằng tiếng Việt)"]
-
-    D --> M["AiChatHistory\n(Cập nhật lịch sử)"]
-    L --> M
-    M --> N["💬 Hiển thị trên FrmAI_Chat"]
-    I --> N
+Question
+   ↓
+Router
+   ├── Semantic → Qdrant
+   └── Data → NL2SQL → Oracle AI Views
 ```
 
 #### Cơ Chế Bảo Mật (Security Safeguards)
@@ -196,10 +145,10 @@ graph TD
 | Cơ chế | Chi tiết |
 |--------|----------|
 | **Tài khoản DB phân tách** | `QLNhanSuEntities` (Admin, đọc/ghi toàn bộ) vs `AiEntities` (chỉ đọc View AI) |
-| **View-Restricted Access** | AI chỉ truy cập 6 View an toàn, không bao giờ động trực tiếp vào bảng gốc |
-| **SQL Sanitization** | Chỉ chấp nhận câu lệnh bắt đầu bằng `SELECT`; loại bỏ mọi từ khóa DML/DDL |
-| **Hardcode Regex Fallback** | Tìm kiếm nhân viên theo Tên/Mã số chạy trực tiếp không qua LLM, độ chính xác 100% |
-| **Local-Only Execution** | Ollama chạy hoàn toàn cục bộ — không một dữ liệu nào gửi lên internet |
+| **AI query safeguards** | SQL được giới hạn ở các thao tác đọc và các AI View được cho phép; các câu lệnh không phù hợp sẽ bị từ chối trước khi thực thi. |
+| **Input handling** | Dữ liệu đầu vào được xử lý/escape trước khi được đưa vào pipeline truy vấn. |
+| **Deterministic employee lookup** | Một số trường hợp tìm kiếm theo mã nhân viên/tên được xử lý bằng rule-based matching để giảm phụ thuộc vào LLM. |
+| **Local-Only Execution** | Ollama chạy hoàn toàn cục bộ — không gửi dữ liệu ra ngoài internet |
 | **BCrypt Password Hashing** | Mật khẩu người dùng được băm bằng BCrypt.Net-Next trước khi lưu |
 
 ##### View AI (Dữ liệu AI được phép truy cập):
@@ -217,68 +166,13 @@ graph TD
 
 ### 🗄️ Cơ Sở Dữ Liệu (Database Schema)
 
-> File backup đầy đủ: [HR_backup.sql](./HR_backup.sql)
+Cấu trúc cơ sở dữ liệu bao gồm các nhóm bảng:
+- Nhân sự & Tổ chức
+- Biến động nhân sự
+- Chấm công & Tài chính
+- Bảng hệ thống
 
-#### Nhóm Bảng Nhân Sự & Tổ Chức
-
-```
-TB_NHANVIEN          — Bảng trung tâm, lưu toàn bộ hồ sơ nhân viên
-TB_CONGTY            — Thông tin công ty
-TB_PHONGBAN          — Danh mục phòng ban
-TB_BOPHAN            — Danh mục bộ phận (con của phòng ban)
-TB_CHUCVU            — Danh mục chức vụ
-TB_TRINHDO           — Danh mục trình độ học vấn
-TB_DANTOC            — Danh mục dân tộc
-TB_TONGIAO           — Danh mục tôn giáo
-TB_GIOITINH          — Danh mục giới tính
-TB_QUOCTICH          — Danh mục quốc tịch
-```
-
-#### Nhóm Bảng Biến Động Nhân Sự
-
-```
-TB_HOPDONG           — Hợp đồng lao động (số lần ký, hệ số lương)
-TB_DIEUCHUYEN_NHANVIEN — Lịch sử điều chuyển nội bộ
-TB_NANGLUONG_NHANVIEN  — Lộ trình tăng lương
-TB_KHENTHUONG_KYLUAT — Quyết định khen thưởng và kỷ luật
-TB_NHANVIEN_THOIVIEC — Hồ sơ thôi việc
-```
-
-#### Nhóm Bảng Chấm Công & Tài Chính
-
-```
-TB_LOAICA            — Danh mục ca làm việc + hệ số lương ca
-TB_LOAICONG          — Danh mục loại ngày công
-TB_BANGCONG          — Bảng công tháng (tổng hợp)
-TB_BANGCONG_CHITIET  — Chi tiết check-in/check-out hàng ngày
-TB_KYCONG            — Kỳ công (chu kỳ tính lương)
-TB_KYCONGCHITIET     — Chi tiết kỳ công từng nhân viên
-TB_TANGCA            — Giờ tăng ca
-TB_PHUCAP            — Danh mục phụ cấp
-TB_NHANVIEN_PHUCAP   — Phân bổ phụ cấp cho nhân viên
-TB_UNGLUONG          — Tạm ứng lương
-TB_BANGLUONG         — Bảng lương tổng hợp
-TB_BAOHIEM           — Thông tin bảo hiểm xã hội
-```
-
-#### Nhóm Bảng Hệ Thống (System Tables)
-
-```
-TB_SYS_USER          — Tài khoản người dùng (mật khẩu BCrypt)
-TB_SYS_GROUP         — Nhóm quyền và mối quan hệ thành viên
-TB_SYS_FUNCTION      — Danh mục chức năng trong hệ thống
-TB_SYS_RIGHT         — Phân quyền chức năng theo người dùng/nhóm
-TB_SYS_REPORT        — Danh mục báo cáo
-TB_SYS_RIGHT_REPORT  — Phân quyền xem báo cáo
-TB_CONFIG            — Cấu hình hệ thống (Ollama URL, Qdrant URL, model name, ...)
-TB_SYS_LOG           — Nhật ký hoạt động hệ thống
-TB_SYS_LOGIN_HISTORY — Lịch sử đăng nhập (thiết bị, IP, thời gian)
-TB_THONGBAO          — Thông báo nội bộ (tiêu đề, nội dung, ghim, trạng thái, hết hạn)
-TB_LANGUAGES         — Danh mục ngôn ngữ giao diện
-TB_TRANSLATIONS      — Từ điển dịch UI (key-value theo ngôn ngữ)
-```
-
-> **Trigger quan trọng:** [SYS_USER_triggers.sql](./DA/SYS_USER_triggers.sql) — Cascade delete khi xóa tài khoản người dùng (tự động dọn sạch nhóm, quyền hàm, quyền báo cáo).
+👉 **Xem chi tiết cấu trúc Database tại: [docs/technical_reference.md](docs/technical_reference.md)**
 
 ---
 
@@ -301,6 +195,16 @@ TB_TRANSLATIONS      — Từ điển dịch UI (key-value theo ngôn ngữ)
 ---
 
 ### ⚙️ Hướng Dẫn Cài Đặt & Khởi Chạy
+
+
+### AI Modes
+
+The project currently supports two AI retrieval approaches:
+
+- **Qdrant / semantic search:** actively used for current AI retrieval experiments.
+- **NL2SQL + Oracle AI Views:** retained as the hybrid pipeline and temporarily bypassed while evaluating Qdrant.
+
+Qdrant is therefore recommended for testing the current AI retrieval flow, but it should not be considered the final architecture yet.
 
 #### Bước 1: Thiết Lập Oracle Database 19c
 
@@ -418,6 +322,10 @@ Hệ thống đi kèm với dự án kiểm thử tự động **`Bu.Tests`** s�
 - **`AiCacheServiceTests.cs`**: Kiểm thử cơ chế cache dữ liệu SQL sinh ra từ AI, đảm bảo dữ liệu SQL được lưu và truy vấn chính xác dưới 10ms.
 - **`DbQueryTests.cs`**: Kiểm thử các truy vấn Entity Framework trực tiếp trên cơ sở dữ liệu mẫu.
 
+
+> Qdrant integration is currently under active evaluation. 
+> Vector retrieval behavior and ranking quality may change while the migration is being benchmarked.
+
 **Cách chạy kiểm thử:**
 1. Mở `QuanLyNhanSu.sln` trên Visual Studio.
 2. Chọn `Test -> Run All Tests` hoặc mở cửa sổ `Test Explorer` (`Ctrl + R, T`) để chạy tất cả hoặc từng ca kiểm thử cụ thể.
@@ -453,14 +361,14 @@ Hệ thống đi kèm với dự án kiểm thử tự động **`Bu.Tests`** s�
 
 ### 🚀 Các Cập Nhật & Tối Ưu Hóa Gần Đây
 
-Nhằm đáp ứng yêu cầu vận hành ở quy mô doanh nghiệp lớn, dự án đã được nâng cấp toàn diện về mặt hiệu năng CSDL, bảo mật AI và trải nghiệm người dùng:
+**Các cập nhật gần đây tập trung vào hiệu năng, khả năng vận hành và hoàn thiện các tính năng AI.**
 
 1. **Tối ưu hóa triệt để lỗi N+1 Query trong EF 6**:
    * Sửa đổi toàn bộ các hàm tải danh sách trong 9 lớp nghiệp vụ cốt lõi: `NHANVIEN`, `NHANVIEN_THOIVIEC`, `NANGLUONG_NHANVIEN`, `DIEUCHUYEN_NHANVIEN`, `KHENTHUONG_KYLUAT`, `HOPDONGLAODONG`, `UNGLUONG`, `TANGCA`, và `BANGLUONG`.
-   * Chuyển đổi từ cơ chế duyệt vòng lặp truy vấn đơn lẻ sang **LINQ LEFT JOIN & DTO Projection** giúp gom toàn bộ các bảng liên kết và nạp dữ liệu chỉ trong **1 câu truy vấn SQL duy nhất** gửi tới Oracle DB. Hiệu năng hiển thị danh sách tăng gấp **10x - 100x lần**.
-2. **Thắt chặt bảo mật & Chống Jailbreak cho AI (NL2SQL)**:
+   * Chuyển đổi từ cơ chế duyệt vòng lặp truy vấn đơn lẻ sang **LINQ LEFT JOIN & DTO Projection** giúp gom toàn bộ các bảng liên kết và nạp dữ liệu chỉ trong **1 câu truy vấn SQL duy nhất** gửi tới Oracle DB. **Giảm số lượng truy vấn lặp trong các màn hình danh sách bằng LINQ JOIN và DTO projection, từ đó cải thiện thời gian tải dữ liệu và giảm N+1 query.**
+2. **Thắt chặt bảo mật & Cải thiện an toàn truy vấn AI (NL2SQL)**:
    * Chuyển đổi bộ lọc bảo vệ của trợ lý AI trong [SqlGeneratorService.cs](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) từ **Blacklist** sang **Whitelist** nghiêm ngặt. Hệ thống chỉ cho phép thực thi các câu lệnh SELECT nhắm vào 6 View AI được chỉ định. Mọi nỗ lực truy vấn bảng nhạy cảm như tài khoản người dùng (`TB_SYS_USER`) hoặc các kỹ thuật AI Jailbreak đều bị chặn đứng.
-   * Ngăn chặn hoàn toàn lỗi **SQL Injection** bằng cách tự động escape dấu nháy đơn (`'`) của người dùng nhập vào trước khi ghép chuỗi.
+   * Xử lý chuỗi và escape dữ liệu để phòng tránh các nguy cơ **SQL Injection** (`'`) của người dùng nhập vào trước khi ghép chuỗi.
 3. **Nâng cấp Vector Search sang Qdrant**:
    * Thay thế `VectorService` (in-memory) bằng [QdrantService.cs](./Bu/Services/AI_Services/Vector/QdrantService.cs) — giao tiếp trực tiếp với Qdrant vector database qua HTTP. Hỗ trợ Cosine similarity (threshold 0.6, top-K=5), tự động đồng bộ dữ liệu nhân viên khi có thay đổi qua event `AiDataSyncHub`. Kèm theo tool CLI [VectorDataSync](./VectorDataSync/Program.cs) để seed toàn bộ dữ liệu nhân viên từ Oracle vào Qdrant.
 4. **Trải nghiệm Giao diện Bất đồng bộ & Mượt mà**:
@@ -475,9 +383,9 @@ Nhằm đáp ứng yêu cầu vận hành ở quy mô doanh nghiệp lớn, dự
 
 ### 📌 Project Overview
 
-This is an **enterprise-grade Human Resource Management System (HRMS)** built on **.NET Framework 4.7.2** with a rich **DevExpress WinForms** UI and **Oracle Database 19c** backend. The system's standout feature is an integrated **On-Premise AI Copilot** using a custom **Hybrid RAG architecture** that enables HR managers to query employee data in plain natural language — without writing SQL — while keeping all corporate data completely offline and private.
+This is an **Human Resource Management System (HRMS)** built on **.NET Framework 4.7.2** with a rich **DevExpress WinForms** UI and **Oracle Database 19c** backend. The system's standout feature is an integrated **On-Premise AI Copilot** using a **Hybrid retrieval pipeline** that enables HR managers to query employee data in plain natural language — without writing SQL — while keeping data processing local.
 
-The application covers the full HR lifecycle: employee profile management, internal transfers, labor contracts, reward and discipline tracking, salary raises, resignation records, daily time tracking, overtime, allowances, salary advances, and automated monthly payroll calculation. All of this is accessible through a premium DevExpress UI with rich grids, tree lists, and printable reports.
+The application covers the full HR lifecycle: employee profile management, internal transfers, labor contracts, reward and discipline tracking, salary raises, resignation records, daily time tracking, overtime, allowances, salary advances, and automated monthly payroll calculation. All of this is accessible through a DevExpress-based WinForms UI with rich grids, tree lists, and printable reports.
 
 ---
 
@@ -523,98 +431,13 @@ QuanLyNhanSu.sln
 
 ### ✨ Feature Modules
 
-#### 1. 👤 Human Resources (HR Module)
+- Human Resources
+- Timekeeping & Payroll
+- Reports & Printing
+- System Administration
+- AI HR Copilot
 
-| Form | Functionality |
-|------|--------------|
-| `FrmNhanVien` | Employee profiles: personal info, portrait photo (BLOB), department, position, education level, ethnicity, religion, contact details |
-| `FrmDieuChuyen_NhanVien` | Internal transfer decisions: record and track department / unit / position changes with full history |
-| `FrmHopDongLaoDong` | Labor contract management: number of signings, validity period, base salary coefficient |
-| `FrmKhenThuong` | Commendation decisions: content, issue date, attachments |
-| `FrmKyLuat` | Disciplinary decisions: type of penalty, severity level, effective date |
-| `FrmNangLuong_NhanVien` | Salary raise history: full audit trail of every salary coefficient adjustment |
-| `FrmNhanVien_ThoiViec` | Resignation records: reason for leaving, departure date, notes |
-| `FrmCongTy`, `FrmPhongBan`, `FrmBoPhan`, `FrmChucVu`, `FrmTrinhDo`, `FrmDanToc`, `FrmTonGiao` | Master data catalogs with standard CRUD operations |
-
-#### 2. ⏱ Timekeeping & Payroll
-
-| Form | Functionality |
-|------|--------------|
-| `FrmLoaiCa` | Work shift catalog (day shift, night shift, split shift) with individual pay rate coefficients |
-| `FrmLoaiCong` | Work day type definitions (normal, paid leave, sick leave, public holiday) |
-| `FrmBangCong` | Monthly attendance summary: total actual working days and leave days per employee |
-| `FrmBangCong_ChiTiet` | Daily check-in / check-out details for each employee |
-| `FrmCapNhatNgayCong` | Manual update and correction of individual attendance records |
-| `FrmTangCa` | Overtime tracking by day and month, linked to shift pay rate coefficient |
-| `FrmPhuCap` | Allowance catalog (meal, fuel, phone, responsibility) and per-employee allowance allocation |
-| `FrmUngLuong` | Mid-cycle salary advance requests: record and approve payment status |
-| `FrmBangLuong` | **Automated payroll**: calculates total net income for all employees each pay period |
-
-> **Payroll Formula:**
-> ```
-> Net Pay = (Contract_Base_Salary × Actual_Working_Days / Standard_Working_Days)
->         + (Overtime_Hours × Shift_Coefficient × Hourly_Wage)
->         + Total_Allowances
->         − Total_Advances
-> ```
-
-#### 3. 📄 Reports & Printing
-
-| Report | Content |
-|--------|---------|
-| `rptBangCongTongHop` | Monthly consolidated attendance report for the entire company |
-| `rptBangCongCTNV` | Detailed per-employee attendance sheet |
-| `rptBaoCaoLuongNV` | Individual payslip (supports PDF and Excel export) |
-| `rptDSNhanVien` | Employee directory filtered by department |
-| `rptHopDongLaoDong` | Printable labor contract form |
-| `rptKhenThuong` / `rptKyLuat` | Commendation / disciplinary decision forms |
-| `rptDSHopDongHetHan` | Expiring labor contracts list |
-| `rptDSTangCa` | Overtime hours summary report by pay cycle |
-| `FrmDashboardNhanSu` | Dashboard charts: department structure, gender, education, age distribution |
-| `FrmDashboardLuong` | Payroll dashboard charts by department and pay cycle |
-| `FrmBaoCaoTongHop` | Consolidated report center (select report type, filter by cycle/employee) |
-| `FrmBaoCaoChiTiet` | Detailed report by pay cycle and employee |
-
-#### 4. 🔐 System Administration
-
-| Form | Functionality |
-|------|--------------|
-| `FrmDangNhap` | Login screen with BCrypt password verification and group-based access control |
-| `FrmUser` / `FrmGroup` | Manage user accounts and permission groups |
-| `FrmShowUser_Group` | View and assign members to groups |
-| `FrmPhanQuyenChucNang` | Grant or revoke access to individual menu functions per group |
-| `FrmPhanQuyenBaoCao` | Grant or revoke access to individual reports per group |
-| `FrmChangePassword` | Personal password change (BCrypt re-hash) |
-| `FrmSetting` | Configure Ollama server URL and AI model name |
-| `FrmCreateAccount` | Create new user accounts with initial permission assignment |
-| `FrmDatabaseConfig` | Multi-profile Oracle connection configurator (Server IP, Port, SID/Service Name, Auth) |
-| `FrmOllamaConfig` | Ollama server settings (URL, model name) with test connection button |
-| `FrmThongBao` | Internal notification management (pin, type, status, expiry, per company/department) |
-| `FrmLanguages` | System language catalog management (add/edit/delete, toggle active) |
-| `FrmDataExport` | Export Oracle schema and data (SQL/JSON/XML, table selection, DDL/Data, ZIP compression) |
-| `FrmDataImport` | Import data from SQL/JSON files into Oracle (Truncate, Disable Constraints/Triggers) |
-| `FrmUserDashboard` | User login session monitoring dashboard (device, IP, timestamps) |
-
-#### 5. 🤖 AI HR Copilot
-
-| Form / Service | Role |
-|----------------|------|
-| `FrmAI_Chat` | Embedded chatbox UI — employees type natural language questions |
-| `FrmAI` | Data result screen showing SQL query results as a formatted grid |
-| `HybridRagService` | Central RAG orchestrator — coordinates the entire AI pipeline |
-| `AiRouterService` | Intent classifier: **GENERAL** (conversation) vs. **DATA** (DB query) |
-| `QueryPreprocessor` | Query normalization: restores Vietnamese diacritics, injects schema hints |
-| `SqlGeneratorService` | Translates Vietnamese questions into Oracle SQL; sanitizes and validates output |
-| `AiSchemaService` | Provides the LLM with the schema definition of all AI-accessible Views |
-| `OllamaService` | Sends prompts to and receives completions from the local Ollama server |
-| `AiCacheService` | Caches previously generated SQL for instant replies to repeated questions |
-| `AiChatHistory` | Maintains short-term conversation history so the AI understands follow-up context |
-| `QdrantService` | Semantic similarity search via Qdrant vector database (Cosine, top-K=5) |
-| `AiDataSyncHub` | Event hub for automatic employee data sync to Qdrant on changes |
-| `AiServiceLocator` | Service Locator with singleton registration for AI services |
-| `ChatboxManager` | Facade providing simple API: `ProcessQuery()`, `GetMessages()`, `Reset()` |
-| `JsonPromptManager` | Manages prompt templates from external `ai_prompts.json` file (no rebuild needed) |
-| `AiBootstrap` | Auto-detect/start Ollama on app launch, auto-kill on exit |
+👉 **For a full list of forms and features, see [docs/technical_reference.md](docs/technical_reference.md)**
 
 ---
 
@@ -652,9 +475,9 @@ graph TD
 |-----------|--------|
 | **Dual DB Accounts** | `QLNhanSuEntities` (Admin — full read/write) vs. `AiEntities` (AI — read-only on Views only) |
 | **View-Restricted Access** | The AI account can only query 6 pre-defined safe Views; direct table access is blocked at the DB level |
-| **SQL Sanitization** | Only `SELECT` statements are accepted; any DML/DDL keyword (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `TRUNCATE`, `ALTER`) causes immediate rejection |
-| **Regex Hardcode Fallback** | Common lookups (by name or employee ID) use deterministic regex patterns — no LLM call, 100% accuracy, sub-10ms latency |
-| **Local-Only Execution** | Ollama runs entirely on-premise; zero data egress to the internet |
+| **SQL Sanitization** | Only `SELECT` statements are accepted; any DML/DDL keyword (`INSERT`, `UPDATE`, `DELETE`, `DROP`, `TRUNCATE`, `ALTER`) is rejected |
+| **Regex Hardcode Fallback** | Common lookups (by name or employee ID) use deterministic regex patterns — no LLM call, rule-based matching, sub-10ms latency |
+| **Local-Only Execution** | Ollama runs entirely on-premise; does not send data to the internet |
 | **BCrypt Password Hashing** | All user passwords are hashed with BCrypt.Net-Next before storage; plain-text passwords never touch the database |
 
 ##### AI-Accessible Views
@@ -672,68 +495,12 @@ graph TD
 
 ### 🗄️ Database Schema
 
-> Full backup script: [HR_backup.sql](./HR_backup.sql)
+- Employee & Organization Tables
+- HR Movement Tables
+- Timekeeping & Finance Tables
+- System Tables
 
-#### Employee & Organization Tables
-
-```
-TB_NHANVIEN              — Central table: stores the full employee profile (incl. portrait BLOB)
-TB_CONGTY                — Company information
-TB_PHONGBAN              — Department catalog
-TB_BOPHAN                — Unit catalog (child of department)
-TB_CHUCVU                — Job title / position catalog
-TB_TRINHDO               — Education level catalog
-TB_DANTOC                — Ethnicity catalog
-TB_TONGIAO               — Religion catalog
-TB_GIOITINH              — Gender catalog
-TB_QUOCTICH              — Nationality catalog
-```
-
-#### HR Movement Tables
-
-```
-TB_HOPDONG               — Labor contracts (number of signings, salary coefficient)
-TB_DIEUCHUYEN_NHANVIEN   — Internal transfer history
-TB_NANGLUONG_NHANVIEN    — Salary raise audit trail
-TB_KHENTHUONG_KYLUAT     — Commendation and disciplinary decisions
-TB_NHANVIEN_THOIVIEC     — Resignation / termination records
-```
-
-#### Timekeeping & Finance Tables
-
-```
-TB_LOAICA                — Work shift catalog + pay rate coefficient
-TB_LOAICONG              — Work day type catalog
-TB_BANGCONG              — Monthly attendance summary
-TB_BANGCONG_CHITIET      — Daily check-in/check-out detail
-TB_KYCONG                — Pay cycle (defines the payroll period)
-TB_KYCONGCHITIET         — Per-employee pay cycle detail
-TB_TANGCA                — Overtime records
-TB_PHUCAP                — Allowance type catalog
-TB_NHANVIEN_PHUCAP       — Per-employee allowance allocation
-TB_UNGLUONG              — Salary advance records
-TB_BANGLUONG             — Monthly payroll summary
-TB_BAOHIEM               — Social insurance information
-```
-
-#### System Tables
-
-```
-TB_SYS_USER              — User accounts (BCrypt-hashed passwords)
-TB_SYS_GROUP             — Permission groups and group membership relations
-TB_SYS_FUNCTION          — System function / menu item catalog
-TB_SYS_RIGHT             — Function-level permissions per user or group
-TB_SYS_REPORT            — Report catalog
-TB_SYS_RIGHT_REPORT      — Report-level permissions per user or group
-TB_CONFIG                — System configuration (Ollama URL, Qdrant URL, model name, ...)
-TB_SYS_LOG               — System activity log
-TB_SYS_LOGIN_HISTORY     — Login history (device, IP, timestamp)
-TB_THONGBAO              — Internal notifications (title, content, pinned, status, expiry)
-TB_LANGUAGES             — UI language catalog
-TB_TRANSLATIONS          — UI translation dictionary (key-value per language)
-```
-
-> **Important trigger:** [SYS_USER_triggers.sql](./DA/SYS_USER_triggers.sql) — Cascade delete when a user account is removed (automatically cleans up group membership, function rights, and report rights).
+👉 **For full database schema, see [docs/technical_reference.md](docs/technical_reference.md)**
 
 ---
 
