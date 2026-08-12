@@ -96,7 +96,7 @@ namespace Bu.CLASS_CHAMCONG
                     .ToDictionary(x => Convert.ToInt32(x.MANV));
 
                 // Ngày công chuẩn trong tháng (ví dụ: mặc định là 26 ngày công chuẩn)
-                double congChuan = 26.0;
+                decimal congChuan = 26.0m;
 
                 foreach (var kcct in lstKyCongChiTiet)
                 {
@@ -115,10 +115,10 @@ namespace Bu.CLASS_CHAMCONG
                         hd = hds.FirstOrDefault();
                     }
 
-                    double luongThoaThuan = 0;
+                    decimal luongThoaThuan = 0;
                     if (hd != null && hd.LUONG_THOA_THUAN != null)
                     {
-                        luongThoaThuan = (double)hd.LUONG_THOA_THUAN;
+                        luongThoaThuan = (decimal)hd.LUONG_THOA_THUAN;
                     }
 
                     // Nếu lương thỏa thuận trống, thử dùng Hệ số lương nhân với mức lương cơ sở
@@ -126,23 +126,23 @@ namespace Bu.CLASS_CHAMCONG
                     {
                         if (hd.HESOLUONG > 100)
                         {
-                            luongThoaThuan = (double)hd.HESOLUONG; // Nếu HESOLUONG lớn hơn 100, đó chính là mức lương thực tế được nhập vào
+                            luongThoaThuan = (decimal)hd.HESOLUONG; // Nếu HESOLUONG lớn hơn 100, đó chính là mức lương thực tế được nhập vào
                         }
                         else
                         {
-                            luongThoaThuan = (double)hd.HESOLUONG * 1800000; // ví dụ lương cơ sở 1.8M
+                            luongThoaThuan = (decimal)hd.HESOLUONG * 1800000m; // ví dụ lương cơ sở 1.8M
                         }
                     }
 
                     // 3. Phân bổ Lương cơ bản & Phụ cấp cố định theo đối tượng
-                    double luongCoBan = 0;
-                    double baseTrachNhiem = 0;
-                    double baseChuyenCan = 0;
-                    double baseNhaO = 0;
-                    double baseNgonNgu = 0;
-                    double baseThamNien = 0;
-                    double baseDiLai = 0;
-                    double baseKhac = 0;
+                    decimal luongCoBan = 0;
+                    decimal baseTrachNhiem = 0;
+                    decimal baseChuyenCan = 0;
+                    decimal baseNhaO = 0;
+                    decimal baseNgonNgu = 0;
+                    decimal baseThamNien = 0;
+                    decimal baseDiLai = 0;
+                    decimal baseKhac = 0;
 
                     // Tính thâm niên (mỗi năm tăng 200,000 đ)
                     if (hd != null && hd.NGAYBATDAU.HasValue)
@@ -150,32 +150,32 @@ namespace Bu.CLASS_CHAMCONG
                         int soNamLamViec = DateTime.Now.Year - hd.NGAYBATDAU.Value.Year;
                         if (soNamLamViec > 0)
                         {
-                            baseThamNien = soNamLamViec * 200000;
+                            baseThamNien = soNamLamViec * 200000m;
                         }
                     }
 
                     if (loaiNV == 1) // 💻 NHÂN VIÊN OFFICE
                     {
-                        luongCoBan = luongThoaThuan * 0.6;
-                        baseTrachNhiem = luongThoaThuan * 0.1;
-                        baseKhac = luongThoaThuan * 0.14;
-                        baseNhaO = luongThoaThuan * 0.1;
-                        baseChuyenCan = luongThoaThuan * 0.06;
+                        luongCoBan = luongThoaThuan * 0.6m;
+                        baseTrachNhiem = luongThoaThuan * 0.1m;
+                        baseKhac = luongThoaThuan * 0.14m;
+                        baseNhaO = luongThoaThuan * 0.1m;
+                        baseChuyenCan = luongThoaThuan * 0.06m;
                     }
                     else if (loaiNV == 2) // 🚚 LÁI XE (DRIVER)
                     {
-                        luongCoBan = luongThoaThuan * 0.7;
-                        baseTrachNhiem = luongThoaThuan * 0.1;
-                        baseKhac = luongThoaThuan * 0.07;
-                        baseNhaO = luongThoaThuan * 0.07;
-                        baseChuyenCan = luongThoaThuan * 0.06;
+                        luongCoBan = luongThoaThuan * 0.7m;
+                        baseTrachNhiem = luongThoaThuan * 0.1m;
+                        baseKhac = luongThoaThuan * 0.07m;
+                        baseNhaO = luongThoaThuan * 0.07m;
+                        baseChuyenCan = luongThoaThuan * 0.06m;
                     }
                     else // 🛠️ CÔNG NHÂN (WORKER)
                     {
-                        luongCoBan = luongThoaThuan > 0 ? luongThoaThuan : 4425000; 
-                        baseChuyenCan = 300000; 
-                        baseKhac = 325000;
-                        baseNhaO = 250000;
+                        luongCoBan = luongThoaThuan > 0 ? luongThoaThuan : 4425000m; 
+                        baseChuyenCan = 300000m; 
+                        baseKhac = 325000m;
+                        baseNhaO = 250000m;
                     }
 
                     // Đảm bảo và tự động khởi tạo/cập nhật phụ cấp mặc định trong CSDL
@@ -188,7 +188,7 @@ namespace Bu.CLASS_CHAMCONG
                     for (int i = 1; i <= 7; i++)
                     {
                         var pcItem = lstPc.FirstOrDefault(x => x.IDPC == i);
-                        double baseVal = 0;
+                        decimal baseVal = 0;
                         if (i == 1) baseVal = baseTrachNhiem;
                         else if (i == 2) baseVal = baseChuyenCan;
                         else if (i == 3) baseVal = baseNhaO;
@@ -204,7 +204,7 @@ namespace Bu.CLASS_CHAMCONG
                                 MANV = manv,
                                 IDPC = i,
                                 MAKYCONG = makycong,
-                                SOTIEN = (decimal)baseVal,
+                                SOTIEN = baseVal,
                                 GHICHU = "Tự động phát sinh khi tính lương"
                             };
                             db.TB_NHANVIEN_PHUCAP.Add(pcItem);
@@ -212,41 +212,41 @@ namespace Bu.CLASS_CHAMCONG
                         }
                         else if (pcItem.SOTIEN == null || pcItem.SOTIEN == 0)
                         {
-                            pcItem.SOTIEN = (decimal)baseVal;
+                            pcItem.SOTIEN = baseVal;
                         }
                     }
 
                     // Đọc giá trị phụ cấp từ CSDL sau khi khởi tạo/cập nhật
-                    double pcTrachNhiem = (double)(lstPc.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN ?? 0);
-                    double pcChuyenCan = (double)(lstPc.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN ?? 0);
-                    double pcNhaO = (double)(lstPc.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN ?? 0);
-                    double pcNgonNgu = (double)(lstPc.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN ?? 0);
-                    double pcThamNien = (double)(lstPc.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN ?? 0);
-                    double pcDiLai = (double)(lstPc.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN ?? 0);
-                    double pcKhac = (double)(lstPc.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN ?? 0);
+                    decimal pcTrachNhiem = lstPc.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN ?? 0;
+                    decimal pcChuyenCan = lstPc.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN ?? 0;
+                    decimal pcNhaO = lstPc.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN ?? 0;
+                    decimal pcNgonNgu = lstPc.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN ?? 0;
+                    decimal pcThamNien = lstPc.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN ?? 0;
+                    decimal pcDiLai = lstPc.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN ?? 0;
+                    decimal pcKhac = lstPc.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN ?? 0;
 
                     // 4. Lấy đơn giá lương ngày (Daily Rate) và phụ cấp ngày (Daily Allowance)
                     // Tiền lương tính BHXH = Lương cơ bản + Phụ cấp trách nhiệm + Ngôn ngữ + Thâm niên
-                    double luongTinhBHXH = luongCoBan + pcTrachNhiem + pcNgonNgu + pcThamNien;
+                    decimal luongTinhBHXH = luongCoBan + pcTrachNhiem + pcNgonNgu + pcThamNien;
                     if (loaiNV == 3) // Công nhân
                     {
                         luongTinhBHXH = luongCoBan;
                     }
-                    double dailyRate = luongTinhBHXH / congChuan;
+                    decimal dailyRate = luongTinhBHXH / congChuan;
                     
                     // Phụ cấp ngày gồm: Chuyên cần + nhà ở + đi lại + khác chia cho 26
-                    double dailyAllowance = (pcChuyenCan + pcNhaO + pcDiLai + pcKhac) / congChuan;
+                    decimal dailyAllowance = (pcChuyenCan + pcNhaO + pcDiLai + pcKhac) / congChuan;
 
                     // 5. Đọc ngày công thực tế từ Kỳ công chi tiết
-                    double congThucTe = kcct.TONGNGAYCONG != null ? (double)kcct.TONGNGAYCONG : 0;
-                    double congLamDem = 0; // Công nhân làm đêm (nếu có, tính từ chi tiết bảng chấm công)
+                    decimal congThucTe = kcct.TONGNGAYCONG != null ? (decimal)kcct.TONGNGAYCONG : 0;
+                    decimal congLamDem = 0; // Công nhân làm đêm (nếu có, tính từ chi tiết bảng chấm công)
 
                     // Lương công thực tế = công thực tế * Daily Rate (ca đêm phụ trội 130%)
-                    double luongCongThucTe = (congThucTe * dailyRate) + (congLamDem * dailyRate * 1.3);
-                    double phuCapCongThucTe = congThucTe * dailyAllowance;
+                    decimal luongCongThucTe = (congThucTe * dailyRate) + (congLamDem * dailyRate * 1.3m);
+                    decimal phuCapCongThucTe = congThucTe * dailyAllowance;
 
                     // 6. Tính tiền làm thêm giờ (Overtime)
-                    double tienTangCa = 0;
+                    decimal tienTangCa = 0;
                     List<TB_TANGCA> lstTangCa;
                     if (!lstAllTangCa.TryGetValue(manv, out lstTangCa))
                     {
@@ -254,53 +254,53 @@ namespace Bu.CLASS_CHAMCONG
                     }
                     
                     // Mức lương cơ sở tính OT
-                    double otRate = 0;
+                    decimal otRate = 0;
                     if (loaiNV == 3) // Công nhân: tính OT trên tất cả các khoản cộng lại
                     {
-                        otRate = (luongCoBan + pcTrachNhiem + pcNgonNgu + pcThamNien + pcChuyenCan + pcNhaO + pcDiLai + pcKhac) / (congChuan * 8.0);
+                        otRate = (luongCoBan + pcTrachNhiem + pcNgonNgu + pcThamNien + pcChuyenCan + pcNhaO + pcDiLai + pcKhac) / (congChuan * 8.0m);
                     }
                     else // Nhân viên/Lái xe: tính trên Lương cơ bản + Phụ cấp trách nhiệm + Ngôn ngữ + Thâm niên
                     {
-                        otRate = (luongCoBan + pcTrachNhiem + pcNgonNgu + pcThamNien) / (congChuan * 8.0);
+                        otRate = (luongCoBan + pcTrachNhiem + pcNgonNgu + pcThamNien) / (congChuan * 8.0m);
                     }
 
                     foreach (var tc in lstTangCa)
                     {
-                        double heSoLoaiCa = 1.5;
+                        decimal heSoLoaiCa = 1.5m;
                         if (tc.IDLOAICA != null)
                         {
                             int idLoaiCa = Convert.ToInt32(tc.IDLOAICA);
                             if (lstAllLoaiCa.TryGetValue(idLoaiCa, out var loaiCa) && loaiCa.HESOLOAICA != null)
                             {
-                                heSoLoaiCa = (double)loaiCa.HESOLOAICA;
+                                heSoLoaiCa = (decimal)loaiCa.HESOLOAICA;
                             }
                         }
 
-                        double soGio = tc.SOGIO != null ? (double)tc.SOGIO : 0;
+                        decimal soGio = tc.SOGIO != null ? (decimal)tc.SOGIO : 0;
                         tienTangCa += soGio * otRate * heSoLoaiCa;
                     }
 
                     // 7. Phụ cấp biến động khác (Không tính vì đã phân bổ trực tiếp vào 7 cột trên)
-                    double phuCapKhacBienDong = 0;
+                    decimal phuCapKhacBienDong = 0;
 
                     // 8. Chuyên cần tháng (chỉ nhận đủ nếu đi làm đủ công chuẩn)
-                    double tienChuyenCanNhan = 0;
+                    decimal tienChuyenCanNhan = 0;
                     if (congThucTe >= congChuan)
                     {
                         tienChuyenCanNhan = pcChuyenCan;
                     }
 
                     // 9. Tiền ăn ca đêm (ví dụ: 30,000đ/ngày nếu làm đêm)
-                    double tienAnCa = 0;
+                    decimal tienAnCa = 0;
 
                     // 10. Giảm trừ Bảo hiểm xã hội trích vào lương (10.5% mức lương đóng BHXH)
-                    double mucLuongDongBH = luongTinhBHXH;
+                    decimal mucLuongDongBH = luongTinhBHXH;
                     TB_BAOHIEM bh = null;
                     if (lstAllBaoHiem.TryGetValue(manv, out bh) && bh != null && bh.LUONG_BHXH != null && bh.LUONG_BHXH > 0)
                     {
-                        mucLuongDongBH = (double)bh.LUONG_BHXH;
+                        mucLuongDongBH = (decimal)bh.LUONG_BHXH;
                     }
-                    double tienBHXHTriCh = mucLuongDongBH * 0.105; // 8% BHXH + 1.5% BHYT + 1% BHTN
+                    decimal tienBHXHTriCh = mucLuongDongBH * 0.105m; // 8% BHXH + 1.5% BHYT + 1% BHTN
 
                     // 11. Các khoản tạm ứng lương từ TB_UNGLUONG
                     List<TB_UNGLUONG> lstUng;
@@ -308,76 +308,76 @@ namespace Bu.CLASS_CHAMCONG
                     {
                         lstUng = new List<TB_UNGLUONG>();
                     }
-                    double tienTamUng = 0;
+                    decimal tienTamUng = 0;
                     foreach (var ul in lstUng)
                     {
                         if (ul.SOTIENUNG != null)
                         {
-                            tienTamUng += (double)ul.SOTIENUNG;
+                            tienTamUng += (decimal)ul.SOTIENUNG;
                         }
                     }
 
                     // 11b. Tính Thuế Thu Nhập Cá Nhân (PIT / Thuế TNCN)
                     // Tổng thu nhập trước thuế = Lương công thực tế + Phụ cấp công thực tế + Tiền tăng ca + Chuyên cần + Ăn ca + Các khoản cộng khác
-                    double tongThuNhap = luongCongThucTe + phuCapCongThucTe + tienTangCa + tienChuyenCanNhan + tienAnCa + phuCapKhacBienDong;
+                    decimal tongThuNhap = luongCongThucTe + phuCapCongThucTe + tienTangCa + tienChuyenCanNhan + tienAnCa + phuCapKhacBienDong;
 
                     // Phần tăng ca được miễn thuế (Exempt OT Premium)
-                    double tangCaMienThue = 0;
+                    decimal tangCaMienThue = 0;
                     foreach (var tc in lstTangCa)
                     {
-                        double heSoLoaiCa = 1.5;
+                        decimal heSoLoaiCa = 1.5m;
                         if (tc.IDLOAICA != null)
                         {
                             int idLoaiCa = Convert.ToInt32(tc.IDLOAICA);
                             if (lstAllLoaiCa.TryGetValue(idLoaiCa, out var loaiCa) && loaiCa.HESOLOAICA != null)
                             {
-                                heSoLoaiCa = (double)loaiCa.HESOLOAICA;
+                                heSoLoaiCa = (decimal)loaiCa.HESOLOAICA;
                             }
                         }
 
-                        double soGio = tc.SOGIO != null ? (double)tc.SOGIO : 0;
-                        if (heSoLoaiCa > 1.0)
+                        decimal soGio = tc.SOGIO != null ? (decimal)tc.SOGIO : 0;
+                        if (heSoLoaiCa > 1.0m)
                         {
-                            tangCaMienThue += soGio * otRate * (heSoLoaiCa - 1.0);
+                            tangCaMienThue += soGio * otRate * (heSoLoaiCa - 1.0m);
                         }
                     }
 
                     // Phần ăn trưa miễn thuế (tối đa 730,000đ)
-                    double tienAnMienThue = Math.Min(tienAnCa, 730000);
+                    decimal tienAnMienThue = Math.Min(tienAnCa, 730000m);
 
                     // Lương chịu thuế (Taxable Income)
-                    double luongChiuThue = tongThuNhap - tangCaMienThue - tienAnMienThue;
+                    decimal luongChiuThue = tongThuNhap - tangCaMienThue - tienAnMienThue;
                     if (luongChiuThue < 0) luongChiuThue = 0;
 
                     // Thu nhập tính thuế (Deduction base)
-                    double giamTruBanThan = 11000000;
-                    double giamTruNguoiPhuThuoc = 0;
-                    double thuNhapTinhThue = luongChiuThue - giamTruBanThan - giamTruNguoiPhuThuoc - tienBHXHTriCh;
+                    decimal giamTruBanThan = 11000000m;
+                    decimal giamTruNguoiPhuThuoc = 0;
+                    decimal thuNhapTinhThue = luongChiuThue - giamTruBanThan - giamTruNguoiPhuThuoc - tienBHXHTriCh;
                     if (thuNhapTinhThue < 0) thuNhapTinhThue = 0;
 
                     // Tính thuế TNCN theo biểu lũy tiến từng phần
-                    double thueTNCN = 0;
+                    decimal thueTNCN = 0;
                     if (thuNhapTinhThue > 0)
                     {
-                        if (thuNhapTinhThue <= 5000000)
-                            thueTNCN = thuNhapTinhThue * 0.05;
-                        else if (thuNhapTinhThue <= 10000000)
-                            thueTNCN = thuNhapTinhThue * 0.1 - 250000;
-                        else if (thuNhapTinhThue <= 18000000)
-                            thueTNCN = thuNhapTinhThue * 0.15 - 750000;
-                        else if (thuNhapTinhThue <= 32000000)
-                            thueTNCN = thuNhapTinhThue * 0.2 - 1650000;
-                        else if (thuNhapTinhThue <= 52000000)
-                            thueTNCN = thuNhapTinhThue * 0.25 - 3250000;
-                        else if (thuNhapTinhThue <= 80000000)
-                            thueTNCN = thuNhapTinhThue * 0.3 - 5850000;
+                        if (thuNhapTinhThue <= 5000000m)
+                            thueTNCN = thuNhapTinhThue * 0.05m;
+                        else if (thuNhapTinhThue <= 10000000m)
+                            thueTNCN = thuNhapTinhThue * 0.1m - 250000m;
+                        else if (thuNhapTinhThue <= 18000000m)
+                            thueTNCN = thuNhapTinhThue * 0.15m - 750000m;
+                        else if (thuNhapTinhThue <= 32000000m)
+                            thueTNCN = thuNhapTinhThue * 0.2m - 1650000m;
+                        else if (thuNhapTinhThue <= 52000000m)
+                            thueTNCN = thuNhapTinhThue * 0.25m - 3250000m;
+                        else if (thuNhapTinhThue <= 80000000m)
+                            thueTNCN = thuNhapTinhThue * 0.3m - 5850000m;
                         else
-                            thueTNCN = thuNhapTinhThue * 0.35 - 9850000;
+                            thueTNCN = thuNhapTinhThue * 0.35m - 9850000m;
                     }
                     thueTNCN = Math.Round(thueTNCN, 0);
 
                     // 12. Tính toán THỰC LĨNH cuối cùng (trừ thêm cả Thuế TNCN)
-                    double thucLinh = tongThuNhap - tienBHXHTriCh - tienTamUng - thueTNCN;
+                    decimal thucLinh = tongThuNhap - tienBHXHTriCh - tienTamUng - thueTNCN;
 
                     // 13. Lưu hoặc cập nhật kết quả vào TB_BANGLUONG
                     TB_BANGLUONG bl = null;
@@ -392,21 +392,21 @@ namespace Bu.CLASS_CHAMCONG
                         bl.NAM = (short)nam;
                     }
 
-                    bl.CONG_CHUAN = (decimal)congChuan;
-                    bl.CONG_THUCTE = (decimal)congThucTe;
-                    bl.CONG_LAMDEM = (decimal)congLamDem;
-                    bl.DAILY_RATE = (decimal)dailyRate;
-                    bl.DAILY_ALLOWANCE = (decimal)dailyAllowance;
-                    bl.LUONG_CONG_THUCTE = (decimal)luongCongThucTe;
-                    bl.PHUCAP_CONG_THUCTE = (decimal)phuCapCongThucTe;
-                    bl.TIEN_TANGCA = (decimal)tienTangCa;
-                    bl.TIEN_CHUYENCAN = (decimal)tienChuyenCanNhan;
-                    bl.TIEN_AN_CA = (decimal)tienAnCa;
-                    bl.KHOAN_CONG_KHAC = (decimal)phuCapKhacBienDong;
-                    bl.TIEN_BHXH_TRICH = (decimal)tienBHXHTriCh;
-                    bl.TIEN_TAMUNG = (decimal)tienTamUng;
-                    bl.KHOAN_TRU_KHAC = (decimal)thueTNCN; // Lưu Thuế TNCN vào cột này
-                    bl.THUC_LINH = (decimal)thucLinh;
+                    bl.CONG_CHUAN = congChuan;
+                    bl.CONG_THUCTE = congThucTe;
+                    bl.CONG_LAMDEM = congLamDem;
+                    bl.DAILY_RATE = dailyRate;
+                    bl.DAILY_ALLOWANCE = dailyAllowance;
+                    bl.LUONG_CONG_THUCTE = luongCongThucTe;
+                    bl.PHUCAP_CONG_THUCTE = phuCapCongThucTe;
+                    bl.TIEN_TANGCA = tienTangCa;
+                    bl.TIEN_CHUYENCAN = tienChuyenCanNhan;
+                    bl.TIEN_AN_CA = tienAnCa;
+                    bl.KHOAN_CONG_KHAC = phuCapKhacBienDong;
+                    bl.TIEN_BHXH_TRICH = tienBHXHTriCh;
+                    bl.TIEN_TAMUNG = tienTamUng;
+                    bl.KHOAN_TRU_KHAC = thueTNCN; // Lưu Thuế TNCN vào cột này
+                    bl.THUC_LINH = thucLinh;
 
                     if (isNew)
                     {

@@ -57,7 +57,7 @@ namespace QLyNSu.FORM_BAOCAO
 
                         dataLuong = dataLuongRaw.Select(x => new DashboardLuongDTO {
                                              KyCong = x.KyCong.ToString(),
-                                             TongLuong = (double)x.TongLuong
+                                             TongLuong = (decimal)x.TongLuong
                                          })
                                          .OrderBy(x => x.KyCong)
                                          .ToList();
@@ -80,7 +80,7 @@ namespace QLyNSu.FORM_BAOCAO
 
                         dataLBP = dataLBPRaw.Select(x => new DashboardLuongBinhQuanDTO {
                                           PhongBan = x.PhongBan,
-                                          LuongBinhQuan = (double)x.LuongBinhQuan
+                                          LuongBinhQuan = (decimal)x.LuongBinhQuan
                                       }).ToList();
 
                         // 3. Query 3: Overtime trend (last 6 months)
@@ -106,7 +106,7 @@ namespace QLyNSu.FORM_BAOCAO
 
                         dataTC = dataTCRaw.Select(x => new DashboardTangCaDTO {
                                           KyCong = x.KyCong.ToString(),
-                                          TongGio = (double)x.TongGio
+                                          TongGio = (decimal)x.TongGio
                                       })
                                       .OrderBy(x => x.KyCong)
                                       .ToList();

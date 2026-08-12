@@ -15,7 +15,7 @@ namespace QLyNSu.Reports
             InitializeComponent();
         }
 
-        public void BindData(DA.TB_BANGLUONG bl, string hoten, string tenpb, double otHours, List<DA.TB_NHANVIEN_PHUCAP> phucaps)
+        public void BindData(DA.TB_BANGLUONG bl, string hoten, string tenpb, decimal otHours, List<DA.TB_NHANVIEN_PHUCAP> phucaps)
         {
             xrTableCell1.Text = "BẢNG LƯƠNG CHI TIẾT - THÁNG " + bl.THANG + " NĂM " + bl.NAM;
             xrTableCell3.Text = bl.MANV.ToString();
@@ -27,19 +27,19 @@ namespace QLyNSu.Reports
             xrTableCell11.Text = string.Format("{0:N0}", bl.CONG_CHUAN ?? 0);
             
             // Lương cơ bản
-            double dailyRate = (double)(bl.DAILY_RATE ?? 0);
-            double congChuan = (double)(bl.CONG_CHUAN ?? 0);
-            double luongCoBan = dailyRate * congChuan;
+            decimal dailyRate = bl.DAILY_RATE ?? 0;
+            decimal congChuan = bl.CONG_CHUAN ?? 0;
+            decimal luongCoBan = dailyRate * congChuan;
             xrTableCell14.Text = string.Format("{0:N0}", luongCoBan);
             
             // Phụ cấp chi tiết
-            double pcTrachNhiem = (double)(phucaps.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN ?? 0);
-            double pcChuyenCan = (double)(phucaps.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN ?? 0);
-            double pcNhaO = (double)(phucaps.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN ?? 0);
-            double pcNgonNgu = (double)(phucaps.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN ?? 0);
-            double pcThamNien = (double)(phucaps.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN ?? 0);
-            double pcDiLai = (double)(phucaps.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN ?? 0);
-            double pcKhac = (double)(phucaps.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN ?? 0);
+            decimal pcTrachNhiem = phucaps.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN ?? 0;
+            decimal pcChuyenCan = phucaps.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN ?? 0;
+            decimal pcNhaO = phucaps.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN ?? 0;
+            decimal pcNgonNgu = phucaps.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN ?? 0;
+            decimal pcThamNien = phucaps.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN ?? 0;
+            decimal pcDiLai = phucaps.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN ?? 0;
+            decimal pcKhac = phucaps.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN ?? 0;
             
             xrTableCell17.Text = string.Format("{0:N0}", pcTrachNhiem);
             xrTableCell20.Text = string.Format("{0:N0}", pcNgonNgu);
@@ -49,7 +49,7 @@ namespace QLyNSu.Reports
             xrTableCell32.Text = string.Format("{0:N0}", pcKhac);
             xrTableCell35.Text = string.Format("{0:N0}", pcDiLai);
             
-            double sumAllowances = pcTrachNhiem + pcChuyenCan + pcNhaO + pcNgonNgu + pcThamNien + pcDiLai + pcKhac;
+            decimal sumAllowances = pcTrachNhiem + pcChuyenCan + pcNhaO + pcNgonNgu + pcThamNien + pcDiLai + pcKhac;
             xrTableCell38.Text = string.Format("{0:N0}", luongCoBan + sumAllowances);
             
             // Chi tiết công
@@ -63,7 +63,7 @@ namespace QLyNSu.Reports
             xrTableCell68.Text = string.Format("{0:N0}", bl.TIEN_AN_CA ?? 0);
             xrTableCell71.Text = string.Format("{0:N0}", bl.KHOAN_CONG_KHAC ?? 0);
             
-            double tongNgayCongThucTe = (double)(bl.LUONG_CONG_THUCTE ?? 0) + (double)(bl.PHUCAP_CONG_THUCTE ?? 0) + (double)(bl.TIEN_CHUYENCAN ?? 0) + (double)(bl.TIEN_AN_CA ?? 0) + (double)(bl.KHOAN_CONG_KHAC ?? 0);
+            decimal tongNgayCongThucTe = (bl.LUONG_CONG_THUCTE ?? 0) + (bl.PHUCAP_CONG_THUCTE ?? 0) + (bl.TIEN_CHUYENCAN ?? 0) + (bl.TIEN_AN_CA ?? 0) + (bl.KHOAN_CONG_KHAC ?? 0);
             xrTableCell77.Text = string.Format("{0:N0}", tongNgayCongThucTe);
             
             // Tăng ca
@@ -71,20 +71,20 @@ namespace QLyNSu.Reports
             xrTableCell84.Text = string.Format("{0:N0}", bl.TIEN_TANGCA ?? 0);
             
             // Tổng thu nhập
-            double totalGross = tongNgayCongThucTe + (double)(bl.TIEN_TANGCA ?? 0);
+            decimal totalGross = tongNgayCongThucTe + (bl.TIEN_TANGCA ?? 0);
             xrTableCell167.Text = string.Format("{0:N0}", totalGross);
             
             // Các khoản trích trừ bảo hiểm
-            double insuranceBase = 0;
-            double bhxh = 0;
-            double bhyt = 0;
-            double bhtn = 0;
+            decimal insuranceBase = 0;
+            decimal bhxh = 0;
+            decimal bhyt = 0;
+            decimal bhtn = 0;
             if (bl.TIEN_BHXH_TRICH != null && bl.TIEN_BHXH_TRICH > 0)
             {
-                insuranceBase = (double)bl.TIEN_BHXH_TRICH / 0.105;
-                bhxh = insuranceBase * 0.08;
-                bhyt = insuranceBase * 0.015;
-                bhtn = insuranceBase * 0.01;
+                insuranceBase = bl.TIEN_BHXH_TRICH.Value / 0.105m;
+                bhxh = insuranceBase * 0.08m;
+                bhyt = insuranceBase * 0.015m;
+                bhtn = insuranceBase * 0.01m;
             }
             
             xrTableCell171.Text = string.Format("{0:N0}", insuranceBase);

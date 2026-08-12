@@ -166,11 +166,11 @@ namespace QLyNSu.FORM_BAOCAO
                 int thang = (int)makycong % 100;
 
                 // Query overtime hours
-                double otHours = 0;
+                decimal otHours = 0;
                 var lstTangCa = db.TB_TANGCA.Where(x => x.MANV == manv && x.THANG == thang && x.NAM == nam).ToList();
                 if (lstTangCa.Count > 0)
                 {
-                    otHours = (double)lstTangCa.Sum(x => x.SOGIO ?? 0);
+                    otHours = (decimal)lstTangCa.Sum(x => x.SOGIO ?? 0);
                 }
 
                 // Query allowances

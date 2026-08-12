@@ -63,7 +63,13 @@ namespace Bu.Services.AI_Services.Core
 
             Debug.WriteLine($">>> [OLLAMA] CHAT PROMPT:\n{fullPrompt}");
 
-            return await Send(fullPrompt, "Bạn là trợ lý nhân sự HRM chuyên nghiệp.", 0.4, 600, onTokenReceived);
+            double temp = 0.4;
+            int maxTokens = 1000;
+            var config = new Bu.CLASS_CHAMCONG.SYS_CONFIG();
+            double.TryParse(config.getValue("AiTemp", "0.4"), out temp);
+            int.TryParse(config.getValue("AiMaxTokens", "1000"), out maxTokens);
+
+            return await Send(fullPrompt, "Bạn là trợ lý nhân sự HRM chuyên nghiệp.", temp, maxTokens, onTokenReceived);
         }
 
         public async Task<float[]> GetEmbedding(string text, System.Threading.CancellationToken cancellationToken = default)
@@ -123,10 +129,10 @@ namespace Bu.Services.AI_Services.Core
                     {
                         temperature = temperature,
                         num_predict = maxTokens,
-                        num_ctx = 3072,        // Giới hạn Context Window (Khoảng 3K tokens) để tiết kiệm RAM và tăng tốc độ đọc Prompt
-                        top_k = 30,            // Giảm từ 40 -> 30 để thu hẹp không gian chọn từ, giúp AI phản xạ nhanh hơn
-                        top_p = 0.8,           // Giảm từ 0.9 -> 0.8 để câu trả lời đi thẳng vào vấn đề, bớt lan man
-                        repeat_penalty = 1.15  // Thêm chốt chặn phạt lặp từ (ngăn AI bị kẹt trong vòng lặp 'suy nghĩ' vô tận)
+                        num_ctx = int.TryParse(new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("AiCtx", "3072"), out int ctx) ? ctx : 3072,
+                        top_k = int.TryParse(new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("AiTopK", "30"), out int k) ? k : 30,
+                        top_p = double.TryParse(new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("AiTopP", "0.8"), out double p) ? p : 0.8,
+                        repeat_penalty = double.TryParse(new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("AiRepeat", "1.15"), out double rp) ? rp : 1.15
                     }
                 };
 

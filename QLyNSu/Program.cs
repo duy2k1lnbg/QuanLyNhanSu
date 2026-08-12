@@ -20,7 +20,6 @@ namespace QLyNSu
         [STAThread]
         static void Main(string[] args)
         {
-            System.IO.File.WriteAllText(@"d:\QL_NS\QuanLyNhanSu\seed_debug.txt", "Started with args: " + string.Join(", ", Environment.GetCommandLineArgs()));
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -89,7 +88,7 @@ namespace QLyNSu
             string[] cmdArgs = Environment.GetCommandLineArgs();
             if (cmdArgs.Contains("--seed"))
             {
-                System.IO.File.AppendAllText(@"d:\QL_NS\QuanLyNhanSu\seed_debug.txt", "\nEntered seed block");
+                System.IO.File.AppendAllText(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "seed_debug.txt"), "\nEntered seed block");
                 AllocConsole();
                 Console.WriteLine("========================================");
                 Console.WriteLine("    QDRANT SEEDER TOOL (AI_READONLY)   ");
@@ -143,16 +142,17 @@ namespace QLyNSu
                         Console.WriteLine("========================================");
                         Console.WriteLine($"SEEDING COMPLETE! Total vectors inserted: {count + insCount + alCount}");
                         Console.WriteLine("========================================");
-                        System.IO.File.WriteAllText(@"d:\QL_NS\QuanLyNhanSu\seed_results.txt", $"Employees: {employees.Count}, Insurances: {insurances.Count}, Allowances: {allowances.Count}, Total Inserted: {count + insCount + alCount}");
+                        System.IO.File.WriteAllText(System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "seed_results.txt"), $"Employees: {employees.Count}, Insurances: {insurances.Count}, Allowances: {allowances.Count}, Total Inserted: {count + insCount + alCount}");
                     }
                 }
                 catch (Exception ex)
                 {
-                    System.IO.File.WriteAllText(@"d:\QL_NS\QuanLyNhanSu\seed_error.log", $"ERROR: {ex.Message}\n");
+                    string logFile = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "seed_error.log");
+                    System.IO.File.WriteAllText(logFile, $"ERROR: {ex.Message}\n");
                     var inner = ex.InnerException;
                     while (inner != null)
                     {
-                        System.IO.File.AppendAllText(@"d:\QL_NS\QuanLyNhanSu\seed_error.log", $"INNER: {inner.Message}\n");
+                        System.IO.File.AppendAllText(logFile, $"INNER: {inner.Message}\n");
                         inner = inner.InnerException;
                     }
                 }

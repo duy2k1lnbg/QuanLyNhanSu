@@ -376,15 +376,15 @@ namespace QLyNSu.FORM_BAOCAO
                     dt.Columns.Add("MANV", typeof(int));
                     dt.Columns.Add("HOTEN", typeof(string));
                     dt.Columns.Add("NGAY", typeof(int));
-                    dt.Columns.Add("SOGIO", typeof(double));
+                    dt.Columns.Add("SOGIO", typeof(decimal));
                     dt.Columns.Add("TENLOAICA", typeof(string));
-                    dt.Columns.Add("HESOLOAICA", typeof(double));
-                    dt.Columns.Add("SOTIENTC", typeof(double));
+                    dt.Columns.Add("HESOLOAICA", typeof(decimal));
+                    dt.Columns.Add("SOTIENTC", typeof(decimal));
                     dt.Columns.Add("GHICHU", typeof(string));
 
                     foreach (var item in lstTC)
                     {
-                        dt.Rows.Add(item.MANV, item.HOTEN, item.NGAY ?? 0, (double)(item.SOGIO ?? 0), item.TENLOAICA, (double)(item.HESOLOAICA ?? 0), (double)(item.SOTIENTC ?? 0), item.GHICHU);
+                        dt.Rows.Add(item.MANV, item.HOTEN, item.NGAY ?? 0, (decimal)(item.SOGIO ?? 0), item.TENLOAICA, (decimal)(item.HESOLOAICA ?? 0), (decimal)(item.SOTIENTC ?? 0), item.GHICHU);
                     }
 
                     var rpt = new rptDSTangCa(dt, (int)makycong);
@@ -420,11 +420,11 @@ namespace QLyNSu.FORM_BAOCAO
                     int nam = (int)makycong / 100;
                     int thang = (int)makycong % 100;
 
-                    double otHours = 0;
+                    decimal otHours = 0;
                     var lstTangCa = db.TB_TANGCA.Where(x => x.MANV == manv && x.THANG == thang && x.NAM == nam).ToList();
                     if (lstTangCa.Count > 0)
                     {
-                        otHours = (double)lstTangCa.Sum(x => x.SOGIO ?? 0);
+                        otHours = (decimal)lstTangCa.Sum(x => x.SOGIO ?? 0);
                     }
 
                     var phucaps = db.TB_NHANVIEN_PHUCAP.Where(x => x.MANV == manv && x.MAKYCONG == makycong).ToList();
