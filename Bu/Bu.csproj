@@ -310,6 +310,7 @@
     <Compile Include="CLASS_NHANSU\TRINHDO.cs" />
 
     <Compile Include="Services\AI_Services\Core\AiRouterService.cs" />
+    <Compile Include="Services\AI_Services\Core\FastResponseService.cs" />
     <Compile Include="Services\AI_Services\Core\SqlGeneratorService.cs" />
     <Compile Include="Services\AI_Services\Core\QueryPreprocessor.cs" />
     <Compile Include="Services\AI_Services\ChatboxManager.cs" />

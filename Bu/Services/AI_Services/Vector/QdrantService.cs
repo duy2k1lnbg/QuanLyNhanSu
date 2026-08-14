@@ -17,7 +17,7 @@ namespace Bu.Services.AI_Services.Vector
         private readonly string _qdrantUrl;
         private const string COLLECTION_NAME = "hrms_vectors";
         private const float THRESHOLD = 0.6f; // Giảm threshold để dễ match hơn
-        private const int TOPK = 5;
+        private const int TOPK = 10;
 
         private bool _isInitialized = false;
         private bool _isOffline = false;

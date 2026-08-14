@@ -49,7 +49,30 @@ namespace Bu.Services.AI_Services
 
             try
             {
-
+                // [NEW] Kiểm tra phản hồi nhanh (Hardcode) trước tiên để giảm tải AI
+                var fastResponse = FastResponseService.GetFastResponse(question);
+                if (!string.IsNullOrEmpty(fastResponse))
+                {
+                    result.Answer = fastResponse;
+                    UpdateHistory(question, fastResponse);
+                    
+                    if (onTokenReceived != null)
+                    {
+                        // Giả lập AI đang suy nghĩ trong 1.5 giây (hiện chữ "đang suy nghĩ")
+                        await Task.Delay(1500);
+                        
+                        // Giả lập gõ từng từ (Streaming) để UI có hiệu ứng mượt mà giống như đang dùng Ollama
+                        var words = fastResponse.Split(' ');
+                        for (int i = 0; i < words.Length; i++)
+                        {
+                            onTokenReceived(words[i] + (i < words.Length - 1 ? " " : ""));
+                            await Task.Delay(50); // Độ trễ 50ms giữa mỗi từ
+                        }
+                        onTokenReceived(""); // Gửi token rỗng để kích hoạt chốt sổ trên UI
+                    }
+                    
+                    return result;
+                }
 
                 string currentHistory = _history.GetHistoryString();
                 string vectorContext = "";
@@ -63,8 +86,7 @@ namespace Bu.Services.AI_Services
 
                 if (likelyDbQuery)
                 {
-                    // [ĐÃ TẮT SQL]: Chế độ Thuần Vector Search. Bỏ comment đoạn này nếu muốn bật lại Hybrid RAG.
-                    /*
+                    // [ĐÃ BẬT SQL]: Chế độ Hybrid RAG.
                     // 2. Generate SQL
                     sql = await _sqlGenerator.GenerateRawSql(question);
                     result.SqlQuery = sql;
@@ -78,7 +100,6 @@ namespace Bu.Services.AI_Services
                             dataContext = FormatDataTableToTextContext(dt);
                         }
                     }
-                    */
                 }
 
                 // 3. Search vector DB for additional context
@@ -100,10 +121,11 @@ namespace Bu.Services.AI_Services
 
                 string combinedContext = "";
                 
-                // Fallback to vector context (Pure Vector Search)
-                if (!string.IsNullOrEmpty(vectorContext))
+                // Kết hợp cả Data Context (từ SQL) và Vector Context (từ Qdrant) để tạo Hybrid RAG
+                if (!string.IsNullOrEmpty(dataContext) || !string.IsNullOrEmpty(vectorContext))
                 {
-                    combinedContext = vectorContext;
+                    if (!string.IsNullOrEmpty(dataContext)) combinedContext += "Dữ liệu cấu trúc (SQL):\n" + dataContext + "\n";
+                    if (!string.IsNullOrEmpty(vectorContext)) combinedContext += vectorContext + "\n";
                 }
                 else
                 {
@@ -160,7 +182,28 @@ namespace Bu.Services.AI_Services
                 { "KYCONG", "Kỳ công" }
             };
 
-            int maxRows = Math.Min(dt.Rows.Count, 12);
+            // Xử lý đặc biệt cho các câu truy vấn thống kê (COUNT, SUM, MAX...) trả về đúng 1 ô dữ liệu
+            if (dt.Rows.Count == 1 && dt.Columns.Count == 1)
+            {
+                var col = dt.Columns[0];
+                var val = dt.Rows[0][col];
+                sb.AppendLine("[KẾT QUẢ TRUY VẤN CƠ SỞ DỮ LIỆU]");
+                
+                string displayVal = val.ToString();
+                if (val is decimal decVal && (col.ColumnName.Contains("SOTIEN") || col.ColumnName.Contains("LUONG")))
+                {
+                    displayVal = decVal.ToString("N0") + " VNĐ";
+                }
+                
+                sb.AppendLine($"- Giá trị ({col.ColumnName}): {displayVal}");
+                sb.AppendLine($"(Đây chính là kết quả thống kê tương ứng cho câu hỏi của người dùng)");
+                return sb.ToString();
+            }
+
+            int limit = 12;
+            if (dt.Columns.Count <= 3) limit = 50; // Tăng giới hạn cho các truy vấn thống kê (GROUP BY) như đếm số phòng ban
+
+            int maxRows = Math.Min(dt.Rows.Count, limit);
             for (int r = 0; r < maxRows; r++)
             {
                 sb.AppendLine($"--- Bản ghi #{r + 1} ---");
@@ -189,7 +232,8 @@ namespace Bu.Services.AI_Services
 
             if (dt.Rows.Count > maxRows)
             {
-                sb.AppendLine($"--- LƯỢC BỚT {dt.Rows.Count - maxRows} BẢN GHI ĐỂ TĂNG TỐC ĐỘ PHẢN HỒI ---");
+                int hiddenCount = dt.Rows.Count - maxRows;
+                sb.AppendLine($"\n[LƯU Ý QUAN TRỌNG DÀNH CHO AI]: Cơ sở dữ liệu thực tế tìm thấy {dt.Rows.Count} kết quả, nhưng để phản hồi nhanh, hệ thống chỉ cấp cho bạn {maxRows} bản ghi. BẠN BẮT BUỘC PHẢI thêm 1 dòng ở cuối cùng câu trả lời của bạn với nội dung chính xác như sau: \"(...Danh sách còn {hiddenCount} kết quả nữa bị ẩn để tăng tốc độ. Vui lòng thêm điều kiện tìm kiếm cụ thể hơn...)\"");
             }
 
             return sb.ToString();

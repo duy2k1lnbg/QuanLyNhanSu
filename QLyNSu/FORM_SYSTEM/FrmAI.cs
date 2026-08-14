@@ -43,8 +43,10 @@ namespace QLyNSu.FORM_SYSTEM
                     int totalEmp = db.TB_NHANVIEN.Count();
                     int totalDept = db.TB_PHONGBAN.Count();
                     int activeContracts = db.TB_HOPDONG.Count();
-                    decimal? avgSalaryCoeffVal = db.TB_HOPDONG.Average(h => h.HESOLUONG);
-                    double avgSalaryCoeff = avgSalaryCoeffVal.HasValue ? (double)avgSalaryCoeffVal.Value : 2.5;
+                    
+                    // Tính trung bình ở memory để tránh lỗi "Specified cast is not valid" do Oracle AVG() trả về float nhưng entity lại ánh xạ là decimal
+                    var heSoList = db.TB_HOPDONG.Where(h => h.HESOLUONG != null).Select(h => h.HESOLUONG).ToList();
+                    double avgSalaryCoeff = heSoList.Any() ? (double)heSoList.Average(h => h.Value) : 2.5;
 
                     lblKpiVal1.Text = totalEmp.ToString();
                     lblKpiVal2.Text = totalDept.ToString();

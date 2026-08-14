@@ -27,8 +27,8 @@ namespace QLyNSu.FORM_SYSTEM
             this.txtChatInput = new DevExpress.XtraEditors.TextEdit();
             this.btnChatSend = new DevExpress.XtraEditors.SimpleButton();
             this.pnlChatHeader = new DevExpress.XtraEditors.PanelControl();
-            this.btnClearChat = new DevExpress.XtraEditors.SimpleButton();
             this.btnOpenDashboard = new DevExpress.XtraEditors.SimpleButton();
+            this.btnClearChat = new DevExpress.XtraEditors.SimpleButton();
             this.lblChatTitle = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.pnlQuickActions)).BeginInit();
             this.pnlQuickActions.SuspendLayout();
@@ -45,10 +45,11 @@ namespace QLyNSu.FORM_SYSTEM
             this.flpChat.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
             this.flpChat.Dock = System.Windows.Forms.DockStyle.Fill;
             this.flpChat.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flpChat.Location = new System.Drawing.Point(0, 50);
+            this.flpChat.Location = new System.Drawing.Point(0, 62);
+            this.flpChat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.flpChat.Name = "flpChat";
-            this.flpChat.Padding = new System.Windows.Forms.Padding(10);
-            this.flpChat.Size = new System.Drawing.Size(600, 550);
+            this.flpChat.Padding = new System.Windows.Forms.Padding(12, 12, 12, 12);
+            this.flpChat.Size = new System.Drawing.Size(700, 677);
             this.flpChat.TabIndex = 1;
             this.flpChat.WrapContents = false;
             this.flpChat.SizeChanged += new System.EventHandler(this.flpChat_SizeChanged);
@@ -61,51 +62,56 @@ namespace QLyNSu.FORM_SYSTEM
             this.pnlQuickActions.Controls.Add(this.btnActionEmployee);
             this.pnlQuickActions.Controls.Add(this.btnActionDepartment);
             this.pnlQuickActions.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlQuickActions.Location = new System.Drawing.Point(0, 600);
+            this.pnlQuickActions.Location = new System.Drawing.Point(0, 739);
+            this.pnlQuickActions.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pnlQuickActions.Name = "pnlQuickActions";
-            this.pnlQuickActions.Size = new System.Drawing.Size(600, 40);
+            this.pnlQuickActions.Size = new System.Drawing.Size(700, 49);
             this.pnlQuickActions.TabIndex = 2;
             // 
             // btnActionBirthday
             // 
-            this.btnActionBirthday.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.25f);
+            this.btnActionBirthday.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.25F);
             this.btnActionBirthday.Appearance.Options.UseFont = true;
-            this.btnActionBirthday.Location = new System.Drawing.Point(12, 6);
+            this.btnActionBirthday.Location = new System.Drawing.Point(14, 7);
+            this.btnActionBirthday.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnActionBirthday.Name = "btnActionBirthday";
-            this.btnActionBirthday.Size = new System.Drawing.Size(100, 28);
+            this.btnActionBirthday.Size = new System.Drawing.Size(140, 34);
             this.btnActionBirthday.TabIndex = 0;
-            this.btnActionBirthday.Text = "🎂 Sinh nhật";
+            this.btnActionBirthday.Text = "📝 Hết hạn HĐ";
             this.btnActionBirthday.Click += new System.EventHandler(this.QuickAction_Click);
             // 
             // btnActionSalary
             // 
-            this.btnActionSalary.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.25f);
+            this.btnActionSalary.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.25F);
             this.btnActionSalary.Appearance.Options.UseFont = true;
-            this.btnActionSalary.Location = new System.Drawing.Point(118, 6);
+            this.btnActionSalary.Location = new System.Drawing.Point(162, 7);
+            this.btnActionSalary.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnActionSalary.Name = "btnActionSalary";
-            this.btnActionSalary.Size = new System.Drawing.Size(100, 28);
+            this.btnActionSalary.Size = new System.Drawing.Size(117, 34);
             this.btnActionSalary.TabIndex = 1;
             this.btnActionSalary.Text = "📈 Lên lương";
             this.btnActionSalary.Click += new System.EventHandler(this.QuickAction_Click);
             // 
             // btnActionEmployee
             // 
-            this.btnActionEmployee.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.25f);
+            this.btnActionEmployee.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.25F);
             this.btnActionEmployee.Appearance.Options.UseFont = true;
-            this.btnActionEmployee.Location = new System.Drawing.Point(224, 6);
+            this.btnActionEmployee.Location = new System.Drawing.Point(287, 8);
+            this.btnActionEmployee.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnActionEmployee.Name = "btnActionEmployee";
-            this.btnActionEmployee.Size = new System.Drawing.Size(100, 28);
+            this.btnActionEmployee.Size = new System.Drawing.Size(117, 34);
             this.btnActionEmployee.TabIndex = 2;
             this.btnActionEmployee.Text = "👥 Nhân viên";
             this.btnActionEmployee.Click += new System.EventHandler(this.QuickAction_Click);
             // 
             // btnActionDepartment
             // 
-            this.btnActionDepartment.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.25f);
+            this.btnActionDepartment.Appearance.Font = new System.Drawing.Font("Segoe UI", 9.25F);
             this.btnActionDepartment.Appearance.Options.UseFont = true;
-            this.btnActionDepartment.Location = new System.Drawing.Point(330, 6);
+            this.btnActionDepartment.Location = new System.Drawing.Point(412, 8);
+            this.btnActionDepartment.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnActionDepartment.Name = "btnActionDepartment";
-            this.btnActionDepartment.Size = new System.Drawing.Size(100, 28);
+            this.btnActionDepartment.Size = new System.Drawing.Size(117, 34);
             this.btnActionDepartment.TabIndex = 3;
             this.btnActionDepartment.Text = "🏢 Phòng ban";
             this.btnActionDepartment.Click += new System.EventHandler(this.QuickAction_Click);
@@ -115,20 +121,22 @@ namespace QLyNSu.FORM_SYSTEM
             this.pnlChatInput.Controls.Add(this.txtChatInput);
             this.pnlChatInput.Controls.Add(this.btnChatSend);
             this.pnlChatInput.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlChatInput.Location = new System.Drawing.Point(0, 640);
+            this.pnlChatInput.Location = new System.Drawing.Point(0, 788);
+            this.pnlChatInput.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pnlChatInput.Name = "pnlChatInput";
-            this.pnlChatInput.Size = new System.Drawing.Size(600, 60);
+            this.pnlChatInput.Size = new System.Drawing.Size(700, 74);
             this.pnlChatInput.TabIndex = 3;
             // 
             // txtChatInput
             // 
             this.txtChatInput.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtChatInput.Location = new System.Drawing.Point(12, 14);
+            this.txtChatInput.Location = new System.Drawing.Point(14, 17);
+            this.txtChatInput.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.txtChatInput.Name = "txtChatInput";
             this.txtChatInput.Properties.Appearance.Font = new System.Drawing.Font("Segoe UI", 11F);
             this.txtChatInput.Properties.Appearance.Options.UseFont = true;
-            this.txtChatInput.Size = new System.Drawing.Size(470, 26);
+            this.txtChatInput.Size = new System.Drawing.Size(548, 32);
             this.txtChatInput.TabIndex = 0;
             this.txtChatInput.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtChatInput_KeyDown);
             // 
@@ -137,9 +145,10 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnChatSend.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnChatSend.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.btnChatSend.Appearance.Options.UseFont = true;
-            this.btnChatSend.Location = new System.Drawing.Point(488, 12);
+            this.btnChatSend.Location = new System.Drawing.Point(569, 15);
+            this.btnChatSend.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnChatSend.Name = "btnChatSend";
-            this.btnChatSend.Size = new System.Drawing.Size(100, 30);
+            this.btnChatSend.Size = new System.Drawing.Size(117, 37);
             this.btnChatSend.TabIndex = 1;
             this.btnChatSend.Text = "Gửi";
             this.btnChatSend.Click += new System.EventHandler(this.btnChatSend_Click);
@@ -154,8 +163,9 @@ namespace QLyNSu.FORM_SYSTEM
             this.pnlChatHeader.Controls.Add(this.lblChatTitle);
             this.pnlChatHeader.Dock = System.Windows.Forms.DockStyle.Top;
             this.pnlChatHeader.Location = new System.Drawing.Point(0, 0);
+            this.pnlChatHeader.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pnlChatHeader.Name = "pnlChatHeader";
-            this.pnlChatHeader.Size = new System.Drawing.Size(600, 50);
+            this.pnlChatHeader.Size = new System.Drawing.Size(700, 62);
             this.pnlChatHeader.TabIndex = 0;
             // 
             // btnOpenDashboard
@@ -163,9 +173,10 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnOpenDashboard.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOpenDashboard.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnOpenDashboard.Appearance.Options.UseFont = true;
-            this.btnOpenDashboard.Location = new System.Drawing.Point(382, 11);
+            this.btnOpenDashboard.Location = new System.Drawing.Point(446, 14);
+            this.btnOpenDashboard.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnOpenDashboard.Name = "btnOpenDashboard";
-            this.btnOpenDashboard.Size = new System.Drawing.Size(100, 28);
+            this.btnOpenDashboard.Size = new System.Drawing.Size(117, 34);
             this.btnOpenDashboard.TabIndex = 2;
             this.btnOpenDashboard.Text = "Dashboard";
             this.btnOpenDashboard.Click += new System.EventHandler(this.btnOpenDashboard_Click);
@@ -175,9 +186,10 @@ namespace QLyNSu.FORM_SYSTEM
             this.btnClearChat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.btnClearChat.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
             this.btnClearChat.Appearance.Options.UseFont = true;
-            this.btnClearChat.Location = new System.Drawing.Point(488, 11);
+            this.btnClearChat.Location = new System.Drawing.Point(569, 14);
+            this.btnClearChat.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnClearChat.Name = "btnClearChat";
-            this.btnClearChat.Size = new System.Drawing.Size(100, 28);
+            this.btnClearChat.Size = new System.Drawing.Size(117, 34);
             this.btnClearChat.TabIndex = 1;
             this.btnClearChat.Text = "Xóa lịch sử";
             this.btnClearChat.Click += new System.EventHandler(this.btnClearChat_Click);
@@ -188,21 +200,23 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblChatTitle.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(30)))), ((int)(((byte)(41)))), ((int)(((byte)(59)))));
             this.lblChatTitle.Appearance.Options.UseFont = true;
             this.lblChatTitle.Appearance.Options.UseForeColor = true;
-            this.lblChatTitle.Location = new System.Drawing.Point(15, 14);
+            this.lblChatTitle.Location = new System.Drawing.Point(18, 17);
+            this.lblChatTitle.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.lblChatTitle.Name = "lblChatTitle";
-            this.lblChatTitle.Size = new System.Drawing.Size(113, 21);
+            this.lblChatTitle.Size = new System.Drawing.Size(142, 28);
             this.lblChatTitle.TabIndex = 0;
             this.lblChatTitle.Text = "AI HR COPILOT";
             // 
             // FrmAI_Chat
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(600, 700);
+            this.ClientSize = new System.Drawing.Size(700, 862);
             this.Controls.Add(this.flpChat);
             this.Controls.Add(this.pnlQuickActions);
             this.Controls.Add(this.pnlChatInput);
             this.Controls.Add(this.pnlChatHeader);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "FrmAI_Chat";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "AI HR Copilot Assistant";

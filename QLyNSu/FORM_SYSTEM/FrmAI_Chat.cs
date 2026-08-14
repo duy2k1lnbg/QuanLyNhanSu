@@ -93,8 +93,8 @@ namespace QLyNSu.FORM_SYSTEM
                     }
                 });
 
-                // Final UI update to ensure all buffered tokens are rendered
-                UpdateStreamingAiBubble(aiBubbleContainer, aiLabelMsg, accumMessage);
+                // Final UI update to ensure all buffered tokens or fast responses are rendered
+                UpdateStreamingAiBubble(aiBubbleContainer, aiLabelMsg, result.Answer);
             }
             catch (Exception ex)
             {
@@ -147,7 +147,7 @@ namespace QLyNSu.FORM_SYSTEM
                 switch (btn.Name)
                 {
                     case "btnActionBirthday":
-                        prompt = "Ai sinh nhật trong tháng này?";
+                        prompt = "Danh sách nhân viên sắp hết hạn hợp đồng?";
                         break;
                     case "btnActionSalary":
                         prompt = "Danh sách nhân viên chuẩn bị tăng lương?";
