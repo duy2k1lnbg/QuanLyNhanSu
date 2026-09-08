@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Cấu hình URL gọi tới backend HRMS_API (ASP.NET Web API 2)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'https://localhost:44376/api';
+// Cấu hình URL gọi tới backend qua Vite Proxy (hoặc fallback port 55463)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,

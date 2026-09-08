@@ -189,8 +189,14 @@ namespace Bu
             }
             catch (Exception ex)
             {
-                var innerExceptionMessage = ex.InnerException?.Message ?? string.Empty;
-                throw new Exception("Lỗi: " + ex.Message + " Inner Exception: " + innerExceptionMessage);
+                var sb = new StringBuilder();
+                var cur = ex;
+                while (cur != null)
+                {
+                    sb.Append(" --> " + cur.Message);
+                    cur = cur.InnerException;
+                }
+                throw new Exception("Lỗi: " + sb.ToString());
             }
         }
 
@@ -258,6 +264,52 @@ namespace Bu
         public List<TB_NHANVIEN> getSinhNhat()
         {
             return db.TB_NHANVIEN.Where(x => x.NGAYSINH.Value.Month == DateTime.Now.Month).ToList();
+        }
+
+        public int GetTongNhanVien()
+        {
+            return db.TB_NHANVIEN.Count(x => x.DATHOIVIEC != 1);
+        }
+
+        public List<DashboardPhongBanDTO> GetPhongBanStats()
+        {
+            var rawList = db.TB_NHANVIEN
+                            .Where(nv => (nv.DATHOIVIEC ?? 0) != 1)
+                            .Select(nv => new {
+                                TenPB = nv.TB_PHONGBAN.TENPB
+                            })
+                            .ToList();
+
+            return rawList
+                    .GroupBy(x => x.TenPB ?? "Chưa xếp")
+                    .Select(g => new DashboardPhongBanDTO
+                    {
+                        PhongBan = g.Key,
+                        SoLuong = g.Count()
+                    })
+                    .ToList();
+        }
+
+        public List<DashboardLuongDTO> GetLuongStats()
+        {
+            var luongRaw = db.TB_BANGLUONG
+                             .Select(bl => new { bl.MAKYCONG, bl.THUC_LINH })
+                             .ToList()
+                             .GroupBy(bl => bl.MAKYCONG)
+                             .Select(g => new
+                             {
+                                 KyCong = g.Key.ToString(),
+                                 TongLuong = (decimal)g.Sum(x => x.THUC_LINH ?? 0)
+                             })
+                             .OrderByDescending(x => x.KyCong)
+                             .Take(6)
+                             .ToList();
+
+            return luongRaw.Select(x => new DashboardLuongDTO
+            {
+                KyCong = x.KyCong.Length >= 6 ? "T" + x.KyCong.Substring(4, 2) + "/" + x.KyCong.Substring(0, 4) : x.KyCong,
+                TongLuong = x.TongLuong
+            }).OrderBy(x => x.KyCong).ToList();
         }
     }
 }

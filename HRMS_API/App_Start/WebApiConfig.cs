@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
@@ -10,6 +10,11 @@ namespace HRMS_API
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
+            config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+            config.MessageHandlers.Add(new CorsHandler());
+
+            // Tự động bỏ qua tham chiếu vòng Entity Framework khi serialize JSON
+            config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 
             // Web API routes
             config.MapHttpAttributeRoutes();
