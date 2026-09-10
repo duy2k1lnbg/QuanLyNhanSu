@@ -1,5 +1,6 @@
 using Bu.CLASS_SYSTEM;
 using DA;
+using HRMS_API.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Web.Http;
 
 namespace HRMS_API.Controllers
 {
+    [JwtAuthorize]
     [RoutePrefix("api/users")]
     public class UserController : ApiController
     {

@@ -187,6 +187,8 @@
     <Compile Include="Controllers\UserController.cs" />
     <Compile Include="Controllers\NangLuongDieuChuyenController.cs" />
     <Compile Include="Controllers\PhuCapUngLuongController.cs" />
+    <Compile Include="Filters\JwtAuthorizeAttribute.cs" />
+    <Compile Include="Services\JwtService.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

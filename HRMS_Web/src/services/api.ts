@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Cấu hình URL gọi tới backend qua Vite Proxy (hoặc fallback port 55463)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+// Cấu hình URL gọi tới backend: Tự động nhận diện đường dẫn API qua HTTPS của IIS sub-application (/api/api)
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -29,6 +29,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response && error.response.status === 401) {
       console.warn('Phiên đăng nhập đã hết hạn hoặc chưa xác thực.');
+      localStorage.removeItem('hrms_token');
+      localStorage.removeItem('hrms_user');
     }
     return Promise.reject(error);
   }

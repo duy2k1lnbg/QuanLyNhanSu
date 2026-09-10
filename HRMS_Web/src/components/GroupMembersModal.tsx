@@ -238,6 +238,7 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
         dataSource={members}
         rowKey="IdUser"
         loading={loading}
+        scroll={{ x: 'max-content' }}
         pagination={{ pageSize: 6 }}
         size="small"
         locale={{

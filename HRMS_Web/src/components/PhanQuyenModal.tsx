@@ -249,7 +249,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
           <span>
             {isGroup ? (
               <>
-                Phân quyền cho <b>Nhóm quyền</b> sẽ tự động áp dụng cho toàn bộ thành viên trong nhóm theo mô hình RBAC chuẩn của WinForms (<b>TB_SYS_RIGHT & TB_SYS_GROUP</b>).
+                Phân quyền cho <b>Nhóm quyền</b> sẽ tự động áp dụng cho toàn bộ thành viên trong nhóm theo mô hình phân quyền RBAC đa tầng.
               </>
             ) : (
               <>
@@ -322,6 +322,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
         dataSource={filteredData}
         rowKey="FuncCode"
         loading={loading}
+        scroll={{ x: 'max-content' }}
         pagination={{ pageSize: 8, showTotal: (total) => `Hiển thị ${total} chức năng` }}
         size="small"
       />

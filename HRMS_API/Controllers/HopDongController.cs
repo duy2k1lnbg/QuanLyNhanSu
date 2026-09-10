@@ -1,6 +1,7 @@
 using Bu;
 using Bu.DTO;
 using DA;
+using HRMS_API.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Web.Http;
 
 namespace HRMS_API.Controllers
 {
+    [JwtAuthorize]
     [RoutePrefix("api/hopdong")]
     public class HopDongController : ApiController
     {

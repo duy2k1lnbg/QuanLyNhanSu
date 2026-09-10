@@ -31,6 +31,7 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
+  MenuOutlined,
   DashboardOutlined,
   TeamOutlined,
   DollarOutlined,
@@ -107,25 +108,40 @@ export function App() {
   // Authentication State
   const [currentUser, setCurrentUser] = useState<CurrentUserDTO | null>(() => {
     const saved = localStorage.getItem('hrms_user');
-    if (saved) {
+    const token = localStorage.getItem('hrms_token');
+    if (saved && token) {
       try {
         const u = JSON.parse(saved);
-        if (!u) return null;
-        return {
-          IdUser: u.IdUser ?? u.id ?? 0,
-          Username: u.Username || u.username || '',
-          FullName: u.FullName || u.fullName || u.Username || u.username || '',
-          IsAdmin: Boolean(u.IsAdmin ?? u.isAdmin),
-          Rights: u.Rights || u.rights || [],
-        };
+        if (u && u.Username && !u.FullName?.includes('(Auto)')) {
+          return {
+            IdUser: u.IdUser ?? u.id ?? 0,
+            Username: u.Username || u.username || '',
+            FullName: u.FullName || u.fullName || u.Username,
+            IsAdmin: Boolean(u.IsAdmin ?? u.isAdmin),
+            Rights: u.Rights || u.rights || [],
+          };
+        }
       } catch {
-        return null;
+        // ignore
       }
     }
     return null;
   });
 
-  const [collapsed, setCollapsed] = useState(false);
+  const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [collapsed, setCollapsed] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 992);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (window.innerWidth < 992) {
+        setCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
   const [currentMenu, setCurrentMenu] = useState('dashboard');
   const [aiDrawerVisible, setAiDrawerVisible] = useState(false);
   const [chatInput, setChatInput] = useState('');
@@ -214,9 +230,9 @@ export function App() {
       id: '1',
       sender: 'assistant',
       content:
-        'Xin chào! Tôi là Trợ lý AI HRMS Copilot (kết nối trực tiếp cơ sở dữ liệu Oracle HR). Bạn cần tra cứu luật lao động, số liệu phòng ban hay chính sách nhân sự nào?',
+        'Xin chào! Tôi là Trợ lý AI HRMS Copilot. Bạn cần tra cứu luật lao động, thông tin phòng ban hay chính sách nhân sự nào?',
       timestamp: 'Vừa xong',
-      source: 'Oracle_Live_Assistant',
+      source: 'AI_Assistant',
     },
   ]);
 
@@ -254,27 +270,32 @@ export function App() {
         api.get<KyCongDTO[]>('/bangluong/kycong'),
       ]);
 
-      if (nvRes.data) {
+      if (Array.isArray(nvRes.data)) {
         setNhanVienList(nvRes.data);
         setTotalEmployees(nvRes.data.length);
         setIsBackendConnected(true);
+      } else {
+        setNhanVienList([]);
       }
 
       if (statsRes.data) {
         if (statsRes.data.tongNhanVien > 0) setTotalEmployees(statsRes.data.tongNhanVien);
         if (statsRes.data.tongQuyLuong > 0) setTotalSalary(statsRes.data.tongQuyLuong);
-        if (statsRes.data.phongBanStats) setPhongBanStats(statsRes.data.phongBanStats);
-        if (statsRes.data.luongStats) setLuongStats(statsRes.data.luongStats);
+        if (Array.isArray(statsRes.data.phongBanStats)) setPhongBanStats(statsRes.data.phongBanStats);
+        if (Array.isArray(statsRes.data.luongStats)) setLuongStats(statsRes.data.luongStats);
       }
 
       if (dmRes.data) setDanhMuc(dmRes.data);
 
-      if (kcRes.data && kcRes.data.length > 0) {
+      if (Array.isArray(kcRes.data) && kcRes.data.length > 0) {
         setKyCongList(kcRes.data);
         setSelectedKyCong(kcRes.data[0].MAKYCONG);
+      } else {
+        setKyCongList([]);
       }
     } catch {
       setIsBackendConnected(false);
+      setNhanVienList([]);
     } finally {
       setLoading(false);
     }
@@ -308,9 +329,12 @@ export function App() {
         api.get<LoaiCaDTO[]>('/chamcong/loaica'),
       ]);
 
-      if (ccRes.data && ccRes.data.items) setChamCongList(ccRes.data.items);
-      if (lcRes.data) setLoaiCaList(lcRes.data);
+      if (ccRes.data && Array.isArray(ccRes.data.items)) setChamCongList(ccRes.data.items);
+      else setChamCongList([]);
+      if (Array.isArray(lcRes.data)) setLoaiCaList(lcRes.data);
+      else setLoaiCaList([]);
     } catch {
+      setChamCongList([]);
       notification.error({ message: 'Lỗi', description: 'Không thể tải dữ liệu chấm công.' });
     } finally {
       setChamCongLoading(false);
@@ -322,8 +346,10 @@ export function App() {
     setHopDongLoading(true);
     try {
       const res = await api.get<HopDongDTO[]>('/hopdong');
-      if (res.data) setHopDongList(res.data);
+      if (Array.isArray(res.data)) setHopDongList(res.data);
+      else setHopDongList([]);
     } catch {
+      setHopDongList([]);
       notification.error({ message: 'Lỗi', description: 'Không thể tải danh sách hợp đồng.' });
     } finally {
       setHopDongLoading(false);
@@ -338,9 +364,13 @@ export function App() {
         api.get<KhenThuongDTO[]>('/khenthuong?loai=1'),
         api.get<KhenThuongDTO[]>('/khenthuong?loai=2'),
       ]);
-      if (ktRes.data) setKhenThuongList(ktRes.data);
-      if (klRes.data) setKyLuatList(klRes.data);
+      if (Array.isArray(ktRes.data)) setKhenThuongList(ktRes.data);
+      else setKhenThuongList([]);
+      if (Array.isArray(klRes.data)) setKyLuatList(klRes.data);
+      else setKyLuatList([]);
     } catch {
+      setKhenThuongList([]);
+      setKyLuatList([]);
       notification.error({ message: 'Lỗi', description: 'Không thể tải dữ liệu khen thưởng/kỷ luật.' });
     } finally {
       setKtLoading(false);
@@ -355,9 +385,13 @@ export function App() {
         api.get<NangLuongDTO[]>('/nangluong'),
         api.get<DieuChuyenDTO[]>('/dieuchuyen'),
       ]);
-      if (nlRes.data) setNangLuongList(nlRes.data);
-      if (dcRes.data) setDieuChuyenList(dcRes.data);
+      if (Array.isArray(nlRes.data)) setNangLuongList(nlRes.data);
+      else setNangLuongList([]);
+      if (Array.isArray(dcRes.data)) setDieuChuyenList(dcRes.data);
+      else setDieuChuyenList([]);
     } catch {
+      setNangLuongList([]);
+      setDieuChuyenList([]);
       notification.error({ message: 'Lỗi', description: 'Không thể tải dữ liệu nâng lương/điều chuyển.' });
     } finally {
       setNlDcLoading(false);
@@ -372,9 +406,13 @@ export function App() {
         api.get<UngLuongDTO[]>('/ungluong'),
         api.get<TangCaDTO[]>('/tangca'),
       ]);
-      if (ulRes.data) setUngLuongList(ulRes.data);
-      if (tcRes.data) setTangCaList(tcRes.data);
+      if (Array.isArray(ulRes.data)) setUngLuongList(ulRes.data);
+      else setUngLuongList([]);
+      if (Array.isArray(tcRes.data)) setTangCaList(tcRes.data);
+      else setTangCaList([]);
     } catch {
+      setUngLuongList([]);
+      setTangCaList([]);
       notification.error({ message: 'Lỗi', description: 'Không thể tải dữ liệu tăng ca/ứng lương.' });
     } finally {
       setTcUlLoading(false);
@@ -386,8 +424,10 @@ export function App() {
     setUserLoading(true);
     try {
       const res = await api.get<SysUserDTO[]>('/users');
-      if (res.data) setUserList(res.data);
+      if (Array.isArray(res.data)) setUserList(res.data);
+      else setUserList([]);
     } catch {
+      setUserList([]);
       notification.error({ message: 'Lỗi', description: 'Không thể tải danh sách tài khoản.' });
     } finally {
       setUserLoading(false);
@@ -787,7 +827,8 @@ export function App() {
   }
 
   // Lọc nhân viên
-  const filteredEmployees = nhanVienList.filter((nv) => {
+  const safeNhanVienList = Array.isArray(nhanVienList) ? nhanVienList : [];
+  const filteredEmployees = safeNhanVienList.filter((nv) => {
     if (!searchKeyword) return true;
     const kw = searchKeyword.toLowerCase();
     return (
@@ -1338,7 +1379,7 @@ export function App() {
       icon: <RobotOutlined style={{ color: '#52c41a' }} />,
       label: (
         <span>
-          AI Copilot <Tag color="purple" style={{ marginLeft: 4, fontSize: 10 }}>Oracle + Qwen</Tag>
+          AI Copilot <Tag color="purple" style={{ marginLeft: 4, fontSize: 10 }}>AI Trợ Lý</Tag>
         </span>
       ),
     },
@@ -1346,15 +1387,43 @@ export function App() {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
+      {/* MOBILE BACKDROP OVERLAY */}
+      {isMobile && !collapsed && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 99,
+          }}
+          onClick={() => setCollapsed(true)}
+        />
+      )}
+
       {/* SIDEBAR NAVIGATION */}
       <Sider
         collapsible
+        breakpoint="lg"
+        collapsedWidth={0}
+        onBreakpoint={(broken) => {
+          setIsMobile(broken);
+          if (broken) setCollapsed(true);
+        }}
         collapsed={collapsed}
         onCollapse={(val) => setCollapsed(val)}
         width={250}
         theme="dark"
         style={{
           boxShadow: '2px 0 8px 0 rgba(29,35,41,.05)',
+          zIndex: 100,
+          position: isMobile ? 'fixed' : 'relative',
+          height: isMobile ? '100vh' : 'auto',
+          left: 0,
+          top: 0,
+          bottom: 0,
         }}
       >
         <div
@@ -1380,6 +1449,9 @@ export function App() {
           selectedKeys={[currentMenu]}
           mode="inline"
           onClick={(e) => {
+            if (isMobile) {
+              setCollapsed(true);
+            }
             if (e.key === 'aichat') {
               setAiDrawerVisible(true);
             } else {
@@ -1394,7 +1466,7 @@ export function App() {
         {/* TOP HEADER */}
         <Header
           style={{
-            padding: '0 24px',
+            padding: isMobile ? '0 12px' : '0 24px',
             background: colorBgContainer,
             display: 'flex',
             alignItems: 'center',
@@ -1403,38 +1475,70 @@ export function App() {
             position: 'sticky',
             top: 0,
             zIndex: 10,
+            height: 64,
+            gap: 8,
           }}
         >
-          <Title level={4} style={{ margin: 0, color: '#1f1f1f', fontWeight: 600 }}>
-            {currentMenu === 'dashboard' && '📊 TỔNG QUAN HỆ THỐNG NHÂN SỰ'}
-            {currentMenu === 'nhanvien' && '👥 QUẢN LÝ HỒ SƠ NHÂN VIÊN'}
-            {currentMenu === 'chamcong' && '🕒 CHẤM CÔNG & QUẢN LÝ CA'}
-            {currentMenu === 'bangluong' && '💰 BẢNG LƯƠNG & QUỸ LƯƠNG'}
-            {currentMenu === 'hopdong' && '📜 HỢP ĐỒNG LAO ĐỘNG'}
-            {currentMenu === 'khenthuong' && '🏆 QUẢN LÝ KHEN THƯỞNG & KỶ LUẬT'}
-            {currentMenu === 'nangluong' && '📈 QUẢN LÝ NÂNG LƯƠNG & ĐIỀU CHUYỂN'}
-            {currentMenu === 'ungluong' && '💵 QUẢN LÝ TĂNG CA & TẠM ỨNG LƯƠNG'}
-            {currentMenu === 'phanquyen' && '🛡️ QUẢN TRỊ TÀI KHOẢN & PHÂN QUYỀN CHỨC NĂNG'}
-          </Title>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
+            {isMobile && (
+              <Button
+                type="text"
+                icon={<MenuOutlined style={{ fontSize: 18 }} />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ padding: 4 }}
+              />
+            )}
+            <Title
+              level={isMobile ? 5 : 4}
+              style={{
+                margin: 0,
+                color: '#1f1f1f',
+                fontWeight: 600,
+                fontSize: isMobile ? 14 : 16,
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {currentMenu === 'dashboard' && (isMobile ? '📊 Tổng quan' : '📊 TỔNG QUAN HỆ THỐNG NHÂN SỰ')}
+              {currentMenu === 'nhanvien' && (isMobile ? '👥 Quản lý NV' : '👥 QUẢN LÝ HỒ SƠ NHÂN VIÊN')}
+              {currentMenu === 'chamcong' && (isMobile ? '🕒 Chấm công' : '🕒 CHẤM CÔNG & QUẢN LÝ CA')}
+              {currentMenu === 'bangluong' && (isMobile ? '💰 Bảng lương' : '💰 BẢNG LƯƠNG & QUỸ LƯƠNG')}
+              {currentMenu === 'hopdong' && (isMobile ? '📜 Hợp đồng' : '📜 HỢP ĐỒNG LAO ĐỘNG')}
+              {currentMenu === 'khenthuong' && (isMobile ? '🏆 Khen thưởng' : '🏆 QUẢN LÝ KHEN THƯỞNG & KỶ LUẬT')}
+              {currentMenu === 'nangluong' && (isMobile ? '📈 Nâng lương' : '📈 QUẢN LÝ NÂNG LƯƠNG & ĐIỀU CHUYỂN')}
+              {currentMenu === 'ungluong' && (isMobile ? '💵 Tăng ca - Ứng lương' : '💵 QUẢN LÝ TĂNG CA & TẠM ỨNG LƯƠNG')}
+              {currentMenu === 'phanquyen' && (isMobile ? '🛡️ Phân quyền' : '🛡️ QUẢN TRỊ TÀI KHOẢN & PHÂN QUYỀN CHỨC NĂNG')}
+            </Title>
+          </div>
 
-          <Space size="middle">
-            <Tooltip title={isBackendConnected ? 'Backend HRMS_API đã kết nối Oracle DB' : 'Chế độ ngoại tuyến'}>
-              <Tag
-                icon={<CloudSyncOutlined />}
-                color={isBackendConnected ? 'success' : 'warning'}
-                style={{ cursor: 'pointer', padding: '4px 10px', borderRadius: 12 }}
-                onClick={fetchInitialData}
-              >
-                {isBackendConnected ? 'Oracle Live DB' : 'Chế độ Ngoại tuyến'}
-              </Tag>
-            </Tooltip>
+          <Space size={isMobile ? 6 : 'middle'} style={{ flexShrink: 0 }}>
+            {!isMobile && (
+              <Tooltip title={isBackendConnected ? 'Máy chủ hệ thống hoạt động bình thường' : 'Chế độ ngoại tuyến'}>
+                <Tag
+                  icon={<CloudSyncOutlined />}
+                  color={isBackendConnected ? 'success' : 'warning'}
+                  style={{ cursor: 'pointer', padding: '4px 10px', borderRadius: 12 }}
+                  onClick={fetchInitialData}
+                >
+                  {isBackendConnected ? 'Hệ Thống Trực Tuyến' : 'Chế độ Ngoại tuyến'}
+                </Tag>
+              </Tooltip>
+            )}
 
             <Tooltip title="Làm mới dữ liệu">
-              <Button shape="circle" icon={<ReloadOutlined spin={loading} />} onClick={fetchInitialData} />
+              <Button
+                shape="circle"
+                size={isMobile ? 'small' : 'middle'}
+                icon={<ReloadOutlined spin={loading} />}
+                onClick={fetchInitialData}
+              />
             </Tooltip>
 
             <Button
               type="primary"
+              shape={isMobile ? 'circle' : 'default'}
+              size={isMobile ? 'small' : 'middle'}
               icon={<RobotOutlined />}
               onClick={() => setAiDrawerVisible(true)}
               style={{
@@ -1442,14 +1546,16 @@ export function App() {
                 border: 'none',
               }}
             >
-              Hỏi AI Copilot
+              {!isMobile && 'Hỏi AI Copilot'}
             </Button>
 
-            <Tooltip title="Kỳ công hiện hành">
-              <Badge count={kyCongList.length} size="small">
-                <Button shape="circle" icon={<BellOutlined />} />
-              </Badge>
-            </Tooltip>
+            {!isMobile && (
+              <Tooltip title="Kỳ công hiện hành">
+                <Badge count={kyCongList.length} size="small">
+                  <Button shape="circle" icon={<BellOutlined />} />
+                </Badge>
+              </Tooltip>
+            )}
 
             {/* Dropdown User & Đăng xuất */}
             <Dropdown
@@ -1492,26 +1598,29 @@ export function App() {
                 ],
               }}
             >
-              <Space style={{ marginLeft: 8, cursor: 'pointer' }}>
+              <Space style={{ marginLeft: isMobile ? 2 : 8, cursor: 'pointer' }}>
                 <Avatar
+                  size={isMobile ? 'small' : 'default'}
                   style={{
                     backgroundColor: currentUser.IsAdmin ? '#ff4d4f' : '#1677ff',
                   }}
                   icon={<UserOutlined />}
                 />
-                <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-                  <Text strong style={{ fontSize: 13 }}>{currentUser.FullName}</Text>
-                  <Tag color={currentUser.IsAdmin ? 'red' : 'blue'} style={{ fontSize: 10, width: 'fit-content', padding: '0 4px', margin: 0 }}>
-                    {currentUser.IsAdmin ? 'SUPER ADMIN' : 'NHÂN VIÊN'}
-                  </Tag>
-                </div>
+                {!isMobile && (
+                  <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+                    <Text strong style={{ fontSize: 13 }}>{currentUser.FullName}</Text>
+                    <Tag color={currentUser.IsAdmin ? 'red' : 'blue'} style={{ fontSize: 10, width: 'fit-content', padding: '0 4px', margin: 0 }}>
+                      {currentUser.IsAdmin ? 'SUPER ADMIN' : 'NHÂN VIÊN'}
+                    </Tag>
+                  </div>
+                )}
               </Space>
             </Dropdown>
           </Space>
         </Header>
 
         {/* MAIN CONTENT AREA */}
-        <Content style={{ margin: '20px 24px', minHeight: 400 }}>
+        <Content style={{ margin: isMobile ? '12px 8px' : '20px 24px', minHeight: 400 }}>
           {/* TAB 1: DASHBOARD */}
           {currentMenu === 'dashboard' && (
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -1631,6 +1740,7 @@ export function App() {
                   pagination={false}
                   loading={loading}
                   size="middle"
+                  scroll={{ x: 'max-content' }}
                 />
               </Card>
             </Space>
@@ -1663,6 +1773,7 @@ export function App() {
                 dataSource={filteredEmployees}
                 rowKey="MANV"
                 loading={loading}
+                scroll={{ x: 'max-content' }}
                 pagination={{ pageSize: 8, showTotal: (total) => `Tổng số ${total} nhân viên` }}
               />
             </Card>
@@ -1715,9 +1826,10 @@ export function App() {
                     label: 'Danh mục Loại ca & Ca làm',
                     children: (
                       <Row gutter={[16, 16]}>
-                        <Col span={12}>
+                        <Col xs={24} md={12}>
                           <Card title="Danh sách Loại ca làm việc" size="small">
                             <Table
+                              scroll={{ x: 'max-content' }}
                               columns={[
                                 { title: 'Mã', dataIndex: 'IDLOAICA', key: 'IDLOAICA', width: 70 },
                                 { title: 'Tên ca làm', dataIndex: 'TENLOAICA', key: 'TENLOAICA' },
@@ -1734,7 +1846,7 @@ export function App() {
                             />
                           </Card>
                         </Col>
-                        <Col span={12}>
+                        <Col xs={24} md={12}>
                           <Card title="Ký hiệu quy ước chấm công" size="small">
                             <ul style={{ lineHeight: 2, paddingLeft: 20 }}>
                               <li><Tag color="blue">X</Tag>: Đi làm cả ngày (1.0 công)</li>
@@ -1787,7 +1899,7 @@ export function App() {
               style={{ borderRadius: borderRadiusLG }}
             >
               <Row gutter={[16, 16]}>
-                <Col span={8}>
+                <Col xs={24} sm={8}>
                   <Card size="small" style={{ background: '#f6ffed', borderColor: '#b7eb8f' }}>
                     <Statistic
                       title="Tổng thực lĩnh kỳ"
@@ -1797,7 +1909,7 @@ export function App() {
                     />
                   </Card>
                 </Col>
-                <Col span={8}>
+                <Col xs={24} sm={8}>
                   <Card size="small" style={{ background: '#e6f4ff', borderColor: '#91caff' }}>
                     <Statistic
                       title="Số lượng nhân viên"
@@ -1807,7 +1919,7 @@ export function App() {
                     />
                   </Card>
                 </Col>
-                <Col span={8}>
+                <Col xs={24} sm={8}>
                   <Card size="small" style={{ background: '#fff7e6', borderColor: '#ffd591' }}>
                     <Statistic
                       title="Lương bình quân"
@@ -1856,6 +1968,7 @@ export function App() {
                 dataSource={hopDongList}
                 rowKey="SOHD"
                 loading={hopDongLoading}
+                scroll={{ x: 'max-content' }}
                 pagination={{ pageSize: 8, showTotal: (total) => `Tổng cộng ${total} hợp đồng lao động` }}
               />
             </Card>
@@ -1893,6 +2006,7 @@ export function App() {
                     label: `Quyết định Khen thưởng (${khenThuongList.length})`,
                     children: (
                       <Table
+                        scroll={{ x: 'max-content' }}
                         columns={[
                           { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="green">{t}</Tag> },
                           { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
@@ -1923,6 +2037,7 @@ export function App() {
                     label: `Quyết định Kỷ luật (${kyLuatList.length})`,
                     children: (
                       <Table
+                        scroll={{ x: 'max-content' }}
                         columns={[
                           { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="red">{t}</Tag> },
                           { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
@@ -1994,6 +2109,7 @@ export function App() {
                     label: `Quyết định Nâng lương (${nangLuongList.length})`,
                     children: (
                       <Table
+                        scroll={{ x: 'max-content' }}
                         columns={[
                           { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="blue">{t}</Tag> },
                           { title: 'Số HĐ', dataIndex: 'SOHD', key: 'SOHD', render: (t) => <Tag color="purple">{t}</Tag> },
@@ -2023,6 +2139,7 @@ export function App() {
                     label: `Điều chuyển Phòng ban (${dieuChuyenList.length})`,
                     children: (
                       <Table
+                        scroll={{ x: 'max-content' }}
                         columns={[
                           { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="geekblue">{t}</Tag> },
                           { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
@@ -2086,6 +2203,7 @@ export function App() {
                     label: `Làm thêm giờ / Tăng ca (${tangCaList.length})`,
                     children: (
                       <Table
+                        scroll={{ x: 'max-content' }}
                         columns={[
                           { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70, render: (t) => <Tag color="blue">#{t}</Tag> },
                           { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
@@ -2115,6 +2233,7 @@ export function App() {
                     label: `Danh sách Tạm ứng Lương (${ungLuongList.length})`,
                     children: (
                       <Table
+                        scroll={{ x: 'max-content' }}
                         columns={[
                           { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70, render: (t) => <Tag color="blue">#{t}</Tag> },
                           { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
@@ -2153,44 +2272,46 @@ export function App() {
           )}
 
           {/* TAB 9: QUẢN TRỊ TÀI KHOẢN & PHÂN QUYỀN (CHUẨN WINFORMS RBAC) */}
-          {currentMenu === 'phanquyen' && (
+          {currentMenu === 'phanquyen' && (() => {
+            const safeUserList = Array.isArray(userList) ? userList : [];
+            return (
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               {/* METRICS CARDS */}
-              <Row gutter={16}>
-                <Col span={6}>
+              <Row gutter={[16, 16]}>
+                <Col xs={12} sm={6}>
                   <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
                     <Statistic
                       title="Tổng số người dùng"
-                      value={userList.filter((u) => !u.IsGroup).length}
+                      value={safeUserList.filter((u) => !u.IsGroup).length}
                       prefix={<UserOutlined style={{ color: '#1677ff' }} />}
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col xs={12} sm={6}>
                   <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
                     <Statistic
                       title="Đang hoạt động"
-                      value={userList.filter((u) => !u.IsGroup && !u.Disabled).length}
+                      value={safeUserList.filter((u) => !u.IsGroup && !u.Disabled).length}
                       valueStyle={{ color: '#52c41a' }}
                       prefix={<CheckCircleOutlined />}
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col xs={12} sm={6}>
                   <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
                     <Statistic
                       title="Tài khoản tạm khóa"
-                      value={userList.filter((u) => !u.IsGroup && u.Disabled).length}
+                      value={safeUserList.filter((u) => !u.IsGroup && u.Disabled).length}
                       valueStyle={{ color: '#ff4d4f' }}
                       prefix={<LockOutlined />}
                     />
                   </Card>
                 </Col>
-                <Col span={6}>
+                <Col xs={12} sm={6}>
                   <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
                     <Statistic
                       title="Nhóm quyền (Roles)"
-                      value={userList.filter((u) => u.IsGroup).length}
+                      value={safeUserList.filter((u) => u.IsGroup).length}
                       valueStyle={{ color: '#722ed1' }}
                       prefix={<TeamOutlined />}
                     />
@@ -2201,18 +2322,18 @@ export function App() {
               {/* MAIN CONTENT CARD */}
               <Card
                 title={
-                  <Space size="large">
-                    <span style={{ fontWeight: 600, fontSize: 16 }}>🛡️ Quản trị Tài khoản & Phân quyền Hệ thống</span>
+                  <Space size="middle" wrap>
+                    <span style={{ fontWeight: 600, fontSize: 16 }}>🛡️ Quản trị Tài khoản & Phân quyền</span>
                     <Segmented
                       value={userTab}
                       onChange={(val: any) => setUserTab(val as 'users' | 'groups')}
                       options={[
                         {
-                          label: `👥 Người dùng (${userList.filter((u) => !u.IsGroup).length})`,
+                          label: `👥 Người dùng (${safeUserList.filter((u) => !u.IsGroup).length})`,
                           value: 'users',
                         },
                         {
-                          label: `🏷️ Nhóm quyền (${userList.filter((u) => u.IsGroup).length})`,
+                          label: `🏷️ Nhóm quyền (${safeUserList.filter((u) => u.IsGroup).length})`,
                           value: 'groups',
                         },
                       ]}
@@ -2251,8 +2372,9 @@ export function App() {
               >
                 {userTab === 'users' ? (
                   <Table
+                    scroll={{ x: 'max-content' }}
                     columns={userColumns}
-                    dataSource={userList.filter(
+                    dataSource={safeUserList.filter(
                       (u) =>
                         !u.IsGroup &&
                         (u.Username.toLowerCase().includes(userSearchText.toLowerCase()) ||
@@ -2264,8 +2386,9 @@ export function App() {
                   />
                 ) : (
                   <Table
+                    scroll={{ x: 'max-content' }}
                     columns={groupColumns}
-                    dataSource={userList.filter(
+                    dataSource={safeUserList.filter(
                       (u) =>
                         Boolean(u.IsGroup) &&
                         (u.Username.toLowerCase().includes(userSearchText.toLowerCase()) ||
@@ -2278,7 +2401,8 @@ export function App() {
                 )}
               </Card>
             </Space>
-          )}
+            );
+          })()}
         </Content>
       </Layout>
 
@@ -2807,9 +2931,8 @@ export function App() {
               name="Password"
               label="Mật khẩu khởi tạo"
               rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
-              initialValue="123"
             >
-              <Input.Password placeholder="Mật khẩu bảo mật (mặc định: 123)..." />
+              <Input.Password placeholder="Nhập mật khẩu khởi tạo cho tài khoản..." />
             </Form.Item>
           )}
         </Form>
@@ -2883,13 +3006,13 @@ export function App() {
             <div>
               <Text strong>AI HRMS Copilot</Text>
               <div>
-                <Tag color="green" style={{ fontSize: 10 }}>Oracle + Qwen 2.5 RAG</Tag>
+                <Tag color="green" style={{ fontSize: 10 }}>Trợ Lý Thông Minh</Tag>
               </div>
             </div>
           </Space>
         }
         placement="right"
-        width={440}
+        width={isMobile ? '100%' : 440}
         onClose={() => setAiDrawerVisible(false)}
         open={aiDrawerVisible}
       >
@@ -2913,7 +3036,7 @@ export function App() {
                 {msg.source && (
                   <div style={{ marginTop: 4 }}>
                     <Tag color={msg.source === 'RAG_Ollama' ? 'purple' : 'blue'} style={{ fontSize: 10 }}>
-                      {msg.source === 'RAG_Ollama' ? '🤖 Qwen 2.5 RAG' : '⚡ Oracle DB Live'}
+                      {msg.source === 'RAG_Ollama' ? '🤖 Trợ Lý AI' : '⚡ Dữ Liệu Trực Tuyến'}
                     </Tag>
                   </div>
                 )}

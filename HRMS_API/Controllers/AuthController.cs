@@ -1,5 +1,7 @@
 using Bu.CLASS_SYSTEM;
 using DA;
+using HRMS_API.Filters;
+using HRMS_API.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -105,8 +107,8 @@ namespace HRMS_API.Controllers
 
                     rights = rights.Distinct().ToList();
 
-                    // Tạo Token phiên làm việc
-                    string token = GenerateToken(user.USERNAME);
+                    // Tạo Token phiên làm việc chuẩn JSON Web Token (HMAC-SHA256)
+                    string token = JwtService.GenerateToken((int)user.IDUSER, user.USERNAME, user.FULLNAME ?? user.USERNAME, isAdmin, rights);
                     var session = new SessionInfo
                     {
                         UserId = (int)user.IDUSER,
@@ -180,13 +182,40 @@ namespace HRMS_API.Controllers
             }
 
             string token = authHeader.Parameter;
-            SessionInfo session;
-            lock (_activeSessions)
+            int currentUserId = 0;
+            string currentUsername = "";
+            string currentFullName = "";
+            bool currentIsAdmin = false;
+            List<string> currentRights = new List<string>();
+
+            // 1. Thử xác thực giải mã chuẩn JWT
+            if (JwtService.ValidateToken(token, out var jwtClaims, out _))
             {
-                if (!_activeSessions.TryGetValue(token, out session))
+                int.TryParse(jwtClaims.UserId, out currentUserId);
+                currentUsername = jwtClaims.Username;
+                currentFullName = jwtClaims.FullName;
+                currentIsAdmin = jwtClaims.IsAdmin;
+                currentRights = jwtClaims.Rights ?? new List<string>();
+            }
+            else
+            {
+                // Fallback nếu dùng token cũ trong activeSessions
+                lock (_activeSessions)
                 {
-                    return Unauthorized();
+                    if (_activeSessions.TryGetValue(token, out var session))
+                    {
+                        currentUserId = session.UserId;
+                        currentUsername = session.Username;
+                        currentFullName = session.FullName;
+                        currentIsAdmin = session.IsAdmin;
+                        currentRights = session.Rights ?? new List<string>();
+                    }
                 }
+            }
+
+            if (currentUserId == 0)
+            {
+                return Unauthorized();
             }
 
             // Làm mới thông tin và quyền hạn trực tiếp từ CSDL Oracle
@@ -194,7 +223,7 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
-                    var user = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == session.UserId);
+                    var user = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == currentUserId);
                     if (user == null || (user.DISABLED ?? 0) == 1)
                     {
                         return Unauthorized();
@@ -227,23 +256,20 @@ namespace HRMS_API.Controllers
                     }
 
                     freshRights = freshRights.Distinct().ToList();
-                    session.Rights = freshRights;
-                    session.FullName = user.FULLNAME ?? user.USERNAME;
-
                     return Ok(new
                     {
                         user = new
                         {
-                            IdUser = session.UserId,
-                            id = session.UserId,
-                            Username = session.Username,
-                            username = session.Username,
-                            FullName = session.FullName,
-                            fullName = session.FullName,
-                            IsAdmin = session.IsAdmin,
-                            isAdmin = session.IsAdmin,
-                            Rights = session.Rights,
-                            rights = session.Rights
+                            IdUser = user.IDUSER,
+                            id = user.IDUSER,
+                            Username = user.USERNAME,
+                            username = user.USERNAME,
+                            FullName = user.FULLNAME ?? user.USERNAME,
+                            fullName = user.FULLNAME ?? user.USERNAME,
+                            IsAdmin = isAdmin,
+                            isAdmin = isAdmin,
+                            Rights = freshRights,
+                            rights = freshRights
                         }
                     });
                 }
@@ -255,16 +281,16 @@ namespace HRMS_API.Controllers
                 {
                     user = new
                     {
-                        IdUser = session.UserId,
-                        id = session.UserId,
-                        Username = session.Username,
-                        username = session.Username,
-                        FullName = session.FullName,
-                        fullName = session.FullName,
-                        IsAdmin = session.IsAdmin,
-                        isAdmin = session.IsAdmin,
-                        Rights = session.Rights,
-                        rights = session.Rights
+                        IdUser = currentUserId,
+                        id = currentUserId,
+                        Username = currentUsername,
+                        username = currentUsername,
+                        FullName = currentFullName,
+                        fullName = currentFullName,
+                        IsAdmin = currentIsAdmin,
+                        isAdmin = currentIsAdmin,
+                        Rights = currentRights,
+                        rights = currentRights
                     }
                 });
             }
@@ -290,20 +316,33 @@ namespace HRMS_API.Controllers
             }
 
             string token = authHeader.Parameter;
-            SessionInfo session;
-            lock (_activeSessions)
+            int currentUserId = 0;
+
+            if (JwtService.ValidateToken(token, out var jwtClaims, out _))
             {
-                if (!_activeSessions.TryGetValue(token, out session))
+                int.TryParse(jwtClaims.UserId, out currentUserId);
+            }
+            else
+            {
+                lock (_activeSessions)
                 {
-                    return Unauthorized();
+                    if (_activeSessions.TryGetValue(token, out var session))
+                    {
+                        currentUserId = session.UserId;
+                    }
                 }
+            }
+
+            if (currentUserId == 0)
+            {
+                return Unauthorized();
             }
 
             try
             {
                 using (var db = new MyEntities())
                 {
-                    var user = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == session.UserId);
+                    var user = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == currentUserId);
                     if (user == null) return NotFound();
 
                     if (!PasswordHasher.VerifyPassword(req.OldPassword, user.PASSWORD))

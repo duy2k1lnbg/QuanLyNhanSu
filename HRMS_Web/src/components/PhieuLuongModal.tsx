@@ -72,22 +72,22 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
         {/* Thông tin nhân viên */}
         <Card size="small" style={{ marginBottom: 16, background: '#f8fafc', borderRadius: 8 }}>
           <Row gutter={[16, 8]}>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Space>
                 <UserOutlined style={{ color: '#64748b' }} />
                 <Text type="secondary">Mã nhân viên:</Text>
                 <Tag color="geekblue">#{record.MANV}</Tag>
               </Space>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Text type="secondary">Họ và tên: </Text>
               <Text strong style={{ fontSize: 15 }}>{record.HOTEN}</Text>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Text type="secondary">Số ngày công chuẩn: </Text>
               <Text strong>{record.CONG_CHUAN ?? 26} ngày</Text>
             </Col>
-            <Col span={12}>
+            <Col xs={24} sm={12}>
               <Text type="secondary">Số ngày công thực tế: </Text>
               <Tag color="cyan" style={{ fontWeight: 600 }}>
                 {record.CONG_THUCTE ?? 0} ngày
@@ -97,9 +97,9 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
         </Card>
 
         {/* Chi tiết 2 cột thu nhập và khấu trừ */}
-        <Row gutter={16}>
+        <Row gutter={[16, 16]}>
           {/* CỘT THU NHẬP */}
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Card
               size="small"
               title={<span style={{ color: '#1677ff', fontWeight: 600 }}>1. CÁC KHOẢN THU NHẬP (+)</span>}
@@ -142,7 +142,7 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
           </Col>
 
           {/* CỘT KHẤU TRỪ */}
-          <Col span={12}>
+          <Col xs={24} md={12}>
             <Card
               size="small"
               title={<span style={{ color: '#ff4d4f', fontWeight: 600 }}>2. CÁC KHOẢN KHẤU TRỪ (-)</span>}
