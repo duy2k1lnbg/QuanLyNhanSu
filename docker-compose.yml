@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+  # ------------------------------------------------------------------
+  # Oracle Database 23ai Free
+  # ------------------------------------------------------------------
+  oracle-db:
+    image: gvenzl/oracle-free:23-slim
+    container_name: hrms_oracle_db
+    restart: unless-stopped
+    ports:
+      - "${HRMS_DB_PORT:-1521}:1521"
+    environment:
+      ORACLE_PASSWORD: "${HRMS_DB_PASSWORD:-HR_Secure_Password_2026!}"
+      APP_USER: "${HRMS_DB_USER:-HR}"
+      APP_USER_PASSWORD: "${HRMS_DB_PASSWORD:-HR_Secure_Password_2026!}"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+      - ./database/migrations:/container-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "healthcheck.sh"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+
+  # ------------------------------------------------------------------
+  # Qdrant Vector Database
+  # ------------------------------------------------------------------
+  qdrant:
+    image: qdrant/qdrant:v1.12.1
+    container_name: hrms_qdrant
+    restart: unless-stopped
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+
+  # ------------------------------------------------------------------
+  # Ollama Local LLM Server (Qwen 2.5)
+  # ------------------------------------------------------------------
+  ollama:
+    image: ollama/ollama:latest
+    container_name: hrms_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_models:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: "24h"
+      OLLAMA_NUM_PARALLEL: 2
+
+  # ------------------------------------------------------------------
+  # HRMS React Web Client (Production Nginx Build)
+  # ------------------------------------------------------------------
+  hrms-web:
+    build:
+      context: ./HRMS_Web
+      dockerfile: Dockerfile
+    container_name: hrms_web_spa
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - oracle-db
+      - qdrant
+      - ollama
+
+volumes:
+  oracle_data:
+    driver: local
+  qdrant_data:
+    driver: local
+  ollama_models:
+    driver: local

@@ -1,11 +1,13 @@
 using Bu;
 using Bu.DTO;
+using HRMS_API.Filters;
 using System;
 using System.Collections.Generic;
 using System.Web.Http;
 
 namespace HRMS_API.Controllers
 {
+    [JwtAuthorize]
     [RoutePrefix("api/danhmuc")]
     public class DanhMucController : ApiController
     {
@@ -32,7 +34,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục phòng ban: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục phòng ban: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục phòng ban." });
             }
         }
 
@@ -51,7 +54,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục chức vụ: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục chức vụ: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục chức vụ." });
             }
         }
 
@@ -70,7 +74,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục bộ phận: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục bộ phận: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục bộ phận." });
             }
         }
 
@@ -89,7 +94,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục trình độ: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục trình độ: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục trình độ." });
             }
         }
 
@@ -108,7 +114,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục dân tộc: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục dân tộc: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục dân tộc." });
             }
         }
 
@@ -127,7 +134,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục tôn giáo: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục tôn giáo: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục tôn giáo." });
             }
         }
 
@@ -146,7 +154,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục quốc tịch: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục quốc tịch: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục quốc tịch." });
             }
         }
 
@@ -181,7 +190,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tổng hợp danh mục hệ thống: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tổng hợp danh mục hệ thống: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tổng hợp danh mục hệ thống." });
             }
         }
     }

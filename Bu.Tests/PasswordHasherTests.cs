@@ -58,16 +58,16 @@ namespace Bu.Tests
         }
 
         [Test]
-        public void VerifyPassword_ShouldReturnTrue_WhenMatchingLegacyPlainText()
+        public void VerifyPassword_ShouldReturnFalse_WhenMatchingLegacyPlainText_WithoutHash()
         {
             // Arrange
             string plainText = "LegacyPassword";
 
-            // Act
+            // Act: Sau migration bảo mật, plaintext password không có tiền tố BCrypt ($2a$, $2b$, $2y$) phải bị từ chối
             bool result = PasswordHasher.VerifyPassword(plainText, plainText);
 
             // Assert
-            Assert.IsTrue(result, "Phải hỗ trợ đối khớp trực tiếp với mật khẩu thô cũ.");
+            Assert.IsFalse(result, "Hệ thống bảo mật nghiêm ngặt bắt buộc từ chối plaintext password không phải hash BCrypt.");
         }
 
         [Test]
@@ -75,13 +75,14 @@ namespace Bu.Tests
         {
             // Arrange
             string plainText = "Password";
-            string paddedText = "Password      "; // Simulation of Oracle fixed CHAR(20) type padding
+            string hash = PasswordHasher.HashPassword(plainText);
+            string paddedText = "Password      "; // Simulation of Oracle fixed CHAR type padding
 
             // Act
-            bool result = PasswordHasher.VerifyPassword(paddedText, plainText);
+            bool result = PasswordHasher.VerifyPassword(paddedText, hash);
 
             // Assert
-            Assert.IsTrue(result, "Phải tự động trim khoảng trắng thừa ở đuôi mật khẩu.");
+            Assert.IsTrue(result, "Phải tự động trim khoảng trắng thừa ở đuôi mật khẩu khi so khớp với hash BCrypt.");
         }
 
         [Test]

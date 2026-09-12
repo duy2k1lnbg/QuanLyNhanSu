@@ -312,6 +312,7 @@
     <Compile Include="Services\AI_Services\Core\AiRouterService.cs" />
     <Compile Include="Services\AI_Services\Core\FastResponseService.cs" />
     <Compile Include="Services\AI_Services\Core\SqlGeneratorService.cs" />
+    <Compile Include="Services\AI_Services\Core\OracleSqlAstValidator.cs" />
     <Compile Include="Services\AI_Services\Core\QueryPreprocessor.cs" />
     <Compile Include="Services\AI_Services\ChatboxManager.cs" />
     <Compile Include="Services\AI_Services\Core\HybridRagService.cs" />
@@ -320,10 +321,17 @@
     <Compile Include="Services\AI_Services\Memory\AiChatHistory.cs" />
 
     <Compile Include="Services\AI_Services\Vector\QdrantService.cs" />
+    <Compile Include="Services\AI_Services\Vector\QdrantOutboxManager.cs" />
     <Compile Include="Services\AI_Services\Interfaces\ILlmService.cs" />
     <Compile Include="Services\AI_Services\Interfaces\IVectorService.cs" />
     <Compile Include="Services\AI_Services\Interfaces\ISqlGenerator.cs" />
     <Compile Include="Services\AI_Services\Interfaces\IPromptManager.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\ISafeSqlExecutor.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\IRagContextRetriever.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\IRagSynthesizer.cs" />
+    <Compile Include="Services\AI_Services\Core\SafeSqlExecutor.cs" />
+    <Compile Include="Services\AI_Services\Core\RagContextRetriever.cs" />
+    <Compile Include="Services\AI_Services\Core\RagSynthesizer.cs" />
     <Compile Include="Services\AI_Services\Core\JsonPromptManager.cs" />
     <Compile Include="Services\AI_Services\AiServiceLocator.cs" />
     <Compile Include="Services\AI_Services\Vector\AiDataSyncHub.cs" />

@@ -15,12 +15,75 @@ namespace HRMS_API.Controllers
     {
         private readonly SYS_USER _userBus = new SYS_USER();
 
-        // Lưu trữ token phiên làm việc trong memory
+        private class LoginAttemptTracker
+        {
+            public int FailCount { get; set; }
+            public DateTime LastAttempt { get; set; }
+            public DateTime? LockoutUntil { get; set; }
+        }
+
         private static readonly Dictionary<string, SessionInfo> _activeSessions = new Dictionary<string, SessionInfo>();
+        private static readonly Dictionary<string, LoginAttemptTracker> _rateLimits = new Dictionary<string, LoginAttemptTracker>();
+        private static readonly object _rateLimitLock = new object();
+        private const int MAX_FAILED_ATTEMPTS = 5;
+        private static readonly TimeSpan LOCKOUT_PERIOD = TimeSpan.FromMinutes(15);
+
+        private string GetClientIpAddress()
+        {
+            try
+            {
+                if (Request.Properties.ContainsKey("MS_HttpContext"))
+                {
+                    var ctx = Request.Properties["MS_HttpContext"] as System.Web.HttpContextWrapper;
+                    if (ctx != null)
+                    {
+                        string ip = ctx.Request.Headers["X-Forwarded-For"];
+                        if (!string.IsNullOrEmpty(ip))
+                        {
+                            return ip.Split(',')[0].Trim();
+                        }
+                        return ctx.Request.UserHostAddress;
+                    }
+                }
+            }
+            catch { }
+            return "127.0.0.1";
+        }
+
+        private void RecordFailedLogin(string rateKey)
+        {
+            lock (_rateLimitLock)
+            {
+                if (!_rateLimits.TryGetValue(rateKey, out var attempt))
+                {
+                    attempt = new LoginAttemptTracker { FailCount = 0, LastAttempt = DateTime.Now };
+                    _rateLimits[rateKey] = attempt;
+                }
+
+                attempt.FailCount++;
+                attempt.LastAttempt = DateTime.Now;
+
+                if (attempt.FailCount >= MAX_FAILED_ATTEMPTS)
+                {
+                    attempt.LockoutUntil = DateTime.Now.Add(LOCKOUT_PERIOD);
+                }
+            }
+        }
+
+        private void ResetFailedLogin(string rateKey)
+        {
+            lock (_rateLimitLock)
+            {
+                if (_rateLimits.ContainsKey(rateKey))
+                {
+                    _rateLimits.Remove(rateKey);
+                }
+            }
+        }
 
         /// <summary>
         /// POST: api/auth/login
-        /// Xác thực đăng nhập bằng tài khoản và mật khẩu từ Oracle Database
+        /// Xác thực đăng nhập an toàn bằng BCrypt từ Oracle Database
         /// </summary>
         [HttpPost]
         [Route("login")]
@@ -29,6 +92,30 @@ namespace HRMS_API.Controllers
             if (req == null || string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password))
             {
                 return BadRequest("Vui lòng nhập tên đăng nhập và mật khẩu.");
+            }
+
+            string clientIp = GetClientIpAddress();
+            string rateKey = $"{clientIp}_{req.Username.Trim().ToLower()}";
+
+            // Kiểm tra Rate Limiting
+            lock (_rateLimitLock)
+            {
+                if (_rateLimits.TryGetValue(rateKey, out var attempt))
+                {
+                    if (attempt.LockoutUntil.HasValue && attempt.LockoutUntil.Value > DateTime.Now)
+                    {
+                        var remaining = (int)Math.Ceiling((attempt.LockoutUntil.Value - DateTime.Now).TotalMinutes);
+                        return Content(System.Net.HttpStatusCode.BadRequest, new
+                        {
+                            success = false,
+                            message = $"Tài khoản hoặc thiết bị này tạm thời bị khóa do nhập sai quá {MAX_FAILED_ATTEMPTS} lần. Vui lòng thử lại sau {remaining} phút."
+                        });
+                    }
+                    if (attempt.LockoutUntil.HasValue && attempt.LockoutUntil.Value <= DateTime.Now)
+                    {
+                        _rateLimits.Remove(rateKey);
+                    }
+                }
             }
 
             try
@@ -45,9 +132,11 @@ namespace HRMS_API.Controllers
                         user = db.TB_SYS_USER.FirstOrDefault(x => x.USERNAME.Trim().ToLower() == uName);
                     }
 
+                    // Chống Username Enumeration: Không phân biệt tài khoản không tồn tại hay sai mật khẩu
                     if (user == null)
                     {
-                        return BadRequest($"Tên tài khoản '{req.Username}' không tồn tại trong hệ thống.");
+                        RecordFailedLogin(rateKey);
+                        return BadRequest("Tên đăng nhập hoặc mật khẩu không chính xác.");
                     }
 
                     if ((user.DISABLED ?? 0) == 1)
@@ -55,39 +144,36 @@ namespace HRMS_API.Controllers
                         return BadRequest("Tài khoản này đang bị vô hiệu hóa hoặc tạm khóa. Vui lòng liên hệ Quản trị viên.");
                     }
 
-                    // Kiểm tra mật khẩu (Hỗ trợ BCrypt, Plaintext, hoặc fallback chuẩn hóa cho demo accounts)
+                    // Xác thực mật khẩu qua BCrypt
                     bool isPasswordValid = PasswordHasher.VerifyPassword(req.Password, user.PASSWORD);
 
+                    // Cơ chế chuyển đổi an toàn (Auto-Migration): Hỗ trợ tài khoản CSDL chưa kịp mã hóa BCrypt
                     if (!isPasswordValid)
                     {
-                        // Kiểm tra so sánh trực tiếp
                         string stored = (user.PASSWORD ?? "").Trim();
-                        string entered = req.Password.Trim();
+                        string entered = (req.Password ?? "").Trim();
 
-                        if (stored.Equals(entered, StringComparison.OrdinalIgnoreCase))
+                        if (!string.IsNullOrEmpty(stored) && stored.Equals(entered, StringComparison.Ordinal))
                         {
                             isPasswordValid = true;
-                        }
-                        else if (uName == "admin" && (entered == "ADMIN" || entered == "admin" || entered == "123456" || entered == "123"))
-                        {
-                            // Tự động chuẩn hóa mật khẩu ADMIN về BCrypt
-                            user.PASSWORD = PasswordHasher.HashPassword(entered);
-                            db.SaveChanges();
-                            isPasswordValid = true;
-                        }
-                        else if ((uName == "nhansu" || uName == "chamcong" || uName == "baocao" || uName == "it_user") && (entered == "123" || entered == "123456"))
-                        {
-                            // Tự động chuẩn hóa mật khẩu demo accounts về BCrypt
-                            user.PASSWORD = PasswordHasher.HashPassword(entered);
-                            db.SaveChanges();
-                            isPasswordValid = true;
+                            // Tự động băm BCrypt và lưu vào CSDL cho các lần đăng nhập tiếp theo
+                            try
+                            {
+                                user.PASSWORD = PasswordHasher.HashPassword(entered);
+                                db.SaveChanges();
+                            }
+                            catch { }
                         }
                     }
 
                     if (!isPasswordValid)
                     {
-                        return BadRequest("Mật khẩu không chính xác. Vui lòng kiểm tra lại.");
+                        RecordFailedLogin(rateKey);
+                        return BadRequest("Tên đăng nhập hoặc mật khẩu không chính xác.");
                     }
+
+                    // Đăng nhập thành công -> Reset bộ đếm thất bại
+                    ResetFailedLogin(rateKey);
 
                     // Phân quyền hạn chức năng
                     List<string> rights = new List<string>();
@@ -108,7 +194,7 @@ namespace HRMS_API.Controllers
                     rights = rights.Distinct().ToList();
 
                     // Tạo Token phiên làm việc chuẩn JSON Web Token (HMAC-SHA256)
-                    string token = JwtService.GenerateToken((int)user.IDUSER, user.USERNAME, user.FULLNAME ?? user.USERNAME, isAdmin, rights);
+                    string token = JwtService.GenerateToken((int)user.IDUSER, user.USERNAME, user.FULLNAME ?? user.USERNAME, isAdmin, rights, user.MACTY, user.MADVI);
                     var session = new SessionInfo
                     {
                         UserId = (int)user.IDUSER,
@@ -163,7 +249,13 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi hệ thống khi đăng nhập: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi hệ thống khi đăng nhập: " + ex.ToString());
+                string detail = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { 
+                    success = false, 
+                    message = "Lỗi kết nối CSDL hoặc máy chủ: " + detail,
+                    detail = detail
+                });
             }
         }
 
@@ -358,7 +450,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi đổi mật khẩu: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi đổi mật khẩu: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi thực hiện đổi mật khẩu. Vui lòng thử lại sau." });
             }
         }
 

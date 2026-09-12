@@ -1,0 +1,549 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Layout,
+  Menu,
+  Typography,
+  Space,
+  Button,
+  Tag,
+  Avatar,
+  Tooltip,
+  Dropdown,
+  Badge,
+} from 'antd';
+import {
+  MenuOutlined,
+  DashboardOutlined,
+  TeamOutlined,
+  DollarOutlined,
+  CalendarOutlined,
+  FileTextOutlined,
+  RobotOutlined,
+  BellOutlined,
+  UserOutlined,
+  ReloadOutlined,
+  LogoutOutlined,
+  SafetyCertificateOutlined,
+  TrophyOutlined,
+  SwapOutlined,
+  RiseOutlined,
+  KeyOutlined,
+  SearchOutlined,
+  PlusOutlined,
+  UserAddOutlined,
+  FileAddOutlined,
+  HomeOutlined,
+  GlobalOutlined,
+  DownOutlined,
+  CheckOutlined,
+} from '@ant-design/icons';
+import { Popover } from 'antd';
+import NotificationPopoverContent, { type NotificationItem } from './NotificationPopoverContent';
+import type { CurrentUserDTO } from '../types/hrms';
+import { useAppLanguage, type AppLanguage } from '../services/i18n';
+
+const { Header, Content, Sider } = Layout;
+const { Text } = Typography;
+
+interface MainLayoutProps {
+  currentUser: CurrentUserDTO;
+  currentMenu: string;
+  onMenuChange: (key: string) => void;
+  onLogout: () => void;
+  onRefreshData: () => void;
+  onOpenChangePassword: () => void;
+  onOpenAiDrawer: () => void;
+  onOpenCommandPalette?: () => void;
+  isBackendConnected: boolean;
+  loading: boolean;
+  kyCongCount: number;
+  hasRight: (...codes: string[]) => boolean;
+  notifications?: NotificationItem[];
+  onMarkAllNotificationsRead?: () => void;
+  onMarkNotificationRead?: (id: string, route: string) => void;
+  children: React.ReactNode;
+}
+
+export function MainLayout({
+  currentUser,
+  currentMenu,
+  onMenuChange,
+  onLogout,
+  onRefreshData,
+  onOpenChangePassword,
+  onOpenAiDrawer,
+  onOpenCommandPalette,
+  isBackendConnected,
+  loading,
+  kyCongCount,
+  hasRight,
+  notifications = [],
+  onMarkAllNotificationsRead,
+  onMarkNotificationRead,
+  children,
+}: MainLayoutProps) {
+  const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
+  const [collapsed, setCollapsed] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 992);
+
+  // Hook đa ngôn ngữ toàn hệ thống (Anh, Việt, Nhật)
+  const { lang: currentLang, setLang: handleLanguageChange, tApp, allConfigs } = useAppLanguage();
+
+  const unreadNotifCount = notifications ? notifications.filter((n) => !n.read).length : 0;
+
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (window.innerWidth < 992) {
+        setCollapsed(true);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const menuItems = [
+    ...(hasRight('DASHBOARD', 'BAOCAO', 'F_DB_LUONG', 'F_DB_NHANSU', 'F_BC_BAOCAO')
+      ? [{ key: 'dashboard', icon: <DashboardOutlined />, label: tApp.menuDashboard }]
+      : []),
+    ...(hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN', 'NHANVIEN')
+      ? [{ key: 'nhanvien', icon: <TeamOutlined />, label: tApp.menuEmployees }]
+      : []),
+    ...(hasRight('CHAMCONG', 'F_CC_BANGCONG', 'F_CC_LOAICA', 'F_CC_KYCONG')
+      ? [{ key: 'chamcong', icon: <CalendarOutlined />, label: tApp.menuAttendance }]
+      : []),
+    ...(hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG')
+      ? [{ key: 'bangluong', icon: <DollarOutlined />, label: tApp.menuPayroll }]
+      : []),
+    ...(hasRight('HOPDONG', 'F_NV_HOPDONG')
+      ? [{ key: 'hopdong', icon: <FileTextOutlined />, label: tApp.menuContracts }]
+      : []),
+    ...(hasRight('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT')
+      ? [{ key: 'khenthuong', icon: <TrophyOutlined />, label: tApp.menuRewards }]
+      : []),
+    ...(hasRight('NANGLUONG', 'DIEUCHUYEN', 'F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN')
+      ? [{ key: 'nangluong', icon: <RiseOutlined />, label: tApp.menuPromotions }]
+      : []),
+    ...(hasRight('UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA')
+      ? [{ key: 'ungluong', icon: <SwapOutlined />, label: tApp.menuOvertime }]
+      : []),
+    ...(currentUser.IsAdmin || hasRight('PHANQUYEN', 'F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER')
+      ? [{ key: 'phanquyen', icon: <SafetyCertificateOutlined />, label: tApp.menuPermissions }]
+      : []),
+    {
+      key: 'ai-drawer',
+      icon: <RobotOutlined style={{ color: '#b37feb' }} />,
+      label: (
+        <span>
+          {tApp.menuAiCopilot} <Tag color="purple" style={{ marginLeft: 4, fontSize: 10 }}>{tApp.aiBadge}</Tag>
+        </span>
+      ),
+    },
+  ];
+
+  return (
+    <Layout style={{ minHeight: '100vh' }}>
+      {isMobile && !collapsed && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 99,
+          }}
+          onClick={() => setCollapsed(true)}
+        />
+      )}
+
+      <Sider
+        collapsible
+        breakpoint="lg"
+        collapsedWidth={0}
+        onBreakpoint={(broken) => {
+          setIsMobile(broken);
+          if (broken) setCollapsed(true);
+        }}
+        collapsed={collapsed}
+        onCollapse={(val) => setCollapsed(val)}
+        width={250}
+        theme="dark"
+        style={{
+          boxShadow: '2px 0 8px 0 rgba(29,35,41,.05)',
+          zIndex: 100,
+          position: isMobile ? 'fixed' : 'relative',
+          height: isMobile ? '100vh' : 'auto',
+          left: 0,
+          top: 0,
+          bottom: 0,
+        }}
+      >
+        <div
+          onClick={() => onMenuChange('dashboard')}
+          title="Về bảng điều khiển chính (Dashboard / Home)"
+          style={{
+            height: 48,
+            margin: '12px 16px',
+            background: 'linear-gradient(135deg, #1677ff 0%, #0958d9 100%)',
+            borderRadius: 8,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: collapsed ? '14px' : '17px',
+            letterSpacing: '0.5px',
+            cursor: 'pointer',
+            userSelect: 'none',
+            transition: 'all 0.2s ease',
+          }}
+        >
+          {collapsed ? 'HR' : '⚡ HRMS PORTAL'}
+        </div>
+
+        <Menu
+          theme="dark"
+          selectedKeys={[currentMenu]}
+          mode="inline"
+          items={menuItems}
+          onClick={(info) => {
+            if (info.key === 'ai-drawer') {
+              onOpenAiDrawer();
+            } else {
+              onMenuChange(info.key);
+            }
+            if (isMobile) setCollapsed(true);
+          }}
+        />
+      </Sider>
+
+      <Layout style={{ minWidth: 0 }}>
+        <Header
+          style={{
+            padding: isMobile ? '0 12px' : '0 24px',
+            background: '#fff',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            boxShadow: '0 1px 4px rgba(0,21,41,.08)',
+            zIndex: 10,
+          }}
+        >
+          <Space>
+            {isMobile && (
+              <Button
+                type="text"
+                icon={<MenuOutlined />}
+                onClick={() => setCollapsed(!collapsed)}
+                style={{ fontSize: '16px', width: 40, height: 40 }}
+              />
+            )}
+            <Tooltip title={tApp.homeTooltip}>
+              <Button
+                type="text"
+                icon={<HomeOutlined />}
+                onClick={() => onMenuChange('dashboard')}
+                style={{
+                  fontSize: '16px',
+                  width: 36,
+                  height: 36,
+                  color: currentMenu === 'dashboard' ? '#1677ff' : '#8c8c8c',
+                }}
+              />
+            </Tooltip>
+            <Text strong style={{ fontSize: isMobile ? 15 : 18 }}>
+              {currentMenu === 'dashboard' && tApp.titleDashboard}
+              {currentMenu === 'nhanvien' && tApp.titleEmployees}
+              {currentMenu === 'chamcong' && tApp.titleAttendance}
+              {currentMenu === 'bangluong' && tApp.titlePayroll}
+              {currentMenu === 'hopdong' && tApp.titleContracts}
+              {currentMenu === 'khenthuong' && tApp.titleRewards}
+              {currentMenu === 'nangluong' && tApp.titlePromotions}
+              {currentMenu === 'ungluong' && tApp.titleOvertime}
+              {currentMenu === 'phanquyen' && tApp.titlePermissions}
+            </Text>
+          </Space>
+
+          <Space size={isMobile ? 'small' : 'middle'}>
+            {!isMobile && (
+              <Tooltip title={isBackendConnected ? tApp.systemOnlineTooltip(kyCongCount) : tApp.systemOfflineTooltip}>
+                <Tag
+                  color={isBackendConnected ? 'success' : 'warning'}
+                  style={{ cursor: 'pointer', padding: '2px 8px', borderRadius: 10, margin: 0 }}
+                  onClick={onRefreshData}
+                >
+                  {isBackendConnected ? tApp.online : tApp.offline}
+                </Tag>
+              </Tooltip>
+            )}
+
+            {!isMobile && onOpenCommandPalette && (
+              <Tooltip title={tApp.searchTooltip}>
+                <Button
+                  icon={<SearchOutlined style={{ color: '#94a3b8' }} />}
+                  onClick={onOpenCommandPalette}
+                  style={{
+                    background: '#f8fafc',
+                    borderColor: '#e2e8f0',
+                    color: '#64748b',
+                    borderRadius: 8,
+                    padding: '4px 12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    minWidth: 175,
+                    justifyContent: 'space-between',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <span style={{ fontSize: 13 }}>{tApp.searchPlaceholder}</span>
+                  <kbd
+                    style={{
+                      fontSize: 11,
+                      fontWeight: 600,
+                      background: '#e2e8f0',
+                      color: '#475569',
+                      padding: '2px 6px',
+                      borderRadius: 4,
+                      border: '1px solid #cbd5e1',
+                      lineHeight: '1',
+                      fontFamily: 'monospace',
+                    }}
+                  >
+                    Ctrl + K
+                  </kbd>
+                </Button>
+              </Tooltip>
+            )}
+
+            {!isMobile && (
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'quick-emp',
+                      icon: <UserAddOutlined style={{ color: '#10b981' }} />,
+                      label: tApp.addEmployee,
+                      onClick: () => onMenuChange('nhanvien'),
+                    },
+                    {
+                      key: 'quick-contract',
+                      icon: <FileAddOutlined style={{ color: '#3b82f6' }} />,
+                      label: tApp.createContract,
+                      onClick: () => onMenuChange('hopdong'),
+                    },
+                    {
+                      key: 'quick-leave',
+                      icon: <CalendarOutlined style={{ color: '#f59e0b' }} />,
+                      label: tApp.createLeave,
+                      onClick: () => onMenuChange('chamcong'),
+                    },
+                    {
+                      key: 'quick-timesheet',
+                      icon: <CalendarOutlined style={{ color: '#8b5cf6' }} />,
+                      label: tApp.enterTimesheet,
+                      onClick: () => onMenuChange('chamcong'),
+                    },
+                    {
+                      key: 'quick-salary',
+                      icon: <DollarOutlined style={{ color: '#059669' }} />,
+                      label: tApp.calculateSalary,
+                      onClick: () => onMenuChange('bangluong'),
+                    },
+                  ],
+                }}
+              >
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  style={{
+                    background: '#0f172a',
+                    borderColor: '#0f172a',
+                    fontWeight: 600,
+                    borderRadius: 8,
+                  }}
+                >
+                  {tApp.quickAdd}
+                </Button>
+              </Dropdown>
+            )}
+
+            <Button
+              type="primary"
+              shape={isMobile ? 'circle' : 'default'}
+              size={isMobile ? 'small' : 'middle'}
+              icon={<RobotOutlined />}
+              onClick={onOpenAiDrawer}
+              style={{
+                background: 'linear-gradient(135deg, #722ed1 0%, #1677ff 100%)',
+                border: 'none',
+                borderRadius: 8,
+              }}
+            >
+              {!isMobile && tApp.askAiCopilot}
+            </Button>
+
+            <Popover
+              content={
+                <NotificationPopoverContent
+                  onNavigate={onMenuChange}
+                  notifications={notifications}
+                  onMarkAllAsRead={onMarkAllNotificationsRead}
+                  onMarkItemAsRead={onMarkNotificationRead}
+                />
+              }
+              trigger="click"
+              placement="bottomRight"
+            >
+              <Tooltip title={tApp.notificationsTooltip}>
+                <Badge count={unreadNotifCount} size="small" overflowCount={99}>
+                  <Button shape="circle" icon={<BellOutlined />} />
+                </Badge>
+              </Tooltip>
+            </Popover>
+
+            <Tooltip title={tApp.refreshTooltip}>
+              <Button
+                shape="circle"
+                size={isMobile ? 'small' : 'middle'}
+                icon={<ReloadOutlined spin={loading} />}
+                onClick={onRefreshData}
+              />
+            </Tooltip>
+
+            {/* BỘ CHUYỂN ĐỔI NGÔN NGỮ TOÀN HỆ THỐNG TRÊN HEADER (VI, EN, JA) */}
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'vi',
+                    label: (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
+                        <Space size={10}>
+                          <span style={{ fontSize: 18 }}>{allConfigs.vi.flag}</span>
+                          <span style={{ fontWeight: currentLang === 'vi' ? 700 : 600, color: currentLang === 'vi' ? '#1677ff' : '#0f172a', fontSize: 14 }}>
+                            {allConfigs.vi.name}
+                          </span>
+                        </Space>
+                        {currentLang === 'vi' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 14 }} />}
+                      </div>
+                    ),
+                  },
+                  {
+                    key: 'en',
+                    label: (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
+                        <Space size={10}>
+                          <span style={{ fontSize: 18 }}>{allConfigs.en.flag}</span>
+                          <span style={{ fontWeight: currentLang === 'en' ? 700 : 600, color: currentLang === 'en' ? '#1677ff' : '#0f172a', fontSize: 14 }}>
+                            {allConfigs.en.name}
+                          </span>
+                        </Space>
+                        {currentLang === 'en' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 14 }} />}
+                      </div>
+                    ),
+                  },
+                  {
+                    key: 'ja',
+                    label: (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
+                        <Space size={10}>
+                          <span style={{ fontSize: 18 }}>{allConfigs.ja.flag}</span>
+                          <span style={{ fontWeight: currentLang === 'ja' ? 700 : 600, color: currentLang === 'ja' ? '#1677ff' : '#0f172a', fontSize: 14 }}>
+                            {allConfigs.ja.name}
+                          </span>
+                        </Space>
+                        {currentLang === 'ja' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 14 }} />}
+                      </div>
+                    ),
+                  },
+                ],
+                selectedKeys: [currentLang],
+                onClick: ({ key }) => handleLanguageChange(key as AppLanguage),
+              }}
+              placement="bottomRight"
+              trigger={['click']}
+            >
+              <Tooltip title={tApp.languageSwitchTooltip}>
+                <Button
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 5,
+                    borderRadius: 8,
+                    borderColor: '#e2e8f0',
+                    background: '#f8fafc',
+                    fontWeight: 600,
+                    padding: isMobile ? '4px 8px' : '4px 10px',
+                  }}
+                  size={isMobile ? 'small' : 'middle'}
+                >
+                  <GlobalOutlined style={{ color: '#1677ff' }} />
+                  <span>{allConfigs[currentLang].flag} {allConfigs[currentLang].short}</span>
+                  <DownOutlined style={{ fontSize: 9, color: '#94a3b8' }} />
+                </Button>
+              </Tooltip>
+            </Dropdown>
+
+            <Dropdown
+              menu={{
+                items: [
+                  {
+                    key: 'profile',
+                    icon: <UserOutlined />,
+                    label: tApp.userAccount(currentUser.Username),
+                  },
+                  {
+                    key: 'role',
+                    icon: <SafetyCertificateOutlined />,
+                    label: currentUser.IsAdmin ? tApp.roleAdmin : tApp.roleStaff(currentUser.Rights?.length || 0),
+                  },
+                  {
+                    type: 'divider',
+                  },
+                  {
+                    key: 'changePassword',
+                    icon: <KeyOutlined style={{ color: '#1677ff' }} />,
+                    label: tApp.changePassword,
+                    onClick: onOpenChangePassword,
+                  },
+                  {
+                    type: 'divider',
+                  },
+                  {
+                    key: 'logout',
+                    icon: <LogoutOutlined style={{ color: '#ff4d4f' }} />,
+                    label: <span style={{ color: '#ff4d4f' }}>{tApp.logout}</span>,
+                    onClick: onLogout,
+                  },
+                ],
+              }}
+            >
+              <Space style={{ cursor: 'pointer' }}>
+                <Avatar style={{ backgroundColor: currentUser.IsAdmin ? '#f5222d' : '#1677ff' }}>
+                  {currentUser.Username?.[0]?.toUpperCase() || 'U'}
+                </Avatar>
+                {!isMobile && (
+                  <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+                    <Text strong style={{ fontSize: 13 }}>{currentUser.FullName}</Text>
+                    <Tag color={currentUser.IsAdmin ? 'red' : 'blue'} style={{ fontSize: 10, width: 'fit-content', padding: '0 4px', margin: 0 }}>
+                      {currentUser.IsAdmin ? tApp.tagSuperAdmin : tApp.tagStaff}
+                    </Tag>
+                  </div>
+                )}
+              </Space>
+            </Dropdown>
+          </Space>
+        </Header>
+
+        <Content style={{ margin: isMobile ? '12px 8px' : '20px 24px', minHeight: 400 }}>
+          {children}
+        </Content>
+      </Layout>
+    </Layout>
+  );
+}
+
+export default MainLayout;

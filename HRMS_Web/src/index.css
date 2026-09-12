@@ -110,3 +110,210 @@ html, body, #root {
     padding: 24px 16px !important;
   }
 }
+
+/* Employee 360 Modal Styling */
+.employee-360-modal .ant-modal-content,
+.employee-360-modal.ant-modal .ant-modal-content {
+  padding: 0 !important;
+  overflow: hidden !important;
+  border-radius: 16px !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.45) !important;
+}
+
+.employee-360-modal .ant-modal-close,
+.employee-360-modal.ant-modal .ant-modal-close {
+  top: 18px !important;
+  right: 18px !important;
+  color: #ffffff !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border-radius: 50% !important;
+  width: 34px !important;
+  height: 34px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 50 !important;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.employee-360-modal .ant-modal-close:hover,
+.employee-360-modal.ant-modal .ant-modal-close:hover {
+  background: rgba(255, 255, 255, 0.4) !important;
+  color: #ffffff !important;
+  transform: scale(1.08);
+}
+
+.employee-360-modal .ant-modal-close .ant-modal-close-x {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 100% !important;
+  height: 100% !important;
+  color: #ffffff !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+}
+
+/* Printable Payslip A4 Optimization (rptBaoCaoLuongNV) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm 10mm;
+  }
+
+  body > *:not(.ant-modal-root) {
+    display: none !important;
+  }
+
+  .ant-modal-mask {
+    display: none !important;
+  }
+
+  .ant-modal-wrap {
+    position: static !important;
+    overflow: visible !important;
+  }
+
+  .ant-modal {
+    position: static !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .ant-modal-content {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+
+  .ant-modal-footer,
+  .ant-modal-close {
+    display: none !important;
+  }
+
+  #printable-payslip-wrapper {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  #printable-payslip {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+    box-shadow: none !important;
+    overflow: visible !important;
+    max-height: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  #printable-payslip tr {
+    page-break-inside: avoid !important;
+  }
+}
+
+/* ========================================================
+   1. GLOBAL ENHANCED ROW HOVER (ALL LISTS / TABLES)
+   ======================================================== */
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row-hover > td,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left-last,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-right,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-right-first {
+  background-color: #e0f2fe !important; /* Clear Sky-100 Blue */
+  transition: background-color 0.12s ease-in-out !important;
+}
+
+/* Dấu thanh chỉ báo màu xanh bên trái hàng đang được hover */
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td:first-child,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left:first-child {
+  position: relative !important;
+}
+
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td:first-child::before,
+.ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left:first-child::before {
+  content: '' !important;
+  position: absolute !important;
+  left: 0 !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  width: 4px !important;
+  background-color: #2563eb !important;
+  border-radius: 0 3px 3px 0 !important;
+  z-index: 10 !important;
+}
+
+/* ========================================================
+   2. ATTENDANCE MATRIX CROSSHAIR HOVER & CELL FOCUS
+   ======================================================== */
+.cham-cong-matrix-table {
+  position: relative;
+}
+
+/* Ngăn ngừa vi sự kiện chuột nhấp nháy trên thẻ/chữ bên trong ô */
+.cham-cong-matrix-table .ant-table-tbody > tr > td .ant-space,
+.cham-cong-matrix-table .ant-table-tbody > tr > td .ant-tag,
+.cham-cong-matrix-table .ant-table-tbody > tr > td .ant-typography,
+.cham-cong-matrix-table .ant-table-tbody > tr > td span {
+  pointer-events: none;
+}
+
+/* Toàn bộ cột đang được rà chuột (Column Highlight) */
+.cham-cong-matrix-table .ant-table-tbody > tr > td.matrix-col-hovered,
+.cham-cong-matrix-table .ant-table-tbody > tr > td.matrix-col-hovered.ant-table-cell-fix-left,
+.cham-cong-matrix-table .ant-table-tbody > tr > td.matrix-col-hovered.ant-table-cell-fix-left-last {
+  background-color: #e0f2fe !important;
+}
+
+/* Tiêu đề cột đang được rà chuột (Column Header Highlight) */
+.cham-cong-matrix-table th.matrix-header-col-hovered,
+.cham-cong-matrix-table th.matrix-header-col-hovered.ant-table-cell-fix-left {
+  background-color: #bfdbfe !important;
+  color: #1d4ed8 !important;
+  font-weight: 800 !important;
+  border-bottom: 3px solid #2563eb !important;
+  box-shadow: inset 0 2px 0 #2563eb, 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+}
+
+/* Toàn bộ hàng đang được rà chuột trong bảng chấm công */
+.cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td,
+.cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left,
+.cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left-last {
+  background-color: #e0f2fe !important;
+}
+
+/* FOCUS TRỰC TIẾP VÀO Ô ĐANG CHỎ CHUỘT (CELL HOVER FOCUS - KHÔNG DÙNG SCALE, KHÔNG NHÁY) */
+.cham-cong-matrix-table .ant-table-tbody > tr > td:hover,
+.cham-cong-matrix-table .ant-table-tbody > tr > td.ant-table-cell-fix-left:hover,
+.cham-cong-matrix-table .ant-table-tbody > tr > td.ant-table-cell-fix-left-last:hover,
+.cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td:hover {
+  background-color: #bfdbfe !important; /* Xanh dịu đậm hơn màu hàng */
+  box-shadow: inset 0 0 0 2px #2563eb !important; /* Viền focus sắc nét nằm trọn trong ô, không làm giật layout */
+  cursor: pointer;
+  z-index: 5 !important;
+}
+
+/* Ô giao điểm chính xác khi đang hover cột ngày (Crosshair Intersection Cell) */
+.cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td.matrix-col-hovered:hover {
+  background-color: #93c5fd !important; /* Xanh đậm active */
+  box-shadow: inset 0 0 0 2.5px #1d4ed8 !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
+  z-index: 8 !important;
+}
+
+
+

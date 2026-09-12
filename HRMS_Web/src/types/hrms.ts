@@ -4,6 +4,8 @@ export interface NhanVienDTO {
   MANV: number;
   HOTEN: string;
   GIOITINH?: string;
+  TENGT?: string;
+  IDGT?: number;
   NGAYSINH?: string;
   DIENTHOAI?: string;
   CCCD?: string;
@@ -18,6 +20,45 @@ export interface NhanVienDTO {
   IDTD?: number;
   TENTD?: string;
   TRANGTHAI?: boolean;
+}
+
+export interface ActionItemDTO {
+  id: string;
+  title: string;
+  count: number;
+  urgency: 'urgent' | 'warning' | 'info';
+  route: string;
+  actionText: string;
+}
+
+export interface AnomalyItemDTO {
+  id: string;
+  employeeName: string;
+  department: string;
+  metric: string;
+  severity: 'high' | 'medium' | 'low';
+  description: string;
+}
+
+export interface EmployeeTimelineEventDTO {
+  id: string;
+  date: string;
+  title: string;
+  category: 'onboarding' | 'contract' | 'promotion' | 'leave' | 'salary' | 'award' | 'discipline';
+  description: string;
+  tagColor?: string;
+}
+
+export interface DashboardStatsDTO {
+  tongNhanVien: number;
+  tongQuyLuong: number;
+  presentToday: number;
+  absentToday: number;
+  lateToday: number;
+  phongBanStats: DashboardPhongBanDTO[];
+  luongStats: DashboardLuongDTO[];
+  actionItems: ActionItemDTO[];
+  anomalies: AnomalyItemDTO[];
 }
 
 export interface DashboardPhongBanDTO {
@@ -61,6 +102,11 @@ export interface BangLuongDTO {
   IDBL: number;
   MANV: number;
   HOTEN: string;
+  TENPB?: string;
+  IDPB?: number;
+  DATHOIVIEC?: number;
+  KHOA?: number;
+  TRANGTHAI_CHITRA?: string;
   MAKYCONG: number;
   THANG: number;
   NAM: number;
@@ -85,6 +131,9 @@ export interface KyCongChiTietDTO {
   MAKYCONG: number;
   MANV: number;
   HOTEN: string;
+  TENPB?: string;
+  DATHOIVIEC?: number;
+  IS_ACTIVE?: boolean;
   D1?: string;
   D2?: string;
   D3?: string;

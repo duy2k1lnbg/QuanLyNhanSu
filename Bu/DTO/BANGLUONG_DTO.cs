@@ -11,6 +11,12 @@ namespace Bu.DTO
         public decimal IDBL { get; set; }
         public decimal MANV { get; set; }
         public string HOTEN { get; set; }
+        public string TENPB { get; set; }
+        public Nullable<decimal> IDPB { get; set; }
+        public Nullable<decimal> DATHOIVIEC { get; set; }
+        public Nullable<decimal> KHOA { get; set; }
+        public string TRANGTHAI_CHITRA { get; set; }
+        public Nullable<decimal> SOGIO_TANGCA { get; set; }
         public decimal MAKYCONG { get; set; }
         public byte THANG { get; set; }
         public short NAM { get; set; }

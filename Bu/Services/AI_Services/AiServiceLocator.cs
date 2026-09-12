@@ -11,18 +11,27 @@ namespace Bu.Services.AI_Services
 
         static AiServiceLocator()
         {
-            // Register concrete service implementations
+            // 1. Core Services
             var promptManager = new JsonPromptManager();
             var llmService = new OllamaService(promptManager);
             var vectorService = new Vector.QdrantService(llmService);
             var sqlGenerator = new SqlGeneratorService(llmService, promptManager);
             var router = new AiRouterService(llmService);
 
+            // 2. Decoupled RAG Components
+            var sqlExecutor = new SafeSqlExecutor();
+            var contextRetriever = new RagContextRetriever(sqlGenerator, sqlExecutor, vectorService);
+            var synthesizer = new RagSynthesizer(llmService);
+
+            // 3. Service Registrations
             _services[typeof(IPromptManager)] = promptManager;
             _services[typeof(ILlmService)] = llmService;
             _services[typeof(IVectorService)] = vectorService;
             _services[typeof(ISqlGenerator)] = sqlGenerator;
             _services[typeof(AiRouterService)] = router;
+            _services[typeof(ISafeSqlExecutor)] = sqlExecutor;
+            _services[typeof(IRagContextRetriever)] = contextRetriever;
+            _services[typeof(IRagSynthesizer)] = synthesizer;
         }
 
         public static T GetService<T>()

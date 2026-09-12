@@ -19,10 +19,10 @@ namespace Bu.CLASS_SYSTEM
             string trimmedHash = hashedPassword.Trim();
             string trimmedPassword = password.Trim();
 
-            // If it is stored as plain text, match directly
+            // Chế độ bảo mật nghiêm ngặt: Chỉ chấp nhận mật khẩu đã hash BCrypt ($2a$, $2b$, $2y$)
             if (!trimmedHash.StartsWith("$2a$") && !trimmedHash.StartsWith("$2b$") && !trimmedHash.StartsWith("$2y$"))
             {
-                return trimmedPassword.Equals(trimmedHash);
+                return false;
             }
 
             try
@@ -31,8 +31,7 @@ namespace Bu.CLASS_SYSTEM
             }
             catch (Exception)
             {
-                // Fallback in case of legacy format/parsing errors
-                return trimmedPassword.Equals(trimmedHash);
+                return false;
             }
         }
     }

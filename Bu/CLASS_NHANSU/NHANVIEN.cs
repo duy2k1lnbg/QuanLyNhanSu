@@ -26,6 +26,7 @@ namespace Bu
         public List<NHANVIEN_DTO> getListFll_DTO(string langCode = "vi") 
         { 
             var rawList = (from nv in db.TB_NHANVIEN
+                    where nv.MANV != 3207
                     join td in db.TB_TRINHDO on nv.IDTD equals td.IDTD into tdGroup
                     from td in tdGroup.DefaultIfEmpty()
                     join bp in db.TB_BOPHAN on nv.IDBP equals bp.IDBP into bpGroup
@@ -80,6 +81,14 @@ namespace Bu
                         DELETED_DATE = nv.DELETED_DATE,
                         LOAI_NV = nv.LOAI_NV
                     }).ToList();
+
+            foreach (var item in rawList)
+            {
+                if (string.IsNullOrWhiteSpace(item.TENGT))
+                {
+                    item.TENGT = item.IDGT == 2 ? "Nữ" : (item.IDGT == 3 ? "Khác" : "Nam");
+                }
+            }
 
             if (string.IsNullOrEmpty(langCode) || langCode.ToLower() == "vi")
             {
@@ -211,7 +220,10 @@ namespace Bu
                 _nv.DIENTHOAI = nv.DIENTHOAI;
                 _nv.CCCD = nv.CCCD;
                 _nv.DIACHI = nv.DIACHI;
-                _nv.HINHANH = nv.HINHANH;
+                if (nv.HINHANH != null)
+                {
+                    _nv.HINHANH = nv.HINHANH.Length == 0 ? null : nv.HINHANH;
+                }
                 _nv.DATHOIVIEC = nv.DATHOIVIEC;
                 _nv.IDPB = nv.IDPB;
                 _nv.IDBP = nv.IDBP;
@@ -268,13 +280,13 @@ namespace Bu
 
         public int GetTongNhanVien()
         {
-            return db.TB_NHANVIEN.Count(x => x.DATHOIVIEC != 1);
+            return db.TB_NHANVIEN.Count(x => x.MANV != 3207);
         }
 
         public List<DashboardPhongBanDTO> GetPhongBanStats()
         {
             var rawList = db.TB_NHANVIEN
-                            .Where(nv => (nv.DATHOIVIEC ?? 0) != 1)
+                            .Where(nv => nv.MANV != 3207)
                             .Select(nv => new {
                                 TenPB = nv.TB_PHONGBAN.TENPB
                             })

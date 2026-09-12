@@ -116,57 +116,14 @@ Lệnh SQL:";
         {
             if (string.IsNullOrWhiteSpace(raw)) return "NOT_SQL";
 
-            // Loại bỏ Markdown
-            string clean = Regex.Replace(raw, @"```sql|```", "", RegexOptions.IgnoreCase).Trim();
-
-            // Loại bỏ các tiền tố rác
-            clean = Regex.Replace(clean, @"^(SQL:|Lệnh SQL:|Output:)\s*", "", RegexOptions.IgnoreCase).Trim();
-
-            // Xử lý xuống dòng (AI đôi khi xuống dòng giữa câu SELECT)
-            clean = clean.Replace("\r", " ").Replace("\n", " ");
-            while (clean.Contains("  ")) clean = clean.Replace("  ", " ");
-
-            // Cắt dấu chấm phẩy
-            if (clean.EndsWith(";")) clean = clean.Substring(0, clean.Length - 1).Trim();
-
-            string upper = clean.ToUpper();
-
-            // Kiểm tra tính hợp lệ và an toàn
-            if (!upper.StartsWith("SELECT")) return "NOT_SQL";
-
-            // Whitelist các view được phép truy cập cho AI RAG
-            string[] allowedViews = { 
-                "V_AI_EMPLOYEE", 
-                "V_AI_ATTENDANCE", 
-                "V_AI_OVERTIME", 
-                "V_AI_INSURANCE", 
-                "V_AI_ADVANCE", 
-                "V_AI_ALLOWANCE" 
-            };
-
-            bool isSafe = false;
-            foreach (var view in allowedViews)
+            var validation = OracleSqlAstValidator.Validate(raw);
+            if (!validation.IsValid)
             {
-                if (upper.Contains(view))
-                {
-                    isSafe = true;
-                    break;
-                }
-            }
-
-            if (!isSafe)
-            {
-                System.Diagnostics.Debug.WriteLine($"[SECURITY WARNING] Blocked query pointing to unauthorized tables: {clean}");
+                System.Diagnostics.Debug.WriteLine($"[SQL VALIDATION REJECTED]: {validation.RejectionReason} (Raw: {raw})");
                 return "NOT_SQL";
             }
 
-            string[] forbidden = { "DELETE", "UPDATE", "DROP", "TRUNCATE", "INSERT", "ALTER" };
-            foreach (var word in forbidden)
-            {
-                if (upper.Contains(word)) return "NOT_SQL";
-            }
-
-            return clean;
+            return validation.CleanedSql;
         }
     }
 }

@@ -1,4 +1,5 @@
 using DA;
+using HRMS_API.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,7 @@ using System.Web.Http;
 
 namespace HRMS_API.Controllers
 {
+    [JwtAuthorize]
     [RoutePrefix("api/khenthuong")]
     public class KhenThuongKyLuatController : ApiController
     {
@@ -51,16 +53,18 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh sách khen thưởng/kỷ luật: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách khen thưởng/kỷ luật: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh sách khen thưởng/kỷ luật." });
             }
         }
 
         /// <summary>
         /// POST: api/khenthuong
-        /// Thêm mới quyết định khen thưởng hoặc kỷ luật
+        /// Thêm mới quyết định khen thưởng hoặc kỷ luật (Yêu cầu quyền F_KHENTHUONG_ADD)
         /// </summary>
         [HttpPost]
         [Route("")]
+        [JwtAuthorize(Right = "F_KHENTHUONG_ADD")]
         public IHttpActionResult Create([FromBody] TB_KHENTHUONG_KYLUAT kt)
         {
             try
@@ -69,6 +73,9 @@ namespace HRMS_API.Controllers
                 {
                     return BadRequest("Thông tin quyết định không hợp lệ.");
                 }
+
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
 
                 using (var db = new MyEntities())
                 {
@@ -79,7 +86,7 @@ namespace HRMS_API.Controllers
                     }
 
                     kt.CREATED_DATE = DateTime.Now;
-                    kt.CREATED_BY = 1;
+                    kt.CREATED_BY = currentUserId;
                     if (!kt.TUNGAY.HasValue) kt.TUNGAY = DateTime.Now;
                     if (!kt.LOAI.HasValue) kt.LOAI = 1;
 
@@ -90,20 +97,26 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi thêm quyết định khen thưởng/kỷ luật: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi thêm quyết định khen thưởng/kỷ luật: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi thêm quyết định khen thưởng/kỷ luật." });
             }
         }
 
         /// <summary>
-        /// DELETE: api/khenthuong/{soqd}
-        /// Xóa quyết định khen thưởng hoặc kỷ luật
+        /// DELETE: api/khenthuong/{*soqd}
+        /// Xóa quyết định khen thưởng hoặc kỷ luật (Yêu cầu quyền F_KHENTHUONG_DELETE)
         /// </summary>
         [HttpDelete]
-        [Route("{soqd}")]
-        public IHttpActionResult Delete(string soqd)
+        [Route("{*soqd}")]
+        [Route("")]
+        [JwtAuthorize(Right = "F_KHENTHUONG_DELETE")]
+        public IHttpActionResult Delete(string soqd = null)
         {
             try
             {
+                if (string.IsNullOrWhiteSpace(soqd)) return BadRequest("Vui lòng cung cấp số quyết định cần xóa.");
+                soqd = Uri.UnescapeDataString(soqd).Trim();
+
                 using (var db = new MyEntities())
                 {
                     var item = db.TB_KHENTHUONG_KYLUAT.FirstOrDefault(k => k.SOQUYETDINH == soqd);
@@ -117,7 +130,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi xóa quyết định: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi xóa quyết định: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi xóa quyết định." });
             }
         }
     }

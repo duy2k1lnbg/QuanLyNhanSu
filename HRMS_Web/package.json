@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:vps": "powershell -ExecutionPolicy Bypass -File ../build_deploy.ps1",
     "lint": "oxlint",
     "preview": "vite preview"
   },

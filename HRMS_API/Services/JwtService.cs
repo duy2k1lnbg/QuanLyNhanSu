@@ -28,6 +28,12 @@ namespace HRMS_API.Services
         [JsonProperty("rights")]
         public List<string> Rights { get; set; } = new List<string>();
 
+        [JsonProperty("macty")]
+        public string MaCty { get; set; }
+
+        [JsonProperty("madvi")]
+        public string MaDvi { get; set; }
+
         [JsonProperty("iat")]
         public long IssuedAt { get; set; }
 
@@ -37,14 +43,43 @@ namespace HRMS_API.Services
 
     public static class JwtService
     {
-        private static readonly string DefaultSecret = "HRMS_Secret_Key_Super_Secure_2026_Enterprise_Key_999";
+        private static string _volatileSecret = null;
+        private static readonly object _lock = new object();
 
         public static string SecretKey
         {
             get
             {
+                var envSecret = Environment.GetEnvironmentVariable("HRMS_JWT_SECRET");
+                if (!string.IsNullOrWhiteSpace(envSecret))
+                {
+                    return envSecret.Trim();
+                }
+
                 var secret = ConfigurationManager.AppSettings["JwtSecret"];
-                return !string.IsNullOrWhiteSpace(secret) ? secret : DefaultSecret;
+                if (!string.IsNullOrWhiteSpace(secret))
+                {
+                    return secret.Trim();
+                }
+
+                // Ephemeral fallback per application lifecycle if completely unconfigured
+                if (_volatileSecret == null)
+                {
+                    lock (_lock)
+                    {
+                        if (_volatileSecret == null)
+                        {
+                            byte[] randomBytes = new byte[32];
+                            using (var rng = RandomNumberGenerator.Create())
+                            {
+                                rng.GetBytes(randomBytes);
+                            }
+                            _volatileSecret = BitConverter.ToString(randomBytes).Replace("-", "").ToLower();
+                            System.Diagnostics.Trace.TraceWarning("[SECURITY WARNING] No JwtSecret configured in AppSettings or HRMS_JWT_SECRET env. Using ephemeral key.");
+                        }
+                    }
+                }
+                return _volatileSecret;
             }
         }
 
@@ -64,7 +99,7 @@ namespace HRMS_API.Services
         /// <summary>
         /// Tạo JSON Web Token chuẩn RFC 7519 có chữ ký HMAC-SHA256
         /// </summary>
-        public static string GenerateToken(int userId, string username, string fullName, bool isAdmin, List<string> rights)
+        public static string GenerateToken(int userId, string username, string fullName, bool isAdmin, List<string> rights, string maCty = null, string maDvi = null)
         {
             var header = new
             {
@@ -83,6 +118,8 @@ namespace HRMS_API.Services
                 Role = isAdmin ? "Admin" : "User",
                 IsAdmin = isAdmin,
                 Rights = rights ?? new List<string>(),
+                MaCty = maCty,
+                MaDvi = maDvi,
                 IssuedAt = now.ToUnixTimeSeconds(),
                 ExpiresAt = exp.ToUnixTimeSeconds()
             };

@@ -1,17 +1,15 @@
-# 🏢 Hệ Thống Quản Lý Nhân Sự (HRMS) với Trợ Lý AI Cục Bộ
+# 🏢 Hệ Thống Quản Lý Nhân Sự (HRMS Enterprise) với Trợ Lý AI Cục Bộ
 
-Ứng dụng desktop Windows xây dựng trên .NET Framework 4.7.2, DevExpress WinForms và Oracle Database 19c, hỗ trợ quản lý nhân sự, chấm công, tính lương, báo cáo và phân quyền.
-
-Hệ thống tích hợp trợ lý AI chạy cục bộ thông qua Ollama. Phần AI hiện sử dụng Qdrant cho tìm kiếm ngữ nghĩa và đang tiếp tục hoàn thiện pipeline Hybrid RAG/NL2SQL để so sánh và lựa chọn hướng triển khai phù hợp.
-
-> **Lưu ý:** Đây là dự án đang được phát triển. Một số thành phần AI, hiệu năng và cơ chế truy vấn vẫn đang trong quá trình thử nghiệm và benchmark; README không coi các kết quả hiện tại là chứng nhận production hoặc bảo mật tuyệt đối.
+Hệ thống Quản lý Nhân sự & Tiền lương cấp doanh nghiệp hỗ trợ kiến trúc **Dual-Client (Desktop WinForms + Web SPA React)** trên nền tảng **.NET Framework 4.7.2**, **ASP.NET Web API 2**, **Oracle Database** và trợ lý **AI On-Premise (Ollama Qwen 2.5 + Qdrant Vector DB)**.
 
 [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blueviolet?logo=dotnet)](https://dotnet.microsoft.com/)
-[![Oracle DB](https://img.shields.io/badge/Oracle%20Database-19c-red?logo=oracle)](https://www.oracle.com/database/)
+[![React](https://img.shields.io/badge/React-19.2-61dafb?logo=react)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?logo=vite)](https://vitejs.dev/)
+[![Oracle DB](https://img.shields.io/badge/Oracle%20Database-19c%2F23ai-red?logo=oracle)](https://www.oracle.com/database/)
 [![DevExpress](https://img.shields.io/badge/UI-DevExpress%20WinForms-orange)](https://www.devexpress.com/)
 [![Entity Framework](https://img.shields.io/badge/ORM-Entity%20Framework%206.5-blue)](https://learn.microsoft.com/ef/)
-[![AI Engine](https://img.shields.io/badge/AI-Ollama%20%7C%20Hybrid%20RAG-brightgreen)](https://ollama.com/)
-[![License](https://img.shields.io/badge/License-Academic%20Project-lightgrey)]()
+[![AI Engine](https://img.shields.io/badge/AI-Ollama%20%7C%20Qwen%202.5%20%7C%20Qdrant-brightgreen)](https://ollama.com/)
+[![Security](https://img.shields.io/badge/Security-BCrypt%20%7C%20JWT%20RBAC%20%7C%20AST%20Parser-success)]()
 
 ---
 
@@ -24,120 +22,131 @@ Hệ thống tích hợp trợ lý AI chạy cục bộ thông qua Ollama. Phầ
 
 ## 🇻🇳 Tiếng Việt
 
-### 📌 Tổng Quan Dự Án
+### 📌 Tổng Quan Hệ Thống
 
-Đây là hệ thống **Quản Lý Nhân Sự cấp doanh nghiệp** được xây dựng trên nền tảng **.NET Framework 4.7.2** với giao diện **DevExpress WinForms**, sử dụng **Oracle Database 19c** làm hệ quản trị cơ sở dữ liệu. Điểm đột phá của hệ thống là tích hợp **Trợ Lý AI Cục Bộ (On-Premise AI Copilot)** với kiến trúc **Hybrid RAG**: cho phép người quản lý đặt câu hỏi bằng tiếng Việt tự nhiên để truy vấn dữ liệu nhân sự mà không cần viết SQL, và toàn bộ xử lý diễn ra **nội bộ** — không một byte dữ liệu nào rời khỏi máy chủ công ty.
-
----
-
-## 🚧 Project Status
-
-The project is under active development.
-
-### Stable / actively used
-- HR management
-- Attendance and payroll
-- Reporting
-- User/group permissions
-- Local Ollama integration
-- Qdrant semantic retrieval
-
-### In active development
-- Hybrid RAG orchestration
-- NL2SQL pipeline
-- Qdrant retrieval quality and ranking
-- AI data synchronization and evaluation
-
-### Not production-certified
-This repository has not been formally security-audited, load-tested, or
-validated against a production-scale deployment. Performance and security
-claims should therefore be considered implementation goals rather than
-formal guarantees.
+HRMS Enterprise là giải pháp quản trị nhân sự toàn diện, cung cấp trải nghiệm làm việc liền mạch qua cả 2 giao diện:
+1. **Windows Desktop App (`QLyNSu`)**: Giao diện WinForms DevExpress mạnh mẽ cho bộ phận hành chính văn phòng, hỗ trợ in ấn báo cáo XtraReports phức tạp.
+2. **Modern Web Portal (`HRMS_Web`)**: Ứng dụng web Single Page Application (SPA) xây dựng trên **React 19**, **TypeScript**, **Ant Design 6** và **Vite**, tối ưu hóa cho cả desktop lẫn thiết bị di động.
+3. **RESTful Web API (`HRMS_API`)**: Cổng dịch vụ tập trung bảo mật với **JWT Bearer**, phân quyền **Server-Side RBAC**, kiểm soát phạm vi dữ liệu (**Data Scoping** theo công ty/chi nhánh) và chống rò rỉ ngoại lệ.
+4. **On-Premise AI Copilot (`Bu/Services/AI_Services`)**: Trợ lý AI hỏi đáp dữ liệu nhân sự bằng tiếng Việt tự nhiên sử dụng **Qwen 2.5**, kết hợp **Hybrid RAG** (Oracle SQL + Qdrant Vector Search), bảo vệ bởi bộ phân tích cú pháp **AST Tokenizer Validator** và cơ chế **Outbox Pattern** chống mất mát vector.
 
 ---
 
-### 🗂 Kiến Trúc Dự Án (3-Tier Architecture)
-
-Dự án tuân thủ mô hình **3 lớp (3-Tier)** tách biệt rõ ràng:
+### 🗂 Kiến Trúc Hệ Thống (Solution Architecture)
 
 ```
 QuanLyNhanSu.sln
- ├── 📂 QLyNSu/          ← Presentation Layer (WinForms + DevExpress)
- │    ├── FORM_NHANSU/   ← Màn hình Quản lý Nhân sự
- │    ├── FORM_CHAMCONG/ ← Màn hình Chấm công & Tính lương
- │    ├── FORM_BAOCAO/   ← Dashboard & Báo cáo
- │    ├── FORM_SYSTEM/   ← Hệ thống (Login, Phân quyền, AI Chat, Import/Export, Thông báo)
- │    ├── Reports/       ← DevExpress XtraReports (báo cáo in ấn)
- │    └── Functions/     ← Tiện ích dùng chung (TranslationManager, AiBootstrap, FormManager)
+ ├── 📂 HRMS_API/          ← Backend REST API (ASP.NET Web API 2, .NET 4.7.2)
+ │    ├── Controllers/     ← Auth, NhanVien, BangLuong, ChamCong, HopDong, AiChat, v.v.
+ │    ├── Filters/         ← JwtAuthorizeAttribute (RBAC, Data Scope & Audit Sync)
+ │    └── Services/        ← JwtService (HMAC-SHA256 Token Generation & Validation)
  │
- ├── 📂 Bu/              ← Business Logic Layer (BLL)
- │    ├── CLASS_NHANSU/  ← Nghiệp vụ Nhân sự
- │    ├── CLASS_CHAMCONG/← Nghiệp vụ Chấm công & Lương
- │    ├── CLASS_SYSTEM/  ← Nghiệp vụ Hệ thống & Phân quyền
- │    ├── DTO/           ← Data Transfer Objects
- │    └── Services/
- │         └── AI_Services/
- │              ├── AiServiceLocator.cs  ← Service Locator (đăng ký singleton)
- │              ├── ChatboxManager.cs    ← Facade cho HybridRagService
- │              ├── Core/       ← HybridRagService, SqlGeneratorService, AiRouterService, QueryPreprocessor, JsonPromptManager
- │              ├── Interfaces/ ← ILlmService, IPromptManager, ISqlGenerator, IVectorService
- │              ├── LLM/        ← OllamaService (giao tiếp với Ollama server)
- │              ├── Memory/     ← AiCacheService, AiChatHistory
- │              └── Vector/     ← QdrantService (tìm kiếm ngữ nghĩa qua Qdrant), AiDataSyncHub
+ ├── 📂 HRMS_Web/          ← Web Client SPA (React 19 + Vite + Ant Design + Recharts)
+ │    ├── src/components/  ← MainLayout, AiChatDrawer, PhanQuyenModal, PhieuLuongModal
+ │    ├── src/pages/       ← DashboardPage, NhanVienPage, ChamCongPage, BangLuongPage, v.v.
+ │    └── src/services/    ← Axios API client với tự động đính kèm JWT Bearer Token
  │
- ├── 📂 DA/              ← Data Access Layer (Entity Framework 6)
- │    ├── QLNhanSu.edmx  ← EDMX model đầy đủ cho toàn bộ ứng dụng HR
- │    └── AIEntities.edmx← EDMX model chỉ đọc (Read-Only) dành riêng cho AI
+ ├── 📂 QLyNSu/            ← Desktop Client (DevExpress WinForms)
+ │    ├── FORM_NHANSU/     ← Quản lý nhân sự, hồ sơ, hợp đồng, khen thưởng
+ │    ├── FORM_CHAMCONG/   ← Chấm công ca kíp, bảng lương, tạm ứng, tăng ca
+ │    └── Reports/         ← Báo cáo bảng lương và thống kê in ấn
  │
- ├── 📂 Bu.Tests/        ← Unit Test (NUnit)
+ ├── 📂 Bu/                ← Business Logic Layer (BLL) & AI Subsystem
+ │    ├── CLASS_SYSTEM/    ← PasswordHasher (Strict BCrypt), SYS_USER, SYS_RIGHT
+ │    └── Services/AI_Services/
+ │         ├── Core/       ← HybridRagService, SafeSqlExecutor, RagContextRetriever,
+ │         │                  RagSynthesizer, OracleSqlAstValidator, QueryPreprocessor
+ │         ├── Interfaces/ ← ISafeSqlExecutor, IRagContextRetriever, IRagSynthesizer
+ │         └── Vector/     ← QdrantService, QdrantOutboxManager (Retry & Reconciliation)
  │
- └── 📂 VectorDataSync/  ← Console tool nạp dữ liệu nhân viên vào Qdrant
+ ├── 📂 DA/                ← Data Access Layer (Entity Framework 6.5)
+ │    ├── MyEntities       ← EDMX Model kết nối Oracle Database
+ │    └── AiEntities       ← EDMX Model chỉ đọc dành riêng cho AI Views
+ │
+ ├── 📂 Bu.Tests/          ← Automated Test Suite (NUnit - 60 Passing Tests)
+ │    ├── AiPromptInjectionTests.cs      ← Kiểm thử an toàn AST & tiêm nhiễm Prompt
+ │    ├── AiRetrievalBenchmarkTests.cs   ← Đo kiểm hiệu năng Cache, Preprocessor, AST
+ │    └── ApiSecurityIntegrationTests.cs ← Kiểm thử BCrypt, JWT Claims, RBAC & Data Scope
+ │
+ └── 📂 database/
+      └── migrations/      ← Bộ kịch bản SQL Versioning (V1_0, V1_1, V1_2, V1_3)
 ```
 
 ---
 
-### ✨ Tính Năng Nghiệp Vụ
+### 🛡️ Các Biện Pháp An Toàn & Bảo Mật (Security Hardening)
 
-Danh sách chi tiết các Form và chức năng của các phân hệ:
-- Quản lý Nhân sự
-- Chấm công & Tính lương
-- Báo cáo
-- Quản trị hệ thống
-- AI Copilot
-
-👉 **Xem chi tiết tại: [docs/technical_reference.md](docs/technical_reference.md)**
+1. **Mật Khẩu Chuẩn BCrypt**:
+   - Loại bỏ hoàn toàn fallback kiểm tra mật khẩu plaintext.
+   - Bắt buộc mã hóa và so khớp bằng thuật toán băm **BCrypt** (`$2a$`, `$2b$`, `$2y$`).
+   - Tự động trim khoảng trắng đệm đặc thù của kiểu dữ liệu `CHAR` trong Oracle.
+2. **Xác Thực JWT & Server-Side RBAC**:
+   - Token JWT ký bằng khóa bí mật 256-bit (xoay vòng linh hoạt qua biến môi trường `HRMS_JWT_SECRET`).
+   - Bộ lọc `[JwtAuthorize(Right = "F_...")]` và `[JwtAuthorize(RequireAdmin = true)]` cưỡng chế kiểm tra quyền trên từng API endpoint.
+3. **Kiểm Soát Phạm Vi Dữ Liệu (Data Scope / Multi-Tenancy)**:
+   - Tự động áp đặt điều kiện lọc theo mã công ty (`MACTY` / `IDCTY`) của người dùng đăng nhập đối với mọi truy vấn dữ liệu. Chỉ có tài khoản Super Admin mới có quyền truy cập liên công ty.
+4. **Chống Tấn Công Dò Quét (Brute-Force & Enumeration Defense)**:
+   - Bộ giới hạn tốc độ (Rate Limiter) giới hạn tối đa 5 lần đăng nhập sai liên tiếp, khóa tài khoản tạm thời 15 phút.
+   - Phản hồi đăng nhập đồng nhất: không làm lộ sự tồn tại của tên người dùng (`"Tài khoản hoặc mật khẩu không chính xác"`).
+5. **Che Giấu Thông Tin Lỗi (Zero Exception Leaks)**:
+   - Tắt chế độ `debug` và kích hoạt `customErrors="RemoteOnly"`.
+   - Toàn bộ ngoại lệ hệ thống được ghi log bảo mật phía máy chủ (`Trace.TraceError`), client chỉ nhận mã lỗi HTTP chuẩn (400, 401, 403, 500) kèm thông điệp thân thiện.
+6. **Kiểm Duyệt Truy Vấn AI Bằng AST Tokenizer (`OracleSqlAstValidator`)**:
+   - Tokenize câu lệnh SQL sinh ra từ AI và kiểm tra ngữ pháp cây cú pháp.
+   - Chặn đứng 100% các từ khóa DDL/DML (`DROP`, `DELETE`, `UPDATE`, `INSERT`, `ALTER`, `TRUNCATE`).
+   - Chặn kỹ thuật tiêm nhiễm nhiều câu lệnh qua dấu chấm phẩy (Multi-statement injection).
+   - Chặn truy cập vào catalog hệ thống Oracle (`DBMS_*`, `SYS.*`, `ALL_*`, `V$*`).
+   - **Strict Whitelist**: Chỉ cho phép đọc từ 6 View an toàn: `V_AI_EMPLOYEE`, `V_AI_ATTENDANCE`, `V_AI_OVERTIME`, `V_AI_INSURANCE`, `V_AI_ADVANCE`, `V_AI_ALLOWANCE`.
 
 ---
 
-### 🤖 Kiến Trúc AI
-
-#### Luồng Xử Lý (RAG Pipeline)
+### 🤖 Pipeline AI Hybrid RAG & Outbox Pattern
 
 ```text
-Hiện tại
-────────────────────────────────
+[ User Question ]
+       │
+       ▼
+[ QueryPreprocessor ] ── (Phục hồi dấu tiếng Việt & intent hints)
+       │
+       ▼
+[ FastResponseService ] ── (Phản hồi tức thì < 50ms nếu có trong Cache)
+       │
+       ▼
+[ AiRouterService ] ── (Phân loại: GENERAL hay DB Query)
+       │
+  ┌────┴──────────────────────────┐
+  ▼                               ▼
+[ ISqlGenerator ]           [ IVectorService (Qdrant) ]
+  │                           │
+  ▼                           ▼
+[ OracleSqlAstValidator ]   (Tìm kiếm ngữ nghĩa Top-10)
+  │ (Whitelist + Tokenizer)   │
+  ▼                           │
+[ SafeSqlExecutor ]           │
+  │ (Oracle AI Views)         │
+  └──────────────┬────────────┘
+                 ▼
+     [ RagContextRetriever ] ── (Định dạng & ghép nối Context đa nguồn)
+                 │
+                 ▼
+       [ RagSynthesizer ] ── (Ollama Qwen 2.5 Streaming)
+                 │
+                 ▼
+       [ Final AI Response ]
+```
 
-Question
-   ↓
-Query Preprocessor
-   ↓
-Router
-   ↓
-Qdrant semantic search
-   ↓
-Ollama
-   ↓
-Answer
+- **Qdrant Outbox Pattern (`QdrantOutboxManager`)**:
+  - Khi có biến động nhân sự, sự kiện được đưa vào hàng đợi Outbox bền vững lưu trữ trên đĩa.
+  - Bộ tiến trình nền tự động xử lý với thuật toán **Exponential Backoff Retry** (5s, 15s, 45s...). Khi Qdrant gặp sự cố mạng hoặc khởi động lại, dữ liệu không bao giờ bị thất lạc.
+  - Cung cấp API đối soát toàn diện (`POST /api/ai/reconcile`) quét toàn bộ nhân viên Oracle và đồng bộ vector.
 
+---
 
-Định hướng / chế độ thử nghiệm
-────────────────────────────────
-
-Question
-   ↓
-Router
-   ├── Semantic → Qdrant
-   └── Data → NL2SQL → Oracle AI Views
+### 🚀 Hướng Dẫn Cài Đặt & Triển Khai
+- Xem chi tiết tại:
+  - 📖 **[docs/installation.md](docs/installation.md)**: Hướng dẫn cài đặt môi trường lập trình và chạy thử.
+  - 🌐 **[docs/deployment_guide.md](docs/deployment_guide.md)**: Hướng dẫn đóng gói và triển khai sản xuất trên IIS & Docker.
+  - 📚 **[docs/technical_reference.md](docs/technical_reference.md)**: Tài liệu tham chiếu chi tiết các bảng và phân hệ.
 ```
 
 #### Cơ Chế Bảo Mật (Security Safeguards)

@@ -8,7 +8,7 @@ using System.Web.Http;
 
 namespace HRMS_API.Controllers
 {
-    [JwtAuthorize]
+    [JwtAuthorize(RequireAdmin = true)]
     [RoutePrefix("api/users")]
     public class UserController : ApiController
     {
@@ -20,6 +20,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpGet]
         [Route("")]
+        [Route("~/api/user")]
         public IHttpActionResult GetAllUsers()
         {
             try
@@ -82,7 +83,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh sách người dùng: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách người dùng: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh sách người dùng." });
             }
         }
 
@@ -92,6 +94,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("")]
+        [Route("~/api/user")]
         public IHttpActionResult CreateUser([FromBody] CreateUserRequest req)
         {
             try
@@ -99,6 +102,11 @@ namespace HRMS_API.Controllers
                 if (req == null || string.IsNullOrWhiteSpace(req.Username))
                 {
                     return BadRequest("Tên đăng nhập / Mã nhóm không được để trống.");
+                }
+
+                if (!req.IsGroup && string.IsNullOrWhiteSpace(req.Password))
+                {
+                    return BadRequest("Mật khẩu tài khoản không được để trống.");
                 }
 
                 using (var db = new MyEntities())
@@ -113,7 +121,7 @@ namespace HRMS_API.Controllers
                     {
                         USERNAME = cleanUsername,
                         FULLNAME = req.FullName ?? cleanUsername,
-                        PASSWORD = req.IsGroup ? "" : PasswordHasher.HashPassword(string.IsNullOrWhiteSpace(req.Password) ? "123" : req.Password),
+                        PASSWORD = req.IsGroup ? "" : PasswordHasher.HashPassword(req.Password.Trim()),
                         ISGROUP = req.IsGroup ? 1 : 0,
                         DISABLED = 0,
                         MACTY = "1",
@@ -137,7 +145,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tạo tài khoản / nhóm: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tạo tài khoản / nhóm: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tạo tài khoản / nhóm." });
             }
         }
 
@@ -147,6 +156,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPut]
         [Route("{id:int}")]
+        [Route("~/api/user/{id:int}")]
         public IHttpActionResult UpdateUser(int id, [FromBody] UpdateUserRequest req)
         {
             try
@@ -180,7 +190,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi cập nhật tài khoản: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi cập nhật tài khoản: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi cập nhật tài khoản." });
             }
         }
 
@@ -188,8 +199,10 @@ namespace HRMS_API.Controllers
         /// PUT: api/users/{id}/toggle-lock
         /// Khóa hoặc mở khóa nhanh tài khoản người dùng
         /// </summary>
+        [HttpPost]
         [HttpPut]
         [Route("{id:int}/toggle-lock")]
+        [Route("~/api/user/{id:int}/toggle-lock")]
         public IHttpActionResult ToggleLock(int id)
         {
             try
@@ -218,7 +231,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi khóa/mở khóa tài khoản: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi khóa/mở khóa tài khoản: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi thay đổi trạng thái tài khoản." });
             }
         }
 
@@ -228,6 +242,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("{id:int}/reset-password")]
+        [Route("~/api/user/{id:int}/reset-password")]
         public IHttpActionResult ResetPassword(int id, [FromBody] ResetPasswordRequest req)
         {
             try
@@ -250,7 +265,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi đặt lại mật khẩu: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi đặt lại mật khẩu: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi đặt lại mật khẩu." });
             }
         }
 
@@ -260,6 +276,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpDelete]
         [Route("{id:int}")]
+        [Route("~/api/user/{id:int}")]
         public IHttpActionResult DeleteUser(int id)
         {
             try
@@ -295,7 +312,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi xóa người dùng/nhóm: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi xóa người dùng/nhóm: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi xóa người dùng/nhóm." });
             }
         }
 
@@ -355,7 +373,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải thành viên nhóm: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải thành viên nhóm: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải thành viên nhóm." });
             }
         }
 
@@ -387,7 +406,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi thêm thành viên vào nhóm: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi thêm thành viên vào nhóm: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi thêm thành viên vào nhóm." });
             }
         }
 
@@ -415,7 +435,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi gỡ thành viên khỏi nhóm: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi gỡ thành viên khỏi nhóm: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi gỡ thành viên khỏi nhóm." });
             }
         }
 
@@ -425,6 +446,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpGet]
         [Route("{id:int}/rights")]
+        [Route("~/api/user/{id:int}/rights")]
         public IHttpActionResult GetUserRights(int id)
         {
             try
@@ -464,7 +486,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi lấy quyền người dùng: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi lấy quyền người dùng: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi lấy quyền người dùng." });
             }
         }
 
@@ -474,6 +497,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("{id:int}/rights")]
+        [Route("~/api/user/{id:int}/rights")]
         public IHttpActionResult SaveUserRights(int id, [FromBody] SaveRightsRequest req)
         {
             try
@@ -508,7 +532,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi lưu phân quyền: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi lưu phân quyền: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi cập nhật phân quyền." });
             }
         }
 
@@ -533,7 +558,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục chức năng: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục chức năng: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục chức năng." });
             }
         }
     }

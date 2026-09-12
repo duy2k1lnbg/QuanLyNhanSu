@@ -49,15 +49,17 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh sách kỳ công: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách kỳ công: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh sách kỳ công." });
             }
         }
 
         /// <summary>
-        /// GET: api/chamcong/kycongchitiet?makycong={makycong}
+        /// GET: api/chamcong/chitiet?makycong={makycong} hoặc api/chamcong/kycongchitiet
         /// Lấy bảng chấm công chi tiết theo ngày (D1..D31) của tất cả nhân viên trong kỳ
         /// </summary>
         [HttpGet]
+        [Route("chitiet")]
         [Route("kycongchitiet")]
         public IHttpActionResult GetKyCongChiTiet(int makycong = 0)
         {
@@ -77,21 +79,79 @@ namespace HRMS_API.Controllers
                         }
                     }
 
-                    var list = db.TB_KYCONGCHITIET
-                        .Where(x => makycong <= 0 || x.MAKYCONG == makycong)
+                    // Danh sách 975 nhân sự chuẩn từ TB_NHANVIEN (loại bỏ bản ghi test 3207)
+                    var nvList = db.TB_NHANVIEN
+                        .Where(nv => nv.MANV != 3207)
+                        .Select(nv => new
+                        {
+                            nv.MANV,
+                            nv.HOTEN,
+                            nv.IDPB,
+                            nv.DATHOIVIEC,
+                            nv.DELETED_DATE
+                        })
                         .ToList();
 
-                    return Ok(new
+                    var nvDict = nvList.ToDictionary(k => k.MANV, v => v);
+
+                    var list = db.TB_KYCONGCHITIET
+                        .Where(kc => makycong <= 0 || kc.MAKYCONG == makycong)
+                        .OrderBy(kc => kc.MANV)
+                        .ToList();
+
+                    // Lọc chuẩn xác chỉ giữ các bản ghi thuộc 975 nhân viên chính thức của công ty
+                    list = list.Where(kc => nvDict.ContainsKey(kc.MANV)).ToList();
+
+                    var pbDict = db.TB_PHONGBAN
+                        .Select(pb => new { pb.IDPB, pb.TENPB })
+                        .ToDictionary(k => k.IDPB, v => v.TENPB);
+
+                    var result = list.Select(item =>
                     {
-                        makycong = makycong,
-                        total = list.Count,
-                        items = list
-                    });
+                        string hoTen = item.HOTEN;
+                        string tenPb = "Chưa phân phòng";
+                        decimal? daThoiViec = null;
+                        bool isActive = false;
+
+                        if (nvDict.TryGetValue(item.MANV, out var nv))
+                        {
+                            if (!string.IsNullOrWhiteSpace(nv.HOTEN)) hoTen = nv.HOTEN;
+                            daThoiViec = nv.DATHOIVIEC;
+                            isActive = (nv.DATHOIVIEC == null || nv.DATHOIVIEC == 0) && nv.DELETED_DATE == null;
+                            if (nv.IDPB.HasValue && pbDict.TryGetValue(nv.IDPB.Value, out var pbName))
+                            {
+                                tenPb = pbName;
+                            }
+                        }
+
+                        return new
+                        {
+                            item.MAKYCONG,
+                            item.MANV,
+                            HOTEN = hoTen,
+                            TENPB = tenPb,
+                            DATHOIVIEC = daThoiViec,
+                            IS_ACTIVE = isActive,
+                            item.D1, item.D2, item.D3, item.D4, item.D5, item.D6, item.D7, item.D8, item.D9, item.D10,
+                            item.D11, item.D12, item.D13, item.D14, item.D15, item.D16, item.D17, item.D18, item.D19, item.D20,
+                            item.D21, item.D22, item.D23, item.D24, item.D25, item.D26, item.D27, item.D28, item.D29, item.D30,
+                            item.D31,
+                            item.NGAYCONG,
+                            item.NGAYPHEP,
+                            item.NGHIKHONGPHEP,
+                            item.CONGNGAYLE,
+                            item.CONGCHUNHAT,
+                            item.TONGNGAYCONG
+                        };
+                    }).ToList();
+
+                    return Ok(result);
                 }
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải bảng chấm công chi tiết: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải bảng chấm công chi tiết: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải bảng chấm công chi tiết." });
             }
         }
 
@@ -110,7 +170,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải chi tiết chấm công nhân viên #" + manv + ": " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải chi tiết chấm công nhân viên #" + manv + ": " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải chi tiết chấm công của nhân viên." });
             }
         }
 
@@ -141,7 +202,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục loại ca: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục loại ca: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục loại ca." });
             }
         }
 
@@ -172,16 +234,18 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi tải danh mục loại công: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục loại công: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh mục loại công." });
             }
         }
 
         /// <summary>
         /// POST: api/chamcong/phatsinh
-        /// Phát sinh tự động bảng công chi tiết cho tháng/năm
+        /// Phát sinh tự động bảng công chi tiết cho tháng/năm (Yêu cầu quyền F_CHAMCONG_ADD)
         /// </summary>
         [HttpPost]
         [Route("phatsinh")]
+        [JwtAuthorize(Right = "F_CHAMCONG_ADD")]
         public IHttpActionResult PhatSinhKyCong([FromBody] PhatSinhKyCongParam param)
         {
             try
@@ -191,7 +255,11 @@ namespace HRMS_API.Controllers
                     return BadRequest("Thông tin tháng hoặc năm không hợp lệ.");
                 }
 
-                _kyCongCTBus.phatSinhKyCongChiTiet(param.MaCty > 0 ? param.MaCty : 1, param.Thang, param.Nam, param.IdUser ?? 1);
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
+                int ctyId = param.MaCty > 0 ? param.MaCty : ((jwtUser != null && int.TryParse(jwtUser.MaCty, out int uc) && uc > 0) ? uc : 1);
+
+                _kyCongCTBus.phatSinhKyCongChiTiet(ctyId, param.Thang, param.Nam, currentUserId);
                 return Ok(new
                 {
                     success = true,
@@ -200,7 +268,8 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                return InternalServerError(new Exception("Lỗi khi phát sinh kỳ công chi tiết: " + ex.Message, ex));
+                System.Diagnostics.Trace.TraceError("Lỗi khi phát sinh kỳ công chi tiết: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi phát sinh kỳ công chi tiết." });
             }
         }
     }

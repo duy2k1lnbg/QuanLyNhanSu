@@ -1,5 +1,6 @@
 using Bu.Services.AI_Services;
 using DA;
+using HRMS_API.Filters;
 using System;
 using System.Linq;
 using System.Net.Sockets;
@@ -8,6 +9,7 @@ using System.Web.Http;
 
 namespace HRMS_API.Controllers
 {
+    [JwtAuthorize]
     [RoutePrefix("api/ai")]
     public class AiChatController : ApiController
     {
@@ -63,9 +65,10 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Trace.TraceError("Lỗi trong AiChatController: " + ex.ToString());
                 return Ok(new
                 {
-                    answer = $"Xin chào, tôi là AI Copilot HRMS. Rất tiếc hiện tại đã có lỗi nhỏ: {ex.Message}. Vui lòng thử lại sau.",
+                    answer = "Xin chào, tôi là AI Copilot HRMS. Rất tiếc hệ thống tạm thời gặp gián đoạn kết nối. Vui lòng thử lại sau.",
                     sqlQuery = "",
                     source = "Fallback_Error"
                 });
@@ -158,6 +161,48 @@ namespace HRMS_API.Controllers
 
             // Trả lời mặc định
             return $"Chào bạn, câu hỏi của bạn là: *\"{q}\"*. Hệ thống HRMS đã ghi nhận câu hỏi. Bạn có thể tra cứu nhanh các thông tin về: **tổng số nhân sự**, **phòng ban**, **quy định làm thêm giờ (OT)**, **quỹ lương**, **hợp đồng lao động** hoặc **chế độ nghỉ phép năm**.";
+        }
+
+        /// <summary>
+        /// POST: api/ai/reconcile
+        /// Chạy job đối soát toàn bộ nhân sự sang Qdrant Vector Service
+        /// </summary>
+        [HttpPost]
+        [Route("reconcile")]
+        [JwtAuthorize(RequireAdmin = true)]
+        public async Task<IHttpActionResult> ReconcileVectors()
+        {
+            try
+            {
+                var result = await Bu.Services.AI_Services.Vector.QdrantOutboxManager.Instance.ReconcileAllEmployeesAsync();
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi trong ReconcileVectors: " + ex.ToString());
+                return InternalServerError();
+            }
+        }
+
+        /// <summary>
+        /// GET: api/ai/outbox-status
+        /// Kiểm tra số lượng tin nhắn đang chờ đồng bộ sang Qdrant
+        /// </summary>
+        [HttpGet]
+        [Route("outbox-status")]
+        [JwtAuthorize(RequireAdmin = true)]
+        public IHttpActionResult GetOutboxStatus()
+        {
+            try
+            {
+                int pending = Bu.Services.AI_Services.Vector.QdrantOutboxManager.Instance.PendingCount;
+                return Ok(new { pendingMessages = pending });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi trong GetOutboxStatus: " + ex.ToString());
+                return InternalServerError();
+            }
         }
     }
 

@@ -1,89 +1,29 @@
 import { useState, useEffect } from 'react';
-import {
-  Layout,
-  Menu,
-  Typography,
-  Card,
-  Row,
-  Col,
-  Statistic,
-  Table,
-  Tag,
-  Avatar,
-  Space,
-  Button,
-  Input,
-  Drawer,
-  Badge,
-  Tooltip,
-  notification,
-  theme,
-  Select,
-  Modal,
-  Form,
-  Popconfirm,
-  Tabs,
-  Spin,
-  Dropdown,
-  InputNumber,
-  DatePicker,
-  Segmented,
-} from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import {
-  MenuOutlined,
-  DashboardOutlined,
-  TeamOutlined,
-  DollarOutlined,
-  CalendarOutlined,
-  FileTextOutlined,
-  RobotOutlined,
-  BellOutlined,
-  UserOutlined,
-  SendOutlined,
-  SearchOutlined,
-  PlusOutlined,
-  CheckCircleOutlined,
-  CloudSyncOutlined,
-  ReloadOutlined,
-  CalculatorOutlined,
-  DeleteOutlined,
-  EditOutlined,
-  LogoutOutlined,
-  SafetyCertificateOutlined,
-  TrophyOutlined,
-  SwapOutlined,
-  RiseOutlined,
-  PrinterOutlined,
-  SettingOutlined,
-  LockOutlined,
-  KeyOutlined,
-} from '@ant-design/icons';
-import {
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip as RechartsTooltip,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
-} from 'recharts';
-import dayjs from 'dayjs';
+import { notification } from 'antd';
 import api from './services/api';
 import Login from './pages/Login';
-import PhanQuyenModal from './components/PhanQuyenModal';
-import GroupMembersModal from './components/GroupMembersModal';
+import MainLayout from './components/MainLayout';
+import AiChatDrawer from './components/AiChatDrawer';
 import ChangePasswordModal from './components/ChangePasswordModal';
-import UserEditModal from './components/UserEditModal';
-import PhieuLuongModal from './components/PhieuLuongModal';
+import CommandPaletteModal from './components/CommandPaletteModal';
+import Employee360Modal from './components/Employee360Modal';
+import type { NotificationItem } from './components/NotificationPopoverContent';
+
+// Modular Page Components
+import DashboardPage from './pages/DashboardPage';
+import NhanVienPage from './pages/NhanVienPage';
+import ChamCongPage from './pages/ChamCongPage';
+import BangLuongPage from './pages/BangLuongPage';
+import HopDongPage from './pages/HopDongPage';
+import KhenThuongKyLuatPage from './pages/KhenThuongKyLuatPage';
+import NangLuongDieuChuyenPage from './pages/NangLuongDieuChuyenPage';
+import TangCaUngLuongPage from './pages/TangCaUngLuongPage';
+import UserManagementPage from './pages/UserManagementPage';
+
 import type {
   NhanVienDTO,
   DashboardLuongDTO,
   DashboardPhongBanDTO,
-  AIChatMessage,
   BangLuongDTO,
   KyCongDTO,
   KyCongChiTietDTO,
@@ -97,22 +37,55 @@ import type {
   DieuChuyenDTO,
   UngLuongDTO,
   TangCaDTO,
+  ActionItemDTO,
+  AnomalyItemDTO,
 } from './types/hrms';
 
-const { Header, Content, Sider } = Layout;
-const { Title, Text } = Typography;
+// Bản đồ định tuyến URL hỗ trợ đầy đủ các nút Back, Forward, Reload của trình duyệt
+const VALID_ROUTES: Record<string, string> = {
+  dashboard: 'dashboard',
+  nhanvien: 'nhanvien',
+  chamcong: 'chamcong',
+  bangluong: 'bangluong',
+  hopdong: 'hopdong',
+  khenthuong: 'khenthuong',
+  nangluong: 'nangluong',
+  ungluong: 'ungluong',
+  phanquyen: 'phanquyen',
+};
 
-const PIE_COLORS = ['#1677ff', '#52c41a', '#fa8c16', '#722ed1', '#13c2c2', '#eb2f96'];
+const ROUTE_TITLES: Record<string, string> = {
+  dashboard: 'Bảng điều khiển | HRMS Enterprise',
+  nhanvien: 'Quản lý Nhân sự | HRMS Enterprise',
+  chamcong: 'Chấm công & Ca làm | HRMS Enterprise',
+  bangluong: 'Tính lương & Thuế | HRMS Enterprise',
+  hopdong: 'Hợp đồng lao động | HRMS Enterprise',
+  khenthuong: 'Khen thưởng & Kỷ luật | HRMS Enterprise',
+  nangluong: 'Nâng lương & Điều chuyển | HRMS Enterprise',
+  ungluong: 'Tăng ca & Tạm ứng | HRMS Enterprise',
+  phanquyen: 'Phân quyền & Hệ thống | HRMS Enterprise',
+};
+
+const getRouteFromLocation = (): string => {
+  if (typeof window === 'undefined') return 'dashboard';
+  const hash = window.location.hash.replace(/^#\/?/, '').trim().toLowerCase();
+  if (hash && VALID_ROUTES[hash]) return VALID_ROUTES[hash];
+
+  const path = window.location.pathname.replace(/^\//, '').trim().toLowerCase();
+  if (path && VALID_ROUTES[path]) return VALID_ROUTES[path];
+
+  return 'dashboard';
+};
 
 export function App() {
-  // Authentication State
+  // 1. Trạng thái xác thực người dùng
   const [currentUser, setCurrentUser] = useState<CurrentUserDTO | null>(() => {
     const saved = localStorage.getItem('hrms_user');
     const token = localStorage.getItem('hrms_token');
     if (saved && token) {
       try {
         const u = JSON.parse(saved);
-        if (u && u.Username && !u.FullName?.includes('(Auto)')) {
+        if (u && u.Username) {
           return {
             IdUser: u.IdUser ?? u.id ?? 0,
             Username: u.Username || u.username || '',
@@ -122,47 +95,42 @@ export function App() {
           };
         }
       } catch {
-        // ignore
+        // ignore invalid saved user
       }
     }
     return null;
   });
 
-  const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
-  const [collapsed, setCollapsed] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 992);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      if (window.innerWidth < 992) {
-        setCollapsed(true);
-      }
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-  const [currentMenu, setCurrentMenu] = useState('dashboard');
+  // Khởi tạo menu từ URL hash để khi Reload (F5) không bị mất trang hiện tại
+  const [currentMenu, setCurrentMenu] = useState<string>(() => getRouteFromLocation());
   const [aiDrawerVisible, setAiDrawerVisible] = useState(false);
-  const [chatInput, setChatInput] = useState('');
-  const [chatLoading, setChatLoading] = useState(false);
-  const [searchKeyword, setSearchKeyword] = useState('');
+  const [changePasswordModalVisible, setChangePasswordModalVisible] = useState(false);
+  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  // States dữ liệu chính
+  // 2. Dữ liệu ứng dụng
   const [nhanVienList, setNhanVienList] = useState<NhanVienDTO[]>([]);
   const [luongStats, setLuongStats] = useState<DashboardLuongDTO[]>([]);
   const [phongBanStats, setPhongBanStats] = useState<DashboardPhongBanDTO[]>([]);
   const [totalEmployees, setTotalEmployees] = useState<number>(0);
   const [totalSalary, setTotalSalary] = useState<number>(0);
-  const [isBackendConnected, setIsBackendConnected] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [presentToday, setPresentToday] = useState<number>(0);
+  const [absentToday, setAbsentToday] = useState<number>(0);
+  const [lateToday, setLateToday] = useState<number>(0);
+  const [actionItems, setActionItems] = useState<ActionItemDTO[]>([]);
+  const [anomalies, setAnomalies] = useState<AnomalyItemDTO[]>([]);
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
 
-  // States Danh mục & Kỳ công
+  // 3. Global Search & Employee 360
+  const [commandPaletteVisible, setCommandPaletteVisible] = useState<boolean>(false);
+  const [globalEmployee360, setGlobalEmployee360] = useState<NhanVienDTO | null>(null);
+  const [global360Visible, setGlobal360Visible] = useState<boolean>(false);
+
   const [danhMuc, setDanhMuc] = useState<DanhMucAllDTO | null>(null);
   const [kyCongList, setKyCongList] = useState<KyCongDTO[]>([]);
   const [selectedKyCong, setSelectedKyCong] = useState<number>(0);
 
-  // States Bảng lương & Chấm công
+  // Bảng lương & Chấm công
   const [bangLuongList, setBangLuongList] = useState<BangLuongDTO[]>([]);
   const [bangLuongLoading, setBangLuongLoading] = useState<boolean>(false);
   const [tinhLuongLoading, setTinhLuongLoading] = useState<boolean>(false);
@@ -170,80 +138,38 @@ export function App() {
   const [loaiCaList, setLoaiCaList] = useState<LoaiCaDTO[]>([]);
   const [chamCongLoading, setChamCongLoading] = useState<boolean>(false);
 
-  // States Hợp đồng
+  // Hợp đồng, Khen thưởng, Nâng lương, Tăng ca, Người dùng
   const [hopDongList, setHopDongList] = useState<HopDongDTO[]>([]);
   const [hopDongLoading, setHopDongLoading] = useState<boolean>(false);
-
-  // States Khen thưởng & Kỷ luật
   const [khenThuongList, setKhenThuongList] = useState<KhenThuongDTO[]>([]);
   const [kyLuatList, setKyLuatList] = useState<KhenThuongDTO[]>([]);
   const [ktLoading, setKtLoading] = useState<boolean>(false);
-  const [ktModalVisible, setKtModalVisible] = useState<boolean>(false);
-  const [formKt] = Form.useForm();
-
-  // States Nâng lương & Điều chuyển
   const [nangLuongList, setNangLuongList] = useState<NangLuongDTO[]>([]);
   const [dieuChuyenList, setDieuChuyenList] = useState<DieuChuyenDTO[]>([]);
   const [nlDcLoading, setNlDcLoading] = useState<boolean>(false);
-  const [nlModalVisible, setNlModalVisible] = useState<boolean>(false);
-  const [dcModalVisible, setDcModalVisible] = useState<boolean>(false);
-  const [formNl] = Form.useForm();
-  const [formDc] = Form.useForm();
-
-  // States Tăng ca & Ứng lương
   const [ungLuongList, setUngLuongList] = useState<UngLuongDTO[]>([]);
   const [tangCaList, setTangCaList] = useState<TangCaDTO[]>([]);
   const [tcUlLoading, setTcUlLoading] = useState<boolean>(false);
-  const [ulModalVisible, setUlModalVisible] = useState<boolean>(false);
-  const [tcModalVisible, setTcModalVisible] = useState<boolean>(false);
-  const [formUl] = Form.useForm();
-  const [formTc] = Form.useForm();
-
-  // States Quản trị Người dùng & Phân quyền (RBAC WinForms)
   const [userList, setUserList] = useState<SysUserDTO[]>([]);
   const [userLoading, setUserLoading] = useState<boolean>(false);
-  const [userTab, setUserTab] = useState<'users' | 'groups'>('users');
-  const [userSearchText, setUserSearchText] = useState<string>('');
-  const [selectedUserForPerms, setSelectedUserForPerms] = useState<SysUserDTO | null>(null);
-  const [phanQuyenModalVisible, setPhanQuyenModalVisible] = useState<boolean>(false);
-  const [createUserModalVisible, setCreateUserModalVisible] = useState<boolean>(false);
-  const [selectedGroupForMembers, setSelectedGroupForMembers] = useState<SysUserDTO | null>(null);
-  const [groupMembersModalVisible, setGroupMembersModalVisible] = useState<boolean>(false);
-  const [userEditModalVisible, setUserEditModalVisible] = useState<boolean>(false);
-  const [selectedUserForEdit, setSelectedUserForEdit] = useState<SysUserDTO | null>(null);
-  const [changePasswordModalVisible, setChangePasswordModalVisible] = useState<boolean>(false);
-  const [isCreatingGroup, setIsCreatingGroup] = useState<boolean>(false);
-  const [formCreateUser] = Form.useForm();
 
-  // State Phiếu lương Modal
-  const [selectedBangLuong, setSelectedBangLuong] = useState<BangLuongDTO | null>(null);
-  const [phieuLuongModalVisible, setPhieuLuongModalVisible] = useState<boolean>(false);
+  // Lắng nghe phím tắt tìm kiếm toàn cục (Ctrl + K, Alt + K hoặc / khi không ở ô nhập)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const isInput = ['INPUT', 'TEXTAREA'].includes((e.target as HTMLElement)?.tagName);
+      if (((e.ctrlKey || e.metaKey || e.altKey) && (e.key === 'k' || e.key === 'K')) || (!isInput && e.key === '/')) {
+        e.preventDefault();
+        setCommandPaletteVisible((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
-  // State Modal Nhân viên
-  const [nvModalVisible, setNvModalVisible] = useState<boolean>(false);
-  const [editingNv, setEditingNv] = useState<NhanVienDTO | null>(null);
-  const [formNv] = Form.useForm();
-
-  // Chat Messages AI
-  const [chatMessages, setChatMessages] = useState<AIChatMessage[]>([
-    {
-      id: '1',
-      sender: 'assistant',
-      content:
-        'Xin chào! Tôi là Trợ lý AI HRMS Copilot. Bạn cần tra cứu luật lao động, thông tin phòng ban hay chính sách nhân sự nào?',
-      timestamp: 'Vừa xong',
-      source: 'AI_Assistant',
-    },
-  ]);
-
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
-  // Check quyền tương tự WinForms (hỗ trợ cả mã F_DM_..., F_CC_..., v.v.)
+  // Check quyền tương tự WinForms: Admin và tài khoản ADMIN luôn có toàn quyền tuyệt đối
   const hasRight = (...codes: string[]) => {
     if (!currentUser) return false;
-    if (currentUser.IsAdmin || currentUser.Rights?.includes('*')) return true;
+    if (currentUser.IsAdmin || currentUser.Username?.toUpperCase() === 'ADMIN' || currentUser.Rights?.includes('*')) return true;
     return codes.some((code) =>
       currentUser.Rights?.some(
         (r) =>
@@ -254,2862 +180,484 @@ export function App() {
     );
   };
 
-  // 1. Tải dữ liệu ban đầu
+  // Tải dữ liệu ban đầu
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const [nvRes, statsRes, dmRes, kcRes] = await Promise.all([
+      const [dashRes, nvRes, dmRes, kcRes, notifRes] = await Promise.allSettled([
+        api.get('/dashboard/stats'),
         api.get<NhanVienDTO[]>('/nhanvien'),
-        api.get<{
-          tongNhanVien: number;
-          tongQuyLuong: number;
-          phongBanStats: DashboardPhongBanDTO[];
-          luongStats: DashboardLuongDTO[];
-        }>('/dashboard/stats'),
         api.get<DanhMucAllDTO>('/danhmuc/all'),
         api.get<KyCongDTO[]>('/bangluong/kycong'),
+        api.get('/dashboard/notifications'),
       ]);
 
-      if (Array.isArray(nvRes.data)) {
-        setNhanVienList(nvRes.data);
-        setTotalEmployees(nvRes.data.length);
+      if (dashRes.status === 'fulfilled' && dashRes.value.data) {
         setIsBackendConnected(true);
-      } else {
-        setNhanVienList([]);
+        const data = dashRes.value.data;
+        setTotalEmployees(data.tongNhanVien ?? data.TotalEmployees ?? 0);
+        setTotalSalary(data.tongQuyLuong ?? data.TotalSalary ?? 0);
+        setPresentToday(data.presentToday ?? 0);
+        setAbsentToday(data.absentToday ?? 0);
+        setLateToday(data.lateToday ?? 0);
+        setLuongStats(data.luongStats ?? data.SalaryTrends ?? []);
+        setPhongBanStats(data.phongBanStats ?? data.DepartmentDistribution ?? []);
+        setActionItems(data.actionItems ?? []);
+        setAnomalies(data.anomalies ?? []);
       }
 
-      if (statsRes.data) {
-        if (statsRes.data.tongNhanVien > 0) setTotalEmployees(statsRes.data.tongNhanVien);
-        if (statsRes.data.tongQuyLuong > 0) setTotalSalary(statsRes.data.tongQuyLuong);
-        if (Array.isArray(statsRes.data.phongBanStats)) setPhongBanStats(statsRes.data.phongBanStats);
-        if (Array.isArray(statsRes.data.luongStats)) setLuongStats(statsRes.data.luongStats);
+      if (notifRes.status === 'fulfilled' && notifRes.value.data) {
+        const notifData = notifRes.value.data as any;
+        const items = Array.isArray(notifData) ? notifData : (notifData.items ?? []);
+        setNotifications(items);
       }
 
-      if (dmRes.data) setDanhMuc(dmRes.data);
+      if (nvRes.status === 'fulfilled' && nvRes.value.data) {
+        setNhanVienList(nvRes.value.data);
+      }
 
-      if (Array.isArray(kcRes.data) && kcRes.data.length > 0) {
-        setKyCongList(kcRes.data);
-        setSelectedKyCong(kcRes.data[0].MAKYCONG);
-      } else {
-        setKyCongList([]);
+      if (dmRes.status === 'fulfilled' && dmRes.value.data) {
+        setDanhMuc(dmRes.value.data);
+      }
+
+      if (kcRes.status === 'fulfilled' && kcRes.value.data && kcRes.value.data.length > 0) {
+        setKyCongList(kcRes.value.data);
+        const latest = kcRes.value.data[0].MAKYCONG;
+        setSelectedKyCong(latest);
+        fetchBangLuong(latest);
+        fetchChamCong(latest);
       }
     } catch {
       setIsBackendConnected(false);
-      setNhanVienList([]);
     } finally {
       setLoading(false);
     }
   };
 
-  // 2. Tải Bảng lương theo kỳ công
-  const fetchBangLuong = async (maKc: number) => {
-    setBangLuongLoading(true);
+  const fetchKyCongList = async () => {
     try {
-      const res = await api.get<{ makycong: number; total: number; items: BangLuongDTO[] }>(
-        `/bangluong?makycong=${maKc}`
-      );
-      if (res.data && res.data.items) {
-        setBangLuongList(res.data.items);
+      const res = await api.get<KyCongDTO[]>('/bangluong/kycong');
+      if (res.data && Array.isArray(res.data)) {
+        setKyCongList(res.data);
       }
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể tải bảng lương.' });
+      // ignore
+    }
+  };
+
+  const fetchBangLuong = async (makycong: number) => {
+    if (!makycong) return;
+    setBangLuongLoading(true);
+    try {
+      const res = await api.get<any>(`/bangluong?makycong=${makycong}`);
+      if (res.data) {
+        const raw = Array.isArray(res.data) ? res.data : (res.data?.items ?? []);
+        setBangLuongList(raw);
+      }
+    } catch {
+      // ignore
     } finally {
       setBangLuongLoading(false);
     }
   };
 
-  // 3. Tải Bảng chấm công
-  const fetchChamCong = async (maKc: number) => {
-    setChamCongLoading(true);
-    try {
-      const [ccRes, lcRes] = await Promise.all([
-        api.get<{ makycong: number; total: number; items: KyCongChiTietDTO[] }>(
-          `/chamcong/kycongchitiet?makycong=${maKc}`
-        ),
-        api.get<LoaiCaDTO[]>('/chamcong/loaica'),
-      ]);
-
-      if (ccRes.data && Array.isArray(ccRes.data.items)) setChamCongList(ccRes.data.items);
-      else setChamCongList([]);
-      if (Array.isArray(lcRes.data)) setLoaiCaList(lcRes.data);
-      else setLoaiCaList([]);
-    } catch {
-      setChamCongList([]);
-      notification.error({ message: 'Lỗi', description: 'Không thể tải dữ liệu chấm công.' });
-    } finally {
-      setChamCongLoading(false);
-    }
-  };
-
-  // 4. Tải Hợp đồng
-  const fetchHopDong = async () => {
-    setHopDongLoading(true);
-    try {
-      const res = await api.get<HopDongDTO[]>('/hopdong');
-      if (Array.isArray(res.data)) setHopDongList(res.data);
-      else setHopDongList([]);
-    } catch {
-      setHopDongList([]);
-      notification.error({ message: 'Lỗi', description: 'Không thể tải danh sách hợp đồng.' });
-    } finally {
-      setHopDongLoading(false);
-    }
-  };
-
-  // 5. Tải Khen thưởng & Kỷ luật
-  const fetchKhenThuongKyLuat = async () => {
-    setKtLoading(true);
-    try {
-      const [ktRes, klRes] = await Promise.all([
-        api.get<KhenThuongDTO[]>('/khenthuong?loai=1'),
-        api.get<KhenThuongDTO[]>('/khenthuong?loai=2'),
-      ]);
-      if (Array.isArray(ktRes.data)) setKhenThuongList(ktRes.data);
-      else setKhenThuongList([]);
-      if (Array.isArray(klRes.data)) setKyLuatList(klRes.data);
-      else setKyLuatList([]);
-    } catch {
-      setKhenThuongList([]);
-      setKyLuatList([]);
-      notification.error({ message: 'Lỗi', description: 'Không thể tải dữ liệu khen thưởng/kỷ luật.' });
-    } finally {
-      setKtLoading(false);
-    }
-  };
-
-  // 6. Tải Nâng lương & Điều chuyển
-  const fetchNangLuongDieuChuyen = async () => {
-    setNlDcLoading(true);
-    try {
-      const [nlRes, dcRes] = await Promise.all([
-        api.get<NangLuongDTO[]>('/nangluong'),
-        api.get<DieuChuyenDTO[]>('/dieuchuyen'),
-      ]);
-      if (Array.isArray(nlRes.data)) setNangLuongList(nlRes.data);
-      else setNangLuongList([]);
-      if (Array.isArray(dcRes.data)) setDieuChuyenList(dcRes.data);
-      else setDieuChuyenList([]);
-    } catch {
-      setNangLuongList([]);
-      setDieuChuyenList([]);
-      notification.error({ message: 'Lỗi', description: 'Không thể tải dữ liệu nâng lương/điều chuyển.' });
-    } finally {
-      setNlDcLoading(false);
-    }
-  };
-
-  // 7. Tải Tăng ca & Ứng lương
-  const fetchTangCaUngLuong = async () => {
-    setTcUlLoading(true);
-    try {
-      const [ulRes, tcRes] = await Promise.all([
-        api.get<UngLuongDTO[]>('/ungluong'),
-        api.get<TangCaDTO[]>('/tangca'),
-      ]);
-      if (Array.isArray(ulRes.data)) setUngLuongList(ulRes.data);
-      else setUngLuongList([]);
-      if (Array.isArray(tcRes.data)) setTangCaList(tcRes.data);
-      else setTangCaList([]);
-    } catch {
-      setUngLuongList([]);
-      setTangCaList([]);
-      notification.error({ message: 'Lỗi', description: 'Không thể tải dữ liệu tăng ca/ứng lương.' });
-    } finally {
-      setTcUlLoading(false);
-    }
-  };
-
-  // 8. Tải Danh sách Người dùng hệ thống
-  const fetchUsers = async () => {
-    setUserLoading(true);
-    try {
-      const res = await api.get<SysUserDTO[]>('/users');
-      if (Array.isArray(res.data)) setUserList(res.data);
-      else setUserList([]);
-    } catch {
-      setUserList([]);
-      notification.error({ message: 'Lỗi', description: 'Không thể tải danh sách tài khoản.' });
-    } finally {
-      setUserLoading(false);
-    }
-  };
-
-  // Khởi chạy khi đăng nhập thành công
-  useEffect(() => {
-    if (currentUser) {
-      fetchInitialData();
-    }
-  }, [currentUser]);
-
-  // Điều hướng khi chuyển Tab
-  useEffect(() => {
-    if (!currentUser) return;
-    if (currentMenu === 'bangluong' && selectedKyCong) {
-      fetchBangLuong(selectedKyCong);
-    } else if (currentMenu === 'chamcong' && selectedKyCong) {
-      fetchChamCong(selectedKyCong);
-    } else if (currentMenu === 'hopdong') {
-      fetchHopDong();
-    } else if (currentMenu === 'khenthuong') {
-      fetchKhenThuongKyLuat();
-    } else if (currentMenu === 'nangluong') {
-      fetchNangLuongDieuChuyen();
-    } else if (currentMenu === 'ungluong') {
-      fetchTangCaUngLuong();
-    } else if (currentMenu === 'phanquyen') {
-      fetchUsers();
-    }
-  }, [currentMenu, selectedKyCong, currentUser]);
-
-  // Xử lý đăng nhập thành công
-  const handleLoginSuccess = (user: CurrentUserDTO) => {
-    setCurrentUser(user);
-    setCurrentMenu('dashboard');
-  };
-
-  // Xử lý đăng xuất
-  const handleLogout = async () => {
-    try {
-      await api.post('/auth/logout');
-    } catch {
-      // Bỏ qua lỗi khi logout
-    }
-    localStorage.removeItem('hrms_token');
-    localStorage.removeItem('hrms_user');
-    setCurrentUser(null);
-    notification.info({ message: 'Đã đăng xuất', description: 'Phiên làm việc đã kết thúc an toàn.' });
-  };
-
-  // Tính lương kỳ công
   const handleTinhLuong = async () => {
     if (!selectedKyCong) return;
     setTinhLuongLoading(true);
     try {
-      const res = await api.post<{ success: boolean; message: string }>('/bangluong/tinhluong', {
-        Makycong: selectedKyCong,
-        IdUser: currentUser?.IdUser || 1,
-      });
-      notification.success({
-        message: 'Tính lương thành công',
-        description: res.data.message || `Đã hoàn tất tính lương cho kỳ công #${selectedKyCong}`,
-      });
+      await api.post(`/bangluong/tinhluong?makycong=${selectedKyCong}`);
+      notification.success({ message: 'Thành công', description: 'Đã tính toán bảng lương tự động cho toàn bộ nhân sự!' });
       fetchBangLuong(selectedKyCong);
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({
-        message: 'Lỗi tính lương',
-        description: errorObj.response?.data?.Message || errorObj.message || 'Không thể tính lương.',
-      });
+    } catch {
+      notification.error({ message: 'Lỗi', description: 'Không thể tính lương lúc này.' });
     } finally {
       setTinhLuongLoading(false);
     }
   };
 
-  // Modal Nhân viên
-  const handleOpenNvModal = (nv?: NhanVienDTO) => {
-    if (nv) {
-      setEditingNv(nv);
-      formNv.setFieldsValue({
-        HOTEN: nv.HOTEN,
-        GIOITINH: nv.GIOITINH === 'Nữ' ? 2 : 1,
-        DIENTHOAI: nv.DIENTHOAI,
-        CCCD: nv.CCCD,
-        DIACHI: nv.DIACHI,
-        IDPB: nv.IDPB,
-        IDCV: nv.IDCV,
-        IDTD: nv.IDTD,
-      });
-    } else {
-      setEditingNv(null);
-      formNv.resetFields();
-    }
-    setNvModalVisible(true);
-  };
-
-  const handleSaveNv = async () => {
+  const fetchChamCong = async (makycong: number) => {
+    if (!makycong) return;
+    setChamCongLoading(true);
     try {
-      const values = await formNv.validateFields();
-      setLoading(true);
-      if (editingNv) {
-        await api.put(`/nhanvien/${editingNv.MANV}`, values);
-        notification.success({ message: 'Thành công', description: `Đã cập nhật nhân viên #${editingNv.MANV}` });
-      } else {
-        await api.post('/nhanvien', values);
-        notification.success({ message: 'Thành công', description: 'Đã thêm nhân viên mới vào hệ thống!' });
+      const [ccRes, lcRes] = await Promise.allSettled([
+        api.get<any>(`/chamcong/chitiet?makycong=${makycong}`),
+        api.get<LoaiCaDTO[]>('/chamcong/loaica'),
+      ]);
+      if (ccRes.status === 'fulfilled' && ccRes.value.data) {
+        const raw = Array.isArray(ccRes.value.data) ? ccRes.value.data : (ccRes.value.data?.items ?? []);
+        setChamCongList(raw);
       }
-      setNvModalVisible(false);
-      const nvRes = await api.get<NhanVienDTO[]>('/nhanvien');
-      if (nvRes.data) setNhanVienList(nvRes.data);
-    } catch (err: unknown) {
-      const errorObj = err as { message?: string };
-      notification.error({
-        message: 'Lỗi lưu nhân viên',
-        description: errorObj?.message || 'Vui lòng kiểm tra lại thông tin.',
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteNv = async (manv: number) => {
-    try {
-      await api.delete(`/nhanvien/${manv}`);
-      notification.success({ message: 'Thành công', description: `Đã cho thôi việc nhân viên #${manv}` });
-      setNhanVienList((prev) => prev.filter((x) => x.MANV !== manv));
+      if (lcRes.status === 'fulfilled' && lcRes.value.data) setLoaiCaList(lcRes.value.data);
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể xóa nhân viên.' });
+      // ignore
+    } finally {
+      setChamCongLoading(false);
     }
   };
 
-  // Thêm Khen thưởng / Kỷ luật
-  const handleSaveKt = async () => {
+  const fetchHopDong = async () => {
+    setHopDongLoading(true);
     try {
-      const values = await formKt.validateFields();
-      setKtLoading(true);
-      await api.post('/khenthuong', {
-        SoQd: values.SoQd,
-        Loai: values.Loai,
-        MaNv: values.MaNv,
-        Ngay: values.Ngay ? dayjs(values.Ngay).format('YYYY-MM-DD') : null,
-        NoiDung: values.NoiDung,
-        LyDo: values.LyDo,
-      });
-      notification.success({ message: 'Thành công', description: 'Đã lưu quyết định thành công.' });
-      setKtModalVisible(false);
-      formKt.resetFields();
-      fetchKhenThuongKyLuat();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi lưu quyết định.' });
+      const res = await api.get<HopDongDTO[]>('/hopdong');
+      if (res.data) setHopDongList(res.data);
+    } catch {
+      // ignore
+    } finally {
+      setHopDongLoading(false);
+    }
+  };
+
+  const fetchKhenThuongKyLuat = async () => {
+    setKtLoading(true);
+    try {
+      const [ktRes, klRes] = await Promise.allSettled([
+        api.get<KhenThuongDTO[]>('/khenthuong?loai=1'),
+        api.get<KhenThuongDTO[]>('/khenthuong?loai=2'),
+      ]);
+      if (ktRes.status === 'fulfilled' && ktRes.value.data) setKhenThuongList(ktRes.value.data);
+      if (klRes.status === 'fulfilled' && klRes.value.data) setKyLuatList(klRes.value.data);
+    } catch {
+      // ignore
     } finally {
       setKtLoading(false);
     }
   };
 
-  const handleDeleteKt = async (soqd: string) => {
+  const fetchNangLuongDieuChuyen = async () => {
+    setNlDcLoading(true);
     try {
-      await api.delete(`/khenthuong/${encodeURIComponent(soqd)}`);
-      notification.success({ message: 'Thành công', description: 'Đã xóa quyết định.' });
-      fetchKhenThuongKyLuat();
+      const [nlRes, dcRes] = await Promise.allSettled([
+        api.get<NangLuongDTO[]>('/nangluong'),
+        api.get<DieuChuyenDTO[]>('/dieuchuyen'),
+      ]);
+      if (nlRes.status === 'fulfilled' && nlRes.value.data) setNangLuongList(nlRes.value.data);
+      if (dcRes.status === 'fulfilled' && dcRes.value.data) setDieuChuyenList(dcRes.value.data);
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể xóa quyết định.' });
-    }
-  };
-
-  // Thêm Nâng lương
-  const handleSaveNl = async () => {
-    try {
-      const values = await formNl.validateFields();
-      setNlDcLoading(true);
-      await api.post('/nangluong', {
-        SoQd: values.SoQd,
-        SoHd: values.SoHd,
-        MaNv: values.MaNv,
-        HeSoLuongCu: values.HeSoLuongCu,
-        HeSoLuongMoi: values.HeSoLuongMoi,
-        NgayKy: values.NgayKy ? dayjs(values.NgayKy).format('YYYY-MM-DD') : null,
-        NgayLenLuong: values.NgayLenLuong ? dayjs(values.NgayLenLuong).format('YYYY-MM-DD') : null,
-        GhiChu: values.GhiChu,
-      });
-      notification.success({ message: 'Thành công', description: 'Đã tạo quyết định nâng lương.' });
-      setNlModalVisible(false);
-      formNl.resetFields();
-      fetchNangLuongDieuChuyen();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi lưu nâng lương.' });
+      // ignore
     } finally {
       setNlDcLoading(false);
     }
   };
 
-  // Thêm Điều chuyển
-  const handleSaveDc = async () => {
+  const fetchTangCaUngLuong = async () => {
+    setTcUlLoading(true);
     try {
-      const values = await formDc.validateFields();
-      setNlDcLoading(true);
-      await api.post('/dieuchuyen', {
-        SoQd: values.SoQd,
-        MaNv: values.MaNv,
-        Ngay: values.Ngay ? dayjs(values.Ngay).format('YYYY-MM-DD') : null,
-        IdPb: values.IdPb,
-        IdPb2: values.IdPb2,
-        LyDo: values.LyDo,
-        GhiChu: values.GhiChu,
-      });
-      notification.success({ message: 'Thành công', description: 'Đã tạo quyết định điều chuyển phòng ban.' });
-      setDcModalVisible(false);
-      formDc.resetFields();
-      fetchNangLuongDieuChuyen();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi lưu điều chuyển.' });
-    } finally {
-      setNlDcLoading(false);
-    }
-  };
-
-  // Thêm Tạm ứng lương
-  const handleSaveUl = async () => {
-    try {
-      const values = await formUl.validateFields();
-      setTcUlLoading(true);
-      await api.post('/ungluong', {
-        Nam: values.Nam,
-        Thang: values.Thang,
-        Ngay: values.Ngay ? dayjs(values.Ngay).format('YYYY-MM-DD') : null,
-        SoTien: values.SoTien,
-        MaNv: values.MaNv,
-        GhiChu: values.GhiChu,
-      });
-      notification.success({ message: 'Thành công', description: 'Đã thêm bản ghi tạm ứng lương.' });
-      setUlModalVisible(false);
-      formUl.resetFields();
-      fetchTangCaUngLuong();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi lưu tạm ứng.' });
+      const [ulRes, tcRes] = await Promise.allSettled([
+        api.get<UngLuongDTO[]>('/ungluong'),
+        api.get<TangCaDTO[]>('/tangca'),
+      ]);
+      if (ulRes.status === 'fulfilled' && ulRes.value.data) setUngLuongList(ulRes.value.data);
+      if (tcRes.status === 'fulfilled' && tcRes.value.data) setTangCaList(tcRes.value.data);
+    } catch {
+      // ignore
     } finally {
       setTcUlLoading(false);
     }
   };
 
-  // Thêm Tăng ca (OT)
-  const handleSaveTc = async () => {
+  const fetchUsers = async () => {
+    setUserLoading(true);
     try {
-      const values = await formTc.validateFields();
-      setTcUlLoading(true);
-      await api.post('/tangca', {
-        Nam: values.Nam,
-        Thang: values.Thang,
-        Ngay: values.Ngay ? dayjs(values.Ngay).format('YYYY-MM-DD') : null,
-        SoGio: values.SoGio,
-        MaNv: values.MaNv,
-        IdLoaiCa: values.IdLoaiCa,
-        GhiChu: values.GhiChu,
-      });
-      notification.success({ message: 'Thành công', description: 'Đã thêm bản ghi làm thêm giờ (OT).' });
-      setTcModalVisible(false);
-      formTc.resetFields();
-      fetchTangCaUngLuong();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi lưu tăng ca.' });
-    } finally {
-      setTcUlLoading(false);
-    }
-  };
-
-  // Thêm Người dùng hệ thống hoặc Nhóm quyền mới
-  const handleCreateUser = async () => {
-    try {
-      const values = await formCreateUser.validateFields();
-      setUserLoading(true);
-      await api.post('/users', {
-        Username: values.Username.trim(),
-        FullName: values.FullName.trim(),
-        Password: values.Password,
-        IsGroup: Boolean(values.IsGroup),
-      });
-      notification.success({
-        message: 'Thành công',
-        description: values.IsGroup
-          ? `Đã tạo nhóm quyền [${values.Username}]!`
-          : `Đã tạo tài khoản [${values.Username}]!`,
-      });
-      setCreateUserModalVisible(false);
-      formCreateUser.resetFields();
-      fetchUsers();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi tạo tài khoản/nhóm.' });
+      const res = await api.get<SysUserDTO[]>('/users');
+      if (res.data) setUserList(res.data);
+    } catch {
+      // ignore
     } finally {
       setUserLoading(false);
     }
   };
 
-  // Khóa / Mở khóa tài khoản nhanh
-  const handleToggleLock = async (user: SysUserDTO) => {
-    try {
-      await api.put(`/users/${user.IdUser}/toggle-lock`);
-      notification.success({
-        message: 'Thành công',
-        description: user.Disabled ? `Đã mở khóa tài khoản [${user.Username}]!` : `Đã khóa tài khoản [${user.Username}]!`,
-      });
-      fetchUsers();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi cập nhật trạng thái.' });
-    }
-  };
-
-  // Xóa tài khoản người dùng hoặc nhóm quyền
-  const handleDeleteUser = async (user: SysUserDTO) => {
-    try {
-      await api.delete(`/users/${user.IdUser}`);
-      notification.success({
-        message: 'Thành công',
-        description: `Đã xóa ${user.IsGroup ? 'nhóm' : 'tài khoản'} [${user.Username}]!`,
-      });
-      fetchUsers();
-    } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi khi xóa.' });
-    }
-  };
-
-  // Làm mới quyền hạn của người dùng đang đăng nhập trực tiếp từ CSDL
-  const handleRefreshMyRights = async () => {
+  // Tự động đồng bộ quyền hạn mới nhất từ CSDL trong nền mà không cần người dùng thao tác thủ công
+  const syncUserRights = async () => {
     try {
       const res = await api.get<{ user: CurrentUserDTO }>('/auth/me');
       if (res.data && res.data.user) {
         const refreshed = res.data.user;
-        setCurrentUser(refreshed);
-        localStorage.setItem('hrms_user', JSON.stringify(refreshed));
-        notification.success({
-          message: 'Làm mới quyền hạn',
-          description: `Đã đồng bộ ${refreshed.Rights?.length || 0} quyền chức năng mới nhất từ CSDL!`,
+        setCurrentUser((prev) => {
+          if (!prev) return refreshed;
+          const prevRights = JSON.stringify(prev.Rights || []);
+          const newRights = JSON.stringify(refreshed.Rights || []);
+          if (prevRights !== newRights || prev.IsAdmin !== refreshed.IsAdmin || prev.FullName !== refreshed.FullName) {
+            localStorage.setItem('hrms_user', JSON.stringify(refreshed));
+            return refreshed;
+          }
+          return prev;
         });
       }
     } catch {
-      notification.warning({ message: 'Thông báo', description: 'Không thể làm mới quyền hạn lúc này.' });
+      // chạy nền êm dịu, không gián đoạn người dùng
     }
   };
 
-  // Gửi AI Chat
-  const handleSendMessage = async (customPrompt?: string) => {
-    const question = customPrompt || chatInput;
-    if (!question.trim()) return;
+  useEffect(() => {
+    if (currentUser) {
+      fetchInitialData();
+      syncUserRights();
+    }
+  }, [currentUser?.Username]);
 
-    const userMsg: AIChatMessage = {
-      id: Date.now().toString(),
-      sender: 'user',
-      content: question,
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+  // Điều hướng đồng bộ với URL hash và lịch sử trình duyệt (Hỗ trợ Back, Forward, Reload)
+  const handleNavigate = (route: string, replace: boolean = false) => {
+    const cleanRoute = route.replace(/^#?\/?/, '').trim().toLowerCase();
+    const targetRoute = VALID_ROUTES[cleanRoute] || 'dashboard';
+
+    setCurrentMenu(targetRoute);
+
+    if (typeof window !== 'undefined') {
+      const targetHash = `#/${targetRoute}`;
+      if (window.location.hash !== targetHash) {
+        if (replace) {
+          window.history.replaceState({ route: targetRoute }, '', targetHash);
+        } else {
+          window.history.pushState({ route: targetRoute }, '', targetHash);
+        }
+      }
+      document.title = ROUTE_TITLES[targetRoute] || 'HRMS Enterprise';
+    }
+  };
+
+  // Đồng bộ hai chiều với các nút trình duyệt: Back (<-), Forward (->), Reload (F5)
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const route = getRouteFromLocation();
+      setCurrentMenu(route);
+      document.title = ROUTE_TITLES[route] || 'HRMS Enterprise';
     };
 
-    setChatMessages((prev) => [...prev, userMsg]);
-    if (!customPrompt) setChatInput('');
-    setChatLoading(true);
+    window.addEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
 
-    try {
-      const res = await api.post<{ answer: string; sqlQuery?: string; source?: string }>('/ai/chat', {
-        Question: question,
-        Lang: 'vi',
-      });
-
-      const botReply: AIChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: 'assistant',
-        content: res.data?.answer || 'Không nhận được câu trả lời từ hệ thống.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        source: res.data?.source,
-        sqlQuery: res.data?.sqlQuery,
-      };
-
-      setChatMessages((prev) => [...prev, botReply]);
-    } catch {
-      const errorReply: AIChatMessage = {
-        id: (Date.now() + 1).toString(),
-        sender: 'assistant',
-        content: 'Rất tiếc hiện tại không thể kết nối tới dịch vụ AI. Vui lòng kiểm tra lại kết nối API.',
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setChatMessages((prev) => [...prev, errorReply]);
-    } finally {
-      setChatLoading(false);
+    // Khi đã đăng nhập, đảm bảo URL có hash để khi F5 / Reload luôn giữ nguyên phân hệ hiện tại
+    if (currentUser) {
+      const initialRoute = getRouteFromLocation();
+      const targetHash = `#/${initialRoute}`;
+      if (window.location.hash !== targetHash) {
+        window.history.replaceState({ route: initialRoute }, '', targetHash);
+      }
+      document.title = ROUTE_TITLES[initialRoute] || 'HRMS Enterprise';
     }
+
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
+  }, [currentUser]);
+
+  // Lazy load dữ liệu theo tab được chọn
+  useEffect(() => {
+    if (!currentUser) return;
+    if (currentMenu === 'hopdong') fetchHopDong();
+    if (currentMenu === 'khenthuong') fetchKhenThuongKyLuat();
+    if (currentMenu === 'nangluong') fetchNangLuongDieuChuyen();
+    if (currentMenu === 'ungluong') fetchTangCaUngLuong();
+    if (currentMenu === 'phanquyen') fetchUsers();
+  }, [currentMenu, currentUser]);
+
+  const handleLoginSuccess = (user: CurrentUserDTO) => {
+    setCurrentUser(user);
+    const targetRoute = getRouteFromLocation();
+    handleNavigate(targetRoute, true);
+    notification.success({
+      message: 'Đăng nhập thành công',
+      description: `Chào mừng ${user.FullName} quay trở lại HRMS Enterprise!`,
+    });
   };
 
-  // NẾU CHƯA ĐĂNG NHẬP -> HIỂN THỊ MÀN HÌNH LOGIN
+  const handleLogout = () => {
+    localStorage.removeItem('hrms_token');
+    localStorage.removeItem('hrms_user');
+    setCurrentUser(null);
+    if (typeof window !== 'undefined') {
+      window.history.replaceState(null, '', window.location.pathname);
+      document.title = 'Đăng nhập | HRMS Enterprise';
+    }
+    notification.info({ message: 'Đã đăng xuất', description: 'Hẹn gặp lại bạn!' });
+  };
+
+  const handleMarkAllNotificationsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const handleMarkNotificationRead = (id: string, route: string) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    handleNavigate(route);
+  };
+
+  // Chưa đăng nhập -> hiển thị màn hình Login
   if (!currentUser) {
     return <Login onLoginSuccess={handleLoginSuccess} />;
   }
 
-  // Lọc nhân viên
-  const safeNhanVienList = Array.isArray(nhanVienList) ? nhanVienList : [];
-  const filteredEmployees = safeNhanVienList.filter((nv) => {
-    if (!searchKeyword) return true;
-    const kw = searchKeyword.toLowerCase();
-    return (
-      (nv.HOTEN && nv.HOTEN.toLowerCase().includes(kw)) ||
-      (nv.MANV && nv.MANV.toString().includes(kw)) ||
-      (nv.TENPB && nv.TENPB.toLowerCase().includes(kw)) ||
-      (nv.TENCV && nv.TENCV.toLowerCase().includes(kw)) ||
-      (nv.DIENTHOAI && nv.DIENTHOAI.includes(kw))
-    );
-  });
-
-  // Bảng nhân viên
-  const employeeColumns: ColumnsType<NhanVienDTO> = [
-    {
-      title: 'Mã NV',
-      dataIndex: 'MANV',
-      key: 'MANV',
-      width: 85,
-      render: (id: number) => <Tag color="blue">#{id}</Tag>,
-    },
-    {
-      title: 'Họ và tên',
-      dataIndex: 'HOTEN',
-      key: 'HOTEN',
-      render: (text: string, record) => (
-        <Space>
-          <Avatar style={{ backgroundColor: record.GIOITINH === 'Nữ' ? '#eb2f96' : '#1677ff' }}>
-            {text ? text.charAt(0) : 'U'}
-          </Avatar>
-          <Text strong>{text}</Text>
-        </Space>
-      ),
-    },
-    {
-      title: 'Giới tính',
-      dataIndex: 'GIOITINH',
-      key: 'GIOITINH',
-      width: 90,
-    },
-    {
-      title: 'Phòng ban',
-      dataIndex: 'TENPB',
-      key: 'TENPB',
-      render: (text: string) => text || 'Chưa phân bổ',
-    },
-    {
-      title: 'Chức vụ',
-      dataIndex: 'TENCV',
-      key: 'TENCV',
-      render: (text: string) => text || 'Nhân viên',
-    },
-    {
-      title: 'Trình độ',
-      dataIndex: 'TENTD',
-      key: 'TENTD',
-      render: (text: string) => text || 'Cơ bản',
-    },
-    {
-      title: 'Điện thoại',
-      dataIndex: 'DIENTHOAI',
-      key: 'DIENTHOAI',
-      render: (text: string) => text || 'Chưa có',
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'TRANGTHAI',
-      key: 'TRANGTHAI',
-      width: 120,
-      render: (status?: boolean) => (
-        <Tag icon={<CheckCircleOutlined />} color={status !== false ? 'success' : 'default'}>
-          {status !== false ? 'Đang làm' : 'Thôi việc'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Thao tác',
-      key: 'action',
-      width: 120,
-      render: (_, record) => (
-        <Space size="small">
-          <Tooltip title="Chỉnh sửa">
-            <Button
-              type="text"
-              size="small"
-              icon={<EditOutlined style={{ color: '#1677ff' }} />}
-              onClick={() => handleOpenNvModal(record)}
-            />
-          </Tooltip>
-          <Popconfirm
-            title="Xác nhận thôi việc nhân viên này?"
-            onConfirm={() => handleDeleteNv(record.MANV)}
-            okText="Đồng ý"
-            cancelText="Hủy"
-          >
-            <Tooltip title="Thôi việc">
-              <Button type="text" size="small" icon={<DeleteOutlined style={{ color: '#ff4d4f' }} />} />
-            </Tooltip>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  // Bảng lương Columns (kèm nút xem phiếu lương)
-  const bangLuongColumns: ColumnsType<BangLuongDTO> = [
-    {
-      title: 'Mã NV',
-      dataIndex: 'MANV',
-      key: 'MANV',
-      width: 80,
-      render: (id: number) => <Tag color="blue">#{id}</Tag>,
-    },
-    {
-      title: 'Họ tên',
-      dataIndex: 'HOTEN',
-      key: 'HOTEN',
-      render: (name: string) => <Text strong>{name}</Text>,
-    },
-    {
-      title: 'Công chuẩn',
-      dataIndex: 'CONG_CHUAN',
-      key: 'CONG_CHUAN',
-      width: 100,
-      align: 'right',
-      render: (v: number) => v ?? 26,
-    },
-    {
-      title: 'Công TT',
-      dataIndex: 'CONG_THUCTE',
-      key: 'CONG_THUCTE',
-      width: 90,
-      align: 'right',
-      render: (v: number) => (
-        <Tag color="cyan" style={{ fontWeight: 600 }}>
-          {v ?? 0}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Lương thực tế',
-      dataIndex: 'LUONG_CONG_THUCTE',
-      key: 'LUONG_CONG_THUCTE',
-      align: 'right',
-      render: (v: number) => (v ? `${Number(v).toLocaleString('vi-VN')} đ` : '0 đ'),
-    },
-    {
-      title: 'Phụ cấp',
-      dataIndex: 'PHUCAP_CONG_THUCTE',
-      key: 'PHUCAP_CONG_THUCTE',
-      align: 'right',
-      render: (v: number) => (v ? `${Number(v).toLocaleString('vi-VN')} đ` : '0 đ'),
-    },
-    {
-      title: 'Tăng ca',
-      dataIndex: 'TIEN_TANGCA',
-      key: 'TIEN_TANGCA',
-      align: 'right',
-      render: (v: number) => (v ? `${Number(v).toLocaleString('vi-VN')} đ` : '0 đ'),
-    },
-    {
-      title: 'Trừ BHXH',
-      dataIndex: 'TIEN_BHXH_TRICH',
-      key: 'TIEN_BHXH_TRICH',
-      align: 'right',
-      render: (v: number) => (v ? `-${Number(v).toLocaleString('vi-VN')} đ` : '0 đ'),
-    },
-    {
-      title: 'Thực lĩnh',
-      dataIndex: 'THUC_LINH',
-      key: 'THUC_LINH',
-      align: 'right',
-      render: (v: number) => (
-        <Text strong style={{ color: '#52c41a', fontSize: '14px' }}>
-          {v ? `${Number(v).toLocaleString('vi-VN')} đ` : '0 đ'}
-        </Text>
-      ),
-    },
-    {
-      title: 'Phiếu lương',
-      key: 'phieuLuong',
-      align: 'center',
-      width: 110,
-      render: (_, record) => (
-        <Button
-          size="small"
-          type="primary"
-          ghost
-          icon={<PrinterOutlined />}
-          onClick={() => {
-            setSelectedBangLuong(record);
-            setPhieuLuongModalVisible(true);
-          }}
-        >
-          In phiếu
-        </Button>
-      ),
-    },
-  ];
-
-  // Bảng Hợp đồng Columns
-  const hopDongColumns: ColumnsType<HopDongDTO> = [
-    {
-      title: 'Số HĐ',
-      dataIndex: 'SOHD',
-      key: 'SOHD',
-      render: (sohd: string) => <Tag color="purple">{sohd}</Tag>,
-    },
-    {
-      title: 'Mã NV',
-      dataIndex: 'MANV',
-      key: 'MANV',
-      width: 80,
-      render: (id: number) => <Tag color="blue">#{id}</Tag>,
-    },
-    {
-      title: 'Họ tên',
-      dataIndex: 'HOTEN',
-      key: 'HOTEN',
-      render: (name: string) => <Text strong>{name}</Text>,
-    },
-    {
-      title: 'Thời hạn',
-      dataIndex: 'THOIHAN',
-      key: 'THOIHAN',
-      render: (text: string) => text || '12 tháng',
-    },
-    {
-      title: 'Bắt đầu',
-      dataIndex: 'NGAYBATDAU',
-      key: 'NGAYBATDAU',
-    },
-    {
-      title: 'Kết thúc',
-      dataIndex: 'NGAYKETTHUC',
-      key: 'NGAYKETTHUC',
-      render: (text: string) => text || 'Không xác định',
-    },
-    {
-      title: 'Hệ số',
-      dataIndex: 'HESOLUONG',
-      key: 'HESOLUONG',
-      align: 'right',
-      render: (v: number) => v ?? 1.0,
-    },
-    {
-      title: 'Lương thỏa thuận',
-      dataIndex: 'LUONG_THOA_THUAN',
-      key: 'LUONG_THOA_THUAN',
-      align: 'right',
-      render: (v: number) => (v ? `${Number(v).toLocaleString('vi-VN')} đ` : 'Theo hệ số'),
-    },
-  ];
-
-  // Bảng Chấm công Columns
-  const chamCongColumns: ColumnsType<KyCongChiTietDTO> = [
-    {
-      title: 'Mã NV',
-      dataIndex: 'MANV',
-      key: 'MANV',
-      fixed: 'left',
-      width: 80,
-      render: (id: number) => <Tag color="blue">#{id}</Tag>,
-    },
-    {
-      title: 'Họ và tên',
-      dataIndex: 'HOTEN',
-      key: 'HOTEN',
-      fixed: 'left',
-      width: 170,
-      render: (name: string) => <Text strong>{name}</Text>,
-    },
-    {
-      title: 'Tổng công',
-      dataIndex: 'TONGNGAYCONG',
-      key: 'TONGNGAYCONG',
-      width: 100,
-      fixed: 'left',
-      render: (v: number) => <Tag color="geekblue" style={{ fontWeight: 'bold' }}>{v ?? 0} ngày</Tag>,
-    },
-    {
-      title: 'Nghỉ phép',
-      dataIndex: 'NGAYPHEP',
-      key: 'NGAYPHEP',
-      width: 90,
-      render: (v: number) => <Tag color="gold">{v ?? 0} P</Tag>,
-    },
-    ...Array.from({ length: 31 }, (_, i) => {
-      const dayKey = `D${i + 1}` as keyof KyCongChiTietDTO;
-      return {
-        title: `${i + 1}`,
-        dataIndex: dayKey,
-        key: dayKey,
-        width: 45,
-        align: 'center' as const,
-        render: (val: string) => {
-          if (!val) return <span style={{ color: '#d9d9d9' }}>-</span>;
-          if (val === 'X') return <span style={{ color: '#1677ff', fontWeight: 600 }}>X</span>;
-          if (val === 'CN') return <span style={{ color: '#ff4d4f', fontWeight: 600 }}>CN</span>;
-          if (val === 'P') return <span style={{ color: '#faad14', fontWeight: 600 }}>P</span>;
-          return <span>{val}</span>;
-        },
-      };
-    }),
-  ];
-
-  // Bảng Người dùng hệ thống Columns
-  const userColumns: ColumnsType<SysUserDTO> = [
-    {
-      title: 'ID',
-      dataIndex: 'IdUser',
-      key: 'IdUser',
-      width: 70,
-      render: (id: number) => <Tag color="blue">#{id}</Tag>,
-    },
-    {
-      title: 'Tài khoản',
-      dataIndex: 'Username',
-      key: 'Username',
-      width: 160,
-      render: (u: string, record: SysUserDTO) => (
-        <Space direction="vertical" size={2}>
-          <Space>
-            <UserOutlined style={{ color: '#1677ff' }} />
-            <Text strong style={{ color: '#1677ff' }}>{u}</Text>
-          </Space>
-          {record.IsAdmin && (
-            <Tag color="red" icon={<SafetyCertificateOutlined />} style={{ fontSize: 11 }}>
-              Super Admin
-            </Tag>
-          )}
-        </Space>
-      ),
-    },
-    {
-      title: 'Họ và tên',
-      dataIndex: 'FullName',
-      key: 'FullName',
-      render: (fn: string) => fn || 'Chưa cập nhật',
-    },
-    {
-      title: 'Nhóm quyền trực thuộc',
-      dataIndex: 'Groups',
-      key: 'Groups',
-      render: (groups?: string[]) =>
-        groups && groups.length > 0 ? (
-          <Space wrap size={[4, 4]}>
-            {groups.map((g, idx) => (
-              <Tag color="purple" key={idx} icon={<TeamOutlined />}>
-                {g}
-              </Tag>
-            ))}
-          </Space>
-        ) : (
-          <Text type="secondary" italic>Chưa gán nhóm</Text>
-        ),
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'Disabled',
-      key: 'Disabled',
-      width: 130,
-      render: (disabled?: boolean) =>
-        disabled ? (
-          <Tag color="red">Bị tạm khóa</Tag>
-        ) : (
-          <Tag color="green">Đang hoạt động</Tag>
-        ),
-    },
-    {
-      title: 'Thao tác quản trị',
-      key: 'actions',
-      width: 280,
-      render: (_, record) => (
-        <Space size="small" wrap>
-          <Button
-            size="small"
-            icon={<SettingOutlined />}
-            style={{ borderColor: '#fa8c16', color: '#fa8c16' }}
-            onClick={() => {
-              setSelectedUserForPerms(record);
-              setPhanQuyenModalVisible(true);
-            }}
-          >
-            Phân quyền
-          </Button>
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => {
-              setSelectedUserForEdit(record);
-              setUserEditModalVisible(true);
-            }}
-          >
-            Sửa
-          </Button>
-          {!record.IsAdmin && (
-            <Popconfirm
-              title={record.Disabled ? 'Mở khóa tài khoản?' : 'Khóa tài khoản?'}
-              description={`Bạn có chắc muốn ${record.Disabled ? 'mở khóa' : 'tạm khóa'} tài khoản [${record.Username}]?`}
-              onConfirm={() => handleToggleLock(record)}
-              okText="Đồng ý"
-              cancelText="Hủy"
-            >
-              <Button size="small" danger={!record.Disabled}>
-                {record.Disabled ? 'Mở khóa' : 'Khóa'}
-              </Button>
-            </Popconfirm>
-          )}
-          {!record.IsAdmin && (
-            <Popconfirm
-              title="Xóa tài khoản?"
-              description={`Bạn có chắc chắn muốn xóa tài khoản [${record.Username}] không?`}
-              onConfirm={() => handleDeleteUser(record)}
-              okText="Xóa"
-              cancelText="Hủy"
-            >
-              <Button size="small" danger icon={<DeleteOutlined />} />
-            </Popconfirm>
-          )}
-        </Space>
-      ),
-    },
-  ];
-
-  // Bảng Nhóm quyền hệ thống Columns (Tương thích WinForms frmGroup)
-  const groupColumns: ColumnsType<SysUserDTO> = [
-    {
-      title: 'ID',
-      dataIndex: 'IdUser',
-      key: 'IdUser',
-      width: 70,
-      render: (id: number) => <Tag color="purple">#{id}</Tag>,
-    },
-    {
-      title: 'Mã nhóm quyền',
-      dataIndex: 'Username',
-      key: 'Username',
-      width: 180,
-      render: (name: string) => (
-        <Tag color="purple" style={{ fontWeight: 600, fontSize: 13, padding: '2px 8px' }}>
-          <TeamOutlined style={{ marginRight: 4 }} />
-          {name}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Tên / Mô tả nhóm',
-      dataIndex: 'FullName',
-      key: 'FullName',
-      render: (fn: string) => <Text strong>{fn}</Text>,
-    },
-    {
-      title: 'Số lượng thành viên',
-      dataIndex: 'MemberCount',
-      key: 'MemberCount',
-      width: 180,
-      render: (count: number) => (
-        <Space>
-          <Badge count={count || 0} showZero style={{ backgroundColor: count > 0 ? '#52c41a' : '#d9d9d9' }} />
-          <Text type="secondary">thành viên</Text>
-        </Space>
-      ),
-    },
-    {
-      title: 'Thao tác quản trị nhóm',
-      key: 'groupActions',
-      width: 320,
-      render: (_, record) => (
-        <Space size="small" wrap>
-          <Button
-            size="small"
-            icon={<SettingOutlined />}
-            style={{ borderColor: '#fa8c16', color: '#fa8c16' }}
-            onClick={() => {
-              setSelectedUserForPerms(record);
-              setPhanQuyenModalVisible(true);
-            }}
-          >
-            Phân quyền nhóm
-          </Button>
-          <Button
-            size="small"
-            type="primary"
-            ghost
-            icon={<TeamOutlined />}
-            onClick={() => {
-              setSelectedGroupForMembers(record);
-              setGroupMembersModalVisible(true);
-            }}
-          >
-            Thành viên ({record.MemberCount || 0})
-          </Button>
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => {
-              setSelectedUserForEdit(record);
-              setUserEditModalVisible(true);
-            }}
-          >
-            Sửa
-          </Button>
-          <Popconfirm
-            title="Xóa nhóm quyền?"
-            description={`Bạn có chắc muốn xóa nhóm [${record.Username}] không? Toàn bộ liên kết thành viên và quyền hạn liên quan sẽ bị xóa.`}
-            onConfirm={() => handleDeleteUser(record)}
-            okText="Xóa"
-            cancelText="Hủy"
-          >
-            <Button size="small" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  // Xây dựng danh sách Menu theo phân quyền WinForms
-  const menuItems = [
-    ...(hasRight('DASHBOARD', 'BAOCAO', 'F_DB_LUONG', 'F_DB_NHANSU', 'F_BC_BAOCAO')
-      ? [{ key: 'dashboard', icon: <DashboardOutlined />, label: 'Bảng điều khiển' }]
-      : []),
-    ...(hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN', 'NHANVIEN')
-      ? [{ key: 'nhanvien', icon: <TeamOutlined />, label: 'Quản lý Nhân sự' }]
-      : []),
-    ...(hasRight('CHAMCONG', 'F_CC_BANGCONG', 'F_CC_LOAICA', 'F_CC_KYCONG')
-      ? [{ key: 'chamcong', icon: <CalendarOutlined />, label: 'Chấm công & Ca làm' }]
-      : []),
-    ...(hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG')
-      ? [{ key: 'bangluong', icon: <DollarOutlined />, label: 'Tính lương & Thuế' }]
-      : []),
-    ...(hasRight('HOPDONG', 'F_NV_HOPDONG')
-      ? [{ key: 'hopdong', icon: <FileTextOutlined />, label: 'Hợp đồng lao động' }]
-      : []),
-    ...(hasRight('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT')
-      ? [{ key: 'khenthuong', icon: <TrophyOutlined />, label: 'Khen thưởng & Kỷ luật' }]
-      : []),
-    ...(hasRight('NANGLUONG', 'DIEUCHUYEN', 'F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN')
-      ? [{ key: 'nangluong', icon: <RiseOutlined />, label: 'Nâng lương & Chuyển phòng' }]
-      : []),
-    ...(hasRight('UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA')
-      ? [{ key: 'ungluong', icon: <SwapOutlined />, label: 'Tăng ca & Ứng lương' }]
-      : []),
-    ...(currentUser.IsAdmin || hasRight('PHANQUYEN', 'F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER')
-      ? [{ key: 'phanquyen', icon: <SafetyCertificateOutlined />, label: 'Người dùng & Phân quyền' }]
-      : []),
-    {
-      key: 'aichat',
-      icon: <RobotOutlined style={{ color: '#52c41a' }} />,
-      label: (
-        <span>
-          AI Copilot <Tag color="purple" style={{ marginLeft: 4, fontSize: 10 }}>AI Trợ Lý</Tag>
-        </span>
-      ),
-    },
-  ];
-
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      {/* MOBILE BACKDROP OVERLAY */}
-      {isMobile && !collapsed && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            zIndex: 99,
-          }}
-          onClick={() => setCollapsed(true)}
-        />
-      )}
-
-      {/* SIDEBAR NAVIGATION */}
-      <Sider
-        collapsible
-        breakpoint="lg"
-        collapsedWidth={0}
-        onBreakpoint={(broken) => {
-          setIsMobile(broken);
-          if (broken) setCollapsed(true);
-        }}
-        collapsed={collapsed}
-        onCollapse={(val) => setCollapsed(val)}
-        width={250}
-        theme="dark"
-        style={{
-          boxShadow: '2px 0 8px 0 rgba(29,35,41,.05)',
-          zIndex: 100,
-          position: isMobile ? 'fixed' : 'relative',
-          height: isMobile ? '100vh' : 'auto',
-          left: 0,
-          top: 0,
-          bottom: 0,
-        }}
+    <>
+      <MainLayout
+        currentUser={currentUser}
+        currentMenu={currentMenu}
+        onMenuChange={(key) => handleNavigate(key)}
+        onLogout={handleLogout}
+        onRefreshData={fetchInitialData}
+        onOpenChangePassword={() => setChangePasswordModalVisible(true)}
+        onOpenAiDrawer={() => setAiDrawerVisible(true)}
+        onOpenCommandPalette={() => setCommandPaletteVisible(true)}
+        isBackendConnected={isBackendConnected}
+        loading={loading}
+        kyCongCount={kyCongList.length}
+        hasRight={hasRight}
+        notifications={notifications}
+        onMarkAllNotificationsRead={handleMarkAllNotificationsRead}
+        onMarkNotificationRead={handleMarkNotificationRead}
       >
-        <div
-          style={{
-            height: 56,
-            margin: '12px 16px',
-            background: 'linear-gradient(135deg, #1677ff 0%, #0958d9 100%)',
-            borderRadius: 8,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: collapsed ? '14px' : '17px',
-            letterSpacing: '0.5px',
-          }}
-        >
-          {collapsed ? 'HR' : '⚡ HRMS PORTAL'}
-        </div>
+        {currentMenu === 'dashboard' && (
+          <DashboardPage
+            totalEmployees={totalEmployees}
+            hopDongCount={hopDongList.length}
+            totalSalary={totalSalary}
+            currentUser={currentUser}
+            isBackendConnected={isBackendConnected}
+            luongStats={luongStats}
+            phongBanStats={phongBanStats}
+            nhanVienList={nhanVienList}
+            bangLuongList={bangLuongList}
+            onNavigate={(key) => handleNavigate(key)}
+            presentToday={presentToday}
+            absentToday={absentToday}
+            lateToday={lateToday}
+            actionItems={actionItems}
+            anomalies={anomalies}
+          />
+        )}
 
-        <Menu
-          theme="dark"
-          selectedKeys={[currentMenu]}
-          mode="inline"
-          onClick={(e) => {
-            if (isMobile) {
-              setCollapsed(true);
-            }
-            if (e.key === 'aichat') {
-              setAiDrawerVisible(true);
-            } else {
-              setCurrentMenu(e.key);
-            }
-          }}
-          items={menuItems}
-        />
-      </Sider>
+        {currentMenu === 'nhanvien' && (
+          <NhanVienPage
+            nhanVienList={nhanVienList}
+            danhMuc={danhMuc}
+            loading={loading}
+            hasRight={hasRight}
+            onRefresh={fetchInitialData}
+          />
+        )}
 
-      <Layout>
-        {/* TOP HEADER */}
-        <Header
-          style={{
-            padding: isMobile ? '0 12px' : '0 24px',
-            background: colorBgContainer,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            borderBottom: '1px solid #f0f0f0',
-            position: 'sticky',
-            top: 0,
-            zIndex: 10,
-            height: 64,
-            gap: 8,
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, overflow: 'hidden' }}>
-            {isMobile && (
-              <Button
-                type="text"
-                icon={<MenuOutlined style={{ fontSize: 18 }} />}
-                onClick={() => setCollapsed(!collapsed)}
-                style={{ padding: 4 }}
-              />
-            )}
-            <Title
-              level={isMobile ? 5 : 4}
-              style={{
-                margin: 0,
-                color: '#1f1f1f',
-                fontWeight: 600,
-                fontSize: isMobile ? 14 : 16,
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {currentMenu === 'dashboard' && (isMobile ? '📊 Tổng quan' : '📊 TỔNG QUAN HỆ THỐNG NHÂN SỰ')}
-              {currentMenu === 'nhanvien' && (isMobile ? '👥 Quản lý NV' : '👥 QUẢN LÝ HỒ SƠ NHÂN VIÊN')}
-              {currentMenu === 'chamcong' && (isMobile ? '🕒 Chấm công' : '🕒 CHẤM CÔNG & QUẢN LÝ CA')}
-              {currentMenu === 'bangluong' && (isMobile ? '💰 Bảng lương' : '💰 BẢNG LƯƠNG & QUỸ LƯƠNG')}
-              {currentMenu === 'hopdong' && (isMobile ? '📜 Hợp đồng' : '📜 HỢP ĐỒNG LAO ĐỘNG')}
-              {currentMenu === 'khenthuong' && (isMobile ? '🏆 Khen thưởng' : '🏆 QUẢN LÝ KHEN THƯỞNG & KỶ LUẬT')}
-              {currentMenu === 'nangluong' && (isMobile ? '📈 Nâng lương' : '📈 QUẢN LÝ NÂNG LƯƠNG & ĐIỀU CHUYỂN')}
-              {currentMenu === 'ungluong' && (isMobile ? '💵 Tăng ca - Ứng lương' : '💵 QUẢN LÝ TĂNG CA & TẠM ỨNG LƯƠNG')}
-              {currentMenu === 'phanquyen' && (isMobile ? '🛡️ Phân quyền' : '🛡️ QUẢN TRỊ TÀI KHOẢN & PHÂN QUYỀN CHỨC NĂNG')}
-            </Title>
-          </div>
+        {currentMenu === 'chamcong' && (
+          <ChamCongPage
+            kyCongList={kyCongList}
+            selectedKyCong={selectedKyCong}
+            onSelectKyCong={(val) => {
+              setSelectedKyCong(val);
+              fetchChamCong(val);
+            }}
+            chamCongList={chamCongList}
+            chamCongLoading={chamCongLoading}
+            loaiCaList={loaiCaList}
+            onRefresh={() => fetchChamCong(selectedKyCong)}
+          />
+        )}
 
-          <Space size={isMobile ? 6 : 'middle'} style={{ flexShrink: 0 }}>
-            {!isMobile && (
-              <Tooltip title={isBackendConnected ? 'Máy chủ hệ thống hoạt động bình thường' : 'Chế độ ngoại tuyến'}>
-                <Tag
-                  icon={<CloudSyncOutlined />}
-                  color={isBackendConnected ? 'success' : 'warning'}
-                  style={{ cursor: 'pointer', padding: '4px 10px', borderRadius: 12 }}
-                  onClick={fetchInitialData}
-                >
-                  {isBackendConnected ? 'Hệ Thống Trực Tuyến' : 'Chế độ Ngoại tuyến'}
-                </Tag>
-              </Tooltip>
-            )}
+        {currentMenu === 'bangluong' && (
+          <BangLuongPage
+            kyCongList={kyCongList}
+            selectedKyCong={selectedKyCong}
+            onSelectKyCong={(val) => {
+              setSelectedKyCong(val);
+              fetchBangLuong(val);
+            }}
+            bangLuongList={bangLuongList}
+            bangLuongLoading={bangLuongLoading}
+            tinhLuongLoading={tinhLuongLoading}
+            onTinhLuong={handleTinhLuong}
+            onRefresh={() => fetchBangLuong(selectedKyCong)}
+            hasRight={hasRight}
+            danhMuc={danhMuc}
+            onRefreshKyCong={fetchKyCongList}
+          />
+        )}
 
-            <Tooltip title="Làm mới dữ liệu">
-              <Button
-                shape="circle"
-                size={isMobile ? 'small' : 'middle'}
-                icon={<ReloadOutlined spin={loading} />}
-                onClick={fetchInitialData}
-              />
-            </Tooltip>
+        {currentMenu === 'hopdong' && (
+          <HopDongPage
+            hopDongList={hopDongList}
+            hopDongLoading={hopDongLoading}
+            onRefresh={fetchHopDong}
+            hasRight={hasRight}
+          />
+        )}
 
-            <Button
-              type="primary"
-              shape={isMobile ? 'circle' : 'default'}
-              size={isMobile ? 'small' : 'middle'}
-              icon={<RobotOutlined />}
-              onClick={() => setAiDrawerVisible(true)}
-              style={{
-                background: 'linear-gradient(135deg, #722ed1 0%, #1677ff 100%)',
-                border: 'none',
-              }}
-            >
-              {!isMobile && 'Hỏi AI Copilot'}
-            </Button>
+        {currentMenu === 'khenthuong' && (
+          <KhenThuongKyLuatPage
+            khenThuongList={khenThuongList}
+            kyLuatList={kyLuatList}
+            ktLoading={ktLoading}
+            onRefresh={fetchKhenThuongKyLuat}
+            hasRight={hasRight}
+          />
+        )}
 
-            {!isMobile && (
-              <Tooltip title="Kỳ công hiện hành">
-                <Badge count={kyCongList.length} size="small">
-                  <Button shape="circle" icon={<BellOutlined />} />
-                </Badge>
-              </Tooltip>
-            )}
+        {currentMenu === 'nangluong' && (
+          <NangLuongDieuChuyenPage
+            nangLuongList={nangLuongList}
+            dieuChuyenList={dieuChuyenList}
+            nlDcLoading={nlDcLoading}
+            danhMuc={danhMuc}
+            onRefresh={fetchNangLuongDieuChuyen}
+            hasRight={hasRight}
+          />
+        )}
 
-            {/* Dropdown User & Đăng xuất */}
-            <Dropdown
-              menu={{
-                items: [
-                  {
-                    key: 'profile',
-                    icon: <UserOutlined />,
-                    label: `Tài khoản: ${currentUser.Username}`,
-                  },
-                  {
-                    key: 'role',
-                    icon: <SafetyCertificateOutlined />,
-                    label: currentUser.IsAdmin ? 'Quyền: Super Admin' : `Quyền: ${currentUser.Rights?.length || 0} chức năng`,
-                  },
-                  {
-                    type: 'divider',
-                  },
-                  {
-                    key: 'changePassword',
-                    icon: <KeyOutlined style={{ color: '#1677ff' }} />,
-                    label: 'Đổi mật khẩu cá nhân',
-                    onClick: () => setChangePasswordModalVisible(true),
-                  },
-                  {
-                    key: 'refreshRights',
-                    icon: <ReloadOutlined style={{ color: '#52c41a' }} />,
-                    label: 'Làm mới quyền hạn CSDL',
-                    onClick: handleRefreshMyRights,
-                  },
-                  {
-                    type: 'divider',
-                  },
-                  {
-                    key: 'logout',
-                    icon: <LogoutOutlined style={{ color: '#ff4d4f' }} />,
-                    label: <span style={{ color: '#ff4d4f' }}>Đăng xuất</span>,
-                    onClick: handleLogout,
-                  },
-                ],
-              }}
-            >
-              <Space style={{ marginLeft: isMobile ? 2 : 8, cursor: 'pointer' }}>
-                <Avatar
-                  size={isMobile ? 'small' : 'default'}
-                  style={{
-                    backgroundColor: currentUser.IsAdmin ? '#ff4d4f' : '#1677ff',
-                  }}
-                  icon={<UserOutlined />}
-                />
-                {!isMobile && (
-                  <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-                    <Text strong style={{ fontSize: 13 }}>{currentUser.FullName}</Text>
-                    <Tag color={currentUser.IsAdmin ? 'red' : 'blue'} style={{ fontSize: 10, width: 'fit-content', padding: '0 4px', margin: 0 }}>
-                      {currentUser.IsAdmin ? 'SUPER ADMIN' : 'NHÂN VIÊN'}
-                    </Tag>
-                  </div>
-                )}
-              </Space>
-            </Dropdown>
-          </Space>
-        </Header>
+        {currentMenu === 'ungluong' && (
+          <TangCaUngLuongPage
+            ungLuongList={ungLuongList}
+            tangCaList={tangCaList}
+            tcUlLoading={tcUlLoading}
+            onRefresh={fetchTangCaUngLuong}
+            hasRight={hasRight}
+          />
+        )}
 
-        {/* MAIN CONTENT AREA */}
-        <Content style={{ margin: isMobile ? '12px 8px' : '20px 24px', minHeight: 400 }}>
-          {/* TAB 1: DASHBOARD */}
-          {currentMenu === 'dashboard' && (
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              <Row gutter={[16, 16]}>
-                <Col xs={24} sm={12} lg={6}>
-                  <Card bordered={false} style={{ borderRadius: borderRadiusLG, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-                    <Statistic
-                      title={<Text strong type="secondary">Tổng số Nhân viên</Text>}
-                      value={totalEmployees}
-                      prefix={<TeamOutlined style={{ color: '#1677ff', marginRight: 8 }} />}
-                      suffix={<Tag color="blue" style={{ marginLeft: 8 }}>{isBackendConnected ? 'Trực tiếp' : 'Dữ liệu'}</Tag>}
-                      valueStyle={{ color: '#1677ff', fontWeight: 700 }}
-                    />
-                  </Card>
-                </Col>
+        {currentMenu === 'phanquyen' && (
+          <UserManagementPage
+            userList={userList}
+            userLoading={userLoading}
+            currentUser={currentUser}
+            onRefresh={fetchUsers}
+          />
+        )}
+      </MainLayout>
 
-                <Col xs={24} sm={12} lg={6}>
-                  <Card bordered={false} style={{ borderRadius: borderRadiusLG, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-                    <Statistic
-                      title={<Text strong type="secondary">Hợp đồng Lao động</Text>}
-                      value={hopDongList.length || 976}
-                      suffix={<Tag color="green" style={{ marginLeft: 8 }}>Có hiệu lực</Tag>}
-                      prefix={<FileTextOutlined style={{ color: '#52c41a', marginRight: 8 }} />}
-                      valueStyle={{ color: '#52c41a', fontWeight: 700 }}
-                    />
-                  </Card>
-                </Col>
-
-                <Col xs={24} sm={12} lg={6}>
-                  <Card bordered={false} style={{ borderRadius: borderRadiusLG, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-                    <Statistic
-                      title={<Text strong type="secondary">Tổng Quỹ Lương Kỳ Mới</Text>}
-                      value={totalSalary}
-                      prefix={<DollarOutlined style={{ color: '#fa8c16', marginRight: 8 }} />}
-                      formatter={(v) => `${Number(v).toLocaleString('vi-VN')} đ`}
-                      valueStyle={{ color: '#fa8c16', fontWeight: 700, fontSize: '1.25rem' }}
-                    />
-                  </Card>
-                </Col>
-
-                <Col xs={24} sm={12} lg={6}>
-                  <Card bordered={false} style={{ borderRadius: borderRadiusLG, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>
-                    <Statistic
-                      title={<Text strong type="secondary">Phân Quyền WinForm</Text>}
-                      value={currentUser.IsAdmin ? 'Full Access' : `${currentUser.Rights?.length} Module`}
-                      prefix={<SafetyCertificateOutlined style={{ color: '#722ed1', marginRight: 8 }} />}
-                      suffix={<Tag color="purple">Role-Based</Tag>}
-                      valueStyle={{ color: '#722ed1', fontWeight: 700 }}
-                    />
-                  </Card>
-                </Col>
-              </Row>
-
-              {/* CHARTS ROW */}
-              <Row gutter={[16, 16]}>
-                <Col xs={24} lg={15}>
-                  <Card
-                    title="📊 Biểu đồ Biến động Quỹ Lương"
-                    bordered={false}
-                    style={{ borderRadius: borderRadiusLG, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
-                  >
-                    <ResponsiveContainer width="100%" height={300}>
-                      <BarChart data={luongStats} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                        <XAxis dataKey="KyCong" />
-                        <YAxis tickFormatter={(val) => `${(val / 1000000000).toFixed(1)}B`} />
-                        <RechartsTooltip formatter={(val: unknown) => [`${Number(val ?? 0).toLocaleString('vi-VN')} đ`, 'Tổng quỹ lương']} />
-                        <Legend />
-                        <Bar dataKey="TongLuong" name="Quỹ Lương (VNĐ)" fill="#1677ff" radius={[4, 4, 0, 0]} />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </Card>
-                </Col>
-
-                <Col xs={24} lg={9}>
-                  <Card
-                    title="🏢 Phân bố Nhân sự theo Phòng ban"
-                    bordered={false}
-                    style={{ borderRadius: borderRadiusLG, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
-                  >
-                    <ResponsiveContainer width="100%" height={300}>
-                      <PieChart>
-                        <Pie
-                          data={phongBanStats}
-                          dataKey="SoLuong"
-                          nameKey="PhongBan"
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={90}
-                          label={(entry: { name?: string; value?: number }) => `${entry.name || ''}: ${entry.value || 0}`}
-                        >
-                          {phongBanStats.map((_, index) => (
-                            <Cell key={`cell-${index}`} fill={PIE_COLORS[index % PIE_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <RechartsTooltip />
-                      </PieChart>
-                    </ResponsiveContainer>
-                  </Card>
-                </Col>
-              </Row>
-
-              {/* RECENT EMPLOYEES TABLE */}
-              <Card
-                title="👥 Danh sách Nhân sự Gần đây"
-                extra={
-                  <Button type="link" onClick={() => setCurrentMenu('nhanvien')}>
-                    Xem tất cả ({nhanVienList.length}) &gt;
-                  </Button>
-                }
-                bordered={false}
-                style={{ borderRadius: borderRadiusLG, boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}
-              >
-                <Table
-                  columns={employeeColumns}
-                  dataSource={filteredEmployees.slice(0, 5)}
-                  rowKey="MANV"
-                  pagination={false}
-                  loading={loading}
-                  size="middle"
-                  scroll={{ x: 'max-content' }}
-                />
-              </Card>
-            </Space>
-          )}
-
-          {/* TAB 2: QUẢN LÝ NHÂN SỰ */}
-          {currentMenu === 'nhanvien' && (
-            <Card
-              title={`Danh sách Hồ sơ Nhân viên (${filteredEmployees.length})`}
-              extra={
-                <Space>
-                  <Input
-                    placeholder="Tìm theo tên, mã NV, phòng ban..."
-                    prefix={<SearchOutlined />}
-                    value={searchKeyword}
-                    onChange={(e) => setSearchKeyword(e.target.value)}
-                    allowClear
-                    style={{ width: 280 }}
-                  />
-                  <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenNvModal()}>
-                    Thêm nhân viên mới
-                  </Button>
-                </Space>
-              }
-              bordered={false}
-              style={{ borderRadius: borderRadiusLG }}
-            >
-              <Table
-                columns={employeeColumns}
-                dataSource={filteredEmployees}
-                rowKey="MANV"
-                loading={loading}
-                scroll={{ x: 'max-content' }}
-                pagination={{ pageSize: 8, showTotal: (total) => `Tổng số ${total} nhân viên` }}
-              />
-            </Card>
-          )}
-
-          {/* TAB 3: CHẤM CÔNG & CA LÀM */}
-          {currentMenu === 'chamcong' && (
-            <Card
-              title="🕒 Quản lý Chấm công & Ca làm"
-              extra={
-                <Space>
-                  <Text strong>Chọn Kỳ công:</Text>
-                  <Select
-                    value={selectedKyCong}
-                    onChange={(val) => setSelectedKyCong(val)}
-                    style={{ width: 150 }}
-                    options={kyCongList.map((kc) => ({
-                      value: kc.MAKYCONG,
-                      label: `Kỳ ${kc.THANG}/${kc.NAM}`,
-                    }))}
-                  />
-                  <Button icon={<ReloadOutlined />} onClick={() => fetchChamCong(selectedKyCong)}>
-                    Làm mới
-                  </Button>
-                </Space>
-              }
-              bordered={false}
-              style={{ borderRadius: borderRadiusLG }}
-            >
-              <Tabs
-                defaultActiveKey="bangcong"
-                items={[
-                  {
-                    key: 'bangcong',
-                    label: `Bảng chấm công chi tiết (${chamCongList.length} nhân viên)`,
-                    children: (
-                      <Table
-                        columns={chamCongColumns}
-                        dataSource={chamCongList}
-                        rowKey="MANV"
-                        loading={chamCongLoading}
-                        scroll={{ x: 1800 }}
-                        pagination={{ pageSize: 10, showTotal: (total) => `Tổng số ${total} bản ghi` }}
-                        size="small"
-                      />
-                    ),
-                  },
-                  {
-                    key: 'loaica',
-                    label: 'Danh mục Loại ca & Ca làm',
-                    children: (
-                      <Row gutter={[16, 16]}>
-                        <Col xs={24} md={12}>
-                          <Card title="Danh sách Loại ca làm việc" size="small">
-                            <Table
-                              scroll={{ x: 'max-content' }}
-                              columns={[
-                                { title: 'Mã', dataIndex: 'IDLOAICA', key: 'IDLOAICA', width: 70 },
-                                { title: 'Tên ca làm', dataIndex: 'TENLOAICA', key: 'TENLOAICA' },
-                                {
-                                  title: 'Hệ số ca',
-                                  dataIndex: 'HESOLOAICA',
-                                  key: 'HESOLOAICA',
-                                  render: (h: number) => <Tag color="blue">{h ?? 1.0}x</Tag>,
-                                },
-                              ]}
-                              dataSource={loaiCaList}
-                              rowKey="IDLOAICA"
-                              pagination={false}
-                            />
-                          </Card>
-                        </Col>
-                        <Col xs={24} md={12}>
-                          <Card title="Ký hiệu quy ước chấm công" size="small">
-                            <ul style={{ lineHeight: 2, paddingLeft: 20 }}>
-                              <li><Tag color="blue">X</Tag>: Đi làm cả ngày (1.0 công)</li>
-                              <li><Tag color="red">CN</Tag>: Ngày nghỉ Chủ nhật hàng tuần</li>
-                              <li><Tag color="gold">P</Tag>: Nghỉ phép năm có hưởng lương</li>
-                              <li><Tag color="green">L</Tag>: Nghỉ lễ tết có hưởng lương</li>
-                              <li><Tag color="default">KP</Tag>: Nghỉ không phép</li>
-                            </ul>
-                          </Card>
-                        </Col>
-                      </Row>
-                    ),
-                  },
-                ]}
-              />
-            </Card>
-          )}
-
-          {/* TAB 4: BẢNG LƯƠNG & QUỸ LƯƠNG */}
-          {currentMenu === 'bangluong' && (
-            <Card
-              title="💰 Quản lý Tính lương & Bảng lương"
-              extra={
-                <Space>
-                  <Text strong>Kỳ công:</Text>
-                  <Select
-                    value={selectedKyCong}
-                    onChange={(val) => setSelectedKyCong(val)}
-                    style={{ width: 140 }}
-                    options={kyCongList.map((kc) => ({
-                      value: kc.MAKYCONG,
-                      label: `Kỳ ${kc.THANG}/${kc.NAM}`,
-                    }))}
-                  />
-                  <Button
-                    type="primary"
-                    icon={<CalculatorOutlined />}
-                    loading={tinhLuongLoading}
-                    onClick={handleTinhLuong}
-                    style={{ background: '#52c41a', borderColor: '#52c41a' }}
-                  >
-                    Tính lương kỳ này
-                  </Button>
-                  <Button icon={<ReloadOutlined />} onClick={() => fetchBangLuong(selectedKyCong)}>
-                    Làm mới
-                  </Button>
-                </Space>
-              }
-              bordered={false}
-              style={{ borderRadius: borderRadiusLG }}
-            >
-              <Row gutter={[16, 16]}>
-                <Col xs={24} sm={8}>
-                  <Card size="small" style={{ background: '#f6ffed', borderColor: '#b7eb8f' }}>
-                    <Statistic
-                      title="Tổng thực lĩnh kỳ"
-                      value={bangLuongList.reduce((acc, cur) => acc + (cur.THUC_LINH || 0), 0)}
-                      formatter={(v) => `${Number(v).toLocaleString('vi-VN')} đ`}
-                      valueStyle={{ color: '#52c41a', fontWeight: 700 }}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={8}>
-                  <Card size="small" style={{ background: '#e6f4ff', borderColor: '#91caff' }}>
-                    <Statistic
-                      title="Số lượng nhân viên"
-                      value={bangLuongList.length}
-                      suffix="người"
-                      valueStyle={{ color: '#1677ff', fontWeight: 700 }}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={24} sm={8}>
-                  <Card size="small" style={{ background: '#fff7e6', borderColor: '#ffd591' }}>
-                    <Statistic
-                      title="Lương bình quân"
-                      value={
-                        bangLuongList.length > 0
-                          ? Math.round(
-                              bangLuongList.reduce((acc, cur) => acc + (cur.THUC_LINH || 0), 0) / bangLuongList.length
-                            )
-                          : 0
-                      }
-                      formatter={(v) => `${Number(v).toLocaleString('vi-VN')} đ`}
-                      valueStyle={{ color: '#fa8c16', fontWeight: 700 }}
-                    />
-                  </Card>
-                </Col>
-              </Row>
-
-              <Table
-                columns={bangLuongColumns}
-                dataSource={bangLuongList}
-                rowKey="IDBL"
-                loading={bangLuongLoading}
-                pagination={{ pageSize: 10, showTotal: (total) => `Tổng số ${total} nhân viên được tính lương` }}
-                size="middle"
-                style={{ marginTop: 16 }}
-              />
-            </Card>
-          )}
-
-          {/* TAB 5: HỢP ĐỒNG LAO ĐỘNG */}
-          {currentMenu === 'hopdong' && (
-            <Card
-              title={`Danh sách Hợp đồng Lao động (${hopDongList.length})`}
-              extra={
-                <Space>
-                  <Button icon={<ReloadOutlined />} onClick={fetchHopDong}>
-                    Làm mới
-                  </Button>
-                </Space>
-              }
-              bordered={false}
-              style={{ borderRadius: borderRadiusLG }}
-            >
-              <Table
-                columns={hopDongColumns}
-                dataSource={hopDongList}
-                rowKey="SOHD"
-                loading={hopDongLoading}
-                scroll={{ x: 'max-content' }}
-                pagination={{ pageSize: 8, showTotal: (total) => `Tổng cộng ${total} hợp đồng lao động` }}
-              />
-            </Card>
-          )}
-
-          {/* TAB 6: KHEN THƯỞNG & KỶ LUẬT */}
-          {currentMenu === 'khenthuong' && (
-            <Card
-              title="🏆 Quản lý Khen thưởng & Kỷ luật"
-              extra={
-                <Space>
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                      formKt.resetFields();
-                      setKtModalVisible(true);
-                    }}
-                  >
-                    Tạo Quyết định mới
-                  </Button>
-                  <Button icon={<ReloadOutlined />} onClick={fetchKhenThuongKyLuat}>
-                    Làm mới
-                  </Button>
-                </Space>
-              }
-              bordered={false}
-              style={{ borderRadius: borderRadiusLG }}
-            >
-              <Tabs
-                defaultActiveKey="khenthuong"
-                items={[
-                  {
-                    key: 'khenthuong',
-                    label: `Quyết định Khen thưởng (${khenThuongList.length})`,
-                    children: (
-                      <Table
-                        scroll={{ x: 'max-content' }}
-                        columns={[
-                          { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="green">{t}</Tag> },
-                          { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
-                          { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                          { title: 'Ngày ban hành', dataIndex: 'NGAY', key: 'NGAY' },
-                          { title: 'Nội dung khen thưởng', dataIndex: 'NOIDUNG', key: 'NOIDUNG' },
-                          { title: 'Lý do', dataIndex: 'LYDO', key: 'LYDO' },
-                          {
-                            title: 'Thao tác',
-                            key: 'action',
-                            width: 90,
-                            render: (_, r) => (
-                              <Popconfirm title="Xóa quyết định này?" onConfirm={() => handleDeleteKt(r.SOQD)}>
-                                <Button type="text" danger icon={<DeleteOutlined />} size="small" />
-                              </Popconfirm>
-                            ),
-                          },
-                        ]}
-                        dataSource={khenThuongList}
-                        rowKey="SOQD"
-                        loading={ktLoading}
-                        pagination={{ pageSize: 8 }}
-                      />
-                    ),
-                  },
-                  {
-                    key: 'kyluat',
-                    label: `Quyết định Kỷ luật (${kyLuatList.length})`,
-                    children: (
-                      <Table
-                        scroll={{ x: 'max-content' }}
-                        columns={[
-                          { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="red">{t}</Tag> },
-                          { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
-                          { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                          { title: 'Ngày ban hành', dataIndex: 'NGAY', key: 'NGAY' },
-                          { title: 'Nội dung kỷ luật', dataIndex: 'NOIDUNG', key: 'NOIDUNG' },
-                          { title: 'Lý do vi phạm', dataIndex: 'LYDO', key: 'LYDO' },
-                          {
-                            title: 'Thao tác',
-                            key: 'action',
-                            width: 90,
-                            render: (_, r) => (
-                              <Popconfirm title="Xóa quyết định này?" onConfirm={() => handleDeleteKt(r.SOQD)}>
-                                <Button type="text" danger icon={<DeleteOutlined />} size="small" />
-                              </Popconfirm>
-                            ),
-                          },
-                        ]}
-                        dataSource={kyLuatList}
-                        rowKey="SOQD"
-                        loading={ktLoading}
-                        pagination={{ pageSize: 8 }}
-                      />
-                    ),
-                  },
-                ]}
-              />
-            </Card>
-          )}
-
-          {/* TAB 7: NÂNG LƯƠNG & ĐIỀU CHUYỂN */}
-          {currentMenu === 'nangluong' && (
-            <Card
-              title="📈 Quản lý Nâng lương & Điều chuyển"
-              extra={
-                <Space>
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                      formNl.resetFields();
-                      setNlModalVisible(true);
-                    }}
-                  >
-                    Tạo QĐ Nâng lương
-                  </Button>
-                  <Button
-                    icon={<SwapOutlined />}
-                    onClick={() => {
-                      formDc.resetFields();
-                      setDcModalVisible(true);
-                    }}
-                  >
-                    Tạo QĐ Điều chuyển
-                  </Button>
-                  <Button icon={<ReloadOutlined />} onClick={fetchNangLuongDieuChuyen}>
-                    Làm mới
-                  </Button>
-                </Space>
-              }
-              bordered={false}
-              style={{ borderRadius: borderRadiusLG }}
-            >
-              <Tabs
-                defaultActiveKey="nangluong"
-                items={[
-                  {
-                    key: 'nangluong',
-                    label: `Quyết định Nâng lương (${nangLuongList.length})`,
-                    children: (
-                      <Table
-                        scroll={{ x: 'max-content' }}
-                        columns={[
-                          { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="blue">{t}</Tag> },
-                          { title: 'Số HĐ', dataIndex: 'SOHD', key: 'SOHD', render: (t) => <Tag color="purple">{t}</Tag> },
-                          { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
-                          { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                          { title: 'Hệ số cũ', dataIndex: 'HESOLUONG_CU', key: 'HESOLUONG_CU', align: 'right' },
-                          {
-                            title: 'Hệ số mới',
-                            dataIndex: 'HESOLUONG_MOI',
-                            key: 'HESOLUONG_MOI',
-                            align: 'right',
-                            render: (v) => <Tag color="green" style={{ fontWeight: 600 }}>{v}</Tag>,
-                          },
-                          { title: 'Ngày ký', dataIndex: 'NGAYKY', key: 'NGAYKY' },
-                          { title: 'Ngày hưởng', dataIndex: 'NGAYLENLUONG', key: 'NGAYLENLUONG' },
-                          { title: 'Ghi chú', dataIndex: 'GHICHU', key: 'GHICHU' },
-                        ]}
-                        dataSource={nangLuongList}
-                        rowKey="SOQD"
-                        loading={nlDcLoading}
-                        pagination={{ pageSize: 8 }}
-                      />
-                    ),
-                  },
-                  {
-                    key: 'dieuchuyen',
-                    label: `Điều chuyển Phòng ban (${dieuChuyenList.length})`,
-                    children: (
-                      <Table
-                        scroll={{ x: 'max-content' }}
-                        columns={[
-                          { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="geekblue">{t}</Tag> },
-                          { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
-                          { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                          { title: 'Ngày chuyển', dataIndex: 'NGAY', key: 'NGAY' },
-                          { title: 'Phòng ban cũ', dataIndex: 'TENPB', key: 'TENPB', render: (t) => <Tag color="default">{t}</Tag> },
-                          { title: 'Phòng ban mới', dataIndex: 'TENPB2', key: 'TENPB2', render: (t) => <Tag color="cyan">{t}</Tag> },
-                          { title: 'Lý do chuyển', dataIndex: 'LYDO', key: 'LYDO' },
-                          { title: 'Ghi chú', dataIndex: 'GHICHU', key: 'GHICHU' },
-                        ]}
-                        dataSource={dieuChuyenList}
-                        rowKey="SOQD"
-                        loading={nlDcLoading}
-                        pagination={{ pageSize: 8 }}
-                      />
-                    ),
-                  },
-                ]}
-              />
-            </Card>
-          )}
-
-          {/* TAB 8: TĂNG CA & ỨNG LƯƠNG */}
-          {currentMenu === 'ungluong' && (
-            <Card
-              title="💵 Quản lý Tăng ca & Tạm ứng Lương"
-              extra={
-                <Space>
-                  <Button
-                    type="primary"
-                    icon={<PlusOutlined />}
-                    onClick={() => {
-                      formTc.resetFields();
-                      setTcModalVisible(true);
-                    }}
-                  >
-                    Báo cáo Tăng ca (OT)
-                  </Button>
-                  <Button
-                    icon={<DollarOutlined />}
-                    onClick={() => {
-                      formUl.resetFields();
-                      setUlModalVisible(true);
-                    }}
-                  >
-                    Đăng ký Tạm ứng
-                  </Button>
-                  <Button icon={<ReloadOutlined />} onClick={fetchTangCaUngLuong}>
-                    Làm mới
-                  </Button>
-                </Space>
-              }
-              bordered={false}
-              style={{ borderRadius: borderRadiusLG }}
-            >
-              <Tabs
-                defaultActiveKey="tangca"
-                items={[
-                  {
-                    key: 'tangca',
-                    label: `Làm thêm giờ / Tăng ca (${tangCaList.length})`,
-                    children: (
-                      <Table
-                        scroll={{ x: 'max-content' }}
-                        columns={[
-                          { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70, render: (t) => <Tag color="blue">#{t}</Tag> },
-                          { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
-                          { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                          { title: 'Tháng/Năm', key: 'thangnam', render: (_, r) => `${r.THANG}/${r.NAM}` },
-                          { title: 'Ngày OT', dataIndex: 'NGAY', key: 'NGAY' },
-                          { title: 'Loại ca', dataIndex: 'TENLOAICA', key: 'TENLOAICA', render: (t) => <Tag color="purple">{t}</Tag> },
-                          { title: 'Số giờ', dataIndex: 'SOGIO', key: 'SOGIO', align: 'right', render: (v) => <Tag color="orange">{v} giờ</Tag> },
-                          {
-                            title: 'Tiền tăng ca',
-                            dataIndex: 'SOTIEN',
-                            key: 'SOTIEN',
-                            align: 'right',
-                            render: (v) => <Text strong style={{ color: '#52c41a' }}>{(v || 0).toLocaleString('vi-VN')} đ</Text>,
-                          },
-                          { title: 'Ghi chú', dataIndex: 'GHICHU', key: 'GHICHU' },
-                        ]}
-                        dataSource={tangCaList}
-                        rowKey="ID"
-                        loading={tcUlLoading}
-                        pagination={{ pageSize: 8 }}
-                      />
-                    ),
-                  },
-                  {
-                    key: 'ungluong',
-                    label: `Danh sách Tạm ứng Lương (${ungLuongList.length})`,
-                    children: (
-                      <Table
-                        scroll={{ x: 'max-content' }}
-                        columns={[
-                          { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70, render: (t) => <Tag color="blue">#{t}</Tag> },
-                          { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
-                          { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                          { title: 'Tháng/Năm', key: 'thangnam', render: (_, r) => `${r.THANG}/${r.NAM}` },
-                          { title: 'Ngày ứng', dataIndex: 'NGAY', key: 'NGAY' },
-                          {
-                            title: 'Số tiền ứng',
-                            dataIndex: 'SOTIEN',
-                            key: 'SOTIEN',
-                            align: 'right',
-                            render: (v) => <Text strong style={{ color: '#ff4d4f' }}>-{(v || 0).toLocaleString('vi-VN')} đ</Text>,
-                          },
-                          {
-                            title: 'Trạng thái',
-                            dataIndex: 'TRANGTHAI',
-                            key: 'TRANGTHAI',
-                            render: (st) => (
-                              <Tag color={st === 1 ? 'success' : 'warning'}>
-                                {st === 1 ? 'Đã duyệt chi' : 'Chờ duyệt'}
-                              </Tag>
-                            ),
-                          },
-                          { title: 'Lý do ứng', dataIndex: 'GHICHU', key: 'GHICHU' },
-                        ]}
-                        dataSource={ungLuongList}
-                        rowKey="ID"
-                        loading={tcUlLoading}
-                        pagination={{ pageSize: 8 }}
-                      />
-                    ),
-                  },
-                ]}
-              />
-            </Card>
-          )}
-
-          {/* TAB 9: QUẢN TRỊ TÀI KHOẢN & PHÂN QUYỀN (CHUẨN WINFORMS RBAC) */}
-          {currentMenu === 'phanquyen' && (() => {
-            const safeUserList = Array.isArray(userList) ? userList : [];
-            return (
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {/* METRICS CARDS */}
-              <Row gutter={[16, 16]}>
-                <Col xs={12} sm={6}>
-                  <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
-                    <Statistic
-                      title="Tổng số người dùng"
-                      value={safeUserList.filter((u) => !u.IsGroup).length}
-                      prefix={<UserOutlined style={{ color: '#1677ff' }} />}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
-                    <Statistic
-                      title="Đang hoạt động"
-                      value={safeUserList.filter((u) => !u.IsGroup && !u.Disabled).length}
-                      valueStyle={{ color: '#52c41a' }}
-                      prefix={<CheckCircleOutlined />}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
-                    <Statistic
-                      title="Tài khoản tạm khóa"
-                      value={safeUserList.filter((u) => !u.IsGroup && u.Disabled).length}
-                      valueStyle={{ color: '#ff4d4f' }}
-                      prefix={<LockOutlined />}
-                    />
-                  </Card>
-                </Col>
-                <Col xs={12} sm={6}>
-                  <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
-                    <Statistic
-                      title="Nhóm quyền (Roles)"
-                      value={safeUserList.filter((u) => u.IsGroup).length}
-                      valueStyle={{ color: '#722ed1' }}
-                      prefix={<TeamOutlined />}
-                    />
-                  </Card>
-                </Col>
-              </Row>
-
-              {/* MAIN CONTENT CARD */}
-              <Card
-                title={
-                  <Space size="middle" wrap>
-                    <span style={{ fontWeight: 600, fontSize: 16 }}>🛡️ Quản trị Tài khoản & Phân quyền</span>
-                    <Segmented
-                      value={userTab}
-                      onChange={(val: any) => setUserTab(val as 'users' | 'groups')}
-                      options={[
-                        {
-                          label: `👥 Người dùng (${safeUserList.filter((u) => !u.IsGroup).length})`,
-                          value: 'users',
-                        },
-                        {
-                          label: `🏷️ Nhóm quyền (${safeUserList.filter((u) => u.IsGroup).length})`,
-                          value: 'groups',
-                        },
-                      ]}
-                    />
-                  </Space>
-                }
-                extra={
-                  <Space>
-                    <Input
-                      placeholder={userTab === 'users' ? 'Tìm tài khoản, họ tên...' : 'Tìm mã hoặc tên nhóm...'}
-                      prefix={<SearchOutlined />}
-                      value={userSearchText}
-                      onChange={(e) => setUserSearchText(e.target.value)}
-                      allowClear
-                      style={{ width: 240 }}
-                    />
-                    <Button
-                      type="primary"
-                      icon={<PlusOutlined />}
-                      onClick={() => {
-                        formCreateUser.resetFields();
-                        setIsCreatingGroup(userTab === 'groups');
-                        formCreateUser.setFieldsValue({ IsGroup: userTab === 'groups' });
-                        setCreateUserModalVisible(true);
-                      }}
-                    >
-                      {userTab === 'users' ? 'Thêm tài khoản mới' : 'Thêm nhóm quyền mới'}
-                    </Button>
-                    <Button icon={<ReloadOutlined spin={userLoading} />} onClick={fetchUsers}>
-                      Làm mới
-                    </Button>
-                  </Space>
-                }
-                bordered={false}
-                style={{ borderRadius: borderRadiusLG }}
-              >
-                {userTab === 'users' ? (
-                  <Table
-                    scroll={{ x: 'max-content' }}
-                    columns={userColumns}
-                    dataSource={safeUserList.filter(
-                      (u) =>
-                        !u.IsGroup &&
-                        (u.Username.toLowerCase().includes(userSearchText.toLowerCase()) ||
-                          u.FullName.toLowerCase().includes(userSearchText.toLowerCase()))
-                    )}
-                    rowKey="IdUser"
-                    loading={userLoading}
-                    pagination={{ pageSize: 8, showTotal: (t) => `Tổng số ${t} người dùng` }}
-                  />
-                ) : (
-                  <Table
-                    scroll={{ x: 'max-content' }}
-                    columns={groupColumns}
-                    dataSource={safeUserList.filter(
-                      (u) =>
-                        Boolean(u.IsGroup) &&
-                        (u.Username.toLowerCase().includes(userSearchText.toLowerCase()) ||
-                          u.FullName.toLowerCase().includes(userSearchText.toLowerCase()))
-                    )}
-                    rowKey="IdUser"
-                    loading={userLoading}
-                    pagination={{ pageSize: 8, showTotal: (t) => `Tổng số ${t} nhóm quyền` }}
-                  />
-                )}
-              </Card>
-            </Space>
-            );
-          })()}
-        </Content>
-      </Layout>
-
-      {/* MODAL THÊM / SỬA NHÂN VIÊN */}
-      <Modal
-        title={editingNv ? `Chỉnh sửa Nhân viên #${editingNv.MANV}` : 'Thêm Nhân viên Mới'}
-        open={nvModalVisible}
-        onOk={handleSaveNv}
-        onCancel={() => setNvModalVisible(false)}
-        okText="Lưu thông tin"
-        cancelText="Hủy"
-        width={700}
-      >
-        <Form form={formNv} layout="vertical" style={{ marginTop: 16 }}>
-          <Row gutter={16}>
-            <Col span={16}>
-              <Form.Item
-                name="HOTEN"
-                label="Họ và tên nhân viên"
-                rules={[{ required: true, message: 'Vui lòng nhập họ và tên' }]}
-              >
-                <Input placeholder="Ví dụ: Nguyễn Văn Hoàng" />
-              </Form.Item>
-            </Col>
-            <Col span={8}>
-              <Form.Item name="GIOITINH" label="Giới tính" initialValue={1}>
-                <Select
-                  options={[
-                    { value: 1, label: 'Nam' },
-                    { value: 2, label: 'Nữ' },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="DIENTHOAI" label="Số điện thoại">
-                <Input placeholder="0988123456" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="CCCD" label="Số CCCD / CMND">
-                <Input placeholder="001201012345" />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="IDPB" label="Phòng ban" rules={[{ required: true, message: 'Vui lòng chọn phòng ban' }]}>
-                <Select
-                  placeholder="Chọn phòng ban"
-                  options={danhMuc?.phongBan?.map((pb) => ({
-                    value: pb.IDPB,
-                    label: pb.TENPB,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="IDCV" label="Chức vụ" rules={[{ required: true, message: 'Vui lòng chọn chức vụ' }]}>
-                <Select
-                  placeholder="Chọn chức vụ"
-                  options={danhMuc?.chucVu?.map((cv) => ({
-                    value: cv.IDCV,
-                    label: cv.TENCV,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="IDTD" label="Trình độ học vấn">
-                <Select
-                  placeholder="Chọn trình độ"
-                  options={danhMuc?.trinhDo?.map((td) => ({
-                    value: td.ID,
-                    label: td.TEN,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="DIACHI" label="Địa chỉ liên hệ">
-                <Input placeholder="Hà Nội, Bắc Giang..." />
-              </Form.Item>
-            </Col>
-          </Row>
-        </Form>
-      </Modal>
-
-      {/* MODAL TẠO QUYẾT ĐỊNH KHEN THƯỞNG / KỶ LUẬT */}
-      <Modal
-        title="Tạo Quyết định Khen thưởng / Kỷ luật"
-        open={ktModalVisible}
-        onOk={handleSaveKt}
-        onCancel={() => setKtModalVisible(false)}
-        okText="Lưu Quyết định"
-        cancelText="Hủy"
-        width={600}
-      >
-        <Form form={formKt} layout="vertical" style={{ marginTop: 16 }} initialValues={{ Loai: 1 }}>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="SoQd"
-                label="Số Quyết định"
-                rules={[{ required: true, message: 'Vui lòng nhập số QĐ' }]}
-              >
-                <Input placeholder="Ví dụ: 10/2023/QĐKT" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="Loai" label="Hình thức">
-                <Select
-                  options={[
-                    { value: 1, label: 'Khen thưởng' },
-                    { value: 2, label: 'Kỷ luật' },
-                  ]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="MaNv"
-                label="Nhân viên"
-                rules={[{ required: true, message: 'Vui lòng chọn nhân viên' }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn nhân viên"
-                  optionFilterProp="children"
-                  options={nhanVienList.map((nv) => ({
-                    value: nv.MANV,
-                    label: `${nv.HOTEN} (#${nv.MANV})`,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="Ngay" label="Ngày ban hành">
-                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item
-            name="NoiDung"
-            label="Nội dung quyết định"
-            rules={[{ required: true, message: 'Vui lòng nhập nội dung' }]}
-          >
-            <Input.TextArea rows={2} placeholder="Nội dung khen thưởng hoặc xử lý kỷ luật..." />
-          </Form.Item>
-          <Form.Item name="LyDo" label="Lý do">
-            <Input placeholder="Lập thành tích xuất sắc, vi phạm nội quy..." />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* MODAL TẠO QUYẾT ĐỊNH NÂNG LƯƠNG */}
-      <Modal
-        title="Tạo Quyết định Nâng lương"
-        open={nlModalVisible}
-        onOk={handleSaveNl}
-        onCancel={() => setNlModalVisible(false)}
-        okText="Lưu Nâng lương"
-        cancelText="Hủy"
-        width={600}
-      >
-        <Form form={formNl} layout="vertical" style={{ marginTop: 16 }}>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="SoQd"
-                label="Số Quyết định"
-                rules={[{ required: true, message: 'Vui lòng nhập số QĐ' }]}
-              >
-                <Input placeholder="Ví dụ: 05/2023/QĐNL" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="SoHd" label="Số Hợp đồng liên quan">
-                <Input placeholder="01/2023/HĐLĐ" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="MaNv"
-                label="Nhân viên"
-                rules={[{ required: true, message: 'Chọn nhân viên' }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn nhân viên"
-                  optionFilterProp="children"
-                  options={nhanVienList.map((nv) => ({
-                    value: nv.MANV,
-                    label: `${nv.HOTEN} (#${nv.MANV})`,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item name="HeSoLuongCu" label="Hệ số cũ" initialValue={1.0}>
-                <InputNumber step={0.1} min={0.5} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={6}>
-              <Form.Item
-                name="HeSoLuongMoi"
-                label="Hệ số mới"
-                initialValue={1.2}
-                rules={[{ required: true, message: 'Hệ số mới' }]}
-              >
-                <InputNumber step={0.1} min={0.5} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="NgayKy" label="Ngày ký">
-                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="NgayLenLuong" label="Ngày bắt đầu hưởng">
-                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item name="GhiChu" label="Ghi chú">
-            <Input placeholder="Hoàn thành xuất sắc nhiệm vụ năm..." />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* MODAL TẠO QUYẾT ĐỊNH ĐIỀU CHUYỂN */}
-      <Modal
-        title="Tạo Quyết định Điều chuyển Phòng ban"
-        open={dcModalVisible}
-        onOk={handleSaveDc}
-        onCancel={() => setDcModalVisible(false)}
-        okText="Lưu Điều chuyển"
-        cancelText="Hủy"
-        width={600}
-      >
-        <Form form={formDc} layout="vertical" style={{ marginTop: 16 }}>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="SoQd"
-                label="Số Quyết định"
-                rules={[{ required: true, message: 'Vui lòng nhập số QĐ' }]}
-              >
-                <Input placeholder="Ví dụ: 03/2023/QĐĐC" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="MaNv"
-                label="Nhân viên điều chuyển"
-                rules={[{ required: true, message: 'Chọn nhân viên' }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn nhân viên"
-                  optionFilterProp="children"
-                  options={nhanVienList.map((nv) => ({
-                    value: nv.MANV,
-                    label: `${nv.HOTEN} (#${nv.MANV})`,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="IdPb"
-                label="Phòng ban hiện tại"
-                rules={[{ required: true, message: 'Chọn phòng ban hiện tại' }]}
-              >
-                <Select
-                  placeholder="Chọn phòng ban cũ"
-                  options={danhMuc?.phongBan?.map((pb) => ({
-                    value: pb.IDPB,
-                    label: pb.TENPB,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="IdPb2"
-                label="Phòng ban mới"
-                rules={[{ required: true, message: 'Chọn phòng ban chuyển đến' }]}
-              >
-                <Select
-                  placeholder="Chọn phòng ban mới"
-                  options={danhMuc?.phongBan?.map((pb) => ({
-                    value: pb.IDPB,
-                    label: pb.TENPB,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="Ngay" label="Ngày điều chuyển">
-                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="LyDo" label="Lý do">
-                <Input placeholder="Luân chuyển cán bộ, mở rộng chi nhánh..." />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item name="GhiChu" label="Ghi chú">
-            <Input placeholder="Ghi chú thêm..." />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* MODAL TẠO BÁO CÁO TĂNG CA */}
-      <Modal
-        title="Báo cáo Tăng ca / Làm thêm giờ (OT)"
-        open={tcModalVisible}
-        onOk={handleSaveTc}
-        onCancel={() => setTcModalVisible(false)}
-        okText="Lưu Tăng ca"
-        cancelText="Hủy"
-        width={560}
-      >
-        <Form
-          form={formTc}
-          layout="vertical"
-          style={{ marginTop: 16 }}
-          initialValues={{ Nam: new Date().getFullYear(), Thang: new Date().getMonth() + 1, SoGio: 2 }}
-        >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="Thang" label="Tháng" rules={[{ required: true }]}>
-                <InputNumber min={1} max={12} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="Nam" label="Năm" rules={[{ required: true }]}>
-                <InputNumber min={2020} max={2030} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={14}>
-              <Form.Item
-                name="MaNv"
-                label="Nhân viên"
-                rules={[{ required: true, message: 'Chọn nhân viên' }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn nhân viên"
-                  optionFilterProp="children"
-                  options={nhanVienList.map((nv) => ({
-                    value: nv.MANV,
-                    label: `${nv.HOTEN} (#${nv.MANV})`,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={10}>
-              <Form.Item name="Ngay" label="Ngày tăng ca">
-                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="IdLoaiCa"
-                label="Loại ca làm việc"
-                rules={[{ required: true, message: 'Chọn loại ca' }]}
-              >
-                <Select
-                  placeholder="Chọn loại ca"
-                  options={loaiCaList.map((lc) => ({
-                    value: lc.IDLOAICA,
-                    label: `${lc.TENLOAICA} (${lc.HESOLOAICA ?? 1.5}x)`,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="SoGio"
-                label="Số giờ làm thêm"
-                rules={[{ required: true, message: 'Nhập số giờ' }]}
-              >
-                <InputNumber min={0.5} max={12} step={0.5} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item name="GhiChu" label="Ghi chú">
-            <Input placeholder="Tăng ca dự án, hoàn thành kiểm kê..." />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* MODAL TẠM ỨNG LƯƠNG */}
-      <Modal
-        title="Đăng ký Tạm ứng Lương"
-        open={ulModalVisible}
-        onOk={handleSaveUl}
-        onCancel={() => setUlModalVisible(false)}
-        okText="Lưu Tạm ứng"
-        cancelText="Hủy"
-        width={560}
-      >
-        <Form
-          form={formUl}
-          layout="vertical"
-          style={{ marginTop: 16 }}
-          initialValues={{ Nam: new Date().getFullYear(), Thang: new Date().getMonth() + 1, SoTien: 1000000 }}
-        >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item name="Thang" label="Tháng ứng" rules={[{ required: true }]}>
-                <InputNumber min={1} max={12} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item name="Nam" label="Năm" rules={[{ required: true }]}>
-                <InputNumber min={2020} max={2030} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={16}>
-            <Col span={14}>
-              <Form.Item
-                name="MaNv"
-                label="Nhân viên tạm ứng"
-                rules={[{ required: true, message: 'Chọn nhân viên' }]}
-              >
-                <Select
-                  showSearch
-                  placeholder="Chọn nhân viên"
-                  optionFilterProp="children"
-                  options={nhanVienList.map((nv) => ({
-                    value: nv.MANV,
-                    label: `${nv.HOTEN} (#${nv.MANV})`,
-                  }))}
-                />
-              </Form.Item>
-            </Col>
-            <Col span={10}>
-              <Form.Item name="Ngay" label="Ngày ứng">
-                <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item
-            name="SoTien"
-            label="Số tiền tạm ứng (VNĐ)"
-            rules={[{ required: true, message: 'Nhập số tiền' }]}
-          >
-            <InputNumber
-              style={{ width: '100%' }}
-              step={500000}
-              min={100000}
-              formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-            />
-          </Form.Item>
-          <Form.Item name="GhiChu" label="Lý do tạm ứng">
-            <Input placeholder="Chi tiêu cá nhân, giải quyết việc gia đình..." />
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* MODAL TẠO TÀI KHOẢN / NHÓM QUYỀN MỚI */}
-      <Modal
-        title={isCreatingGroup ? 'Thêm Nhóm quyền Hệ thống Mới' : 'Thêm Tài khoản Người dùng Hệ thống'}
-        open={createUserModalVisible}
-        onOk={handleCreateUser}
-        onCancel={() => setCreateUserModalVisible(false)}
-        okText={isCreatingGroup ? 'Tạo nhóm quyền' : 'Tạo tài khoản'}
-        cancelText="Hủy"
-        width={540}
-      >
-        <Form form={formCreateUser} layout="vertical" style={{ marginTop: 16 }}>
-          <Form.Item name="IsGroup" label="Loại đối tượng" initialValue={false}>
-            <Select
-              onChange={(val) => setIsCreatingGroup(val)}
-              options={[
-                { value: false, label: '👤 Người dùng cá nhân (Tài khoản đăng nhập)' },
-                { value: true, label: '🏷️ Nhóm quyền hệ thống (Role)' },
-              ]}
-            />
-          </Form.Item>
-
-          <Form.Item
-            name="Username"
-            label={isCreatingGroup ? 'Mã nhóm quyền (Tên nhóm)' : 'Tên đăng nhập'}
-            rules={[{ required: true, message: 'Vui lòng nhập trường này' }]}
-          >
-            <Input placeholder={isCreatingGroup ? 'Ví dụ: NHOM_KE_TOAN, NHOM_KY_THUAT...' : 'Ví dụ: nhansu02, ketoan01...'} />
-          </Form.Item>
-
-          <Form.Item
-            name="FullName"
-            label={isCreatingGroup ? 'Mô tả / Tên đầy đủ của nhóm' : 'Họ và tên người dùng'}
-            rules={[{ required: true, message: 'Vui lòng nhập họ tên hoặc mô tả' }]}
-          >
-            <Input placeholder={isCreatingGroup ? 'Ví dụ: Nhóm Kế toán thanh toán' : 'Ví dụ: Nguyễn Văn Hoàng'} />
-          </Form.Item>
-
-          {!isCreatingGroup && (
-            <Form.Item
-              name="Password"
-              label="Mật khẩu khởi tạo"
-              rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
-            >
-              <Input.Password placeholder="Nhập mật khẩu khởi tạo cho tài khoản..." />
-            </Form.Item>
-          )}
-        </Form>
-      </Modal>
-
-      {/* MODAL PHÂN QUYỀN CHỨC NĂNG (Tương thích WinForms FrmPhanQuyenChucNang) */}
-      {selectedUserForPerms && (
-        <PhanQuyenModal
-          visible={phanQuyenModalVisible}
-          onClose={() => setPhanQuyenModalVisible(false)}
-          userId={selectedUserForPerms.IdUser}
-          username={selectedUserForPerms.Username}
-          fullName={selectedUserForPerms.FullName}
-          isGroup={selectedUserForPerms.IsGroup}
-          onSuccess={() => {
-            fetchUsers();
-          }}
-        />
-      )}
-
-      {/* MODAL QUẢN LÝ THÀNH VIÊN NHÓM (Tương thích WinForms frmGroup & FrmShowUser_Group) */}
-      {selectedGroupForMembers && (
-        <GroupMembersModal
-          visible={groupMembersModalVisible}
-          onClose={() => setGroupMembersModalVisible(false)}
-          groupId={selectedGroupForMembers.IdUser}
-          groupName={selectedGroupForMembers.Username}
-          groupFullName={selectedGroupForMembers.FullName}
-          onSuccess={() => {
-            fetchUsers();
-          }}
-        />
-      )}
-
-      {/* MODAL CHỈNH SỬA THÔNG TIN NGƯỜI DÙNG / NHÓM */}
-      <UserEditModal
-        visible={userEditModalVisible}
-        onClose={() => setUserEditModalVisible(false)}
-        user={selectedUserForEdit}
-        onSuccess={() => {
-          fetchUsers();
-        }}
+      {/* Drawer AI Copilot */}
+      <AiChatDrawer
+        open={aiDrawerVisible}
+        onClose={() => setAiDrawerVisible(false)}
+        isMobile={typeof window !== 'undefined' && window.innerWidth < 768}
+        onNavigate={(route) => handleNavigate(route)}
       />
 
-      {/* MODAL ĐỔI MẬT KHẨU CÁ NHÂN */}
+      {/* Modal đổi mật khẩu cá nhân */}
       <ChangePasswordModal
         visible={changePasswordModalVisible}
         onClose={() => setChangePasswordModalVisible(false)}
         username={currentUser.Username}
       />
 
-      {/* MODAL PHIẾU LƯƠNG CÁ NHÂN */}
-      <PhieuLuongModal
-        visible={phieuLuongModalVisible}
-        onClose={() => setPhieuLuongModalVisible(false)}
-        record={selectedBangLuong}
-        kyCongLabel={
-          selectedKyCong
-            ? `Kỳ Lương #${selectedKyCong} (${kyCongList.find((k) => k.MAKYCONG === selectedKyCong)?.THANG}/${
-                kyCongList.find((k) => k.MAKYCONG === selectedKyCong)?.NAM
-              })`
-            : undefined
-        }
+      {/* Command Palette Global Search (Ctrl + K) */}
+      <CommandPaletteModal
+        visible={commandPaletteVisible}
+        onClose={() => setCommandPaletteVisible(false)}
+        nhanVienList={nhanVienList}
+        kyCongList={kyCongList}
+        hopDongList={hopDongList}
+        onSelectEmployee={(emp) => {
+          setGlobalEmployee360(emp);
+          setGlobal360Visible(true);
+        }}
+        onNavigate={(route) => handleNavigate(route)}
+        onOpenAiDrawer={() => setAiDrawerVisible(true)}
       />
 
-      {/* AI COPILOT CHAT DRAWER */}
-      <Drawer
-        title={
-          <Space>
-            <Avatar style={{ backgroundColor: '#722ed1' }} icon={<RobotOutlined />} />
-            <div>
-              <Text strong>AI HRMS Copilot</Text>
-              <div>
-                <Tag color="green" style={{ fontSize: 10 }}>Trợ Lý Thông Minh</Tag>
-              </div>
-            </div>
-          </Space>
-        }
-        placement="right"
-        width={isMobile ? '100%' : 440}
-        onClose={() => setAiDrawerVisible(false)}
-        open={aiDrawerVisible}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-          <div style={{ flex: 1, overflowY: 'auto', paddingRight: 4, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {chatMessages.map((msg) => (
-              <div
-                key={msg.id}
-                style={{
-                  alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
-                  maxWidth: '85%',
-                  background: msg.sender === 'user' ? '#1677ff' : '#f0f2f5',
-                  color: msg.sender === 'user' ? '#fff' : '#1f1f1f',
-                  padding: '10px 14px',
-                  borderRadius: msg.sender === 'user' ? '12px 12px 2px 12px' : '12px 12px 12px 2px',
-                  fontSize: '13.5px',
-                  lineHeight: '1.5',
-                }}
-              >
-                <div style={{ whiteSpace: 'pre-wrap' }}>{msg.content}</div>
-                {msg.source && (
-                  <div style={{ marginTop: 4 }}>
-                    <Tag color={msg.source === 'RAG_Ollama' ? 'purple' : 'blue'} style={{ fontSize: 10 }}>
-                      {msg.source === 'RAG_Ollama' ? '🤖 Trợ Lý AI' : '⚡ Dữ Liệu Trực Tuyến'}
-                    </Tag>
-                  </div>
-                )}
-                <div
-                  style={{
-                    fontSize: '10px',
-                    color: msg.sender === 'user' ? 'rgba(255,255,255,0.7)' : '#8c8c8c',
-                    marginTop: 4,
-                    textAlign: 'right',
-                  }}
-                >
-                  {msg.timestamp}
-                </div>
-              </div>
-            ))}
-            {chatLoading && (
-              <div style={{ alignSelf: 'flex-start', padding: 8 }}>
-                <Spin size="small" /> <Text type="secondary" style={{ fontSize: 12, marginLeft: 8 }}>AI đang tra cứu dữ liệu...</Text>
-              </div>
-            )}
-          </div>
-
-          <div style={{ margin: '12px 0' }}>
-            <Text type="secondary" style={{ fontSize: 11 }}>Gợi ý nhanh:</Text>
-            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 4 }}>
-              <Tag
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleSendMessage('Quy định tính tiền làm thêm giờ (OT)?')}
-              >
-                💰 Quy định làm thêm giờ
-              </Tag>
-              <Tag
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleSendMessage('Hệ thống hiện tại có bao nhiêu nhân viên?')}
-              >
-                👥 Số lượng nhân sự
-              </Tag>
-              <Tag
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleSendMessage('Tổng quỹ lương kỳ hiện tại là bao nhiêu?')}
-              >
-                💵 Tổng quỹ lương
-              </Tag>
-              <Tag
-                style={{ cursor: 'pointer' }}
-                onClick={() => handleSendMessage('Công ty có bao nhiêu phòng ban?')}
-              >
-                🏢 Danh sách phòng ban
-              </Tag>
-            </div>
-          </div>
-
-          <Space.Compact style={{ width: '100%' }}>
-            <Input
-              placeholder="Nhập câu hỏi cho AI Copilot..."
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              onPressEnter={() => handleSendMessage()}
-              disabled={chatLoading}
-            />
-            <Button
-              type="primary"
-              icon={<SendOutlined />}
-              onClick={() => handleSendMessage()}
-              loading={chatLoading}
-              style={{ background: '#722ed1', borderColor: '#722ed1' }}
-            >
-              Gửi
-            </Button>
-          </Space.Compact>
-        </div>
-      </Drawer>
-    </Layout>
+      {/* Global Employee 360° Profile & Timeline */}
+      <Employee360Modal
+        visible={global360Visible}
+        onClose={() => setGlobal360Visible(false)}
+        employee={globalEmployee360}
+      />
+    </>
   );
 }
 

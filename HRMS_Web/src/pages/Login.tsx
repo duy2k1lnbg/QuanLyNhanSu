@@ -13,6 +13,7 @@ import {
   Space,
   Card,
   Badge,
+  Dropdown,
 } from 'antd';
 import {
   UserOutlined,
@@ -35,20 +36,23 @@ import {
   MailOutlined,
   FacebookOutlined,
   GithubOutlined,
+  FireOutlined,
+  GlobalOutlined,
+  DownOutlined,
+  CheckOutlined,
 } from '@ant-design/icons';
 import api from '../services/api';
 import type { CurrentUserDTO } from '../types/hrms';
+import { CinematicHeroGallery } from '../components/CinematicHeroGallery';
+import { useAppLanguage, type AppLanguage } from '../services/i18n';
 
 const { Title, Text, Paragraph } = Typography;
 
 // =============================================================================
-// THÔNG TIN TÁC GIẢ & CÁC KÊNH LIÊN HỆ (BẠN CÓ THỂ TỰ THAY ĐỔI TRỰC TIẾP TẠI ĐÂY)
+// THÔNG TIN TÁC GIẢ & CÁC KÊNH LIÊN HỆ
 // =============================================================================
 const AUTHOR_INFO = {
   name: 'Nguyễn Thọ Duy',
-  title: 'Software Engineer',
-  badge: 'Tác Giả Dự Án', // Gợi ý: 'Tác Giả Dự Án', 'Sẵn Sàng Hợp Tác', 'Project Creator', 'Open for Work'
-  bio: 'Lập trình viên phát triển phần mềm quản trị nhân sự và hệ thống doanh nghiệp với C# .NET, React và CSDL quan hệ.',
   email: 'duythptln2001@gmail.com',
   facebook: 'https://www.facebook.com/duy.nguyentho.7/',
   github: 'https://github.com/duy2k1lnbg/QuanLyNhanSu',
@@ -66,6 +70,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
   // State điều khiển Modal Đăng Nhập
   const [loginModalVisible, setLoginModalVisible] = useState<boolean>(false);
+
+  // Hook đa ngôn ngữ toàn hệ thống (Anh, Việt, Nhật)
+  const { lang: currentLang, setLang: handleLanguageChange, tLanding, allConfigs } = useAppLanguage();
 
   // State điều khiển Modal Tải Ứng Dụng
   const [downloadModalVisible, setDownloadModalVisible] = useState<boolean>(false);
@@ -125,9 +132,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         );
       }
     } catch (err: unknown) {
+      console.error('Chi tiết lỗi đăng nhập:', err);
       const errorObj = err as {
-        response?: { data?: { Message?: string; message?: string } | string };
+        response?: { data?: { Message?: string; message?: string } | string; status?: number };
         message?: string;
+        config?: { url?: string; baseURL?: string };
       };
       let msg = 'Không thể kết nối đến máy chủ đăng nhập.';
       if (typeof errorObj.response?.data === 'string') {
@@ -136,7 +145,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           errorObj.response.data.includes('Exception') ||
           errorObj.response.data.includes('ORA-')
         ) {
-          msg = 'Đăng nhập không thành công. Vui lòng kiểm tra lại thông tin hoặc thử lại sau.';
+          msg = `Lỗi máy chủ (${errorObj.response?.status || 500}). Vui lòng kiểm tra dịch vụ Backend và kết nối CSDL Oracle.`;
         } else {
           msg = errorObj.response.data;
         }
@@ -147,7 +156,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       ) {
         msg = errorObj.response.data.Message || errorObj.response.data.message || msg;
       } else if (errorObj.message) {
-        msg = 'Lỗi kết nối máy chủ. Vui lòng thử lại sau.';
+        const target = (errorObj.config?.baseURL || '') + (errorObj.config?.url || '');
+        msg = `Không thể kết nối máy chủ API (${target || 'HRMS Backend'}: ${errorObj.message}). Vui lòng đảm bảo Backend HRMS_API đang hoạt động!`;
       }
       setErrorMessage(msg);
     } finally {
@@ -231,15 +241,27 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               HRMS ENTERPRISE
             </div>
             <div style={{ fontSize: 11, color: '#94a3b8' }}>
-              Giải Pháp Quản Trị Nhân Sự & Phân Quyền Doanh Nghiệp
+              {tLanding.subHeader}
             </div>
           </div>
         </div>
 
         <Space size="middle">
           <Tag color="success" style={{ padding: '3px 10px', borderRadius: 12, border: 'none', background: 'rgba(34,197,94,0.15)', color: '#4ade80' }}>
-            <Badge status="processing" color="#4ade80" /> Hệ Thống Sẵn Sàng
+            <Badge status="processing" color="#4ade80" /> {tLanding.systemReady}
           </Tag>
+
+          <Button
+            type="text"
+            icon={<FireOutlined style={{ color: '#fbbf24' }} />}
+            onClick={() => {
+              const el = document.getElementById('cinematic-hero-gallery');
+              if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }}
+            style={{ color: '#fef08a', fontWeight: 600 }}
+          >
+            {tLanding.galleryFilm}
+          </Button>
 
           <Button
             type="text"
@@ -247,8 +269,85 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             onClick={() => handleOpenDownload('general')}
             style={{ color: '#e2e8f0', fontWeight: 600 }}
           >
-            Tải Ứng Dụng
+            {tLanding.downloadApp}
           </Button>
+
+          {/* NÚT CHỌN NGÔN NGỮ: ANH, VIỆT, NHẬT */}
+          <Dropdown
+            menu={{
+              items: [
+                {
+                  key: 'vi',
+                  label: (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
+                      <Space size={10}>
+                        <span style={{ fontSize: 18 }}>{allConfigs.vi.flag}</span>
+                        <span style={{ fontWeight: currentLang === 'vi' ? 700 : 600, color: currentLang === 'vi' ? '#0284c7' : '#0f172a', fontSize: 14 }}>
+                          {allConfigs.vi.name}
+                        </span>
+                      </Space>
+                      {currentLang === 'vi' && <CheckOutlined style={{ color: '#0284c7', fontWeight: 700, fontSize: 14 }} />}
+                    </div>
+                  ),
+                },
+                {
+                  key: 'en',
+                  label: (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
+                      <Space size={10}>
+                        <span style={{ fontSize: 18 }}>{allConfigs.en.flag}</span>
+                        <span style={{ fontWeight: currentLang === 'en' ? 700 : 600, color: currentLang === 'en' ? '#0284c7' : '#0f172a', fontSize: 14 }}>
+                          {allConfigs.en.name}
+                        </span>
+                      </Space>
+                      {currentLang === 'en' && <CheckOutlined style={{ color: '#0284c7', fontWeight: 700, fontSize: 14 }} />}
+                    </div>
+                  ),
+                },
+                {
+                  key: 'ja',
+                  label: (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
+                      <Space size={10}>
+                        <span style={{ fontSize: 18 }}>{allConfigs.ja.flag}</span>
+                        <span style={{ fontWeight: currentLang === 'ja' ? 700 : 600, color: currentLang === 'ja' ? '#0284c7' : '#0f172a', fontSize: 14 }}>
+                          {allConfigs.ja.name}
+                        </span>
+                      </Space>
+                      {currentLang === 'ja' && <CheckOutlined style={{ color: '#0284c7', fontWeight: 700, fontSize: 14 }} />}
+                    </div>
+                  ),
+                },
+              ],
+              selectedKeys: [currentLang],
+              onClick: ({ key }) => handleLanguageChange(key as AppLanguage),
+            }}
+            placement="bottomRight"
+            trigger={['click']}
+          >
+            <Button
+              type="text"
+              style={{
+                color: '#f8fafc',
+                fontWeight: 600,
+                fontSize: 13,
+                background: 'rgba(255, 255, 255, 0.08)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255, 255, 255, 0.18)',
+                borderRadius: 10,
+                padding: '0 12px',
+                height: 38,
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                cursor: 'pointer',
+              }}
+            >
+              <GlobalOutlined style={{ color: '#38bdf8', fontSize: 15 }} />
+              <span>{allConfigs[currentLang].flag} {allConfigs[currentLang].short}</span>
+              <DownOutlined style={{ fontSize: 10, color: '#94a3b8' }} />
+            </Button>
+          </Dropdown>
 
           {/* NÚT ĐĂNG NHẬP NỔI BẬT */}
           <Button
@@ -266,10 +365,17 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
             }}
           >
-            Đăng Nhập
+            {tLanding.signIn}
           </Button>
         </Space>
       </header>
+
+      {/* ========================================================================= */}
+      {/* 1. CINEMATIC 9-IMAGE HERO HORIZONTAL GALLERY (9 CÂU GIỮ NGUYÊN 100%)      */}
+      {/* ========================================================================= */}
+      <div id="cinematic-hero-gallery">
+        <CinematicHeroGallery />
+      </div>
 
       {/* MAIN CONTENT BODY */}
       <main style={{ flex: 1, maxWidth: 1280, width: '100%', margin: '0 auto', padding: 'clamp(30px, 5vw, 60px) 24px' }}>
@@ -289,7 +395,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           >
             <RocketOutlined style={{ color: '#60a5fa' }} />
             <span style={{ fontSize: 13, fontWeight: 600, color: '#93c5fd', letterSpacing: '0.5px' }}>
-              NỀN TẢNG QUẢN TRỊ NHÂN LỰC THẾ HỆ MỚI • TIÊU CHUẨN DOANH NGHIỆP
+              {tLanding.badge}
             </span>
           </div>
 
@@ -304,7 +410,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               marginBottom: 20,
             }}
           >
-            Hệ Thống Quản Trị Nhân Sự, Chấm Công & Tiền Lương{' '}
+            {tLanding.heroTitle}{' '}
             <span
               style={{
                 background: 'linear-gradient(135deg, #60a5fa 0%, #c084fc 100%)',
@@ -312,13 +418,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 WebkitTextFillColor: 'transparent',
               }}
             >
-              Toàn Diện
+              {tLanding.heroTitleHighlight}
             </span>
           </Title>
 
           <Paragraph style={{ color: '#94a3b8', fontSize: 'clamp(15px, 2vw, 17px)', lineHeight: 1.7, marginBottom: 36, maxWidth: 780, margin: '0 auto 36px' }}>
-            Hệ sinh thái phần mềm kết nối dữ liệu trực tiếp và xuyên suốt giữa ứng dụng <b>Windows Desktop (WinForms)</b> cho khối văn phòng,
-            cổng <b>Web Quản Trị Trực Tuyến</b> và <b>Ứng Dụng Di Động</b> dành cho toàn thể cán bộ công nhân viên.
+            {tLanding.heroDesc}
           </Paragraph>
 
           <Space size="middle" wrap style={{ justifyContent: 'center' }}>
@@ -338,7 +443,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 boxShadow: '0 8px 24px rgba(37,99,235,0.45)',
               }}
             >
-              Đăng Nhập Quản Trị
+              {tLanding.btnSignIn}
             </Button>
 
             <Button
@@ -357,7 +462,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 backdropFilter: 'blur(8px)',
               }}
             >
-              Tải Bộ Cài Đặt Ứng Dụng
+              {tLanding.btnDownload}
             </Button>
           </Space>
         </div>
@@ -378,7 +483,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <div style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800, color: '#60a5fa', lineHeight: 1.2 }}>
                 99.9%
               </div>
-              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>Độ sẵn sàng dịch vụ</div>
+              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>{tLanding.stat1_label}</div>
             </div>
           </Col>
 
@@ -396,7 +501,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <div style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800, color: '#4ade80', lineHeight: 1.2 }}>
                 100%
               </div>
-              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>Chuẩn hóa quy trình HR</div>
+              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>{tLanding.stat2_label}</div>
             </div>
           </Col>
 
@@ -414,7 +519,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <div style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800, color: '#fb923c', lineHeight: 1.2 }}>
                 Real-time
               </div>
-              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>Chấm công & tính lương</div>
+              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>{tLanding.stat3_label}</div>
             </div>
           </Col>
 
@@ -432,7 +537,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <div style={{ fontSize: 'clamp(24px, 3vw, 36px)', fontWeight: 800, color: '#c084fc', lineHeight: 1.2 }}>
                 256-bit
               </div>
-              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>Mã hóa bảo mật đa tầng</div>
+              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>{tLanding.stat4_label}</div>
             </div>
           </Col>
         </Row>
@@ -441,13 +546,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <div style={{ marginBottom: 70 }}>
           <div style={{ textAlign: 'center', marginBottom: 36 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
-              HỆ SINH THÁI ĐA NỀN TẢNG
+              {tLanding.ecoBadge}
             </div>
             <Title level={2} style={{ color: '#fff', margin: 0, fontWeight: 800 }}>
-              Sẵn Sàng Cho Mọi Thiết Bị Của Doanh Nghiệp
+              {tLanding.ecoTitle}
             </Title>
             <Paragraph style={{ color: '#94a3b8', marginTop: 8, fontSize: 15 }}>
-              Lựa chọn phương thức làm việc linh hoạt, tối ưu năng suất cho từng phòng ban.
+              {tLanding.ecoSubtitle}
             </Paragraph>
           </div>
 
@@ -484,19 +589,18 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     <WindowsOutlined />
                   </div>
                   <Tag color="success" style={{ borderRadius: 6, fontWeight: 600, padding: '2px 8px' }}>
-                    v3.5.0 Sẵn sàng
+                    {tLanding.winTagReady}
                   </Tag>
                 </div>
 
                 <Title level={4} style={{ color: '#fff', marginBottom: 8 }}>
-                  Bản Windows Desktop
+                  {tLanding.winCardTitle}
                 </Title>
                 <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 14, fontWeight: 500 }}>
-                  C# .NET • Windows Desktop Enterprise
+                  {tLanding.winCardSub}
                 </div>
                 <Paragraph style={{ color: '#cbd5e1', fontSize: 13.5, lineHeight: 1.6, flex: 1 }}>
-                  Ứng dụng máy tính chuyên dụng cho Ban Giám đốc, Kế toán trưởng và Phòng Nhân sự. Hỗ trợ import/export Excel hàng loạt,
-                  in phiếu lương và phân quyền chức năng chi tiết.
+                  {tLanding.winCardDesc}
                 </Paragraph>
 
                 <Button
@@ -513,7 +617,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     marginTop: 16,
                   }}
                 >
-                  Tải Bộ Cài Đặt (v3.5.0 .zip)
+                  {tLanding.winCardBtn}
                 </Button>
               </Card>
             </Col>
@@ -550,19 +654,18 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     <DatabaseOutlined />
                   </div>
                   <Tag color="processing" style={{ borderRadius: 6, fontWeight: 600, padding: '2px 8px' }}>
-                    Trực Tuyến (Live)
+                    {tLanding.webTagLive}
                   </Tag>
                 </div>
 
                 <Title level={4} style={{ color: '#fff', marginBottom: 8 }}>
-                  Cổng Web Trực Tuyến
+                  {tLanding.webCardTitle}
                 </Title>
                 <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 14, fontWeight: 500 }}>
-                  React 19 • HTTPS SSL 256-bit
+                  {tLanding.webCardSub}
                 </div>
                 <Paragraph style={{ color: '#cbd5e1', fontSize: 13.5, lineHeight: 1.6, flex: 1 }}>
-                  Truy cập từ bất kỳ trình duyệt nào trên máy tính hoặc điện thoại. Xem biểu đồ trực quan, tính lương, quản lý hồ sơ và
-                  trò chuyện cùng <b>Trợ lý ảo AI Copilot</b>.
+                  {tLanding.webCardDesc}
                 </Paragraph>
 
                 <Button
@@ -579,7 +682,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     marginTop: 16,
                   }}
                 >
-                  Mở Cổng Quản Trị
+                  {tLanding.webCardBtn}
                 </Button>
               </Card>
             </Col>
@@ -616,19 +719,18 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     <MobileOutlined />
                   </div>
                   <Tag color="purple" style={{ borderRadius: 6, fontWeight: 600, padding: '2px 8px' }}>
-                    Sắp ra mắt
+                    {tLanding.mobileTagComing}
                   </Tag>
                 </div>
 
                 <Title level={4} style={{ color: '#fff', marginBottom: 8 }}>
-                  HRMS Mobile App
+                  {tLanding.mobileCardTitle}
                 </Title>
                 <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 14, fontWeight: 500 }}>
-                  iOS & Android (Cross-Platform)
+                  {tLanding.mobileCardSub}
                 </div>
                 <Paragraph style={{ color: '#cbd5e1', fontSize: 13.5, lineHeight: 1.6, flex: 1 }}>
-                  Chấm công bằng định vị vệ tinh GPS, nhận diện khuôn mặt AI, gửi đơn xin nghỉ phép tức thì và nhận thông báo phiếu lương
-                  trực tiếp về điện thoại nhân viên.
+                  {tLanding.mobileCardDesc}
                 </Paragraph>
 
                 <Button
@@ -645,7 +747,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     marginTop: 16,
                   }}
                 >
-                  App Store / CH Play
+                  {tLanding.mobileCardBtn}
                 </Button>
               </Card>
             </Col>
@@ -656,10 +758,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <div style={{ marginBottom: 70 }}>
           <div style={{ textAlign: 'center', marginBottom: 36 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
-              TÍNH NĂNG VƯỢT TRỘI
+              {tLanding.featuresBadge}
             </div>
             <Title level={2} style={{ color: '#fff', margin: 0, fontWeight: 800 }}>
-              Chuẩn Hóa Mọi Nghiệp Vụ Nhân Sự
+              {tLanding.featuresTitle}
             </Title>
           </div>
 
@@ -667,9 +769,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <Col xs={24} sm={12} lg={8}>
               <div style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '22px' }}>
                 <TeamOutlined style={{ fontSize: 30, color: '#60a5fa', marginBottom: 12 }} />
-                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>Quản Lý Hồ Sơ 360°</div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{tLanding.f1_title}</div>
                 <div style={{ color: '#94a3b8', fontSize: 13.5, lineHeight: 1.6 }}>
-                  Quản lý đầy đủ sơ yếu lý lịch, hợp đồng lao động, bằng cấp, điều chuyển phòng ban, nâng lương và khen thưởng kỷ luật.
+                  {tLanding.f1_desc}
                 </div>
               </div>
             </Col>
@@ -677,9 +779,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <Col xs={24} sm={12} lg={8}>
               <div style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '22px' }}>
                 <CalendarOutlined style={{ fontSize: 30, color: '#4ade80', marginBottom: 12 }} />
-                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>Chấm Công Linh Hoạt</div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{tLanding.f2_title}</div>
                 <div style={{ color: '#94a3b8', fontSize: 13.5, lineHeight: 1.6 }}>
-                  Hỗ trợ phân ca linh hoạt, chấm công chi tiết 31 ngày trong kỳ, ghi nhận tăng ca (OT) và tạm ứng lương tức thời.
+                  {tLanding.f2_desc}
                 </div>
               </div>
             </Col>
@@ -687,9 +789,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <Col xs={24} sm={12} lg={8}>
               <div style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '22px' }}>
                 <DollarOutlined style={{ fontSize: 30, color: '#fb923c', marginBottom: 12 }} />
-                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>Tính Lương Tự Động</div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{tLanding.f3_title}</div>
                 <div style={{ color: '#94a3b8', fontSize: 13.5, lineHeight: 1.6 }}>
-                  Động cơ tính lương tự động từ dữ liệu chấm công, khấu trừ BHXH, tạm ứng và hỗ trợ in phiếu thanh toán lương chuẩn.
+                  {tLanding.f3_desc}
                 </div>
               </div>
             </Col>
@@ -697,9 +799,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <Col xs={24} sm={12} lg={8}>
               <div style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '22px' }}>
                 <SafetyCertificateOutlined style={{ fontSize: 30, color: '#c084fc', marginBottom: 12 }} />
-                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>Phân Quyền Ma Trận RBAC</div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{tLanding.f4_title}</div>
                 <div style={{ color: '#94a3b8', fontSize: 13.5, lineHeight: 1.6 }}>
-                  Đồng bộ chuẩn 100% theo kiến trúc kiểm soát quyền hạn theo vai trò. Hỗ trợ tạo nhóm quyền và khóa tài khoản an toàn.
+                  {tLanding.f4_desc}
                 </div>
               </div>
             </Col>
@@ -707,9 +809,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <Col xs={24} sm={12} lg={8}>
               <div style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '22px' }}>
                 <RobotOutlined style={{ fontSize: 30, color: '#38bdf8', marginBottom: 12 }} />
-                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>Trợ Lý AI Copilot</div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{tLanding.f5_title}</div>
                 <div style={{ color: '#94a3b8', fontSize: 13.5, lineHeight: 1.6 }}>
-                  Tích hợp AI Copilot thông minh, hỗ trợ tra cứu luật lao động, chính sách nhân sự và tổng hợp số liệu bằng ngôn ngữ tự nhiên.
+                  {tLanding.f5_desc}
                 </div>
               </div>
             </Col>
@@ -717,9 +819,9 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <Col xs={24} sm={12} lg={8}>
               <div style={{ background: 'rgba(30, 41, 59, 0.5)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '22px' }}>
                 <TrophyOutlined style={{ fontSize: 30, color: '#eab308', marginBottom: 12 }} />
-                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>Khen Thưởng & Kỷ Luật</div>
+                <div style={{ color: '#fff', fontWeight: 700, fontSize: 16, marginBottom: 6 }}>{tLanding.f6_title}</div>
                 <div style={{ color: '#94a3b8', fontSize: 13.5, lineHeight: 1.6 }}>
-                  Theo dõi lịch sử quyết định nâng lương, ban hành khen thưởng thành tích và xử lý vi phạm kỷ luật chính xác, minh bạch.
+                  {tLanding.f6_desc}
                 </div>
               </div>
             </Col>
@@ -742,15 +844,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <CodeOutlined style={{ color: '#60a5fa', fontSize: 20 }} />
                 <span style={{ fontSize: 13, fontWeight: 700, color: '#93c5fd', textTransform: 'uppercase' }}>
-                  KIẾN TRÚC KỸ THUẬT & NHÀ PHÁT TRIỂN
+                  {tLanding.archBadge}
                 </span>
               </div>
               <Title level={3} style={{ color: '#fff', margin: '0 0 14px 0' }}>
-                Hệ Thống Được Phát Triển Theo Tiêu Chuẩn Doanh Nghiệp
+                {tLanding.archTitle}
               </Title>
               <Paragraph style={{ color: '#94a3b8', fontSize: 14.5, lineHeight: 1.7, marginBottom: 18 }}>
-                Dự án được xây dựng dựa trên kiến trúc phân tầng (Multi-tier Enterprise Architecture), đảm bảo tính toàn vẹn dữ liệu,
-                bảo mật tuyệt đối thông tin nhân sự và sẵn sàng mở rộng quy mô cho hàng nghìn nhân sự.
+                {tLanding.archDesc}
               </Paragraph>
 
               <Space wrap size={[8, 8]}>
@@ -774,10 +875,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 }}
               >
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#fff', marginBottom: 8 }}>
-                  Sẵn sàng trải nghiệm?
+                  {tLanding.archReadyTitle}
                 </div>
                 <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 20 }}>
-                  Đăng nhập để vào ngay Cổng Quản Trị Hệ Thống.
+                  {tLanding.archReadyDesc}
                 </div>
                 <Button
                   type="primary"
@@ -793,7 +894,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     border: 'none',
                   }}
                 >
-                  Đăng Nhập Ngay
+                  {tLanding.archReadyBtn}
                 </Button>
               </div>
             </Col>
@@ -880,7 +981,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                   }}
                 >
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#fff', display: 'inline-block' }} />
-                  {AUTHOR_INFO.badge}
+                  {tLanding.authorBadgeText}
                 </div>
               </div>
 
@@ -888,10 +989,10 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 {AUTHOR_INFO.name}
               </Title>
               <div style={{ color: '#60a5fa', fontSize: 13.5, fontWeight: 600, marginBottom: 10 }}>
-                {AUTHOR_INFO.title}
+                {tLanding.authorRoleTitle}
               </div>
               <div style={{ color: '#94a3b8', fontSize: 13, lineHeight: 1.6, maxWidth: 300, margin: '0 auto 16px' }}>
-                {AUTHOR_INFO.bio}
+                {tLanding.authorBio}
               </div>
 
               {/* Tag kỹ năng nổi bật */}
@@ -908,17 +1009,16 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
                 <RocketOutlined style={{ color: '#a855f7', fontSize: 18 }} />
                 <span style={{ fontSize: 12.5, fontWeight: 700, color: '#c084fc', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  KẾT NỐI & TRAO ĐỔI DỰ ÁN
+                  {tLanding.authorConnectBadge}
                 </span>
               </div>
 
               <Title level={3} style={{ color: '#fff', margin: '0 0 14px 0', fontWeight: 800 }}>
-                Liên Hệ Hợp Tác & Trao Đổi Kỹ Thuật
+                {tLanding.authorConnectTitle}
               </Title>
 
               <Paragraph style={{ color: '#cbd5e1', fontSize: 14, lineHeight: 1.7, marginBottom: 24 }}>
-                Dự án HRMS được tôi nghiên cứu và hoàn thiện với đầy đủ các phân hệ quản lý nhân sự, chấm công, tính lương và cổng Web/Desktop. 
-                Nếu bạn có nhu cầu trao đổi kỹ thuật, tham khảo mã nguồn hoặc có dự án cần cộng tác phát triển, rất vui lòng được kết nối qua các kênh dưới đây:
+                {tLanding.authorConnectDesc}
               </Paragraph>
 
               {/* 3 Nút liên hệ nổi bật: Email, Facebook & GitHub */}
@@ -970,7 +1070,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     </div>
                     <div style={{ overflow: 'hidden' }}>
                       <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Email Trực Tiếp
+                        {tLanding.authorEmailDirect}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#93c5fd', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         {AUTHOR_INFO.email}
@@ -1028,7 +1128,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     </div>
                     <div style={{ overflow: 'hidden' }}>
                       <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        Facebook Profile
+                        {tLanding.authorFbProfile}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#60a5fa', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         fb.com/duy.nguyentho.7
@@ -1086,7 +1186,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                     </div>
                     <div style={{ overflow: 'hidden' }}>
                       <div style={{ fontSize: 11, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                        GitHub Mã Nguồn
+                        {tLanding.authorGithubSource}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: 700, color: '#e2e8f0', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         github.com/duy2k1lnbg
@@ -1112,15 +1212,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         }}
       >
         <div>
-          © 2026 HRMS ENTERPRISE SOLUTION • HỆ THỐNG QUẢN TRỊ NHÂN SỰ DOANH NGHIỆP
+          {tLanding.footerLine1}
         </div>
         <div style={{ fontSize: 11.5, color: '#475569', marginTop: 4 }}>
-          Cổng Thông Tin Doanh Nghiệp Hoạt Động Trên Nền Tảng Đám Mây An Toàn • SSL 256-bit Encrypted
+          {tLanding.footerLine2}
         </div>
       </footer>
 
       {/* ========================================================================= */}
-      {/* MODAL ĐĂNG NHẬP HỆ THỐNG (CHỈ XUẤT HIỆN KHI NGƯỜI DÙNG BẤM "ĐĂNG NHẬP") */}
+      {/* MODAL ĐĂNG NHẬP HỆ THỐNG                                                  */}
       {/* ========================================================================= */}
       <Modal
         open={loginModalVisible}
@@ -1150,13 +1250,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             <SafetyCertificateOutlined style={{ fontSize: 28, color: '#fff' }} />
           </div>
           <Title level={3} style={{ margin: 0, fontWeight: 800, color: '#0f172a' }}>
-            ĐĂNG NHẬP HỆ THỐNG
+            {tLanding.loginModalTitle}
           </Title>
           <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 0, fontSize: 13 }}>
-            Cổng Quản Trị Nhân Sự Trực Tuyến
+            {tLanding.loginModalSubtitle}
           </Paragraph>
           <Tag color="processing" style={{ marginTop: 8, borderRadius: 10, fontWeight: 500 }}>
-            <SafetyCertificateOutlined style={{ marginRight: 4 }} /> Cổng Xác Thực Bảo Mật SSL
+            <SafetyCertificateOutlined style={{ marginRight: 4 }} /> {tLanding.loginModalSSLTag}
           </Tag>
         </div>
 
@@ -1174,13 +1274,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <Form form={form} layout="vertical" onFinish={handleLogin}>
           <Form.Item
             name="username"
-            label={<Text strong style={{ color: '#334155' }}>Tên đăng nhập</Text>}
-            rules={[{ required: true, message: 'Vui lòng nhập tên tài khoản!' }]}
+            label={<Text strong style={{ color: '#334155' }}>{tLanding.usernameLabel}</Text>}
+            rules={[{ required: true, message: tLanding.usernameRequired }]}
           >
             <Input
               size="large"
               prefix={<UserOutlined style={{ color: '#94a3b8' }} />}
-              placeholder="Nhập tên đăng nhập..."
+              placeholder={tLanding.usernamePlaceholder}
               autoFocus
               style={{ borderRadius: 8 }}
             />
@@ -1188,13 +1288,13 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
 
           <Form.Item
             name="password"
-            label={<Text strong style={{ color: '#334155' }}>Mật khẩu</Text>}
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}
+            label={<Text strong style={{ color: '#334155' }}>{tLanding.passwordLabel}</Text>}
+            rules={[{ required: true, message: tLanding.passwordRequired }]}
           >
             <Input.Password
               size="large"
               prefix={<LockOutlined style={{ color: '#94a3b8' }} />}
-              placeholder="Nhập mật khẩu..."
+              placeholder={tLanding.passwordPlaceholder}
               style={{ borderRadius: 8 }}
             />
           </Form.Item>
@@ -1217,7 +1317,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                 boxShadow: '0 6px 16px rgba(37,99,235,0.4)',
               }}
             >
-              Đăng nhập hệ thống
+              {tLanding.btnLoginSubmit}
             </Button>
           </Form.Item>
         </Form>
@@ -1232,7 +1332,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
             color: '#64748b',
           }}
         >
-          🔒 Bảo mật mã hóa SSL 256-bit • Tiêu chuẩn RFC 7519 JWT
+          {tLanding.loginSecurityFooter}
         </div>
       </Modal>
 
@@ -1244,14 +1344,14 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <RocketOutlined style={{ color: '#2563eb', fontSize: 20 }} />
             <span style={{ fontWeight: 700, fontSize: 16 }}>
-              Thông Báo Bộ Cài Đặt Ứng Dụng
+              {tLanding.downloadModalHeader}
             </span>
           </div>
         }
         open={downloadModalVisible}
         onOk={() => setDownloadModalVisible(false)}
         onCancel={() => setDownloadModalVisible(false)}
-        okText="Đã hiểu"
+        okText={tLanding.downloadModalUnderstood}
         cancelButtonProps={{ style: { display: 'none' } }}
         width={560}
         centered
@@ -1260,17 +1360,17 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
           <Alert
             message={
               downloadType === 'windows'
-                ? 'Bộ Cài Đặt Windows Desktop v3.5.0 Đã Sẵn Sàng'
+                ? tLanding.downloadWinAlertTitle
                 : downloadType === 'mobile'
-                ? 'Ứng dụng di động đang trong quá trình phát triển'
-                : 'Hệ Sinh Thái Ứng Dụng Doanh Nghiệp HRMS'
+                ? tLanding.downloadMobileAlertTitle
+                : tLanding.downloadGeneralAlertTitle
             }
             description={
               downloadType === 'windows'
-                ? 'Gói cài đặt HRMS_Setup_v3.5.0.zip đã sẵn sàng. Bạn có thể nhấn tải trực tiếp về máy tính làm việc.'
+                ? tLanding.downloadWinAlertDesc
                 : downloadType === 'mobile'
-                ? 'Phiên bản ứng dụng di động cho iOS & Android đang trong lộ trình phát triển và sẽ sớm có mặt trên App Store & Google Play.'
-                : 'Bản cài đặt Windows v3.5.0 đã sẵn sàng tải về. Ứng dụng di động đang trong lộ trình phát triển.'
+                ? tLanding.downloadMobileAlertDesc
+                : tLanding.downloadGeneralAlertDesc
             }
             type={downloadType === 'windows' ? 'success' : 'info'}
             showIcon
@@ -1294,12 +1394,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>
-                    🖥️ Ứng dụng Windows Desktop (.NET Enterprise)
+                    {tLanding.downloadWinSectionTitle}
                   </span>
-                  <Tag color="success" style={{ fontWeight: 600 }}>v3.5.0 Sẵn sàng</Tag>
+                  <Tag color="success" style={{ fontWeight: 600 }}>{tLanding.winTagReady}</Tag>
                 </div>
                 <div style={{ fontSize: 13, color: '#475569', marginTop: 6, lineHeight: 1.5 }}>
-                  Gói cài đặt chính thức <b>HRMS_Setup_v3.5.0.zip</b> đã sẵn sàng. Tương thích Windows 10, Windows 11 và Windows Server.
+                  {tLanding.downloadWinSectionDesc}
                 </div>
                 <div style={{ marginTop: 12 }}>
                   <Button
@@ -1313,7 +1413,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
                       fontWeight: 600,
                     }}
                   >
-                    Tải Về Ngay: HRMS_Setup_v3.5.0.zip
+                    {tLanding.downloadWinBtnText}
                   </Button>
                 </div>
               </div>
@@ -1332,15 +1432,15 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
               <MobileOutlined style={{ fontSize: 28, color: '#a855f7', marginTop: 2 }} />
               <div>
                 <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>
-                  📱 Ứng dụng Di Động (HRMS Mobile iOS / Android)
+                  {tLanding.downloadMobileSectionTitle}
                 </div>
                 <div style={{ fontSize: 13, color: '#475569', marginTop: 4, lineHeight: 1.5 }}>
-                  Ứng dụng di động đang trong giai đoạn xây dựng. Hiện tại bạn có thể truy cập mượt mà trên trình duyệt điện thoại qua địa chỉ:
+                  {tLanding.downloadMobileSectionDesc}
                   <div style={{ marginTop: 4 }}>
                     <Tag color="blue" style={{ fontSize: 12, fontWeight: 600 }}>
                       https://tryhardagain.com
                     </Tag>
-                    <span style={{ fontSize: 12, color: '#64748b' }}>(Giao diện đã tối ưu 100% cho màn hình cảm ứng)</span>
+                    <span style={{ fontSize: 12, color: '#64748b' }}>{tLanding.downloadMobileResponsiveNote}</span>
                   </div>
                 </div>
               </div>

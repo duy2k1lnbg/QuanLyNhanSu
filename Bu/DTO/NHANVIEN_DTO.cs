@@ -12,6 +12,7 @@ namespace Bu.DTO
         public string HOTEN { get; set; }
         public Nullable<decimal> IDGT { get; set; }
         public string TENGT { get; set; }
+        public string GIOITINH { get { return TENGT; } set { TENGT = value; } }
         public Nullable<System.DateTime> NGAYSINH { get; set; }
         public string DIENTHOAI { get; set; }
         public string CCCD { get; set; }
