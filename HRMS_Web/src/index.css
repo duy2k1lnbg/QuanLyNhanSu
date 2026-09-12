@@ -314,6 +314,39 @@ html, body, #root {
   font-weight: 800 !important;
   z-index: 8 !important;
 }
+/* ========================================================
+   3. RESPONSIVE HEADER UTILITIES (LANDING & MAIN APP)
+   ======================================================== */
+@media (max-width: 1200px) {
+  .header-hide-1200 {
+    display: none !important;
+  }
+}
 
+@media (max-width: 992px) {
+  .header-hide-tablet {
+    display: none !important;
+  }
+}
 
+@media (max-width: 768px) {
+  .header-hide-mobile {
+    display: none !important;
+  }
+}
 
+@media (max-width: 576px) {
+  .header-hide-compact {
+    display: none !important;
+  }
+}
+
+/* Ẩn hoàn toàn nút trigger mặc định màu đen của Ant Design Sider để không bị vỡ giao diện */
+.ant-layout-sider-zero-width-trigger {
+  display: none !important;
+}
+
+/* Đảm bảo Header Ant Design không áp đặt line-height 64px lên các phần tử con */
+.ant-layout-header {
+  line-height: normal !important;
+}

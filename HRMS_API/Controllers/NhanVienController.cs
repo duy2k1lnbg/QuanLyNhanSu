@@ -520,20 +520,23 @@ namespace HRMS_API.Controllers
         [AllowAnonymous]
         public System.Net.Http.HttpResponseMessage GetAvatar(string id)
         {
-            if (!int.TryParse(id.Split('.')[0], out int manv))
+            if (int.TryParse(id.Split('.')[0], out int manv))
             {
-                return new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+                var nv = _nhanVienBus.getItem(manv);
+                if (nv?.HINHANH != null && nv.HINHANH.Length > 0)
+                {
+                    var response = new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.OK);
+                    response.Content = new System.Net.Http.ByteArrayContent(nv.HINHANH);
+                    response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                    return response;
+                }
             }
 
-            var nv = _nhanVienBus.getItem(manv);
-            if (nv?.HINHANH != null && nv.HINHANH.Length > 0)
-            {
-                var response = new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.OK);
-                response.Content = new System.Net.Http.ByteArrayContent(nv.HINHANH);
-                response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
-                return response;
-            }
-            return new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.NotFound);
+            // Fallback: Trả về ảnh SVG đại diện mặc định chuẩn (HTTP 200 OK) thay vì lỗi 404
+            string defaultSvg = "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 100 100\" width=\"100\" height=\"100\"><rect width=\"100\" height=\"100\" fill=\"#e6f4ff\" rx=\"50\"/><circle cx=\"50\" cy=\"38\" r=\"18\" fill=\"#1677ff\"/><path d=\"M22 82 C22 64 36 56 50 56 C64 56 78 64 78 82 Z\" fill=\"#1677ff\"/></svg>";
+            var defaultResponse = new System.Net.Http.HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            defaultResponse.Content = new System.Net.Http.StringContent(defaultSvg, System.Text.Encoding.UTF8, "image/svg+xml");
+            return defaultResponse;
         }
 
         /// <summary>
@@ -561,12 +564,46 @@ namespace HRMS_API.Controllers
                 }
 
                 _nhanVienBus.Delete(id, currentUserId);
-                return Ok(new { success = true, message = $"Đã cập nhật trạng thái xóa/thôi việc cho nhân viên #{id} thành công." });
+                return Ok(new { success = true, message = $"Đã chuyển trạng thái nhân viên #{id} sang Đã thôi việc thành công." });
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.TraceError("Lỗi khi xóa nhân viên #" + id + ": " + ex.ToString());
-                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi xóa hồ sơ nhân viên." });
+                System.Diagnostics.Trace.TraceError("Lỗi khi cho thôi việc nhân viên #" + id + ": " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi chuyển trạng thái thôi việc nhân viên." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/nhanvien/{id}/restore
+        /// Khôi phục trạng thái đi làm lại cho nhân viên đã thôi việc
+        /// </summary>
+        [HttpPost]
+        [Route("{id:int}/restore")]
+        [JwtAuthorize(Right = "F_NHANSU_EDIT")]
+        public IHttpActionResult Restore(int id)
+        {
+            try
+            {
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
+
+                var existing = _nhanVienBus.getItem(id);
+                if (existing == null) return NotFound();
+                if (jwtUser != null && !jwtUser.IsAdmin && !string.IsNullOrWhiteSpace(jwtUser.MaCty))
+                {
+                    if (int.TryParse(jwtUser.MaCty, out int userCtyId) && userCtyId > 0 && existing.IDCTY != userCtyId)
+                    {
+                        return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bản ghi nhân viên nằm ngoài phạm vi công ty của bạn." });
+                    }
+                }
+
+                _nhanVienBus.Restore(id, currentUserId);
+                return Ok(new { success = true, message = $"Đã khôi phục trạng thái đi làm lại cho nhân viên #{id} thành công." });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi khi khôi phục nhân viên #" + id + ": " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi khôi phục trạng thái nhân viên." });
             }
         }
     }

@@ -1,6 +1,7 @@
 using Bu.Services.AI_Services.Memory;
 using Bu.Services.AI_Services.Interfaces;
 using System;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -54,36 +55,63 @@ namespace Bu.Services.AI_Services.Core
         {
             q = q.ToLower().Trim();
 
-            // Xóa theo yêu cầu: Bỏ luồng SQL Hardcode, để hệ thống thuần túy phụ thuộc Vector Search. Bỏ comment nếu cần bật lại.
-            /*
-            // Xử lý trường hợp người dùng CHỈ gõ 1 cái tên (VD: "Trần Thanh Tâm")
-            var wordCount = q.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).Length;
-            if (wordCount >= 2 && wordCount <= 6 && Regex.IsMatch(q, @"^[\p{L}\s]+$"))
+            // 1. Tìm theo mã nhân viên: "nhân viên mã 10", "manv: 12", "mã nv 18"
+            var idMatch = Regex.Match(q, @"(?:mã|manv|mã nv|id)\s*[:=]?\s*(\d+)");
+            if (idMatch.Success)
             {
-                string safeName = q.Replace("'", "''");
-                return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(HOTEN) LIKE UPPER('%{safeName}%')";
+                return $"SELECT * FROM V_AI_EMPLOYEE WHERE MANV = {idMatch.Groups[1].Value}";
             }
 
-            // Cải tiến Regex: Bắt tên nhân viên có tiền tố
-            // Ví dụ: "thông tin nhân viên Nguyễn Thọ Duy" -> lấy được "Nguyễn Thọ Duy"
-            var nameMatch = Regex.Match(q, @"(?:thông tin nhân viên tên là|thông tin nhân viên tên|thông tin nhân viên|nhân viên tên là|nhân viên tên|tìm nhân viên tên|tìm nhân viên|nhân viên|tên là|tên|là|tìm|về)\s+([\p{L}\s]+)$");
+            // 2. Tìm theo tên nhân viên:
+            // "cho tôi thông tin nhân viên tên Duy", "thông tin nhân viên Nguyễn Thọ Duy", "nhân viên tên Duy"
+            var nameMatch = Regex.Match(q, @"(?:thông tin nhân viên tên là|thông tin nhân viên tên|thông tin nhân viên|nhân viên tên là|nhân viên tên|tìm nhân viên tên|tìm nhân viên|nhân sự tên là|nhân sự tên|thông tin của|thông tin|tìm|về)\s+([\p{L}\s]+)$");
             if (nameMatch.Success)
             {
                 string name = nameMatch.Groups[1].Value.Trim();
-                if (name.Length > 1)
+                if (name.Length >= 2)
                 {
                     string safeName = name.Replace("'", "''");
                     return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(HOTEN) LIKE UPPER('%{safeName}%')";
                 }
             }
 
-            // Mẫu tìm theo mã số
-            var idMatch = Regex.Match(q, @"(?:mã|manv)\s*[:=]?\s*(\d+)");
-            if (idMatch.Success)
+            // 3. Người dùng chỉ gõ tên riêng (2 - 5 từ): "Nguyễn Thọ Duy", "Trần Thanh Tâm"
+            var words = q.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            if (words.Length >= 2 && words.Length <= 5 && Regex.IsMatch(q, @"^[\p{L}\s]+$"))
             {
-                return $"SELECT * FROM V_AI_EMPLOYEE WHERE MANV = {idMatch.Groups[1].Value}";
+                // Loại trừ các câu chào hoặc câu hỏi chung
+                string[] nonNameKeywords = { "xin chào", "chào bạn", "bạn là ai", "hôm nay", "công ty", "quy chế", "chính sách" };
+                if (!nonNameKeywords.Any(k => q.Contains(k)))
+                {
+                    string safeName = q.Replace("'", "''");
+                    return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(HOTEN) LIKE UPPER('%{safeName}%')";
+                }
             }
-            */
+
+            // 4. Danh sách nhân viên theo phòng ban: "phòng kế toán", "phòng nhân sự", "ai ở phòng IT?"
+            string qClean = q.Replace("?", "").Replace(".", "").Replace("!", "").Trim();
+            var pbMatch = Regex.Match(qClean, @"(?:phòng ban|phòng|bộ phận)\s+([\p{L}\s0-9]+)$");
+            if (pbMatch.Success)
+            {
+                string pb = pbMatch.Groups[1].Value.Trim();
+                if (pb.Length >= 2)
+                {
+                    string safePb = pb.Replace("'", "''");
+                    return $"SELECT * FROM V_AI_EMPLOYEE WHERE UPPER(TEN_PHONGBAN) LIKE UPPER('%{safePb}%')";
+                }
+            }
+
+            // 5. Thống kê phụ cấp trên X triệu:
+            // "phụ cấp ... trên 1 triệu"
+            if (q.Contains("phụ cấp") && q.Contains("triệu"))
+            {
+                var numMatch = Regex.Match(q, @"(\d+)\s*(?:triệu|tr)");
+                if (numMatch.Success && decimal.TryParse(numMatch.Groups[1].Value, out decimal trieu))
+                {
+                    decimal sotien = trieu * 1000000;
+                    return $"SELECT * FROM V_AI_ALLOWANCE WHERE SOTIEN >= {sotien}";
+                }
+            }
 
             return null;
         }

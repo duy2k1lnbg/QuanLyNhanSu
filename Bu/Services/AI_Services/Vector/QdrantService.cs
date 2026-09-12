@@ -27,8 +27,14 @@ namespace Bu.Services.AI_Services.Vector
             _llm = llm;
             // Lấy URL cấu hình từ Oracle/SystemConfig, mặc định 127.0.0.1 để tránh trễ phân giải IPv6 (localhost)
             string configUrl = new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("QdrantUrl", "http://127.0.0.1:6333").TrimEnd('/');
-            // Nếu người dùng lỡ config "localhost", chuyển luôn sang "127.0.0.1" để an toàn
-            _qdrantUrl = configUrl.Replace("localhost", "127.0.0.1");
+            if (string.IsNullOrWhiteSpace(configUrl) || configUrl.Contains("100.111.179.99") || configUrl.Contains("localhost"))
+            {
+                _qdrantUrl = "http://127.0.0.1:6333";
+            }
+            else
+            {
+                _qdrantUrl = configUrl;
+            }
 
             // Đăng ký sự kiện đồng bộ tự động từ Oracle HRMS
             Bu.Services.AI_Services.Vector.AiDataSyncHub.EmployeeChanged += (manv) => Task.Run(() => SyncEmployeeDataAsync(manv));
@@ -40,14 +46,14 @@ namespace Bu.Services.AI_Services.Vector
 
         private async Task EnsureCollectionExistsAsync()
         {
-            if (_isOffline) return;
-
             try
             {
                 var res = await _client.GetAsync($"{_qdrantUrl}/collections/{COLLECTION_NAME}");
                 if (res.IsSuccessStatusCode)
                 {
                     _isInitialized = true;
+                    _isOffline = false;
+                    System.Diagnostics.Debug.WriteLine($"[QDRANT] Connected to {_qdrantUrl}/collections/{COLLECTION_NAME} successfully.");
                     return;
                 }
 
@@ -252,7 +258,22 @@ namespace Bu.Services.AI_Services.Vector
         // Interface Fallbacks cho gọi đồng bộ nếu Interface bắt buộc
         public void Add(string text, string tag = "GENERAL") => Task.Run(() => AddAsync(text, tag)).Wait();
         public void Add(string text, string tag, int? employeeId) => Task.Run(() => AddAsync(text, tag, employeeId)).Wait();
-        public List<string> Search(string query, string tag = null) => Task.Run(() => SearchAsync(query, tag)).GetAwaiter().GetResult();
+        public List<string> Search(string query, string tag = null)
+        {
+            try
+            {
+                var task = Task.Run(() => SearchAsync(query, tag));
+                if (task.Wait(TimeSpan.FromMilliseconds(2500)))
+                {
+                    return task.Result ?? new List<string>();
+                }
+                return new List<string>();
+            }
+            catch
+            {
+                return new List<string>();
+            }
+        }
         public void RemoveByEmployeeId(int manv) => Task.Run(() => RemoveByEmployeeIdAsync(manv)).Wait();
         public void SyncEmployeeData(int manv) => Task.Run(() => SyncEmployeeDataAsync(manv)).Wait();
         public void Clear()

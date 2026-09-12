@@ -27,7 +27,28 @@ namespace Bu.Services.AI_Services.Core
                 return "GENERAL";
             }
 
-            // Rule-based: Nhận diện nếu người dùng chỉ gõ một cái tên (ví dụ: "Trần Thanh Tâm")
+            // Rule-based nhanh cho các danh mục nghiệp vụ HRMS (tránh gọi LLM phân loại chậm và sai)
+            if (q.Contains("chấm công") || q.Contains("giờ vào") || q.Contains("giờ ra") || q.Contains("đi làm") || q.Contains("điểm danh"))
+                return "ATTENDANCE";
+
+            if (q.Contains("tăng ca") || q.Contains("làm thêm") || q.Contains("ot"))
+                return "OVERTIME";
+
+            if (q.Contains("phụ cấp") || q.Contains("trợ cấp"))
+                return "ALLOWANCE";
+
+            if (q.Contains("bảo hiểm") || q.Contains("bhxh"))
+                return "INSURANCE";
+
+            if (q.Contains("ứng lương") || q.Contains("tạm ứng"))
+                return "ADVANCE";
+
+            if (q.Contains("phòng") || q.Contains("bộ phận") || q.Contains("nhân viên") || q.Contains("nhân sự") || 
+                q.Contains("ai là") || q.Contains("ai đang") || q.Contains("ai ở") || q.Contains("thông tin") || 
+                q.Contains("chức vụ") || q.Contains("manv") || q.Contains("sinh nhật"))
+                return "EMPLOYEE";
+
+            // Rule-based: Nhận diện nếu người dùng chỉ gõ một cái tên (ví dụ: "Trần Thanh Tâm", "Nguyễn Thọ Duy")
             var wordCount = q.Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries).Length;
             if (wordCount >= 2 && wordCount <= 6 && System.Text.RegularExpressions.Regex.IsMatch(q, @"^[\p{L}\s]+$"))
             {

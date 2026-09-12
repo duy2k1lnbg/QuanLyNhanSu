@@ -13,7 +13,8 @@ namespace HRMS_API
             config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
             config.MessageHandlers.Add(new CorsHandler());
 
-            // Tự động bỏ qua tham chiếu vòng Entity Framework khi serialize JSON
+            // Luôn trả về JSON thay vì XML khi mở trên trình duyệt web
+            config.Formatters.Remove(config.Formatters.XmlFormatter);
             config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 
             // Web API routes

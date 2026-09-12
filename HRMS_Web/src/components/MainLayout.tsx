@@ -159,6 +159,7 @@ export function MainLayout({
       )}
 
       <Sider
+        trigger={null}
         collapsible
         breakpoint="lg"
         collapsedWidth={0}
@@ -222,52 +223,74 @@ export function MainLayout({
       <Layout style={{ minWidth: 0 }}>
         <Header
           style={{
-            padding: isMobile ? '0 12px' : '0 24px',
+            padding: isMobile ? '0 10px' : '0 20px',
             background: '#fff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             boxShadow: '0 1px 4px rgba(0,21,41,.08)',
             zIndex: 10,
+            height: 60,
+            lineHeight: 'normal',
+            overflow: 'hidden',
           }}
         >
-          <Space>
+          {/* KHỐI TRÁI: HAMBURGER, HOME & TIÊU ĐỀ PHÂN HỆ (KHÔNG BAO GIỜ BỊ VỠ DÒNG XUỐNG DƯỚI) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 0, flex: '1 1 auto', overflow: 'hidden' }}>
             {isMobile && (
               <Button
                 type="text"
                 icon={<MenuOutlined />}
                 onClick={() => setCollapsed(!collapsed)}
-                style={{ fontSize: '16px', width: 40, height: 40 }}
+                style={{ fontSize: '16px', width: 36, height: 36, flexShrink: 0, padding: 0 }}
               />
             )}
-            <Tooltip title={tApp.homeTooltip}>
-              <Button
-                type="text"
-                icon={<HomeOutlined />}
-                onClick={() => onMenuChange('dashboard')}
+            <div className="header-hide-mobile" style={{ flexShrink: 0 }}>
+              <Tooltip title={tApp.homeTooltip}>
+                <Button
+                  type="text"
+                  icon={<HomeOutlined />}
+                  onClick={() => onMenuChange('dashboard')}
+                  style={{
+                    fontSize: '16px',
+                    width: 36,
+                    height: 36,
+                    color: currentMenu === 'dashboard' ? '#1677ff' : '#8c8c8c',
+                    padding: 0,
+                  }}
+                />
+              </Tooltip>
+            </div>
+            <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+              <Text
+                strong
                 style={{
-                  fontSize: '16px',
-                  width: 36,
-                  height: 36,
-                  color: currentMenu === 'dashboard' ? '#1677ff' : '#8c8c8c',
+                  fontSize: isMobile ? 15 : 18,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  display: 'block',
+                  lineHeight: 1.3,
+                  margin: 0,
                 }}
-              />
-            </Tooltip>
-            <Text strong style={{ fontSize: isMobile ? 15 : 18 }}>
-              {currentMenu === 'dashboard' && tApp.titleDashboard}
-              {currentMenu === 'nhanvien' && tApp.titleEmployees}
-              {currentMenu === 'chamcong' && tApp.titleAttendance}
-              {currentMenu === 'bangluong' && tApp.titlePayroll}
-              {currentMenu === 'hopdong' && tApp.titleContracts}
-              {currentMenu === 'khenthuong' && tApp.titleRewards}
-              {currentMenu === 'nangluong' && tApp.titlePromotions}
-              {currentMenu === 'ungluong' && tApp.titleOvertime}
-              {currentMenu === 'phanquyen' && tApp.titlePermissions}
-            </Text>
-          </Space>
+              >
+                {currentMenu === 'dashboard' && tApp.titleDashboard}
+                {currentMenu === 'nhanvien' && tApp.titleEmployees}
+                {currentMenu === 'chamcong' && tApp.titleAttendance}
+                {currentMenu === 'bangluong' && tApp.titlePayroll}
+                {currentMenu === 'hopdong' && tApp.titleContracts}
+                {currentMenu === 'khenthuong' && tApp.titleRewards}
+                {currentMenu === 'nangluong' && tApp.titlePromotions}
+                {currentMenu === 'ungluong' && tApp.titleOvertime}
+                {currentMenu === 'phanquyen' && tApp.titlePermissions}
+              </Text>
+            </div>
+          </div>
 
-          <Space size={isMobile ? 'small' : 'middle'}>
-            {!isMobile && (
+          {/* KHỐI PHẢI: CÁC NÚT THAO TÁC & PROFILE (TỰ ĐỘNG THU GỌN THEO ĐỘ RỘNG MÀN HÌNH) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexShrink: 0 }}>
+            {/* Tag Online/Offline: Chỉ hiện khi màn hình rộng > 1200px */}
+            <div className="header-hide-1200">
               <Tooltip title={isBackendConnected ? tApp.systemOnlineTooltip(kyCongCount) : tApp.systemOfflineTooltip}>
                 <Tag
                   color={isBackendConnected ? 'success' : 'warning'}
@@ -277,48 +300,52 @@ export function MainLayout({
                   {isBackendConnected ? tApp.online : tApp.offline}
                 </Tag>
               </Tooltip>
-            )}
+            </div>
 
-            {!isMobile && onOpenCommandPalette && (
-              <Tooltip title={tApp.searchTooltip}>
-                <Button
-                  icon={<SearchOutlined style={{ color: '#94a3b8' }} />}
-                  onClick={onOpenCommandPalette}
-                  style={{
-                    background: '#f8fafc',
-                    borderColor: '#e2e8f0',
-                    color: '#64748b',
-                    borderRadius: 8,
-                    padding: '4px 12px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 8,
-                    minWidth: 175,
-                    justifyContent: 'space-between',
-                    cursor: 'pointer',
-                  }}
-                >
-                  <span style={{ fontSize: 13 }}>{tApp.searchPlaceholder}</span>
-                  <kbd
+            {/* Ô tìm kiếm Search input dài: Chỉ hiện khi màn hình rộng > 1200px */}
+            {onOpenCommandPalette && (
+              <div className="header-hide-1200">
+                <Tooltip title={tApp.searchTooltip}>
+                  <Button
+                    icon={<SearchOutlined style={{ color: '#94a3b8' }} />}
+                    onClick={onOpenCommandPalette}
                     style={{
-                      fontSize: 11,
-                      fontWeight: 600,
-                      background: '#e2e8f0',
-                      color: '#475569',
-                      padding: '2px 6px',
-                      borderRadius: 4,
-                      border: '1px solid #cbd5e1',
-                      lineHeight: '1',
-                      fontFamily: 'monospace',
+                      background: '#f8fafc',
+                      borderColor: '#e2e8f0',
+                      color: '#64748b',
+                      borderRadius: 8,
+                      padding: '4px 12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
+                      minWidth: 165,
+                      justifyContent: 'space-between',
+                      cursor: 'pointer',
                     }}
                   >
-                    Ctrl + K
-                  </kbd>
-                </Button>
-              </Tooltip>
+                    <span style={{ fontSize: 13 }}>{tApp.searchPlaceholder}</span>
+                    <kbd
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 600,
+                        background: '#e2e8f0',
+                        color: '#475569',
+                        padding: '2px 6px',
+                        borderRadius: 4,
+                        border: '1px solid #cbd5e1',
+                        lineHeight: '1',
+                        fontFamily: 'monospace',
+                      }}
+                    >
+                      Ctrl + K
+                    </kbd>
+                  </Button>
+                </Tooltip>
+              </div>
             )}
 
-            {!isMobile && (
+            {/* Nút Thao tác nhanh: Ẩn trên máy tính bảng & mobile < 992px */}
+            <div className="header-hide-tablet">
               <Dropdown
                 menu={{
                   items: [
@@ -368,23 +395,33 @@ export function MainLayout({
                   {tApp.quickAdd}
                 </Button>
               </Dropdown>
-            )}
+            </div>
 
-            <Button
-              type="primary"
-              shape={isMobile ? 'circle' : 'default'}
-              size={isMobile ? 'small' : 'middle'}
-              icon={<RobotOutlined />}
-              onClick={onOpenAiDrawer}
-              style={{
-                background: 'linear-gradient(135deg, #722ed1 0%, #1677ff 100%)',
-                border: 'none',
-                borderRadius: 8,
-              }}
-            >
-              {!isMobile && tApp.askAiCopilot}
-            </Button>
+            {/* Nút Hỏi AI Copilot */}
+            <Tooltip title={tApp.askAiCopilot}>
+              <Button
+                type="primary"
+                shape={isMobile ? 'circle' : undefined}
+                size="middle"
+                icon={<RobotOutlined />}
+                onClick={onOpenAiDrawer}
+                style={{
+                  background: 'linear-gradient(135deg, #722ed1 0%, #1677ff 100%)',
+                  border: 'none',
+                  borderRadius: 8,
+                  height: 36,
+                  padding: isMobile ? 0 : '0 12px',
+                  width: isMobile ? 36 : undefined,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                {!isMobile && <span className="header-hide-1200" style={{ marginLeft: 4 }}>{tApp.askAiCopilot}</span>}
+              </Button>
+            </Tooltip>
 
+            {/* Thông Báo Popover */}
             <Popover
               content={
                 <NotificationPopoverContent
@@ -399,63 +436,67 @@ export function MainLayout({
             >
               <Tooltip title={tApp.notificationsTooltip}>
                 <Badge count={unreadNotifCount} size="small" overflowCount={99}>
-                  <Button shape="circle" icon={<BellOutlined />} />
+                  <Button shape="circle" size="middle" icon={<BellOutlined />} style={{ width: 36, height: 36 }} />
                 </Badge>
               </Tooltip>
             </Popover>
 
-            <Tooltip title={tApp.refreshTooltip}>
-              <Button
-                shape="circle"
-                size={isMobile ? 'small' : 'middle'}
-                icon={<ReloadOutlined spin={loading} />}
-                onClick={onRefreshData}
-              />
-            </Tooltip>
+            {/* Nút Làm Mới: Ẩn trên mobile < 768px để tiết kiệm chỗ */}
+            <div className="header-hide-mobile">
+              <Tooltip title={tApp.refreshTooltip}>
+                <Button
+                  shape="circle"
+                  size="middle"
+                  icon={<ReloadOutlined spin={loading} />}
+                  onClick={onRefreshData}
+                  style={{ width: 36, height: 36 }}
+                />
+              </Tooltip>
+            </div>
 
-            {/* BỘ CHUYỂN ĐỔI NGÔN NGỮ TOÀN HỆ THỐNG TRÊN HEADER (VI, EN, JA) */}
+            {/* BỘ CHUYỂN ĐỔI NGÔN NGỮ (VI, EN, JA) */}
             <Dropdown
               menu={{
                 items: [
                   {
                     key: 'vi',
                     label: (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
-                        <Space size={10}>
-                          <span style={{ fontSize: 18 }}>{allConfigs.vi.flag}</span>
-                          <span style={{ fontWeight: currentLang === 'vi' ? 700 : 600, color: currentLang === 'vi' ? '#1677ff' : '#0f172a', fontSize: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
+                        <Space size={8}>
+                          <span style={{ fontSize: 16 }}>{allConfigs.vi.flag}</span>
+                          <span style={{ fontWeight: currentLang === 'vi' ? 700 : 600, color: currentLang === 'vi' ? '#1677ff' : '#0f172a', fontSize: 13 }}>
                             {allConfigs.vi.name}
                           </span>
                         </Space>
-                        {currentLang === 'vi' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 14 }} />}
+                        {currentLang === 'vi' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 13 }} />}
                       </div>
                     ),
                   },
                   {
                     key: 'en',
                     label: (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
-                        <Space size={10}>
-                          <span style={{ fontSize: 18 }}>{allConfigs.en.flag}</span>
-                          <span style={{ fontWeight: currentLang === 'en' ? 700 : 600, color: currentLang === 'en' ? '#1677ff' : '#0f172a', fontSize: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
+                        <Space size={8}>
+                          <span style={{ fontSize: 16 }}>{allConfigs.en.flag}</span>
+                          <span style={{ fontWeight: currentLang === 'en' ? 700 : 600, color: currentLang === 'en' ? '#1677ff' : '#0f172a', fontSize: 13 }}>
                             {allConfigs.en.name}
                           </span>
                         </Space>
-                        {currentLang === 'en' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 14 }} />}
+                        {currentLang === 'en' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 13 }} />}
                       </div>
                     ),
                   },
                   {
                     key: 'ja',
                     label: (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
-                        <Space size={10}>
-                          <span style={{ fontSize: 18 }}>{allConfigs.ja.flag}</span>
-                          <span style={{ fontWeight: currentLang === 'ja' ? 700 : 600, color: currentLang === 'ja' ? '#1677ff' : '#0f172a', fontSize: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
+                        <Space size={8}>
+                          <span style={{ fontSize: 16 }}>{allConfigs.ja.flag}</span>
+                          <span style={{ fontWeight: currentLang === 'ja' ? 700 : 600, color: currentLang === 'ja' ? '#1677ff' : '#0f172a', fontSize: 13 }}>
                             {allConfigs.ja.name}
                           </span>
                         </Space>
-                        {currentLang === 'ja' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 14 }} />}
+                        {currentLang === 'ja' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 13 }} />}
                       </div>
                     ),
                   },
@@ -471,22 +512,25 @@ export function MainLayout({
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
-                    gap: 5,
+                    gap: 4,
                     borderRadius: 8,
                     borderColor: '#e2e8f0',
                     background: '#f8fafc',
                     fontWeight: 600,
-                    padding: isMobile ? '4px 8px' : '4px 10px',
+                    padding: isMobile ? '0 6px' : '0 8px',
+                    height: 36,
                   }}
-                  size={isMobile ? 'small' : 'middle'}
+                  size="middle"
                 >
-                  <GlobalOutlined style={{ color: '#1677ff' }} />
-                  <span>{allConfigs[currentLang].flag} {allConfigs[currentLang].short}</span>
-                  <DownOutlined style={{ fontSize: 9, color: '#94a3b8' }} />
+                  <GlobalOutlined style={{ color: '#1677ff', fontSize: 13 }} />
+                  <span style={{ fontSize: 13 }}>{allConfigs[currentLang].flag}</span>
+                  <span className="header-hide-mobile" style={{ fontSize: 12 }}>{allConfigs[currentLang].short}</span>
+                  <DownOutlined style={{ fontSize: 8, color: '#94a3b8' }} />
                 </Button>
               </Tooltip>
             </Dropdown>
 
+            {/* AVATAR & USER PROFILE DROPDOWN */}
             <Dropdown
               menu={{
                 items: [
@@ -521,21 +565,22 @@ export function MainLayout({
                 ],
               }}
             >
-              <Space style={{ cursor: 'pointer' }}>
-                <Avatar style={{ backgroundColor: currentUser.IsAdmin ? '#f5222d' : '#1677ff' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', padding: '2px 4px', borderRadius: 8 }}>
+                <Avatar style={{ backgroundColor: currentUser.IsAdmin ? '#f5222d' : '#1677ff', flexShrink: 0 }} size={34}>
                   {currentUser.Username?.[0]?.toUpperCase() || 'U'}
                 </Avatar>
-                {!isMobile && (
-                  <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
-                    <Text strong style={{ fontSize: 13 }}>{currentUser.FullName}</Text>
-                    <Tag color={currentUser.IsAdmin ? 'red' : 'blue'} style={{ fontSize: 10, width: 'fit-content', padding: '0 4px', margin: 0 }}>
-                      {currentUser.IsAdmin ? tApp.tagSuperAdmin : tApp.tagStaff}
-                    </Tag>
-                  </div>
-                )}
-              </Space>
+                {/* Tên và tag Super Admin: Ẩn trên màn hình < 1200px */}
+                <div className="header-hide-1200" style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2 }}>
+                  <Text strong style={{ fontSize: 13, maxWidth: 110, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {currentUser.FullName}
+                  </Text>
+                  <Tag color={currentUser.IsAdmin ? 'red' : 'blue'} style={{ fontSize: 10, width: 'fit-content', padding: '0 4px', margin: 0 }}>
+                    {currentUser.IsAdmin ? tApp.tagSuperAdmin : tApp.tagStaff}
+                  </Tag>
+                </div>
+              </div>
             </Dropdown>
-          </Space>
+          </div>
         </Header>
 
         <Content style={{ margin: isMobile ? '12px 8px' : '20px 24px', minHeight: 400 }}>

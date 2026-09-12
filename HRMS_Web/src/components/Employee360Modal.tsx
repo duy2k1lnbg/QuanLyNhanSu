@@ -148,16 +148,14 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
 
   if (!employee) return null;
 
-  const formatAvatarUrl = (img?: string, manv?: number): string | undefined => {
+  const formatAvatarUrl = (img?: string, _manv?: number): string | undefined => {
     if (img && img.trim()) {
       const clean = img.trim();
       if (clean.startsWith('data:') || clean.startsWith('http')) return clean;
       return `data:image/jpeg;base64,${clean}`;
     }
-    if (manv) {
-      const base = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, '') : '/api';
-      return `${base}/nhanvien/${manv}/avatar?t=${Date.now()}`;
-    }
+    // Trả về undefined nếu không có ảnh để Avatar render icon UserOutlined mặc định,
+    // tránh gửi HTTP request 404 thừa thãi lên server
     return undefined;
   };
 
@@ -289,12 +287,12 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                   left: 2,
                   width: 14,
                   height: 14,
-                  backgroundColor: '#10b981',
+                  backgroundColor: employee.DATHOIVIEC === 1 ? '#ef4444' : '#10b981',
                   borderRadius: '50%',
                   border: '2px solid #0f172a',
                   zIndex: 2,
                 }}
-                title="Đang hoạt động"
+                title={employee.DATHOIVIEC === 1 ? 'Đã thôi việc' : 'Đang làm việc'}
               />
               <Upload
                 showUploadList={false}
@@ -327,8 +325,8 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                 <Title level={3} style={{ color: '#fff', margin: 0, fontWeight: 700 }}>
                   {employee.HOTEN}
                 </Title>
-                <Tag color={employee.TRANGTHAI !== false ? 'success' : 'default'} style={{ fontWeight: 600 }}>
-                  {employee.TRANGTHAI !== false ? '🟢 ĐANG LÀM VIỆC' : '⚫ ĐÃ NGHỈ VIỆC'}
+                <Tag color={employee.DATHOIVIEC === 1 ? 'error' : 'success'} style={{ fontWeight: 600 }}>
+                  {employee.DATHOIVIEC === 1 ? '🔴 ĐÃ THÔI VIỆC' : '🟢 ĐANG LÀM VIỆC'}
                 </Tag>
                 <Tag color="cyan">Mã NV: #{employee.MANV}</Tag>
               </div>
@@ -605,13 +603,18 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                         mode="left"
                         items={timelineItems.map((item, idx) => ({
                           key: idx,
-                          label: item.Ngay,
+                          label: <span style={{ fontWeight: 600, color: '#64748b', fontSize: 13 }}>{item.Ngay}</span>,
                           color: item.TagColor || 'blue',
                           dot: renderTimelineDot(item.IconType),
                           children: (
-                            <div>
-                              <Text strong>{item.TieuDe}</Text>
-                              <Paragraph type="secondary" style={{ margin: 0 }}>
+                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', marginBottom: 8 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
+                                <Text strong style={{ color: '#0f172a' }}>{item.TieuDe}</Text>
+                                <Tag color={item.TagColor || 'blue'} style={{ borderRadius: 4, margin: 0 }}>
+                                  {item.Loai || 'Sự kiện'}
+                                </Tag>
+                              </div>
+                              <Paragraph type="secondary" style={{ margin: 0, fontSize: 13 }}>
                                 {item.MoTa}
                               </Paragraph>
                             </div>

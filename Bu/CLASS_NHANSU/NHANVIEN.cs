@@ -256,20 +256,52 @@ namespace Bu
             try
             {
                 var _nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == id);
-                //db.TB_NHANVIEN.Remove(_nv);
-                _nv.DELETED_BY = iduser;
-                _nv.DELETED_DATE = DateTime.Now;
-                db.SaveChanges();
-                try
+                if (_nv != null)
                 {
-                    Bu.Services.AI_Services.Vector.AiDataSyncHub.NotifyEmployeeDeleted(id);
+                    // Chuyển trạng thái sang đã thôi việc thay vì xóa cứng khỏi CSDL
+                    _nv.DATHOIVIEC = 1;
+                    _nv.DELETED_BY = iduser;
+                    _nv.DELETED_DATE = DateTime.Now;
+                    _nv.UPDATED_BY = iduser;
+                    _nv.UPDATED_DATE = DateTime.Now;
+                    db.SaveChanges();
+                    try
+                    {
+                        Bu.Services.AI_Services.Vector.AiDataSyncHub.NotifyEmployeeChanged(id);
+                    }
+                    catch { }
                 }
-                catch { }
             }
             catch (Exception ex)
             {
+                throw new Exception("Lỗi: " + ex.Message);
+            }
+        }
 
-                throw new Exception("Lỗi" + ex.Message);
+        public void Restore(int id, int iduser)
+        {
+            try
+            {
+                var _nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == id);
+                if (_nv != null)
+                {
+                    // Khôi phục trạng thái đi làm lại
+                    _nv.DATHOIVIEC = 0;
+                    _nv.DELETED_BY = null;
+                    _nv.DELETED_DATE = null;
+                    _nv.UPDATED_BY = iduser;
+                    _nv.UPDATED_DATE = DateTime.Now;
+                    db.SaveChanges();
+                    try
+                    {
+                        Bu.Services.AI_Services.Vector.AiDataSyncHub.NotifyEmployeeChanged(id);
+                    }
+                    catch { }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi: " + ex.Message);
             }
         }
 

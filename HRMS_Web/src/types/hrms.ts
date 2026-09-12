@@ -19,6 +19,7 @@ export interface NhanVienDTO {
   TENCV?: string;
   IDTD?: number;
   TENTD?: string;
+  DATHOIVIEC?: number;
   TRANGTHAI?: boolean;
 }
 

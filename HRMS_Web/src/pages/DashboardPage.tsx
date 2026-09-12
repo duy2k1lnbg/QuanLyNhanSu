@@ -283,6 +283,70 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         </Col>
       </Row>
 
+      {/* 2.1 ATTENDANCE PULSE & QUICK ACTIONS */}
+      <Card
+        style={{
+          borderRadius: 10,
+          border: '1px solid #e2e8f0',
+          background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+        }}
+        bodyStyle={{ padding: '18px 24px' }}
+      >
+        <Row align="middle" justify="space-between" gutter={[16, 16]}>
+          <Col xs={24} md={14}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <CalendarOutlined style={{ fontSize: 20, color: '#10b981' }} />
+                <span style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>
+                  Tỷ lệ Chuyên cần Hôm nay:
+                </span>
+                <Tag color={presentPercentage >= 90 ? 'success' : presentPercentage >= 70 ? 'warning' : 'error'} style={{ fontSize: 14, fontWeight: 700, padding: '2px 10px', borderRadius: 8 }}>
+                  {presentPercentage}%
+                </Tag>
+              </div>
+              <div style={{ flex: 1, minWidth: 200, maxWidth: 360 }}>
+                <Progress
+                  percent={presentPercentage}
+                  strokeColor={{ '0%': '#10b981', '100%': '#059669' }}
+                  showInfo={false}
+                  size="small"
+                />
+              </div>
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                ({present}/{countTotal} nhân viên có mặt)
+              </Text>
+            </div>
+          </Col>
+
+          <Col xs={24} md={10} style={{ textAlign: 'right' }}>
+            <Space wrap>
+              <Button
+                type="default"
+                icon={<ArrowRightOutlined />}
+                onClick={() => onNavigate('chamcong')}
+                style={{ borderRadius: 8, fontWeight: 600 }}
+              >
+                Xem Bảng Công Heatmap
+              </Button>
+              <Button
+                type="primary"
+                icon={<DollarOutlined />}
+                onClick={() => onNavigate('bangluong')}
+                style={{
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                  border: 'none',
+                }}
+              >
+                Quản lý Bảng Lương
+              </Button>
+            </Space>
+          </Col>
+        </Row>
+      </Card>
+
       {/* 3. ACTION CENTER (VIỆC CẦN XỬ LÝ) */}
       <Card
         title={

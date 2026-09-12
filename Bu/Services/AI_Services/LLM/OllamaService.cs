@@ -16,9 +16,44 @@ namespace Bu.Services.AI_Services.Core
             Timeout = TimeSpan.FromMinutes(2) // 2 minutes timeout for large local models
         };
 
-        private string URL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("OllamaHost", "http://localhost:11434") + "/api/generate";
-        private string EMBEDDING_URL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("OllamaHost", "http://localhost:11434") + "/api/embeddings";
-        private string MODEL => new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("AiModel", "qwen2.5:latest");
+        private static string Host
+        {
+            get
+            {
+                try
+                {
+                    string dbHost = new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("OllamaHost", "").TrimEnd('/');
+                    if (string.IsNullOrWhiteSpace(dbHost) || dbHost.Contains("100.111.179.99"))
+                    {
+                        return "http://127.0.0.1:11434";
+                    }
+                    return dbHost;
+                }
+                catch
+                {
+                    return "http://127.0.0.1:11434";
+                }
+            }
+        }
+
+        private string URL => Host + "/api/generate";
+        private string EMBEDDING_URL => Host + "/api/embeddings";
+        private string MODEL
+        {
+            get
+            {
+                try
+                {
+                    string dbModel = new Bu.CLASS_CHAMCONG.SYS_CONFIG().getValue("AiModel", "qwen2.5:latest");
+                    if (dbModel == "qwen2.5:7b") return "qwen2.5:latest";
+                    return dbModel;
+                }
+                catch
+                {
+                    return "qwen2.5:latest";
+                }
+            }
+        }
         private string EMBEDDING_MODEL => "bge-m3";
         private readonly IPromptManager _promptManager;
 

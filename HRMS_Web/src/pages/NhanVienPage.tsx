@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Card,
   Table,
@@ -17,16 +17,20 @@ import {
   theme,
   Upload,
   Avatar,
+  Radio,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
   SearchOutlined,
   PlusOutlined,
   EditOutlined,
-  DeleteOutlined,
   IdcardOutlined,
   UploadOutlined,
   UserOutlined,
+  CheckCircleOutlined,
+  StopOutlined,
+  UndoOutlined,
+  UserDeleteOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import api from '../services/api';
@@ -35,16 +39,14 @@ import type { NhanVienDTO, DanhMucAllDTO } from '../types/hrms';
 
 const { Text } = Typography;
 
-export const getAvatarUrl = (img?: string, manv?: number): string | undefined => {
+export const getAvatarUrl = (img?: string, _manv?: number): string | undefined => {
   if (img && img.trim()) {
     const clean = img.trim();
     if (clean.startsWith('data:') || clean.startsWith('http')) return clean;
     return `data:image/jpeg;base64,${clean}`;
   }
-  if (manv) {
-    const base = api.defaults.baseURL ? api.defaults.baseURL.replace(/\/$/, '') : '/api';
-    return `${base}/nhanvien/${manv}/avatar`;
-  }
+  // Trả về undefined nếu không có ảnh để Avatar render icon UserOutlined mặc định,
+  // tránh gửi HTTP request 404 thừa thãi lên server
   return undefined;
 };
 
@@ -64,6 +66,8 @@ export function NhanVienPage({
   onRefresh,
 }: NhanVienPageProps) {
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'resigned'>('all');
+  const [departmentFilter, setDepartmentFilter] = useState<number | 'all'>('all');
   const [nvModalVisible, setNvModalVisible] = useState(false);
   const [editingNv, setEditingNv] = useState<NhanVienDTO | null>(null);
   const [saving, setSaving] = useState(false);
@@ -82,6 +86,33 @@ export function NhanVienPage({
     token: { borderRadiusLG },
   } = theme.useToken();
 
+  const safeList = useMemo(() => (Array.isArray(nhanVienList) ? nhanVienList : []), [nhanVienList]);
+  const activeCount = useMemo(() => safeList.filter((nv) => nv.DATHOIVIEC !== 1).length, [safeList]);
+  const resignedCount = useMemo(() => safeList.filter((nv) => nv.DATHOIVIEC === 1).length, [safeList]);
+
+  const filteredEmployees = useMemo(() => {
+    return safeList.filter((nv) => {
+      // 1. Lọc theo trạng thái làm việc (soft delete)
+      if (statusFilter === 'active' && nv.DATHOIVIEC === 1) return false;
+      if (statusFilter === 'resigned' && nv.DATHOIVIEC !== 1) return false;
+
+      // 2. Lọc theo phòng ban
+      if (departmentFilter !== 'all' && nv.IDPB !== departmentFilter) return false;
+
+      // 3. Lọc theo từ khóa tìm kiếm
+      if (!searchKeyword) return true;
+      const kw = searchKeyword.toLowerCase().trim();
+      return (
+        (nv.HOTEN && nv.HOTEN.toLowerCase().includes(kw)) ||
+        (nv.MANV && nv.MANV.toString().includes(kw)) ||
+        (nv.TENPB && nv.TENPB.toLowerCase().includes(kw)) ||
+        (nv.TENCV && nv.TENCV.toLowerCase().includes(kw)) ||
+        (nv.DIENTHOAI && nv.DIENTHOAI.includes(kw)) ||
+        (nv.CCCD && nv.CCCD.includes(kw))
+      );
+    });
+  }, [safeList, statusFilter, departmentFilter, searchKeyword]);
+
   const handleOpenNvModal = (nv?: NhanVienDTO) => {
     if (nv) {
       setEditingNv(nv);
@@ -98,12 +129,17 @@ export function NhanVienPage({
         IDBP: nv.IDBP,
         IDCV: nv.IDCV,
         IDTD: nv.IDTD,
+        DATHOIVIEC: nv.DATHOIVIEC === 1 ? 1 : 0,
       });
     } else {
       setEditingNv(null);
       setAvatarBase64(null);
       setAvatarPreview(null);
       formNv.resetFields();
+      formNv.setFieldsValue({
+        GIOITINH: 'Nam',
+        DATHOIVIEC: 0,
+      });
     }
     setNvModalVisible(true);
   };
@@ -135,6 +171,7 @@ export function NhanVienPage({
         IDGT: idgt,
         GIOITINH: values.GIOITINH,
         NGAYSINH: values.NGAYSINH ? dayjs(values.NGAYSINH).format('YYYY-MM-DD') : null,
+        DATHOIVIEC: values.DATHOIVIEC !== undefined ? values.DATHOIVIEC : (editingNv?.DATHOIVIEC ?? 0),
       };
 
       if (avatarBase64) {
@@ -163,28 +200,33 @@ export function NhanVienPage({
     }
   };
 
-  const handleDeleteNv = async (manv: number) => {
+  // Thôi việc nhân viên (chuyển trạng thái sang đã thôi việc thay vì xóa cứng)
+  const handleDeleteNv = async (nv: NhanVienDTO) => {
     try {
-      await api.delete(`/nhanvien/${manv}`);
-      notification.success({ message: 'Thành công', description: `Đã cho thôi việc nhân viên #${manv}` });
+      await api.delete(`/nhanvien/${nv.MANV}`);
+      notification.success({
+        message: 'Đã cho thôi việc',
+        description: `Đã chuyển trạng thái nhân viên [${nv.HOTEN}] (#${nv.MANV}) sang 'Đã thôi việc'. Hồ sơ được lưu trữ an toàn.`,
+      });
       onRefresh();
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể xóa nhân viên.' });
+      notification.error({ message: 'Lỗi', description: 'Không thể cập nhật trạng thái thôi việc cho nhân viên.' });
     }
   };
 
-  const safeList = Array.isArray(nhanVienList) ? nhanVienList : [];
-  const filteredEmployees = safeList.filter((nv) => {
-    if (!searchKeyword) return true;
-    const kw = searchKeyword.toLowerCase();
-    return (
-      (nv.HOTEN && nv.HOTEN.toLowerCase().includes(kw)) ||
-      (nv.MANV && nv.MANV.toString().includes(kw)) ||
-      (nv.TENPB && nv.TENPB.toLowerCase().includes(kw)) ||
-      (nv.TENCV && nv.TENCV.toLowerCase().includes(kw)) ||
-      (nv.DIENTHOAI && nv.DIENTHOAI.includes(kw))
-    );
-  });
+  // Khôi phục nhân viên đi làm lại
+  const handleRestoreNv = async (nv: NhanVienDTO) => {
+    try {
+      await api.post(`/nhanvien/${nv.MANV}/restore`);
+      notification.success({
+        message: 'Khôi phục thành công',
+        description: `Đã khôi phục nhân viên [${nv.HOTEN}] (#${nv.MANV}) trở lại trạng thái 'Đang làm việc'.`,
+      });
+      onRefresh();
+    } catch {
+      notification.error({ message: 'Lỗi', description: 'Không thể khôi phục trạng thái làm việc cho nhân viên.' });
+    }
+  };
 
   const employeeColumns: ColumnsType<NhanVienDTO> = [
     {
@@ -223,6 +265,23 @@ export function NhanVienPage({
       ),
     },
     {
+      title: 'Trạng thái',
+      key: 'DATHOIVIEC',
+      width: 140,
+      render: (_, r: NhanVienDTO) => {
+        const isResigned = r.DATHOIVIEC === 1;
+        return isResigned ? (
+          <Tag color="error" icon={<StopOutlined />} style={{ borderRadius: 12, padding: '2px 10px' }}>
+            Đã thôi việc
+          </Tag>
+        ) : (
+          <Tag color="success" icon={<CheckCircleOutlined />} style={{ borderRadius: 12, padding: '2px 10px' }}>
+            Đang làm việc
+          </Tag>
+        );
+      },
+    },
+    {
       title: 'Giới tính',
       key: 'GIOITINH',
       width: 90,
@@ -250,13 +309,13 @@ export function NhanVienPage({
       title: 'Phòng ban',
       dataIndex: 'TENPB',
       key: 'TENPB',
-      render: (t: string) => <Tag color="cyan">{t}</Tag>,
+      render: (t: string) => <Tag color="cyan">{t || 'Chưa phân bổ'}</Tag>,
     },
     {
       title: 'Chức vụ',
       dataIndex: 'TENCV',
       key: 'TENCV',
-      render: (t: string) => <Tag color="geekblue">{t}</Tag>,
+      render: (t: string) => <Tag color="geekblue">{t || 'Nhân viên'}</Tag>,
     },
     {
       title: 'Địa chỉ',
@@ -269,48 +328,119 @@ export function NhanVienPage({
       key: 'action',
       width: 130,
       fixed: 'right',
-      render: (_, r) => (
-        <Space size="small">
-          <Tooltip title="Xem Hồ Sơ 360°">
-            <Button
-              type="text"
-              icon={<IdcardOutlined style={{ color: '#10b981', fontSize: 16 }} />}
-              onClick={() => handleOpen360(r)}
-              size="small"
-            />
-          </Tooltip>
-          {hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') && (
-            <Button
-              type="text"
-              icon={<EditOutlined style={{ color: '#1677ff' }} />}
-              onClick={() => handleOpenNvModal(r)}
-              size="small"
-            />
-          )}
-          {hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') && (
-            <Popconfirm
-              title="Cho thôi việc nhân viên này?"
-              description={`Bạn có chắc muốn cho thôi việc nhân viên [${r.HOTEN}] không?`}
-              onConfirm={() => handleDeleteNv(r.MANV)}
-              okText="Đồng ý"
-              cancelText="Hủy"
-            >
-              <Button type="text" danger icon={<DeleteOutlined />} size="small" />
-            </Popconfirm>
-          )}
-        </Space>
-      ),
+      render: (_, r: NhanVienDTO) => {
+        const isResigned = r.DATHOIVIEC === 1;
+        return (
+          <Space size="small">
+            <Tooltip title="Xem Hồ Sơ 360°">
+              <Button
+                type="text"
+                icon={<IdcardOutlined style={{ color: '#10b981', fontSize: 16 }} />}
+                onClick={() => handleOpen360(r)}
+                size="small"
+              />
+            </Tooltip>
+            {hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') && (
+              <Tooltip title="Chỉnh sửa thông tin">
+                <Button
+                  type="text"
+                  icon={<EditOutlined style={{ color: '#1677ff' }} />}
+                  onClick={() => handleOpenNvModal(r)}
+                  size="small"
+                />
+              </Tooltip>
+            )}
+            {hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') && (
+              isResigned ? (
+                <Popconfirm
+                  title="Khôi phục nhân viên đi làm lại?"
+                  description={`Bạn có chắc muốn khôi phục nhân viên [${r.HOTEN}] (#${r.MANV}) trở lại trạng thái 'Đang làm việc'?`}
+                  onConfirm={() => handleRestoreNv(r)}
+                  okText="Khôi phục"
+                  cancelText="Hủy"
+                >
+                  <Tooltip title="Khôi phục đi làm lại">
+                    <Button
+                      type="text"
+                      icon={<UndoOutlined style={{ color: '#10b981', fontSize: 15 }} />}
+                      size="small"
+                    />
+                  </Tooltip>
+                </Popconfirm>
+              ) : (
+                <Popconfirm
+                  title="Cho thôi việc nhân viên này?"
+                  description={`Bạn có chắc muốn chuyển trạng thái nhân viên [${r.HOTEN}] (#${r.MANV}) sang 'Đã thôi việc'? (Dữ liệu lịch sử và hồ sơ nhân sự vẫn được lưu giữ an toàn, không bị xóa khỏi CSDL).`}
+                  onConfirm={() => handleDeleteNv(r)}
+                  okText="Thôi việc"
+                  okButtonProps={{ danger: true }}
+                  cancelText="Hủy"
+                >
+                  <Tooltip title="Cho thôi việc (chuyển trạng thái)">
+                    <Button
+                      type="text"
+                      danger
+                      icon={<UserDeleteOutlined style={{ fontSize: 15 }} />}
+                      size="small"
+                    />
+                  </Tooltip>
+                </Popconfirm>
+              )
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
   return (
     <>
+      {/* THANH ĐIỀU KHIỂN & BỘ LỌC THÔNG MINH */}
       <Card
-        title={`Danh sách Hồ sơ Nhân viên (${filteredEmployees.length})`}
-        extra={
-          <Space>
+        bordered={false}
+        style={{ borderRadius: borderRadiusLG, marginBottom: 16 }}
+        bodyStyle={{ padding: '16px 20px' }}
+      >
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 16, alignItems: 'center', justifyContent: 'space-between' }}>
+          <Space wrap size="middle">
+            <span style={{ fontWeight: 600, color: '#475569' }}>Trạng thái:</span>
+            <Radio.Group
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              buttonStyle="solid"
+              size="middle"
+            >
+              <Radio.Button value="all">
+                Tất cả ({safeList.length})
+              </Radio.Button>
+              <Radio.Button value="active">
+                <CheckCircleOutlined style={{ color: '#52c41a', marginRight: 4 }} />
+                Đang làm việc ({activeCount})
+              </Radio.Button>
+              <Radio.Button value="resigned">
+                <StopOutlined style={{ color: '#ff4d4f', marginRight: 4 }} />
+                Đã thôi việc ({resignedCount})
+              </Radio.Button>
+            </Radio.Group>
+
+            <Select
+              style={{ width: 220 }}
+              value={departmentFilter}
+              onChange={(val) => setDepartmentFilter(val)}
+              placeholder="Lọc theo phòng ban"
+              options={[
+                { value: 'all', label: `Tất cả phòng ban (${safeList.length})` },
+                ...(danhMuc?.phongBan?.map((pb) => ({
+                  value: pb.IDPB,
+                  label: pb.TENPB,
+                })) || []),
+              ]}
+            />
+          </Space>
+
+          <Space wrap size="middle">
             <Input
-              placeholder="Tìm theo tên, mã NV, phòng ban..."
+              placeholder="Tìm theo tên, mã NV, CCCD, chức vụ..."
               prefix={<SearchOutlined />}
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
@@ -323,7 +453,12 @@ export function NhanVienPage({
               </Button>
             )}
           </Space>
-        }
+        </div>
+      </Card>
+
+      {/* BẢNG DANH SÁCH NHÂN VIÊN */}
+      <Card
+        title={`Danh sách Hồ sơ Nhân viên (${filteredEmployees.length})`}
         bordered={false}
         style={{ borderRadius: borderRadiusLG }}
       >
@@ -333,10 +468,16 @@ export function NhanVienPage({
           rowKey="MANV"
           loading={loading}
           scroll={{ x: 'max-content' }}
-          pagination={{ pageSize: 8, showTotal: (total) => `Tổng số ${total} nhân viên` }}
+          pagination={{
+            pageSize: 10,
+            showSizeChanger: true,
+            pageSizeOptions: ['10', '20', '50', '100'],
+            showTotal: (total) => `Hiển thị ${total} nhân viên`,
+          }}
         />
       </Card>
 
+      {/* MODAL THÊM / CHỈNH SỬA HỒ SƠ NHÂN VIÊN */}
       <Modal
         title={editingNv ? `Cập nhật thông tin: #${editingNv.MANV} - ${editingNv.HOTEN}` : 'Thêm Nhân Viên Mới'}
         open={nvModalVisible}
@@ -353,27 +494,28 @@ export function NhanVienPage({
               display: 'flex',
               alignItems: 'center',
               gap: 20,
-              marginBottom: 20,
-              padding: '14px 18px',
-              background: '#f8fafc',
+              padding: '16px 20px',
+              backgroundColor: '#f8fafc',
               borderRadius: 8,
-              border: '1px solid #e2e8f0',
+              border: '1px dashed #cbd5e1',
+              marginBottom: 20,
             }}
           >
             <Avatar
-              size={76}
+              size={84}
               icon={<UserOutlined />}
               src={avatarPreview || undefined}
-              style={{ backgroundColor: '#1677ff', border: '2px solid #91caff', flexShrink: 0 }}
+              style={{ backgroundColor: '#1890ff', border: '2px solid #e8e8e8' }}
             />
-            <Space direction="vertical" size={4}>
+            <Space direction="vertical" size={6}>
+              <Text strong>Ảnh chân dung đại diện</Text>
               <Space>
                 <Upload
-                  beforeUpload={handleAvatarFileSelect}
                   showUploadList={false}
                   accept="image/*"
+                  beforeUpload={handleAvatarFileSelect}
                 >
-                  <Button icon={<UploadOutlined />} type="dashed">
+                  <Button icon={<UploadOutlined />} size="small">
                     {avatarPreview ? 'Đổi ảnh chân dung' : 'Tải ảnh chân dung'}
                   </Button>
                 </Upload>
@@ -432,20 +574,30 @@ export function NhanVienPage({
           </Space>
 
           <Space style={{ width: '100%' }} size="large">
-            <Form.Item name="IDBP" label="Bộ phận" style={{ width: 315 }}>
+            <Form.Item name="IDBP" label="Bộ phận" style={{ width: 200 }}>
               <Select
                 placeholder="Chọn bộ phận"
                 allowClear
                 options={danhMuc?.boPhan?.map((bp) => ({ value: bp.ID, label: bp.TEN })) || []}
               />
             </Form.Item>
-            <Form.Item name="IDTD" label="Trình độ học vấn" style={{ width: 315 }}>
+            <Form.Item name="IDTD" label="Trình độ học vấn" style={{ width: 200 }}>
               <Select
                 placeholder="Chọn trình độ"
                 allowClear
                 options={danhMuc?.trinhDo?.map((td) => ({ value: td.ID, label: td.TEN })) || []}
               />
             </Form.Item>
+            {editingNv && (
+              <Form.Item name="DATHOIVIEC" label="Trạng thái làm việc" style={{ width: 210 }}>
+                <Select
+                  options={[
+                    { value: 0, label: '🟢 Đang làm việc' },
+                    { value: 1, label: '🔴 Đã thôi việc' },
+                  ]}
+                />
+              </Form.Item>
+            )}
           </Space>
 
           <Form.Item name="DIACHI" label="Địa chỉ thường trú">
