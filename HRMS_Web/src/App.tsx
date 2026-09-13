@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { notification } from 'antd';
+import { notification, Result, Button } from 'antd';
 import api from './services/api';
 import Login from './pages/Login';
 import MainLayout from './components/MainLayout';
@@ -44,6 +44,17 @@ import type {
 // Bản đồ định tuyến URL hỗ trợ đầy đủ các nút Back, Forward, Reload của trình duyệt
 import { VALID_ROUTES, ROUTE_TITLES, getRouteFromLocation } from './utils/routes';
 
+// Công cụ phân quyền 5 thao tác chuẩn (VIEW, ADD, EDIT, DELETE, PRINT) và Route Guard
+import {
+  canView,
+  canAdd,
+  canEdit,
+  canDelete,
+  canPrint,
+  canAccessRoute,
+  getFirstAccessibleRoute,
+} from './utils/permissionUtils';
+
 
 export function App() {
   // 1. Trạng thái xác thực người dùng
@@ -60,6 +71,7 @@ export function App() {
             FullName: u.FullName || u.fullName || u.Username,
             IsAdmin: Boolean(u.IsAdmin ?? u.isAdmin),
             Rights: u.Rights || u.rights || [],
+            DetailedRights: u.DetailedRights || u.detailedRights,
           };
         }
       } catch {
@@ -134,19 +146,13 @@ export function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Check quyền tương tự WinForms: Admin và tài khoản ADMIN luôn có toàn quyền tuyệt đối
-  const hasRight = (...codes: string[]) => {
-    if (!currentUser) return false;
-    if (currentUser.IsAdmin || currentUser.Username?.toUpperCase() === 'ADMIN' || currentUser.Rights?.includes('*')) return true;
-    return codes.some((code) =>
-      currentUser.Rights?.some(
-        (r) =>
-          r.toUpperCase() === code.toUpperCase() ||
-          r.toUpperCase().includes(code.toUpperCase()) ||
-          code.toUpperCase().includes(r.toUpperCase())
-      )
-    );
-  };
+  // 5 Quyền thao tác cơ bản tương tự WinForms & Oracle CSDL (VIEW, ADD, EDIT, DELETE, PRINT)
+  const checkCanView = (...codes: string[]) => canView(currentUser, ...codes);
+  const checkCanAdd = (...codes: string[]) => canAdd(currentUser, ...codes);
+  const checkCanEdit = (...codes: string[]) => canEdit(currentUser, ...codes);
+  const checkCanDelete = (...codes: string[]) => canDelete(currentUser, ...codes);
+  const checkCanPrint = (...codes: string[]) => canPrint(currentUser, ...codes);
+  const hasRight = checkCanView;
 
   // Tải dữ liệu ban đầu
   const fetchInitialData = async () => {
@@ -336,6 +342,7 @@ export function App() {
   };
 
   // Tự động đồng bộ quyền hạn mới nhất từ CSDL trong nền mà không cần người dùng thao tác thủ công
+  // Tự động đồng bộ quyền hạn mới nhất từ CSDL trong nền mà không cần người dùng thao tác thủ công
   const syncUserRights = async () => {
     try {
       const res = await api.get<{ user: CurrentUserDTO }>('/auth/me');
@@ -345,7 +352,14 @@ export function App() {
           if (!prev) return refreshed;
           const prevRights = JSON.stringify(prev.Rights || []);
           const newRights = JSON.stringify(refreshed.Rights || []);
-          if (prevRights !== newRights || prev.IsAdmin !== refreshed.IsAdmin || prev.FullName !== refreshed.FullName) {
+          const prevDetailed = JSON.stringify(prev.DetailedRights || {});
+          const newDetailed = JSON.stringify(refreshed.DetailedRights || {});
+          if (
+            prevRights !== newRights ||
+            prevDetailed !== newDetailed ||
+            prev.IsAdmin !== refreshed.IsAdmin ||
+            prev.FullName !== refreshed.FullName
+          ) {
             localStorage.setItem('hrms_user', JSON.stringify(refreshed));
             return refreshed;
           }
@@ -364,10 +378,29 @@ export function App() {
     }
   }, [currentUser?.Username]);
 
-  // Điều hướng đồng bộ với URL hash và lịch sử trình duyệt (Hỗ trợ Back, Forward, Reload)
+  // Điều hướng đồng bộ với URL hash và lịch sử trình duyệt (Hỗ trợ Back, Forward, Reload & BẢO VỆ ROUTE GUARD)
   const handleNavigate = (route: string, replace: boolean = false) => {
     const cleanRoute = route.replace(/^#?\/?/, '').trim().toLowerCase();
     const targetRoute = VALID_ROUTES[cleanRoute] || 'dashboard';
+
+    // KIỂM TRA QUYỀN TRUY CẬP PHÂN HỆ NGHIÊM NGẶT (ROUTE GUARD)
+    if (currentUser && !canAccessRoute(currentUser, targetRoute)) {
+      notification.warning({
+        message: 'Truy cập bị từ chối',
+        description: `Tài khoản của bạn không được cấp quyền truy cập phân hệ [${ROUTE_TITLES[targetRoute] || targetRoute}]. Vui lòng liên hệ Quản trị viên để được cấp quyền.`,
+      });
+
+      // Nếu trang hiện tại cũng không có quyền, tự động chuyển về phân hệ hợp lệ đầu tiên
+      if (!canAccessRoute(currentUser, currentMenu)) {
+        const fallback = getFirstAccessibleRoute(currentUser, 'dashboard');
+        setCurrentMenu(fallback);
+        if (typeof window !== 'undefined') {
+          window.history.replaceState({ route: fallback }, '', `#/${fallback}`);
+          document.title = ROUTE_TITLES[fallback] || 'HRMS Enterprise';
+        }
+      }
+      return;
+    }
 
     setCurrentMenu(targetRoute);
 
@@ -384,10 +417,23 @@ export function App() {
     }
   };
 
-  // Đồng bộ hai chiều với các nút trình duyệt: Back (<-), Forward (->), Reload (F5)
+  // Đồng bộ hai chiều với các nút trình duyệt: Back (<-), Forward (->), Reload (F5) kèm kiểm tra quyền
   useEffect(() => {
     const handleLocationChange = () => {
       const route = getRouteFromLocation();
+      if (currentUser && !canAccessRoute(currentUser, route)) {
+        const fallback = getFirstAccessibleRoute(currentUser, 'dashboard');
+        setCurrentMenu(fallback);
+        if (typeof window !== 'undefined') {
+          window.history.replaceState({ route: fallback }, '', `#/${fallback}`);
+          document.title = ROUTE_TITLES[fallback] || 'HRMS Enterprise';
+        }
+        notification.warning({
+          message: 'Truy cập bị từ chối',
+          description: `Bạn không có quyền truy cập phân hệ [${ROUTE_TITLES[route] || route}]. Đã chuyển hướng an toàn về [${ROUTE_TITLES[fallback] || fallback}].`,
+        });
+        return;
+      }
       setCurrentMenu(route);
       document.title = ROUTE_TITLES[route] || 'HRMS Enterprise';
     };
@@ -395,14 +441,21 @@ export function App() {
     window.addEventListener('popstate', handleLocationChange);
     window.addEventListener('hashchange', handleLocationChange);
 
-    // Khi đã đăng nhập, đảm bảo URL có hash để khi F5 / Reload luôn giữ nguyên phân hệ hiện tại
+    // Khi đã đăng nhập, đảm bảo URL có hash hợp lệ với quyền của người dùng
     if (currentUser) {
       const initialRoute = getRouteFromLocation();
-      const targetHash = `#/${initialRoute}`;
-      if (window.location.hash !== targetHash) {
-        window.history.replaceState({ route: initialRoute }, '', targetHash);
+      const safeRoute = canAccessRoute(currentUser, initialRoute)
+        ? initialRoute
+        : getFirstAccessibleRoute(currentUser, 'dashboard');
+
+      if (safeRoute !== currentMenu) {
+        setCurrentMenu(safeRoute);
       }
-      document.title = ROUTE_TITLES[initialRoute] || 'HRMS Enterprise';
+      const targetHash = `#/${safeRoute}`;
+      if (window.location.hash !== targetHash) {
+        window.history.replaceState({ route: safeRoute }, '', targetHash);
+      }
+      document.title = ROUTE_TITLES[safeRoute] || 'HRMS Enterprise';
     }
 
     return () => {
@@ -411,19 +464,22 @@ export function App() {
     };
   }, [currentUser]);
 
-  // Lazy load dữ liệu theo tab được chọn
+  // Lazy load dữ liệu theo tab được chọn (chỉ load khi có quyền)
   useEffect(() => {
     if (!currentUser) return;
-    if (currentMenu === 'hopdong') fetchHopDong();
-    if (currentMenu === 'khenthuong') fetchKhenThuongKyLuat();
-    if (currentMenu === 'nangluong') fetchNangLuongDieuChuyen();
-    if (currentMenu === 'ungluong') fetchTangCaUngLuong();
-    if (currentMenu === 'phanquyen') fetchUsers();
+    if (currentMenu === 'hopdong' && checkCanView('F_NV_HOPDONG')) fetchHopDong();
+    if (currentMenu === 'khenthuong' && checkCanView('F_NV_KHENTHUONG', 'F_NV_KYLUAT')) fetchKhenThuongKyLuat();
+    if (currentMenu === 'nangluong' && checkCanView('F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN')) fetchNangLuongDieuChuyen();
+    if (currentMenu === 'ungluong' && checkCanView('F_CC_UNGLUONG', 'F_CC_TANGCA')) fetchTangCaUngLuong();
+    if (currentMenu === 'phanquyen' && checkCanView('F_SYSTEM_USER', 'F_SYSTEM_GROUP')) fetchUsers();
   }, [currentMenu, currentUser]);
 
   const handleLoginSuccess = (user: CurrentUserDTO) => {
     setCurrentUser(user);
-    const targetRoute = getRouteFromLocation();
+    const initialRoute = getRouteFromLocation();
+    const targetRoute = canAccessRoute(user, initialRoute)
+      ? initialRoute
+      : getFirstAccessibleRoute(user, 'dashboard');
     handleNavigate(targetRoute, true);
     notification.success({
       message: 'Đăng nhập thành công',
@@ -471,121 +527,165 @@ export function App() {
         loading={loading}
         kyCongCount={kyCongList.length}
         hasRight={hasRight}
+        canView={checkCanView}
+        canAdd={checkCanAdd}
+        canEdit={checkCanEdit}
+        canDelete={checkCanDelete}
+        canPrint={checkCanPrint}
+        canAccessRoute={(r) => canAccessRoute(currentUser, r)}
         notifications={notifications}
         onMarkAllNotificationsRead={handleMarkAllNotificationsRead}
         onMarkNotificationRead={handleMarkNotificationRead}
       >
-        {currentMenu === 'dashboard' && (
-          <DashboardPage
-            totalEmployees={totalEmployees}
-            hopDongCount={hopDongList.length}
-            totalSalary={totalSalary}
-            currentUser={currentUser}
-            isBackendConnected={isBackendConnected}
-            luongStats={luongStats}
-            phongBanStats={phongBanStats}
-            nhanVienList={nhanVienList}
-            bangLuongList={bangLuongList}
-            onNavigate={(key) => handleNavigate(key)}
-            presentToday={presentToday}
-            absentToday={absentToday}
-            lateToday={lateToday}
-            actionItems={actionItems}
-            anomalies={anomalies}
-          />
-        )}
+        {!canAccessRoute(currentUser, currentMenu) ? (
+          <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+            <Result
+              status="403"
+              title="403 - Truy cập bị từ chối"
+              subTitle={`Tài khoản của bạn không được cấp quyền truy cập phân hệ [${ROUTE_TITLES[currentMenu] || currentMenu}].`}
+              extra={
+                <Button type="primary" onClick={() => handleNavigate(getFirstAccessibleRoute(currentUser, 'dashboard'))}>
+                  Về trang được cấp quyền
+                </Button>
+              }
+            />
+          </div>
+        ) : (
+          <>
+            {currentMenu === 'dashboard' && (
+              <DashboardPage
+                totalEmployees={totalEmployees}
+                hopDongCount={hopDongList.length}
+                totalSalary={totalSalary}
+                currentUser={currentUser}
+                isBackendConnected={isBackendConnected}
+                luongStats={luongStats}
+                phongBanStats={phongBanStats}
+                nhanVienList={nhanVienList}
+                bangLuongList={bangLuongList}
+                onNavigate={(key) => handleNavigate(key)}
+                presentToday={presentToday}
+                absentToday={absentToday}
+                lateToday={lateToday}
+                actionItems={actionItems}
+                anomalies={anomalies}
+              />
+            )}
 
-        {currentMenu === 'nhanvien' && (
-          <NhanVienPage
-            nhanVienList={nhanVienList}
-            danhMuc={danhMuc}
-            loading={loading}
-            hasRight={hasRight}
-            onRefresh={fetchInitialData}
-          />
-        )}
+            {currentMenu === 'nhanvien' && (
+              <NhanVienPage
+                nhanVienList={nhanVienList}
+                danhMuc={danhMuc}
+                loading={loading}
+                hasRight={hasRight}
+                canAdd={checkCanAdd}
+                canEdit={checkCanEdit}
+                canDelete={checkCanDelete}
+                canPrint={checkCanPrint}
+                onRefresh={fetchInitialData}
+              />
+            )}
 
-        {currentMenu === 'chamcong' && (
-          <ChamCongPage
-            kyCongList={kyCongList}
-            selectedKyCong={selectedKyCong}
-            onSelectKyCong={(val) => {
-              setSelectedKyCong(val);
-              fetchChamCong(val);
-            }}
-            chamCongList={chamCongList}
-            chamCongLoading={chamCongLoading}
-            loaiCaList={loaiCaList}
-            onRefresh={() => fetchChamCong(selectedKyCong)}
-          />
-        )}
+            {currentMenu === 'chamcong' && (
+              <ChamCongPage
+                kyCongList={kyCongList}
+                selectedKyCong={selectedKyCong}
+                onSelectKyCong={(val) => {
+                  setSelectedKyCong(val);
+                  fetchChamCong(val);
+                }}
+                chamCongList={chamCongList}
+                chamCongLoading={chamCongLoading}
+                loaiCaList={loaiCaList}
+                onRefresh={() => fetchChamCong(selectedKyCong)}
+              />
+            )}
 
-        {currentMenu === 'bangluong' && (
-          <BangLuongPage
-            kyCongList={kyCongList}
-            selectedKyCong={selectedKyCong}
-            onSelectKyCong={(val) => {
-              setSelectedKyCong(val);
-              fetchBangLuong(val);
-            }}
-            bangLuongList={bangLuongList}
-            bangLuongLoading={bangLuongLoading}
-            tinhLuongLoading={tinhLuongLoading}
-            onTinhLuong={handleTinhLuong}
-            onRefresh={() => fetchBangLuong(selectedKyCong)}
-            hasRight={hasRight}
-            danhMuc={danhMuc}
-            onRefreshKyCong={fetchKyCongList}
-          />
-        )}
+            {currentMenu === 'bangluong' && (
+              <BangLuongPage
+                kyCongList={kyCongList}
+                selectedKyCong={selectedKyCong}
+                onSelectKyCong={(val) => {
+                  setSelectedKyCong(val);
+                  fetchBangLuong(val);
+                }}
+                bangLuongList={bangLuongList}
+                bangLuongLoading={bangLuongLoading}
+                tinhLuongLoading={tinhLuongLoading}
+                onTinhLuong={handleTinhLuong}
+                onRefresh={() => fetchBangLuong(selectedKyCong)}
+                hasRight={hasRight}
+                canAdd={checkCanAdd}
+                canEdit={checkCanEdit}
+                canDelete={checkCanDelete}
+                canPrint={checkCanPrint}
+                danhMuc={danhMuc}
+                onRefreshKyCong={fetchKyCongList}
+              />
+            )}
 
-        {currentMenu === 'hopdong' && (
-          <HopDongPage
-            hopDongList={hopDongList}
-            hopDongLoading={hopDongLoading}
-            onRefresh={fetchHopDong}
-            hasRight={hasRight}
-          />
-        )}
+            {currentMenu === 'hopdong' && (
+              <HopDongPage
+                hopDongList={hopDongList}
+                hopDongLoading={hopDongLoading}
+                onRefresh={fetchHopDong}
+                hasRight={hasRight}
+                canAdd={checkCanAdd}
+                canEdit={checkCanEdit}
+                canDelete={checkCanDelete}
+                canPrint={checkCanPrint}
+              />
+            )}
 
-        {currentMenu === 'khenthuong' && (
-          <KhenThuongKyLuatPage
-            khenThuongList={khenThuongList}
-            kyLuatList={kyLuatList}
-            ktLoading={ktLoading}
-            onRefresh={fetchKhenThuongKyLuat}
-            hasRight={hasRight}
-          />
-        )}
+            {currentMenu === 'khenthuong' && (
+              <KhenThuongKyLuatPage
+                khenThuongList={khenThuongList}
+                kyLuatList={kyLuatList}
+                ktLoading={ktLoading}
+                onRefresh={fetchKhenThuongKyLuat}
+                hasRight={hasRight}
+                canAdd={checkCanAdd}
+                canDelete={checkCanDelete}
+              />
+            )}
 
-        {currentMenu === 'nangluong' && (
-          <NangLuongDieuChuyenPage
-            nangLuongList={nangLuongList}
-            dieuChuyenList={dieuChuyenList}
-            nlDcLoading={nlDcLoading}
-            danhMuc={danhMuc}
-            onRefresh={fetchNangLuongDieuChuyen}
-            hasRight={hasRight}
-          />
-        )}
+            {currentMenu === 'nangluong' && (
+              <NangLuongDieuChuyenPage
+                nangLuongList={nangLuongList}
+                dieuChuyenList={dieuChuyenList}
+                nlDcLoading={nlDcLoading}
+                danhMuc={danhMuc}
+                onRefresh={fetchNangLuongDieuChuyen}
+                hasRight={hasRight}
+                canAdd={checkCanAdd}
+                canDelete={checkCanDelete}
+              />
+            )}
 
-        {currentMenu === 'ungluong' && (
-          <TangCaUngLuongPage
-            ungLuongList={ungLuongList}
-            tangCaList={tangCaList}
-            tcUlLoading={tcUlLoading}
-            onRefresh={fetchTangCaUngLuong}
-            hasRight={hasRight}
-          />
-        )}
+            {currentMenu === 'ungluong' && (
+              <TangCaUngLuongPage
+                ungLuongList={ungLuongList}
+                tangCaList={tangCaList}
+                tcUlLoading={tcUlLoading}
+                onRefresh={fetchTangCaUngLuong}
+                hasRight={hasRight}
+                canAdd={checkCanAdd}
+                canDelete={checkCanDelete}
+              />
+            )}
 
-        {currentMenu === 'phanquyen' && (
-          <UserManagementPage
-            userList={userList}
-            userLoading={userLoading}
-            currentUser={currentUser}
-            onRefresh={fetchUsers}
-          />
+            {currentMenu === 'phanquyen' && (
+              <UserManagementPage
+                userList={userList}
+                userLoading={userLoading}
+                currentUser={currentUser}
+                onRefresh={fetchUsers}
+                canAdd={checkCanAdd}
+                canEdit={checkCanEdit}
+                canDelete={checkCanDelete}
+              />
+            )}
+          </>
         )}
       </MainLayout>
 
@@ -611,6 +711,7 @@ export function App() {
         nhanVienList={nhanVienList}
         kyCongList={kyCongList}
         hopDongList={hopDongList}
+        currentUser={currentUser}
         onSelectEmployee={(emp) => {
           setGlobalEmployee360(emp);
           setGlobal360Visible(true);
@@ -624,6 +725,7 @@ export function App() {
         visible={global360Visible}
         onClose={() => setGlobal360Visible(false)}
         employee={globalEmployee360}
+        currentUser={currentUser}
       />
     </>
   );

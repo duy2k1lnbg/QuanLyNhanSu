@@ -174,7 +174,7 @@ namespace QLyNSu.FORM_BAOCAO
                 }
 
                 // Query allowances
-                var phucaps = db.TB_NHANVIEN_PHUCAP.Where(x => x.MANV == manv && x.MAKYCONG == makycong).ToList();
+                var phucaps = db.TB_NHANVIEN_PHUCAP.Where(x => x.MANV == manv).ToList();
 
                 rptBaoCaoLuongNV rpt = new rptBaoCaoLuongNV();
                 rpt.BindData(bl, hoten, tenpb, otHours, phucaps);

@@ -22,6 +22,11 @@ import {
   SafetyCertificateOutlined,
   TeamOutlined,
   UserOutlined,
+  EyeOutlined,
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  PrinterOutlined,
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import api from '../services/api';
@@ -65,13 +70,26 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
     try {
       const res = await api.get<any[]>(`/users/${userId}/rights`);
       if (res.data) {
-        const mapped: SysRightItemDTO[] = res.data.map((item: any) => ({
-          FuncCode: item.FUNCTION_CODE || item.FuncCode || item.funcCode || '',
-          Description: item.DESCRIPTION || item.Description || item.description || '',
-          Parent: item.PARENT || item.Parent || item.parent || 'OTHER',
-          Sort: item.SORT ?? item.Sort ?? 999,
-          HasRight: item.HAS_RIGHT !== undefined ? Boolean(item.HAS_RIGHT) : Boolean(item.HasRight ?? item.hasRight),
-        }));
+        const mapped: SysRightItemDTO[] = res.data.map((item: any) => {
+          const canView = item.CAN_VIEW !== undefined ? Boolean(item.CAN_VIEW) : Boolean(item.CanView ?? item.canView ?? item.HAS_RIGHT ?? item.HasRight ?? item.hasRight);
+          const canAdd = item.CAN_ADD !== undefined ? Boolean(item.CAN_ADD) : Boolean(item.CanAdd ?? item.canAdd);
+          const canEdit = item.CAN_EDIT !== undefined ? Boolean(item.CAN_EDIT) : Boolean(item.CanEdit ?? item.canEdit);
+          const canDelete = item.CAN_DELETE !== undefined ? Boolean(item.CAN_DELETE) : Boolean(item.CanDelete ?? item.canDelete);
+          const canPrint = item.CAN_PRINT !== undefined ? Boolean(item.CAN_PRINT) : Boolean(item.CanPrint ?? item.canPrint);
+
+          return {
+            FuncCode: item.FUNCTION_CODE || item.FuncCode || item.funcCode || '',
+            Description: item.DESCRIPTION || item.Description || item.description || '',
+            Parent: item.PARENT || item.Parent || item.parent || 'OTHER',
+            Sort: item.SORT ?? item.Sort ?? 999,
+            HasRight: canView,
+            CanView: canView,
+            CanAdd: canAdd,
+            CanEdit: canEdit,
+            CanDelete: canDelete,
+            CanPrint: canPrint,
+          };
+        });
         setRights(mapped);
       }
     } catch {
@@ -81,36 +99,144 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
     }
   };
 
-  const handleToggle = (funcCode: string, checked: boolean) => {
+  // Toggle từng quyền hành động trên một dòng
+  const handleToggleAction = (
+    funcCode: string,
+    action: 'CanView' | 'CanAdd' | 'CanEdit' | 'CanDelete' | 'CanPrint',
+    checked: boolean
+  ) => {
     setRights((prev) =>
-      prev.map((item) => (item.FuncCode === funcCode ? { ...item, HasRight: checked } : item))
+      prev.map((item) => {
+        if (item.FuncCode !== funcCode) return item;
+        const updated = { ...item, [action]: checked };
+
+        // Nếu bật Thêm/Sửa/Xóa/In thì tự động kích hoạt quyền Xem
+        if (checked && action !== 'CanView') {
+          updated.CanView = true;
+          updated.HasRight = true;
+        }
+
+        // Nếu tắt quyền Xem thì tự động tắt toàn bộ thao tác còn lại
+        if (action === 'CanView') {
+          updated.HasRight = checked;
+          if (!checked) {
+            updated.CanAdd = false;
+            updated.CanEdit = false;
+            updated.CanDelete = false;
+            updated.CanPrint = false;
+          }
+        }
+        return updated;
+      })
     );
   };
 
-  const handleSelectAll = (check: boolean) => {
-    setRights((prev) => prev.map((item) => ({ ...item, HasRight: check })));
+  // Bật/Tắt toàn quyền 5 thao tác cho một dòng chức năng
+  const handleToggleRowAll = (funcCode: string, checked: boolean) => {
+    setRights((prev) =>
+      prev.map((item) =>
+        item.FuncCode === funcCode
+          ? {
+              ...item,
+              HasRight: checked,
+              CanView: checked,
+              CanAdd: checked,
+              CanEdit: checked,
+              CanDelete: checked,
+              CanPrint: checked,
+            }
+          : item
+      )
+    );
   };
 
+  // Bật/Tắt toàn bộ 1 cột (Xem, Thêm, Sửa, Xóa, In) cho phân hệ đang lọc
+  const handleToggleColumn = (
+    action: 'CanView' | 'CanAdd' | 'CanEdit' | 'CanDelete' | 'CanPrint',
+    checked: boolean
+  ) => {
+    setRights((prev) =>
+      prev.map((item) => {
+        if (categoryFilter !== 'ALL' && item.Parent?.toUpperCase() !== categoryFilter.toUpperCase()) {
+          return item;
+        }
+        const updated = { ...item, [action]: checked };
+        if (checked && action !== 'CanView') {
+          updated.CanView = true;
+          updated.HasRight = true;
+        }
+        if (action === 'CanView') {
+          updated.HasRight = checked;
+          if (!checked) {
+            updated.CanAdd = false;
+            updated.CanEdit = false;
+            updated.CanDelete = false;
+            updated.CanPrint = false;
+          }
+        }
+        return updated;
+      })
+    );
+  };
+
+  // Cấp/Bỏ toàn bộ quyền của phân hệ đang chọn
   const handleSelectCurrentCategory = (check: boolean) => {
     setRights((prev) =>
       prev.map((item) => {
         if (categoryFilter === 'ALL' || item.Parent?.toUpperCase() === categoryFilter.toUpperCase()) {
-          return { ...item, HasRight: check };
+          return {
+            ...item,
+            HasRight: check,
+            CanView: check,
+            CanAdd: check,
+            CanEdit: check,
+            CanDelete: check,
+            CanPrint: check,
+          };
         }
         return item;
       })
     );
   };
 
+  // Cấp/Bỏ toàn bộ quyền hệ thống
+  const handleSelectAll = (check: boolean) => {
+    setRights((prev) =>
+      prev.map((item) => ({
+        ...item,
+        HasRight: check,
+        CanView: check,
+        CanAdd: check,
+        CanEdit: check,
+        CanDelete: check,
+        CanPrint: check,
+      }))
+    );
+  };
+
   const handleSave = async () => {
     setSaving(true);
     try {
-      const selectedCodes = rights.filter((r) => r.HasRight).map((r) => r.FuncCode);
+      const details = rights.map((r) => ({
+        FunctionCode: r.FuncCode,
+        CanView: r.CanView,
+        CanAdd: r.CanAdd,
+        CanEdit: r.CanEdit,
+        CanDelete: r.CanDelete,
+        CanPrint: r.CanPrint,
+      }));
+
+      const activeCodes = rights
+        .filter((r) => r.CanView || r.CanAdd || r.CanEdit || r.CanDelete || r.CanPrint)
+        .map((r) => r.FuncCode);
+
       await api.post(`/users/${userId}/rights`, {
-        FunctionCodes: selectedCodes,
-        FuncCodes: selectedCodes,
+        FunctionCodes: activeCodes,
+        FuncCodes: activeCodes,
+        Details: details,
       });
-      message.success(`Đã cập nhật ${selectedCodes.length} quyền cho [${username}]!`);
+
+      message.success(`Đã cập nhật ma trận phân quyền cho [${username}] thành công!`);
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: unknown) {
@@ -152,14 +278,23 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
     return item.Parent?.toUpperCase() === categoryFilter.toUpperCase();
   });
 
-  const activeCount = rights.filter((r) => r.HasRight).length;
+  const totalActionsGranted = rights.reduce(
+    (acc, r) =>
+      acc +
+      (r.CanView ? 1 : 0) +
+      (r.CanAdd ? 1 : 0) +
+      (r.CanEdit ? 1 : 0) +
+      (r.CanDelete ? 1 : 0) +
+      (r.CanPrint ? 1 : 0),
+    0
+  );
 
   const columns: ColumnsType<SysRightItemDTO> = [
     {
       title: 'Mã chức năng',
       dataIndex: 'FuncCode',
       key: 'FuncCode',
-      width: 170,
+      width: 155,
       render: (code: string) => (
         <Tag color="geekblue" style={{ fontWeight: 600 }}>
           {code}
@@ -176,32 +311,158 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
       title: 'Phân hệ',
       dataIndex: 'Parent',
       key: 'Parent',
-      width: 160,
+      width: 140,
       render: (parent: string) => {
         const info = getParentLabel(parent);
         return <Tag color={info.color}>{info.label}</Tag>;
       },
     },
     {
-      title: 'Cấp quyền truy cập',
-      dataIndex: 'HasRight',
-      key: 'HasRight',
-      width: 150,
-      align: 'center',
-      render: (hasRight: boolean, record: SysRightItemDTO) => (
-        <Checkbox
-          checked={hasRight}
-          onChange={(e) => handleToggle(record.FuncCode, e.target.checked)}
-        >
-          {hasRight ? (
-            <Text type="success" strong>
-              Được phép
-            </Text>
-          ) : (
-            <Text type="secondary">Chặn</Text>
-          )}
-        </Checkbox>
+      title: (
+        <div style={{ textAlign: 'center' }}>
+          <div><EyeOutlined style={{ color: '#1677ff' }} /> Xem</div>
+          <Button
+            type="link"
+            size="small"
+            style={{ fontSize: 11, padding: 0, height: 18 }}
+            onClick={() => handleToggleColumn('CanView', true)}
+          >
+            Bật tất cả
+          </Button>
+        </div>
       ),
+      dataIndex: 'CanView',
+      key: 'CanView',
+      width: 85,
+      align: 'center',
+      render: (canView: boolean, record: SysRightItemDTO) => (
+        <Checkbox
+          checked={canView}
+          onChange={(e) => handleToggleAction(record.FuncCode, 'CanView', e.target.checked)}
+        />
+      ),
+    },
+    {
+      title: (
+        <div style={{ textAlign: 'center' }}>
+          <div><PlusOutlined style={{ color: '#52c41a' }} /> Thêm</div>
+          <Button
+            type="link"
+            size="small"
+            style={{ fontSize: 11, padding: 0, height: 18 }}
+            onClick={() => handleToggleColumn('CanAdd', true)}
+          >
+            Bật tất cả
+          </Button>
+        </div>
+      ),
+      dataIndex: 'CanAdd',
+      key: 'CanAdd',
+      width: 85,
+      align: 'center',
+      render: (canAdd: boolean, record: SysRightItemDTO) => (
+        <Checkbox
+          checked={canAdd}
+          onChange={(e) => handleToggleAction(record.FuncCode, 'CanAdd', e.target.checked)}
+        />
+      ),
+    },
+    {
+      title: (
+        <div style={{ textAlign: 'center' }}>
+          <div><EditOutlined style={{ color: '#fa8c16' }} /> Sửa</div>
+          <Button
+            type="link"
+            size="small"
+            style={{ fontSize: 11, padding: 0, height: 18 }}
+            onClick={() => handleToggleColumn('CanEdit', true)}
+          >
+            Bật tất cả
+          </Button>
+        </div>
+      ),
+      dataIndex: 'CanEdit',
+      key: 'CanEdit',
+      width: 85,
+      align: 'center',
+      render: (canEdit: boolean, record: SysRightItemDTO) => (
+        <Checkbox
+          checked={canEdit}
+          onChange={(e) => handleToggleAction(record.FuncCode, 'CanEdit', e.target.checked)}
+        />
+      ),
+    },
+    {
+      title: (
+        <div style={{ textAlign: 'center' }}>
+          <div><DeleteOutlined style={{ color: '#ff4d4f' }} /> Xóa</div>
+          <Button
+            type="link"
+            size="small"
+            style={{ fontSize: 11, padding: 0, height: 18 }}
+            onClick={() => handleToggleColumn('CanDelete', true)}
+          >
+            Bật tất cả
+          </Button>
+        </div>
+      ),
+      dataIndex: 'CanDelete',
+      key: 'CanDelete',
+      width: 85,
+      align: 'center',
+      render: (canDelete: boolean, record: SysRightItemDTO) => (
+        <Checkbox
+          checked={canDelete}
+          onChange={(e) => handleToggleAction(record.FuncCode, 'CanDelete', e.target.checked)}
+        />
+      ),
+    },
+    {
+      title: (
+        <div style={{ textAlign: 'center' }}>
+          <div><PrinterOutlined style={{ color: '#722ed1' }} /> In</div>
+          <Button
+            type="link"
+            size="small"
+            style={{ fontSize: 11, padding: 0, height: 18 }}
+            onClick={() => handleToggleColumn('CanPrint', true)}
+          >
+            Bật tất cả
+          </Button>
+        </div>
+      ),
+      dataIndex: 'CanPrint',
+      key: 'CanPrint',
+      width: 85,
+      align: 'center',
+      render: (canPrint: boolean, record: SysRightItemDTO) => (
+        <Checkbox
+          checked={canPrint}
+          onChange={(e) => handleToggleAction(record.FuncCode, 'CanPrint', e.target.checked)}
+        />
+      ),
+    },
+    {
+      title: 'Toàn quyền dòng',
+      key: 'RowAll',
+      width: 115,
+      align: 'center',
+      render: (_: any, record: SysRightItemDTO) => {
+        const isFull =
+          record.CanView &&
+          record.CanAdd &&
+          record.CanEdit &&
+          record.CanDelete &&
+          record.CanPrint;
+        return (
+          <Checkbox
+            checked={isFull}
+            onChange={(e) => handleToggleRowAll(record.FuncCode, e.target.checked)}
+          >
+            {isFull ? <span style={{ color: '#52c41a', fontWeight: 600 }}>Đủ 5</span> : 'Cấp hết'}
+          </Checkbox>
+        );
+      },
     },
   ];
 
@@ -209,9 +470,9 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
     <Modal
       title={
         <Space>
-          <KeyOutlined style={{ color: '#fa8c16', fontSize: 18 }} />
+          <KeyOutlined style={{ color: '#fa8c16', fontSize: 20 }} />
           <span>
-            Phân quyền chức năng cho {isGroup ? 'nhóm' : 'tài khoản'}:{' '}
+            Ma trận phân quyền 5 thao tác cho {isGroup ? 'nhóm' : 'tài khoản'}:{' '}
             <b style={{ color: '#1677ff' }}>{fullName}</b> ({username})
           </span>
           {isGroup ? (
@@ -227,7 +488,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
       }
       open={visible}
       onCancel={onClose}
-      width={860}
+      width={1060}
       footer={[
         <Button key="cancel" onClick={onClose}>
           Đóng
@@ -240,7 +501,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
           onClick={handleSave}
           style={{ background: '#1677ff' }}
         >
-          Lưu phân quyền ({activeCount} / {rights.length} quyền được cấp)
+          Lưu phân quyền ({totalActionsGranted} / {rights.length * 5} hành động được cấp)
         </Button>,
       ]}
     >
@@ -249,18 +510,18 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
           <span>
             {isGroup ? (
               <>
-                Phân quyền cho <b>Nhóm quyền</b> sẽ tự động áp dụng cho toàn bộ thành viên trong nhóm theo mô hình phân quyền RBAC đa tầng.
+                Phân quyền 5 hành động (<b>Xem - Thêm - Sửa - Xóa - In</b>) cho <b>Nhóm quyền</b> sẽ tự động áp dụng cho toàn bộ thành viên trong nhóm theo cấu trúc RBAC đồng bộ với WinForms.
               </>
             ) : (
               <>
-                Phân quyền trực tiếp cho <b>Tài khoản</b>. Người dùng sẽ hưởng các quyền được chọn ở đây kèm theo toàn bộ quyền của các nhóm mà người dùng tham gia.
+                Phân quyền 5 hành động (<b>Xem - Thêm - Sửa - Xóa - In</b>) trực tiếp cho <b>Tài khoản</b>. Người dùng sẽ thừa hưởng quyền từ các nhóm trực thuộc cộng gộp với quyền chỉ định tại đây.
               </>
             )}
           </span>
         }
         type="info"
         showIcon
-        style={{ marginBottom: 16, marginTop: 8 }}
+        style={{ marginBottom: 14, marginTop: 4 }}
       />
 
       <div style={{ marginBottom: 14 }}>
@@ -278,32 +539,32 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
         />
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14, gap: 12 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 14, gap: 12, flexWrap: 'wrap' }}>
         <Input
           placeholder="Tìm kiếm mã hoặc tên chức năng..."
           prefix={<SearchOutlined />}
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           allowClear
-          style={{ maxWidth: 300 }}
+          style={{ maxWidth: 320 }}
         />
-        <Space>
-          <Tooltip title="Chọn tất cả chức năng thuộc phân hệ đang lọc">
+        <Space wrap>
+          <Tooltip title="Cấp toàn quyền cả 5 hành động cho toàn bộ chức năng trong nhóm đang chọn">
             <Button
               icon={<CheckSquareOutlined />}
               onClick={() => handleSelectCurrentCategory(true)}
               size="small"
             >
-              Chọn nhóm này
+              Cấp hết nhóm này
             </Button>
           </Tooltip>
-          <Tooltip title="Bỏ chọn tất cả chức năng thuộc phân hệ đang lọc">
+          <Tooltip title="Bỏ chọn tất cả hành động trong nhóm đang chọn">
             <Button
               icon={<BorderOutlined />}
               onClick={() => handleSelectCurrentCategory(false)}
               size="small"
             >
-              Bỏ chọn nhóm này
+              Xóa trắng nhóm này
             </Button>
           </Tooltip>
           <Button
@@ -311,8 +572,17 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
             icon={<SafetyCertificateOutlined />}
             onClick={() => handleSelectAll(true)}
             size="small"
+            style={{ borderColor: '#52c41a', color: '#52c41a' }}
           >
-            Cấp toàn quyền ({rights.length})
+            Cấp toàn quyền hệ thống ({rights.length * 5})
+          </Button>
+          <Button
+            type="dashed"
+            danger
+            onClick={() => handleSelectAll(false)}
+            size="small"
+          >
+            Bỏ toàn bộ ({rights.length * 5})
           </Button>
         </Space>
       </div>

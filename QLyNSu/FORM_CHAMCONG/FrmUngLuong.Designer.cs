@@ -1,4 +1,4 @@
-﻿namespace QLyNSu.FORM_CHAMCONG
+namespace QLyNSu.FORM_CHAMCONG
 {
     partial class FrmUngLuong
     {
@@ -62,6 +62,8 @@
             this.searchLookUpEdit1View = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.spSoTien = new DevExpress.XtraEditors.SpinEdit();
             this.searchMANV = new DevExpress.XtraEditors.SearchLookUpEdit();
+            this.labelControlNgay = new DevExpress.XtraEditors.LabelControl();
+            this.dtNgayUng = new System.Windows.Forms.DateTimePicker();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             ((System.ComponentModel.ISupportInitialize)(this.gvDanhSach)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gcDanhSach)).BeginInit();
@@ -101,17 +103,37 @@
             // 
             this.labelControl4.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl4.Appearance.Options.UseFont = true;
-            this.labelControl4.Location = new System.Drawing.Point(53, 27);
+            this.labelControl4.Location = new System.Drawing.Point(30, 27);
             this.labelControl4.Name = "labelControl4";
             this.labelControl4.Size = new System.Drawing.Size(94, 23);
             this.labelControl4.TabIndex = 7;
             this.labelControl4.Text = "Nhân Viên:";
             // 
+            // labelControlNgay
+            // 
+            this.labelControlNgay.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControlNgay.Appearance.Options.UseFont = true;
+            this.labelControlNgay.Location = new System.Drawing.Point(425, 27);
+            this.labelControlNgay.Name = "labelControlNgay";
+            this.labelControlNgay.Size = new System.Drawing.Size(91, 23);
+            this.labelControlNgay.TabIndex = 15;
+            this.labelControlNgay.Text = "Ngày Ứng:";
+            // 
+            // dtNgayUng
+            // 
+            this.dtNgayUng.CustomFormat = "dd/MM/yyyy";
+            this.dtNgayUng.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.dtNgayUng.Format = System.Windows.Forms.DateTimePickerFormat.Custom;
+            this.dtNgayUng.Location = new System.Drawing.Point(522, 23);
+            this.dtNgayUng.Name = "dtNgayUng";
+            this.dtNgayUng.Size = new System.Drawing.Size(145, 30);
+            this.dtNgayUng.TabIndex = 16;
+            // 
             // labelControl2
             // 
             this.labelControl2.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl2.Appearance.Options.UseFont = true;
-            this.labelControl2.Location = new System.Drawing.Point(609, 27);
+            this.labelControl2.Location = new System.Drawing.Point(680, 27);
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(71, 23);
             this.labelControl2.TabIndex = 3;
@@ -120,16 +142,16 @@
             // txtGhiChu
             // 
             this.txtGhiChu.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtGhiChu.Location = new System.Drawing.Point(153, 79);
+            this.txtGhiChu.Location = new System.Drawing.Point(130, 77);
             this.txtGhiChu.Name = "txtGhiChu";
-            this.txtGhiChu.Size = new System.Drawing.Size(852, 30);
+            this.txtGhiChu.Size = new System.Drawing.Size(875, 30);
             this.txtGhiChu.TabIndex = 1;
             // 
             // labelControl1
             // 
             this.labelControl1.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.labelControl1.Appearance.Options.UseFont = true;
-            this.labelControl1.Location = new System.Drawing.Point(69, 86);
+            this.labelControl1.Location = new System.Drawing.Point(30, 81);
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(78, 23);
             this.labelControl1.TabIndex = 0;
@@ -205,7 +227,7 @@
             this.CREATED_DATE.Caption = "NGÀY ỨNG";
             this.CREATED_DATE.DisplayFormat.FormatString = "dd/MM/yyyy";
             this.CREATED_DATE.DisplayFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
-            this.CREATED_DATE.FieldName = "CREATED_DATE";
+            this.CREATED_DATE.FieldName = "NGAYUNG";
             this.CREATED_DATE.MinWidth = 25;
             this.CREATED_DATE.Name = "CREATED_DATE";
             this.CREATED_DATE.Visible = true;
@@ -430,12 +452,24 @@
             23,
             0,
             0});
-            this.spSoTien.Size = new System.Drawing.Size(319, 28);
+            this.spSoTien.Location = new System.Drawing.Point(757, 23);
+            this.spSoTien.MenuManager = this.barManager1;
+            this.spSoTien.Name = "spSoTien";
+            this.spSoTien.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.spSoTien.Properties.Appearance.Options.UseFont = true;
+            this.spSoTien.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.spSoTien.Properties.DisplayFormat.FormatString = "n0";
+            this.spSoTien.Properties.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.spSoTien.Properties.EditFormat.FormatString = "n0";
+            this.spSoTien.Properties.EditFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.spSoTien.Properties.MaskSettings.Set("mask", "n0");
+            this.spSoTien.Size = new System.Drawing.Size(250, 28);
             this.spSoTien.TabIndex = 2;
             // 
             // searchMANV
             // 
-            this.searchMANV.Location = new System.Drawing.Point(153, 22);
+            this.searchMANV.Location = new System.Drawing.Point(130, 22);
             this.searchMANV.MenuManager = this.barManager1;
             this.searchMANV.Name = "searchMANV";
             this.searchMANV.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -444,7 +478,7 @@
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.searchMANV.Properties.PopupView = this.searchLookUpEdit1View;
             this.searchMANV.Properties.ShowClearButton = false;
-            this.searchMANV.Size = new System.Drawing.Size(406, 32);
+            this.searchMANV.Size = new System.Drawing.Size(280, 32);
             this.searchMANV.TabIndex = 14;
             // 
             // splitContainer1
@@ -457,6 +491,8 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.dtNgayUng);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControlNgay);
             this.splitContainer1.Panel1.Controls.Add(this.searchMANV);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl4);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl2);
@@ -535,5 +571,7 @@
         private DevExpress.XtraGrid.Views.Grid.GridView searchLookUpEdit1View;
         private DevExpress.XtraGrid.Columns.GridColumn colMANV;
         private DevExpress.XtraEditors.SpinEdit spSoTien;
+        private DevExpress.XtraEditors.LabelControl labelControlNgay;
+        private System.Windows.Forms.DateTimePicker dtNgayUng;
     }
 }

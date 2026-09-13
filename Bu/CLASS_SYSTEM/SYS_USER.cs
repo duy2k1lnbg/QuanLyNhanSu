@@ -194,13 +194,78 @@ namespace Bu.CLASS_SYSTEM
             }
         }
 
+        public Dictionary<string, Bu.DTO.UserRightDetail> GetDetailedRights(decimal idUser)
+        {
+            var result = new Dictionary<string, Bu.DTO.UserRightDetail>(StringComparer.OrdinalIgnoreCase);
+
+            // 1. Load all functions
+            var allFuncs = db.TB_SYS_FUNCTION.OrderBy(f => f.SORT).ToList();
+            foreach (var f in allFuncs)
+            {
+                result[f.FUNCTION_CODE] = new Bu.DTO.UserRightDetail
+                {
+                    FUNCTION_CODE = f.FUNCTION_CODE,
+                    DESCRIPTION = f.DESCRIPTION,
+                    CAN_VIEW = false,
+                    CAN_ADD = false,
+                    CAN_EDIT = false,
+                    CAN_DELETE = false,
+                    CAN_PRINT = false
+                };
+            }
+
+            // 2. Direct user rights
+            var directRights = db.TB_SYS_RIGHT
+                .Where(r => r.IDUSER == idUser)
+                .ToList();
+
+            foreach (var r in directRights)
+            {
+                if (result.TryGetValue(r.FUNCTION_CODE, out var item))
+                {
+                    item.CAN_VIEW = (r.CAN_VIEW ?? 0) == 1 || (r.USER_RIGHT ?? 0) == 1;
+                    item.CAN_ADD = (r.CAN_ADD ?? 0) == 1;
+                    item.CAN_EDIT = (r.CAN_EDIT ?? 0) == 1;
+                    item.CAN_DELETE = (r.CAN_DELETE ?? 0) == 1;
+                    item.CAN_PRINT = (r.CAN_PRINT ?? 0) == 1;
+                }
+            }
+
+            // 3. Group rights (inherit with logical OR)
+            var groupIds = db.TB_SYS_GROUP
+                .Where(g => g.MEMBER == idUser)
+                .Select(g => g.ID_GROUP)
+                .ToList();
+
+            if (groupIds.Any())
+            {
+                var groupRights = db.TB_SYS_RIGHT
+                    .Where(r => groupIds.Contains(r.IDUSER))
+                    .ToList();
+
+                foreach (var r in groupRights)
+                {
+                    if (result.TryGetValue(r.FUNCTION_CODE, out var item))
+                    {
+                        if ((r.CAN_VIEW ?? 0) == 1 || (r.USER_RIGHT ?? 0) == 1) item.CAN_VIEW = true;
+                        if ((r.CAN_ADD ?? 0) == 1) item.CAN_ADD = true;
+                        if ((r.CAN_EDIT ?? 0) == 1) item.CAN_EDIT = true;
+                        if ((r.CAN_DELETE ?? 0) == 1) item.CAN_DELETE = true;
+                        if ((r.CAN_PRINT ?? 0) == 1) item.CAN_PRINT = true;
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public List<string> GetRights(decimal idUser)
         {
             var rights = new List<string>();
 
-            // 1. Direct user rights
+            // 1. Direct user rights (support both CAN_VIEW and legacy USER_RIGHT)
             var directRights = db.TB_SYS_RIGHT
-                .Where(r => r.IDUSER == idUser && r.USER_RIGHT == 1)
+                .Where(r => r.IDUSER == idUser && ((r.CAN_VIEW.HasValue && r.CAN_VIEW.Value == 1) || (r.USER_RIGHT.HasValue && r.USER_RIGHT.Value == 1)))
                 .Select(r => r.FUNCTION_CODE)
                 .ToList();
             rights.AddRange(directRights);
@@ -214,7 +279,7 @@ namespace Bu.CLASS_SYSTEM
             if (groupIds.Any())
             {
                 var groupRights = db.TB_SYS_RIGHT
-                    .Where(r => groupIds.Contains(r.IDUSER) && r.USER_RIGHT == 1)
+                    .Where(r => groupIds.Contains(r.IDUSER) && ((r.CAN_VIEW.HasValue && r.CAN_VIEW.Value == 1) || (r.USER_RIGHT.HasValue && r.USER_RIGHT.Value == 1)))
                     .Select(r => r.FUNCTION_CODE)
                     .ToList();
                 rights.AddRange(groupRights);
@@ -332,6 +397,7 @@ namespace Bu.CLASS_SYSTEM
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_KYLUAT", SORT = 33, DESCRIPTION = "Kỷ Luật", ISGROUP = 0, MENU = 1, PARENT = "NV" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_DIEUCHUYEN", SORT = 34, DESCRIPTION = "Điều Chuyển", ISGROUP = 0, MENU = 1, PARENT = "NV" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_THOIVIEC", SORT = 35, DESCRIPTION = "Thôi Việc", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_LOAIHOPDONG", SORT = 36, DESCRIPTION = "Loại Hợp Đồng", ISGROUP = 0, MENU = 1, PARENT = "NV" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_LOAICA", SORT = 50, DESCRIPTION = "Loại Ca", ISGROUP = 0, MENU = 1, PARENT = "CC" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_LOAICONG", SORT = 51, DESCRIPTION = "Loại Công", ISGROUP = 0, MENU = 1, PARENT = "CC" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_PHUCAP", SORT = 52, DESCRIPTION = "Phụ Cấp", ISGROUP = 0, MENU = 1, PARENT = "CC" },
@@ -340,6 +406,7 @@ namespace Bu.CLASS_SYSTEM
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BANGCONG", SORT = 55, DESCRIPTION = "Bảng Công", ISGROUP = 0, MENU = 1, PARENT = "CC" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BCCT", SORT = 56, DESCRIPTION = "Bảng Công Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "CC" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BANGLUONG", SORT = 57, DESCRIPTION = "Bảng Lương", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_NGAYLE", SORT = 58, DESCRIPTION = "Ngày Lễ", ISGROUP = 0, MENU = 1, PARENT = "CC" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_BC_BAOCAO", SORT = 70, DESCRIPTION = "Báo Cáo Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "BC" }
                 };
 

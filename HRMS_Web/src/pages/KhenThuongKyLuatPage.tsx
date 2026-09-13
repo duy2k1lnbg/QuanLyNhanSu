@@ -34,6 +34,10 @@ interface KhenThuongKyLuatPageProps {
   ktLoading: boolean;
   onRefresh: () => void;
   hasRight: (...codes: string[]) => boolean;
+  canAdd?: (...codes: string[]) => boolean;
+  canEdit?: (...codes: string[]) => boolean;
+  canDelete?: (...codes: string[]) => boolean;
+  canPrint?: (...codes: string[]) => boolean;
 }
 
 export function KhenThuongKyLuatPage({
@@ -42,6 +46,8 @@ export function KhenThuongKyLuatPage({
   ktLoading,
   onRefresh,
   hasRight,
+  canAdd,
+  canDelete,
 }: KhenThuongKyLuatPageProps) {
   const [ktModalVisible, setKtModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -91,7 +97,7 @@ export function KhenThuongKyLuatPage({
         title="🏆 Quản lý Khen thưởng & Kỷ luật"
         extra={
           <Space>
-            {hasRight('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT') && (
+            {(canAdd ? canAdd('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT') : hasRight('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT')) && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -132,7 +138,7 @@ export function KhenThuongKyLuatPage({
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
-                        hasRight('KHENTHUONG', 'F_NV_KHENTHUONG') && (
+                        (canDelete ? canDelete('KHENTHUONG', 'F_NV_KHENTHUONG') : hasRight('KHENTHUONG', 'F_NV_KHENTHUONG')) && (
                           <Popconfirm title="Xóa quyết định này?" onConfirm={() => handleDeleteKt(r.SOQD)}>
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>
@@ -165,7 +171,7 @@ export function KhenThuongKyLuatPage({
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
-                        hasRight('KYLUAT', 'F_NV_KYLUAT') && (
+                        (canDelete ? canDelete('KYLUAT', 'F_NV_KYLUAT') : hasRight('KYLUAT', 'F_NV_KYLUAT')) && (
                           <Popconfirm title="Xóa quyết định này?" onConfirm={() => handleDeleteKt(r.SOQD)}>
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>

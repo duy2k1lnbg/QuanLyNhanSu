@@ -36,6 +36,10 @@ interface NangLuongDieuChuyenPageProps {
   danhMuc: DanhMucAllDTO | null;
   onRefresh: () => void;
   hasRight: (...codes: string[]) => boolean;
+  canAdd?: (...codes: string[]) => boolean;
+  canEdit?: (...codes: string[]) => boolean;
+  canDelete?: (...codes: string[]) => boolean;
+  canPrint?: (...codes: string[]) => boolean;
 }
 
 export function NangLuongDieuChuyenPage({
@@ -45,6 +49,8 @@ export function NangLuongDieuChuyenPage({
   danhMuc,
   onRefresh,
   hasRight,
+  canAdd,
+  canDelete,
 }: NangLuongDieuChuyenPageProps) {
   const [nlModalVisible, setNlModalVisible] = useState(false);
   const [dcModalVisible, setDcModalVisible] = useState(false);
@@ -132,7 +138,7 @@ export function NangLuongDieuChuyenPage({
         title="📈 Quản lý Nâng lương & Điều chuyển"
         extra={
           <Space>
-            {hasRight('NANGLUONG', 'F_NV_NANGLUONG') && (
+            {(canAdd ? canAdd('NANGLUONG', 'F_NV_NANGLUONG') : hasRight('NANGLUONG', 'F_NV_NANGLUONG')) && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -144,7 +150,7 @@ export function NangLuongDieuChuyenPage({
                 Tạo QĐ Nâng lương
               </Button>
             )}
-            {hasRight('DIEUCHUYEN', 'F_NV_DIEUCHUYEN') && (
+            {(canAdd ? canAdd('DIEUCHUYEN', 'F_NV_DIEUCHUYEN') : hasRight('DIEUCHUYEN', 'F_NV_DIEUCHUYEN')) && (
               <Button
                 icon={<SwapOutlined />}
                 onClick={() => {
@@ -191,7 +197,7 @@ export function NangLuongDieuChuyenPage({
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
-                        hasRight('NANGLUONG', 'F_NV_NANGLUONG') && (
+                        (canDelete ? canDelete('NANGLUONG', 'F_NV_NANGLUONG') : hasRight('NANGLUONG', 'F_NV_NANGLUONG')) && (
                           <Popconfirm title="Xóa quyết định này?" onConfirm={() => handleDeleteNl(r.SOQD)}>
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>
@@ -230,7 +236,7 @@ export function NangLuongDieuChuyenPage({
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
-                        hasRight('DIEUCHUYEN', 'F_NV_DIEUCHUYEN') && (
+                        (canDelete ? canDelete('DIEUCHUYEN', 'F_NV_DIEUCHUYEN') : hasRight('DIEUCHUYEN', 'F_NV_DIEUCHUYEN')) && (
                           <Popconfirm title="Xóa quyết định này?" onConfirm={() => handleDeleteDc(r.SOQD)}>
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>

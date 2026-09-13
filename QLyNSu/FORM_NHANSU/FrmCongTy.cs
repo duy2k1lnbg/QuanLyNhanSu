@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using DA;
 using DevExpress.XtraEditors;
 using System;
@@ -28,11 +28,8 @@ namespace QLyNSu
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnThem.Enabled = kt;
-            btnXoa.Enabled = kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
+            Functions.FormSecurity.ApplyButtons("F_DM_CONGTY", btnThem, btnSua, btnXoa, btnIn, kt);
             txtTen.Enabled = !kt;
             txtSDT.Enabled = !kt;
             txtEMAIL.Enabled = !kt;
@@ -51,6 +48,9 @@ namespace QLyNSu
         {
             try
             {
+                var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
+                if (!Functions.FormSecurity.AssertPermission("F_DM_CONGTY", permAction)) return;
+
                 // Kiểm tra dữ liệu đầu vào
                 if (string.IsNullOrWhiteSpace(txtTen.Text))
                 {
@@ -96,6 +96,7 @@ namespace QLyNSu
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_CONGTY", Bu.DTO.PermissionAction.Add)) return;
             _them = true;
             showHide(false);
             txtTen.Text = string.Empty;
@@ -108,12 +109,14 @@ namespace QLyNSu
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_CONGTY", Bu.DTO.PermissionAction.Edit)) return;
             _them = false;
             showHide(false);
         }
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_CONGTY", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
             if (_IDCTY <= 0)
             {
@@ -151,7 +154,7 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            if (!Functions.FormSecurity.AssertPermission("F_DM_CONGTY", Bu.DTO.PermissionAction.Print)) return;
         }
 
         private void gvDsCT_Click(object sender, EventArgs e)
@@ -183,6 +186,7 @@ namespace QLyNSu
 
         private void FrmCongTy_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_CONGTY")) return;
             _them = false;
             _congty = new CONGTY();
             showHide(true);

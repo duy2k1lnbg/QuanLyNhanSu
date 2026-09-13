@@ -68,6 +68,8 @@ namespace DA
         public virtual DbSet<TB_TRANSLATIONS> TB_TRANSLATIONS { get; set; }
         public virtual DbSet<TB_SYS_LOG> TB_SYS_LOG { get; set; }
         public virtual DbSet<TB_SYS_LOGIN_HISTORY> TB_SYS_LOGIN_HISTORY { get; set; }
+        public virtual DbSet<TB_LOAIHOPDONG> TB_LOAIHOPDONG { get; set; }
+        public virtual DbSet<TB_NGAYLE> TB_NGAYLE { get; set; }
     
         public virtual int ADD_JOB_HISTORY(Nullable<decimal> p_EMP_ID, Nullable<System.DateTime> p_START_DATE, Nullable<System.DateTime> p_END_DATE, string p_JOB_ID, Nullable<decimal> p_DEPARTMENT_ID)
         {

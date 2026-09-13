@@ -24,103 +24,124 @@ namespace Bu.CLASS_CHAMCONG
         }
         public void phatSinhKyCongChiTiet(int macty, int thang, int nam, int iduser)
         {
+            phatSinhKyCongChiTiet(macty, thang, nam, iduser, null);
+        }
+
+        public void phatSinhKyCongChiTiet(int macty, int thang, int nam, int iduser, Action<int, int, string> progress)
+        {
             try
             {
-                var lstNV = db.TB_NHANVIEN.ToList();
-                if (lstNV.Count == 0) return;
+                progress?.Invoke(0, 100, "Đang kiểm tra thời hạn hợp đồng nhân sự...");
+                NHANVIEN nhanvienBus = new NHANVIEN();
+                var lstNV = nhanvienBus.KiemTraVaCapNhatTrangThaiHopDong(nam, thang, macty > 0 ? (int?)macty : null);
+                if (lstNV == null || lstNV.Count == 0) return;
+
+                int makycong = nam * 100 + thang;
+
+                // Chuẩn bị danh sách ký hiệu các ngày trong tháng (tính 1 lần dùng chung)
+                List<string> listDay = new List<string>();
+                int daysInMonth = GetDayNumber(thang, nam);
+                NGAYLE ngayLeBus = new NGAYLE();
+                for (int j = 1; j <= daysInMonth; j++)
+                {
+                    DateTime newDate = new DateTime(nam, thang, j);
+                    int loaiCong = ngayLeBus.XacDinhLoaiCong(newDate);
+                    if (loaiCong == 3)
+                    {
+                        listDay.Add("L"); // Ngày lễ
+                    }
+                    else if (loaiCong == 2)
+                    {
+                        listDay.Add("CN"); // Chủ nhật
+                    }
+                    else
+                    {
+                        listDay.Add("X"); // Ngày thường
+                    }
+                }
+                while (listDay.Count < 31)
+                {
+                    listDay.Add("");
+                }
+
+                double soNgayLamViec = GetData_Functions.demSoNgayLamViecTrongThang(thang, nam);
+                DateTime now = DateTime.Now;
+
+                // Tắt change tracking tạm thời để tăng tốc tối đa
+                db.Configuration.AutoDetectChangesEnabled = false;
+                db.Configuration.ValidateOnSaveEnabled = false;
+
+                int totalNV = lstNV.Count;
+                int currentNV = 0;
 
                 foreach (var item in lstNV)
                 {
-                    List<string> listDay = new List<string>();
-
-                    #region Character_cast
-                    for (int j = 1; j <= GetDayNumber(thang, nam); j++)
+                    TB_KYCONGCHITIET kycongchitiet = new TB_KYCONGCHITIET
                     {
-                        DateTime newDate = new DateTime(nam, thang, j);
+                        MAKYCONG = makycong,
+                        MANV = item.MANV,
+                        HOTEN = item.HOTEN,
+                        IDCTY = item.IDCTY,
+                        D1 = listDay[0],
+                        D2 = listDay[1],
+                        D3 = listDay[2],
+                        D4 = listDay[3],
+                        D5 = listDay[4],
+                        D6 = listDay[5],
+                        D7 = listDay[6],
+                        D8 = listDay[7],
+                        D9 = listDay[8],
+                        D10 = listDay[9],
+                        D11 = listDay[10],
+                        D12 = listDay[11],
+                        D13 = listDay[12],
+                        D14 = listDay[13],
+                        D15 = listDay[14],
+                        D16 = listDay[15],
+                        D17 = listDay[16],
+                        D18 = listDay[17],
+                        D19 = listDay[18],
+                        D20 = listDay[19],
+                        D21 = listDay[20],
+                        D22 = listDay[21],
+                        D23 = listDay[22],
+                        D24 = listDay[23],
+                        D25 = listDay[24],
+                        D26 = listDay[25],
+                        D27 = listDay[26],
+                        D28 = listDay[27],
+                        D29 = listDay[28],
+                        D30 = listDay[29],
+                        D31 = listDay[30],
+                        NGAYCONG = (decimal)soNgayLamViec,
+                        TONGNGAYCONG = (decimal)soNgayLamViec,
+                        CREATED_BY = iduser,
+                        CREATED_DATE = now
+                    };
 
-                        switch (newDate.DayOfWeek.ToString())
-                        {
-                            case "Sunday":
-                                listDay.Add("CN");
-                                break;
-                            //case "Saturday":
-                            //    listDay.Add("T7");
-                            //    break;
-                            default:
-                                listDay.Add("X");
-                                break;
-                        }
-                    }
-
-                    switch (listDay.Count)
-                    {
-                        case 28:
-                            listDay.Add("");
-                            listDay.Add("");
-                            listDay.Add("");
-                            break;
-                        case 29:
-                            listDay.Add("");
-                            listDay.Add("");
-                            break;
-                        case 30:
-                            listDay.Add("");
-                            break;
-                    }
-                    #endregion
-
-                    TB_KYCONGCHITIET kycongchitiet = new TB_KYCONGCHITIET();
-                    kycongchitiet.MAKYCONG = nam * 100 + thang;
-                    kycongchitiet.MANV = item.MANV;
-                    kycongchitiet.HOTEN = item.HOTEN;
-                    kycongchitiet.IDCTY = item.IDCTY;
-                    kycongchitiet.D1 = listDay[0];
-                    kycongchitiet.D2 = listDay[1];
-                    kycongchitiet.D3 = listDay[2];
-                    kycongchitiet.D4 = listDay[3];
-                    kycongchitiet.D5 = listDay[4];
-                    kycongchitiet.D6 = listDay[5];
-                    kycongchitiet.D7 = listDay[6];
-                    kycongchitiet.D8 = listDay[7];
-                    kycongchitiet.D9 = listDay[8];
-                    kycongchitiet.D10 = listDay[9];
-                    kycongchitiet.D11 = listDay[10];
-                    kycongchitiet.D12 = listDay[11];
-                    kycongchitiet.D13 = listDay[12];
-                    kycongchitiet.D14 = listDay[13];
-                    kycongchitiet.D15 = listDay[14];
-                    kycongchitiet.D16 = listDay[15];
-                    kycongchitiet.D17 = listDay[16];
-                    kycongchitiet.D18 = listDay[17];
-                    kycongchitiet.D19 = listDay[18];
-                    kycongchitiet.D20 = listDay[19];
-                    kycongchitiet.D21 = listDay[20];
-                    kycongchitiet.D22 = listDay[21];
-                    kycongchitiet.D23 = listDay[22];
-                    kycongchitiet.D24 = listDay[23];
-                    kycongchitiet.D25 = listDay[24];
-                    kycongchitiet.D26 = listDay[25];
-                    kycongchitiet.D27 = listDay[26];
-                    kycongchitiet.D28 = listDay[27];
-                    kycongchitiet.D29 = listDay[28];
-                    kycongchitiet.D30 = listDay[29];
-                    kycongchitiet.D31 = listDay[30];
-
-                    kycongchitiet.NGAYCONG = GetData_Functions.demSoNgayLamViecTrongThang(thang, nam);
-                    kycongchitiet.TONGNGAYCONG = GetData_Functions.demSoNgayLamViecTrongThang(thang, nam);
-                    kycongchitiet.CREATED_BY = iduser;
-                    kycongchitiet.CREATED_DATE = DateTime.Now;
                     db.TB_KYCONGCHITIET.Add(kycongchitiet);
+                    currentNV++;
+
+                    if (currentNV % 100 == 0 || currentNV == totalNV)
+                    {
+                        int percent = (int)((double)currentNV / totalNV * 40); // 0% - 40%
+                        progress?.Invoke(percent, 100, $"Đang tạo kỳ công chi tiết: {currentNV}/{totalNV} nhân viên");
+                    }
                 }
+
+                progress?.Invoke(40, 100, "Đang lưu dữ liệu kỳ công vào CSDL...");
                 db.SaveChanges();
+                db.Configuration.AutoDetectChangesEnabled = true;
+                db.Configuration.ValidateOnSaveEnabled = true;
             }
             catch (Exception ex)
             {
-
-                throw new Exception("Lỗi phát sinh kỳ công " + ex.Message);
+                db.Configuration.AutoDetectChangesEnabled = true;
+                db.Configuration.ValidateOnSaveEnabled = true;
+                throw new Exception("Lỗi phát sinh kỳ công: " + ex.Message);
             }
-
         }
+
 
         public TB_KYCONGCHITIET Update(TB_KYCONGCHITIET kcct, int iduser)
         {

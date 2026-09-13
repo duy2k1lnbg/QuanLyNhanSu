@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,5 +31,19 @@ namespace Bu.DTO
         public string TENCV { get; set; }
         public Nullable<decimal> IDCTY { get; set; }
         public string TENCTY { get; set; }
+        public Nullable<decimal> SOTIEN { get; set; }
+        public Nullable<decimal> THANG_APDUNG { get; set; }
+        public Nullable<decimal> NAM_APDUNG { get; set; }
+        public string THOIGIAN_APDUNG
+        {
+            get
+            {
+                if (THANG_APDUNG.HasValue && NAM_APDUNG.HasValue && THANG_APDUNG.Value > 0)
+                {
+                    return $"Tháng {THANG_APDUNG.Value:00}/{NAM_APDUNG.Value}";
+                }
+                return string.Empty;
+            }
+        }
     }
 }

@@ -98,60 +98,39 @@ namespace QLyNSu.FORM_CHAMCONG
 
             try
             {
+                SplashScreenManager.Default.SetWaitFormCaption("Phát Sinh Kỳ Công");
+                SplashScreenManager.Default.SetWaitFormDescription("Đang chuẩn bị dữ liệu... (0%)");
+                SplashScreenManager.Default.SendCommand(FrmWaiting.WaitFormCommand.SetProgress, 0);
+
+                Action<int, int, string> onProgress = (current, total, msg) =>
+                {
+                    int percent = total > 0 ? (int)((double)current / total * 100) : current;
+                    if (percent < 0) percent = 0;
+                    if (percent > 100) percent = 100;
+                    try
+                    {
+                        SplashScreenManager.Default.SetWaitFormDescription($"{msg} ({percent}%)");
+                        SplashScreenManager.Default.SendCommand(FrmWaiting.WaitFormCommand.SetProgress, percent);
+                    }
+                    catch { }
+                };
+
                 await Task.Run(() =>
                 {
-                    List<TB_NHANVIEN> lstNhanVien = _nhanvien.getList();
-                    _kcct.phatSinhKyCongChiTiet(macty, thang, nam, 1);
+                    // 1. Kiểm tra hợp đồng, tự động cập nhật thôi việc & phát sinh kỳ công chi tiết
+                    _kcct.phatSinhKyCongChiTiet(macty, thang, nam, 1, onProgress);
 
-                    List<TB_BANGCONG_CHITIET> lstBcct = new List<TB_BANGCONG_CHITIET>();
-                    foreach (var item in lstNhanVien)
-                    {
-                        for (int i = 1; i <= GetDayNumber(thang, nam); i++)
-                        {
-                            TB_BANGCONG_CHITIET bcct = new TB_BANGCONG_CHITIET();
-                            bcct.MANV = item.MANV;
-                            bcct.IDCTY = item.IDCTY;
-                            bcct.HOTEN = item.HOTEN;
-                            #region Cmt_Doi_May_Cham_Cong_Tu_Dong
-                            //if (bcct.IDCALAM == "1") // ca ngày
-                            //{
-                            //    bcct.GIOVAO = "08:00";
-                            //    bcct.GIORA = "17:00";
-                            //}    
-                            //else // ca đêm
-                            //{
-                            //    bcct.GIOVAO = "20:00";
-                            //    bcct.GIORA = "06:00";
-                            //}    
-                            #endregion
-                            bcct.GIOVAO = "08:00";
-                            bcct.GIORA = "17:00";              
-                            bcct.NGAY = DateTime.Parse(nam + "/" + thang + "/" + i.ToString());
-                            bcct.THU = ChamCong_Functions.layThuTrongTuan(nam, thang, i);
-                            bcct.NGAYPHEP = 0;
-                            bcct.CONGNGAYLE = 0;
-                            bcct.CONGCHUNHAT = 0;
-                            if (bcct.THU == "Chủ nhật")
-                            {
-                                bcct.KYHIEU = "CN";
-                                bcct.NGAYCONG = 0;
-                            }    
-                            else
-                            {
-                                bcct.KYHIEU = "X";
-                                bcct.NGAYCONG = 1;
-                            }    
-                            bcct.MAKYCONG = makycong;
-                            bcct.CREATED_BY = 1;
-                            bcct.CREATED_DATE = DateTime.Now;
-                            lstBcct.Add(bcct);
-                        }    
-                    }    
-                    _bangcong_ct.AddRange(lstBcct);
+                    // 2. Phát sinh bảng công chi tiết từng ngày (tối ưu tốc độ cao qua Oracle SQL)
+                    _bangcong_ct.PhatSinhBangCongChiTiet(makycong, nam, thang, 1, onProgress);
 
+                    // 3. Cập nhật trạng thái kỳ công
                     var kc = _kycong.getItem(nam * 100 + thang);
-                    kc.TRANGTHAI = 1;
-                    _kycong.Update(kc);
+                    if (kc != null)
+                    {
+                        kc.TRANGTHAI = 1;
+                        _kycong.Update(kc);
+                    }
+                    onProgress(100, 100, "Hoàn tất phát sinh kỳ công!");
                 });
 
                 SplashScreenManager.CloseForm();

@@ -37,27 +37,31 @@ namespace Bu.CLASS_CHAMCONG
                               np.MANV,
                               nv.HOTEN, 
                               np.IDPC,
-                              np.SOTIEN,
-                              np.MAKYCONG 
+                              np.SOTIEN
                           }).ToList();
 
             var groupedData = result
-                .GroupBy(x => new { x.MANV, x.HOTEN, x.MAKYCONG })
+                .GroupBy(x => new { x.MANV, x.HOTEN })
                 .Select(g => new NHANVIEN_PHUCAP_DTO
                 {
                     MANV = g.Key.MANV,
                     HOTEN = g.Key.HOTEN,
-                    MAKYCONG = g.Key.MAKYCONG, 
+                    MAKYCONG = 0, 
                     SOTIEN_IDPC1 = g.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN,
                     SOTIEN_IDPC2 = g.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN,
                     SOTIEN_IDPC3 = g.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN,
                     SOTIEN_IDPC4 = g.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN,
                     SOTIEN_IDPC5 = g.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN,
                     SOTIEN_IDPC6 = g.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN,
-                    SOTIEN_IDPC7 = g.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN
+                    SOTIEN_IDPC7 = g.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN,
+                    SOTIEN_IDPC8 = g.FirstOrDefault(x => x.IDPC == 8)?.SOTIEN,
+                    SOTIEN_IDPC9 = g.FirstOrDefault(x => x.IDPC == 9)?.SOTIEN,
+                    SOTIEN_IDPC10 = g.FirstOrDefault(x => x.IDPC == 10)?.SOTIEN,
+                    SOTIEN_IDPC11 = g.FirstOrDefault(x => x.IDPC == 11)?.SOTIEN,
+                    SOTIEN_IDPC12 = g.FirstOrDefault(x => x.IDPC == 12)?.SOTIEN,
+                    SOTIEN_IDPC13 = g.FirstOrDefault(x => x.IDPC == 13)?.SOTIEN
                 })
                 .OrderBy(a => a.MANV)
-                .ThenBy(a => a.MAKYCONG) 
                 .ToList();
 
             return groupedData;
@@ -117,18 +121,19 @@ namespace Bu.CLASS_CHAMCONG
         {
             try
             {
-                var _pc = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == pc.MANV && x.IDPC == pc.IDPC && x.MAKYCONG == pc.MAKYCONG && x.MAKYCONG == pc.MAKYCONG);
-                _pc.SOTIEN = pc.SOTIEN;
-                _pc.UPDATED_BY = pc.UPDATED_BY;
-                _pc.UPDATED_DATE = pc.UPDATED_DATE;
-
-                db.SaveChanges();
+                var _pc = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == pc.MANV && x.IDPC == pc.IDPC);
+                if (_pc != null)
+                {
+                    _pc.SOTIEN = pc.SOTIEN;
+                    _pc.UPDATED_BY = pc.UPDATED_BY;
+                    _pc.UPDATED_DATE = pc.UPDATED_DATE;
+                    db.SaveChanges();
+                }
                 return pc;
             }
             catch (Exception ex)
             {
-
-                throw new Exception("Lỗi Add data " + ex.Message);
+                throw new Exception("Lỗi Update data " + ex.Message);
             }
         }
 
@@ -294,13 +299,61 @@ namespace Bu.CLASS_CHAMCONG
         //    db.SaveChanges();
         //}
 
-        public void UpdatePhucap(int manv, int idpc, decimal sotien, int makycong)
+        public Dictionary<int, decimal> GetPhuCapByNhanVien(int manv)
         {
-            var phucap = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc && np.MAKYCONG == makycong);
+            var list = db.TB_NHANVIEN_PHUCAP
+                         .Where(x => x.MANV == manv)
+                         .ToList();
+
+            var dict = new Dictionary<int, decimal>();
+            for (int i = 1; i <= 13; i++)
+            {
+                var item = list.FirstOrDefault(x => x.IDPC == i);
+                dict[i] = item?.SOTIEN ?? 0;
+            }
+            return dict;
+        }
+
+        public void SavePhuCapHopDong(int manv, Dictionary<int, decimal> allowances, int iduser = 1)
+        {
+            if (allowances == null) return;
+
+            foreach (var kvp in allowances)
+            {
+                int idpc = kvp.Key;
+                decimal sotien = kvp.Value;
+
+                var existing = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == manv && x.IDPC == idpc);
+                if (existing != null)
+                {
+                    existing.SOTIEN = sotien;
+                    existing.UPDATED_BY = iduser;
+                    existing.UPDATED_DATE = DateTime.Now;
+                }
+                else
+                {
+                    db.TB_NHANVIEN_PHUCAP.Add(new TB_NHANVIEN_PHUCAP
+                    {
+                        MANV = manv,
+                        IDPC = idpc,
+                        SOTIEN = sotien,
+                        GHICHU = "Phụ cấp theo hợp đồng",
+                        CREATED_BY = iduser,
+                        CREATED_DATE = DateTime.Now
+                    });
+                }
+            }
+            db.SaveChanges();
+        }
+
+        public void UpdatePhucap(int manv, int idpc, decimal sotien, int makycong = 0)
+        {
+            var phucap = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc);
 
             if (phucap != null)
             {
                 phucap.SOTIEN = sotien;
+                phucap.UPDATED_DATE = DateTime.Now;
             }
             else
             {
@@ -308,9 +361,9 @@ namespace Bu.CLASS_CHAMCONG
                 {
                     MANV = manv,
                     IDPC = idpc,
-                    MAKYCONG = makycong, 
                     SOTIEN = sotien,
-                    GHICHU = ""
+                    GHICHU = "Phụ cấp theo hợp đồng",
+                    CREATED_DATE = DateTime.Now
                 });
             }
             db.SaveChanges();

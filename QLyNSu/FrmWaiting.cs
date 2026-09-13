@@ -30,6 +30,13 @@ namespace QLyNSu
             // Load translations dynamically
             this.progressPanel1.Caption = Functions.TranslationManager.Translate("Vui lòng đợi");
             this.progressPanel1.Description = Functions.TranslationManager.Translate("Đang xử lý dữ liệu...");
+
+            // ProgressBar styling
+            this.progressBar1.Properties.ShowTitle = true;
+            this.progressBar1.Properties.PercentView = true;
+            this.progressBar1.Properties.Minimum = 0;
+            this.progressBar1.Properties.Maximum = 100;
+            this.progressBar1.Position = 0;
         }
 
         #region Overrides
@@ -47,12 +54,34 @@ namespace QLyNSu
         public override void ProcessCommand(Enum cmd, object arg)
         {
             base.ProcessCommand(cmd, arg);
+            if (cmd is WaitFormCommand waitCmd)
+            {
+                switch (waitCmd)
+                {
+                    case WaitFormCommand.SetProgress:
+                        if (arg != null && int.TryParse(arg.ToString(), out int p))
+                        {
+                            if (p < 0) p = 0;
+                            if (p > 100) p = 100;
+                            this.progressBar1.Position = p;
+                        }
+                        break;
+                    case WaitFormCommand.SetMax:
+                        if (arg != null && int.TryParse(arg.ToString(), out int m))
+                        {
+                            this.progressBar1.Properties.Maximum = m;
+                        }
+                        break;
+                }
+            }
         }
 
         #endregion
 
         public enum WaitFormCommand
         {
+            SetProgress,
+            SetMax
         }
     }
 }

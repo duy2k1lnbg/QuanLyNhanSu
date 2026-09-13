@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,5 +22,20 @@ namespace Bu.DTO
         public Nullable<System.DateTime> UPDATED_DATE { get; set; }
         public Nullable<decimal> DELETED_BY { get; set; }
         public Nullable<System.DateTime> DELETED_DATE { get; set; }
+        public Nullable<System.DateTime> NGAYUNG
+        {
+            get
+            {
+                if (NAM.HasValue && THANG.HasValue && NGAY.HasValue && NAM.Value > 1900 && THANG.Value >= 1 && THANG.Value <= 12 && NGAY.Value >= 1 && NGAY.Value <= 31)
+                {
+                    try
+                    {
+                        return new DateTime((int)NAM.Value, (int)THANG.Value, (int)NGAY.Value);
+                    }
+                    catch { }
+                }
+                return CREATED_DATE;
+            }
+        }
     }
 }

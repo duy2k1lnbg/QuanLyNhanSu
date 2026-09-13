@@ -34,6 +34,10 @@ interface TangCaUngLuongPageProps {
   tcUlLoading: boolean;
   onRefresh: () => void;
   hasRight: (...codes: string[]) => boolean;
+  canAdd?: (...codes: string[]) => boolean;
+  canEdit?: (...codes: string[]) => boolean;
+  canDelete?: (...codes: string[]) => boolean;
+  canPrint?: (...codes: string[]) => boolean;
 }
 
 export function TangCaUngLuongPage({
@@ -42,6 +46,8 @@ export function TangCaUngLuongPage({
   tcUlLoading,
   onRefresh,
   hasRight,
+  canAdd,
+  canDelete,
 }: TangCaUngLuongPageProps) {
   const [ulModalVisible, setUlModalVisible] = useState(false);
   const [tcModalVisible, setTcModalVisible] = useState(false);
@@ -128,7 +134,7 @@ export function TangCaUngLuongPage({
         title="💸 Quản lý Tăng ca & Tạm ứng Lương"
         extra={
           <Space>
-            {hasRight('TANGCA', 'F_CC_TANGCA') && (
+            {(canAdd ? canAdd('TANGCA', 'F_CC_TANGCA') : hasRight('TANGCA', 'F_CC_TANGCA')) && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
@@ -140,7 +146,7 @@ export function TangCaUngLuongPage({
                 Ghi nhận Tăng ca
               </Button>
             )}
-            {hasRight('UNGLUONG', 'F_CC_UNGLUONG') && (
+            {(canAdd ? canAdd('UNGLUONG', 'F_CC_UNGLUONG') : hasRight('UNGLUONG', 'F_CC_UNGLUONG')) && (
               <Button
                 icon={<PlusOutlined />}
                 onClick={() => {
@@ -196,7 +202,7 @@ export function TangCaUngLuongPage({
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
-                        hasRight('TANGCA', 'F_CC_TANGCA') && (
+                        (canDelete ? canDelete('TANGCA', 'F_CC_TANGCA') : hasRight('TANGCA', 'F_CC_TANGCA')) && (
                           <Popconfirm title="Hủy bản ghi tăng ca này?" onConfirm={() => handleDeleteTc(r.ID)}>
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>
@@ -239,7 +245,7 @@ export function TangCaUngLuongPage({
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
-                        hasRight('UNGLUONG', 'F_CC_UNGLUONG') && (
+                        (canDelete ? canDelete('UNGLUONG', 'F_CC_UNGLUONG') : hasRight('UNGLUONG', 'F_CC_UNGLUONG')) && (
                           <Popconfirm title="Hủy phiếu tạm ứng này?" onConfirm={() => handleDeleteUl(r.ID)}>
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>

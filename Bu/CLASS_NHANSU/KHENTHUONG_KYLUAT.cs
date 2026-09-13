@@ -67,7 +67,10 @@ namespace Bu
                         UPDATED_BY = x.kt.UPDATED_BY,
                         UPDATED_DATE = x.kt.UPDATED_DATE,
                         DELETED_BY = x.kt.DELETED_BY,
-                        DELETED_DATE = x.kt.DELETED_DATE
+                        DELETED_DATE = x.kt.DELETED_DATE,
+                        SOTIEN = x.kt.SOTIEN,
+                        THANG_APDUNG = x.kt.THANG_APDUNG,
+                        NAM_APDUNG = x.kt.NAM_APDUNG
                     }).ToList();
         }
 
@@ -99,7 +102,10 @@ namespace Bu
                         UPDATED_BY = x.kt.UPDATED_BY,
                         UPDATED_DATE = x.kt.UPDATED_DATE,
                         DELETED_BY = x.kt.DELETED_BY,
-                        DELETED_DATE = x.kt.DELETED_DATE
+                        DELETED_DATE = x.kt.DELETED_DATE,
+                        SOTIEN = x.kt.SOTIEN,
+                        THANG_APDUNG = x.kt.THANG_APDUNG,
+                        NAM_APDUNG = x.kt.NAM_APDUNG
                     }).ToList();
         }
 
@@ -132,6 +138,9 @@ namespace Bu
                 _kt.UPDATED_BY = kt.UPDATED_BY;
                 _kt.UPDATED_DATE = kt.UPDATED_DATE;
                 _kt.NOIDUNG = kt.NOIDUNG;
+                _kt.SOTIEN = kt.SOTIEN;
+                _kt.THANG_APDUNG = kt.THANG_APDUNG;
+                _kt.NAM_APDUNG = kt.NAM_APDUNG;
                 db.SaveChanges();
                 return kt;
             }
@@ -157,15 +166,27 @@ namespace Bu
         }
         public string MaxSoQuyetDinh(int loai)
         {
-            var _hd = db.TB_KHENTHUONG_KYLUAT.Where(x => x.LOAI == loai).OrderByDescending(x => x.CREATED_DATE).FirstOrDefault();
-            if (_hd != null)
+            var list = db.TB_KHENTHUONG_KYLUAT
+                .Where(x => x.LOAI == loai)
+                .Select(x => x.SOQUYETDINH)
+                .ToList();
+
+            int maxSo = 0;
+            foreach (var sqd in list)
             {
-                return _hd.SOQUYETDINH;
+                if (string.IsNullOrEmpty(sqd)) continue;
+                string[] parts = sqd.Split('/');
+                if (parts.Length > 0 && int.TryParse(parts[0], out int num))
+                {
+                    if (num > maxSo) maxSo = num;
+                }
+                else if (sqd.Length >= 5 && int.TryParse(sqd.Substring(0, 5), out int num2))
+                {
+                    if (num2 > maxSo) maxSo = num2;
+                }
             }
-            else
-            {
-                return "00000";
-            }
+
+            return maxSo.ToString("00000");
         }
     }
 }

@@ -191,16 +191,25 @@ namespace QLyNSu.FORM_SYSTEM
 
             // Load current user rights
             var userRights = db.TB_SYS_RIGHT
-                .Where(r => r.IDUSER == selectedUser.IDUSER && r.USER_RIGHT == 1)
-                .Select(r => r.FUNCTION_CODE)
+                .Where(r => r.IDUSER == selectedUser.IDUSER)
                 .ToList();
 
+            var rightDict = userRights.ToDictionary(r => r.FUNCTION_CODE, StringComparer.OrdinalIgnoreCase);
+
             // Map to list item
-            _rightList = allFunctions.Select(f => new FunctionRightItem
+            _rightList = allFunctions.Select(f =>
             {
-                FUNCTION_CODE = f.FUNCTION_CODE,
-                DESCRIPTION = f.DESCRIPTION,
-                HAS_RIGHT = userRights.Contains(f.FUNCTION_CODE)
+                rightDict.TryGetValue(f.FUNCTION_CODE, out var r);
+                return new FunctionRightItem
+                {
+                    FUNCTION_CODE = f.FUNCTION_CODE,
+                    DESCRIPTION = f.DESCRIPTION,
+                    CAN_VIEW = r != null && ((r.CAN_VIEW ?? 0) == 1 || (r.USER_RIGHT ?? 0) == 1),
+                    CAN_ADD = r != null && (r.CAN_ADD ?? 0) == 1,
+                    CAN_EDIT = r != null && (r.CAN_EDIT ?? 0) == 1,
+                    CAN_DELETE = r != null && (r.CAN_DELETE ?? 0) == 1,
+                    CAN_PRINT = r != null && (r.CAN_PRINT ?? 0) == 1
+                };
             }).ToList();
 
             gcRight.DataSource = new BindingList<FunctionRightItem>(_rightList);
@@ -210,16 +219,43 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 gvRight.Columns["FUNCTION_CODE"].Caption = "Mã chức năng";
                 gvRight.Columns["FUNCTION_CODE"].OptionsColumn.AllowEdit = false;
+                gvRight.Columns["FUNCTION_CODE"].Visible = false;
             }
             if (gvRight.Columns["DESCRIPTION"] != null)
             {
-                gvRight.Columns["DESCRIPTION"].Caption = "Tên chức năng";
+                gvRight.Columns["DESCRIPTION"].Caption = "Chức năng";
                 gvRight.Columns["DESCRIPTION"].OptionsColumn.AllowEdit = false;
+                gvRight.Columns["DESCRIPTION"].Width = 260;
             }
-            if (gvRight.Columns["HAS_RIGHT"] != null)
+            if (gvRight.Columns["CAN_VIEW"] != null)
             {
-                gvRight.Columns["HAS_RIGHT"].Caption = "Cho phép truy cập";
-                gvRight.Columns["HAS_RIGHT"].OptionsColumn.AllowEdit = true; // Editable checkbox column!
+                gvRight.Columns["CAN_VIEW"].Caption = "Xem";
+                gvRight.Columns["CAN_VIEW"].OptionsColumn.AllowEdit = true;
+                gvRight.Columns["CAN_VIEW"].Width = 65;
+            }
+            if (gvRight.Columns["CAN_ADD"] != null)
+            {
+                gvRight.Columns["CAN_ADD"].Caption = "Thêm";
+                gvRight.Columns["CAN_ADD"].OptionsColumn.AllowEdit = true;
+                gvRight.Columns["CAN_ADD"].Width = 65;
+            }
+            if (gvRight.Columns["CAN_EDIT"] != null)
+            {
+                gvRight.Columns["CAN_EDIT"].Caption = "Sửa";
+                gvRight.Columns["CAN_EDIT"].OptionsColumn.AllowEdit = true;
+                gvRight.Columns["CAN_EDIT"].Width = 65;
+            }
+            if (gvRight.Columns["CAN_DELETE"] != null)
+            {
+                gvRight.Columns["CAN_DELETE"].Caption = "Xóa";
+                gvRight.Columns["CAN_DELETE"].OptionsColumn.AllowEdit = true;
+                gvRight.Columns["CAN_DELETE"].Width = 65;
+            }
+            if (gvRight.Columns["CAN_PRINT"] != null)
+            {
+                gvRight.Columns["CAN_PRINT"].Caption = "In";
+                gvRight.Columns["CAN_PRINT"].OptionsColumn.AllowEdit = true;
+                gvRight.Columns["CAN_PRINT"].Width = 65;
             }
         }
 
@@ -244,29 +280,29 @@ namespace QLyNSu.FORM_SYSTEM
                 {
                     var dbRight = db.TB_SYS_RIGHT.FirstOrDefault(r => r.IDUSER == selectedUser.IDUSER && r.FUNCTION_CODE == rightItem.FUNCTION_CODE);
 
-                    if (rightItem.HAS_RIGHT)
+                    if (dbRight == null)
                     {
-                        if (dbRight == null)
+                        var newRight = new TB_SYS_RIGHT
                         {
-                            var newRight = new TB_SYS_RIGHT
-                            {
-                                IDUSER = selectedUser.IDUSER,
-                                FUNCTION_CODE = rightItem.FUNCTION_CODE,
-                                USER_RIGHT = 1
-                            };
-                            db.TB_SYS_RIGHT.Add(newRight);
-                        }
-                        else
-                        {
-                            dbRight.USER_RIGHT = 1;
-                        }
+                            IDUSER = selectedUser.IDUSER,
+                            FUNCTION_CODE = rightItem.FUNCTION_CODE,
+                            CAN_VIEW = rightItem.CAN_VIEW ? 1 : 0,
+                            CAN_ADD = rightItem.CAN_ADD ? 1 : 0,
+                            CAN_EDIT = rightItem.CAN_EDIT ? 1 : 0,
+                            CAN_DELETE = rightItem.CAN_DELETE ? 1 : 0,
+                            CAN_PRINT = rightItem.CAN_PRINT ? 1 : 0,
+                            USER_RIGHT = rightItem.CAN_VIEW ? 1 : 0
+                        };
+                        db.TB_SYS_RIGHT.Add(newRight);
                     }
                     else
                     {
-                        if (dbRight != null)
-                        {
-                            dbRight.USER_RIGHT = 0;
-                        }
+                        dbRight.CAN_VIEW = rightItem.CAN_VIEW ? 1 : 0;
+                        dbRight.CAN_ADD = rightItem.CAN_ADD ? 1 : 0;
+                        dbRight.CAN_EDIT = rightItem.CAN_EDIT ? 1 : 0;
+                        dbRight.CAN_DELETE = rightItem.CAN_DELETE ? 1 : 0;
+                        dbRight.CAN_PRINT = rightItem.CAN_PRINT ? 1 : 0;
+                        dbRight.USER_RIGHT = rightItem.CAN_VIEW ? 1 : 0;
                     }
                 }
 
@@ -306,7 +342,11 @@ namespace QLyNSu.FORM_SYSTEM
         {
             public string FUNCTION_CODE { get; set; }
             public string DESCRIPTION { get; set; }
-            public bool HAS_RIGHT { get; set; }
+            public bool CAN_VIEW { get; set; }
+            public bool CAN_ADD { get; set; }
+            public bool CAN_EDIT { get; set; }
+            public bool CAN_DELETE { get; set; }
+            public bool CAN_PRINT { get; set; }
         }
     }
 }

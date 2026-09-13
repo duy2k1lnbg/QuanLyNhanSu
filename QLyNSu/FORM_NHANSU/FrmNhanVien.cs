@@ -48,11 +48,8 @@ namespace QLyNSu
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnThem.Enabled = kt;
-            btnXoa.Enabled = kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
+            Functions.FormSecurity.ApplyButtons("F_DM_NHANVIEN", btnThem, btnSua, btnXoa, btnIn, kt);
             txtHoTen.Enabled = !kt;
             txtCCCD.Enabled = !kt;
             txtDiaChi.Enabled = !kt;
@@ -156,6 +153,10 @@ namespace QLyNSu
             //    MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             //}
             #endregion
+
+            var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
+            if (!Functions.FormSecurity.AssertPermission("F_DM_NHANVIEN", permAction)) return;
+
             try
             {
                 byte[] imageBytes = null;
@@ -247,6 +248,7 @@ namespace QLyNSu
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_NHANVIEN", Bu.DTO.PermissionAction.Add)) return;
             _them = true;
             showHide(false);
             _reset();
@@ -255,6 +257,7 @@ namespace QLyNSu
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_NHANVIEN", Bu.DTO.PermissionAction.Edit)) return;
             _them = false;
             showHide(false);
             splitContainer1.Panel1Collapsed = false;
@@ -263,6 +266,7 @@ namespace QLyNSu
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_NHANVIEN", Bu.DTO.PermissionAction.Delete)) return;
             splitContainer1.Panel1Collapsed = false;
             //Kiểm tra xem _IDTG có giá trị hợp lệ không
             if (_MANV <= 0)
@@ -304,12 +308,14 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_NHANVIEN", Bu.DTO.PermissionAction.Print)) return;
             rptDSNhanVien rpt = new rptDSNhanVien(_lstNVDTO);
             rpt.ShowRibbonPreview();
         }
 
         private void FrmNhanVien_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_NHANVIEN")) return;
             _them = false;
             _nhanvien = new NHANVIEN();
             _dantoc = new DANTOC();

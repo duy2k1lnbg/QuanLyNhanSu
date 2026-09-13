@@ -1,0 +1,114 @@
+-- ==============================================================================
+-- Migration V1_7: Quản lý Loại Hợp Đồng & Quản lý Ngày Lễ
+-- ==============================================================================
+
+-- 1. Bảng TB_LOAIHOPDONG
+DECLARE
+    v_cnt NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_cnt FROM USER_TABLES WHERE TABLE_NAME = 'TB_LOAIHOPDONG';
+    IF v_cnt = 0 THEN
+        EXECUTE IMMEDIATE '
+            CREATE TABLE TB_LOAIHOPDONG (
+                LOAIHD          NUMBER(38) NOT NULL,
+                TENLOAIHD       NVARCHAR2(250) NOT NULL,
+                CREATED_BY      NUMBER,
+                CREATED_DATE    DATE,
+                UPDATED_BY      NUMBER,
+                UPDATED_DATE    DATE,
+                DELETED_BY      NUMBER,
+                DELETED_DATE    DATE,
+                CONSTRAINT PK_TB_LOAIHOPDONG PRIMARY KEY (LOAIHD)
+            )
+        ';
+    END IF;
+END;
+/
+
+-- Seed danh mục loại hợp đồng
+MERGE INTO TB_LOAIHOPDONG dst
+USING (
+    SELECT 1 AS LOAIHD, N'Hợp đồng thử việc' AS TENLOAIHD FROM DUAL UNION ALL
+    SELECT 2 AS LOAIHD, N'Hợp đồng lao động xác định thời hạn' AS TENLOAIHD FROM DUAL UNION ALL
+    SELECT 3 AS LOAIHD, N'Hợp đồng lao động không xác định thời hạn' AS TENLOAIHD FROM DUAL
+) src
+ON (dst.LOAIHD = src.LOAIHD)
+WHEN MATCHED THEN
+    UPDATE SET dst.TENLOAIHD = src.TENLOAIHD
+WHEN NOT MATCHED THEN
+    INSERT (LOAIHD, TENLOAIHD, CREATED_BY, CREATED_DATE)
+    VALUES (src.LOAIHD, src.TENLOAIHD, 1, SYSDATE);
+COMMIT;
+/
+
+-- 2. Bổ sung cột LOAIHD vào TB_HOPDONG
+DECLARE
+    v_cnt NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_cnt FROM USER_TAB_COLUMNS WHERE TABLE_NAME = 'TB_HOPDONG' AND COLUMN_NAME = 'LOAIHD';
+    IF v_cnt = 0 THEN
+        EXECUTE IMMEDIATE 'ALTER TABLE TB_HOPDONG ADD (LOAIHD NUMBER(38))';
+    END IF;
+END;
+/
+
+-- Cập nhật dữ liệu LOAIHD hiện có cho TB_HOPDONG
+UPDATE TB_HOPDONG
+SET LOAIHD = CASE
+    WHEN LOWER(THOIHAN) LIKE '%thử việc%' OR LOWER(THOIHAN) LIKE '%thu viec%' THEN 1
+    WHEN LOWER(THOIHAN) LIKE '%vô thời hạn%' OR LOWER(THOIHAN) LIKE '%vo thoi han%' OR NGAYKETTHUC IS NULL THEN 3
+    ELSE 2
+END
+WHERE LOAIHD IS NULL;
+COMMIT;
+/
+
+-- 3. Bảng TB_NGAYLE
+DECLARE
+    v_cnt NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_cnt FROM USER_TABLES WHERE TABLE_NAME = 'TB_NGAYLE';
+    IF v_cnt = 0 THEN
+        EXECUTE IMMEDIATE '
+            CREATE TABLE TB_NGAYLE (
+                IDLE            NUMBER(38) NOT NULL,
+                TENLE           NVARCHAR2(250) NOT NULL,
+                NGAY            DATE NOT NULL,
+                NAM             NUMBER(4) NOT NULL,
+                HESO            NUMBER(5,2) DEFAULT 2.00,
+                CREATED_BY      NUMBER,
+                CREATED_DATE    DATE,
+                UPDATED_BY      NUMBER,
+                UPDATED_DATE    DATE,
+                DELETED_BY      NUMBER,
+                DELETED_DATE    DATE,
+                CONSTRAINT PK_TB_NGAYLE PRIMARY KEY (IDLE)
+            )
+        ';
+    END IF;
+END;
+/
+
+-- Seed danh sách ngày lễ chính năm 2026
+MERGE INTO TB_NGAYLE dst
+USING (
+    SELECT 1 AS IDLE, N'Tết Dương lịch' AS TENLE, TO_DATE('2026-01-01', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 2 AS IDLE, N'Tết Âm lịch (29 Tết)' AS TENLE, TO_DATE('2026-02-16', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 3 AS IDLE, N'Tết Âm lịch (Mùng 1)' AS TENLE, TO_DATE('2026-02-17', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 4 AS IDLE, N'Tết Âm lịch (Mùng 2)' AS TENLE, TO_DATE('2026-02-18', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 5 AS IDLE, N'Tết Âm lịch (Mùng 3)' AS TENLE, TO_DATE('2026-02-19', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 6 AS IDLE, N'Tết Âm lịch (Mùng 4)' AS TENLE, TO_DATE('2026-02-20', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 7 AS IDLE, N'Giỗ tổ Hùng Vương' AS TENLE, TO_DATE('2026-04-26', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 8 AS IDLE, N'Ngày Chiến thắng (30/4)' AS TENLE, TO_DATE('2026-04-30', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 9 AS IDLE, N'Ngày Quốc tế Lao động (01/5)' AS TENLE, TO_DATE('2026-05-01', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 10 AS IDLE, N'Quốc khánh (02/9)' AS TENLE, TO_DATE('2026-09-02', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL UNION ALL
+    SELECT 11 AS IDLE, N'Nghỉ liền kề Quốc khánh' AS TENLE, TO_DATE('2026-09-03', 'YYYY-MM-DD') AS NGAY, 2026 AS NAM, 3.00 AS HESO FROM DUAL
+) src
+ON (dst.IDLE = src.IDLE)
+WHEN MATCHED THEN
+    UPDATE SET dst.TENLE = src.TENLE, dst.NGAY = src.NGAY, dst.NAM = src.NAM, dst.HESO = src.HESO
+WHEN NOT MATCHED THEN
+    INSERT (IDLE, TENLE, NGAY, NAM, HESO, CREATED_BY, CREATED_DATE)
+    VALUES (src.IDLE, src.TENLE, src.NGAY, src.NAM, src.HESO, 1, SYSDATE);
+COMMIT;
+/

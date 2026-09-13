@@ -129,7 +129,11 @@ namespace QLyNSu.Functions
                             }
                             catch { }
                         }
-                        Translate(form);
+                        try
+                        {
+                            Translate(form);
+                        }
+                        catch { }
                     }
                 }
             }
@@ -220,11 +224,15 @@ namespace QLyNSu.Functions
             { "Lưu", ("Save", "保存", "保存", "저장") },
             { "Đóng", ("Close", "閉じる", "关闭", "닫기") },
             { "Hủy", ("Cancel", "キャンセル", "取消", "취소") },
+            { "Xem", ("View", "閲覧", "查看", "보기") },
             { "Thêm", ("Add", "追加", "添加", "추가") },
             { "Sửa", ("Edit", "編集", "编辑", "수정") },
             { "Xóa", ("Delete", "削除", "删除", "삭제") },
             { "Làm Mới", ("Refresh", "更新", "刷新", "새로고침") },
             { "In", ("Print", "印刷", "打印", "인쇄") },
+            { "Chức năng", ("Function", "機能", "功能", "기능") },
+            { "Cảnh Báo Phân Quyền", ("Permission Warning", "権限警告", "权限警告", "권한 경고") },
+            { "Bạn không có quyền truy cập chức năng này.", ("You do not have permission to access this function.", "この機能にアクセスする権限がありません。", "您没有访问此功能的权限。", "이 기능에 접근할 권한이 없습니다.") },
             { "Xuất Excel", ("Export Excel", "Excel出力", "导出Excel", "Excel 내보내기") },
             { "Tìm Kiếm", ("Search", "検索", "搜索", "검색") },
 
@@ -318,7 +326,61 @@ namespace QLyNSu.Functions
             { "Tiếng Nhật", ("Japanese", "日本語", "日语", "일본어") },
             { "Tiếng Trung", ("Chinese", "中国語", "中文", "중국어") },
             { "Tiếng Hàn", ("Korean", "韓国語", "韩语", "한국어") },
-            { "Đã lưu cài đặt ngôn ngữ hệ thống", ("Saved system language setting", "システム言語設定を保存しました", "已保存系统语言设置", "시스템 언어 설정이 저장되었습니다") }
+            { "Đã lưu cài đặt ngôn ngữ hệ thống", ("Saved system language setting", "システム言語設定を保存しました", "已保存系统语言设置", "시스템 언어 설정이 저장되었습니다") },
+
+            // Quản lý Loại Hợp Đồng
+            { "Loại Hợp Đồng", ("Contract Type", "契約種別", "合同类型", "계약 유형") },
+            { "Quản Lý Loại Hợp Đồng", ("Contract Type Management", "契約種別管理", "合同类型管理", "계약 유형 관리") },
+            { "Tên Loại Hợp Đồng:", ("Contract Type Name:", "契約種別名:", "合同类型名称:", "계약 유형명:") },
+            { "Tên Loại Hợp Đồng", ("Contract Type Name", "契約種別名", "合同类型名称", "계약 유형명") },
+            { "Mã Loại HĐ", ("Type ID", "種別コード", "类型编号", "유형 코드") },
+            { "LOAIHD", ("Type ID", "種別コード", "类型编号", "유형 코드") },
+            { "TENLOAIHD", ("Contract Type Name", "契約種別名", "合同类型名称", "계약 유형명") },
+            { "Vui lòng nhập tên loại hợp đồng.", ("Please enter contract type name.", "契約種別名を入力してください。", "请输入合同类型名称。", "계약 유형명을 입력해 주세요.") },
+            { "Tên loại hợp đồng này đã tồn tại.", ("This contract type name already exists.", "この契約種別名はすでに存在します。", "此合同类型名称已存在。", "이 계약 유형명은 이미 존재합니다.") },
+
+            // Quản lý Ngày Lễ
+            { "Ngày Lễ", ("Holiday", "祝日", "节假日", "공휴일") },
+            { "Quản Lý Ngày Lễ", ("Holiday Management", "祝日管理", "节假日管理", "공휴일 관리") },
+            { "Tên Ngày Lễ:", ("Holiday Name:", "祝日名:", "节假日名称:", "공휴일명:") },
+            { "Tên Ngày Lễ", ("Holiday Name", "祝日名", "节假日名称", "공휴일명") },
+            { "Ngày Lễ:", ("Holiday Date:", "祝日日付:", "节假日日期:", "공휴일 날짜:") },
+            { "Năm:", ("Year:", "年:", "年份:", "연도:") },
+            { "Hệ Số:", ("Coefficient:", "係数:", "系数:", "계수:") },
+            { "Lọc theo năm:", ("Filter by year:", "年で絞り込み:", "按年份筛选:", "연도별 필터:") },
+            { "Mã Lễ", ("Holiday ID", "祝日コード", "节假日编号", "공휴일 코드") },
+            { "Loại Ngày", ("Day Type", "日種別", "日期类型", "날짜 유형") },
+            { "Tất cả các năm", ("All years", "すべての年", "所有年份", "모든 연도") },
+            { "Vui lòng nhập tên ngày lễ.", ("Please enter holiday name.", "祝日名を入力してください。", "请输入节假日名称。", "공휴일명을 입력하세요.") },
+            { "Ngày lễ này đã tồn tại trong danh sách.", ("This holiday already exists in the list.", "この祝日はすでにリストに存在します。", "此节假日已存在于列表中。", "이 공휴일은 이미 목록에 존재합니다.") },
+
+            // Quản lý Tăng Ca
+            { "Quản Lý Tăng Ca", ("Overtime Management", "残業管理", "加班管理", "초과근무 관리") },
+            { "Ngày TC:", ("OT Date:", "残業日:", "加班日期:", "초과근무일:") },
+            { "Loại Ca:", ("Shift Type:", "シフト種別:", "班次类型:", "교대 유형:") },
+            { "Loại Công:", ("Work Type:", "勤務種別:", "工时类型:", "근무 유형:") },
+            { "Giờ BĐ:", ("Start Time:", "開始時刻:", "开始时间:", "시작 시간:") },
+            { "Giờ KT:", ("End Time:", "終了時刻:", "结束时间:", "종료 시간:") },
+            { "Số Giờ:", ("Hours:", "時間数:", "小时数:", "시간:") },
+            { "Trạng Thái NV:", ("Emp Status:", "従業員状態:", "员工状态:", "직원 상태:") },
+            { "Quy Định OT:", ("OT Policy:", "残業規定:", "加班规定:", "초과근무 규정:") },
+            { "Đơn Giá 1 Giờ:", ("Hourly Rate:", "時間単価:", "每小时单价:", "시간당 단가:") },
+            { "Thành Tiền:", ("Total Amount:", "合計金額:", "总金额:", "총 금액:") },
+            { "Ghi Chú:", ("Note:", "備考:", "备注:", "비고:") },
+            { "Thử việc (85%)", ("Probation (85%)", "試用期間 (85%)", "试用期 (85%)", "수습 (85%)") },
+            { "Chính thức (100%)", ("Official (100%)", "正社員 (100%)", "正式 (100%)", "정규직 (100%)") },
+            { "Chưa chọn NV", ("No employee selected", "従業員未選択", "未选择员工", "직원 미선택") },
+            { "Chưa xác định", ("Undefined", "未確定", "未确定", "미정") },
+            { "Giờ BĐ", ("Start Time", "開始時刻", "开始时间", "시작 시간") },
+            { "Giờ KT", ("End Time", "終了時刻", "结束时间", "종료 시간") },
+            { "Số Giờ", ("Hours", "時間数", "小时数", "시간") },
+            { "Quy Định", ("Policy", "規定", "规定", "규정") },
+            { "Đơn Giá", ("Unit Price", "単価", "单价", "단가") },
+            { "Thành Tiền", ("Total Amount", "合計金額", "总金额", "총 금액") },
+            { "Vui lòng chọn nhân viên!", ("Please select an employee!", "従業員を選択してください！", "请选择员工！", "직원을 선택해 주세요!") },
+            { "Giờ bắt đầu không thể lớn hơn hoặc bằng giờ kết thúc!", ("Start time cannot be later than or equal to end time!", "開始時刻は終了時刻以降にできません！", "开始时间不能大于或等于结束时间！", "시작 시간은 종료 시간보다 늦거나 같을 수 없습니다!") },
+            { "Cập nhật thành công thông tin tăng ca!", ("Overtime information updated successfully!", "残業情報を正常に更新しました！", "加班信息更新成功！", "초과근무 정보가 성공적으로 업데이트되었습니다!") },
+            { "Thêm mới thành công thông tin tăng ca!", ("New overtime record added successfully!", "新規残業レコードを正常に追加しました！", "新增加班记录成功！", "새 초과근무 기록이 성공적으로 추가되었습니다!") }
         };
 
         static TranslationManager()
@@ -481,7 +543,7 @@ namespace QLyNSu.Functions
             {
                 // Skip translating text of ComboBox and LookUpEdit controls to prevent selection change re-entrancy
                 string typeName = ctrl.GetType().Name;
-                if (typeName.EndsWith("LookUpEdit") || typeName.EndsWith("ComboBoxEdit") || typeName == "ComboBox" || ctrl is ComboBox)
+                if (typeName.EndsWith("LookUpEdit") || typeName.EndsWith("ComboBoxEdit") || typeName == "ComboBox" || ctrl is ComboBox || typeName.EndsWith("SpinEdit"))
                 {
                     if (ctrl.Controls != null && ctrl.Controls.Count > 0)
                     {
@@ -491,7 +553,7 @@ namespace QLyNSu.Functions
                 }
 
                 // KHÔNG dịch thuộc tính Text của các ô nhập liệu vì đó là nội dung người dùng gõ vào
-                bool isInputControl = ctrl is TextBox || ctrl is DevExpress.XtraEditors.TextEdit || ctrl is DevExpress.XtraEditors.MemoEdit;
+                bool isInputControl = ctrl is TextBox || ctrl is DevExpress.XtraEditors.TextEdit || ctrl is DevExpress.XtraEditors.MemoEdit || ctrl is DevExpress.XtraEditors.BaseEdit;
 
                 // Translate control text
                 if (!isInputControl && !string.IsNullOrEmpty(ctrl.Text))

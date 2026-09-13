@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
@@ -91,6 +91,18 @@ namespace QLyNSu.FORM_CHAMCONG
             bcctnv.KYHIEU = _valueChamCong;
             switch (_valueChamCong)
             {
+                case "X":
+                    bcctnv.NGAYCONG = 1;
+                    bcctnv.NGAYPHEP = 0;
+                    bcctnv.GIOVAO = "08:00";
+                    bcctnv.GIORA = "17:00";
+                    break;
+                case "CD":
+                    bcctnv.NGAYCONG = 1;
+                    bcctnv.NGAYPHEP = 0;
+                    bcctnv.GIOVAO = "22:00";
+                    bcctnv.GIORA = "06:00";
+                    break;
                 case "P":
                     if (_valueNgayNghi == "NN")
                     {

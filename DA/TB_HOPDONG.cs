@@ -31,6 +31,7 @@ namespace DA
         public Nullable<System.DateTime> CREATED_DATE { get; set; }
         public string NOIDUNG { get; set; }
         public Nullable<decimal> LUONG_THOA_THUAN { get; set; }
+        public Nullable<decimal> LOAIHD { get; set; }
     
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }

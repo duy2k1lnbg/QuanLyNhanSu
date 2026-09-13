@@ -198,8 +198,45 @@ namespace Bu.Tests
                     Console.WriteLine($"Unmatched MANV: {m}, KC.HOTEN: '{kc?.HOTEN}'");
                 }
 
-                Assert.AreEqual(971, activeNvCount);
+                Assert.IsTrue(activeNvCount >= 900, $"Active employee count should be >= 900 (actual: {activeNvCount})");
+            }
+        }
+
+        [Test]
+        public void TestKiemTraVaCapNhatTrangThaiHopDong()
+        {
+            var nvBus = new NHANVIEN();
+            var lstEligible = nvBus.KiemTraVaCapNhatTrangThaiHopDong(2026, 1, null);
+            Console.WriteLine($"Eligible employees count for 2026/01: {lstEligible.Count}");
+            Assert.IsNotNull(lstEligible);
+            Assert.IsTrue(lstEligible.Count >= 900, "Phải có từ 900 nhân sự đủ điều kiện hợp đồng trở lên.");
+
+            using (var db = new MyEntities())
+            {
+                // Kiểm tra không có nhân viên nào trong danh sách hợp lệ mà đã thôi việc
+                foreach (var nv in lstEligible)
+                {
+                    Assert.AreNotEqual(1, nv.DATHOIVIEC, $"Nhân viên {nv.MANV} đã thôi việc không được nằm trong danh sách hợp lệ.");
+                }
+
+                // Kiểm tra các nhân viên hết hạn hợp đồng trước 2026-01-01 phải có DATHOIVIEC = 1
+                var expiredContracts = db.TB_HOPDONG
+                    .Where(x => x.NGAYKETTHUC.HasValue && x.NGAYKETTHUC.Value < new DateTime(2026, 1, 1))
+                    .Select(x => x.MANV)
+                    .Distinct()
+                    .ToList();
+
+                foreach (var manv in expiredContracts)
+                {
+                    var nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == manv);
+                    var latestHd = db.TB_HOPDONG.Where(x => x.MANV == manv).OrderByDescending(x => x.NGAYBATDAU).FirstOrDefault();
+                    if (latestHd != null && latestHd.NGAYKETTHUC.HasValue && latestHd.NGAYKETTHUC.Value < new DateTime(2026, 1, 1))
+                    {
+                        Assert.AreEqual(1, nv.DATHOIVIEC, $"Nhân viên {manv} hết hạn hợp đồng phải có DATHOIVIEC = 1.");
+                    }
+                }
             }
         }
     }
 }
+

@@ -225,6 +225,20 @@ namespace HRMS_API.Controllers
                     }
                     catch { }
 
+                    // Lấy chi tiết 5 quyền (Xem, Thêm, Sửa, Xóa, In)
+                    var detailedRights = _userBus.GetDetailedRights(user.IDUSER);
+                    if (isAdmin)
+                    {
+                        foreach (var key in detailedRights.Keys.ToList())
+                        {
+                            detailedRights[key].CAN_VIEW = true;
+                            detailedRights[key].CAN_ADD = true;
+                            detailedRights[key].CAN_EDIT = true;
+                            detailedRights[key].CAN_DELETE = true;
+                            detailedRights[key].CAN_PRINT = true;
+                        }
+                    }
+
                     return Ok(new
                     {
                         success = true,
@@ -242,7 +256,9 @@ namespace HRMS_API.Controllers
                             IsAdmin = isAdmin,
                             isAdmin = isAdmin,
                             Rights = rights,
-                            rights = rights
+                            rights = rights,
+                            DetailedRights = detailedRights,
+                            detailedRights = detailedRights
                         }
                     });
                 }
@@ -332,14 +348,14 @@ namespace HRMS_API.Controllers
                     else
                     {
                         // 1. Direct rights
-                        var direct = db.TB_SYS_RIGHT.Where(r => r.IDUSER == user.IDUSER && r.USER_RIGHT == 1).Select(r => r.FUNCTION_CODE).ToList();
+                        var direct = db.TB_SYS_RIGHT.Where(r => r.IDUSER == user.IDUSER && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
                         freshRights.AddRange(direct);
 
                         // 2. Group rights
                         var groupIds = db.TB_SYS_GROUP.Where(g => g.MEMBER == user.IDUSER).Select(g => g.ID_GROUP).ToList();
                         if (groupIds.Any())
                         {
-                            var groupRights = db.TB_SYS_RIGHT.Where(r => groupIds.Contains(r.IDUSER) && r.USER_RIGHT == 1).Select(r => r.FUNCTION_CODE).ToList();
+                            var groupRights = db.TB_SYS_RIGHT.Where(r => groupIds.Contains(r.IDUSER) && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
                             freshRights.AddRange(groupRights);
                         }
 
@@ -348,6 +364,21 @@ namespace HRMS_API.Controllers
                     }
 
                     freshRights = freshRights.Distinct().ToList();
+
+                    // Lấy chi tiết 5 quyền (Xem, Thêm, Sửa, Xóa, In)
+                    var freshDetailedRights = _userBus.GetDetailedRights(user.IDUSER);
+                    if (isAdmin)
+                    {
+                        foreach (var key in freshDetailedRights.Keys.ToList())
+                        {
+                            freshDetailedRights[key].CAN_VIEW = true;
+                            freshDetailedRights[key].CAN_ADD = true;
+                            freshDetailedRights[key].CAN_EDIT = true;
+                            freshDetailedRights[key].CAN_DELETE = true;
+                            freshDetailedRights[key].CAN_PRINT = true;
+                        }
+                    }
+
                     return Ok(new
                     {
                         user = new
@@ -361,7 +392,9 @@ namespace HRMS_API.Controllers
                             IsAdmin = isAdmin,
                             isAdmin = isAdmin,
                             Rights = freshRights,
-                            rights = freshRights
+                            rights = freshRights,
+                            DetailedRights = freshDetailedRights,
+                            detailedRights = freshDetailedRights
                         }
                     });
                 }

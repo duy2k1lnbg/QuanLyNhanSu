@@ -25,6 +25,7 @@ import {
   CloseCircleOutlined,
   ClockCircleOutlined,
   EyeOutlined,
+  PrinterOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { HopDongDTO } from '../types/hrms';
@@ -36,6 +37,10 @@ interface HopDongPageProps {
   hopDongLoading: boolean;
   onRefresh: () => void;
   hasRight: (...codes: string[]) => boolean;
+  canAdd?: (...codes: string[]) => boolean;
+  canEdit?: (...codes: string[]) => boolean;
+  canDelete?: (...codes: string[]) => boolean;
+  canPrint?: (...codes: string[]) => boolean;
 }
 
 // Hàm chuẩn hóa & định dạng ngày tháng hợp đồng chính xác
@@ -66,6 +71,7 @@ export function HopDongPage({
   hopDongList,
   hopDongLoading,
   onRefresh,
+  canPrint,
 }: HopDongPageProps) {
   const {
     token: { borderRadiusLG, colorPrimary },
@@ -324,6 +330,17 @@ export function HopDongPage({
         width={typeof window !== 'undefined' && window.innerWidth < 640 ? '100%' : 540}
         open={!!selectedHopDong}
         onClose={() => setSelectedHopDong(null)}
+        extra={
+          (!canPrint || canPrint('NV', 'F_NV_HOPDONG')) && (
+            <Button
+              icon={<PrinterOutlined />}
+              onClick={() => window.print()}
+              size="small"
+            >
+              In hợp đồng
+            </Button>
+          )
+        }
       >
         {selectedHopDong && (
           <div>

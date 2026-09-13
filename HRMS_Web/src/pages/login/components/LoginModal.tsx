@@ -47,6 +47,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           FullName: rawUser.FullName || rawUser.fullName || rawUser.Username || values.username.trim(),
           IsAdmin: Boolean(rawUser.IsAdmin ?? rawUser.isAdmin),
           Rights: rawUser.Rights || rawUser.rights || [],
+          DetailedRights: rawUser.DetailedRights || rawUser.detailedRights,
         };
 
         localStorage.setItem('hrms_token', token);

@@ -458,27 +458,54 @@ namespace HRMS_API.Controllers
 
                     var allFunctions = db.TB_SYS_FUNCTION.OrderBy(f => f.SORT).ToList();
 
-                    // Lấy quyền gán trực tiếp
-                    var directRights = db.TB_SYS_RIGHT
-                        .Where(r => r.IDUSER == id && r.USER_RIGHT == 1)
-                        .Select(r => r.FUNCTION_CODE)
+                    // Lấy tất cả quyền gán trực tiếp của user
+                    var userRights = db.TB_SYS_RIGHT
+                        .Where(r => r.IDUSER == id)
                         .ToList();
+                    var rightsDict = userRights
+                        .GroupBy(r => r.FUNCTION_CODE)
+                        .ToDictionary(g => g.Key, g => g.First());
 
-                    var result = allFunctions.Select(f => new
+                    var result = allFunctions.Select(f =>
                     {
-                        FUNCTION_CODE = f.FUNCTION_CODE,
-                        FuncCode = f.FUNCTION_CODE,
-                        funcCode = f.FUNCTION_CODE,
-                        DESCRIPTION = f.DESCRIPTION,
-                        Description = f.DESCRIPTION,
-                        description = f.DESCRIPTION,
-                        PARENT = f.PARENT,
-                        Parent = f.PARENT,
-                        parent = f.PARENT,
-                        SORT = f.SORT,
-                        HAS_RIGHT = directRights.Contains(f.FUNCTION_CODE),
-                        HasRight = directRights.Contains(f.FUNCTION_CODE),
-                        hasRight = directRights.Contains(f.FUNCTION_CODE)
+                        rightsDict.TryGetValue(f.FUNCTION_CODE, out var r);
+                        bool canView = (r != null && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1));
+                        bool canAdd = (r != null && r.CAN_ADD == 1);
+                        bool canEdit = (r != null && r.CAN_EDIT == 1);
+                        bool canDelete = (r != null && r.CAN_DELETE == 1);
+                        bool canPrint = (r != null && r.CAN_PRINT == 1);
+
+                        return new
+                        {
+                            FUNCTION_CODE = f.FUNCTION_CODE,
+                            FuncCode = f.FUNCTION_CODE,
+                            funcCode = f.FUNCTION_CODE,
+                            DESCRIPTION = f.DESCRIPTION,
+                            Description = f.DESCRIPTION,
+                            description = f.DESCRIPTION,
+                            PARENT = f.PARENT,
+                            Parent = f.PARENT,
+                            parent = f.PARENT,
+                            SORT = f.SORT,
+                            HAS_RIGHT = canView,
+                            HasRight = canView,
+                            hasRight = canView,
+                            CAN_VIEW = canView,
+                            CanView = canView,
+                            canView = canView,
+                            CAN_ADD = canAdd,
+                            CanAdd = canAdd,
+                            canAdd = canAdd,
+                            CAN_EDIT = canEdit,
+                            CanEdit = canEdit,
+                            canEdit = canEdit,
+                            CAN_DELETE = canDelete,
+                            CanDelete = canDelete,
+                            canDelete = canDelete,
+                            CAN_PRINT = canPrint,
+                            CanPrint = canPrint,
+                            canPrint = canPrint
+                        };
                     }).ToList();
 
                     return Ok(result);
@@ -503,7 +530,7 @@ namespace HRMS_API.Controllers
             try
             {
                 var codes = req != null ? req.GetEffectiveCodes() : new List<string>();
-                if (codes == null)
+                if (codes == null && (req == null || req.Details == null))
                 {
                     return BadRequest("Danh sách quyền không hợp lệ.");
                 }
@@ -515,19 +542,52 @@ namespace HRMS_API.Controllers
                     db.TB_SYS_RIGHT.RemoveRange(existing);
                     db.SaveChanges();
 
-                    // Thêm các quyền mới
-                    foreach (var code in codes.Distinct())
+                    if (req != null && req.Details != null && req.Details.Count > 0)
                     {
-                        db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT
+                        foreach (var d in req.Details)
                         {
-                            IDUSER = id,
-                            FUNCTION_CODE = code,
-                            USER_RIGHT = 1
-                        });
+                            if (string.IsNullOrEmpty(d.FunctionCode)) continue;
+                            bool canView = d.CanView ?? false;
+                            bool canAdd = d.CanAdd ?? false;
+                            bool canEdit = d.CanEdit ?? false;
+                            bool canDelete = d.CanDelete ?? false;
+                            bool canPrint = d.CanPrint ?? false;
+
+                            db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT
+                            {
+                                IDUSER = id,
+                                FUNCTION_CODE = d.FunctionCode,
+                                USER_RIGHT = canView ? 1 : 0,
+                                CAN_VIEW = canView ? 1 : 0,
+                                CAN_ADD = canAdd ? 1 : 0,
+                                CAN_EDIT = canEdit ? 1 : 0,
+                                CAN_DELETE = canDelete ? 1 : 0,
+                                CAN_PRINT = canPrint ? 1 : 0
+                            });
+                        }
+                    }
+                    else
+                    {
+                        // Thêm các quyền mới (backward compatible: codes được cấp đủ 5 quyền)
+                        foreach (var code in codes.Distinct())
+                        {
+                            db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT
+                            {
+                                IDUSER = id,
+                                FUNCTION_CODE = code,
+                                USER_RIGHT = 1,
+                                CAN_VIEW = 1,
+                                CAN_ADD = 1,
+                                CAN_EDIT = 1,
+                                CAN_DELETE = 1,
+                                CAN_PRINT = 1
+                            });
+                        }
                     }
                     db.SaveChanges();
 
-                    return Ok(new { success = true, message = $"Đã cập nhật phân quyền thành công cho tài khoản/nhóm #{id} ({codes.Count} quyền)." });
+                    int count = (req != null && req.Details != null && req.Details.Count > 0) ? req.Details.Count : codes.Count;
+                    return Ok(new { success = true, message = $"Đã cập nhật phân quyền thành công cho tài khoản/nhóm #{id} ({count} quyền)." });
                 }
             }
             catch (Exception ex)
@@ -584,10 +644,21 @@ namespace HRMS_API.Controllers
         public string NewPassword { get; set; }
     }
 
+    public class RightDetailItem
+    {
+        public string FunctionCode { get; set; }
+        public bool? CanView { get; set; }
+        public bool? CanAdd { get; set; }
+        public bool? CanEdit { get; set; }
+        public bool? CanDelete { get; set; }
+        public bool? CanPrint { get; set; }
+    }
+
     public class SaveRightsRequest
     {
         public List<string> FunctionCodes { get; set; }
         public List<string> FuncCodes { get; set; }
+        public List<RightDetailItem> Details { get; set; }
 
         public List<string> GetEffectiveCodes()
         {

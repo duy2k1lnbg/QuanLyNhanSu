@@ -1,4 +1,5 @@
 using Bu;
+using Bu.CLASS_CHAMCONG;
 using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
@@ -11,9 +12,9 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace QLyNSu
 {
@@ -26,39 +27,65 @@ namespace QLyNSu
 
         private HOPDONGLAODONG _hdld;
         private NHANVIEN _nhanvien;
+        private PHUCAP _phucap;
+        private Bu.CLASS_NHANSU.LOAIHOPDONG _loaiHopDong;
         public List<HOPDONG_DTO> _lstHD;
         private bool _them;
         private string _SOHD;
-        //private string _MaxSHD;
-        private void FrmHopDongLaoDong_Load(object sender, EventArgs e)
+
+        private async void FrmHopDongLaoDong_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_NV_HOPDONG")) return;
+
             _hdld = new HOPDONGLAODONG();
             _nhanvien = new NHANVIEN();
+            _phucap = new PHUCAP();
+            _loaiHopDong = new Bu.CLASS_NHANSU.LOAIHOPDONG();
             _them = false;
+            txtNoiDung.Properties.MaxLength = 4000;
             showHide(true);
-            LoadData();
-            loadNhanVien();
             splitContainer1.Panel1Collapsed = true;
+
+            searchMANV.EditValueChanged += searchMANV_EditValueChanged;
+
+            await LoadInitialDataAsync();
+            Functions.TranslationManager.Translate(this);
         }
 
         private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnThem.Enabled = kt;
-            btnXoa.Enabled = kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
             gcDsHDLD.Enabled = kt;
-            dtNgayKetThuc.Enabled = !kt;
+            Functions.FormSecurity.ApplyButtons("F_NV_HOPDONG", btnThem, btnSua, btnXoa, btnIn, kt);
+
+            dtNgayKetThuc.Enabled = !kt && cbThoiHan.Text != "Vô thời hạn";
             dtNgayBatDau.Enabled = !kt;
             dtNgayKy.Enabled = !kt;
+            cbThoiHan.Enabled = !kt;
+            cbLoaiHD.Enabled = !kt;
             spHeSoLuong.Enabled = !kt;
             spLuongThoaThuan.Enabled = !kt;
             spLanKy.Enabled = !kt;
-            txtSoHD.Enabled =! kt;
+            txtSoHD.Enabled = !kt;
             searchMANV.Enabled = !kt;
+            txtNoiDung.Enabled = !kt;
+
+            // Chế độ 13 loại phụ cấp
+            spPC_NhaO.Enabled = !kt;
+            spPC_DiLai.Enabled = !kt;
+            spPC_GiaDinh.Enabled = !kt;
+            spPC_NguoiPhuThuoc.Enabled = !kt;
+            spPC_ChucVu.Enabled = !kt;
+            spPC_ChungChi.Enabled = !kt;
+            spPC_KyNang.Enabled = !kt;
+            spPC_KhuVuc.Enabled = !kt;
+            spPC_ChuyenCan.Enabled = !kt;
+            spPC_ThamNien.Enabled = !kt;
+            spPC_LamViecTaiNha.Enabled = !kt;
+            spPC_DacBiet.Enabled = !kt;
+            spPC_Khac.Enabled = !kt;
         }
 
         private void _reset()
@@ -66,27 +93,145 @@ namespace QLyNSu
             txtSoHD.Text = string.Empty;
             dtNgayBatDau.Value = DateTime.Now;
             dtNgayKy.Value = DateTime.Now;
-            spLanKy.Text = "1";
-            spHeSoLuong.Text = "1";
+            dtNgayKetThuc.Value = DateTime.Now.AddYears(1);
+            cbThoiHan.Text = "1 Năm";
+            if (cbLoaiHD.Items.Count > 0) cbLoaiHD.SelectedIndex = 0;
+            spLanKy.EditValue = 1;
+            spHeSoLuong.EditValue = 1;
             spLuongThoaThuan.EditValue = 0;
-            searchMANV.Text = "Vui lòng chọn 1 nhân viên";
+            searchMANV.EditValue = null;
             txtNoiDung.Text = string.Empty;
+
+            // Reset 13 loại phụ cấp
+            spPC_NhaO.EditValue = 0;
+            spPC_DiLai.EditValue = 0;
+            spPC_GiaDinh.EditValue = 0;
+            spPC_NguoiPhuThuoc.EditValue = 0;
+            spPC_ChucVu.EditValue = 0;
+            spPC_ChungChi.EditValue = 0;
+            spPC_KyNang.EditValue = 0;
+            spPC_KhuVuc.EditValue = 0;
+            spPC_ChuyenCan.EditValue = 0;
+            spPC_ThamNien.EditValue = 0;
+            spPC_LamViecTaiNha.EditValue = 0;
+            spPC_DacBiet.EditValue = 0;
+            spPC_Khac.EditValue = 0;
+            spPC_Tong.EditValue = 0;
         }
 
-        private void loadNhanVien()
+        private async Task LoadInitialDataAsync()
         {
-            searchMANV.Properties.DataSource = _nhanvien.getList();
-            searchMANV.Properties.ValueMember = "MANV";
-            searchMANV.Properties.DisplayMember = "HOTEN";
+            try
+            {
+                var taskHd = Task.Run(() => _hdld.getlistFull_DTO());
+                var taskNv = Task.Run(() => _nhanvien.getList());
+                var taskLhd = Task.Run(() => _loaiHopDong.getList());
+
+                await Task.WhenAll(taskHd, taskNv, taskLhd);
+
+                gcDsHDLD.DataSource = taskHd.Result;
+                FormManager_Functions.CustomView_Colums(gvDsHDLD);
+
+                searchMANV.Properties.DataSource = taskNv.Result;
+                searchMANV.Properties.ValueMember = "MANV";
+                searchMANV.Properties.DisplayMember = "HOTEN";
+
+                cbLoaiHD.DataSource = taskLhd.Result;
+                cbLoaiHD.DisplayMember = "TENLOAIHD";
+                cbLoaiHD.ValueMember = "LOAIHD";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-        private void LoadData()
+
+        private async Task LoadDataAsync()
         {
-            gcDsHDLD.DataSource = _hdld.getlistFull_DTO();
-            FormManager_Functions.CustomView_Colums(gvDsHDLD);
+            try
+            {
+                var list = await Task.Run(() => _hdld.getlistFull_DTO());
+                gcDsHDLD.DataSource = list;
+                FormManager_Functions.CustomView_Colums(gvDsHDLD);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi làm mới dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private async void searchMANV_EditValueChanged(object sender, EventArgs e)
+        {
+            if (searchMANV.EditValue != null && int.TryParse(searchMANV.EditValue.ToString(), out int manv))
+            {
+                await LoadPhuCapForNhanVienAsync(manv);
+            }
+        }
+
+        private async Task LoadPhuCapForNhanVienAsync(int manv)
+        {
+            if (_phucap == null) _phucap = new PHUCAP();
+            var dict = await Task.Run(() => _phucap.GetPhuCapByNhanVien(manv));
+
+            spPC_NhaO.EditValue = dict.ContainsKey(1) ? dict[1] : 0;
+            spPC_DiLai.EditValue = dict.ContainsKey(2) ? dict[2] : 0;
+            spPC_GiaDinh.EditValue = dict.ContainsKey(3) ? dict[3] : 0;
+            spPC_NguoiPhuThuoc.EditValue = dict.ContainsKey(4) ? dict[4] : 0;
+            spPC_ChucVu.EditValue = dict.ContainsKey(5) ? dict[5] : 0;
+            spPC_ChungChi.EditValue = dict.ContainsKey(6) ? dict[6] : 0;
+            spPC_KyNang.EditValue = dict.ContainsKey(7) ? dict[7] : 0;
+            spPC_KhuVuc.EditValue = dict.ContainsKey(8) ? dict[8] : 0;
+            spPC_ChuyenCan.EditValue = dict.ContainsKey(9) ? dict[9] : 0;
+            spPC_ThamNien.EditValue = dict.ContainsKey(10) ? dict[10] : 0;
+            spPC_LamViecTaiNha.EditValue = dict.ContainsKey(11) ? dict[11] : 0;
+            spPC_DacBiet.EditValue = dict.ContainsKey(12) ? dict[12] : 0;
+            spPC_Khac.EditValue = dict.ContainsKey(13) ? dict[13] : 0;
+
+            CalculateTotalAllowance(null, null);
+        }
+
+        private void CalculateTotalAllowance(object sender, EventArgs e)
+        {
+            decimal total = Convert.ToDecimal(spPC_NhaO.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_DiLai.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_GiaDinh.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_NguoiPhuThuoc.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_ChucVu.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_ChungChi.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_KyNang.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_KhuVuc.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_ChuyenCan.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_ThamNien.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_LamViecTaiNha.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_DacBiet.EditValue ?? 0)
+                          + Convert.ToDecimal(spPC_Khac.EditValue ?? 0);
+            spPC_Tong.EditValue = total;
+        }
+
+        private string StripRtfIfNeeded(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+            if (text.TrimStart().StartsWith("{\\rtf"))
+            {
+                try
+                {
+                    using (var rtb = new System.Windows.Forms.RichTextBox())
+                    {
+                        rtb.Rtf = text;
+                        return rtb.Text;
+                    }
+                }
+                catch
+                {
+                    return Regex.Replace(text, @"\\[a-zA-Z0-9]+ ?", "").Replace("{", "").Replace("}", "").Trim();
+                }
+            }
+            return text;
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_NV_HOPDONG", Bu.DTO.PermissionAction.Add)) return;
             _them = true;
             showHide(false);
             _reset();
@@ -95,32 +240,39 @@ namespace QLyNSu
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_NV_HOPDONG", Bu.DTO.PermissionAction.Edit)) return;
+            if (string.IsNullOrEmpty(_SOHD))
+            {
+                MessageBox.Show("Vui lòng chọn hợp đồng cần sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             _them = false;
             showHide(false);
             splitContainer1.Panel1Collapsed = false;
             gcDsHDLD.Enabled = true;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            splitContainer1.Panel1Collapsed = true;
-            // Hiển thị hộp thoại xác nhận
-            if (MessageBox.Show("Bạn có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            if (!Functions.FormSecurity.AssertPermission("F_NV_HOPDONG", Bu.DTO.PermissionAction.Delete)) return;
+            if (string.IsNullOrEmpty(_SOHD))
             {
-                // Thực hiện xóa và tải lại dữ liệu
-                _hdld.Delete(_SOHD,1);
-                LoadData();
+                MessageBox.Show("Vui lòng chọn hợp đồng cần xóa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
 
+            if (MessageBox.Show("Bạn có chắc chắn muốn xóa hợp đồng: " + _SOHD + " không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+            {
+                string sohd = _SOHD;
+                await Task.Run(() => _hdld.Delete(sohd, 1));
+                await LoadDataAsync();
+                splitContainer1.Panel1Collapsed = true;
+            }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            SaveData();
-            LoadData();
-            _them = false;
-            showHide(true);
-            splitContainer1.Panel1Collapsed = true;
+            await SaveDataAsync();
         }
 
         private void btnHuy_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -135,45 +287,48 @@ namespace QLyNSu
             this.Close();
         }
 
-        private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            _lstHD = _hdld.getItem_FULL(_SOHD);
+            if (!Functions.FormSecurity.AssertPermission("F_NV_HOPDONG", Bu.DTO.PermissionAction.Print)) return;
+            if (string.IsNullOrEmpty(_SOHD))
+            {
+                MessageBox.Show("Vui lòng chọn hợp đồng để in.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            string sohd = _SOHD;
+            _lstHD = await Task.Run(() => _hdld.getItem_FULL(sohd));
             rptHopDongLaoDong rpt = new rptHopDongLaoDong(_lstHD);
             rpt.ShowRibbonPreview();
         }
 
-        private void SaveData()
+        private async Task SaveDataAsync()
         {
             try
             {
-                if (_them)
+                var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
+                if (!Functions.FormSecurity.AssertPermission("F_NV_HOPDONG", permAction)) return;
+                if (string.IsNullOrWhiteSpace(cbThoiHan.Text))
                 {
-                    // Kiểm tra dữ liệu đầu vào
-                    if (string.IsNullOrWhiteSpace(cbThoiHan.Text))
-                    {
-                        MessageBox.Show("Vui lòng chọn thời hạn hợp đồng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                    MessageBox.Show("Vui lòng chọn thời hạn hợp đồng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-                    if (spHeSoLuong.EditValue == null || !decimal.TryParse(spHeSoLuong.EditValue.ToString(), out _))
-                    {
-                        MessageBox.Show("Vui lòng nhập hệ số lương hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                if (cbLoaiHD.SelectedValue == null)
+                {
+                    MessageBox.Show("Vui lòng chọn loại hợp đồng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-                    if (spLanKy.EditValue == null || !int.TryParse(spLanKy.EditValue.ToString(), out _))
-                    {
-                        MessageBox.Show("Vui lòng nhập số lần ký hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                if (searchMANV.EditValue == null || !int.TryParse(searchMANV.EditValue.ToString(), out int manv))
+                {
+                    MessageBox.Show("Vui lòng chọn nhân viên hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-                    if (searchMANV.EditValue == null || !int.TryParse(searchMANV.EditValue.ToString(), out _))
-                    {
-                        MessageBox.Show("Vui lòng chọn nhân viên hợp lệ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                bool isVoThoiHan = cbThoiHan.Text.Trim().Equals("Vô thời hạn", StringComparison.OrdinalIgnoreCase);
 
-                    // Kiểm tra ngày bắt đầu, ngày kết thúc và ngày ký
+                if (!isVoThoiHan)
+                {
                     if (dtNgayBatDau.Value > dtNgayKetThuc.Value)
                     {
                         MessageBox.Show("Ngày bắt đầu không thể lớn hơn ngày kết thúc.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -185,88 +340,169 @@ namespace QLyNSu
                         MessageBox.Show("Ngày ký phải nằm trong khoảng thời gian hợp đồng.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
-                    //Số hợp đồng: 00001/2024/HĐLĐ
-                    var maxSoHD = _hdld.MaxSoHopDong();
-                    int so = int.Parse(maxSoHD.Substring(0, 5)) + 1;
-
-                    TB_HOPDONG hd = new TB_HOPDONG();
-
-                    hd.SOHD = so.ToString("00000") + @"/" + DateTime.Now.Year.ToString() + @"/HĐLĐ";
-                    hd.NGAYBATDAU = dtNgayBatDau.Value;
-                    hd.NGAYKETTHUC = dtNgayKetThuc.Value;
-                    hd.NGAYKY = dtNgayKy.Value;
-                    hd.THOIHAN = cbThoiHan.Text; 
-                    hd.HESOLUONG = decimal.Parse(spHeSoLuong.EditValue.ToString());
-                    hd.LUONG_THOA_THUAN = decimal.Parse(spLuongThoaThuan.EditValue.ToString());
-                    hd.LANKY = int.Parse(spLanKy.EditValue.ToString());
-                    hd.MANV = int.Parse(searchMANV.EditValue.ToString());
-                    hd.NOIDUNG = txtNoiDung.RtfText;
-                    hd.IDCTY = 1;
-                    hd.CREATED_BY = 1;
-                    hd.CREATED_DATE = DateTime.Now;
-                    _hdld.Add(hd);
                 }
-                else
+
+                bool isThem = _them;
+                string currentSoHD = _SOHD;
+                DateTime ngayBatDau = dtNgayBatDau.Value;
+                DateTime? ngayKetThuc = isVoThoiHan ? (DateTime?)null : dtNgayKetThuc.Value;
+                DateTime ngayKy = dtNgayKy.Value;
+                string thoiHan = cbThoiHan.Text;
+                decimal loaiHd = Convert.ToDecimal(cbLoaiHD.SelectedValue);
+                decimal heSoLuong = Convert.ToDecimal(spHeSoLuong.EditValue ?? 1);
+                decimal luongThoaThuan = Convert.ToDecimal(spLuongThoaThuan.EditValue ?? 0);
+                int lanKy = Convert.ToInt32(spLanKy.EditValue ?? 1);
+                string rawNoiDung = txtNoiDung.Text ?? string.Empty;
+                string noiDung = rawNoiDung.Length > 4000 ? rawNoiDung.Substring(0, 4000) : rawNoiDung;
+
+                var allowances = new Dictionary<int, decimal>
                 {
-                    //Số hợp đồng: 00001/2024/HĐLĐ
-                    var hd = _hdld.getItem(_SOHD);
-                    if (hd == null)
+                    { 1, Convert.ToDecimal(spPC_NhaO.EditValue ?? 0) },
+                    { 2, Convert.ToDecimal(spPC_DiLai.EditValue ?? 0) },
+                    { 3, Convert.ToDecimal(spPC_GiaDinh.EditValue ?? 0) },
+                    { 4, Convert.ToDecimal(spPC_NguoiPhuThuoc.EditValue ?? 0) },
+                    { 5, Convert.ToDecimal(spPC_ChucVu.EditValue ?? 0) },
+                    { 6, Convert.ToDecimal(spPC_ChungChi.EditValue ?? 0) },
+                    { 7, Convert.ToDecimal(spPC_KyNang.EditValue ?? 0) },
+                    { 8, Convert.ToDecimal(spPC_KhuVuc.EditValue ?? 0) },
+                    { 9, Convert.ToDecimal(spPC_ChuyenCan.EditValue ?? 0) },
+                    { 10, Convert.ToDecimal(spPC_ThamNien.EditValue ?? 0) },
+                    { 11, Convert.ToDecimal(spPC_LamViecTaiNha.EditValue ?? 0) },
+                    { 12, Convert.ToDecimal(spPC_DacBiet.EditValue ?? 0) },
+                    { 13, Convert.ToDecimal(spPC_Khac.EditValue ?? 0) }
+                };
+
+                await Task.Run(() =>
+                {
+                    TB_HOPDONG hd;
+                    if (isThem)
                     {
-                        MessageBox.Show("Không tìm thấy hợp đồng với số hợp đồng: " + _SOHD, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        return;
+                        var maxSoHD = _hdld.MaxSoHopDong();
+                        int so = 1;
+                        if (!string.IsNullOrEmpty(maxSoHD) && maxSoHD.Length >= 5 && int.TryParse(maxSoHD.Substring(0, 5), out int parseSo))
+                        {
+                            so = parseSo + 1;
+                        }
+
+                        hd = new TB_HOPDONG();
+                        hd.SOHD = so.ToString("00000") + @"/" + DateTime.Now.Year.ToString() + @"/HĐLĐ";
+                        hd.CREATED_BY = 1;
+                        hd.CREATED_DATE = DateTime.Now;
+                    }
+                    else
+                    {
+                        hd = _hdld.getItem(currentSoHD);
+                        if (hd == null)
+                        {
+                            throw new Exception("Không tìm thấy hợp đồng: " + currentSoHD);
+                        }
+                        hd.UPDATE_BY = 1;
+                        hd.UPDATE_DATE = DateTime.Now;
                     }
 
-                    hd.NGAYBATDAU = dtNgayBatDau.Value;
-                    hd.NGAYKETTHUC = dtNgayKetThuc.Value;
-                    hd.NGAYKY = dtNgayKy.Value;
-                    hd.THOIHAN = cbThoiHan.Text;
-                    hd.HESOLUONG = decimal.Parse(spHeSoLuong.EditValue.ToString());
-                    hd.LUONG_THOA_THUAN = decimal.Parse(spLuongThoaThuan.EditValue.ToString());
-                    hd.LANKY = int.Parse(spLanKy.EditValue.ToString());
-                    hd.MANV = int.Parse(searchMANV.EditValue.ToString());
-                    hd.NOIDUNG = txtNoiDung.RtfText;
+                    hd.MANV = manv;
+                    hd.NGAYBATDAU = ngayBatDau;
+                    hd.NGAYKETTHUC = ngayKetThuc;
+                    hd.NGAYKY = ngayKy;
+                    hd.THOIHAN = thoiHan;
+                    hd.LOAIHD = loaiHd;
+                    hd.HESOLUONG = heSoLuong;
+                    hd.LUONG_THOA_THUAN = luongThoaThuan;
+                    hd.LANKY = lanKy;
+                    hd.NOIDUNG = noiDung;
                     hd.IDCTY = 1;
-                    hd.CREATED_BY = 1;
-                    hd.CREATED_DATE = DateTime.Now;
-                    _hdld.Update(hd);
-                }
+
+                    if (isThem)
+                    {
+                        _hdld.Add(hd);
+                    }
+                    else
+                    {
+                        _hdld.Update(hd);
+                    }
+
+                    _phucap.SavePhuCapHopDong(manv, allowances);
+                });
+
+                MessageBox.Show("Lưu hợp đồng và 13 loại phụ cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                await LoadDataAsync();
+                _them = false;
+                showHide(true);
+                splitContainer1.Panel1Collapsed = true;
             }
             catch (Exception ex)
             {
-                // Xử lý lỗi và hiển thị thông báo lỗi cho người dùng
                 MessageBox.Show("Lỗi khi lưu dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void gvDsHDLD_Click(object sender, EventArgs e)
+        private async void gvDsHDLD_Click(object sender, EventArgs e)
         {
-            if (gvDsHDLD.RowCount > 0)
+            if (gvDsHDLD.RowCount > 0 && gvDsHDLD.FocusedRowHandle >= 0)
             {
-                _SOHD = gvDsHDLD.GetFocusedRowCellValue("SOHD").ToString();
-                var hd = _hdld.getItem(_SOHD);
+                var rowVal = gvDsHDLD.GetFocusedRowCellValue("SOHD");
+                if (rowVal == null) return;
+                _SOHD = rowVal.ToString();
+                string sohd = _SOHD;
+                var hd = await Task.Run(() => _hdld.getItem(sohd));
+                if (hd == null) return;
 
                 txtSoHD.Text = _SOHD;
                 dtNgayBatDau.Value = hd.NGAYBATDAU ?? DateTime.Now;
-                dtNgayKetThuc.Value = hd.NGAYKETTHUC ?? DateTime.Now;
                 dtNgayKy.Value = hd.NGAYKY ?? DateTime.Now;
-                cbThoiHan.Text = hd.THOIHAN;
-                spHeSoLuong.Text= hd.HESOLUONG.ToString();
-                spLuongThoaThuan.EditValue = hd.LUONG_THOA_THUAN ?? 0;
-                spLanKy.Text = hd.LANKY.ToString();
-                searchMANV.EditValue = hd.MANV;
-                txtNoiDung.RtfText = hd.NOIDUNG;
+                cbThoiHan.Text = hd.THOIHAN ?? "1 Năm";
 
-                _lstHD = _hdld.getItem_FULL(_SOHD);
+                bool isVoThoiHan = (hd.THOIHAN == "Vô thời hạn") || !hd.NGAYKETTHUC.HasValue;
+                if (isVoThoiHan)
+                {
+                    cbThoiHan.Text = "Vô thời hạn";
+                    dtNgayKetThuc.Enabled = false;
+                }
+                else
+                {
+                    dtNgayKetThuc.Value = hd.NGAYKETTHUC.Value;
+                    dtNgayKetThuc.Enabled = true;
+                }
+
+                spHeSoLuong.EditValue = hd.HESOLUONG ?? 1;
+                spLuongThoaThuan.EditValue = hd.LUONG_THOA_THUAN ?? 0;
+                spLanKy.EditValue = hd.LANKY ?? 1;
+                searchMANV.EditValue = hd.MANV;
+                if (hd.LOAIHD.HasValue)
+                {
+                    cbLoaiHD.SelectedValue = hd.LOAIHD.Value;
+                }
+                else
+                {
+                    cbLoaiHD.SelectedIndex = -1;
+                }
+                txtNoiDung.Text = StripRtfIfNeeded(hd.NOIDUNG);
+
+                if (hd.MANV.HasValue)
+                {
+                    await LoadPhuCapForNhanVienAsync(Convert.ToInt32(hd.MANV.Value));
+                }
+
+                _lstHD = await Task.Run(() => _hdld.getItem_FULL(sohd));
             }
         }
 
         private void cbThoiHan_SelectedIndexChanged(object sender, EventArgs e)
         {
-            // Lấy giá trị ngày bắt đầu từ DateTimePicker
+            if (cbThoiHan.SelectedItem == null) return;
+            string selected = cbThoiHan.SelectedItem.ToString();
+
+            if (selected == "Vô thời hạn")
+            {
+                dtNgayKetThuc.Enabled = false;
+                return;
+            }
+
+            dtNgayKetThuc.Enabled = true;
             DateTime startDate = dtNgayBatDau.Value;
 
-            // Cập nhật ngày kết thúc dựa trên lựa chọn trong ComboBox
-            switch (cbThoiHan.SelectedItem.ToString())
+            switch (selected)
             {
                 case "3 Tháng":
                     dtNgayKetThuc.Value = startDate.AddMonths(3);
@@ -295,9 +531,6 @@ namespace QLyNSu
                 case "6 Năm":
                     dtNgayKetThuc.Value = startDate.AddYears(6);
                     break;
-                default:
-                    MessageBox.Show("Lựa chọn không hợp lệ!");
-                    break;
             }
         }
 
@@ -306,7 +539,6 @@ namespace QLyNSu
             if (e.Column.Name == "DEL_BY")
             {
                 Image img;
-
                 if (e.CellValue != null)
                 {
                     img = Properties.Resources.del;

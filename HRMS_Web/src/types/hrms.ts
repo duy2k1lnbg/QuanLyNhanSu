@@ -225,12 +225,28 @@ export interface DanhMucAllDTO {
 }
 
 // Interfaces Authentication & Authorization
+export interface UserRightDetail {
+  FUNCTION_CODE?: string;
+  DESCRIPTION?: string;
+  CAN_VIEW?: boolean;
+  CAN_ADD?: boolean;
+  CAN_EDIT?: boolean;
+  CAN_DELETE?: boolean;
+  CAN_PRINT?: boolean;
+  CanView?: boolean;
+  CanAdd?: boolean;
+  CanEdit?: boolean;
+  CanDelete?: boolean;
+  CanPrint?: boolean;
+}
+
 export interface CurrentUserDTO {
   IdUser: number;
   Username: string;
   FullName: string;
   IsAdmin: boolean;
   Rights: string[];
+  DetailedRights?: Record<string, UserRightDetail>;
 }
 
 export interface LoginResponseDTO {
@@ -274,6 +290,11 @@ export interface SysRightItemDTO {
   Parent?: string;
   Sort?: number;
   HasRight: boolean;
+  CanView: boolean;
+  CanAdd: boolean;
+  CanEdit: boolean;
+  CanDelete: boolean;
+  CanPrint: boolean;
 }
 
 export interface SysFunctionDTO {

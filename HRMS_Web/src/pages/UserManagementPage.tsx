@@ -39,12 +39,19 @@ interface UserManagementPageProps {
   userLoading: boolean;
   currentUser?: CurrentUserDTO;
   onRefresh: () => void;
+  canAdd?: (...codes: string[]) => boolean;
+  canEdit?: (...codes: string[]) => boolean;
+  canDelete?: (...codes: string[]) => boolean;
+  canPrint?: (...codes: string[]) => boolean;
 }
 
 export function UserManagementPage({
   userList,
   userLoading,
   onRefresh,
+  canAdd,
+  canEdit,
+  canDelete,
 }: UserManagementPageProps) {
   const [userTab, setUserTab] = useState<'users' | 'groups'>('users');
   const [userSearchText, setUserSearchText] = useState('');
@@ -207,47 +214,55 @@ export function UserManagementPage({
 
         return (
           <Space size="small" wrap>
-            <Button
-              size="small"
-              icon={<SettingOutlined />}
-              style={{ borderColor: '#fa8c16', color: '#fa8c16' }}
-              onClick={() => {
-                setSelectedUserForPerms(record);
-                setPhanQuyenModalVisible(true);
-              }}
-            >
-              Phân quyền
-            </Button>
-            <Button
-              size="small"
-              icon={<EditOutlined />}
-              onClick={() => {
-                setSelectedUserForEdit(record);
-                setUserEditModalVisible(true);
-              }}
-            >
-              Sửa
-            </Button>
-            <Popconfirm
-              title={record.Disabled ? 'Mở khóa tài khoản?' : 'Khóa tài khoản?'}
-              description={`Bạn có chắc muốn ${record.Disabled ? 'mở khóa' : 'tạm khóa'} tài khoản [${record.Username}]?`}
-              onConfirm={() => handleToggleLock(record)}
-              okText="Đồng ý"
-              cancelText="Hủy"
-            >
-              <Button size="small" danger={!record.Disabled}>
-                {record.Disabled ? 'Mở khóa' : 'Khóa'}
+            {(!canEdit || canEdit('F_SYSTEM_USER', 'PHANQUYEN')) && (
+              <Button
+                size="small"
+                icon={<SettingOutlined />}
+                style={{ borderColor: '#fa8c16', color: '#fa8c16' }}
+                onClick={() => {
+                  setSelectedUserForPerms(record);
+                  setPhanQuyenModalVisible(true);
+                }}
+              >
+                Phân quyền
               </Button>
-            </Popconfirm>
-            <Popconfirm
-              title="Xóa tài khoản?"
-              description={`Bạn có chắc chắn muốn xóa tài khoản [${record.Username}] không?`}
-              onConfirm={() => handleDeleteUser(record)}
-              okText="Xóa"
-              cancelText="Hủy"
-            >
-              <Button size="small" danger icon={<DeleteOutlined />} />
-            </Popconfirm>
+            )}
+            {(!canEdit || canEdit('F_SYSTEM_USER')) && (
+              <Button
+                size="small"
+                icon={<EditOutlined />}
+                onClick={() => {
+                  setSelectedUserForEdit(record);
+                  setUserEditModalVisible(true);
+                }}
+              >
+                Sửa
+              </Button>
+            )}
+            {(!canEdit || canEdit('F_SYSTEM_USER')) && (
+              <Popconfirm
+                title={record.Disabled ? 'Mở khóa tài khoản?' : 'Khóa tài khoản?'}
+                description={`Bạn có chắc muốn ${record.Disabled ? 'mở khóa' : 'tạm khóa'} tài khoản [${record.Username}]?`}
+                onConfirm={() => handleToggleLock(record)}
+                okText="Đồng ý"
+                cancelText="Hủy"
+              >
+                <Button size="small" danger={!record.Disabled}>
+                  {record.Disabled ? 'Mở khóa' : 'Khóa'}
+                </Button>
+              </Popconfirm>
+            )}
+            {(!canDelete || canDelete('F_SYSTEM_USER')) && (
+              <Popconfirm
+                title="Xóa tài khoản?"
+                description={`Bạn có chắc chắn muốn xóa tài khoản [${record.Username}] không?`}
+                onConfirm={() => handleDeleteUser(record)}
+                okText="Xóa"
+                cancelText="Hủy"
+              >
+                <Button size="small" danger icon={<DeleteOutlined />} />
+              </Popconfirm>
+            )}
           </Space>
         );
       },
@@ -293,48 +308,56 @@ export function UserManagementPage({
       width: 320,
       render: (_, record) => (
         <Space size="small" wrap>
-          <Button
-            size="small"
-            icon={<SettingOutlined />}
-            style={{ borderColor: '#fa8c16', color: '#fa8c16' }}
-            onClick={() => {
-              setSelectedUserForPerms(record);
-              setPhanQuyenModalVisible(true);
-            }}
-          >
-            Phân quyền nhóm
-          </Button>
-          <Button
-            size="small"
-            type="primary"
-            ghost
-            icon={<TeamOutlined />}
-            onClick={() => {
-              setSelectedGroupForMembers(record);
-              setGroupMembersModalVisible(true);
-            }}
-          >
-            Thành viên ({record.MemberCount || 0})
-          </Button>
-          <Button
-            size="small"
-            icon={<EditOutlined />}
-            onClick={() => {
-              setSelectedUserForEdit(record);
-              setUserEditModalVisible(true);
-            }}
-          >
-            Sửa
-          </Button>
-          <Popconfirm
-            title="Xóa nhóm quyền?"
-            description={`Bạn có chắc muốn xóa nhóm [${record.Username}] không? Toàn bộ liên kết thành viên và quyền hạn liên quan sẽ bị xóa.`}
-            onConfirm={() => handleDeleteUser(record)}
-            okText="Xóa"
-            cancelText="Hủy"
-          >
-            <Button size="small" danger icon={<DeleteOutlined />} />
-          </Popconfirm>
+          {(!canEdit || canEdit('F_SYSTEM_GROUP', 'PHANQUYEN')) && (
+            <Button
+              size="small"
+              icon={<SettingOutlined />}
+              style={{ borderColor: '#fa8c16', color: '#fa8c16' }}
+              onClick={() => {
+                setSelectedUserForPerms(record);
+                setPhanQuyenModalVisible(true);
+              }}
+            >
+              Phân quyền nhóm
+            </Button>
+          )}
+          {(!canEdit || canEdit('F_SYSTEM_GROUP')) && (
+            <Button
+              size="small"
+              type="primary"
+              ghost
+              icon={<TeamOutlined />}
+              onClick={() => {
+                setSelectedGroupForMembers(record);
+                setGroupMembersModalVisible(true);
+              }}
+            >
+              Thành viên ({record.MemberCount || 0})
+            </Button>
+          )}
+          {(!canEdit || canEdit('F_SYSTEM_GROUP')) && (
+            <Button
+              size="small"
+              icon={<EditOutlined />}
+              onClick={() => {
+                setSelectedUserForEdit(record);
+                setUserEditModalVisible(true);
+              }}
+            >
+              Sửa
+            </Button>
+          )}
+          {(!canDelete || canDelete('F_SYSTEM_GROUP')) && (
+            <Popconfirm
+              title="Xóa nhóm quyền?"
+              description={`Bạn có chắc muốn xóa nhóm [${record.Username}] không? Toàn bộ liên kết thành viên và quyền hạn liên quan sẽ bị xóa.`}
+              onConfirm={() => handleDeleteUser(record)}
+              okText="Xóa"
+              cancelText="Hủy"
+            >
+              <Button size="small" danger icon={<DeleteOutlined />} />
+            </Popconfirm>
+          )}
         </Space>
       ),
     },
@@ -354,17 +377,19 @@ export function UserManagementPage({
               allowClear
               style={{ width: 240 }}
             />
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                setIsCreatingGroup(userTab === 'groups');
-                formCreateUser.resetFields();
-                setCreateUserModalVisible(true);
-              }}
-            >
-              {userTab === 'users' ? 'Thêm Người Dùng' : 'Thêm Nhóm Quyền'}
-            </Button>
+            {(!canAdd || (userTab === 'users' ? canAdd('F_SYSTEM_USER') : canAdd('F_SYSTEM_GROUP'))) && (
+              <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setIsCreatingGroup(userTab === 'groups');
+                  formCreateUser.resetFields();
+                  setCreateUserModalVisible(true);
+                }}
+              >
+                {userTab === 'users' ? 'Thêm Người Dùng' : 'Thêm Nhóm Quyền'}
+              </Button>
+            )}
             <Button icon={<ReloadOutlined />} onClick={onRefresh}>
               Làm mới
             </Button>

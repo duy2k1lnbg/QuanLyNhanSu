@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using DA;
 using DevExpress.XtraEditors;
 using System;
@@ -28,11 +28,8 @@ namespace QLyNSu
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnThem.Enabled = kt;
-            btnXoa.Enabled = kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
+            Functions.FormSecurity.ApplyButtons("F_DM_BOPHAN", btnThem, btnSua, btnXoa, btnIn, kt);
             txtTen.Enabled = !kt;
         }
 
@@ -46,6 +43,9 @@ namespace QLyNSu
         {
             try
             {
+                var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
+                if (!Functions.FormSecurity.AssertPermission("F_DM_BOPHAN", permAction)) return;
+
                 if (_them)
                 {
                     TB_BOPHAN bp = new TB_BOPHAN();
@@ -77,6 +77,7 @@ namespace QLyNSu
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_BOPHAN", Bu.DTO.PermissionAction.Add)) return;
             _them = true;
             showHide(false);
             txtTen.Text = string.Empty;
@@ -109,6 +110,7 @@ namespace QLyNSu
 
         private void FrmBoPhan_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_BOPHAN")) return;
             _them = false;
             _bophan = new BOPHAN();
             showHide(true);
@@ -118,12 +120,14 @@ namespace QLyNSu
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_BOPHAN", Bu.DTO.PermissionAction.Edit)) return;
             _them = false;
             showHide(false);
         }
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_BOPHAN", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
             if (_IDBP <= 0)
             {
@@ -161,7 +165,7 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            if (!Functions.FormSecurity.AssertPermission("F_DM_BOPHAN", Bu.DTO.PermissionAction.Print)) return;
         }
     }
 }

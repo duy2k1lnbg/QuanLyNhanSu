@@ -28,6 +28,8 @@ namespace QLyNSu
 
         private void FrmDieuChuyen_NhanVien_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_NV_DIEUCHUYEN")) return;
+
             _dcnv = new DIEUCHUYEN_NHANVIEN();
             _nhanvien = new NHANVIEN();
             _phongban = new PHONGBAN();
@@ -41,6 +43,7 @@ namespace QLyNSu
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_NV_DIEUCHUYEN", Bu.DTO.PermissionAction.Add)) return;
             _them = true;
             showHide(false);
             _reset();
@@ -49,6 +52,7 @@ namespace QLyNSu
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_NV_DIEUCHUYEN", Bu.DTO.PermissionAction.Edit)) return;
             _them = false;
             showHide(false);
             splitContainer1.Panel1Collapsed = false;
@@ -57,6 +61,7 @@ namespace QLyNSu
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_NV_DIEUCHUYEN", Bu.DTO.PermissionAction.Delete)) return;
             splitContainer1.Panel1Collapsed = true;
             // Hiển thị hộp thoại xác nhận
             if (MessageBox.Show("Bạn có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
@@ -90,6 +95,7 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_NV_DIEUCHUYEN", Bu.DTO.PermissionAction.Print)) return;
             //_lstKL = _ktkl.getItem_FULL(2, _SOQD);
             //rptKyLuat rpt = new rptKyLuat(_lstKL);
             //rpt.ShowRibbonPreview();
@@ -133,12 +139,9 @@ namespace QLyNSu
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnThem.Enabled = kt;
-            btnXoa.Enabled = kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
             gcDsDC.Enabled = kt;
+            Functions.FormSecurity.ApplyButtons("F_NV_DIEUCHUYEN", btnThem, btnSua, btnXoa, btnIn, kt);
             txtLyDoDC.Enabled = !kt;
             txtGhiChu.Enabled = !kt;
             txtSoQD.Enabled = !kt;
@@ -182,6 +185,9 @@ namespace QLyNSu
             TB_DIEUCHUYEN_NHANVIEN dc;
             try
             {
+                var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
+                if (!Functions.FormSecurity.AssertPermission("F_NV_DIEUCHUYEN", permAction)) return;
+
                 if (_them)
                 {
                     // Kiểm tra dữ liệu đầu vào

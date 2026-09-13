@@ -258,8 +258,10 @@ namespace HRMS_API.Controllers
                 var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
                 int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
                 int ctyId = param.MaCty > 0 ? param.MaCty : ((jwtUser != null && int.TryParse(jwtUser.MaCty, out int uc) && uc > 0) ? uc : 1);
-
+                int makycong = param.Nam * 100 + param.Thang;
                 _kyCongCTBus.phatSinhKyCongChiTiet(ctyId, param.Thang, param.Nam, currentUserId);
+                _bcChiTietBus.PhatSinhBangCongChiTiet(makycong, param.Nam, param.Thang, currentUserId, null);
+
                 return Ok(new
                 {
                     success = true,

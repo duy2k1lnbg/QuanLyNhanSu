@@ -74,6 +74,8 @@ namespace QLyNSu
             this.btnDashboardLuong = new DevExpress.XtraBars.BarButtonItem();
             this.btnThongBao = new DevExpress.XtraBars.BarButtonItem();
             this.btnGiamSat = new DevExpress.XtraBars.BarButtonItem();
+            this.btnLoaiHopDong = new DevExpress.XtraBars.BarButtonItem();
+            this.btnNgayLe = new DevExpress.XtraBars.BarButtonItem();
             this.ribbonMiniToolbar1 = new DevExpress.XtraBars.Ribbon.RibbonMiniToolbar(this.components);
             this.ribbonPage1 = new DevExpress.XtraBars.Ribbon.RibbonPage();
             this.ribbonPageGroup3 = new DevExpress.XtraBars.Ribbon.RibbonPageGroup();
@@ -154,10 +156,12 @@ namespace QLyNSu
             this.btnDashboardNhanSu,
             this.btnDashboardLuong,
             this.btnThongBao,
-            this.btnGiamSat});
+            this.btnGiamSat,
+            this.btnLoaiHopDong,
+            this.btnNgayLe});
             this.ribbonControl1.Location = new System.Drawing.Point(0, 0);
             this.ribbonControl1.Margin = new System.Windows.Forms.Padding(4);
-            this.ribbonControl1.MaxItemId = 44;
+            this.ribbonControl1.MaxItemId = 47;
             this.ribbonControl1.MiniToolbars.Add(this.ribbonMiniToolbar1);
             this.ribbonControl1.Name = "ribbonControl1";
             this.ribbonControl1.OptionsMenuMinWidth = 385;
@@ -248,6 +252,15 @@ namespace QLyNSu
             this.btnHopDong.Name = "btnHopDong";
             this.btnHopDong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barButtonItem9_ItemClick);
             // 
+            // btnLoaiHopDong
+            // 
+            this.btnLoaiHopDong.Caption = "Loại Hợp Đồng";
+            this.btnLoaiHopDong.Id = 44;
+            this.btnLoaiHopDong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnHopDong.ImageOptions.LargeImage")));
+            this.btnLoaiHopDong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnHopDong.ImageOptions.SvgImage")));
+            this.btnLoaiHopDong.Name = "btnLoaiHopDong";
+            this.btnLoaiHopDong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnLoaiHopDong_ItemClick);
+            // 
             // btnKhenThuong
             // 
             this.btnKhenThuong.Caption = "Khen Thưởng";
@@ -291,6 +304,15 @@ namespace QLyNSu
             this.btnLoaiCong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLoaiCong.ImageOptions.SvgImage")));
             this.btnLoaiCong.Name = "btnLoaiCong";
             this.btnLoaiCong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnLoaiCong_ItemClick);
+            // 
+            // btnNgayLe
+            // 
+            this.btnNgayLe.Caption = "Ngày Lễ";
+            this.btnNgayLe.Id = 45;
+            this.btnNgayLe.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnLoaiCong.ImageOptions.LargeImage")));
+            this.btnNgayLe.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnLoaiCong.ImageOptions.SvgImage")));
+            this.btnNgayLe.Name = "btnNgayLe";
+            this.btnNgayLe.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnNgayLe_ItemClick);
             // 
             // btnPhuCap
             // 
@@ -596,6 +618,7 @@ namespace QLyNSu
             // ribbonPageGroup4
             // 
             this.ribbonPageGroup4.ItemLinks.Add(this.btnHopDong, true);
+            this.ribbonPageGroup4.ItemLinks.Add(this.btnLoaiHopDong, true);
             this.ribbonPageGroup4.ItemLinks.Add(this.btnNangLuong, true);
             this.ribbonPageGroup4.ItemLinks.Add(this.btnKhenThuong, true);
             this.ribbonPageGroup4.ItemLinks.Add(this.btnKyLuat, true);
@@ -620,6 +643,7 @@ namespace QLyNSu
             // 
             this.ribbonPageGroup5.ItemLinks.Add(this.btnLoaiCa, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnLoaiCong, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnNgayLe, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnPhuCap, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnTangCa, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnUngLuong, true);
@@ -823,6 +847,8 @@ namespace QLyNSu
         private DevExpress.XtraBars.BarButtonItem btnSetting;
         private DevExpress.XtraBars.BarButtonItem btnDashboardNhanSu;
         private DevExpress.XtraBars.BarButtonItem btnDashboardLuong;
+        private DevExpress.XtraBars.BarButtonItem btnLoaiHopDong;
+        private DevExpress.XtraBars.BarButtonItem btnNgayLe;
     }
 }
 

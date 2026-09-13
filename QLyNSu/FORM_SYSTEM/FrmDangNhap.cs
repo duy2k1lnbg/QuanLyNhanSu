@@ -289,6 +289,7 @@ namespace QLyNSu.FORM_SYSTEM
                     }
 
                     UserSession.CurrentUser = user;
+                    UserSession.DetailedRights = sysUser.GetDetailedRights(user.IDUSER);
                     UserSession.UserRights = sysUser.GetRights(user.IDUSER);
                     
                     // Set Global Audit properties

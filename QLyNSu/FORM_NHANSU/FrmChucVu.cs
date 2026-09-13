@@ -28,11 +28,8 @@ namespace QLyNSu
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnThem.Enabled = kt;
-            btnXoa.Enabled = kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
+            Functions.FormSecurity.ApplyButtons("F_DM_CHUCVU", btnThem, btnSua, btnXoa, btnIn, kt);
             txtTen.Enabled = !kt;
         }
 
@@ -47,6 +44,9 @@ namespace QLyNSu
         {
             try
             {
+                var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
+                if (!Functions.FormSecurity.AssertPermission("F_DM_CHUCVU", permAction)) return;
+
                 if (string.IsNullOrWhiteSpace(txtTen.Text))
                 {
                     MessageBox.Show("Vui lòng điền tên chức vụ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -82,6 +82,7 @@ namespace QLyNSu
         }
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_CHUCVU", Bu.DTO.PermissionAction.Add)) return;
             _them = true;
             showHide(false);
             txtTen.Text = string.Empty;
@@ -89,12 +90,14 @@ namespace QLyNSu
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_CHUCVU", Bu.DTO.PermissionAction.Edit)) return;
             _them = false;
             showHide(false);
         }
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_CHUCVU", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
             if (_IDCV <= 0)
             {
@@ -132,7 +135,7 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            if (!Functions.FormSecurity.AssertPermission("F_DM_CHUCVU", Bu.DTO.PermissionAction.Print)) return;
         }
 
         private void gvDsCV_Click(object sender, EventArgs e)
@@ -162,6 +165,7 @@ namespace QLyNSu
 
         private void FrmChucVu_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_CHUCVU")) return;
             _them = false;
             _chucvu = new CHUCVU();
             showHide(true);

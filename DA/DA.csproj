@@ -247,6 +247,9 @@
     <Compile Include="TB_TANGCA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_HESO_TANGCA.cs" />
+    <Compile Include="TB_LOAIHOPDONG.cs" />
+    <Compile Include="TB_NGAYLE.cs" />
     <Compile Include="TB_TONGIAO.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>

@@ -17,6 +17,8 @@ namespace Bu.DTO
         public Nullable<decimal> HESOLUONG { get; set; }
         public Nullable<decimal> LUONG_THOA_THUAN { get; set; }
         public Nullable<decimal> MANV { get; set; }
+        public Nullable<decimal> LOAIHD { get; set; }
+        public string TENLOAIHD { get; set; }
         public string SOHD { get; set; }
         public Nullable<decimal> IDCTY { get; set; }
         public Nullable<decimal> DEL_BY { get; set; }

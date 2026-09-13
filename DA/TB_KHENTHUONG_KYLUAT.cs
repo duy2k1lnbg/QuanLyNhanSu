@@ -28,6 +28,9 @@ namespace DA
         public Nullable<decimal> DELETED_BY { get; set; }
         public Nullable<System.DateTime> DELETED_DATE { get; set; }
         public string SOQUYETDINH { get; set; }
+        public Nullable<decimal> SOTIEN { get; set; }
+        public Nullable<decimal> THANG_APDUNG { get; set; }
+        public Nullable<decimal> NAM_APDUNG { get; set; }
     
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }

@@ -17,5 +17,10 @@ namespace DA
         public string FUNCTION_CODE { get; set; }
         public decimal IDUSER { get; set; }
         public Nullable<decimal> USER_RIGHT { get; set; }
+        public Nullable<decimal> CAN_VIEW { get; set; }
+        public Nullable<decimal> CAN_ADD { get; set; }
+        public Nullable<decimal> CAN_EDIT { get; set; }
+        public Nullable<decimal> CAN_DELETE { get; set; }
+        public Nullable<decimal> CAN_PRINT { get; set; }
     }
 }

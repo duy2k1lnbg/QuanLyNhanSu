@@ -9,7 +9,8 @@ import {
   RobotOutlined,
   ArrowRightOutlined,
 } from '@ant-design/icons';
-import type { NhanVienDTO, KyCongDTO, HopDongDTO } from '../types/hrms';
+import type { NhanVienDTO, KyCongDTO, HopDongDTO, CurrentUserDTO } from '../types/hrms';
+import { canView, canAdd, canEdit, canAccessRoute } from '../utils/permissionUtils';
 
 export interface CommandPaletteModalProps {
   visible: boolean;
@@ -20,6 +21,7 @@ export interface CommandPaletteModalProps {
   onSelectEmployee?: (emp: NhanVienDTO) => void;
   onNavigate: (route: string) => void;
   onOpenAiDrawer?: () => void;
+  currentUser?: CurrentUserDTO;
 }
 
 interface SearchItem {
@@ -42,14 +44,28 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   onSelectEmployee,
   onNavigate,
   onOpenAiDrawer,
+  currentUser: propUser,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
-  // Global Quick Actions
-  const systemActions: SearchItem[] = useMemo(
-    () => [
-      {
+  // Fallback to localStorage user if not passed in prop
+  const currentUser: CurrentUserDTO | undefined = useMemo(() => {
+    if (propUser) return propUser;
+    try {
+      const stored = localStorage.getItem('hrms_user');
+      return stored ? JSON.parse(stored) : undefined;
+    } catch {
+      return undefined;
+    }
+  }, [propUser]);
+
+  // Global Quick Actions guarded by permissions
+  const systemActions: SearchItem[] = useMemo(() => {
+    const list: SearchItem[] = [];
+
+    if (canAdd(currentUser, 'F_DM_NHANVIEN')) {
+      list.push({
         id: 'act-add-emp',
         type: 'action',
         title: 'Thêm hồ sơ nhân viên mới',
@@ -61,8 +77,11 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           onNavigate('nhanvien');
           onClose();
         },
-      },
-      {
+      });
+    }
+
+    if (canEdit(currentUser, 'F_CC_BANGLUONG') || canAdd(currentUser, 'F_CC_BANGLUONG')) {
+      list.push({
         id: 'act-tinh-luong',
         type: 'action',
         title: 'Tính toán bảng lương tự động',
@@ -74,21 +93,25 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           onNavigate('bangluong');
           onClose();
         },
+      });
+    }
+
+    list.push({
+      id: 'act-ai-copilot',
+      type: 'action',
+      title: 'Trợ lý AI Copilot phân tích dữ liệu',
+      subtitle: 'Hỏi đáp báo cáo, dự báo biến động lương và bất thường',
+      icon: <RobotOutlined style={{ color: '#8b5cf6' }} />,
+      tag: 'AI',
+      tagColor: 'purple',
+      action: () => {
+        onClose();
+        if (onOpenAiDrawer) onOpenAiDrawer();
       },
-      {
-        id: 'act-ai-copilot',
-        type: 'action',
-        title: 'Trợ lý AI Copilot phân tích dữ liệu',
-        subtitle: 'Hỏi đáp báo cáo, dự báo biến động lương và bất thường',
-        icon: <RobotOutlined style={{ color: '#8b5cf6' }} />,
-        tag: 'AI',
-        tagColor: 'purple',
-        action: () => {
-          onClose();
-          if (onOpenAiDrawer) onOpenAiDrawer();
-        },
-      },
-      {
+    });
+
+    if (canView(currentUser, 'F_CC_BANGCONG') || canAccessRoute(currentUser, 'chamcong')) {
+      list.push({
         id: 'act-cham-cong',
         type: 'navigation',
         title: 'Bảng chấm công & Ca làm việc',
@@ -100,8 +123,11 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           onNavigate('chamcong');
           onClose();
         },
-      },
-      {
+      });
+    }
+
+    if (canView(currentUser, 'F_NV_HOPDONG') || canAccessRoute(currentUser, 'hopdong')) {
+      list.push({
         id: 'act-hop-dong',
         type: 'navigation',
         title: 'Hợp đồng lao động & Tái ký',
@@ -113,10 +139,11 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
           onNavigate('hopdong');
           onClose();
         },
-      },
-    ],
-    [onNavigate, onClose, onOpenAiDrawer]
-  );
+      });
+    }
+
+    return list;
+  }, [currentUser, onNavigate, onClose, onOpenAiDrawer]);
 
   // Search filter
   const filteredItems = useMemo(() => {
@@ -132,78 +159,84 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       }
     });
 
-    // 2. Filter Employees
-    nhanVienList.forEach((emp) => {
-      const matchName = emp.HOTEN?.toLowerCase().includes(term);
-      const matchId = String(emp.MANV).includes(term);
-      const matchPb = emp.TENPB?.toLowerCase().includes(term);
-      const matchCv = emp.TENCV?.toLowerCase().includes(term);
-      const matchPhone = emp.DIENTHOAI?.includes(term);
+    // 2. Filter Employees (Only if user has VIEW permission on employee module)
+    if (canView(currentUser, 'F_DM_NHANVIEN') || canAccessRoute(currentUser, 'nhanvien')) {
+      nhanVienList.forEach((emp) => {
+        const matchName = emp.HOTEN?.toLowerCase().includes(term);
+        const matchId = String(emp.MANV).includes(term);
+        const matchPb = emp.TENPB?.toLowerCase().includes(term);
+        const matchCv = emp.TENCV?.toLowerCase().includes(term);
+        const matchPhone = emp.DIENTHOAI?.includes(term);
 
-      if (matchName || matchId || matchPb || matchCv || matchPhone) {
-        results.push({
-          id: `emp-${emp.MANV}`,
-          type: 'employee',
-          title: emp.HOTEN,
-          subtitle: `Mã NV #${emp.MANV} • ${emp.TENPB || 'Chưa phân phòng'} • ${emp.TENCV || 'Nhân viên'}`,
-          icon: <UserOutlined style={{ color: '#3b82f6' }} />,
-          tag: 'Nhân sự 360°',
-          tagColor: 'cyan',
-          action: () => {
-            onClose();
-            if (onSelectEmployee) {
-              onSelectEmployee(emp);
-            } else {
-              onNavigate('nhanvien');
-            }
-          },
-        });
-      }
-    });
+        if (matchName || matchId || matchPb || matchCv || matchPhone) {
+          results.push({
+            id: `emp-${emp.MANV}`,
+            type: 'employee',
+            title: emp.HOTEN,
+            subtitle: `Mã NV #${emp.MANV} • ${emp.TENPB || 'Chưa phân phòng'} • ${emp.TENCV || 'Nhân viên'}`,
+            icon: <UserOutlined style={{ color: '#3b82f6' }} />,
+            tag: 'Nhân sự 360°',
+            tagColor: 'cyan',
+            action: () => {
+              onClose();
+              if (onSelectEmployee) {
+                onSelectEmployee(emp);
+              } else {
+                onNavigate('nhanvien');
+              }
+            },
+          });
+        }
+      });
+    }
 
-    // 3. Filter Contracts
-    hopDongList.forEach((hd) => {
-      const matchSoHd = hd.SOHD?.toLowerCase().includes(term);
-      const matchTen = hd.HOTEN?.toLowerCase().includes(term);
-      if (matchSoHd || matchTen) {
-        results.push({
-          id: `hd-${hd.SOHD}`,
-          type: 'contract',
-          title: `Hợp đồng #${hd.SOHD}`,
-          subtitle: `Nhân sự: ${hd.HOTEN || 'N/A'} • Lương: ${(hd.LUONG_THOA_THUAN ?? 0).toLocaleString('vi-VN')} đ`,
-          icon: <FileTextOutlined style={{ color: '#10b981' }} />,
-          tag: 'Hợp đồng',
-          tagColor: 'green',
-          action: () => {
-            onNavigate('hopdong');
-            onClose();
-          },
-        });
-      }
-    });
+    // 3. Filter Contracts (Only if user has VIEW permission on contracts)
+    if (canView(currentUser, 'F_NV_HOPDONG') || canAccessRoute(currentUser, 'hopdong')) {
+      hopDongList.forEach((hd) => {
+        const matchSoHd = hd.SOHD?.toLowerCase().includes(term);
+        const matchTen = hd.HOTEN?.toLowerCase().includes(term);
+        if (matchSoHd || matchTen) {
+          results.push({
+            id: `hd-${hd.SOHD}`,
+            type: 'contract',
+            title: `Hợp đồng #${hd.SOHD}`,
+            subtitle: `Nhân sự: ${hd.HOTEN || 'N/A'} • Lương: ${(hd.LUONG_THOA_THUAN ?? 0).toLocaleString('vi-VN')} đ`,
+            icon: <FileTextOutlined style={{ color: '#10b981' }} />,
+            tag: 'Hợp đồng',
+            tagColor: 'green',
+            action: () => {
+              onNavigate('hopdong');
+              onClose();
+            },
+          });
+        }
+      });
+    }
 
-    // 4. Filter Pay Periods (Ky Cong)
-    kyCongList.forEach((kc) => {
-      const termMatch = `kỳ lương ${kc.THANG}/${kc.NAM}`.includes(term) || `tháng ${kc.THANG}`.includes(term);
-      if (termMatch) {
-        results.push({
-          id: `kc-${kc.MAKYCONG}`,
-          type: 'payroll',
-          title: `Bảng lương Kỳ Tháng ${kc.THANG}/${kc.NAM}`,
-          subtitle: `Mã kỳ công #${kc.MAKYCONG} • ${kc.KHOA === 1 ? 'Đã khóa bảng' : 'Chưa khóa'}`,
-          icon: <DollarOutlined style={{ color: '#f59e0b' }} />,
-          tag: 'Bảng lương',
-          tagColor: 'gold',
-          action: () => {
-            onNavigate('bangluong');
-            onClose();
-          },
-        });
-      }
-    });
+    // 4. Filter Pay Periods (Only if user has VIEW permission on payroll)
+    if (canView(currentUser, 'F_CC_BANGLUONG') || canAccessRoute(currentUser, 'bangluong')) {
+      kyCongList.forEach((kc) => {
+        const termMatch = `kỳ lương ${kc.THANG}/${kc.NAM}`.includes(term) || `tháng ${kc.THANG}`.includes(term);
+        if (termMatch) {
+          results.push({
+            id: `kc-${kc.MAKYCONG}`,
+            type: 'payroll',
+            title: `Bảng lương Kỳ Tháng ${kc.THANG}/${kc.NAM}`,
+            subtitle: `Mã kỳ công #${kc.MAKYCONG} • ${kc.KHOA === 1 ? 'Đã khóa bảng' : 'Chưa khóa'}`,
+            icon: <DollarOutlined style={{ color: '#f59e0b' }} />,
+            tag: 'Bảng lương',
+            tagColor: 'gold',
+            action: () => {
+              onNavigate('bangluong');
+              onClose();
+            },
+          });
+        }
+      });
+    }
 
     return results.slice(0, 12);
-  }, [searchTerm, systemActions, nhanVienList, hopDongList, kyCongList, onClose, onSelectEmployee, onNavigate]);
+  }, [searchTerm, systemActions, nhanVienList, hopDongList, kyCongList, onClose, onSelectEmployee, onNavigate, currentUser]);
 
   useEffect(() => {
     setSelectedIndex(0);

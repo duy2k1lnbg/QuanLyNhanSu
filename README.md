@@ -185,6 +185,49 @@ Cấu trúc cơ sở dữ liệu bao gồm các nhóm bảng:
 
 ---
 
+### 💰 Quy Tắc & Công Thức Tính Lương (Payroll Engine)
+
+Hệ thống tính toán payroll tự động dựa trên mô hình 3 tầng dữ liệu (`TB_BANGCONG` $\to$ `TB_BANGCONG_CHITIET` $\to$ `TB_BANGLUONG`):
+
+#### 1. Tiền Công & Lương Thực Tế
+* **Đơn giá ngày**: `LƯƠNG CƠ BẢN / CÔNG CHUẨN` *(công chuẩn: 26 ngày)*
+* **Lương ca ngày**: `ĐƠN GIÁ NGÀY × CÔNG CA NGÀY`
+* **Lương ca đêm**: `ĐƠN GIÁ NGÀY × CÔNG CA ĐÊM × 1.30` *(hệ số ca đêm từ `TB_LOAICA`)*
+* **Tiền phụ cấp**: `(TỔNG PHỤ CẤP THÁNG / CÔNG CHUẨN) × CÔNG THỰC TẾ` *(theo `TB_NHANVIEN_PHUCAP`)*
+* **Tiền phép**: `SỐ NGÀY PHÉP × ĐƠN GIÁ PHÉP`
+* **Tiền chuyên cần**: Mức chuyên cần *(300.000 đ)* nếu đủ điều kiện công chuẩn, ngược lại bằng 0
+* **Tiền ăn ca**: `SỐ NGÀY HƯỞNG ĂN × ĐƠN GIÁ ĂN CA` *(ví dụ 12 đêm × 20.000 = 240.000 đ)*
+* **Lương thử việc & Khoản khác**: Tính theo ngày công thử việc (`HOPDONG.LOAIHD = 1`) và `KHOAN_CONG_KHAC` (tổng tiền khen thưởng `TB_KHENTHUONG_KYLUAT` có `LOAI = 1`, `SOTIEN > 0` áp dụng trong tháng/năm tính lương).
+
+$$\text{TỔNG TIỀN CÔNG THỰC TẾ} = \text{Lương ngày} + \text{Lương đêm} + \text{Lương thử việc} + \text{Phụ cấp} + \text{Phép} + \text{Chuyên cần} + \text{Ăn ca} + \text{Khoản cộng khác}$$
+
+#### 2. Tiền Tăng Ca (Overtime - OT)
+* **Tiền OT**: `SỐ GIỜ OT × MỨC TIỀN 1 GIỜ × HỆ SỐ OT` *(mức 1 giờ chuẩn: 25.000 đ)*
+* **OT thử việc**: `HỆ SỐ OT × 85%` *(áp dụng khi `HOPDONG.LOAIHD = 1`)*
+* **Hệ số OT quy định (`TB_HESO_TANGCA`)**:
+  - *Ngày thường*: 06h–08h & 17h–22h (**150%**); sau 22h–06h (**200%**).
+  - *Chủ nhật*: 08h–22h (**200%**); sau 22h–06h (**270%**).
+  - *Ca đêm*: 05h30–06h (**200%**); 06h–08h (**180%**); đêm CN 20h–08h (**270%**).
+  - *Ngày lễ*: 08h–22h (**300%**); sau 22h (**390%**).
+
+$$\text{TỔNG CỘNG THU NHẬP} = \text{TỔNG TIỀN CÔNG THỰC TẾ} + \text{TỔNG TIỀN OT}$$
+
+#### 3. Bảo Hiểm & Các Khoản Khấu Trừ
+* **Bảo hiểm trích nộp theo lương căn cứ (`TB_BAOHIEM.LUONG_BHXH`)**:
+  - `BHXH = LƯƠNG BHXH × 8%`
+  - `BHYT = LƯƠNG BHXH × 1.5%`
+  - `BHTN = LƯƠNG BHXH × 1%`
+* **Phí công đoàn**: `42.000 đ` *(theo cấu hình đoàn phí)*
+* **Thuế & Giảm trừ khác**:
+  - `TIỀN TẠM ỨNG`: Tổng số tiền ứng lương trong kỳ công theo ngày ứng được chọn (`TB_UNGLUONG.THANG`, `NAM`).
+  - `KHOAN_TRU_KHAC`: Bao gồm tiền phạt kỷ luật (`TB_KHENTHUONG_KYLUAT` có `LOAI = 2`, `SOTIEN > 0` áp dụng trong tháng/năm) cùng thuế TNCN và các khoản giảm trừ hợp lệ.
+
+$$\text{TỔNG KHẤU TRỪ} = \text{BHXH} + \text{BHYT} + \text{BHTN} + \text{PHÍ CÔNG ĐOÀN} + \text{THUẾ TNCN} + \text{TIỀN TẠM ỨNG} + \text{KHOẢN TRỪ KHÁC}$$
+
+$$\mathbf{THỰC\ LĨNH} = \mathbf{TỔNG\ CỘNG} - \mathbf{TỔNG\ KHẤU\ TRỪ} + \mathbf{HOÀN\ THUẾ}$$
+
+---
+
 ### 🛠 Công Nghệ Sử Dụng
 
 | Thành phần | Phiên bản / Chi tiết |

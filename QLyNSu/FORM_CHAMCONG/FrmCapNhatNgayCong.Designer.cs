@@ -1,4 +1,4 @@
-﻿namespace QLyNSu.FORM_CHAMCONG
+namespace QLyNSu.FORM_CHAMCONG
 {
     partial class FrmCapNhatNgayCong
     {
@@ -97,6 +97,8 @@
             this.radioChamCong.Properties.Appearance.Options.UseFont = true;
             this.radioChamCong.Properties.Columns = 2;
             this.radioChamCong.Properties.Items.AddRange(new DevExpress.XtraEditors.Controls.RadioGroupItem[] {
+            new DevExpress.XtraEditors.Controls.RadioGroupItem("X", "Ca ngày"),
+            new DevExpress.XtraEditors.Controls.RadioGroupItem("CD", "Ca đêm"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("P", "Nghỉ phép"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("V", "Vắng"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("VR", "Việc riêng"),

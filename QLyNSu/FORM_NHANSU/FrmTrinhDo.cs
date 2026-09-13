@@ -1,4 +1,4 @@
-﻿using DevExpress.XtraEditors;
+using DevExpress.XtraEditors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -28,11 +28,8 @@ namespace QLyNSu
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnThem.Enabled = kt;
-            btnXoa.Enabled = kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
+            Functions.FormSecurity.ApplyButtons("F_DM_TRINHDO", btnThem, btnSua, btnXoa, btnIn, kt);
             txtTen.Enabled = !kt;
         }
 
@@ -46,6 +43,9 @@ namespace QLyNSu
         {
             try
             {
+                var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
+                if (!Functions.FormSecurity.AssertPermission("F_DM_TRINHDO", permAction)) return;
+
                 if (string.IsNullOrWhiteSpace(txtTen.Text))
                 {
                     MessageBox.Show("Vui lòng điền tên trình độ.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -82,6 +82,7 @@ namespace QLyNSu
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_TRINHDO", Bu.DTO.PermissionAction.Add)) return;
             _them = true;
             showHide(false);
             txtTen.Text = string.Empty;
@@ -89,12 +90,14 @@ namespace QLyNSu
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_TRINHDO", Bu.DTO.PermissionAction.Edit)) return;
             _them = false;
             showHide(false);
         }
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_DM_TRINHDO", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
             if (_IDTD <= 0)
             {
@@ -132,11 +135,12 @@ namespace QLyNSu
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            if (!Functions.FormSecurity.AssertPermission("F_DM_TRINHDO", Bu.DTO.PermissionAction.Print)) return;
         }
 
         private void FrmTrinhDo_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_TRINHDO")) return;
             _them = false;
             _trinhdo = new TRINHDO();
             showHide(true);

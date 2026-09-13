@@ -1,4 +1,4 @@
-﻿namespace QLyNSu
+namespace QLyNSu
 {
     partial class FrmKyLuat
     {
@@ -62,6 +62,14 @@
             this.searchLookUpEdit1View = new DevExpress.XtraGrid.Views.Grid.GridView();
             this.colMANV = new DevExpress.XtraGrid.Columns.GridColumn();
             this.colHOTEN = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.spSoTien = new DevExpress.XtraEditors.TextEdit();
+            this.labelControlSoTien = new DevExpress.XtraEditors.LabelControl();
+            this.cbThangApDung = new DevExpress.XtraEditors.ComboBoxEdit();
+            this.labelControlThang = new DevExpress.XtraEditors.LabelControl();
+            this.spNamApDung = new DevExpress.XtraEditors.TextEdit();
+            this.labelControlNam = new DevExpress.XtraEditors.LabelControl();
+            this.colSOTIEN = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.colTHOIGIAN_APDUNG = new DevExpress.XtraGrid.Columns.GridColumn();
             this.labelControl7 = new DevExpress.XtraEditors.LabelControl();
             this.txtSoQD = new System.Windows.Forms.TextBox();
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
@@ -311,6 +319,12 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.spSoTien);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControlSoTien);
+            this.splitContainer1.Panel1.Controls.Add(this.cbThangApDung);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControlThang);
+            this.splitContainer1.Panel1.Controls.Add(this.spNamApDung);
+            this.splitContainer1.Panel1.Controls.Add(this.labelControlNam);
             this.splitContainer1.Panel1.Controls.Add(this.dtDenNgay);
             this.splitContainer1.Panel1.Controls.Add(this.labelControl5);
             this.splitContainer1.Panel1.Controls.Add(this.dtTuNgay);
@@ -330,8 +344,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.gcDsKl);
-            this.splitContainer1.Size = new System.Drawing.Size(1434, 520);
-            this.splitContainer1.SplitterDistance = 300;
+            this.splitContainer1.Size = new System.Drawing.Size(1434, 600);
+            this.splitContainer1.SplitterDistance = 345;
             this.splitContainer1.TabIndex = 9;
             // 
             // dtDenNgay
@@ -484,6 +498,8 @@
             this.MANV,
             this.HOTEN,
             this.NGAY,
+            this.colSOTIEN,
+            this.colTHOIGIAN_APDUNG,
             this.TUNGAY,
             this.DENNGAY,
             this.LYDO,
@@ -538,7 +554,35 @@
             this.NGAY.Name = "NGAY";
             this.NGAY.Visible = true;
             this.NGAY.VisibleIndex = 2;
-            this.NGAY.Width = 191;
+            this.NGAY.Width = 140;
+            // 
+            // colSOTIEN
+            // 
+            this.colSOTIEN.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.colSOTIEN.AppearanceHeader.Options.UseFont = true;
+            this.colSOTIEN.Caption = "SỐ TIỀN PHẠT";
+            this.colSOTIEN.DisplayFormat.FormatString = "n0";
+            this.colSOTIEN.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.colSOTIEN.FieldName = "SOTIEN";
+            this.colSOTIEN.MaxWidth = 180;
+            this.colSOTIEN.MinWidth = 120;
+            this.colSOTIEN.Name = "colSOTIEN";
+            this.colSOTIEN.Visible = true;
+            this.colSOTIEN.VisibleIndex = 3;
+            this.colSOTIEN.Width = 140;
+            // 
+            // colTHOIGIAN_APDUNG
+            // 
+            this.colTHOIGIAN_APDUNG.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.colTHOIGIAN_APDUNG.AppearanceHeader.Options.UseFont = true;
+            this.colTHOIGIAN_APDUNG.Caption = "ÁP DỤNG LƯƠNG";
+            this.colTHOIGIAN_APDUNG.FieldName = "THOIGIAN_APDUNG";
+            this.colTHOIGIAN_APDUNG.MaxWidth = 160;
+            this.colTHOIGIAN_APDUNG.MinWidth = 120;
+            this.colTHOIGIAN_APDUNG.Name = "colTHOIGIAN_APDUNG";
+            this.colTHOIGIAN_APDUNG.Visible = true;
+            this.colTHOIGIAN_APDUNG.VisibleIndex = 4;
+            this.colTHOIGIAN_APDUNG.Width = 140;
             // 
             // TUNGAY
             // 
@@ -577,11 +621,103 @@
             this.LYDO.VisibleIndex = 3;
             this.LYDO.Width = 300;
             // 
+            // labelControlSoTien
+            // 
+            this.labelControlSoTien.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControlSoTien.Appearance.Options.UseFont = true;
+            this.labelControlSoTien.Location = new System.Drawing.Point(85, 290);
+            this.labelControlSoTien.Name = "labelControlSoTien";
+            this.labelControlSoTien.Size = new System.Drawing.Size(130, 25);
+            this.labelControlSoTien.TabIndex = 30;
+            this.labelControlSoTien.Text = "Số Tiền Phạt:";
+            // 
+            // spSoTien
+            // 
+            this.spSoTien.EditValue = 0;
+            this.spSoTien.Location = new System.Drawing.Point(225, 286);
+            this.spSoTien.Name = "spSoTien";
+            this.spSoTien.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.spSoTien.Properties.Appearance.Options.UseFont = true;
+            this.spSoTien.Properties.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Far;
+            this.spSoTien.Properties.DisplayFormat.FormatString = "n0";
+            this.spSoTien.Properties.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.spSoTien.Properties.EditFormat.FormatString = "n0";
+            this.spSoTien.Properties.EditFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.spSoTien.Properties.Mask.EditMask = "n0";
+            this.spSoTien.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric;
+            this.spSoTien.Properties.Mask.UseMaskAsDisplayFormat = true;
+            this.spSoTien.Size = new System.Drawing.Size(160, 32);
+            this.spSoTien.TabIndex = 31;
+            this.spSoTien.EditValueChanged += new System.EventHandler(this.spSoTien_EditValueChanged);
+            // 
+            // labelControlThang
+            // 
+            this.labelControlThang.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControlThang.Appearance.Options.UseFont = true;
+            this.labelControlThang.Location = new System.Drawing.Point(405, 290);
+            this.labelControlThang.Name = "labelControlThang";
+            this.labelControlThang.Size = new System.Drawing.Size(145, 25);
+            this.labelControlThang.TabIndex = 32;
+            this.labelControlThang.Text = "Tháng Áp Dụng:";
+            // 
+            // cbThangApDung
+            // 
+            this.cbThangApDung.Location = new System.Drawing.Point(560, 286);
+            this.cbThangApDung.Name = "cbThangApDung";
+            this.cbThangApDung.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbThangApDung.Properties.Appearance.Options.UseFont = true;
+            this.cbThangApDung.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.cbThangApDung.Properties.Items.AddRange(new object[] {
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12"});
+            this.cbThangApDung.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            this.cbThangApDung.Size = new System.Drawing.Size(90, 32);
+            this.cbThangApDung.TabIndex = 33;
+            // 
+            // labelControlNam
+            // 
+            this.labelControlNam.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.labelControlNam.Appearance.Options.UseFont = true;
+            this.labelControlNam.Location = new System.Drawing.Point(670, 290);
+            this.labelControlNam.Name = "labelControlNam";
+            this.labelControlNam.Size = new System.Drawing.Size(51, 25);
+            this.labelControlNam.TabIndex = 34;
+            this.labelControlNam.Text = "Năm:";
+            // 
+            // spNamApDung
+            // 
+            this.spNamApDung.EditValue = 0;
+            this.spNamApDung.Location = new System.Drawing.Point(730, 286);
+            this.spNamApDung.Name = "spNamApDung";
+            this.spNamApDung.Properties.Appearance.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.spNamApDung.Properties.Appearance.Options.UseFont = true;
+            this.spNamApDung.Properties.Appearance.TextOptions.HAlignment = DevExpress.Utils.HorzAlignment.Center;
+            this.spNamApDung.Properties.DisplayFormat.FormatString = "d";
+            this.spNamApDung.Properties.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.spNamApDung.Properties.EditFormat.FormatString = "d";
+            this.spNamApDung.Properties.EditFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.spNamApDung.Properties.Mask.EditMask = "d";
+            this.spNamApDung.Properties.Mask.MaskType = DevExpress.XtraEditors.Mask.MaskType.Numeric;
+            this.spNamApDung.Properties.Mask.UseMaskAsDisplayFormat = true;
+            this.spNamApDung.Size = new System.Drawing.Size(95, 32);
+            this.spNamApDung.TabIndex = 35;
+            // 
             // FrmKyLuat
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1434, 573);
+            this.ClientSize = new System.Drawing.Size(1434, 650);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.barDockControlLeft);
             this.Controls.Add(this.barDockControlRight);
@@ -593,6 +729,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.repositoryItemBorderLineStyle1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.repositoryItemBorderLineWeight1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spSoTien.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.cbThangApDung.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.spNamApDung.Properties)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
@@ -653,5 +792,13 @@
         private DevExpress.XtraEditors.LabelControl labelControl5;
         private System.Windows.Forms.DateTimePicker dtTuNgay;
         private DevExpress.XtraEditors.LabelControl labelControl4;
+        private DevExpress.XtraEditors.TextEdit spSoTien;
+        private DevExpress.XtraEditors.LabelControl labelControlSoTien;
+        private DevExpress.XtraEditors.ComboBoxEdit cbThangApDung;
+        private DevExpress.XtraEditors.LabelControl labelControlThang;
+        private DevExpress.XtraEditors.TextEdit spNamApDung;
+        private DevExpress.XtraEditors.LabelControl labelControlNam;
+        private DevExpress.XtraGrid.Columns.GridColumn colSOTIEN;
+        private DevExpress.XtraGrid.Columns.GridColumn colTHOIGIAN_APDUNG;
     }
 }

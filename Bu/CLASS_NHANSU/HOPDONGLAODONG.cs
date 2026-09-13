@@ -34,10 +34,13 @@ namespace Bu
                     from cv in cvGroup.DefaultIfEmpty()
                     join cty in db.TB_CONGTY on (nv != null ? nv.IDCTY : null) equals cty.IDCTY into ctyGroup
                     from cty in ctyGroup.DefaultIfEmpty()
+                    join lhd in db.TB_LOAIHOPDONG on hd.LOAIHD equals lhd.LOAIHD into lhdGroup
+                    from lhd in lhdGroup.DefaultIfEmpty()
                     select new
                     {
                         hd,
                         nv,
+                        lhd,
                         TENTD = td != null ? td.TENTD : null,
                         TENQT = qt != null ? qt.TENQT : null,
                         TENBP = bp != null ? bp.TENBP : null,
@@ -59,6 +62,8 @@ namespace Bu
                         HESOLUONG = x.hd.HESOLUONG,
                         LUONG_THOA_THUAN = x.hd.LUONG_THOA_THUAN,
                         THOIHAN = x.hd.THOIHAN,
+                        LOAIHD = x.hd.LOAIHD,
+                        TENLOAIHD = x.lhd != null ? x.lhd.TENLOAIHD : null,
                         NOIDUNG = x.hd.NOIDUNG,
                         MANV = x.hd.MANV,
                         HOTEN = x.nv != null ? x.nv.HOTEN : null,
@@ -102,10 +107,13 @@ namespace Bu
                     from td in tdGroup.DefaultIfEmpty()
                     join qt in db.TB_QUOCTICH on (nv != null ? nv.IDQT : null) equals qt.IDQT into qtGroup
                     from qt in qtGroup.DefaultIfEmpty()
+                    join lhd in db.TB_LOAIHOPDONG on hd.LOAIHD equals lhd.LOAIHD into lhdGroup
+                    from lhd in lhdGroup.DefaultIfEmpty()
                     select new
                     {
                         hd,
                         nv,
+                        lhd,
                         TENTD = td != null ? td.TENTD : null,
                         TENQT = qt != null ? qt.TENQT : null
                     })
@@ -114,12 +122,14 @@ namespace Bu
                     {
                         SOHD = x.hd.SOHD,
                         NGAYBATDAU = x.hd.NGAYBATDAU.HasValue ? x.hd.NGAYBATDAU.Value.ToString("dd/MM/yyyy") : "",
-                        NGAYKETTHUC = x.hd.NGAYKETTHUC.HasValue ? x.hd.NGAYKETTHUC.Value.ToString("dd/MM/yyyy") : "",
+                        NGAYKETTHUC = x.hd.NGAYKETTHUC.HasValue ? x.hd.NGAYKETTHUC.Value.ToString("dd/MM/yyyy") : (x.hd.THOIHAN == "Vô thời hạn" ? "Vô thời hạn" : ""),
                         NGAYKY = x.hd.NGAYKY.HasValue ? x.hd.NGAYKY.Value.ToString("dd/MM/yyyy") : "",
                         LANKY = x.hd.LANKY,
                         HESOLUONG = x.hd.HESOLUONG,
                         LUONG_THOA_THUAN = x.hd.LUONG_THOA_THUAN,
                         THOIHAN = x.hd.THOIHAN,
+                        LOAIHD = x.hd.LOAIHD,
+                        TENLOAIHD = x.lhd != null ? x.lhd.TENLOAIHD : null,
                         NOIDUNG = x.hd.NOIDUNG,
                         MANV = x.hd.MANV,
                         HOTEN = x.nv != null ? x.nv.HOTEN : null,
@@ -177,6 +187,7 @@ namespace Bu
                 _hd.LUONG_THOA_THUAN = hd.LUONG_THOA_THUAN;
                 _hd.NOIDUNG = hd.NOIDUNG;
                 _hd.THOIHAN = hd.THOIHAN;
+                _hd.LOAIHD = hd.LOAIHD;
                 _hd.SOHD = hd.SOHD;
                 _hd.IDCTY = hd.IDCTY;
                 _hd.UPDATE_BY = hd.UPDATE_BY;

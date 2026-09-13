@@ -41,7 +41,8 @@ import {
   CloseOutlined,
 } from '@ant-design/icons';
 import api from '../services/api';
-import type { NhanVienDTO, BangLuongDTO } from '../types/hrms';
+import type { NhanVienDTO, BangLuongDTO, CurrentUserDTO } from '../types/hrms';
+import { canEdit, canPrint } from '../utils/permissionUtils';
 import PhieuLuongModal from './PhieuLuongModal';
 
 const { Title, Text, Paragraph } = Typography;
@@ -103,6 +104,7 @@ interface Employee360ModalProps {
   employee: NhanVienDTO | null;
   onEdit?: (emp: NhanVienDTO) => void;
   onAvatarUpdated?: (manv: number, newAvatar: string) => void;
+  currentUser?: CurrentUserDTO;
 }
 
 export const Employee360Modal: React.FC<Employee360ModalProps> = ({
@@ -111,6 +113,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
   employee,
   onEdit,
   onAvatarUpdated,
+  currentUser: propUser,
 }) => {
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [uploadingAvatar, setUploadingAvatar] = useState<boolean>(false);
@@ -119,6 +122,17 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
   const [loadingProfile, setLoadingProfile] = useState<boolean>(false);
   const [payslipModalVisible, setPayslipModalVisible] = useState<boolean>(false);
   const [selectedPayslipRecord, setSelectedPayslipRecord] = useState<BangLuongDTO | null>(null);
+
+  // Fallback to localStorage user if not provided in prop
+  const currentUser: CurrentUserDTO | undefined = React.useMemo(() => {
+    if (propUser) return propUser;
+    try {
+      const stored = localStorage.getItem('hrms_user');
+      return stored ? JSON.parse(stored) : undefined;
+    } catch {
+      return undefined;
+    }
+  }, [propUser]);
 
   // Đồng bộ avatar khi đổi nhân viên
   useEffect(() => {
@@ -294,30 +308,32 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                 }}
                 title={employee.DATHOIVIEC === 1 ? 'Đã thôi việc' : 'Đang làm việc'}
               />
-              <Upload
-                showUploadList={false}
-                accept="image/*"
-                beforeUpload={handleDirectAvatarUpload}
-              >
-                <Tooltip title="Đổi ảnh chân dung nhân viên">
-                  <Button
-                    shape="circle"
-                    size="small"
-                    icon={<CameraOutlined />}
-                    loading={uploadingAvatar}
-                    style={{
-                      position: 'absolute',
-                      bottom: 0,
-                      right: -4,
-                      backgroundColor: '#1e293b',
-                      borderColor: '#3b82f6',
-                      color: '#60a5fa',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
-                      zIndex: 2,
-                    }}
-                  />
-                </Tooltip>
-              </Upload>
+              {canEdit(currentUser, 'F_DM_NHANVIEN') && (
+                <Upload
+                  showUploadList={false}
+                  accept="image/*"
+                  beforeUpload={handleDirectAvatarUpload}
+                >
+                  <Tooltip title="Đổi ảnh chân dung nhân viên">
+                    <Button
+                      shape="circle"
+                      size="small"
+                      icon={<CameraOutlined />}
+                      loading={uploadingAvatar}
+                      style={{
+                        position: 'absolute',
+                        bottom: 0,
+                        right: -4,
+                        backgroundColor: '#1e293b',
+                        borderColor: '#3b82f6',
+                        color: '#60a5fa',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.4)',
+                        zIndex: 2,
+                      }}
+                    />
+                  </Tooltip>
+                </Upload>
+              )}
             </div>
 
             <div style={{ minWidth: 0, flex: 1 }}>
@@ -342,25 +358,29 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
 
           {/* RIGHT: ACTION BUTTONS (ALWAYS PINNED TO RIGHT, NEVER WRAPS UNDER AVATAR) */}
           <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
-            <Button
-              type="primary"
-              icon={<EditOutlined />}
-              onClick={() => {
-                onClose();
-                if (onEdit) onEdit(employee);
-              }}
-              style={{ background: '#3b82f6', borderColor: '#3b82f6' }}
-            >
-              Sửa hồ sơ
-            </Button>
-            <Button
-              ghost
-              icon={<PrinterOutlined />}
-              onClick={() => window.print()}
-              style={{ color: '#cbd5e1', borderColor: '#64748b' }}
-            >
-              Xuất sơ yếu lý lịch
-            </Button>
+            {canEdit(currentUser, 'F_DM_NHANVIEN') && (
+              <Button
+                type="primary"
+                icon={<EditOutlined />}
+                onClick={() => {
+                  onClose();
+                  if (onEdit) onEdit(employee);
+                }}
+                style={{ background: '#3b82f6', borderColor: '#3b82f6' }}
+              >
+                Sửa hồ sơ
+              </Button>
+            )}
+            {canPrint(currentUser, 'F_DM_NHANVIEN') && (
+              <Button
+                ghost
+                icon={<PrinterOutlined />}
+                onClick={() => window.print()}
+                style={{ color: '#cbd5e1', borderColor: '#64748b' }}
+              >
+                Xuất sơ yếu lý lịch
+              </Button>
+            )}
           </div>
         </div>
       </div>
@@ -556,31 +576,36 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                                 year = parseInt(parts[1], 10) || 2026;
                               }
                               const makycong = year * 100 + month;
+                              const canPrintPayslip = canPrint(currentUser, 'F_CC_BANGLUONG');
                               return (
-                                <Button
-                                  type="link"
-                                  size="small"
-                                  icon={<PrinterOutlined />}
-                                  onClick={() => {
-                                    setSelectedPayslipRecord({
-                                      MANV: employee.MANV,
-                                      HOTEN: employee.HOTEN,
-                                      TENPB: employee.TENPB,
-                                      MAKYCONG: makycong,
-                                      THANG: month,
-                                      NAM: year,
-                                      CONG_CHUAN: r.CongChuan,
-                                      CONG_THUCTE: r.CongThucTe,
-                                      THUC_LINH: r.Net,
-                                      LUONG_CONG_THUCTE: r.Gross,
-                                      TIEN_TANGCA: r.Ot,
-                                    } as any);
-                                    setPayslipModalVisible(true);
-                                  }}
-                                  style={{ fontWeight: 600, color: '#1d4ed8' }}
-                                >
-                                  In Phiếu Lương
-                                </Button>
+                                <Tooltip title={!canPrintPayslip ? 'Bạn không có quyền in phiếu lương' : undefined}>
+                                  <Button
+                                    type="link"
+                                    size="small"
+                                    disabled={!canPrintPayslip}
+                                    icon={<PrinterOutlined />}
+                                    onClick={() => {
+                                      if (!canPrintPayslip) return;
+                                      setSelectedPayslipRecord({
+                                        MANV: employee.MANV,
+                                        HOTEN: employee.HOTEN,
+                                        TENPB: employee.TENPB,
+                                        MAKYCONG: makycong,
+                                        THANG: month,
+                                        NAM: year,
+                                        CONG_CHUAN: r.CongChuan,
+                                        CONG_THUCTE: r.CongThucTe,
+                                        THUC_LINH: r.Net,
+                                        LUONG_CONG_THUCTE: r.Gross,
+                                        TIEN_TANGCA: r.Ot,
+                                      } as any);
+                                      setPayslipModalVisible(true);
+                                    }}
+                                    style={{ fontWeight: 600, color: canPrintPayslip ? '#1d4ed8' : '#94a3b8' }}
+                                  >
+                                    In Phiếu Lương
+                                  </Button>
+                                </Tooltip>
                               );
                             },
                           },

@@ -43,6 +43,10 @@ interface BangLuongPageProps {
   onTinhLuong: () => void;
   onRefresh: () => void;
   hasRight: (...codes: string[]) => boolean;
+  canAdd?: (...codes: string[]) => boolean;
+  canEdit?: (...codes: string[]) => boolean;
+  canDelete?: (...codes: string[]) => boolean;
+  canPrint?: (...codes: string[]) => boolean;
   danhMuc?: any;
   onRefreshKyCong?: () => void;
 }
@@ -57,6 +61,9 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   onTinhLuong,
   onRefresh,
   hasRight,
+  canAdd,
+  canEdit,
+  canPrint,
   danhMuc,
   onRefreshKyCong,
 }) => {
@@ -349,11 +356,12 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
               onClick={() => handleOpenDrawer(record)}
             />
           </Tooltip>
-          <Tooltip title="In Phiếu lương (Payslip)">
+          <Tooltip title={canPrint && !canPrint('BANGLUONG', 'F_CC_BANGLUONG') ? 'Bạn không có quyền in phiếu lương' : 'In Phiếu lương (Payslip)'}>
             <Button
               size="small"
               type="text"
-              icon={<PrinterOutlined style={{ color: '#059669' }} />}
+              disabled={Boolean(canPrint && !canPrint('BANGLUONG', 'F_CC_BANGLUONG'))}
+              icon={<PrinterOutlined style={{ color: (canPrint && !canPrint('BANGLUONG', 'F_CC_BANGLUONG')) ? '#94a3b8' : '#059669' }} />}
               onClick={() => handleOpenPhieuLuong(record)}
             />
           </Tooltip>
@@ -395,7 +403,9 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
                   label: `Kỳ ${kc.THANG}/${kc.NAM}`,
                 }))}
               />
-              {hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG') && (
+              {((canEdit ? canEdit('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
+                (canAdd ? canAdd('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
+                (!canEdit && !canAdd && hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG'))) && (
                 <Button
                   type="primary"
                   icon={<CalculatorOutlined />}
@@ -507,17 +517,21 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
           </Space>
 
           <Space wrap>
-            <Button icon={<FileExcelOutlined />} onClick={handleExportExcel}>
-              Xuất Excel
-            </Button>
-            <Button
-              type={isPeriodLocked ? 'default' : 'primary'}
-              icon={isPeriodLocked ? <UnlockOutlined /> : <LockOutlined />}
-              loading={locking}
-              onClick={handleToggleLock}
-            >
-              {isPeriodLocked ? 'Mở khóa kỳ lương' : 'Khóa kỳ lương'}
-            </Button>
+            {(!canPrint || canPrint('BANGLUONG', 'F_CC_BANGLUONG')) && (
+              <Button icon={<FileExcelOutlined />} onClick={handleExportExcel}>
+                Xuất Excel
+              </Button>
+            )}
+            {((canEdit ? canEdit('BANGLUONG', 'F_CC_BANGLUONG') : hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG'))) && (
+              <Button
+                type={isPeriodLocked ? 'default' : 'primary'}
+                icon={isPeriodLocked ? <UnlockOutlined /> : <LockOutlined />}
+                loading={locking}
+                onClick={handleToggleLock}
+              >
+                {isPeriodLocked ? 'Mở khóa kỳ lương' : 'Khóa kỳ lương'}
+              </Button>
+            )}
             <Button icon={<ReloadOutlined />} onClick={onRefresh}>
               Làm mới
             </Button>

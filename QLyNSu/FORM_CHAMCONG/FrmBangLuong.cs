@@ -65,10 +65,26 @@ namespace QLyNSu.FORM_CHAMCONG
                 try
                 {
                     SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
-                    
+                    SplashScreenManager.Default.SetWaitFormCaption("Tính Lương & Phụ Cấp");
+                    SplashScreenManager.Default.SetWaitFormDescription("Đang chuẩn bị dữ liệu... (0%)");
+                    SplashScreenManager.Default.SendCommand(FrmWaiting.WaitFormCommand.SetProgress, 0);
+
+                    Action<int, int, string> onProgress = (current, total, msg) =>
+                    {
+                        int percent = total > 0 ? (int)((double)current / total * 100) : current;
+                        if (percent < 0) percent = 0;
+                        if (percent > 100) percent = 100;
+                        try
+                        {
+                            SplashScreenManager.Default.SetWaitFormDescription($"{msg} ({percent}%)");
+                            SplashScreenManager.Default.SendCommand(FrmWaiting.WaitFormCommand.SetProgress, percent);
+                        }
+                        catch { }
+                    };
+
                     await Task.Run(() =>
                     {
-                        _bangluong.TinhLuongKyCong(makycong, 1);
+                        _bangluong.TinhLuongKyCong(makycong, 1, onProgress);
                     });
 
                     LoadData();

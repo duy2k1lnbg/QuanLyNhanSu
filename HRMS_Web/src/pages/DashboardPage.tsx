@@ -9,6 +9,7 @@ import {
   Button,
   Progress,
   List,
+  Tooltip,
 } from 'antd';
 import {
   TeamOutlined,
@@ -20,6 +21,7 @@ import {
   ArrowRightOutlined,
   ClockCircleOutlined,
   FireOutlined,
+  LockOutlined,
 } from '@ant-design/icons';
 import {
   ResponsiveContainer,
@@ -38,6 +40,7 @@ import type {
   ActionItemDTO,
   AnomalyItemDTO,
 } from '../types/hrms';
+import { canView, canAccessRoute } from '../utils/permissionUtils';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -73,6 +76,11 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   anomalies: propAnomalies,
 }) => {
   const [actionCategory, setActionCategory] = useState<string>('all');
+
+  // Kiểm tra quyền hạn đối với các phân hệ để bảo vệ các liên kết nhanh (Quick Links)
+  const canAccessNv = canView(currentUser, 'F_DM_NHANVIEN', 'NV', 'NHANVIEN');
+  const canAccessCc = canView(currentUser, 'F_CC_BANGCONG', 'CHAMCONG');
+  const canAccessBl = canView(currentUser, 'F_CC_BANGLUONG', 'BANGLUONG', 'LUONG');
 
   // 100% Real Database Calculations (No Fake Fallbacks)
   const countTotal = totalEmployees;
@@ -180,106 +188,138 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       <Row gutter={[16, 16]}>
         {/* Nhân sự */}
         <Col xs={12} sm={12} lg={6}>
-          <Card
-            hoverable
-            onClick={() => onNavigate('nhanvien')}
-            style={{
-              borderRadius: 10,
-              border: '1px solid #e2e8f0',
-              background: '#ffffff',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text type="secondary" strong style={{ fontSize: 13 }}>
-                👥 NHÂN SỰ
+          <Tooltip title={!canAccessNv ? 'Bạn không có quyền xem phân hệ Nhân sự' : 'Mở Quản lý Nhân sự'}>
+            <Card
+              hoverable={canAccessNv}
+              onClick={() => canAccessNv && onNavigate('nhanvien')}
+              style={{
+                borderRadius: 10,
+                border: '1px solid #e2e8f0',
+                background: '#ffffff',
+                cursor: canAccessNv ? 'pointer' : 'not-allowed',
+                opacity: canAccessNv ? 1 : 0.75,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text type="secondary" strong style={{ fontSize: 13 }}>
+                  👥 NHÂN SỰ
+                </Text>
+                {!canAccessNv ? (
+                  <LockOutlined style={{ color: '#94a3b8', fontSize: 16 }} />
+                ) : (
+                  <TeamOutlined style={{ color: '#3b82f6', fontSize: 18 }} />
+                )}
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: '8px 0 4px 0' }}>
+                {countTotal}
+              </div>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                {canAccessNv ? 'Toàn bộ nhân sự đang quản lý' : 'Đã khóa truy cập'}
               </Text>
-              <TeamOutlined style={{ color: '#3b82f6', fontSize: 18 }} />
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: '8px 0 4px 0' }}>
-              {countTotal}
-            </div>
-            <Text type="secondary" style={{ fontSize: 12 }}>
-              Toàn bộ nhân sự đang quản lý
-            </Text>
-          </Card>
+            </Card>
+          </Tooltip>
         </Col>
 
         {/* Có mặt */}
         <Col xs={12} sm={12} lg={6}>
-          <Card
-            hoverable
-            onClick={() => onNavigate('chamcong')}
-            style={{
-              borderRadius: 10,
-              border: '1px solid #d1fae5',
-              background: '#f0fdf4',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text strong style={{ color: '#065f46', fontSize: 13 }}>
-                🟢 CÓ MẶT
+          <Tooltip title={!canAccessCc ? 'Bạn không có quyền xem Bảng chấm công' : 'Mở Bảng Chấm công'}>
+            <Card
+              hoverable={canAccessCc}
+              onClick={() => canAccessCc && onNavigate('chamcong')}
+              style={{
+                borderRadius: 10,
+                border: '1px solid #d1fae5',
+                background: '#f0fdf4',
+                cursor: canAccessCc ? 'pointer' : 'not-allowed',
+                opacity: canAccessCc ? 1 : 0.75,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text strong style={{ color: '#065f46', fontSize: 13 }}>
+                  🟢 CÓ MẶT
+                </Text>
+                {!canAccessCc ? (
+                  <LockOutlined style={{ color: '#059669', fontSize: 16 }} />
+                ) : (
+                  <CheckCircleOutlined style={{ color: '#10b981', fontSize: 18 }} />
+                )}
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#047857', margin: '8px 0 4px 0' }}>
+                {present}
+              </div>
+              <Text style={{ color: '#059669', fontSize: 12 }}>
+                {presentPercentage > 0 ? `Đạt ${presentPercentage}% tỷ lệ chuyên cần` : 'Chưa có lượt chấm công hôm nay'}
               </Text>
-              <CheckCircleOutlined style={{ color: '#10b981', fontSize: 18 }} />
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#047857', margin: '8px 0 4px 0' }}>
-              {present}
-            </div>
-            <Text style={{ color: '#059669', fontSize: 12 }}>
-              {presentPercentage > 0 ? `Đạt ${presentPercentage}% tỷ lệ chuyên cần` : 'Chưa có lượt chấm công hôm nay'}
-            </Text>
-          </Card>
+            </Card>
+          </Tooltip>
         </Col>
 
         {/* Vắng mặt */}
         <Col xs={12} sm={12} lg={6}>
-          <Card
-            hoverable
-            onClick={() => onNavigate('chamcong')}
-            style={{
-              borderRadius: 10,
-              border: '1px solid #fee2e2',
-              background: '#fef2f2',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text strong style={{ color: '#991b1b', fontSize: 13 }}>
-                🔴 VẮNG MẶT
+          <Tooltip title={!canAccessCc ? 'Bạn không có quyền xem Bảng chấm công' : 'Mở Bảng Chấm công'}>
+            <Card
+              hoverable={canAccessCc}
+              onClick={() => canAccessCc && onNavigate('chamcong')}
+              style={{
+                borderRadius: 10,
+                border: '1px solid #fee2e2',
+                background: '#fef2f2',
+                cursor: canAccessCc ? 'pointer' : 'not-allowed',
+                opacity: canAccessCc ? 1 : 0.75,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text strong style={{ color: '#991b1b', fontSize: 13 }}>
+                  🔴 VẮNG MẶT
+                </Text>
+                {!canAccessCc ? (
+                  <LockOutlined style={{ color: '#dc2626', fontSize: 16 }} />
+                ) : (
+                  <CloseCircleOutlined style={{ color: '#ef4444', fontSize: 18 }} />
+                )}
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#b91c1c', margin: '8px 0 4px 0' }}>
+                {absent}
+              </div>
+              <Text style={{ color: '#dc2626', fontSize: 12 }}>
+                {late > 0 ? `${late} lượt đi trễ ghi nhận` : 'Không có nhân viên đi trễ'}
               </Text>
-              <CloseCircleOutlined style={{ color: '#ef4444', fontSize: 18 }} />
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#b91c1c', margin: '8px 0 4px 0' }}>
-              {absent}
-            </div>
-            <Text style={{ color: '#dc2626', fontSize: 12 }}>
-              {late > 0 ? `${late} lượt đi trễ ghi nhận` : 'Không có nhân viên đi trễ'}
-            </Text>
-          </Card>
+            </Card>
+          </Tooltip>
         </Col>
 
         {/* Payroll */}
         <Col xs={12} sm={12} lg={6}>
-          <Card
-            hoverable
-            onClick={() => onNavigate('bangluong')}
-            style={{
-              borderRadius: 10,
-              border: '1px solid #fef3c7',
-              background: '#fffbeb',
-            }}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <Text strong style={{ color: '#92400e', fontSize: 13 }}>
-                💰 PAYROLL
+          <Tooltip title={!canAccessBl ? 'Bạn không có quyền xem Bảng lương' : 'Mở Quản lý Bảng Lương'}>
+            <Card
+              hoverable={canAccessBl}
+              onClick={() => canAccessBl && onNavigate('bangluong')}
+              style={{
+                borderRadius: 10,
+                border: '1px solid #fef3c7',
+                background: '#fffbeb',
+                cursor: canAccessBl ? 'pointer' : 'not-allowed',
+                opacity: canAccessBl ? 1 : 0.75,
+              }}
+            >
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text strong style={{ color: '#92400e', fontSize: 13 }}>
+                  💰 PAYROLL
+                </Text>
+                {!canAccessBl ? (
+                  <LockOutlined style={{ color: '#d97706', fontSize: 16 }} />
+                ) : (
+                  <DollarOutlined style={{ color: '#f59e0b', fontSize: 18 }} />
+                )}
+              </div>
+              <div style={{ fontSize: 28, fontWeight: 800, color: '#b45309', margin: '8px 0 4px 0' }}>
+                {formatPayroll(totalSalary)}
+              </div>
+              <Text style={{ color: '#d97706', fontSize: 12 }}>
+                {canAccessBl ? 'Quỹ lương kỳ hiện hành' : 'Đã khóa truy cập'}
               </Text>
-              <DollarOutlined style={{ color: '#f59e0b', fontSize: 18 }} />
-            </div>
-            <div style={{ fontSize: 28, fontWeight: 800, color: '#b45309', margin: '8px 0 4px 0' }}>
-              {formatPayroll(totalSalary)}
-            </div>
-            <Text style={{ color: '#d97706', fontSize: 12 }}>
-              Quỹ lương kỳ hiện hành
-            </Text>
-          </Card>
+            </Card>
+          </Tooltip>
         </Col>
       </Row>
 
@@ -321,27 +361,33 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
           <Col xs={24} md={10} style={{ textAlign: 'right' }}>
             <Space wrap>
-              <Button
-                type="default"
-                icon={<ArrowRightOutlined />}
-                onClick={() => onNavigate('chamcong')}
-                style={{ borderRadius: 8, fontWeight: 600 }}
-              >
-                Xem Bảng Công Heatmap
-              </Button>
-              <Button
-                type="primary"
-                icon={<DollarOutlined />}
-                onClick={() => onNavigate('bangluong')}
-                style={{
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                  border: 'none',
-                }}
-              >
-                Quản lý Bảng Lương
-              </Button>
+              <Tooltip title={!canAccessCc ? 'Bạn không có quyền xem Bảng chấm công' : undefined}>
+                <Button
+                  type="default"
+                  icon={<ArrowRightOutlined />}
+                  onClick={() => canAccessCc && onNavigate('chamcong')}
+                  disabled={!canAccessCc}
+                  style={{ borderRadius: 8, fontWeight: 600 }}
+                >
+                  Xem Bảng Công Heatmap
+                </Button>
+              </Tooltip>
+              <Tooltip title={!canAccessBl ? 'Bạn không có quyền xem Bảng lương' : undefined}>
+                <Button
+                  type="primary"
+                  icon={<DollarOutlined />}
+                  onClick={() => canAccessBl && onNavigate('bangluong')}
+                  disabled={!canAccessBl}
+                  style={{
+                    borderRadius: 8,
+                    fontWeight: 600,
+                    background: canAccessBl ? 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)' : undefined,
+                    border: 'none',
+                  }}
+                >
+                  Quản lý Bảng Lương
+                </Button>
+              </Tooltip>
             </Space>
           </Col>
         </Row>
@@ -457,18 +503,26 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     </div>
                   </div>
 
-                  <Button
-                    type="primary"
-                    size="small"
-                    onClick={() => onNavigate(item.route)}
-                    style={{
-                      backgroundColor: dotColor,
-                      borderColor: dotColor,
-                      fontWeight: 600,
-                    }}
-                  >
-                    {item.actionText} <ArrowRightOutlined />
-                  </Button>
+                  {(() => {
+                    const hasAccess = canAccessRoute(currentUser, item.route);
+                    return (
+                      <Tooltip title={!hasAccess ? 'Bạn không có quyền truy cập phân hệ này' : undefined}>
+                        <Button
+                          type="primary"
+                          size="small"
+                          disabled={!hasAccess}
+                          onClick={() => hasAccess && onNavigate(item.route)}
+                          style={{
+                            backgroundColor: hasAccess ? dotColor : undefined,
+                            borderColor: hasAccess ? dotColor : undefined,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {item.actionText} <ArrowRightOutlined />
+                        </Button>
+                      </Tooltip>
+                    );
+                  })()}
                 </div>
               );
             }}
@@ -535,20 +589,25 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   </div>
 
                   <div style={{ marginTop: 12, textAlign: 'right' }}>
-                    <Button
-                      size="small"
-                      type="link"
-                      style={{ padding: 0, fontWeight: 600 }}
-                      onClick={() => {
-                        if (anom.metric.includes('OT') || anom.metric.includes('Chấm công') || anom.metric.includes('vắng')) {
-                          onNavigate('chamcong');
-                        } else {
-                          onNavigate('bangluong');
-                        }
-                      }}
-                    >
-                      Kiểm tra dữ liệu <ArrowRightOutlined />
-                    </Button>
+                    {(() => {
+                      const targetRoute = (anom.metric.includes('OT') || anom.metric.includes('Chấm công') || anom.metric.includes('vắng'))
+                        ? 'chamcong'
+                        : 'bangluong';
+                      const allowed = canAccessRoute(currentUser, targetRoute);
+                      return (
+                        <Tooltip title={!allowed ? 'Bạn không có quyền xem phân hệ này' : undefined}>
+                          <Button
+                            size="small"
+                            type="link"
+                            disabled={!allowed}
+                            style={{ padding: 0, fontWeight: 600 }}
+                            onClick={() => allowed && onNavigate(targetRoute)}
+                          >
+                            Kiểm tra dữ liệu <ArrowRightOutlined />
+                          </Button>
+                        </Tooltip>
+                      );
+                    })()}
                   </div>
                 </div>
               </Col>
@@ -653,14 +712,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               </div>
             </Space>
 
-            <Button
-              type="dashed"
-              block
-              style={{ marginTop: 16 }}
-              onClick={() => onNavigate('chamcong')}
-            >
-              Mở bảng chấm công chi tiết
-            </Button>
+            <Tooltip title={!canAccessCc ? 'Bạn không có quyền xem Bảng chấm công' : undefined}>
+              <Button
+                type="dashed"
+                block
+                disabled={!canAccessCc}
+                style={{ marginTop: 16 }}
+                onClick={() => canAccessCc && onNavigate('chamcong')}
+              >
+                Mở bảng chấm công chi tiết
+              </Button>
+            </Tooltip>
           </Card>
         </Col>
       </Row>
@@ -670,7 +732,17 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         title="🕒 Hoạt động gần đây trong hệ thống"
         bordered={false}
         style={{ borderRadius: 10, border: '1px solid #e2e8f0' }}
-        extra={<Button type="link" onClick={() => onNavigate('nhanvien')}>Xem hồ sơ nhân sự <ArrowRightOutlined /></Button>}
+        extra={
+          <Tooltip title={!canAccessNv ? 'Bạn không có quyền xem hồ sơ nhân sự' : undefined}>
+            <Button
+              type="link"
+              disabled={!canAccessNv}
+              onClick={() => canAccessNv && onNavigate('nhanvien')}
+            >
+              Xem hồ sơ nhân sự <ArrowRightOutlined />
+            </Button>
+          </Tooltip>
+        }
       >
         <List
           itemLayout="horizontal"
@@ -678,14 +750,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           renderItem={(item) => (
             <List.Item
               actions={[
-                <Button
-                  key="view"
-                  size="small"
-                  type="link"
-                  onClick={() => onNavigate('nhanvien')}
-                >
-                  Chi tiết
-                </Button>,
+                <Tooltip title={!canAccessNv ? 'Không có quyền xem' : undefined} key="view">
+                  <Button
+                    size="small"
+                    type="link"
+                    disabled={!canAccessNv}
+                    onClick={() => canAccessNv && onNavigate('nhanvien')}
+                  >
+                    Chi tiết
+                  </Button>
+                </Tooltip>,
               ]}
             >
               <List.Item.Meta

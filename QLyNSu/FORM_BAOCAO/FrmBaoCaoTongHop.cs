@@ -203,12 +203,37 @@ namespace QLyNSu.FORM_BAOCAO
                 }
                 else if (index == 3) // Phiếu chi tiết lương
                 {
-                    if (cboKyCong.EditValue == null || cboNhanVien.EditValue == null) return;
+                    if (cboKyCong.EditValue == null) return;
                     decimal makycong = Convert.ToDecimal(cboKyCong.EditValue);
-                    decimal manv = Convert.ToDecimal(cboNhanVien.EditValue);
+                    decimal? manv = null;
+                    if (cboNhanVien.EditValue != null && decimal.TryParse(cboNhanVien.EditValue.ToString(), out var mVal) && mVal > 0)
+                    {
+                        manv = mVal;
+                    }
 
-                    var bl = db.TB_BANGLUONG.Where(x => x.MAKYCONG == makycong && x.MANV == manv).ToList();
-                    gcData.DataSource = bl;
+                    var blList = (from b in db.TB_BANGLUONG
+                                  where b.MAKYCONG == makycong && (!manv.HasValue || b.MANV == manv.Value)
+                                  join nv in db.TB_NHANVIEN on b.MANV equals nv.MANV into nvGroup
+                                  from nv in nvGroup.DefaultIfEmpty()
+                                  select new {
+                                      b.MANV,
+                                      HOTEN = nv != null ? nv.HOTEN : "",
+                                      b.CONG_CHUAN,
+                                      b.CONG_THUCTE,
+                                      b.LUONG_CONG_THUCTE,
+                                      b.PHUCAP_CONG_THUCTE,
+                                      b.TIEN_TANGCA,
+                                      b.TIEN_CHUYENCAN,
+                                      b.TIEN_AN_CA,
+                                      b.TIEN_BHXH_TRICH,
+                                      b.TIEN_TAMUNG,
+                                      b.THUC_LINH,
+                                      b.TONG_CONG,
+                                      b.TIEN_CONG_DOAN,
+                                      b.THUE_TNCN,
+                                      b.HOAN_THUE
+                                  }).ToList();
+                    gcData.DataSource = blList;
                     ConfigureGridSalary();
                 }
             }
@@ -427,7 +452,7 @@ namespace QLyNSu.FORM_BAOCAO
                         otHours = (decimal)lstTangCa.Sum(x => x.SOGIO ?? 0);
                     }
 
-                    var phucaps = db.TB_NHANVIEN_PHUCAP.Where(x => x.MANV == manv && x.MAKYCONG == makycong).ToList();
+                    var phucaps = db.TB_NHANVIEN_PHUCAP.Where(x => x.MANV == manv).ToList();
 
                     rptBaoCaoLuongNV rpt = new rptBaoCaoLuongNV();
                     rpt.BindData(bl, hoten, tenpb, otHours, phucaps);

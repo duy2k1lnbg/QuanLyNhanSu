@@ -354,6 +354,7 @@
     </Compile>
     <Compile Include="Functions\AiBootstrap.cs" />
     <Compile Include="Functions\FormManager_Functions.cs" />
+    <Compile Include="Functions\FormSecurity.cs" />
     <Compile Include="Functions\TranslationManager.cs" />
     <Compile Include="Functions\TranslationMockDataSeeder.cs" />
     <Compile Include="FORM_CHAMCONG\FrmBangCong.cs">
@@ -379,6 +380,12 @@
     </Compile>
     <Compile Include="FORM_CHAMCONG\FrmLoaiCong.Designer.cs">
       <DependentUpon>FrmLoaiCong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmNgayLe.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmNgayLe.Designer.cs">
+      <DependentUpon>FrmNgayLe.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_NHANSU\FrmBoPhan.cs">
       <SubType>Form</SubType>
@@ -415,6 +422,12 @@
     </Compile>
     <Compile Include="FORM_NHANSU\FrmHopDongLaoDong.Designer.cs">
       <DependentUpon>FrmHopDongLaoDong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_NHANSU\FrmLoaiHopDong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_NHANSU\FrmLoaiHopDong.Designer.cs">
+      <DependentUpon>FrmLoaiHopDong.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_NHANSU\FrmKhenThuong.cs">
       <SubType>Form</SubType>
@@ -566,6 +579,9 @@
     <EmbeddedResource Include="FORM_CHAMCONG\FrmLoaiCong.resx">
       <DependentUpon>FrmLoaiCong.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmNgayLe.resx">
+      <DependentUpon>FrmNgayLe.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FORM_CHAMCONG\FrmPhuCap.resx">
       <DependentUpon>FrmPhuCap.cs</DependentUpon>
     </EmbeddedResource>
@@ -592,6 +608,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmHopDongLaoDong.resx">
       <DependentUpon>FrmHopDongLaoDong.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_NHANSU\FrmLoaiHopDong.resx">
+      <DependentUpon>FrmLoaiHopDong.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmKhenThuong.resx">
       <DependentUpon>FrmKhenThuong.cs</DependentUpon>

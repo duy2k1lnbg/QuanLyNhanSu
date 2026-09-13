@@ -355,5 +355,80 @@ namespace Bu
                 TongLuong = x.TongLuong
             }).OrderBy(x => x.KyCong).ToList();
         }
+
+        /// <summary>
+        /// Kiểm tra tất cả nhân viên đối chiếu với kỳ công (tháng/năm).
+        /// Nếu hợp đồng lao động đã hết hạn trước đầu kỳ công (NGAYKETTHUC < periodStart),
+        /// tự động cập nhật DATHOIVIEC = 1 trong CSDL.
+        /// Trả về danh sách nhân viên có hợp đồng còn thời hạn và chưa thôi việc.
+        /// </summary>
+        public List<TB_NHANVIEN> KiemTraVaCapNhatTrangThaiHopDong(int nam, int thang, int? macty = null)
+        {
+            DateTime periodStart = new DateTime(nam, thang, 1);
+            DateTime periodEnd = new DateTime(nam, thang, DateTime.DaysInMonth(nam, thang));
+
+            // Lấy danh sách hợp đồng mới nhất cho từng nhân viên
+            var allHopDong = db.TB_HOPDONG
+                .OrderByDescending(x => x.NGAYBATDAU)
+                .ThenByDescending(x => x.SOHD)
+                .ToList()
+                .GroupBy(x => x.MANV)
+                .ToDictionary(g => g.Key, g => g.FirstOrDefault());
+
+            var allNhanVien = db.TB_NHANVIEN.ToList();
+            bool hasChanges = false;
+            List<TB_NHANVIEN> danhSachHopLe = new List<TB_NHANVIEN>();
+
+            foreach (var nv in allNhanVien)
+            {
+                if (nv.MANV == 3207) continue; // Bỏ qua tài khoản test
+                if (macty.HasValue && macty.Value > 0 && nv.IDCTY != macty.Value) continue;
+
+                allHopDong.TryGetValue(nv.MANV, out var latestHd);
+
+                // Trường hợp 1: Không có hợp đồng nào
+                if (latestHd == null)
+                {
+                    continue;
+                }
+
+                // Trường hợp 2: Hợp đồng đã hết hạn trước thời điểm bắt đầu kỳ công
+                if (latestHd.NGAYKETTHUC.HasValue && latestHd.NGAYKETTHUC.Value < periodStart)
+                {
+                    if (nv.DATHOIVIEC != 1)
+                    {
+                        nv.DATHOIVIEC = 1;
+                        nv.UPDATED_DATE = DateTime.Now;
+                        nv.DELETED_DATE = latestHd.NGAYKETTHUC.Value;
+                        hasChanges = true;
+                    }
+                    continue; // Không đưa vào danh sách tính công/lương
+                }
+
+                // Trường hợp 3: Đã thôi việc
+                if (nv.DATHOIVIEC == 1)
+                {
+                    continue;
+                }
+
+                // Trường hợp 4: Hợp đồng hợp lệ trong kỳ (Bắt đầu trước hoặc trong kỳ và chưa kết thúc trước kỳ)
+                if (latestHd.NGAYBATDAU.HasValue && latestHd.NGAYBATDAU.Value <= periodEnd)
+                {
+                    danhSachHopLe.Add(nv);
+                }
+            }
+
+            if (hasChanges)
+            {
+                db.SaveChanges();
+            }
+
+            return danhSachHopLe;
+        }
+
+        public List<TB_NHANVIEN> GetListNhanVienConHopDong(int nam, int thang, int? macty = null)
+        {
+            return KiemTraVaCapNhatTrangThaiHopDong(nam, thang, macty);
+        }
     }
 }

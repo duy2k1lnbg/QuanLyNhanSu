@@ -250,6 +250,8 @@ namespace QLyNSu
                 btnLoaiCong.Enabled = false;
                 btnPhuCap.Enabled = false;
                 btnTangCa.Enabled = false;
+                btnLoaiHopDong.Enabled = false;
+                btnNgayLe.Enabled = false;
                 btnUngLuong.Enabled = false;
                 btnBangCong.Enabled = false;
                 btnBangLuong.Enabled = false;
@@ -319,6 +321,8 @@ namespace QLyNSu
                 btnBangCong.Enabled = UserSession.HasRight("F_CC_BANGCONG");
                 btnBCCT_NV.Enabled = UserSession.HasRight("F_CC_BCCT");
                 btnBangLuong.Enabled = UserSession.HasRight("F_CC_BANGLUONG");
+                btnLoaiHopDong.Enabled = UserSession.HasRight("F_NV_LOAIHOPDONG");
+                btnNgayLe.Enabled = UserSession.HasRight("F_CC_NGAYLE");
                 
                 btnBaoCao.Enabled = UserSession.HasRight("F_BC_BAOCAO");
                 
@@ -495,6 +499,16 @@ namespace QLyNSu
         private async void btnLoaiCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmLoaiCong));
+        }
+
+        private async void btnLoaiHopDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FORM_NHANSU.FrmLoaiHopDong));
+        }
+
+        private async void btnNgayLe_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FORM_CHAMCONG.FrmNgayLe));
         }
 
         private void btnThoat2_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

@@ -168,7 +168,7 @@ namespace HRMS_API.Controllers
                     }
 
                     // Lấy phụ cấp chi tiết
-                    var phucaps = db.TB_NHANVIEN_PHUCAP.Where(x => x.MANV == manv && x.MAKYCONG == makycong).ToList();
+                    var phucaps = db.TB_NHANVIEN_PHUCAP.Where(x => x.MANV == manv).ToList();
                     decimal pcTrachNhiem = phucaps.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN ?? 0;
                     decimal pcChuyenCan = phucaps.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN ?? 0;
                     decimal pcNhaO = phucaps.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN ?? 0;

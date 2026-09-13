@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -26,5 +26,16 @@ namespace Bu.DTO
         public Nullable<System.DateTime> DELETED_DATE { get; set; }
         public string GHICHU { get; set; }
         public Nullable<decimal> SOTIENTC { get; set; }
+        public string GIOBATDAU { get; set; }
+        public string GIOKETTHUC { get; set; }
+        public Nullable<decimal> IDLOAICONG { get; set; }
+        public string TENLOAICONG { get; set; }
+        public Nullable<decimal> HESOLOAICONG { get; set; }
+        public Nullable<decimal> HESOTC { get; set; }
+        public Nullable<decimal> DONGIATC { get; set; }
+        public Nullable<decimal> IS_THUVIEC { get; set; }
+        public string TRANGTHAI_NV { get; set; }
+        public string TEN_QUYDINH { get; set; }
+        public Nullable<System.DateTime> NGAY_FULL { get; set; }
     }
 }

@@ -34,6 +34,15 @@ namespace DA
         public Nullable<decimal> TIEN_TAMUNG { get; set; }
         public Nullable<decimal> KHOAN_TRU_KHAC { get; set; }
         public Nullable<decimal> THUC_LINH { get; set; }
+        public Nullable<decimal> CONG_LAMNGAY { get; set; }
+        public Nullable<decimal> TONG_CONG { get; set; }
+        public Nullable<decimal> LUONG_BHXH { get; set; }
+        public Nullable<decimal> TIEN_BHXH { get; set; }
+        public Nullable<decimal> TIEN_BHYT { get; set; }
+        public Nullable<decimal> TIEN_BHTN { get; set; }
+        public Nullable<decimal> TIEN_CONG_DOAN { get; set; }
+        public Nullable<decimal> THUE_TNCN { get; set; }
+        public Nullable<decimal> HOAN_THUE { get; set; }
     
         public virtual TB_KYCONG TB_KYCONG { get; set; }
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }

@@ -163,26 +163,36 @@ namespace HRMS_API.Controllers
                                from nv in nvGroup.DefaultIfEmpty()
                                join lc in db.TB_LOAICA on tc.IDLOAICA equals lc.IDLOAICA into lcGroup
                                from lc in lcGroup.DefaultIfEmpty()
+                               join lcong in db.TB_LOAICONG on tc.IDLOAICONG equals lcong.IDLOAICONG into lcongGroup
+                               from lcong in lcongGroup.DefaultIfEmpty()
                                select new
                                {
                                    tc,
-                                   HOTEN = nv.HOTEN,
-                                   TENLOAICA = lc.TENLOAICA,
-                                   HESOLOAICA = lc.HESOLOAICA
+                                   HOTEN = nv != null ? nv.HOTEN : "",
+                                   TENLOAICA = lc != null ? lc.TENLOAICA : "Ca ngày",
+                                   HESOLOAICA = lc != null ? lc.HESOLOAICA : 1.0m,
+                                   TENLOAICONG = lcong != null ? lcong.TENLC : "Công ngày thường"
                                }).ToList();
 
                     var result = raw.Select(x => new
                     {
                         IDTCA = (int)x.tc.IDTCA,
                         MANV = x.tc.MANV,
-                        HOTEN = x.HOTEN ?? "",
+                        HOTEN = x.HOTEN,
                         THANG = x.tc.THANG,
                         NAM = x.tc.NAM,
                         NGAY = x.tc.NGAY,
                         SOGIO = x.tc.SOGIO,
                         IDLOAICA = x.tc.IDLOAICA,
-                        TENLOAICA = x.TENLOAICA ?? "Ca tiêu chuẩn",
-                        HESOLOAICA = x.HESOLOAICA ?? 1.5m,
+                        TENLOAICA = x.TENLOAICA,
+                        IDLOAICONG = x.tc.IDLOAICONG,
+                        TENLOAICONG = x.TENLOAICONG,
+                        GIOBATDAU = x.tc.GIOBATDAU,
+                        GIOKETTHUC = x.tc.GIOKETTHUC,
+                        HESOTC = x.tc.HESOTC,
+                        DONGIATC = x.tc.DONGIATC,
+                        IS_THUVIEC = x.tc.IS_THUVIEC,
+                        TRANGTHAI_NV = (x.tc.IS_THUVIEC == 1) ? "Thử việc (85%)" : "Chính thức (100%)",
                         SOTIENTC = x.tc.SOTIENTC,
                         GHICHU = x.tc.GHICHU
                     }).ToList();
@@ -215,34 +225,61 @@ namespace HRMS_API.Controllers
                 }
 
                 int? manv = input.MaNv ?? (input.MANV.HasValue ? (int?)input.MANV.Value : null);
-                decimal? soGio = input.SoGio ?? input.SOGIO;
-
-                if (!manv.HasValue || !soGio.HasValue || soGio.Value <= 0)
+                if (!manv.HasValue)
                 {
-                    return BadRequest("Vui lòng chọn nhân viên và nhập số giờ tăng ca hợp lệ.");
+                    return BadRequest("Vui lòng chọn nhân viên.");
                 }
+
+                string gbd = input.GioBatDau ?? input.GIOBATDAU ?? "";
+                string gkt = input.GioKetThuc ?? input.GIOKETTHUC ?? "";
+
+                var tangCaBus = new Bu.CLASS_CHAMCONG.TANGCA();
+                double soGio = 0;
+                if (!string.IsNullOrWhiteSpace(gbd) && !string.IsNullOrWhiteSpace(gkt))
+                {
+                    soGio = tangCaBus.TinhSoGio(gbd, gkt);
+                }
+                else
+                {
+                    soGio = (double)(input.SoGio ?? input.SOGIO ?? 0);
+                }
+
+                if (soGio <= 0)
+                {
+                    return BadRequest("Số giờ tăng ca phải lớn hơn 0.");
+                }
+
+                int idLoaiCa = input.IdLoaiCa ?? (input.IDLOAICA.HasValue ? (int)input.IDLOAICA.Value : 1);
+                int idLoaiCong = input.IdLoaiCong ?? (input.IDLOAICONG.HasValue ? (int)input.IDLOAICONG.Value : 1);
+
+                int nam = input.Nam ?? input.NAM ?? DateTime.Now.Year;
+                int thang = input.Thang ?? input.THANG ?? DateTime.Now.Month;
+                int ngay = input.Ngay ?? input.NGAY ?? DateTime.Now.Day;
+                DateTime ngayTangCa = new DateTime(nam, thang, ngay);
+
+                bool isThuViec = tangCaBus.KiemTraThuViec(manv.Value);
+                var calc = tangCaBus.TinhChiTietTangCa(manv.Value, ngayTangCa, idLoaiCa, idLoaiCong, gbd, gkt, isThuViec);
 
                 var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
                 int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
 
                 using (var db = new MyEntities())
                 {
-                    int idLoaiCa = input.IdLoaiCa ?? (input.IDLOAICA.HasValue ? (int)input.IDLOAICA.Value : 1);
-                    decimal? soTien = input.SoTien ?? input.SOTIENTC;
-                    if (!soTien.HasValue || soTien <= 0)
-                    {
-                        soTien = soGio.Value * 50000 * 1.5m; // Mức mẫu 75,000đ/giờ
-                    }
-
                     var tc = new TB_TANGCA
                     {
                         MANV = manv.Value,
-                        SOGIO = soGio.Value,
+                        SOGIO = (decimal)calc.SoGio,
+                        GIOBATDAU = gbd,
+                        GIOKETTHUC = gkt,
                         IDLOAICA = idLoaiCa,
-                        SOTIENTC = soTien,
-                        THANG = input.Thang ?? input.THANG ?? DateTime.Now.Month,
-                        NAM = input.Nam ?? input.NAM ?? DateTime.Now.Year,
-                        NGAY = input.Ngay ?? input.NGAY ?? DateTime.Now.Day,
+                        IDLOAICONG = idLoaiCong,
+                        HESOTC = calc.HeSo,
+                        DONGIATC = calc.DonGia1Gio,
+                        IS_THUVIEC = calc.IsThuViec ? 1 : 0,
+                        SOTIENTC = calc.ThanhTien,
+                        THANG = thang,
+                        NAM = nam,
+                        NGAY = ngay,
                         GHICHU = input.GhiChu ?? input.GHICHU ?? "",
                         CREATED_DATE = DateTime.Now,
                         CREATED_BY = currentUserId
@@ -256,7 +293,7 @@ namespace HRMS_API.Controllers
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tạo đăng ký tăng ca: " + ex.ToString());
-                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tạo đăng ký tăng ca." });
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tạo đăng ký tăng ca: " + ex.Message });
             }
         }
 
@@ -327,5 +364,11 @@ namespace HRMS_API.Controllers
         public int? NGAY { get; set; }
         public string GhiChu { get; set; }
         public string GHICHU { get; set; }
+        public string GioBatDau { get; set; }
+        public string GIOBATDAU { get; set; }
+        public string GioKetThuc { get; set; }
+        public string GIOKETTHUC { get; set; }
+        public int? IdLoaiCong { get; set; }
+        public decimal? IDLOAICONG { get; set; }
     }
 }

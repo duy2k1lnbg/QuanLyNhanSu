@@ -41,6 +41,11 @@ import { Popover } from 'antd';
 import NotificationPopoverContent, { type NotificationItem } from './NotificationPopoverContent';
 import type { CurrentUserDTO } from '../types/hrms';
 import { useAppLanguage, type AppLanguage } from '../services/i18n';
+import {
+  canView,
+  canAdd,
+  canEdit,
+} from '../utils/permissionUtils';
 
 const { Header, Content, Sider } = Layout;
 const { Text } = Typography;
@@ -57,7 +62,13 @@ interface MainLayoutProps {
   isBackendConnected: boolean;
   loading: boolean;
   kyCongCount: number;
-  hasRight: (...codes: string[]) => boolean;
+  hasRight?: (...codes: string[]) => boolean;
+  canView?: (...codes: string[]) => boolean;
+  canAdd?: (...codes: string[]) => boolean;
+  canEdit?: (...codes: string[]) => boolean;
+  canDelete?: (...codes: string[]) => boolean;
+  canPrint?: (...codes: string[]) => boolean;
+  canAccessRoute?: (route: string) => boolean;
   notifications?: NotificationItem[];
   onMarkAllNotificationsRead?: () => void;
   onMarkNotificationRead?: (id: string, route: string) => void;
@@ -76,7 +87,6 @@ export function MainLayout({
   isBackendConnected,
   loading,
   kyCongCount,
-  hasRight,
   notifications = [],
   onMarkAllNotificationsRead,
   onMarkNotificationRead,
@@ -102,32 +112,33 @@ export function MainLayout({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Danh mục phân hệ Sidebar được bảo vệ chặt chẽ theo quyền XEM
   const menuItems = [
-    ...(hasRight('DASHBOARD', 'BAOCAO', 'F_DB_LUONG', 'F_DB_NHANSU', 'F_BC_BAOCAO')
+    ...(canView(currentUser, 'DASHBOARD', 'BAOCAO', 'F_DB_LUONG', 'F_DB_NHANSU', 'F_BC_BAOCAO')
       ? [{ key: 'dashboard', icon: <DashboardOutlined />, label: tApp.menuDashboard }]
       : []),
-    ...(hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN', 'NHANVIEN')
+    ...(canView(currentUser, 'NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN', 'NHANVIEN')
       ? [{ key: 'nhanvien', icon: <TeamOutlined />, label: tApp.menuEmployees }]
       : []),
-    ...(hasRight('CHAMCONG', 'F_CC_BANGCONG', 'F_CC_LOAICA', 'F_CC_KYCONG')
+    ...(canView(currentUser, 'CHAMCONG', 'F_CC_BANGCONG', 'F_CC_LOAICA', 'F_CC_KYCONG')
       ? [{ key: 'chamcong', icon: <CalendarOutlined />, label: tApp.menuAttendance }]
       : []),
-    ...(hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG')
+    ...(canView(currentUser, 'BANGLUONG', 'F_CC_BANGLUONG', 'LUONG')
       ? [{ key: 'bangluong', icon: <DollarOutlined />, label: tApp.menuPayroll }]
       : []),
-    ...(hasRight('HOPDONG', 'F_NV_HOPDONG')
+    ...(canView(currentUser, 'HOPDONG', 'F_NV_HOPDONG')
       ? [{ key: 'hopdong', icon: <FileTextOutlined />, label: tApp.menuContracts }]
       : []),
-    ...(hasRight('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT')
+    ...(canView(currentUser, 'KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT')
       ? [{ key: 'khenthuong', icon: <TrophyOutlined />, label: tApp.menuRewards }]
       : []),
-    ...(hasRight('NANGLUONG', 'DIEUCHUYEN', 'F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN')
+    ...(canView(currentUser, 'NANGLUONG', 'DIEUCHUYEN', 'F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN')
       ? [{ key: 'nangluong', icon: <RiseOutlined />, label: tApp.menuPromotions }]
       : []),
-    ...(hasRight('UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA')
+    ...(canView(currentUser, 'UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA')
       ? [{ key: 'ungluong', icon: <SwapOutlined />, label: tApp.menuOvertime }]
       : []),
-    ...(currentUser.IsAdmin || hasRight('PHANQUYEN', 'F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER')
+    ...(currentUser.IsAdmin || canView(currentUser, 'PHANQUYEN', 'F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER')
       ? [{ key: 'phanquyen', icon: <SafetyCertificateOutlined />, label: tApp.menuPermissions }]
       : []),
     {
@@ -139,6 +150,60 @@ export function MainLayout({
         </span>
       ),
     },
+  ];
+
+  // Danh mục Thao tác nhanh (Quick Add): Chỉ hiển thị các hành động người dùng có quyền Thêm/Sửa
+  const quickActionItems = [
+    ...(canAdd(currentUser, 'F_DM_NHANVIEN') && canView(currentUser, 'F_DM_NHANVIEN')
+      ? [
+          {
+            key: 'quick-emp',
+            icon: <UserAddOutlined style={{ color: '#10b981' }} />,
+            label: tApp.addEmployee,
+            onClick: () => onMenuChange('nhanvien'),
+          },
+        ]
+      : []),
+    ...(canAdd(currentUser, 'F_NV_HOPDONG') && canView(currentUser, 'F_NV_HOPDONG')
+      ? [
+          {
+            key: 'quick-contract',
+            icon: <FileAddOutlined style={{ color: '#3b82f6' }} />,
+            label: tApp.createContract,
+            onClick: () => onMenuChange('hopdong'),
+          },
+        ]
+      : []),
+    ...(canAdd(currentUser, 'F_CC_BANGCONG', 'F_NV_NGHIPHEP') && canView(currentUser, 'F_CC_BANGCONG')
+      ? [
+          {
+            key: 'quick-leave',
+            icon: <CalendarOutlined style={{ color: '#f59e0b' }} />,
+            label: tApp.createLeave,
+            onClick: () => onMenuChange('chamcong'),
+          },
+        ]
+      : []),
+    ...(canView(currentUser, 'F_CC_BANGCONG')
+      ? [
+          {
+            key: 'quick-timesheet',
+            icon: <CalendarOutlined style={{ color: '#8b5cf6' }} />,
+            label: tApp.enterTimesheet,
+            onClick: () => onMenuChange('chamcong'),
+          },
+        ]
+      : []),
+    ...(canEdit(currentUser, 'F_CC_BANGLUONG') || canAdd(currentUser, 'F_CC_BANGLUONG')
+      ? [
+          {
+            key: 'quick-salary',
+            icon: <DollarOutlined style={{ color: '#059669' }} />,
+            label: tApp.calculateSalary,
+            onClick: () => onMenuChange('bangluong'),
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -344,58 +409,29 @@ export function MainLayout({
               </div>
             )}
 
-            {/* Nút Thao tác nhanh: Ẩn trên máy tính bảng & mobile < 992px */}
-            <div className="header-hide-tablet">
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: 'quick-emp',
-                      icon: <UserAddOutlined style={{ color: '#10b981' }} />,
-                      label: tApp.addEmployee,
-                      onClick: () => onMenuChange('nhanvien'),
-                    },
-                    {
-                      key: 'quick-contract',
-                      icon: <FileAddOutlined style={{ color: '#3b82f6' }} />,
-                      label: tApp.createContract,
-                      onClick: () => onMenuChange('hopdong'),
-                    },
-                    {
-                      key: 'quick-leave',
-                      icon: <CalendarOutlined style={{ color: '#f59e0b' }} />,
-                      label: tApp.createLeave,
-                      onClick: () => onMenuChange('chamcong'),
-                    },
-                    {
-                      key: 'quick-timesheet',
-                      icon: <CalendarOutlined style={{ color: '#8b5cf6' }} />,
-                      label: tApp.enterTimesheet,
-                      onClick: () => onMenuChange('chamcong'),
-                    },
-                    {
-                      key: 'quick-salary',
-                      icon: <DollarOutlined style={{ color: '#059669' }} />,
-                      label: tApp.calculateSalary,
-                      onClick: () => onMenuChange('bangluong'),
-                    },
-                  ],
-                }}
-              >
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  style={{
-                    background: '#0f172a',
-                    borderColor: '#0f172a',
-                    fontWeight: 600,
-                    borderRadius: 8,
+            {/* Nút Thao tác nhanh: Ẩn trên máy tính bảng & mobile < 992px hoặc khi không có quyền */}
+            {quickActionItems.length > 0 && (
+              <div className="header-hide-tablet">
+                <Dropdown
+                  menu={{
+                    items: quickActionItems,
                   }}
                 >
-                  {tApp.quickAdd}
-                </Button>
-              </Dropdown>
-            </div>
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    style={{
+                      background: '#0f172a',
+                      borderColor: '#0f172a',
+                      fontWeight: 600,
+                      borderRadius: 8,
+                    }}
+                  >
+                    {tApp.quickAdd}
+                  </Button>
+                </Dropdown>
+              </div>
+            )}
 
             {/* Nút Hỏi AI Copilot */}
             <Tooltip title={tApp.askAiCopilot}>

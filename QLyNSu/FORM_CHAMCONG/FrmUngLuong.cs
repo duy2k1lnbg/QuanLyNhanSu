@@ -1,4 +1,4 @@
-﻿using Bu.CLASS_CHAMCONG;
+using Bu.CLASS_CHAMCONG;
 using Bu;
 using DevExpress.XtraEditors;
 using System;
@@ -28,6 +28,8 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void FrmUngLuong_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_CC_UNGLUONG")) return;
+
             _ungluong = new UNGLUONG();
             _nhanvien = new NHANVIEN();
             _them = false;
@@ -42,9 +44,23 @@ namespace QLyNSu.FORM_CHAMCONG
             if (gvDanhSach.RowCount > 0)
             {
                 _id = int.Parse(gvDanhSach.GetFocusedRowCellValue("IDUL").ToString());
-                txtGhiChu.Text = gvDanhSach.GetFocusedRowCellValue("GHICHU").ToString();
-                searchMANV.EditValue = gvDanhSach.GetFocusedRowCellValue("MANV").ToString();
-                spSoTien.Text = gvDanhSach.GetFocusedRowCellValue("SOTIENUNG").ToString();
+                txtGhiChu.Text = gvDanhSach.GetFocusedRowCellValue("GHICHU") != null ? gvDanhSach.GetFocusedRowCellValue("GHICHU").ToString() : string.Empty;
+                searchMANV.EditValue = gvDanhSach.GetFocusedRowCellValue("MANV") != null ? gvDanhSach.GetFocusedRowCellValue("MANV").ToString() : null;
+                spSoTien.Text = gvDanhSach.GetFocusedRowCellValue("SOTIENUNG") != null ? gvDanhSach.GetFocusedRowCellValue("SOTIENUNG").ToString() : "0";
+                
+                var rowNgay = gvDanhSach.GetFocusedRowCellValue("NGAYUNG");
+                if (rowNgay != null && DateTime.TryParse(rowNgay.ToString(), out var dtVal))
+                {
+                    dtNgayUng.Value = dtVal;
+                }
+                else
+                {
+                    var created = gvDanhSach.GetFocusedRowCellValue("CREATED_DATE");
+                    if (created != null && DateTime.TryParse(created.ToString(), out var crVal))
+                    {
+                        dtNgayUng.Value = crVal;
+                    }
+                }
             }
         }
 
@@ -70,6 +86,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_CC_UNGLUONG", Bu.DTO.PermissionAction.Add)) return;
             _them = true;
             showHide(false);
             _reset();
@@ -78,6 +95,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_CC_UNGLUONG", Bu.DTO.PermissionAction.Edit)) return;
             _them = false;
             showHide(false);
             splitContainer1.Panel1Collapsed = false;
@@ -86,6 +104,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_CC_UNGLUONG", Bu.DTO.PermissionAction.Delete)) return;
             splitContainer1.Panel1Collapsed = true;
             // Hiển thị hộp thoại xác nhận
             if (MessageBox.Show("Bạn có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
@@ -119,21 +138,19 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-
+            if (!Functions.FormSecurity.AssertPermission("F_CC_UNGLUONG", Bu.DTO.PermissionAction.Print)) return;
         }
 
         private void showHide(bool kt)
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnThem.Enabled = kt;
-            btnXoa.Enabled = kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
+            Functions.FormSecurity.ApplyButtons("F_CC_UNGLUONG", btnThem, btnSua, btnXoa, btnIn, kt);
             txtGhiChu.Enabled = !kt;
             spSoTien.Enabled = !kt;
             searchMANV.Enabled = !kt;
+            dtNgayUng.Enabled = !kt;
         }
 
         private void _reset()
@@ -142,6 +159,7 @@ namespace QLyNSu.FORM_CHAMCONG
             searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
             spSoTien.EditValue = 0;
             searchMANV.EditValue = 0;
+            dtNgayUng.Value = DateTime.Now;
         }
 
         private void LoadNhanVien()
@@ -160,6 +178,10 @@ namespace QLyNSu.FORM_CHAMCONG
         {
             try
             {
+                var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
+                if (!Functions.FormSecurity.AssertPermission("F_CC_UNGLUONG", permAction)) return;
+
+                DateTime ngayChon = dtNgayUng.Value;
                 if (_them)
                 {
                     TB_UNGLUONG ul = new TB_UNGLUONG();
@@ -167,11 +189,11 @@ namespace QLyNSu.FORM_CHAMCONG
                     ul.MANV = int.Parse(searchMANV.EditValue.ToString());
                     ul.GHICHU = txtGhiChu.Text;
 
-                    ul.NAM = DateTime.Now.Year;
-                    ul.THANG = DateTime.Now.Month;
-                    ul.NGAY = DateTime.Now.Day;
+                    ul.NAM = ngayChon.Year;
+                    ul.THANG = ngayChon.Month;
+                    ul.NGAY = ngayChon.Day;
                     ul.CREATED_BY = 1;
-                    ul.CREATED_DATE = DateTime.Now;
+                    ul.CREATED_DATE = ngayChon;
                     _ungluong.Add(ul);
                 }
                 else
@@ -181,9 +203,9 @@ namespace QLyNSu.FORM_CHAMCONG
                     ul.MANV = int.Parse(searchMANV.EditValue.ToString());
                     ul.GHICHU = txtGhiChu.Text;
 
-                    ul.NAM = DateTime.Now.Year;
-                    ul.THANG = DateTime.Now.Month;
-                    ul.NGAY = DateTime.Now.Day;
+                    ul.NAM = ngayChon.Year;
+                    ul.THANG = ngayChon.Month;
+                    ul.NGAY = ngayChon.Day;
                     ul.UPDATED_BY = 1;
                     ul.UPDATED_DATE = DateTime.Now;
                     _ungluong.Update(ul);

@@ -55,6 +55,10 @@ interface NhanVienPageProps {
   danhMuc: DanhMucAllDTO | null;
   loading: boolean;
   hasRight: (...codes: string[]) => boolean;
+  canAdd?: (...codes: string[]) => boolean;
+  canEdit?: (...codes: string[]) => boolean;
+  canDelete?: (...codes: string[]) => boolean;
+  canPrint?: (...codes: string[]) => boolean;
   onRefresh: () => void;
 }
 
@@ -63,6 +67,9 @@ export function NhanVienPage({
   danhMuc,
   loading,
   hasRight,
+  canAdd,
+  canEdit,
+  canDelete,
   onRefresh,
 }: NhanVienPageProps) {
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -340,7 +347,7 @@ export function NhanVienPage({
                 size="small"
               />
             </Tooltip>
-            {hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') && (
+            {(canEdit ? canEdit('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') : hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN')) && (
               <Tooltip title="Chỉnh sửa thông tin">
                 <Button
                   type="text"
@@ -350,7 +357,7 @@ export function NhanVienPage({
                 />
               </Tooltip>
             )}
-            {hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') && (
+            {(canDelete ? canDelete('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') : hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN')) && (
               isResigned ? (
                 <Popconfirm
                   title="Khôi phục nhân viên đi làm lại?"
@@ -447,7 +454,7 @@ export function NhanVienPage({
               allowClear
               style={{ width: 280 }}
             />
-            {hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') && (
+            {(canAdd ? canAdd('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') : hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN')) && (
               <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenNvModal()}>
                 Thêm nhân viên mới
               </Button>

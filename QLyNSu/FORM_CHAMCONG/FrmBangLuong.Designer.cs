@@ -62,6 +62,19 @@ namespace QLyNSu.FORM_CHAMCONG
             this.TIEN_TAMUNG = new DevExpress.XtraGrid.Columns.GridColumn();
             this.KHOAN_TRU_KHAC = new DevExpress.XtraGrid.Columns.GridColumn();
             this.THUC_LINH = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.CONG_LAMNGAY = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.CONG_LAMDEM = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.LUONG_CA_NGAY = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.LUONG_CA_DEM = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.PHUCAP_CONG_THUCTE = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TIEN_AN_CA = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TONG_CONG = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.LUONG_BHXH = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TIEN_BHXH = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TIEN_BHYT = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TIEN_BHTN = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.TIEN_CONG_DOAN = new DevExpress.XtraGrid.Columns.GridColumn();
+            this.THUE_TNCN = new DevExpress.XtraGrid.Columns.GridColumn();
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -230,13 +243,26 @@ namespace QLyNSu.FORM_CHAMCONG
             this.NAM,
             this.CONG_CHUAN,
             this.CONG_THUCTE,
+            this.CONG_LAMNGAY,
+            this.CONG_LAMDEM,
             this.DAILY_RATE,
+            this.LUONG_CA_NGAY,
+            this.LUONG_CA_DEM,
             this.LUONG_CONG_THUCTE,
-            this.TIEN_TANGCA,
+            this.PHUCAP_CONG_THUCTE,
             this.TIEN_CHUYENCAN,
+            this.TIEN_AN_CA,
             this.KHOAN_CONG_KHAC,
+            this.TIEN_TANGCA,
+            this.TONG_CONG,
+            this.LUONG_BHXH,
+            this.TIEN_BHXH,
+            this.TIEN_BHYT,
+            this.TIEN_BHTN,
             this.TIEN_BHXH_TRICH,
+            this.TIEN_CONG_DOAN,
             this.TIEN_TAMUNG,
+            this.THUE_TNCN,
             this.KHOAN_TRU_KHAC,
             this.THUC_LINH});
             this.gvBangLuong.GridControl = this.gcBangLuong;
@@ -436,8 +462,177 @@ namespace QLyNSu.FORM_CHAMCONG
             this.THUC_LINH.FieldName = "THUC_LINH";
             this.THUC_LINH.Name = "THUC_LINH";
             this.THUC_LINH.Visible = true;
-            this.THUC_LINH.VisibleIndex = 13;
+            this.THUC_LINH.VisibleIndex = 23;
             this.THUC_LINH.Width = 120;
+            // 
+            // CONG_LAMNGAY
+            // 
+            this.CONG_LAMNGAY.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.CONG_LAMNGAY.AppearanceHeader.Options.UseFont = true;
+            this.CONG_LAMNGAY.Caption = "CA NGÀY";
+            this.CONG_LAMNGAY.DisplayFormat.FormatString = "n1";
+            this.CONG_LAMNGAY.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.CONG_LAMNGAY.FieldName = "CONG_LAMNGAY";
+            this.CONG_LAMNGAY.Name = "CONG_LAMNGAY";
+            this.CONG_LAMNGAY.Visible = true;
+            this.CONG_LAMNGAY.VisibleIndex = 5;
+            this.CONG_LAMNGAY.Width = 80;
+            // 
+            // CONG_LAMDEM
+            // 
+            this.CONG_LAMDEM.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.CONG_LAMDEM.AppearanceHeader.Options.UseFont = true;
+            this.CONG_LAMDEM.Caption = "CA ĐÊM";
+            this.CONG_LAMDEM.DisplayFormat.FormatString = "n1";
+            this.CONG_LAMDEM.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.CONG_LAMDEM.FieldName = "CONG_LAMDEM";
+            this.CONG_LAMDEM.Name = "CONG_LAMDEM";
+            this.CONG_LAMDEM.Visible = true;
+            this.CONG_LAMDEM.VisibleIndex = 6;
+            this.CONG_LAMDEM.Width = 80;
+            // 
+            // LUONG_CA_NGAY
+            // 
+            this.LUONG_CA_NGAY.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.LUONG_CA_NGAY.AppearanceHeader.Options.UseFont = true;
+            this.LUONG_CA_NGAY.Caption = "LƯƠNG CA NGÀY";
+            this.LUONG_CA_NGAY.DisplayFormat.FormatString = "n0";
+            this.LUONG_CA_NGAY.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.LUONG_CA_NGAY.FieldName = "LUONG_CA_NGAY";
+            this.LUONG_CA_NGAY.Name = "LUONG_CA_NGAY";
+            this.LUONG_CA_NGAY.Visible = true;
+            this.LUONG_CA_NGAY.VisibleIndex = 8;
+            this.LUONG_CA_NGAY.Width = 110;
+            // 
+            // LUONG_CA_DEM
+            // 
+            this.LUONG_CA_DEM.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.LUONG_CA_DEM.AppearanceHeader.Options.UseFont = true;
+            this.LUONG_CA_DEM.Caption = "LƯƠNG CA ĐÊM";
+            this.LUONG_CA_DEM.DisplayFormat.FormatString = "n0";
+            this.LUONG_CA_DEM.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.LUONG_CA_DEM.FieldName = "LUONG_CA_DEM";
+            this.LUONG_CA_DEM.Name = "LUONG_CA_DEM";
+            this.LUONG_CA_DEM.Visible = true;
+            this.LUONG_CA_DEM.VisibleIndex = 9;
+            this.LUONG_CA_DEM.Width = 110;
+            // 
+            // PHUCAP_CONG_THUCTE
+            // 
+            this.PHUCAP_CONG_THUCTE.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.PHUCAP_CONG_THUCTE.AppearanceHeader.Options.UseFont = true;
+            this.PHUCAP_CONG_THUCTE.Caption = "LƯƠNG PHỤ CẤP";
+            this.PHUCAP_CONG_THUCTE.DisplayFormat.FormatString = "n0";
+            this.PHUCAP_CONG_THUCTE.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.PHUCAP_CONG_THUCTE.FieldName = "PHUCAP_CONG_THUCTE";
+            this.PHUCAP_CONG_THUCTE.Name = "PHUCAP_CONG_THUCTE";
+            this.PHUCAP_CONG_THUCTE.Visible = true;
+            this.PHUCAP_CONG_THUCTE.VisibleIndex = 11;
+            this.PHUCAP_CONG_THUCTE.Width = 110;
+            // 
+            // TIEN_AN_CA
+            // 
+            this.TIEN_AN_CA.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TIEN_AN_CA.AppearanceHeader.Options.UseFont = true;
+            this.TIEN_AN_CA.Caption = "TIỀN ĂN CA";
+            this.TIEN_AN_CA.DisplayFormat.FormatString = "n0";
+            this.TIEN_AN_CA.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.TIEN_AN_CA.FieldName = "TIEN_AN_CA";
+            this.TIEN_AN_CA.Name = "TIEN_AN_CA";
+            this.TIEN_AN_CA.Visible = true;
+            this.TIEN_AN_CA.VisibleIndex = 13;
+            this.TIEN_AN_CA.Width = 95;
+            // 
+            // TONG_CONG
+            // 
+            this.TONG_CONG.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TONG_CONG.AppearanceHeader.Options.UseFont = true;
+            this.TONG_CONG.Caption = "TỔNG CỘNG";
+            this.TONG_CONG.DisplayFormat.FormatString = "n0";
+            this.TONG_CONG.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.TONG_CONG.FieldName = "TONG_CONG";
+            this.TONG_CONG.Name = "TONG_CONG";
+            this.TONG_CONG.Visible = true;
+            this.TONG_CONG.VisibleIndex = 16;
+            this.TONG_CONG.Width = 115;
+            // 
+            // LUONG_BHXH
+            // 
+            this.LUONG_BHXH.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.LUONG_BHXH.AppearanceHeader.Options.UseFont = true;
+            this.LUONG_BHXH.Caption = "LƯƠNG BHXH";
+            this.LUONG_BHXH.DisplayFormat.FormatString = "n0";
+            this.LUONG_BHXH.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.LUONG_BHXH.FieldName = "LUONG_BHXH";
+            this.LUONG_BHXH.Name = "LUONG_BHXH";
+            this.LUONG_BHXH.Visible = true;
+            this.LUONG_BHXH.VisibleIndex = 17;
+            this.LUONG_BHXH.Width = 100;
+            // 
+            // TIEN_BHXH
+            // 
+            this.TIEN_BHXH.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TIEN_BHXH.AppearanceHeader.Options.UseFont = true;
+            this.TIEN_BHXH.Caption = "BHXH (8%)";
+            this.TIEN_BHXH.DisplayFormat.FormatString = "n0";
+            this.TIEN_BHXH.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.TIEN_BHXH.FieldName = "TIEN_BHXH";
+            this.TIEN_BHXH.Name = "TIEN_BHXH";
+            this.TIEN_BHXH.Visible = true;
+            this.TIEN_BHXH.VisibleIndex = 18;
+            this.TIEN_BHXH.Width = 90;
+            // 
+            // TIEN_BHYT
+            // 
+            this.TIEN_BHYT.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TIEN_BHYT.AppearanceHeader.Options.UseFont = true;
+            this.TIEN_BHYT.Caption = "BHYT (1.5%)";
+            this.TIEN_BHYT.DisplayFormat.FormatString = "n0";
+            this.TIEN_BHYT.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.TIEN_BHYT.FieldName = "TIEN_BHYT";
+            this.TIEN_BHYT.Name = "TIEN_BHYT";
+            this.TIEN_BHYT.Visible = true;
+            this.TIEN_BHYT.VisibleIndex = 19;
+            this.TIEN_BHYT.Width = 90;
+            // 
+            // TIEN_BHTN
+            // 
+            this.TIEN_BHTN.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TIEN_BHTN.AppearanceHeader.Options.UseFont = true;
+            this.TIEN_BHTN.Caption = "BHTN (1%)";
+            this.TIEN_BHTN.DisplayFormat.FormatString = "n0";
+            this.TIEN_BHTN.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.TIEN_BHTN.FieldName = "TIEN_BHTN";
+            this.TIEN_BHTN.Name = "TIEN_BHTN";
+            this.TIEN_BHTN.Visible = true;
+            this.TIEN_BHTN.VisibleIndex = 20;
+            this.TIEN_BHTN.Width = 90;
+            // 
+            // TIEN_CONG_DOAN
+            // 
+            this.TIEN_CONG_DOAN.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.TIEN_CONG_DOAN.AppearanceHeader.Options.UseFont = true;
+            this.TIEN_CONG_DOAN.Caption = "CÔNG ĐOÀN";
+            this.TIEN_CONG_DOAN.DisplayFormat.FormatString = "n0";
+            this.TIEN_CONG_DOAN.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.TIEN_CONG_DOAN.FieldName = "TIEN_CONG_DOAN";
+            this.TIEN_CONG_DOAN.Name = "TIEN_CONG_DOAN";
+            this.TIEN_CONG_DOAN.Visible = true;
+            this.TIEN_CONG_DOAN.VisibleIndex = 21;
+            this.TIEN_CONG_DOAN.Width = 90;
+            // 
+            // THUE_TNCN
+            // 
+            this.THUE_TNCN.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            this.THUE_TNCN.AppearanceHeader.Options.UseFont = true;
+            this.THUE_TNCN.Caption = "THUẾ TNCN";
+            this.THUE_TNCN.DisplayFormat.FormatString = "n0";
+            this.THUE_TNCN.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
+            this.THUE_TNCN.FieldName = "THUE_TNCN";
+            this.THUE_TNCN.Name = "THUE_TNCN";
+            this.THUE_TNCN.Visible = true;
+            this.THUE_TNCN.VisibleIndex = 22;
+            this.THUE_TNCN.Width = 90;
             // 
             // FrmBangLuong
             // 
@@ -499,5 +694,18 @@ namespace QLyNSu.FORM_CHAMCONG
         private DevExpress.XtraGrid.Columns.GridColumn TIEN_TAMUNG;
         private DevExpress.XtraGrid.Columns.GridColumn KHOAN_TRU_KHAC;
         private DevExpress.XtraGrid.Columns.GridColumn THUC_LINH;
+        private DevExpress.XtraGrid.Columns.GridColumn CONG_LAMNGAY;
+        private DevExpress.XtraGrid.Columns.GridColumn CONG_LAMDEM;
+        private DevExpress.XtraGrid.Columns.GridColumn LUONG_CA_NGAY;
+        private DevExpress.XtraGrid.Columns.GridColumn LUONG_CA_DEM;
+        private DevExpress.XtraGrid.Columns.GridColumn PHUCAP_CONG_THUCTE;
+        private DevExpress.XtraGrid.Columns.GridColumn TIEN_AN_CA;
+        private DevExpress.XtraGrid.Columns.GridColumn TONG_CONG;
+        private DevExpress.XtraGrid.Columns.GridColumn LUONG_BHXH;
+        private DevExpress.XtraGrid.Columns.GridColumn TIEN_BHXH;
+        private DevExpress.XtraGrid.Columns.GridColumn TIEN_BHYT;
+        private DevExpress.XtraGrid.Columns.GridColumn TIEN_BHTN;
+        private DevExpress.XtraGrid.Columns.GridColumn TIEN_CONG_DOAN;
+        private DevExpress.XtraGrid.Columns.GridColumn THUE_TNCN;
     }
 }

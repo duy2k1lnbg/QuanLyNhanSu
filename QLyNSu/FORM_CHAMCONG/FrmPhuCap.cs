@@ -1,7 +1,6 @@
 using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
-using DevExpress.DirectX.Common.DirectWrite;
 using DevExpress.XtraEditors;
 using System;
 using System.Collections.Generic;
@@ -21,13 +20,15 @@ namespace QLyNSu.FORM_CHAMCONG
         {
             InitializeComponent();
         }
+
         private PHUCAP _phucap;
         private NHANVIEN _nhanvien;
-
         private bool _them;
 
         private void FrmPhuCap_Load(object sender, EventArgs e)
         {
+            if (!Functions.FormSecurity.CheckViewPermission(this, "F_CC_PHUCAP")) return;
+
             _them = false;
             showHide(true);
             _nhanvien = new NHANVIEN();
@@ -39,10 +40,17 @@ namespace QLyNSu.FORM_CHAMCONG
             gvDanhSach.OptionsFind.FindDelay = 100;
             splitContainer1.Panel1Collapsed = true;
 
+            searchMANV.EditValueChanged += searchMANV_EditValueChanged;
         }
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_CC_PHUCAP", Bu.DTO.PermissionAction.Edit)) return;
+            if (searchMANV.EditValue == null)
+            {
+                MessageBox.Show("Vui lòng chọn một nhân viên từ danh sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             _them = false;
             showHide(false);
             splitContainer1.Panel1Collapsed = false;
@@ -52,39 +60,44 @@ namespace QLyNSu.FORM_CHAMCONG
         {
             try
             {
-                if (string.IsNullOrEmpty(searchMANV.EditValue?.ToString()))
+                if (!Functions.FormSecurity.AssertPermission("F_CC_PHUCAP", Bu.DTO.PermissionAction.Edit)) return;
+
+                if (searchMANV.EditValue == null || !int.TryParse(searchMANV.EditValue.ToString(), out int manv))
                 {
                     MessageBox.Show("Vui lòng chọn một nhân viên!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return; // Dừng lại nếu không có giá trị
+                    return;
                 }
 
-                int makc = Convert.ToInt32(spNam.Text) * 100 + Convert.ToInt32(spThang.Text);
-                var nv = Convert.ToInt32(searchMANV.EditValue);
-                decimal sotienIdpc1 = Convert.ToDecimal(spP1.Text);
-                decimal sotienIdpc2 = Convert.ToDecimal(spP2.Text);
-                decimal sotienIdpc3 = Convert.ToDecimal(spP3.Text);
-                decimal sotienIdpc4 = Convert.ToDecimal(spP4.Text);
-                decimal sotienIdpc5 = Convert.ToDecimal(spP5.Text);
-                decimal sotienIdpc6 = Convert.ToDecimal(spP6.Text);
-                decimal sotienIdpc7 = Convert.ToDecimal(spP7.Text); 
-                _phucap.UpdatePhucap(nv, 1, sotienIdpc1, makc);
-                _phucap.UpdatePhucap(nv, 2, sotienIdpc2, makc);
-                _phucap.UpdatePhucap(nv, 3, sotienIdpc3, makc);
-                _phucap.UpdatePhucap(nv, 4, sotienIdpc4, makc);
-                _phucap.UpdatePhucap(nv, 5, sotienIdpc5, makc);
-                _phucap.UpdatePhucap(nv, 6, sotienIdpc6, makc);
-                _phucap.UpdatePhucap(nv, 7, sotienIdpc7, makc);
+                var allowances = new Dictionary<int, decimal>
+                {
+                    { 1, spP1.Value },
+                    { 2, spP2.Value },
+                    { 3, spP3.Value },
+                    { 4, spP4.Value },
+                    { 5, spP5.Value },
+                    { 6, spP6.Value },
+                    { 7, spP7.Value },
+                    { 8, spP8.Value },
+                    { 9, spP9.Value },
+                    { 10, spP10.Value },
+                    { 11, spP11.Value },
+                    { 12, spP12.Value },
+                    { 13, spP13.Value }
+                };
+
+                _phucap.SavePhuCapHopDong(manv, allowances);
                 LoadData();
-                var manv = Convert.ToInt32(searchMANV.EditValue); 
-                var row = ((DataRowView)searchMANV.GetSelectedDataRow()).Row; 
-                var hoten = row["HOTEN"].ToString();
-                MessageBox.Show($"Cập nhật phụ cấp thành công cho nhân viên {manv} - {hoten} có mã công {makc}!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                string hoten = searchMANV.Text;
+                MessageBox.Show($"Cập nhật thành công 13 loại phụ cấp theo hợp đồng cho nhân viên: {manv} - {hoten}!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                showHide(true);
+                splitContainer1.Panel1Collapsed = true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Lỗi khi cập nhật: {ex.Message}");
+                MessageBox.Show($"Lỗi khi cập nhật phụ cấp: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-
         }
 
         private void btnHuy_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -101,21 +114,45 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!Functions.FormSecurity.AssertPermission("F_CC_PHUCAP", Bu.DTO.PermissionAction.Print)) return;
+            if (gvDanhSach.RowCount > 0)
+            {
+                gvDanhSach.ShowRibbonPrintPreview();
+            }
+        }
 
+        private void searchMANV_EditValueChanged(object sender, EventArgs e)
+        {
+            if (searchMANV.EditValue != null && int.TryParse(searchMANV.EditValue.ToString(), out int manv))
+            {
+                var dict = _phucap.GetPhuCapByNhanVien(manv);
+                spP1.EditValue = dict.ContainsKey(1) ? dict[1] : 0;
+                spP2.EditValue = dict.ContainsKey(2) ? dict[2] : 0;
+                spP3.EditValue = dict.ContainsKey(3) ? dict[3] : 0;
+                spP4.EditValue = dict.ContainsKey(4) ? dict[4] : 0;
+                spP5.EditValue = dict.ContainsKey(5) ? dict[5] : 0;
+                spP6.EditValue = dict.ContainsKey(6) ? dict[6] : 0;
+                spP7.EditValue = dict.ContainsKey(7) ? dict[7] : 0;
+                spP8.EditValue = dict.ContainsKey(8) ? dict[8] : 0;
+                spP9.EditValue = dict.ContainsKey(9) ? dict[9] : 0;
+                spP10.EditValue = dict.ContainsKey(10) ? dict[10] : 0;
+                spP11.EditValue = dict.ContainsKey(11) ? dict[11] : 0;
+                spP12.EditValue = dict.ContainsKey(12) ? dict[12] : 0;
+                spP13.EditValue = dict.ContainsKey(13) ? dict[13] : 0;
+                CalculateTotal(null, null);
+            }
         }
 
         private void gvDanhSach_Click(object sender, EventArgs e)
         {
             if (gvDanhSach.FocusedRowHandle >= 0)
             {
-                searchMANV.EditValue = gvDanhSach.GetFocusedRowCellValue("MANV").ToString();
-                //spP1.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC1").ToString() ?? "0";
-                //spP2.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC2").ToString() ?? "0";
-                //spP3.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC3").ToString() ?? "0";
-                //spP4.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC4").ToString() ?? "0";
-                //spP5.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC5").ToString() ?? "0";
-                //spP6.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC6").ToString() ?? "0";
-                //spP7.Text = gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC7").ToString() ?? "0";
+                var manvVal = gvDanhSach.GetFocusedRowCellValue("MANV");
+                if (manvVal == null) return;
+                int manv = Convert.ToInt32(manvVal);
+
+                searchMANV.EditValue = manv;
+
                 spP1.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC1") ?? 0);
                 spP2.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC2") ?? 0);
                 spP3.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC3") ?? 0);
@@ -123,17 +160,28 @@ namespace QLyNSu.FORM_CHAMCONG
                 spP5.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC5") ?? 0);
                 spP6.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC6") ?? 0);
                 spP7.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC7") ?? 0);
-                int makc = Convert.ToInt32(gvDanhSach.GetFocusedRowCellValue("MAKYCONG").ToString());
-                int year = makc / 100;
-                int month = makc % 100;
+                spP8.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC8") ?? 0);
+                spP9.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC9") ?? 0);
+                spP10.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC10") ?? 0);
+                spP11.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC11") ?? 0);
+                spP12.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC12") ?? 0);
+                spP13.Value = Convert.ToDecimal(gvDanhSach.GetFocusedRowCellValue("SOTIEN_IDPC13") ?? 0);
 
-                spNam.Text = year.ToString();
-                spThang.Text = month.ToString();
-                var ghiChuValue = gvDanhSach.GetFocusedRowCellValue("GHICHU");
+                CalculateTotal(null, null);
+
+                splitContainer1.Panel1Collapsed = false;
+                _them = false;
+                showHide(false);
             }
-            splitContainer1.Panel1Collapsed = false;
-            _them = false;
-            showHide(false);
+        }
+
+        private void CalculateTotal(object sender, EventArgs e)
+        {
+            decimal total = spP1.Value + spP2.Value + spP3.Value + spP4.Value +
+                            spP5.Value + spP6.Value + spP7.Value + spP8.Value +
+                            spP9.Value + spP10.Value + spP11.Value + spP12.Value +
+                            spP13.Value;
+            spPTong.Value = total;
         }
 
         private void LoadData()
@@ -166,9 +214,23 @@ namespace QLyNSu.FORM_CHAMCONG
         {
             btnLuu.Enabled = !kt;
             btnHuy.Enabled = !kt;
-            btnSua.Enabled = kt;
-            btnIn.Enabled = kt;
             btnDong.Enabled = kt;
-        }    
+            Functions.FormSecurity.ApplyButtons("F_CC_PHUCAP", null, btnSua, null, btnIn, kt);
+
+            spP1.Enabled = !kt;
+            spP2.Enabled = !kt;
+            spP3.Enabled = !kt;
+            spP4.Enabled = !kt;
+            spP5.Enabled = !kt;
+            spP6.Enabled = !kt;
+            spP7.Enabled = !kt;
+            spP8.Enabled = !kt;
+            spP9.Enabled = !kt;
+            spP10.Enabled = !kt;
+            spP11.Enabled = !kt;
+            spP12.Enabled = !kt;
+            spP13.Enabled = !kt;
+            searchMANV.Enabled = !kt;
+        }
     }
 }

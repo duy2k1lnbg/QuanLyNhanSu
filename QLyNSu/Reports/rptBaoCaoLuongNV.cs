@@ -13,6 +13,8 @@ namespace QLyNSu.Reports
         public rptBaoCaoLuongNV()
         {
             InitializeComponent();
+            this.RollPaper = false;
+            this.Detail.KeepTogether = true;
         }
 
         public void BindData(DA.TB_BANGLUONG bl, string hoten, string tenpb, decimal otHours, List<DA.TB_NHANVIEN_PHUCAP> phucaps)
@@ -32,24 +34,24 @@ namespace QLyNSu.Reports
             decimal luongCoBan = dailyRate * congChuan;
             xrTableCell14.Text = string.Format("{0:N0}", luongCoBan);
             
-            // Phụ cấp chi tiết
-            decimal pcTrachNhiem = phucaps.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN ?? 0;
-            decimal pcChuyenCan = phucaps.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN ?? 0;
-            decimal pcNhaO = phucaps.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN ?? 0;
-            decimal pcNgonNgu = phucaps.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN ?? 0;
-            decimal pcThamNien = phucaps.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN ?? 0;
-            decimal pcDiLai = phucaps.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN ?? 0;
-            decimal pcKhac = phucaps.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN ?? 0;
+            // Phụ cấp chi tiết theo danh mục chuẩn mới
+            decimal pcNhaO = phucaps.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN ?? 0;
+            decimal pcDiLai = phucaps.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN ?? 0;
+            decimal pcChucVu = phucaps.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN ?? 0;
+            decimal pcChungChi = phucaps.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN ?? 0;
+            decimal pcChuyenCan = phucaps.FirstOrDefault(x => x.IDPC == 9)?.SOTIEN ?? 0;
+            decimal pcThamNien = phucaps.FirstOrDefault(x => x.IDPC == 10)?.SOTIEN ?? 0;
+            decimal pcKhac = phucaps.FirstOrDefault(x => x.IDPC == 13)?.SOTIEN ?? 0;
             
-            xrTableCell17.Text = string.Format("{0:N0}", pcTrachNhiem);
-            xrTableCell20.Text = string.Format("{0:N0}", pcNgonNgu);
+            xrTableCell17.Text = string.Format("{0:N0}", pcChucVu);
+            xrTableCell20.Text = string.Format("{0:N0}", pcChungChi);
             xrTableCell23.Text = string.Format("{0:N0}", pcThamNien);
             xrTableCell26.Text = string.Format("{0:N0}", pcChuyenCan);
             xrTableCell29.Text = string.Format("{0:N0}", pcNhaO);
             xrTableCell32.Text = string.Format("{0:N0}", pcKhac);
             xrTableCell35.Text = string.Format("{0:N0}", pcDiLai);
             
-            decimal sumAllowances = pcTrachNhiem + pcChuyenCan + pcNhaO + pcNgonNgu + pcThamNien + pcDiLai + pcKhac;
+            decimal sumAllowances = phucaps.Sum(x => x.SOTIEN ?? 0);
             xrTableCell38.Text = string.Format("{0:N0}", luongCoBan + sumAllowances);
             
             // Chi tiết công
