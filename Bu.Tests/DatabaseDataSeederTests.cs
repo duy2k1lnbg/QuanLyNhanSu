@@ -254,5 +254,65 @@ namespace Bu.Tests
                 Console.WriteLine("Seed TangCa test data: OK");
             }
         }
+
+        [Test]
+        public void Apply_Migration_V1_12_Mobile_User_Employee_Link()
+        {
+            using (var db = new MyEntities())
+            {
+                // 1. Add MANV column to TB_SYS_USER if missing
+                try
+                {
+                    int manvCol = db.Database.SqlQuery<int>(
+                        "SELECT COUNT(*) FROM user_tab_cols WHERE table_name = 'TB_SYS_USER' AND column_name = 'MANV'"
+                    ).FirstOrDefault();
+                    if (manvCol == 0)
+                    {
+                        db.Database.ExecuteSqlCommand("ALTER TABLE TB_SYS_USER ADD (MANV NUMBER)");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"MANV col error: {ex.Message}");
+                }
+
+                // 2. Add CLIENT_TYPE column to TB_SYS_USER if missing
+                try
+                {
+                    int clientTypeCol = db.Database.SqlQuery<int>(
+                        "SELECT COUNT(*) FROM user_tab_cols WHERE table_name = 'TB_SYS_USER' AND column_name = 'CLIENT_TYPE'"
+                    ).FirstOrDefault();
+                    if (clientTypeCol == 0)
+                    {
+                        db.Database.ExecuteSqlCommand("ALTER TABLE TB_SYS_USER ADD (CLIENT_TYPE NVARCHAR2(20) DEFAULT 'ALL')");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"CLIENT_TYPE col error: {ex.Message}");
+                }
+
+                // 3. Link an active employee to test user 'nhansu'
+                try
+                {
+                    var firstEmp = db.TB_NHANVIEN.FirstOrDefault(n => (n.DATHOIVIEC ?? 0) != 1);
+                    if (firstEmp != null)
+                    {
+                        var testUser = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "nhansu");
+                        if (testUser != null)
+                        {
+                            testUser.MANV = firstEmp.MANV;
+                            testUser.CLIENT_TYPE = "ALL";
+                            db.SaveChanges();
+                            Console.WriteLine($"Linked user 'nhansu' to MANV {firstEmp.MANV} ({firstEmp.HOTEN})");
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Link employee error: {ex.Message}");
+                }
+            }
+        }
     }
 }

@@ -58,6 +58,8 @@ namespace Bu.CLASS_SYSTEM
                     entity.DISABLED = user.DISABLED;
                     entity.MACTY = user.MACTY;
                     entity.MADVI = user.MADVI;
+                    entity.MANV = user.MANV;
+                    entity.CLIENT_TYPE = user.CLIENT_TYPE;
                     if (!string.IsNullOrEmpty(user.PASSWORD))
                     {
                         entity.PASSWORD = user.PASSWORD;
@@ -299,7 +301,31 @@ namespace Bu.CLASS_SYSTEM
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine($"[DB MIGRATION]: Alter PASSWORD column skipped or failed (column might already be modified): {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"[DB MIGRATION]: Alter PASSWORD column skipped or failed: {ex.Message}");
+                }
+
+                // Add MANV and CLIENT_TYPE to TB_SYS_USER if not present
+                try
+                {
+                    int manvCol = db.Database.SqlQuery<int>(
+                        "SELECT COUNT(*) FROM user_tab_cols WHERE table_name = 'TB_SYS_USER' AND column_name = 'MANV'"
+                    ).FirstOrDefault();
+                    if (manvCol == 0)
+                    {
+                        db.Database.ExecuteSqlCommand("ALTER TABLE TB_SYS_USER ADD (MANV NUMBER)");
+                    }
+
+                    int clientTypeCol = db.Database.SqlQuery<int>(
+                        "SELECT COUNT(*) FROM user_tab_cols WHERE table_name = 'TB_SYS_USER' AND column_name = 'CLIENT_TYPE'"
+                    ).FirstOrDefault();
+                    if (clientTypeCol == 0)
+                    {
+                        db.Database.ExecuteSqlCommand("ALTER TABLE TB_SYS_USER ADD (CLIENT_TYPE NVARCHAR2(20) DEFAULT 'ALL')");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[DB MIGRATION]: Alter TB_SYS_USER MANV/CLIENT_TYPE skipped: {ex.Message}");
                 }
 
                 // Create or recreate TB_THONGBAO table if it does not exist or is outdated
@@ -407,7 +433,14 @@ namespace Bu.CLASS_SYSTEM
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BCCT", SORT = 56, DESCRIPTION = "Bảng Công Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "CC" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BANGLUONG", SORT = 57, DESCRIPTION = "Bảng Lương", ISGROUP = 0, MENU = 1, PARENT = "CC" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_NGAYLE", SORT = 58, DESCRIPTION = "Ngày Lễ", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_BC_BAOCAO", SORT = 70, DESCRIPTION = "Báo Cáo Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "BC" }
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_BC_BAOCAO", SORT = 70, DESCRIPTION = "Báo Cáo Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "BC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_ROOT", SORT = 200, DESCRIPTION = "Phân Hệ Mobile App", ISGROUP = 0, MENU = 1, PARENT = "MOBILE" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_PROFILE_VIEW", SORT = 201, DESCRIPTION = "Xem Hồ Sơ Cá Nhân Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_ATTENDANCE_VIEW", SORT = 202, DESCRIPTION = "Xem Bảng Công Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_PAYROLL_VIEW", SORT = 203, DESCRIPTION = "Xem Bảng Lương Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_CONTRACT_VIEW", SORT = 204, DESCRIPTION = "Xem Hợp Đồng Lao Động Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_INSURANCE_VIEW", SORT = 205, DESCRIPTION = "Xem Bảo Hiểm Xã Hội Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_NOTIFICATION_VIEW", SORT = 206, DESCRIPTION = "Xem Thông Báo Nội Bộ Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" }
                 };
 
                 foreach (var f in functions)

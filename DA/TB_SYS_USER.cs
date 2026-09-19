@@ -26,5 +26,7 @@ namespace DA
         public string ALLOWED_IPS { get; set; }
         public Nullable<decimal> FAILED_LOGIN_COUNT { get; set; }
         public Nullable<System.DateTime> LOCKOUT_END { get; set; }
+        public Nullable<decimal> MANV { get; set; }
+        public string CLIENT_TYPE { get; set; }
     }
 }

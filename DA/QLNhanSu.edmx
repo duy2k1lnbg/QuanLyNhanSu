@@ -519,6 +519,8 @@
           <Property Name="ALLOWED_IPS" Type="varchar2" MaxLength="500" />
           <Property Name="FAILED_LOGIN_COUNT" Type="number" Precision="38" Scale="0" />
           <Property Name="LOCKOUT_END" Type="timestamp" Precision="6" />
+          <Property Name="MANV" Type="number" Precision="38" Scale="0" />
+          <Property Name="CLIENT_TYPE" Type="nvarchar2" MaxLength="20" />
         </EntityType>
         <EntityType Name="TB_TANGCA">
           <Key>
@@ -1767,6 +1769,8 @@
           <Property Name="ALLOWED_IPS" Type="String" MaxLength="500" FixedLength="false" Unicode="false" />
           <Property Name="FAILED_LOGIN_COUNT" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="LOCKOUT_END" Type="DateTime" Precision="6" />
+          <Property Name="MANV" Type="Decimal" Precision="38" Scale="0" />
+          <Property Name="CLIENT_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="TB_TANGCA">
           <Key>
@@ -2769,6 +2773,8 @@
           <EntitySetMapping Name="TB_SYS_USER">
             <EntityTypeMapping TypeName="Model.TB_SYS_USER">
               <MappingFragment StoreEntitySet="TB_SYS_USER">
+                <ScalarProperty Name="CLIENT_TYPE" ColumnName="CLIENT_TYPE" />
+                <ScalarProperty Name="MANV" ColumnName="MANV" />
                 <ScalarProperty Name="LOCKOUT_END" ColumnName="LOCKOUT_END" />
                 <ScalarProperty Name="FAILED_LOGIN_COUNT" ColumnName="FAILED_LOGIN_COUNT" />
                 <ScalarProperty Name="ALLOWED_IPS" ColumnName="ALLOWED_IPS" />

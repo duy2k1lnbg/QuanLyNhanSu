@@ -106,6 +106,52 @@ namespace Bu.Tests
         }
 
         [Test]
+        public void EnsureAdminAndNhansuAccounts()
+        {
+            using (var db = new MyEntities())
+            {
+                var admin = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "ADMIN");
+                Assert.IsNotNull(admin, "Tài khoản ADMIN phải tồn tại.");
+                Assert.IsNotNull(admin.MANV, "Tài khoản ADMIN phải được liên kết với MANV để truy cập Mobile.");
+
+                var nhansu = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "nhansu");
+                Assert.IsNotNull(nhansu, "Tài khoản nhansu phải tồn tại.");
+                Assert.AreEqual(141, nhansu.MANV, "Tài khoản nhansu phải liên kết MANV 141.");
+
+                var nv2327 = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "nv2327" || u.MANV == 2327);
+                if (nv2327 == null)
+                {
+                    var emp = db.TB_NHANVIEN.FirstOrDefault(e => e.MANV == 2327);
+                    if (emp != null)
+                    {
+                        nv2327 = new TB_SYS_USER
+                        {
+                            USERNAME = "nv2327",
+                            FULLNAME = emp.HOTEN,
+                            PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("123"),
+                            MANV = 2327,
+                            DISABLED = 0,
+                            CLIENT_TYPE = "ALL",
+                            ISGROUP = 0,
+                            MACTY = "1",
+                            MADVI = "1"
+                        };
+                        db.TB_SYS_USER.Add(nv2327);
+                        db.SaveChanges();
+                    }
+                }
+                else
+                {
+                    nv2327.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("123");
+                    nv2327.DISABLED = 0;
+                    nv2327.CLIENT_TYPE = "ALL";
+                    db.SaveChanges();
+                }
+                Assert.IsNotNull(nv2327, "Tài khoản nhân viên nv2327 phải sẵn sàng.");
+            }
+        }
+
+        [Test]
         public void TestDisabledUserLoginThrowsAccountLocked()
         {
             using (var db = new MyEntities())

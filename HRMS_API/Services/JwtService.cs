@@ -34,6 +34,12 @@ namespace HRMS_API.Services
         [JsonProperty("madvi")]
         public string MaDvi { get; set; }
 
+        [JsonProperty("manv")]
+        public string Manv { get; set; }
+
+        [JsonProperty("client_type")]
+        public string ClientType { get; set; }
+
         [JsonProperty("iat")]
         public long IssuedAt { get; set; }
 
@@ -99,7 +105,7 @@ namespace HRMS_API.Services
         /// <summary>
         /// Tạo JSON Web Token chuẩn RFC 7519 có chữ ký HMAC-SHA256
         /// </summary>
-        public static string GenerateToken(int userId, string username, string fullName, bool isAdmin, List<string> rights, string maCty = null, string maDvi = null)
+        public static string GenerateToken(int userId, string username, string fullName, bool isAdmin, List<string> rights, string maCty = null, string maDvi = null, string manv = null, string clientType = null)
         {
             var header = new
             {
@@ -120,6 +126,8 @@ namespace HRMS_API.Services
                 Rights = rights ?? new List<string>(),
                 MaCty = maCty,
                 MaDvi = maDvi,
+                Manv = manv,
+                ClientType = clientType ?? "ALL",
                 IssuedAt = now.ToUnixTimeSeconds(),
                 ExpiresAt = exp.ToUnixTimeSeconds()
             };
@@ -209,6 +217,16 @@ namespace HRMS_API.Services
                     {
                         identityClaims.Add(new Claim("Right", right));
                     }
+                }
+
+                if (!string.IsNullOrEmpty(claims.Manv))
+                {
+                    identityClaims.Add(new Claim("manv", claims.Manv));
+                }
+
+                if (!string.IsNullOrEmpty(claims.ClientType))
+                {
+                    identityClaims.Add(new Claim("client_type", claims.ClientType));
                 }
 
                 var identity = new ClaimsIdentity(identityClaims, "Jwt");

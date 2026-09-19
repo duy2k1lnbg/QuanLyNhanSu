@@ -131,6 +131,11 @@ namespace HRMS_API.Controllers
                     {
                         user = db.TB_SYS_USER.FirstOrDefault(x => x.USERNAME.Trim().ToLower() == uName);
                     }
+                    // Hỗ trợ đăng nhập bằng Mã Nhân Viên (MANV)
+                    if (user == null && decimal.TryParse(req.Username.Trim(), out decimal parsedManv) && parsedManv > 0)
+                    {
+                        user = db.TB_SYS_USER.FirstOrDefault(x => x.MANV == parsedManv && (x.ISGROUP ?? 0) == 0);
+                    }
 
                     // Chống Username Enumeration: Không phân biệt tài khoản không tồn tại hay sai mật khẩu
                     if (user == null)
@@ -172,6 +177,43 @@ namespace HRMS_API.Controllers
                         return BadRequest("Tên đăng nhập hoặc mật khẩu không chính xác.");
                     }
 
+                    // Kiểm tra loại ứng dụng client (Client Type) và liên kết Nhân viên (MANV)
+                    string clientType = req.ClientType;
+                    if (string.IsNullOrWhiteSpace(clientType))
+                    {
+                        if (Request.Headers.TryGetValues("X-Client-Type", out var cVals))
+                        {
+                            clientType = cVals.FirstOrDefault();
+                        }
+                    }
+                    if (string.IsNullOrWhiteSpace(clientType))
+                    {
+                        clientType = "ALL";
+                    }
+                    clientType = clientType.Trim().ToUpperInvariant();
+
+                    if (clientType == "MOBILE")
+                    {
+                        string userAllowedClient = (user.CLIENT_TYPE ?? "ALL").Trim().ToUpperInvariant();
+                        if (userAllowedClient == "DESKTOP")
+                        {
+                            return Content(System.Net.HttpStatusCode.BadRequest, new
+                            {
+                                success = false,
+                                message = "Tài khoản này chỉ được phép truy cập từ ứng dụng máy tính (Desktop)."
+                            });
+                        }
+
+                        if (!user.MANV.HasValue || user.MANV.Value <= 0)
+                        {
+                            return Content(System.Net.HttpStatusCode.BadRequest, new
+                            {
+                                success = false,
+                                message = "Tài khoản chưa được liên kết với hồ sơ nhân viên. Vui lòng liên hệ bộ phận nhân sự."
+                            });
+                        }
+                    }
+
                     // Đăng nhập thành công -> Reset bộ đếm thất bại
                     ResetFailedLogin(rateKey);
 
@@ -194,7 +236,18 @@ namespace HRMS_API.Controllers
                     rights = rights.Distinct().ToList();
 
                     // Tạo Token phiên làm việc chuẩn JSON Web Token (HMAC-SHA256)
-                    string token = JwtService.GenerateToken((int)user.IDUSER, user.USERNAME, user.FULLNAME ?? user.USERNAME, isAdmin, rights, user.MACTY, user.MADVI);
+                    string token = JwtService.GenerateToken(
+                        (int)user.IDUSER, 
+                        user.USERNAME, 
+                        user.FULLNAME ?? user.USERNAME, 
+                        isAdmin, 
+                        rights, 
+                        user.MACTY, 
+                        user.MADVI,
+                        user.MANV.HasValue ? user.MANV.Value.ToString() : null,
+                        clientType
+                    );
+
                     var session = new SessionInfo
                     {
                         UserId = (int)user.IDUSER,
@@ -202,7 +255,9 @@ namespace HRMS_API.Controllers
                         FullName = user.FULLNAME ?? user.USERNAME,
                         IsAdmin = isAdmin,
                         Rights = rights,
-                        LoginTime = DateTime.Now
+                        LoginTime = DateTime.Now,
+                        Manv = user.MANV,
+                        ClientType = clientType
                     };
 
                     lock (_activeSessions)
@@ -258,7 +313,11 @@ namespace HRMS_API.Controllers
                             Rights = rights,
                             rights = rights,
                             DetailedRights = detailedRights,
-                            detailedRights = detailedRights
+                            detailedRights = detailedRights,
+                            manv = user.MANV,
+                            Manv = user.MANV,
+                            clientType = clientType,
+                            ClientType = clientType
                         }
                     });
                 }
@@ -521,6 +580,7 @@ namespace HRMS_API.Controllers
     {
         public string Username { get; set; }
         public string Password { get; set; }
+        public string ClientType { get; set; }
     }
 
     public class ChangePasswordRequest
@@ -537,5 +597,7 @@ namespace HRMS_API.Controllers
         public bool IsAdmin { get; set; }
         public List<string> Rights { get; set; }
         public DateTime LoginTime { get; set; }
+        public decimal? Manv { get; set; }
+        public string ClientType { get; set; }
     }
 }
