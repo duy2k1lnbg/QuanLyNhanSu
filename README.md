@@ -1,9 +1,10 @@
 # 🏢 Hệ Thống Quản Lý Nhân Sự (HRMS Enterprise) với Trợ Lý AI Cục Bộ
 
-Hệ thống Quản lý Nhân sự & Tiền lương cấp doanh nghiệp hỗ trợ kiến trúc **Dual-Client (Desktop WinForms + Web SPA React)** trên nền tảng **.NET Framework 4.7.2**, **ASP.NET Web API 2**, **Oracle Database** và trợ lý **AI On-Premise (Ollama Qwen 2.5 + Qdrant Vector DB)**.
+Hệ thống Quản lý Nhân sự & Tiền lương cấp doanh nghiệp hỗ trợ kiến trúc **Hệ Sinh Thái Đa Nền Tảng (Desktop WinForms + Web React + Mobile Expo)** trên nền tảng **.NET Framework 4.7.2**, **ASP.NET Web API 2**, **Oracle Database** và trợ lý **AI On-Premise (Ollama Qwen 2.5 + Qdrant Vector DB)**.
 
 [![.NET Framework](https://img.shields.io/badge/.NET%20Framework-4.7.2-blueviolet?logo=dotnet)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-19.2-61dafb?logo=react)](https://react.dev/)
+[![React Native](https://img.shields.io/badge/React%20Native-Expo%2057-black?logo=expo)](https://expo.dev/)
 [![Vite](https://img.shields.io/badge/Vite-8.2-646CFF?logo=vite)](https://vitejs.dev/)
 [![Oracle DB](https://img.shields.io/badge/Oracle%20Database-19c%2F23ai-red?logo=oracle)](https://www.oracle.com/database/)
 [![DevExpress](https://img.shields.io/badge/UI-DevExpress%20WinForms-orange)](https://www.devexpress.com/)
@@ -24,12 +25,33 @@ Hệ thống Quản lý Nhân sự & Tiền lương cấp doanh nghiệp hỗ tr
 
 ### 📌 Tổng Quan Hệ Thống
 
-HRMS Enterprise là giải pháp quản trị nhân sự toàn diện, cung cấp trải nghiệm làm việc liền mạch:
-1. **Windows Desktop App (`HRMS.Desktop`)**: Giao diện WinForms DevExpress mạnh mẽ cho bộ phận hành chính văn phòng, hỗ trợ in ấn báo cáo XtraReports phức tạp.
-2. **Modern Web Portal (`HRMS.Web`)**: Ứng dụng web Single Page Application (SPA) xây dựng trên **React 19**, **TypeScript**, **Ant Design 6** và **Vite**, tối ưu hóa cho cả desktop lẫn thiết bị di động.
-3. **Mobile App (`HRMS.Mobile`)**: Ứng dụng di động tự phục vụ nhân viên xây dựng trên **React Native**, **Expo SDK 57**, hỗ trợ tra cứu lương, chấm công, hợp đồng, bảo hiểm.
-4. **RESTful Web API (`HRMS.Api`)**: Cổng dịch vụ tập trung bảo mật với **JWT Bearer**, phân quyền **Server-Side RBAC**, kiểm soát phạm vi dữ liệu (**Data Scoping** theo công ty/chi nhánh) và chống rò rỉ ngoại lệ.
-5. **On-Premise AI Copilot (`HRMS.Business/Services/AI_Services`)**: Trợ lý AI hỏi đáp dữ liệu nhân sự bằng tiếng Việt tự nhiên sử dụng **Qwen 2.5**, kết hợp **Hybrid RAG** (Oracle SQL + Qdrant Vector Search), bảo vệ bởi bộ phân tích cú pháp **AST Tokenizer Validator** và cơ chế **Outbox Pattern** chống mất mát vector.
+HRMS Enterprise là giải pháp quản trị nhân sự toàn diện được thiết kế theo mô hình **3 tầng trải nghiệm** chuyên biệt hóa cho từng đối tượng người dùng, cùng kết nối đồng bộ thời gian thực qua RESTful Web API tập trung:
+
+```text
+             HRMS
+               │
+       ┌───────┼────────┐
+       │       │        │
+       ▼       ▼        ▼
+    Desktop   Web     Mobile
+       │       │        │
+    POWER     ADMIN   EMPLOYEE
+    USER      PORTAL  SELF-SERVICE
+```
+
+* 🖥️ **Desktop Client (`HRMS.Desktop`) — Power User**:
+  - **Đối tượng:** Chuyên viên Nhân sự (HR Specialist), Kế toán tiền lương (Payroll Accountant), Quản trị viên hệ thống (System Admin).
+  - **Vai trò:** Xử lý nghiệp vụ nặng (heavy business processing), tính lương và phát sinh kỳ công hàng loạt, quản trị danh mục chuyên sâu, xuất/nhập dữ liệu quy mô lớn, thiết kế và in ấn biểu mẫu XtraReports native với hiệu năng cao nhất.
+* 🌐 **Website (`HRMS.Web`) — Management / Administration Portal**:
+  - **Đối tượng:** Ban Giám đốc, Quản lý bộ phận (Department Managers / Line Managers), Nhân sự quản trị (HR Officers).
+  - **Vai trò:** Cổng quản trị và điều hành doanh nghiệp trực tiếp từ trình duyệt web. Theo dõi Dashboard chỉ số nhân sự & tiền lương trực quan bằng biểu đồ tương tác, phê duyệt nhanh yêu cầu, tra cứu hồ sơ và tích hợp Trợ lý AI hỏi đáp dữ liệu thông minh.
+* 📱 **Mobile App (`HRMS.Mobile`) — Employee Self-Service (ESS)**:
+  - **Đối tượng:** Toàn thể cán bộ công nhân viên trong doanh nghiệp.
+  - **Vai trò:** Ứng dụng di động tự phục vụ (ESS App) giúp từng nhân viên tương tác trực tiếp với HRMS của chính mình: tra cứu phiếu lương bảo mật, theo dõi lịch sử chấm công, xem hợp đồng lao động, thông tin bảo hiểm y tế/xã hội và nhận thông báo nội bộ tức thời.
+
+Hệ thống kết hợp cùng hạ tầng dịch vụ cốt lõi:
+1. **RESTful Web API (`HRMS.Api`)**: Cổng dịch vụ tập trung bảo mật với **JWT Bearer**, phân quyền **Server-Side RBAC**, kiểm soát phạm vi dữ liệu (**Data Scoping** theo công ty/chi nhánh) và chống rò rỉ ngoại lệ.
+2. **On-Premise AI Copilot (`HRMS.Business/Services/AI_Services`)**: Trợ lý AI hỏi đáp dữ liệu nhân sự bằng tiếng Việt tự nhiên sử dụng **Qwen 2.5**, kết hợp **Hybrid RAG** (Oracle SQL + Qdrant Vector Search), bảo vệ bởi bộ phân tích cú pháp **AST Tokenizer Validator** và cơ chế **Outbox Pattern** chống mất mát vector.
 
 ---
 
@@ -294,7 +316,7 @@ Qdrant is therefore recommended for testing the current AI retrieval flow, but i
 
 4. Chạy trigger cascade delete:
    ```sql
-   @DA/SYS_USER_triggers.sql
+   @HRMS.DataAccess/SYS_USER_triggers.sql
    ```
 
 #### Bước 2: Cài Đặt Ollama & Tải Model AI
@@ -311,7 +333,7 @@ ollama serve
 
 #### Bước 3: Cấu Hình `App.config`
 
-Cập nhật file `App.config` trong project **`QLyNSu`** và **`Bu`**:
+Cập nhật file `App.config` trong project **`HRMS.Desktop`** và **`HRMS.Business`**:
 
 ```xml
 <configuration>
@@ -344,10 +366,10 @@ Cập nhật file `App.config` trong project **`QLyNSu`** và **`Bu`**:
 
 #### Bước 4: Build & Chạy
 
-1. Mở `QuanLyNhanSu.sln` bằng **Visual Studio 2019/2022**
+1. Mở `HRMS.sln` bằng **Visual Studio 2019/2022**
 2. Restore NuGet packages: `Tools → NuGet Package Manager → Restore`
 3. Build Solution: `Ctrl + Shift + B`
-4. Chạy project `QLyNSu` (Set as Startup Project)
+4. Chạy project `HRMS.Desktop` (Set as Startup Project)
 5. Đăng nhập với tài khoản **Admin** được tạo từ `HR_backup.sql`
 
 ---
@@ -356,25 +378,25 @@ Cập nhật file `App.config` trong project **`QLyNSu`** và **`Bu`**:
 
 | File / Thư mục | Mô tả |
 |----------------|-------|
-| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | Solution file chứa 5 project |
+| [`HRMS.sln`](./HRMS.sln) | Solution file quản lý 8 module của toàn hệ thống HRMS |
 | [`HR_backup.sql`](./HR_backup.sql) | Script tạo toàn bộ schema Oracle + dữ liệu mẫu (bảng, view, sequence, constraint, tài khoản admin) |
-| [`DA/QLNhanSu.edmx`](./DA/QLNhanSu.edmx) | Entity Data Model đầy đủ (40+ bảng) |
-| [`DA/AIEntities.edmx`](./DA/AIEntities.edmx) | Entity Data Model chỉ đọc cho AI (6 View) |
-| [`DA/SYS_USER_triggers.sql`](./DA/SYS_USER_triggers.sql) | Oracle trigger cascade delete cho bảng người dùng |
-| [`Bu/Services/AI_Services/Core/HybridRagService.cs`](./Bu/Services/AI_Services/Core/HybridRagService.cs) | Orchestrator trung tâm của toàn bộ luồng AI |
-| [`Bu/Services/AI_Services/Core/SqlGeneratorService.cs`](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) | Dịch câu hỏi tiếng Việt → Oracle SQL |
-| [`Bu/Services/AI_Services/Vector/QdrantService.cs`](./Bu/Services/AI_Services/Vector/QdrantService.cs) | Tìm kiếm ngữ nghĩa qua Qdrant vector database |
-| [`Bu/Services/AI_Services/AiServiceLocator.cs`](./Bu/Services/AI_Services/AiServiceLocator.cs) | Service Locator đăng ký singleton cho AI |
-| [`QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs`](./QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs) | Giao diện Chatbox AI tích hợp |
-| [`QLyNSu/ai_prompts.json`](./QLyNSu/ai_prompts.json) | Template prompt AI (có thể sửa mà không cần build lại) |
-| [`VectorDataSync/Program.cs`](./VectorDataSync/Program.cs) | Console tool nạp dữ liệu nhân viên vào Qdrant |
+| [`HRMS.DataAccess/QLNhanSu.edmx`](./HRMS.DataAccess/QLNhanSu.edmx) | Entity Data Model đầy đủ (40+ bảng) |
+| [`HRMS.DataAccess/AIEntities.edmx`](./HRMS.DataAccess/AIEntities.edmx) | Entity Data Model chỉ đọc cho AI (6 View) |
+| [`HRMS.DataAccess/SYS_USER_triggers.sql`](./HRMS.DataAccess/SYS_USER_triggers.sql) | Oracle trigger cascade delete cho bảng người dùng |
+| [`HRMS.Business/Services/AI_Services/Core/HybridRagService.cs`](./HRMS.Business/Services/AI_Services/Core/HybridRagService.cs) | Orchestrator trung tâm của toàn bộ luồng AI |
+| [`HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs`](./HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs) | Dịch câu hỏi tiếng Việt → Oracle SQL |
+| [`HRMS.Business/Services/AI_Services/Vector/QdrantService.cs`](./HRMS.Business/Services/AI_Services/Vector/QdrantService.cs) | Tìm kiếm ngữ nghĩa qua Qdrant vector database |
+| [`HRMS.Business/Services/AI_Services/AiServiceLocator.cs`](./HRMS.Business/Services/AI_Services/AiServiceLocator.cs) | Service Locator đăng ký singleton cho AI |
+| [`HRMS.Desktop/FORM_SYSTEM/FrmAI_Chat.cs`](./HRMS.Desktop/FORM_SYSTEM/FrmAI_Chat.cs) | Giao diện Chatbox AI tích hợp |
+| [`HRMS.Desktop/ai_prompts.json`](./HRMS.Desktop/ai_prompts.json) | Template prompt AI (có thể sửa mà không cần build lại) |
+| [`HRMS.VectorDataSync/Program.cs`](./HRMS.VectorDataSync/Program.cs) | Console tool nạp dữ liệu nhân viên vào Qdrant |
 | [`HRMS_SetupScript.iss`](./HRMS_SetupScript.iss) | Inno Setup script tạo bộ cài đặt v3.5.0 |
 
 ---
 
 ### 🧪 Hướng Dẫn Kiểm Thử (Unit Testing)
 
-Hệ thống đi kèm với dự án kiểm thử tự động **`Bu.Tests`** sử dụng thư viện **NUnit** để kiểm thử các dịch vụ nghiệp vụ và AI cốt lõi:
+Hệ thống đi kèm với dự án kiểm thử tự động **`HRMS.Tests`** sử dụng thư viện **NUnit** để kiểm thử các dịch vụ nghiệp vụ và AI cốt lõi:
 - **`PasswordHasherTests.cs`**: Kiểm thử cơ chế băm mật khẩu bằng BCrypt, đảm bảo tính an toàn của mật khẩu cũ/mới và xử lý khoảng trắng (Oracle Fixed CHAR padding).
 - **`QueryPreprocessorTests.cs`**: Kiểm thử bộ tiền xử lý câu hỏi tiếng Việt, kiểm tra việc phục hồi dấu tiếng Việt và tự động gợi ý schema thích hợp (Sinh nhật, Tăng ca, Phụ cấp, Bảo hiểm).
 - **`AiCacheServiceTests.cs`**: Kiểm thử cơ chế cache dữ liệu SQL sinh ra từ AI, đảm bảo dữ liệu SQL được lưu và truy vấn chính xác dưới 10ms.
@@ -385,7 +407,7 @@ Hệ thống đi kèm với dự án kiểm thử tự động **`Bu.Tests`** s�
 > Vector retrieval behavior and ranking quality may change while the migration is being benchmarked.
 
 **Cách chạy kiểm thử:**
-1. Mở `QuanLyNhanSu.sln` trên Visual Studio.
+1. Mở `HRMS.sln` trên Visual Studio.
 2. Chọn `Test -> Run All Tests` hoặc mở cửa sổ `Test Explorer` (`Ctrl + R, T`) để chạy tất cả hoặc từng ca kiểm thử cụ thể.
 
 ---
@@ -425,13 +447,13 @@ Hệ thống đi kèm với dự án kiểm thử tự động **`Bu.Tests`** s�
    * Sửa đổi toàn bộ các hàm tải danh sách trong 9 lớp nghiệp vụ cốt lõi: `NHANVIEN`, `NHANVIEN_THOIVIEC`, `NANGLUONG_NHANVIEN`, `DIEUCHUYEN_NHANVIEN`, `KHENTHUONG_KYLUAT`, `HOPDONGLAODONG`, `UNGLUONG`, `TANGCA`, và `BANGLUONG`.
    * Chuyển đổi từ cơ chế duyệt vòng lặp truy vấn đơn lẻ sang **LINQ LEFT JOIN & DTO Projection** giúp gom toàn bộ các bảng liên kết và nạp dữ liệu chỉ trong **1 câu truy vấn SQL duy nhất** gửi tới Oracle DB. **Giảm số lượng truy vấn lặp trong các màn hình danh sách bằng LINQ JOIN và DTO projection, từ đó cải thiện thời gian tải dữ liệu và giảm N+1 query.**
 2. **Thắt chặt bảo mật & Cải thiện an toàn truy vấn AI (NL2SQL)**:
-   * Chuyển đổi bộ lọc bảo vệ của trợ lý AI trong [SqlGeneratorService.cs](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) từ **Blacklist** sang **Whitelist** nghiêm ngặt. Hệ thống chỉ cho phép thực thi các câu lệnh SELECT nhắm vào 6 View AI được chỉ định. Mọi nỗ lực truy vấn bảng nhạy cảm như tài khoản người dùng (`TB_SYS_USER`) hoặc các kỹ thuật AI Jailbreak đều bị chặn đứng.
+   * Chuyển đổi bộ lọc bảo vệ của trợ lý AI trong [SqlGeneratorService.cs](./HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs) từ **Blacklist** sang **Whitelist** nghiêm ngặt. Hệ thống chỉ cho phép thực thi các câu lệnh SELECT nhắm vào 6 View AI được chỉ định. Mọi nỗ lực truy vấn bảng nhạy cảm như tài khoản người dùng (`TB_SYS_USER`) hoặc các kỹ thuật AI Jailbreak đều bị chặn đứng.
    * Xử lý chuỗi và escape dữ liệu để phòng tránh các nguy cơ **SQL Injection** (`'`) của người dùng nhập vào trước khi ghép chuỗi.
 3. **Nâng cấp Vector Search sang Qdrant**:
-   * Thay thế `VectorService` (in-memory) bằng [QdrantService.cs](./Bu/Services/AI_Services/Vector/QdrantService.cs) — giao tiếp trực tiếp với Qdrant vector database qua HTTP. Hỗ trợ Cosine similarity (threshold 0.6, top-K=5), tự động đồng bộ dữ liệu nhân viên khi có thay đổi qua event `AiDataSyncHub`. Kèm theo tool CLI [VectorDataSync](./VectorDataSync/Program.cs) để seed toàn bộ dữ liệu nhân viên từ Oracle vào Qdrant.
+   * Thay thế `VectorService` (in-memory) bằng [QdrantService.cs](./HRMS.Business/Services/AI_Services/Vector/QdrantService.cs) — giao tiếp trực tiếp với Qdrant vector database qua HTTP. Hỗ trợ Cosine similarity (threshold 0.6, top-K=5), tự động đồng bộ dữ liệu nhân viên khi có thay đổi qua event `AiDataSyncHub`. Kèm theo tool CLI [VectorDataSync](./HRMS.VectorDataSync/Program.cs) để seed toàn bộ dữ liệu nhân viên từ Oracle vào Qdrant.
 4. **Trải nghiệm Giao diện Bất đồng bộ & Mượt mà**:
-   * Chuyển đổi hàm tải biểu đồ lương `LoadData()` sang dạng bất đồng bộ `LoadDataAsync()` sử dụng `Task.Run` trong [FrmDashboardLuong.cs](./QLyNSu/FORM_BAOCAO/FrmDashboardLuong.cs), giúp giao diện chính không bị đơ cứng (freeze) khi tải các báo cáo lương lớn.
-   * Giải quyết triệt để lỗi chuyển đổi tab của DevExpress `DocumentManager` (Tabbed MDI) trong [FormManager_Functions.cs](./QLyNSu/Functions/FormManager_Functions.cs). Hệ thống tự động kích hoạt đưa tab tương ứng lên hàng đầu ngay sau khi màn hình chờ (SplashScreen) đóng hẳn và mở khóa giao diện chính.
+   * Chuyển đổi hàm tải biểu đồ lương `LoadData()` sang dạng bất đồng bộ `LoadDataAsync()` sử dụng `Task.Run` trong [FrmDashboardLuong.cs](./HRMS.Desktop/FORM_BAOCAO/FrmDashboardLuong.cs), giúp giao diện chính không bị đơ cứng (freeze) khi tải các báo cáo lương lớn.
+   * Giải quyết triệt để lỗi chuyển đổi tab của DevExpress `DocumentManager` (Tabbed MDI) trong [FormManager_Functions.cs](./HRMS.Desktop/Functions/FormManager_Functions.cs). Hệ thống tự động kích hoạt đưa tab tương ứng lên hàng đầu ngay sau khi màn hình chờ (SplashScreen) đóng hẳn và mở khóa giao diện chính.
 5. **Mã hóa & Bảo mật Connection String**:
    * Hỗ trợ nạp chuỗi kết nối Oracle động qua biến môi trường hệ thống (`HR_DB_CONNECTION` và `AI_DB_CONNECTION`), giúp loại bỏ việc lưu mật khẩu CSDL ở dạng văn bản rõ trong file cấu hình `App.config` ở môi trường sản xuất.
 
@@ -441,48 +463,80 @@ Hệ thống đi kèm với dự án kiểm thử tự động **`Bu.Tests`** s�
 
 ### 📌 Project Overview
 
-This is an **Human Resource Management System (HRMS)** built on **.NET Framework 4.7.2** with a rich **DevExpress WinForms** UI and **Oracle Database 19c** backend. The system's standout feature is an integrated **On-Premise AI Copilot** using a **Hybrid retrieval pipeline** that enables HR managers to query employee data in plain natural language — without writing SQL — while keeping data processing local.
+**HRMS Enterprise** is a comprehensive Human Resource and Payroll Management platform architected around a **3-Tier Experience Model** tailored for distinct user personas, unified via a central RESTful Web API:
 
-The application covers the full HR lifecycle: employee profile management, internal transfers, labor contracts, reward and discipline tracking, salary raises, resignation records, daily time tracking, overtime, allowances, salary advances, and automated monthly payroll calculation. All of this is accessible through a DevExpress-based WinForms UI with rich grids, tree lists, and printable reports.
+```text
+             HRMS
+               │
+       ┌───────┼────────┐
+       │       │        │
+       ▼       ▼        ▼
+    Desktop   Web     Mobile
+       │       │        │
+    POWER     ADMIN   EMPLOYEE
+    USER      PORTAL  SELF-SERVICE
+```
+
+* 🖥️ **Desktop Client (`HRMS.Desktop`) — Power User**:
+  - **Target Persona:** HR Specialists, Payroll Accountants, System Administrators.
+  - **Role:** Heavy business processing, bulk timesheet and monthly payroll calculation, advanced organizational catalog management, large-scale data import/export, and native high-performance DevExpress XtraReports design and printing.
+* 🌐 **Website (`HRMS.Web`) — Management / Administration Portal**:
+  - **Target Persona:** Executives, Department / Line Managers, HR Officers.
+  - **Role:** Browser-based enterprise management and operational portal. Interactive analytics dashboard with KPIs and charts, rapid approval workflows, employee profile lookups, and integrated intelligent conversational AI Copilot.
+* 📱 **Mobile App (`HRMS.Mobile`) — Employee Self-Service (ESS App)**:
+  - **Target Persona:** All company employees.
+  - **Role:** Mobile Employee Self-Service application enabling individual employees to interact directly with their own HRMS data: secure digital payslips, daily timekeeping and check-in/out history, labor contracts, social & medical insurance records, and instant internal push notifications.
+
+The system is underpinned by core enterprise infrastructure:
+1. **RESTful Web API (`HRMS.Api`)**: Centralized gateway secured by **JWT Bearer**, server-side **RBAC**, multi-tenant **Data Scoping** (company/branch isolation), and exception masking.
+2. **On-Premise AI Copilot (`HRMS.Business/Services/AI_Services`)**: Conversational natural language HR data assistant powered by **Qwen 2.5**, **Hybrid RAG** (Oracle SQL + Qdrant Vector Search), **AST Tokenizer Validator**, and an **Outbox Pattern** for guaranteed vector synchronization.
 
 ---
 
-### 🗂 Project Architecture (3-Tier)
-
-The solution enforces a clean separation of concerns across five projects:
+### 🗂 Solution Architecture
 
 ```
-QuanLyNhanSu.sln
- ├── 📂 QLyNSu/          ← Presentation Layer (WinForms + DevExpress)
- │    ├── FORM_NHANSU/   ← HR Management Screens
- │    ├── FORM_CHAMCONG/ ← Timekeeping & Payroll Screens
- │    ├── FORM_BAOCAO/   ← Dashboard & Reports
- │    ├── FORM_SYSTEM/   ← System (Login, Permissions, AI Chat, Import/Export, Notifications)
- │    ├── Reports/       ← DevExpress XtraReports (printable reports)
- │    └── Functions/     ← Shared utilities (TranslationManager, AiBootstrap, FormManager)
+HRMS.sln
+ ├── 📂 HRMS.Api/          ← Backend REST API (ASP.NET Web API 2, .NET 4.7.2)
+ │    ├── Controllers/     ← Auth, NhanVien, BangLuong, ChamCong, HopDong, AiChat, etc.
+ │    ├── Filters/         ← JwtAuthorizeAttribute (RBAC, Data Scope & Audit Sync)
+ │    └── Services/        ← JwtService (HMAC-SHA256 Token Generation & Validation)
  │
- ├── 📂 Bu/              ← Business Logic Layer (BLL)
- │    ├── CLASS_NHANSU/  ← HR Business Rules
- │    ├── CLASS_CHAMCONG/← Timekeeping & Payroll Logic
- │    ├── CLASS_SYSTEM/  ← System & Permission Logic
- │    ├── DTO/           ← Data Transfer Objects
- │    └── Services/
- │         └── AI_Services/
- │              ├── AiServiceLocator.cs  ← Service Locator (singleton registry)
- │              ├── ChatboxManager.cs    ← Facade for HybridRagService
- │              ├── Core/       ← HybridRagService, SqlGeneratorService, AiRouterService, QueryPreprocessor, JsonPromptManager
- │              ├── Interfaces/ ← ILlmService, IPromptManager, ISqlGenerator, IVectorService
- │              ├── LLM/        ← OllamaService (communicates with Ollama local server)
- │              ├── Memory/     ← AiCacheService, AiChatHistory
- │              └── Vector/     ← QdrantService (semantic search via Qdrant), AiDataSyncHub
+ ├── 📂 HRMS.Web/          ← Web Client SPA (React 19 + Vite + Ant Design + Recharts)
+ │    ├── src/components/  ← MainLayout, AiChatDrawer, PhanQuyenModal, PhieuLuongModal
+ │    ├── src/pages/       ← DashboardPage, NhanVienPage, ChamCongPage, BangLuongPage, etc.
+ │    └── src/services/    ← Axios API client with automatic JWT Bearer Token injection
  │
- ├── 📂 DA/              ← Data Access Layer (Entity Framework 6)
- │    ├── QLNhanSu.edmx  ← Full EDMX model for the entire HR application
- │    └── AIEntities.edmx← Read-Only EDMX model exclusively for the AI subsystem
+ ├── 📂 HRMS.Mobile/       ← Mobile Client App (React Native + Expo SDK 57 + TypeScript)
+ │    ├── src/screens/     ← Home, Attendance, Payroll, Contract, Insurance, Notifications
+ │    ├── src/navigation/  ← NativeStack & BottomTabs
+ │    └── src/api/         ← Axios client connecting via Self-Scope /api/me/*
  │
- ├── 📂 Bu.Tests/        ← Unit Tests (NUnit)
+ ├── 📂 HRMS.Desktop/      ← Desktop Client (DevExpress WinForms)
+ │    ├── FORM_NHANSU/     ← HR Management Screens
+ │    ├── FORM_CHAMCONG/   ← Timekeeping & Payroll Screens
+ │    ├── FORM_BAOCAO/     ← Dashboard & Reports
+ │    ├── FORM_SYSTEM/     ← System (Login, Permissions, AI Chat, Import/Export, Notifications)
+ │    └── Reports/         ← DevExpress XtraReports (printable reports)
  │
- └── 📂 VectorDataSync/  ← Console tool to seed employee data into Qdrant
+ ├── 📂 HRMS.Business/     ← Business Logic Layer (BLL) & AI Subsystem
+ │    ├── CLASS_NHANSU/    ← HR Business Rules
+ │    ├── CLASS_CHAMCONG/  ← Timekeeping & Payroll Logic
+ │    ├── CLASS_SYSTEM/    ← System & Permission Logic (PasswordHasher with BCrypt)
+ │    ├── DTO/             ← Data Transfer Objects
+ │    └── Services/AI_Services/
+ │         ├── Core/       ← HybridRagService, SafeSqlExecutor, RagContextRetriever,
+ │         │                  RagSynthesizer, OracleSqlAstValidator, QueryPreprocessor
+ │         ├── Interfaces/ ← ISafeSqlExecutor, IRagContextRetriever, IRagSynthesizer
+ │         └── Vector/     ← QdrantService, QdrantOutboxManager (Retry & Reconciliation)
+ │
+ ├── 📂 HRMS.DataAccess/   ← Data Access Layer (Entity Framework 6.5)
+ │    ├── QLNhanSu.edmx    ← Full EDMX model for the entire HR application
+ │    └── AIEntities.edmx  ← Read-Only EDMX model exclusively for the AI subsystem
+ │
+ ├── 📂 HRMS.Tests/        ← Unit Tests (NUnit)
+ │
+ └── 📂 HRMS.VectorDataSync/ ← Console tool to seed employee data into Qdrant
 ```
 
 ---
@@ -611,7 +665,7 @@ graph TD
 
 4. Apply the cascade delete trigger:
    ```sql
-   @DA/SYS_USER_triggers.sql
+   @HRMS.DataAccess/SYS_USER_triggers.sql
    ```
 
 #### Step 2: Install Ollama & Download the LLM
@@ -628,7 +682,7 @@ ollama serve
 
 #### Step 3: Configure `App.config`
 
-Update `App.config` in both the **`QLyNSu`** and **`Bu`** projects:
+Update `App.config` in both the **`HRMS.Desktop`** and **`HRMS.Business`** projects:
 
 ```xml
 <configuration>
@@ -661,10 +715,10 @@ Update `App.config` in both the **`QLyNSu`** and **`Bu`** projects:
 
 #### Step 4: Build & Run
 
-1. Open `QuanLyNhanSu.sln` in **Visual Studio 2019 or 2022**
+1. Open `HRMS.sln` in **Visual Studio 2019 or 2022**
 2. Restore NuGet packages: `Tools → NuGet Package Manager → Restore Packages`
 3. Build the solution: `Ctrl + Shift + B`
-4. Set `QLyNSu` as the startup project and run (`F5`)
+4. Set `HRMS.Desktop` as the startup project and run (`F5`)
 5. Log in using the **Admin** account created by `HR_backup.sql`
 
 ---
@@ -673,32 +727,32 @@ Update `App.config` in both the **`QLyNSu`** and **`Bu`** projects:
 
 | File / Directory | Description |
 |-----------------|-------------|
-| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | Visual Studio solution containing all 5 projects |
+| [`HRMS.sln`](./HRMS.sln) | Visual Studio solution containing all 8 projects across the ecosystem |
 | [`HR_backup.sql`](./HR_backup.sql) | Full Oracle schema + sample data (tables, views, sequences, constraints, admin account) |
-| [`DA/QLNhanSu.edmx`](./DA/QLNhanSu.edmx) | Full Entity Data Model (40+ tables) |
-| [`DA/AIEntities.edmx`](./DA/AIEntities.edmx) | Read-only Entity Data Model for AI (6 Views only) |
-| [`DA/SYS_USER_triggers.sql`](./DA/SYS_USER_triggers.sql) | Oracle cascade delete trigger for user accounts |
-| [`Bu/Services/AI_Services/Core/HybridRagService.cs`](./Bu/Services/AI_Services/Core/HybridRagService.cs) | Central orchestrator of the entire AI pipeline |
-| [`Bu/Services/AI_Services/Core/SqlGeneratorService.cs`](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) | Vietnamese natural language → Oracle SQL translator |
-| [`Bu/Services/AI_Services/Vector/QdrantService.cs`](./Bu/Services/AI_Services/Vector/QdrantService.cs) | Semantic search via Qdrant vector database |
-| [`Bu/Services/AI_Services/AiServiceLocator.cs`](./Bu/Services/AI_Services/AiServiceLocator.cs) | Service Locator with singleton AI service registry |
-| [`QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs`](./QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs) | Embedded AI chatbox UI form |
-| [`QLyNSu/ai_prompts.json`](./QLyNSu/ai_prompts.json) | AI prompt templates (editable without rebuild) |
-| [`VectorDataSync/Program.cs`](./VectorDataSync/Program.cs) | Console tool to seed employee data into Qdrant |
+| [`HRMS.DataAccess/QLNhanSu.edmx`](./HRMS.DataAccess/QLNhanSu.edmx) | Full Entity Data Model (40+ tables) |
+| [`HRMS.DataAccess/AIEntities.edmx`](./HRMS.DataAccess/AIEntities.edmx) | Read-only Entity Data Model for AI (6 Views only) |
+| [`HRMS.DataAccess/SYS_USER_triggers.sql`](./HRMS.DataAccess/SYS_USER_triggers.sql) | Oracle cascade delete trigger for user accounts |
+| [`HRMS.Business/Services/AI_Services/Core/HybridRagService.cs`](./HRMS.Business/Services/AI_Services/Core/HybridRagService.cs) | Central orchestrator of the entire AI pipeline |
+| [`HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs`](./HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs) | Vietnamese natural language → Oracle SQL translator |
+| [`HRMS.Business/Services/AI_Services/Vector/QdrantService.cs`](./HRMS.Business/Services/AI_Services/Vector/QdrantService.cs) | Semantic search via Qdrant vector database |
+| [`HRMS.Business/Services/AI_Services/AiServiceLocator.cs`](./HRMS.Business/Services/AI_Services/AiServiceLocator.cs) | Service Locator with singleton AI service registry |
+| [`HRMS.Desktop/FORM_SYSTEM/FrmAI_Chat.cs`](./HRMS.Desktop/FORM_SYSTEM/FrmAI_Chat.cs) | Embedded AI chatbox UI form |
+| [`HRMS.Desktop/ai_prompts.json`](./HRMS.Desktop/ai_prompts.json) | AI prompt templates (editable without rebuild) |
+| [`HRMS.VectorDataSync/Program.cs`](./HRMS.VectorDataSync/Program.cs) | Console tool to seed employee data into Qdrant |
 | [`HRMS_SetupScript.iss`](./HRMS_SetupScript.iss) | Inno Setup installer script v3.5.0 |
 
 ---
 
 ### 🧪 Unit Testing Guide
 
-The system includes the **`Bu.Tests`** project, utilizing **NUnit** to cover core business and AI components:
+The system includes the **`HRMS.Tests`** project, utilizing **NUnit** to cover core business and AI components:
 - **`PasswordHasherTests.cs`**: Tests BCrypt password hashing, validation of legacy/padded passwords (handling Oracle fixed CHAR padding).
 - **`QueryPreprocessorTests.cs`**: Validates the Vietnamese query preprocessor, ensuring proper diacritic restoration and automatic database schema hinting (Birthday, Overtime, Allowance, Insurance).
 - **`AiCacheServiceTests.cs`**: Validates SQL caching logic, ensuring pre-generated SQL requests bypass the LLM and return in under 10ms.
 - **`DbQueryTests.cs`**: Tests Entity Framework query operations against the seed database.
 
 **How to run tests:**
-1. Open the solution in Visual Studio.
+1. Open `HRMS.sln` in Visual Studio.
 2. Select `Test -> Run All Tests` from the main menu, or open `Test Explorer` (`Ctrl + R, T`) to select and run specific test cases.
 
 ---
@@ -738,13 +792,13 @@ To meet the requirements of large-scale enterprise deployments, the application 
    * Refactored list-loading methods in 9 core business classes: `NHANVIEN`, `NHANVIEN_THOIVIEC`, `NANGLUONG_NHANVIEN`, `DIEUCHUYEN_NHANVIEN`, `KHENTHUONG_KYLUAT`, `HOPDONGLAODONG`, `UNGLUONG`, `TANGCA`, and `BANGLUONG`.
    * Replaced sequential loop lookups with **LINQ LEFT JOIN and DTO Projection**, consolidating all associated tables into a **single Oracle database query**. This optimization improves list loading times by **10x to 100x**.
 2. **AI Security Hardening & Jailbreak Prevention**:
-   * Replaced the blacklist approach in [SqlGeneratorService.cs](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) with a strict **SQL Whitelist**. The AI is now restricted to SELECT queries targeting the 6 dedicated AI Views. Any prompt injection, jailbreaking, or attempts to query system tables (like user accounts `TB_SYS_USER`) are instantly blocked.
+   * Replaced the blacklist approach in [SqlGeneratorService.cs](./HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs) with a strict **SQL Whitelist**. The AI is now restricted to SELECT queries targeting the 6 dedicated AI Views. Any prompt injection, jailbreaking, or attempts to query system tables (like user accounts `TB_SYS_USER`) are instantly blocked.
    * Patched **SQL Injection** vulnerabilities by escaping single quotes (`'`) in user-supplied search parameters.
 3. **Upgraded Vector Search to Qdrant**:
-   * Replaced the in-memory `VectorService` with [QdrantService.cs](./Bu/Services/AI_Services/Vector/QdrantService.cs) — communicates directly with Qdrant vector database via HTTP. Supports Cosine similarity (threshold 0.6, top-K=5), auto-syncs employee data on changes via `AiDataSyncHub` events. Includes CLI tool [VectorDataSync](./VectorDataSync/Program.cs) to seed all employee data from Oracle into Qdrant.
+   * Replaced the in-memory `VectorService` with [QdrantService.cs](./HRMS.Business/Services/AI_Services/Vector/QdrantService.cs) — communicates directly with Qdrant vector database via HTTP. Supports Cosine similarity (threshold 0.6, top-K=5), auto-syncs employee data on changes via `AiDataSyncHub` events. Includes CLI tool [VectorDataSync](./HRMS.VectorDataSync/Program.cs) to seed all employee data from Oracle into Qdrant.
 4. **UI Fluidity & MDI Tab Activation Fixes**:
-   * Converted payroll dashboard loading to asynchronous operations (`LoadDataAsync()`) via `Task.Run` in [FrmDashboardLuong.cs](./QLyNSu/FORM_BAOCAO/FrmDashboardLuong.cs) to prevent UI thread blocking.
-   * Fixed DevExpress `DocumentManager` MDI tab switching issues in [FormManager_Functions.cs](./QLyNSu/Functions/FormManager_Functions.cs). Tabs are now explicitly activated and brought to the foreground immediately after the lock splash screen is dismissed.
+   * Converted payroll dashboard loading to asynchronous operations (`LoadDataAsync()`) via `Task.Run` in [FrmDashboardLuong.cs](./HRMS.Desktop/FORM_BAOCAO/FrmDashboardLuong.cs) to prevent UI thread blocking.
+   * Fixed DevExpress `DocumentManager` MDI tab switching issues in [FormManager_Functions.cs](./HRMS.Desktop/Functions/FormManager_Functions.cs). Tabs are now explicitly activated and brought to the foreground immediately after the lock splash screen is dismissed.
 5. **Secure Connection Strings**:
    * Upgraded DB context constructors in the Data Access layer to support loading connection strings dynamically from environment variables (`HR_DB_CONNECTION` and `AI_DB_CONNECTION`), eliminating the risk of storing plaintext database credentials in `App.config` for production deployments.
 
@@ -754,50 +808,80 @@ To meet the requirements of large-scale enterprise deployments, the application 
 
 ### 📌 プロジェクト概要
 
-本システムは、**.NET Framework 4.7.2** と **DevExpress WinForms** を基盤とした、エンタープライズ向けの**人事・勤怠・給与管理システム (HRMS)** です。データベースには **Oracle Database 19c** を採用し、大規模な組織データの安定した処理と高可用性を実現しています。
+**HRMS Enterprise** は、利用ユーザーの職責とユースケースに応じて最適化された **3 層エクスペリエンスモデル（3-Tier Experience Architecture）** を採用し、セキュアな中央 RESTful Web API を介して全プラットフォームがリアルタイムに連携するエンタープライズ人事・勤怠・給与管理システムです。
 
-最大の特徴は、**Ollama** を利用した**オンプレミス AI アシスタント**との統合です。独自の **Hybrid RAG アーキテクチャ**により、人事担当者がベトナム語の自然文で質問するだけで、SQL を書くことなく社内データベースを検索・集計できます。AIの処理はすべてローカルサーバーで完結し、**機密データが一切インターネットへ送信されません**。
+```text
+             HRMS
+               │
+       ┌───────┼────────┐
+       │       │        │
+       ▼       ▼        ▼
+    Desktop   Web     Mobile
+       │       │        │
+    POWER     ADMIN   EMPLOYEE
+    USER      PORTAL  SELF-SERVICE
+```
 
-本システムは、従業員プロファイル管理・社内異動・労働契約・表彰・懲戒・昇給・退職手続き・日次勤怠・残業・手当・給与前払い・月次給与計算という人事業務の全ライフサイクルをカバーしています。
+* 🖥️ **デスクトップクライアント (`HRMS.Desktop`) — Power User**:
+  - **対象ユーザー:** 人事スペシャリスト (HR Specialist)、給与計算担当者 (Payroll Accountant)、システム管理者 (System Admin)。
+  - **役割:** 大規模な人事業務処理 (heavy business processing)、月次勤怠・給与の一括自動計算、詳細な組織マスター管理、大規模データのエクスポート・インポート、高速かつネイティブな DevExpress XtraReports の帳票設計・印刷。
+* 🌐 **Web サイト (`HRMS.Web`) — Management / Administration Portal**:
+  - **対象ユーザー:** 役員・経営陣、部門マネージャー (Department / Line Managers)、人事管理者 (HR Officers)。
+  - **役割:** ブラウザからアクセス可能な企業統轄・マネジメントポータル。インタラクティブなチャートによる人事・給与 KPI ダッシュボード、迅速な申請承認ワークフロー、社員情報検索、自然言語による AI アシスタント対話機能。
+* 📱 **モバイルアプリ (`HRMS.Mobile`) — Employee Self-Service (ESS App)**:
+  - **対象ユーザー:** 全従業員・社員。
+  - **役割:** 社員一人ひとりが自身の HRMS データを管理・確認できるセルフサービスアプリ (ESS App)。セキュアなデジタル給与明細書の閲覧、日次勤怠・出退勤打刻履歴、労働契約書、社会保険・健康保険情報の確認、社内プッシュ通知の受信。
+
+本システムは、以下の強固なバックエンド基盤によって支えられています:
+1. **RESTful Web API (`HRMS.Api`)**: **JWT Bearer** 認証、サーバーサイド **RBAC**、企業/支社単位のデータ分離 (**Data Scoping**)、例外マスクによる高度なセキュリティゲートウェイ。
+2. **オンプレミス AI Copilot (`HRMS.Business/Services/AI_Services`)**: **Qwen 2.5** によるベトナム語自然文対応の人事データアシスタント。**Hybrid RAG** (Oracle SQL + Qdrant ベクトル検索)、**AST Tokenizer Validator** による安全検証、ベクトル整合性を保証する **Outbox Pattern** を搭載。
 
 ---
 
-### 🗂 プロジェクト構成 (3 層アーキテクチャ)
-
-本ソリューションは、責務を明確に分離した **3 層アーキテクチャ**に従っています。
+### 🗂 プロジェクト構成 (Solution Architecture)
 
 ```
-QuanLyNhanSu.sln
- ├── 📂 QLyNSu/          ← プレゼンテーション層 (WinForms + DevExpress)
- │    ├── FORM_NHANSU/   ← 人事管理画面
- │    ├── FORM_CHAMCONG/ ← 勤怠管理・給与計算画面
- │    ├── FORM_BAOCAO/   ← ダッシュボード & レポート画面
- │    ├── FORM_SYSTEM/   ← システム管理 (ログイン・権限・AIチャット・Import/Export・通知)
- │    ├── Reports/       ← DevExpress XtraReports (印刷帳票)
- │    └── Functions/     ← 共通ユーティリティ (TranslationManager, AiBootstrap, FormManager)
+HRMS.sln
+ ├── 📂 HRMS.Api/          ← バックエンド REST API (ASP.NET Web API 2, .NET 4.7.2)
+ │    ├── Controllers/     ← Auth, NhanVien, BangLuong, ChamCong, HopDong, AiChat 等
+ │    ├── Filters/         ← JwtAuthorizeAttribute (RBAC, Data Scope & Audit Sync)
+ │    └── Services/        ← JwtService (HMAC-SHA256 トークン生成・検証)
  │
- ├── 📂 Bu/              ← ビジネスロジック層 (BLL)
- │    ├── CLASS_NHANSU/  ← 人事業務ロジック
- │    ├── CLASS_CHAMCONG/← 勤怠・給与計算ロジック
- │    ├── CLASS_SYSTEM/  ← システム・権限管理ロジック
- │    ├── DTO/           ← データ転送オブジェクト
- │    └── Services/
- │         └── AI_Services/
- │              ├── AiServiceLocator.cs  ← Service Locator (シングルトン登録)
- │              ├── ChatboxManager.cs    ← HybridRagService の Facade
- │              ├── Core/       ← HybridRagService, SqlGeneratorService, AiRouterService, QueryPreprocessor, JsonPromptManager
- │              ├── Interfaces/ ← ILlmService, IPromptManager, ISqlGenerator, IVectorService
- │              ├── LLM/        ← OllamaService (ローカル Ollama サーバーと通信)
- │              ├── Memory/     ← AiCacheService, AiChatHistory
- │              └── Vector/     ← QdrantService (Qdrant 経由の意味的類似度検索), AiDataSyncHub
+ ├── 📂 HRMS.Web/          ← Web クライアント SPA (React 19 + Vite + Ant Design + Recharts)
+ │    ├── src/components/  ← MainLayout, AiChatDrawer, PhanQuyenModal, PhieuLuongModal
+ │    ├── src/pages/       ← DashboardPage, NhanVienPage, ChamCongPage, BangLuongPage 等
+ │    └── src/services/    ← JWT Bearer トークン自動付与対応 Axios API クライアント
  │
- ├── 📂 DA/              ← データアクセス層 (Entity Framework 6)
- │    ├── QLNhanSu.edmx  ← HR システム全体の EDMX モデル (40+ テーブル)
- │    └── AIEntities.edmx← AI 専用読み取り専用 EDMX モデル (6 ビューのみ)
+ ├── 📂 HRMS.Mobile/       ← モバイルクライアントアプリ (React Native + Expo SDK 57 + TypeScript)
+ │    ├── src/screens/     ← Home, Attendance, Payroll, Contract, Insurance, Notifications
+ │    ├── src/navigation/  ← NativeStack & BottomTabs
+ │    └── src/api/         ← Self-Scope (/api/me/*) 専用 Axios クライアント
  │
- ├── 📂 Bu.Tests/        ← ユニットテスト (NUnit)
+ ├── 📂 HRMS.Desktop/      ← デスクトップクライアント (DevExpress WinForms)
+ │    ├── FORM_NHANSU/     ← 人事管理画面
+ │    ├── FORM_CHAMCONG/   ← 勤怠管理・給与計算画面
+ │    ├── FORM_BAOCAO/     ← ダッシュボード & レポート画面
+ │    ├── FORM_SYSTEM/     ← システム管理 (ログイン・権限・AIチャット・Import/Export・通知)
+ │    └── Reports/         ← DevExpress XtraReports (印刷帳票)
  │
- └── 📂 VectorDataSync/  ← 従業員データを Qdrant にシードするコンソールツール
+ ├── 📂 HRMS.Business/     ← ビジネスロジック層 (BLL) & AI サブシステム
+ │    ├── CLASS_NHANSU/    ← 人事業務ロジック
+ │    ├── CLASS_CHAMCONG/  ← 勤怠・給与計算ロジック
+ │    ├── CLASS_SYSTEM/    ← システム・権限管理ロジック (BCrypt パスワードハッシュ)
+ │    ├── DTO/             ← データ転送オブジェクト
+ │    └── Services/AI_Services/
+ │         ├── Core/       ← HybridRagService, SafeSqlExecutor, RagContextRetriever,
+ │         │                  RagSynthesizer, OracleSqlAstValidator, QueryPreprocessor
+ │         ├── Interfaces/ ← ISafeSqlExecutor, IRagContextRetriever, IRagSynthesizer
+ │         └── Vector/     ← QdrantService, QdrantOutboxManager (リトライと整合性保証)
+ │
+ ├── 📂 HRMS.DataAccess/   ← データアクセス層 (Entity Framework 6.5)
+ │    ├── QLNhanSu.edmx    ← HR システム全体の EDMX モデル (40+ テーブル)
+ │    └── AIEntities.edmx  ← AI 専用読み取り専用 EDMX モデル (6 ビューのみ)
+ │
+ ├── 📂 HRMS.Tests/        ← ユニットテスト (NUnit)
+ │
+ └── 📂 HRMS.VectorDataSync/ ← 従業員データを Qdrant にシードするコンソールツール
 ```
 
 ---
@@ -1014,7 +1098,7 @@ TB_LANGUAGES             — UI 言語カタログ
 TB_TRANSLATIONS          — UI 翻訳辞書 (言語別キーバリュー)
 ```
 
-> **重要なトリガー:** [SYS_USER_triggers.sql](./DA/SYS_USER_triggers.sql) — ユーザーアカウント削除時のカスケード削除 (グループメンバーシップ・機能権限・レポート権限を自動クリーンアップ)。
+> **重要なトリガー:** [SYS_USER_triggers.sql](./HRMS.DataAccess/SYS_USER_triggers.sql) — ユーザーアカウント削除時のカスケード削除 (グループメンバーシップ・機能権限・レポート権限を自動クリーンアップ)。
 
 ---
 
@@ -1067,7 +1151,7 @@ TB_TRANSLATIONS          — UI 翻訳辞書 (言語別キーバリュー)
 
 4. カスケード削除トリガーの適用:
    ```sql
-   @DA/SYS_USER_triggers.sql
+   @HRMS.DataAccess/SYS_USER_triggers.sql
    ```
 
 #### ステップ 2: Ollama のインストールと LLM のダウンロード
@@ -1084,7 +1168,7 @@ ollama serve
 
 #### ステップ 3: `App.config` の設定
 
-**`QLyNSu`** プロジェクトと **`Bu`** プロジェクトの両方の `App.config` を更新します:
+**`HRMS.Desktop`** プロジェクトと **`HRMS.Business`** プロジェクトの両方の `App.config` を更新します:
 
 ```xml
 <configuration>
@@ -1117,10 +1201,10 @@ ollama serve
 
 #### ステップ 4: ビルドと実行
 
-1. **Visual Studio 2019 または 2022** で `QuanLyNhanSu.sln` を開く
+1. **Visual Studio 2019 または 2022** で `HRMS.sln` を開く
 2. NuGet パッケージを復元: `ツール → NuGet パッケージ マネージャー → ソリューションの NuGet パッケージの復元`
 3. ソリューションをビルド: `Ctrl + Shift + B`
-4. `QLyNSu` をスタートアッププロジェクトに設定して実行 (`F5`)
+4. `HRMS.Desktop` をスタートアッププロジェクトに設定して実行 (`F5`)
 5. `HR_backup.sql` で作成された **Admin** アカウントでログイン
 
 ---
@@ -1129,32 +1213,32 @@ ollama serve
 
 | ファイル / ディレクトリ | 説明 |
 |---------------------|------|
-| [`QuanLyNhanSu.sln`](./QuanLyNhanSu.sln) | 5 プロジェクトを含む Visual Studio ソリューション |
+| [`HRMS.sln`](./HRMS.sln) | 全 8 モジュールを含む Visual Studio ソリューション |
 | [`HR_backup.sql`](./HR_backup.sql) | 完全な Oracle スキーマ + サンプルデータ (テーブル・ビュー・シーケンス・制約・管理者アカウント) |
-| [`DA/QLNhanSu.edmx`](./DA/QLNhanSu.edmx) | 完全なエンティティデータモデル (40+ テーブル) |
-| [`DA/AIEntities.edmx`](./DA/AIEntities.edmx) | AI 専用読み取り専用エンティティデータモデル (6 ビューのみ) |
-| [`DA/SYS_USER_triggers.sql`](./DA/SYS_USER_triggers.sql) | ユーザーアカウントのカスケード削除トリガー |
-| [`Bu/Services/AI_Services/Core/HybridRagService.cs`](./Bu/Services/AI_Services/Core/HybridRagService.cs) | AI パイプライン全体の中央オーケストレーター |
-| [`Bu/Services/AI_Services/Core/SqlGeneratorService.cs`](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) | ベトナム語自然言語 → Oracle SQL 変換器 |
-| [`Bu/Services/AI_Services/Vector/QdrantService.cs`](./Bu/Services/AI_Services/Vector/QdrantService.cs) | Qdrant ベクトルDB経由の意味検索 |
-| [`Bu/Services/AI_Services/AiServiceLocator.cs`](./Bu/Services/AI_Services/AiServiceLocator.cs) | AI サービスのシングルトン登録用 Service Locator |
-| [`QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs`](./QLyNSu/FORM_SYSTEM/FrmAI_Chat.cs) | 組み込み AI チャットボット UI フォーム |
-| [`QLyNSu/ai_prompts.json`](./QLyNSu/ai_prompts.json) | AI プロンプトテンプレート (再ビルド不要) |
-| [`VectorDataSync/Program.cs`](./VectorDataSync/Program.cs) | 従業員データを Qdrant にシードするコンソールツール |
+| [`HRMS.DataAccess/QLNhanSu.edmx`](./HRMS.DataAccess/QLNhanSu.edmx) | 完全なエンティティデータモデル (40+ テーブル) |
+| [`HRMS.DataAccess/AIEntities.edmx`](./HRMS.DataAccess/AIEntities.edmx) | AI 専用読み取り専用エンティティデータモデル (6 ビューのみ) |
+| [`HRMS.DataAccess/SYS_USER_triggers.sql`](./HRMS.DataAccess/SYS_USER_triggers.sql) | ユーザーアカウントのカスケード削除トリガー |
+| [`HRMS.Business/Services/AI_Services/Core/HybridRagService.cs`](./HRMS.Business/Services/AI_Services/Core/HybridRagService.cs) | AI パイプライン全体の中央オーケストレーター |
+| [`HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs`](./HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs) | ベトナム語自然言語 → Oracle SQL 変換器 |
+| [`HRMS.Business/Services/AI_Services/Vector/QdrantService.cs`](./HRMS.Business/Services/AI_Services/Vector/QdrantService.cs) | Qdrant ベクトルDB経由の意味検索 |
+| [`HRMS.Business/Services/AI_Services/AiServiceLocator.cs`](./HRMS.Business/Services/AI_Services/AiServiceLocator.cs) | AI サービスのシングルトン登録用 Service Locator |
+| [`HRMS.Desktop/FORM_SYSTEM/FrmAI_Chat.cs`](./HRMS.Desktop/FORM_SYSTEM/FrmAI_Chat.cs) | 組み込み AI チャットボット UI フォーム |
+| [`HRMS.Desktop/ai_prompts.json`](./HRMS.Desktop/ai_prompts.json) | AI プロンプトテンプレート (再ビルド不要) |
+| [`HRMS.VectorDataSync/Program.cs`](./HRMS.VectorDataSync/Program.cs) | 従業員データを Qdrant にシードするコンソールツール |
 | [`HRMS_SetupScript.iss`](./HRMS_SetupScript.iss) | Inno Setup インストーラースクリプト v3.5.0 |
 
 ---
 
 ### 🧪 ユニットテスト実行手順 (Unit Testing)
 
-本システムは **NUnit** を使用した自動テストプロジェクト **`Bu.Tests`** を含んでおり、主要なロジックをテストします：
+本システムは **NUnit** を使用した自動テストプロジェクト **`HRMS.Tests`** を含んでおり、主要なロジックをテストします：
 - **`PasswordHasherTests.cs`**: BCrypt パスワードハッシュ化の検証、Oracle 固定長 CHAR 列の余白削除（Trim）処理のテスト。
 - **`QueryPreprocessorTests.cs`**: ベトナム語のクエリ前処理（声調記号の復元、スキーマヒントの自動挿入）のテスト。
 - **`AiCacheServiceTests.cs`**: AI 生成された SQL のキャッシュ機構のテスト（応答時間 10ms 以下）。
 - **`DbQueryTests.cs`**: データベースに対する Entity Framework クエリ動作のテスト。
 
 **テストの実行方法:**
-1. Visual Studio で `QuanLyNhanSu.sln` を開きます。
+1. Visual Studio で `HRMS.sln` を開きます。
 2. `テスト -> すべてのテストを実行` を選択するか、`テストエクスプローラー` (`Ctrl + R, T`) から特定のテストを実行します。
 
 ---
@@ -1194,13 +1278,13 @@ ollama serve
    * 主要な9つのビジネスロジッククラス（`NHANVIEN`、`NHANVIEN_THOIVIEC`、`NANGLUONG_NHANVIEN`、`DIEUCHUYEN_NHANVIEN`、`KHENTHUONG_KYLUAT`、`HOPDONGLAODONG`、`UNGLUONG`、`TANGCA`、`BANGLUONG`）におけるリスト読み込み処理をリファクタリングしました。
    * ループ内での個別クエリ実行を廃止し、**LINQ LEFT JOIN と DTO プロジェクション**を採用。関連データを**単一の SQL クエリ**でまとめて取得するようにしたことで、一覧表示のパフォーマンスが **10倍〜100倍** 向上しました。
 2. **AIセキュリティの強化とジェイルブレイク（脱獄）対策**:
-   * [SqlGeneratorService.cs](./Bu/Services/AI_Services/Core/SqlGeneratorService.cs) の SQL 生成処理において、従来のブラックリスト方式を廃止し、厳格な **ホワイトリスト方式** に変更。AIは指定された6つの安全なビューのみクエリ可能です。ユーザー情報テーブル（`TB_SYS_USER`）へのアクセスや、インジェクションによる脱獄行為は即座にブロックされます。
+   * [SqlGeneratorService.cs](./HRMS.Business/Services/AI_Services/Core/SqlGeneratorService.cs) の SQL 生成処理において、従来のブラックリスト方式を廃止し、厳格な **ホワイトリスト方式** に変更。AIは指定された6つの安全なビューのみクエリ可能です。ユーザー情報テーブル（`TB_SYS_USER`）へのアクセスや、インジェクションによる脱獄行為は即座にブロックされます。
    * ユーザー入力パラメータのシングルクォーテーション（`'`）を自動エスケープし、**SQLインジェクション**の脆弱性を完全に修正しました。
 3. **ベクトル検索を Qdrant にアップグレード**:
-   * インメモリの `VectorService` を [QdrantService.cs](./Bu/Services/AI_Services/Vector/QdrantService.cs) に置換。Qdrant ベクトルDB と HTTP 経由で直接通信。Cosine 類似度 (閾値 0.6, top-K=5)、`AiDataSyncHub` イベントによる従業員データの自動同期。CLI ツール [VectorDataSync](./VectorDataSync/Program.cs) で Oracle から Qdrant へのデータシードも可能。
+   * インメモリの `VectorService` を [QdrantService.cs](./HRMS.Business/Services/AI_Services/Vector/QdrantService.cs) に置換。Qdrant ベクトルDB と HTTP 経由で直接通信。Cosine 類似度 (閾値 0.6, top-K=5), `AiDataSyncHub` イベントによる従業員データの自動同期。CLI ツール [VectorDataSync](./HRMS.VectorDataSync/Program.cs) で Oracle から Qdrant へのデータシードも可能。
 4. **UI の非同期化と DevExpress MDI タブ切り替えバグの修正**:
-   * [FrmDashboardLuong.cs](./QLyNSu/FORM_BAOCAO/FrmDashboardLuong.cs) の給与ダッシュボード読み込みを `Task.Run` による非同期処理（`LoadDataAsync()`）に変更し、描画時の画面フリーズを解消。
-   * [FormManager_Functions.cs](./QLyNSu/Functions/FormManager_Functions.cs) における DevExpress `DocumentManager` のタブ切り替え処理を改善。待機画面（SplashScreen）が完全に閉じられ、親フォームのロックが解除された直後に新しいタブを明示的に最前面にアクティブ化する仕組みを導入しました。
+   * [FrmDashboardLuong.cs](./HRMS.Desktop/FORM_BAOCAO/FrmDashboardLuong.cs) の給与ダッシュボード読み込みを `Task.Run` による非同期処理（`LoadDataAsync()`）に変更し、描画時の画面フリーズを解消。
+   * [FormManager_Functions.cs](./HRMS.Desktop/Functions/FormManager_Functions.cs) における DevExpress `DocumentManager` のタブ切り替え処理を改善。待機画面（SplashScreen）が完全に閉じられ、親フォームのロックが解除された直後に新しいタブを明示的に最前面にアクティブ化する仕組みを導入しました。
 5. **接続文字列のセキュリティ強化**:
    * `App.config` にデータベース接続パスワードを平文で保存するリスクを回避するため、環境変数（`HR_DB_CONNECTION` および `AI_DB_CONNECTION`）から動的に接続文字列を読み込む機能をサポートしました。
 
