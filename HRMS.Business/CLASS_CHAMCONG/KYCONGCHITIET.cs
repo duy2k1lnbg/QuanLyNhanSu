@@ -67,6 +67,10 @@ namespace Bu.CLASS_CHAMCONG
                 double soNgayLamViec = GetData_Functions.demSoNgayLamViecTrongThang(thang, nam);
                 DateTime now = DateTime.Now;
 
+                // Xóa dữ liệu cũ của kỳ công này nếu đã tồn tại để tránh trùng lặp
+                var pDelMkc = new Oracle.ManagedDataAccess.Client.OracleParameter("p_del_makycong", makycong);
+                db.Database.ExecuteSqlCommand("DELETE FROM TB_KYCONGCHITIET WHERE MAKYCONG = :p_del_makycong", pDelMkc);
+
                 // Tắt change tracking tạm thời để tăng tốc tối đa
                 db.Configuration.AutoDetectChangesEnabled = false;
                 db.Configuration.ValidateOnSaveEnabled = false;

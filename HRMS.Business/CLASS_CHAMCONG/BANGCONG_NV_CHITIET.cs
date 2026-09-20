@@ -62,6 +62,10 @@ namespace Bu.CLASS_CHAMCONG
                 int daysInMonth = DateTime.DaysInMonth(nam, thang);
                 string endDateStr = $"{nam:D4}-{thang:D2}-{daysInMonth:D2}";
 
+                // Đảm bảo không bị trùng lặp dữ liệu: Xóa các bản ghi cũ của kỳ công này nếu đã có trước khi sinh mới
+                var pDelMkc = new Oracle.ManagedDataAccess.Client.OracleParameter("p_del_makycong", makycong);
+                db.Database.ExecuteSqlCommand("DELETE FROM TB_BANGCONG_CHITIET WHERE MAKYCONG = :p_del_makycong", pDelMkc);
+
                 string sql = @"
 INSERT INTO TB_BANGCONG_CHITIET (
     MAKYCONG, IDCTY, MANV, HOTEN, NGAY, THU, GIOVAO, GIORA, 
