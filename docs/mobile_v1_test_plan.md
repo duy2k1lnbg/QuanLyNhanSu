@@ -29,7 +29,7 @@ Các test case được triển khai bằng **NUnit 3** trong dự án `Bu.Tests
 
 ## 3. Kịch bản kiểm thử Tự động Mobile (Automated Mobile Tests)
 
-Triển khai tại `HRMS_Mobile/test/unit.test.mjs` chạy qua Node.js Test Runner:
+Triển khai tại `HRMS.Mobile/test/unit.test.mjs` chạy qua Node.js Test Runner:
 
 | Mã kiểm thử | Nội dung kiểm thử | Kết quả |
 | :--- | :--- | :--- |

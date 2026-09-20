@@ -1,19 +1,35 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34916.146
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bu", "Bu\Bu.csproj", "{AB9DDEAC-C369-4A40-B7B3-97DDA88E50E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRMS.Business", "HRMS.Business\HRMS.Business.csproj", "{AB9DDEAC-C369-4A40-B7B3-97DDA88E50E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QLyNSu", "QLyNSu\QLyNSu.csproj", "{8FFDE0F0-4334-4234-9876-755D05A17EFF}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRMS.Desktop", "HRMS.Desktop\HRMS.Desktop.csproj", "{8FFDE0F0-4334-4234-9876-755D05A17EFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DA", "DA\DA.csproj", "{8681E312-D329-4F4B-A972-3C03B93A0020}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRMS.DataAccess", "HRMS.DataAccess\HRMS.DataAccess.csproj", "{8681E312-D329-4F4B-A972-3C03B93A0020}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bu.Tests", "Bu.Tests\Bu.Tests.csproj", "{760C5EF1-827B-4E38-A39B-89E281FDFD38}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRMS.Tests", "HRMS.Tests\HRMS.Tests.csproj", "{760C5EF1-827B-4E38-A39B-89E281FDFD38}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorDataSync", "VectorDataSync\VectorDataSync.csproj", "{87226C12-2E76-46FA-B20B-C0A45F1FF04E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRMS.VectorDataSync", "HRMS.VectorDataSync\HRMS.VectorDataSync.csproj", "{87226C12-2E76-46FA-B20B-C0A45F1FF04E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRMS_API", "HRMS_API\HRMS_API.csproj", "{F1668924-6F72-4D97-9E8E-92B8D1DA2608}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HRMS.Api", "HRMS.Api\HRMS.Api.csproj", "{F1668924-6F72-4D97-9E8E-92B8D1DA2608}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HRMS.Web", "HRMS.Web", "{D7685D26-F987-4321-9B5A-112233445566}"
+	ProjectSection(SolutionItems) = preProject
+		HRMS.Web\package.json = HRMS.Web\package.json
+		HRMS.Web\vite.config.ts = HRMS.Web\vite.config.ts
+		HRMS.Web\index.html = HRMS.Web\index.html
+		HRMS.Web\tsconfig.json = HRMS.Web\tsconfig.json
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "HRMS.Mobile", "HRMS.Mobile", "{E8796E37-0A98-5432-8C6B-223344556677}"
+	ProjectSection(SolutionItems) = preProject
+		HRMS.Mobile\package.json = HRMS.Mobile\package.json
+		HRMS.Mobile\app.json = HRMS.Mobile\app.json
+		HRMS.Mobile\App.tsx = HRMS.Mobile\App.tsx
+		HRMS.Mobile\tsconfig.json = HRMS.Mobile\tsconfig.json
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -59,7 +59,7 @@ services:
   # ------------------------------------------------------------------
   hrms-web:
     build:
-      context: ./HRMS_Web
+      context: ./HRMS.Web
       dockerfile: Dockerfile
     container_name: hrms_web_spa
     restart: unless-stopped

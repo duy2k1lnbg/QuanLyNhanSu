@@ -24,34 +24,40 @@ Hệ thống Quản lý Nhân sự & Tiền lương cấp doanh nghiệp hỗ tr
 
 ### 📌 Tổng Quan Hệ Thống
 
-HRMS Enterprise là giải pháp quản trị nhân sự toàn diện, cung cấp trải nghiệm làm việc liền mạch qua cả 2 giao diện:
-1. **Windows Desktop App (`QLyNSu`)**: Giao diện WinForms DevExpress mạnh mẽ cho bộ phận hành chính văn phòng, hỗ trợ in ấn báo cáo XtraReports phức tạp.
-2. **Modern Web Portal (`HRMS_Web`)**: Ứng dụng web Single Page Application (SPA) xây dựng trên **React 19**, **TypeScript**, **Ant Design 6** và **Vite**, tối ưu hóa cho cả desktop lẫn thiết bị di động.
-3. **RESTful Web API (`HRMS_API`)**: Cổng dịch vụ tập trung bảo mật với **JWT Bearer**, phân quyền **Server-Side RBAC**, kiểm soát phạm vi dữ liệu (**Data Scoping** theo công ty/chi nhánh) và chống rò rỉ ngoại lệ.
-4. **On-Premise AI Copilot (`Bu/Services/AI_Services`)**: Trợ lý AI hỏi đáp dữ liệu nhân sự bằng tiếng Việt tự nhiên sử dụng **Qwen 2.5**, kết hợp **Hybrid RAG** (Oracle SQL + Qdrant Vector Search), bảo vệ bởi bộ phân tích cú pháp **AST Tokenizer Validator** và cơ chế **Outbox Pattern** chống mất mát vector.
+HRMS Enterprise là giải pháp quản trị nhân sự toàn diện, cung cấp trải nghiệm làm việc liền mạch:
+1. **Windows Desktop App (`HRMS.Desktop`)**: Giao diện WinForms DevExpress mạnh mẽ cho bộ phận hành chính văn phòng, hỗ trợ in ấn báo cáo XtraReports phức tạp.
+2. **Modern Web Portal (`HRMS.Web`)**: Ứng dụng web Single Page Application (SPA) xây dựng trên **React 19**, **TypeScript**, **Ant Design 6** và **Vite**, tối ưu hóa cho cả desktop lẫn thiết bị di động.
+3. **Mobile App (`HRMS.Mobile`)**: Ứng dụng di động tự phục vụ nhân viên xây dựng trên **React Native**, **Expo SDK 57**, hỗ trợ tra cứu lương, chấm công, hợp đồng, bảo hiểm.
+4. **RESTful Web API (`HRMS.Api`)**: Cổng dịch vụ tập trung bảo mật với **JWT Bearer**, phân quyền **Server-Side RBAC**, kiểm soát phạm vi dữ liệu (**Data Scoping** theo công ty/chi nhánh) và chống rò rỉ ngoại lệ.
+5. **On-Premise AI Copilot (`HRMS.Business/Services/AI_Services`)**: Trợ lý AI hỏi đáp dữ liệu nhân sự bằng tiếng Việt tự nhiên sử dụng **Qwen 2.5**, kết hợp **Hybrid RAG** (Oracle SQL + Qdrant Vector Search), bảo vệ bởi bộ phân tích cú pháp **AST Tokenizer Validator** và cơ chế **Outbox Pattern** chống mất mát vector.
 
 ---
 
 ### 🗂 Kiến Trúc Hệ Thống (Solution Architecture)
 
 ```
-QuanLyNhanSu.sln
- ├── 📂 HRMS_API/          ← Backend REST API (ASP.NET Web API 2, .NET 4.7.2)
+HRMS.sln
+ ├── 📂 HRMS.Api/          ← Backend REST API (ASP.NET Web API 2, .NET 4.7.2)
  │    ├── Controllers/     ← Auth, NhanVien, BangLuong, ChamCong, HopDong, AiChat, v.v.
  │    ├── Filters/         ← JwtAuthorizeAttribute (RBAC, Data Scope & Audit Sync)
  │    └── Services/        ← JwtService (HMAC-SHA256 Token Generation & Validation)
  │
- ├── 📂 HRMS_Web/          ← Web Client SPA (React 19 + Vite + Ant Design + Recharts)
+ ├── 📂 HRMS.Web/          ← Web Client SPA (React 19 + Vite + Ant Design + Recharts)
  │    ├── src/components/  ← MainLayout, AiChatDrawer, PhanQuyenModal, PhieuLuongModal
  │    ├── src/pages/       ← DashboardPage, NhanVienPage, ChamCongPage, BangLuongPage, v.v.
  │    └── src/services/    ← Axios API client với tự động đính kèm JWT Bearer Token
  │
- ├── 📂 QLyNSu/            ← Desktop Client (DevExpress WinForms)
+ ├── 📂 HRMS.Mobile/       ← Mobile Client App (React Native + Expo SDK 57 + TypeScript)
+ │    ├── src/screens/     ← Home, Attendance, Payroll, Contract, Insurance, Notifications
+ │    ├── src/navigation/  ← NativeStack & BottomTabs
+ │    └── src/api/         ← Axios client kết nối qua Self-Scope /api/me/*
+ │
+ ├── 📂 HRMS.Desktop/      ← Desktop Client (DevExpress WinForms)
  │    ├── FORM_NHANSU/     ← Quản lý nhân sự, hồ sơ, hợp đồng, khen thưởng
  │    ├── FORM_CHAMCONG/   ← Chấm công ca kíp, bảng lương, tạm ứng, tăng ca
  │    └── Reports/         ← Báo cáo bảng lương và thống kê in ấn
  │
- ├── 📂 Bu/                ← Business Logic Layer (BLL) & AI Subsystem
+ ├── 📂 HRMS.Business/     ← Business Logic Layer (BLL) & AI Subsystem
  │    ├── CLASS_SYSTEM/    ← PasswordHasher (Strict BCrypt), SYS_USER, SYS_RIGHT
  │    └── Services/AI_Services/
  │         ├── Core/       ← HybridRagService, SafeSqlExecutor, RagContextRetriever,
@@ -59,11 +65,11 @@ QuanLyNhanSu.sln
  │         ├── Interfaces/ ← ISafeSqlExecutor, IRagContextRetriever, IRagSynthesizer
  │         └── Vector/     ← QdrantService, QdrantOutboxManager (Retry & Reconciliation)
  │
- ├── 📂 DA/                ← Data Access Layer (Entity Framework 6.5)
+ ├── 📂 HRMS.DataAccess/   ← Data Access Layer (Entity Framework 6.5)
  │    ├── MyEntities       ← EDMX Model kết nối Oracle Database
  │    └── AiEntities       ← EDMX Model chỉ đọc dành riêng cho AI Views
  │
- ├── 📂 Bu.Tests/          ← Automated Test Suite (NUnit - 60 Passing Tests)
+ ├── 📂 HRMS.Tests/        ← Automated Test Suite (NUnit - 60 Passing Tests)
  │    ├── AiPromptInjectionTests.cs      ← Kiểm thử an toàn AST & tiêm nhiễm Prompt
  │    ├── AiRetrievalBenchmarkTests.cs   ← Đo kiểm hiệu năng Cache, Preprocessor, AST
  │    └── ApiSecurityIntegrationTests.cs ← Kiểm thử BCrypt, JWT Claims, RBAC & Data Scope

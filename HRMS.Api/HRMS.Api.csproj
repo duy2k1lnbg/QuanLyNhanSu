@@ -264,7 +264,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
-    <Folder Include="Models\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\bootstrap.min.js.map" />
@@ -379,13 +378,13 @@
   </Target>
   -->
   <ItemGroup>
-    <ProjectReference Include="..\Bu\Bu.csproj">
+    <ProjectReference Include="..\HRMS.Business\HRMS.Business.csproj">
       <Project>{AB9DDEAC-C369-4A40-B7B3-97DDA88E50E9}</Project>
-      <Name>Bu</Name>
+      <Name>HRMS.Business</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DA\DA.csproj">
+    <ProjectReference Include="..\HRMS.DataAccess\HRMS.DataAccess.csproj">
       <Project>{8681E312-D329-4F4B-A972-3C03B93A0020}</Project>
-      <Name>DA</Name>
+      <Name>HRMS.DataAccess</Name>
     </ProjectReference>
   </ItemGroup>
   <Target Name="CopyOracleDependencies" AfterTargets="AfterBuild">

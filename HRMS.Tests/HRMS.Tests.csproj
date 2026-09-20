@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Bu\Bu.csproj" />
+    <ProjectReference Include="..\HRMS.Business\HRMS.Business.csproj" />
     <Reference Include="HRMS_API">
-      <HintPath>..\HRMS_API\bin\HRMS_API.dll</HintPath>
+      <HintPath>..\HRMS.Api\bin\HRMS_API.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

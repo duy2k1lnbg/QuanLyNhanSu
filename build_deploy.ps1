@@ -28,7 +28,7 @@ Write-Host "`n[1/5] Kiem tra va bao ve anh myavt.png..." -ForegroundColor Yellow
 
 # Neu co anh goc trong frontend hoac backup, sao luu chac chan
 $deployAvt = Join-Path $deployFrontend "myavt.png"
-$publicAvt = Join-Path $root "HRMS_Web\public\myavt.png"
+$publicAvt = Join-Path $root "HRMS.Web\public\myavt.png"
 
 if (Test-Path $deployAvt) {
     Copy-Item $deployAvt $myavtBackup -Force
@@ -46,15 +46,15 @@ if (Test-Path $myavtBackup) {
 }
 
 # Xóa vĩnh viễn author.jpg (không bao giờ dùng)
-Remove-Item (Join-Path $root "HRMS_Web\public\author.jpg") -Force -ErrorAction SilentlyContinue
-Remove-Item (Join-Path $root "HRMS_Web\src\assets\author.jpg") -Force -ErrorAction SilentlyContinue
+Remove-Item (Join-Path $root "HRMS.Web\public\author.jpg") -Force -ErrorAction SilentlyContinue
+Remove-Item (Join-Path $root "HRMS.Web\src\assets\author.jpg") -Force -ErrorAction SilentlyContinue
 Remove-Item (Join-Path $deployFrontend "author.jpg") -Force -ErrorAction SilentlyContinue
 
 # ------------------------------------------------------------------------------
-# 2. BUILD FRONTEND (HRMS_Web)
+# 2. BUILD FRONTEND (HRMS.Web)
 # ------------------------------------------------------------------------------
 Write-Host "`n[2/5] Build Frontend (React + Vite)..." -ForegroundColor Yellow
-Set-Location (Join-Path $root "HRMS_Web")
+Set-Location (Join-Path $root "HRMS.Web")
 npm run build
 if ($LASTEXITCODE -ne 0) {
     throw "Build Frontend that bai!"
@@ -71,7 +71,7 @@ if (Test-Path $deployAssets) {
 }
 
 # Copy ket qua build dist vao deploy_vps\frontend
-Copy-Item -Recurse -Force (Join-Path $root "HRMS_Web\dist\*") $deployFrontend
+Copy-Item -Recurse -Force (Join-Path $root "HRMS.Web\dist\*") $deployFrontend
 
 # Xóa vĩnh viễn author.jpg nếu vô tình lọt vào dist
 Remove-Item (Join-Path $deployFrontend "author.jpg") -Force -ErrorAction SilentlyContinue
@@ -102,7 +102,7 @@ if (-not (Test-Path $msbuild)) {
 }
 
 Set-Location $root
-& $msbuild (Join-Path $root "HRMS_API\HRMS_API.csproj") /p:Configuration=Debug /verbosity:minimal
+& $msbuild (Join-Path $root "HRMS.Api\HRMS.Api.csproj") /p:Configuration=Debug /verbosity:minimal
 if ($LASTEXITCODE -ne 0) {
     throw "Build Backend that bai!"
 }
@@ -117,30 +117,30 @@ if (-not (Test-Path $deployBin)) {
     New-Item -ItemType Directory -Path $deployBin -Force | Out-Null
 }
 
-Copy-Item -Recurse -Force (Join-Path $root "HRMS_API\bin\*") $deployBin
+Copy-Item -Recurse -Force (Join-Path $root "HRMS.Api\bin\*") $deployBin
 $deployWebConfig = Join-Path $deployBackend "Web.config"
-Copy-Item -Force (Join-Path $root "HRMS_API\Web.config") $deployWebConfig
+Copy-Item -Force (Join-Path $root "HRMS.Api\Web.config") $deployWebConfig
 # Tu dong cau hinh cho Oracle XE tren VPS (localhost:1521/xe)
 (Get-Content $deployWebConfig -Raw) -replace '1521/orcl', '1521/xe' | Set-Content $deployWebConfig -Encoding UTF8
 Write-Host "  -> [OK] Da tu dong cau hinh connectionString = 1521/xe cho VPS!" -ForegroundColor Green
-Copy-Item -Force (Join-Path $root "HRMS_API\Global.asax") (Join-Path $deployBackend "Global.asax")
+Copy-Item -Force (Join-Path $root "HRMS.Api\Global.asax") (Join-Path $deployBackend "Global.asax")
 
 # Copy ai_prompts.json vao ca root va bin cua backend
-$aiPromptsSrc = Join-Path $root "HRMS_API\ai_prompts.json"
+$aiPromptsSrc = Join-Path $root "HRMS.Api\ai_prompts.json"
 if (Test-Path $aiPromptsSrc) {
     Copy-Item -Force $aiPromptsSrc (Join-Path $deployBackend "ai_prompts.json")
     Copy-Item -Force $aiPromptsSrc (Join-Path $deployBin "ai_prompts.json")
     Write-Host "  -> [OK] Da copy ai_prompts.json vao deploy_vps\backend va bin!" -ForegroundColor Green
 }
 
-if (Test-Path (Join-Path $root "HRMS_API\Views")) {
-    Copy-Item -Recurse -Force (Join-Path $root "HRMS_API\Views") $deployBackend
+if (Test-Path (Join-Path $root "HRMS.Api\Views")) {
+    Copy-Item -Recurse -Force (Join-Path $root "HRMS.Api\Views") $deployBackend
 }
-if (Test-Path (Join-Path $root "HRMS_API\Content")) {
-    Copy-Item -Recurse -Force (Join-Path $root "HRMS_API\Content") $deployBackend
+if (Test-Path (Join-Path $root "HRMS.Api\Content")) {
+    Copy-Item -Recurse -Force (Join-Path $root "HRMS.Api\Content") $deployBackend
 }
-if (Test-Path (Join-Path $root "HRMS_API\Scripts")) {
-    Copy-Item -Recurse -Force (Join-Path $root "HRMS_API\Scripts") $deployBackend
+if (Test-Path (Join-Path $root "HRMS.Api\Scripts")) {
+    Copy-Item -Recurse -Force (Join-Path $root "HRMS.Api\Scripts") $deployBackend
 }
 
 # ------------------------------------------------------------------------------

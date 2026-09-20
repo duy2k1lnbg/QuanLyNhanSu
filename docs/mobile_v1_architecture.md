@@ -22,16 +22,16 @@ Hệ thống tuân thủ nghiêm ngặt nguyên tắc **KHÔNG tạo backend ri�
                          │             │             │
                          ▼             ▼             ▼
                    ┌──────────┐  ┌───────────┐ ┌───────────────┐
-                   │  QLyNSu  │  │ HRMS_Web  │ │   HRMS Mobile │
+                   │  QLyNSu  │  │ HRMS.Web  │ │  HRMS.Mobile │
                    │ WinForms │  │ React+TS  │ │ React Native  │
                    │ Desktop  │  │ Dashboard │ │ Android (APK) │
                    └──────────┘  └───────────┘ └───────────────┘
 ```
 
-## 3. Cấu trúc thư mục Mobile (`/HRMS_Mobile`)
+## 3. Cấu trúc thư mục Mobile (`/HRMS.Mobile`)
 
 ```
-HRMS_Mobile/
+HRMS.Mobile/
 ├── App.tsx                    # Điểm khởi động ứng dụng & bọc Providers
 ├── app.json                   # Cấu hình Expo, Android package, permissions
 ├── package.json               # Dependencies & scripts

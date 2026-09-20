@@ -749,13 +749,13 @@
     <None Include="QLyNSu_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Bu\Bu.csproj">
+    <ProjectReference Include="..\HRMS.Business\HRMS.Business.csproj">
       <Project>{ab9ddeac-c369-4a40-b7b3-97dda88e50e9}</Project>
-      <Name>Bu</Name>
+      <Name>HRMS.Business</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DA\DA.csproj">
+    <ProjectReference Include="..\HRMS.DataAccess\HRMS.DataAccess.csproj">
       <Project>{8681e312-d329-4f4b-a972-3c03b93a0020}</Project>
-      <Name>DA</Name>
+      <Name>HRMS.DataAccess</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

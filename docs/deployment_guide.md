@@ -14,7 +14,7 @@ Tài liệu này cung cấp hướng dẫn vận hành và triển khai chuẩn 
                         (SSL/TLS Offloading 443)
                        /                       \
                       /                         \
-       [ Static SPA: HRMS_Web ]       [ REST API: HRMS_API ]
+       [ Static SPA: HRMS.Web ]       [ REST API: HRMS_API ]
          (Nginx Docker / IIS)             (IIS Application)
                                                 |
                                +----------------+----------------+
@@ -101,10 +101,10 @@ docker compose up -d --build hrms-web
 ### Cách 2: Triển Khai Trực Tiếp Trên IIS
 1. Build gói bundle tĩnh:
    ```bash
-   cd HRMS_Web
+   cd HRMS.Web
    npm run build
    ```
-2. Sao chép toàn bộ thư mục `HRMS_Web/dist` vào thư mục web: `C:\inetpub\wwwroot\hrms-web`.
+2. Sao chép toàn bộ thư mục `HRMS.Web/dist` vào thư mục web: `C:\inetpub\wwwroot\hrms-web`.
 3. Thêm file `web.config` hỗ trợ định tuyến SPA (HTML5 PushState fallback):
    ```xml
    <?xml version="1.0" encoding="UTF-8"?>

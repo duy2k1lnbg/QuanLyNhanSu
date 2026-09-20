@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DA\DA.csproj" />
-    <ProjectReference Include="..\Bu\Bu.csproj" />
+    <ProjectReference Include="..\HRMS.DataAccess\HRMS.DataAccess.csproj" />
+    <ProjectReference Include="..\HRMS.Business\HRMS.Business.csproj" />
   </ItemGroup>
 
   <ItemGroup>

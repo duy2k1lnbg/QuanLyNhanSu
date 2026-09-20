@@ -27,7 +27,7 @@ Path += "%JAVA_HOME%\bin;%ANDROID_HOME%\platform-tools;%ANDROID_HOME%\cmdline-to
 
 Di chuyển vào thư mục dự án Mobile và cài đặt các thư viện:
 ```powershell
-cd HRMS_Mobile
+cd HRMS.Mobile
 npm install
 ```
 
@@ -60,7 +60,7 @@ npm install
 
 ### 3.1. Chạy với Expo Dev Server
 ```powershell
-cd HRMS_Mobile
+cd HRMS.Mobile
 npm start
 ```
 - Bấm `a` để mở trên máy ảo Android đang chạy.
@@ -68,7 +68,7 @@ npm start
 
 ### 3.2. Chạy trực tiếp Native Debug Build
 ```powershell
-cd HRMS_Mobile
+cd HRMS.Mobile
 npx expo run:android
 ```
 
@@ -92,7 +92,7 @@ npx expo run:android
    .\gradlew assembleDebug
    ```
 4. **Vị trí file APK sau khi build thành công**:
-   `HRMS_Mobile/android/app/build/outputs/apk/debug/app-debug.apk`
+   `HRMS.Mobile/android/app/build/outputs/apk/debug/app-debug.apk`
 
 ---
 
@@ -142,4 +142,4 @@ npx expo run:android
    .\gradlew assembleRelease
    ```
 5. **Vị trí file APK Release**:
-   `HRMS_Mobile/android/app/build/outputs/apk/release/app-release.apk`
+   `HRMS.Mobile/android/app/build/outputs/apk/release/app-release.apk`

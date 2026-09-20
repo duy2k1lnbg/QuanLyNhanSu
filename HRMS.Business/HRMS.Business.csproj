@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -261,12 +261,15 @@
   <ItemGroup>
     <Compile Include="CLASS_CHAMCONG\BANGCONG_NV_CHITIET.cs" />
     <Compile Include="CLASS_CHAMCONG\BANGLUONG.cs" />
+    <Compile Include="CLASS_CHAMCONG\HESO_TANGCA.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONG.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONGCHITIET.cs" />
     <Compile Include="CLASS_CHAMCONG\LOAICA.cs" />
     <Compile Include="CLASS_CHAMCONG\LOAICONG.cs" />
+    <Compile Include="CLASS_CHAMCONG\NGAYLE.cs" />
     <Compile Include="CLASS_CHAMCONG\PHUCAP.cs" />
     <Compile Include="CLASS_CHAMCONG\SYS_CONFIG.cs" />
+    <Compile Include="CLASS_NHANSU\LOAIHOPDONG.cs" />
     <Compile Include="CLASS_CHAMCONG\TANGCA.cs" />
     <Compile Include="CLASS_CHAMCONG\UNGLUONG.cs" />
     <Compile Include="CLASS_NHANSU\BOPHAN.cs" />
@@ -301,26 +304,36 @@
     <Compile Include="CLASS_NHANSU\NHANVIEN_THOIVIEC.cs" />
     <Compile Include="CLASS_NHANSU\PHONGBAN.cs" />
     <Compile Include="DTO\TANGCA_DTO.cs" />
-    <Compile Include="DTO\ComboDTO.cs" />
     <Compile Include="DTO\UNGLUONG_DTO.cs" />
+    <Compile Include="DTO\USER_LOGIN_INFO_DTO.cs" />
+    <Compile Include="DTO\UserRightDetail.cs" />
     <Compile Include="GetData_Functions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CLASS_NHANSU\QUOCTICH.cs" />
     <Compile Include="CLASS_NHANSU\TONGIAO.cs" />
     <Compile Include="CLASS_NHANSU\TRINHDO.cs" />
     <Compile Include="Services\AI_Services\Core\AiRouterService.cs" />
+    <Compile Include="Services\AI_Services\Core\FastResponseService.cs" />
     <Compile Include="Services\AI_Services\Core\SqlGeneratorService.cs" />
+    <Compile Include="Services\AI_Services\Core\OracleSqlAstValidator.cs" />
     <Compile Include="Services\AI_Services\Core\QueryPreprocessor.cs" />
     <Compile Include="Services\AI_Services\ChatboxManager.cs" />
     <Compile Include="Services\AI_Services\Core\HybridRagService.cs" />
     <Compile Include="Services\AI_Services\LLM\OllamaService.cs" />
     <Compile Include="Services\AI_Services\Memory\AiCacheService.cs" />
     <Compile Include="Services\AI_Services\Memory\AiChatHistory.cs" />
-    <Compile Include="Services\AI_Services\Vector\VectorService.cs" />
+    <Compile Include="Services\AI_Services\Vector\QdrantService.cs" />
+    <Compile Include="Services\AI_Services\Vector\QdrantOutboxManager.cs" />
     <Compile Include="Services\AI_Services\Interfaces\ILlmService.cs" />
     <Compile Include="Services\AI_Services\Interfaces\IVectorService.cs" />
     <Compile Include="Services\AI_Services\Interfaces\ISqlGenerator.cs" />
     <Compile Include="Services\AI_Services\Interfaces\IPromptManager.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\ISafeSqlExecutor.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\IRagContextRetriever.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\IRagSynthesizer.cs" />
+    <Compile Include="Services\AI_Services\Core\SafeSqlExecutor.cs" />
+    <Compile Include="Services\AI_Services\Core\RagContextRetriever.cs" />
+    <Compile Include="Services\AI_Services\Core\RagSynthesizer.cs" />
     <Compile Include="Services\AI_Services\Core\JsonPromptManager.cs" />
     <Compile Include="Services\AI_Services\AiServiceLocator.cs" />
     <Compile Include="Services\AI_Services\Vector\AiDataSyncHub.cs" />
@@ -336,9 +349,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DA\DA.csproj">
+    <ProjectReference Include="..\HRMS.DataAccess\HRMS.DataAccess.csproj">
       <Project>{8681e312-d329-4f4b-a972-3c03b93a0020}</Project>
-      <Name>DA</Name>
+      <Name>HRMS.DataAccess</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -346,6 +359,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="ILLink\ILLink.Descriptors.LibraryBuild.xml" />
+    <Compile Include="CLASS_SYSTEM\SYS_LANGUAGE.cs" />
+    <Compile Include="DTO\ChucVuDTO.cs" />
+    <Compile Include="DTO\ComboDTO.cs" />
+    <Compile Include="DTO\PhongBanDTO.cs" />
+    <Compile Include="DTO\PhuCapDTO.cs" />
+    <Compile Include="DTO\SysLanguageDTO.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
@@ -357,4 +376,3 @@
   </Target>
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.targets" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.targets')" />
 </Project>
-

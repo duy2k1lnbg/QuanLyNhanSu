@@ -86,9 +86,9 @@ Bộ kiểm thử bao gồm:
 
 ## 6. Khởi Động Frontend React Web SPA
 
-1. Di chuyển vào thư mục `HRMS_Web`:
+1. Di chuyển vào thư mục `HRMS.Web`:
    ```bash
-   cd HRMS_Web
+   cd HRMS.Web
    npm install
    ```
 2. Cấu hình file `.env`:
@@ -102,6 +102,24 @@ Bộ kiểm thử bao gồm:
 4. Truy cập giao diện ứng dụng tại: [http://localhost:5173](http://localhost:5173)
    - Tài khoản mặc định: `admin` (hoặc tài khoản đã khởi tạo trong DB)
    - Mật khẩu: theo cấu hình đã băm BCrypt.
+
+---
+
+## 7. Khởi Động Client Mobile (React Native / Expo)
+
+1. Di chuyển vào thư mục `HRMS.Mobile`:
+   ```bash
+   cd HRMS.Mobile
+   npm install
+   ```
+2. Khởi động môi trường phát triển Metro / Expo:
+   ```bash
+   npm start
+   ```
+3. Chạy trên thiết bị Android hoặc máy ảo:
+   ```bash
+   npm run android
+   ```
 
 ---
 

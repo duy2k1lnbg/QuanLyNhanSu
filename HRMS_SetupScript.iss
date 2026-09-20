@@ -20,7 +20,7 @@ ArchitecturesInstallIn64BitMode=x64compatible
 ; Tạo ra một file Setup duy nhất cực chuyên nghiệp
 OutputDir=D:\User\Desktop\HRMS_Release
 OutputBaseFilename=HRMS_Setup_v3.5.0
-SetupIconFile=QLyNSu\Resources\hrm_icon.ico
+SetupIconFile=HRMS.Desktop\Resources\hrm_icon.ico
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
@@ -33,11 +33,11 @@ Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{
 
 [Files]
 ; Lấy toàn bộ file từ thư mục Release (Hãy chắc chắn bạn đã Build chế độ Release trong Visual Studio)
-Source: "QLyNSu\bin\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "QLyNSu\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "HRMS.Desktop\bin\Release\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "HRMS.Desktop\bin\Release\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 ; Cập nhật: Include file cấu hình prompt AI
-Source: "QLyNSu\ai_prompts.json"; DestDir: "{app}"; Flags: ignoreversion
+Source: "HRMS.Desktop\ai_prompts.json"; DestDir: "{app}"; Flags: ignoreversion
 
 
 ; LƯU Ý: Không dùng cờ "ignoreversion" trên các file hệ thống dùng chung
