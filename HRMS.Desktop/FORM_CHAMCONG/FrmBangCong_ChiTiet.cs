@@ -36,7 +36,8 @@ namespace QLyNSu.FORM_CHAMCONG
             mnCapNhatNgayCong.Click += new EventHandler(this.mnCapNhatNgayCong_Click);
             contextMenu.Items.Add(mnCapNhatNgayCong);
             gcBangCongChiTiet.ContextMenuStrip = contextMenu;
-            gvBangCongChiTiet.PopupMenuShowing += gvBangCongChiTiet_PopupMenuShowing; ;
+            gvBangCongChiTiet.PopupMenuShowing += gvBangCongChiTiet_PopupMenuShowing;
+            gvBangCongChiTiet.CellValueChanged += gvBangCongChiTiet_CellValueChanged;
         }
 
         private KYCONGCHITIET _kcct;
@@ -58,20 +59,56 @@ namespace QLyNSu.FORM_CHAMCONG
             _kycong = new KYCONG();
             _nhanvien = new NHANVIEN();
             _bangcong_ct = new BANGCONG_NV_CHITIET();
+
+            if (_nam > 0 && _thang > 0)
+            {
+                cboThang.Text = _thang.ToString();
+                cboNam.Text = _nam.ToString();
+                if (_MAKYCONG <= 0)
+                {
+                    _MAKYCONG = _nam * 100 + _thang;
+                }
+            }
+            else if (int.TryParse(cboNam.Text, out int n) && int.TryParse(cboThang.Text, out int t))
+            {
+                _nam = n;
+                _thang = t;
+                if (_MAKYCONG <= 0)
+                {
+                    _MAKYCONG = _nam * 100 + _thang;
+                }
+            }
+            else
+            {
+                _nam = DateTime.Now.Year;
+                _thang = DateTime.Now.Month;
+                _MAKYCONG = _nam * 100 + _thang;
+                cboNam.Text = _nam.ToString();
+                cboThang.Text = _thang.ToString();
+            }
+
             gcBangCongChiTiet.DataSource = _kcct.getList(_MAKYCONG);
-            gvBangCongChiTiet.OptionsBehavior.Editable = false;
+            gvBangCongChiTiet.OptionsBehavior.Editable = true;
             CustomView(_thang, _nam);
-            cboThang.Text = _thang.ToString();
-            cboNam.Text = _nam.ToString();
- 
+            LockInfoColumns();
         }
 
         public void loadBangCong()
         {
             _kcct = new KYCONGCHITIET();
-            gcBangCongChiTiet.DataSource = _kcct.getList(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text));
-            CustomView(int.Parse(cboThang.Text), int.Parse(cboNam.Text));
-            gvBangCongChiTiet.OptionsBehavior.Editable = false;
+            int nam = _nam > 0 ? _nam : DateTime.Now.Year;
+            int thang = _thang > 0 ? _thang : DateTime.Now.Month;
+            if (int.TryParse(cboNam.Text, out int n)) nam = n;
+            if (int.TryParse(cboThang.Text, out int t)) thang = t;
+
+            _nam = nam;
+            _thang = thang;
+            _MAKYCONG = _nam * 100 + _thang;
+
+            gcBangCongChiTiet.DataSource = _kcct.getList(_MAKYCONG);
+            CustomView(_thang, _nam);
+            gvBangCongChiTiet.OptionsBehavior.Editable = true;
+            LockInfoColumns();
         }
         private async void btnPhatSinhKyCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
@@ -94,7 +131,8 @@ namespace QLyNSu.FORM_CHAMCONG
             int thang = int.Parse(cboThang.Text);
             int nam = int.Parse(cboNam.Text);
             int macty = _macty;
-            int makycong = _MAKYCONG;
+            int makycong = nam * 100 + thang;
+            _MAKYCONG = makycong;
 
             try
             {
@@ -156,8 +194,12 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (_MAKYCONG <= 0 && int.TryParse(cboNam.Text, out int n) && int.TryParse(cboThang.Text, out int t))
+            {
+                _MAKYCONG = n * 100 + t;
+            }
             List<TB_KYCONGCHITIET> lst = _kcct.getList(_MAKYCONG);
-            rptBangCongTongHop rpt = new rptBangCongTongHop(lst,_MAKYCONG.ToString());
+            rptBangCongTongHop rpt = new rptBangCongTongHop(lst, _MAKYCONG.ToString());
             rpt.ShowRibbonPreviewDialog();
         }
 
@@ -334,35 +376,55 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void mnCapNhatNgayCong_Click(object sender, EventArgs e)
         {
-            //FrmCapNhatNgayCong frm = new FrmCapNhatNgayCong();
-            //frm._MAKYCONG = _MAKYCONG;
-            //frm._manv = int.Parse(gvBangCongChiTiet.GetFocusedRowCellValue("MANV").ToString());
-            //frm._hoten = gvBangCongChiTiet.GetFocusedRowCellValue("HOTEN").ToString();
-            //frm._ngay = gvBangCongChiTiet.FocusedColumn.FieldName.ToString();
-            //frm.ShowDialog();
-            if (gvBangCongChiTiet.RowCount > 0) // Kiểm tra có hàng nào không
-                {    
-                    var focusedRowHandle = gvBangCongChiTiet.FocusedRowHandle;
-                    if (focusedRowHandle >= 0) // Kiểm tra có hàng được chọn không
-                    {
-                        FrmCapNhatNgayCong frm = new FrmCapNhatNgayCong();
-                        frm._MAKYCONG = _MAKYCONG;
-                        frm._manv = int.Parse(gvBangCongChiTiet.GetFocusedRowCellValue("MANV").ToString());
-                        frm._hoten = gvBangCongChiTiet.GetFocusedRowCellValue("HOTEN").ToString();
-                        frm._ngay = gvBangCongChiTiet.FocusedColumn.FieldName.ToString();
-                        frm.nam_f_bcct1 = int.Parse(cboNam.Text);
-                        frm.thang_f1_bcct = int.Parse(cboThang.Text);
-                        frm.ShowDialog();
-                    }
-                    else
-                    {
-                        MessageBox.Show($"Vui lòng chọn một hàng để cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    }
-                }
-               else
-               {
-                MessageBox.Show($"Không có dữ liệu ở trong bảng hiện tại: ", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            if (gvBangCongChiTiet.RowCount <= 0)
+            {
+                MessageBox.Show("Không có dữ liệu trong bảng hiện tại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
             }
+
+            var focusedRowHandle = gvBangCongChiTiet.FocusedRowHandle;
+            if (focusedRowHandle < 0)
+            {
+                MessageBox.Show("Vui lòng chọn một nhân viên để cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            if (gvBangCongChiTiet.FocusedColumn == null)
+            {
+                MessageBox.Show("Vui lòng chọn một ô ngày công (cột ngày từ 1 đến 31) để cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            string fieldName = gvBangCongChiTiet.FocusedColumn.FieldName;
+            if (string.IsNullOrEmpty(fieldName) || !fieldName.StartsWith("D", StringComparison.OrdinalIgnoreCase) || !int.TryParse(fieldName.Substring(1), out int dayNum) || dayNum < 1 || dayNum > 31)
+            {
+                MessageBox.Show("Vui lòng chọn đúng ô ngày công (cột ngày từ 1 đến 31) để cập nhật.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            object manvVal = gvBangCongChiTiet.GetFocusedRowCellValue("MANV");
+            object hotenVal = gvBangCongChiTiet.GetFocusedRowCellValue("HOTEN");
+            if (manvVal == null || manvVal == DBNull.Value || !int.TryParse(manvVal.ToString(), out int manv))
+            {
+                MessageBox.Show("Không tìm thấy thông tin mã nhân viên của dòng được chọn.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (_MAKYCONG <= 0 && int.TryParse(cboNam.Text, out int namVal) && int.TryParse(cboThang.Text, out int thangVal))
+            {
+                _MAKYCONG = namVal * 100 + thangVal;
+                _nam = namVal;
+                _thang = thangVal;
+            }
+
+            FrmCapNhatNgayCong frm = new FrmCapNhatNgayCong();
+            frm._MAKYCONG = _MAKYCONG;
+            frm._manv = manv;
+            frm._hoten = hotenVal != null ? hotenVal.ToString() : "";
+            frm._ngay = fieldName;
+            frm.nam_f_bcct1 = int.TryParse(cboNam.Text, out int n) ? n : (_MAKYCONG / 100);
+            frm.thang_f1_bcct = int.TryParse(cboThang.Text, out int t) ? t : (_MAKYCONG % 100);
+            frm.ShowDialog();
         }
 
         private void gvBangCongChiTiet_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
@@ -428,7 +490,137 @@ namespace QLyNSu.FORM_CHAMCONG
                 }
             }
         }
-       
 
+        private void LockInfoColumns()
+        {
+            colMaNV.OptionsColumn.AllowEdit = false;
+            colHoTen.OptionsColumn.AllowEdit = false;
+            NGAYCONG.OptionsColumn.AllowEdit = false;
+            NGHIKHONGPHEP.OptionsColumn.AllowEdit = false;
+            NGAYPHEP.OptionsColumn.AllowEdit = false;
+            CONGNGAYLE.OptionsColumn.AllowEdit = false;
+            CONGCHUNHAT.OptionsColumn.AllowEdit = false;
+            TONGNGAYCONG.OptionsColumn.AllowEdit = false;
+        }
+
+        private void gvBangCongChiTiet_CellValueChanged(object sender, DevExpress.XtraGrid.Views.Base.CellValueChangedEventArgs e)
+        {
+            try
+            {
+                string fieldName = e.Column.FieldName;
+                if (!fieldName.StartsWith("D", StringComparison.OrdinalIgnoreCase) || !int.TryParse(fieldName.Substring(1), out int dayNum) || dayNum < 1 || dayNum > 31)
+                {
+                    return;
+                }
+
+                object manvObj = gvBangCongChiTiet.GetRowCellValue(e.RowHandle, "MANV");
+                if (manvObj == null || !int.TryParse(manvObj.ToString(), out int manv))
+                    return;
+
+                string hoten = gvBangCongChiTiet.GetRowCellValue(e.RowHandle, "HOTEN")?.ToString() ?? "";
+                string newValue = e.Value?.ToString()?.Trim()?.ToUpper() ?? "";
+
+                // Đảm bảo _MAKYCONG hợp lệ
+                if (_MAKYCONG <= 0 && int.TryParse(cboNam.Text, out int namVal) && int.TryParse(cboThang.Text, out int thangVal))
+                {
+                    _MAKYCONG = namVal * 100 + thangVal;
+                    _nam = namVal;
+                    _thang = thangVal;
+                }
+
+                // 1. Cập nhật TB_KYCONGCHITIET (bảng tổng hợp D1..D31)
+                _kcct.UpdateChamCong(_MAKYCONG, manv, dayNum, newValue);
+
+                // 2. Cập nhật hoặc thêm mới bản ghi chi tiết từng ngày TB_BANGCONG_CHITIET
+                TB_BANGCONG_CHITIET bcctnv = _bangcong_ct.getItem(_MAKYCONG, manv, dayNum);
+                if (bcctnv == null)
+                {
+                    int year = _MAKYCONG / 100;
+                    int month = _MAKYCONG % 100;
+                    DateTime dateVal = new DateTime(year, month, dayNum);
+                    bcctnv = new TB_BANGCONG_CHITIET
+                    {
+                        MAKYCONG = _MAKYCONG,
+                        MANV = manv,
+                        HOTEN = hoten,
+                        IDCTY = 1,
+                        NGAY = dateVal,
+                        THU = dateVal.DayOfWeek == DayOfWeek.Sunday ? "Chủ nhật" : ("Thứ " + ((int)dateVal.DayOfWeek + 1)),
+                        GIOVAO = "08:00",
+                        GIORA = "17:00",
+                        NGAYPHEP = 0,
+                        CONGNGAYLE = 0,
+                        CONGCHUNHAT = dateVal.DayOfWeek == DayOfWeek.Sunday ? 1 : 0,
+                        CREATED_BY = 1,
+                        CREATED_DATE = DateTime.Now
+                    };
+                    _bangcong_ct.Add(bcctnv);
+                }
+
+                bcctnv.KYHIEU = newValue;
+                switch (newValue)
+                {
+                    case "X":
+                        bcctnv.NGAYCONG = 1;
+                        bcctnv.NGAYPHEP = 0;
+                        bcctnv.GIOVAO = "08:00";
+                        bcctnv.GIORA = "17:00";
+                        break;
+                    case "CD":
+                        bcctnv.NGAYCONG = 1;
+                        bcctnv.NGAYPHEP = 0;
+                        bcctnv.GIOVAO = "22:00";
+                        bcctnv.GIORA = "06:00";
+                        break;
+                    case "P":
+                        bcctnv.NGAYPHEP = 1;
+                        bcctnv.NGAYCONG = 1;
+                        break;
+                    case "CT":
+                        bcctnv.NGAYCONG = 1;
+                        bcctnv.NGAYPHEP = 0;
+                        break;
+                    case "V":
+                        bcctnv.NGAYCONG = 0;
+                        bcctnv.NGAYPHEP = 0;
+                        break;
+                    case "VR":
+                        bcctnv.NGAYCONG = 0;
+                        bcctnv.NGAYPHEP = 1;
+                        break;
+                    case "L":
+                        bcctnv.NGAYCONG = 1;
+                        bcctnv.CONGNGAYLE = 1;
+                        break;
+                    case "CN":
+                        bcctnv.NGAYCONG = 0;
+                        bcctnv.CONGCHUNHAT = 1;
+                        break;
+                    default:
+                        break;
+                }
+                _bangcong_ct.Update(bcctnv);
+
+                // 3. Tính toán lại tổng ngày công và ngày phép cho nhân viên
+                decimal tongngaycong = _bangcong_ct.tongNgayCong(_MAKYCONG, manv);
+                decimal tongngayphep = _bangcong_ct.tongNgayPhep(_MAKYCONG, manv);
+
+                var kcct = _kcct.getItem(_MAKYCONG, manv);
+                if (kcct != null)
+                {
+                    kcct.NGAYPHEP = tongngayphep;
+                    kcct.TONGNGAYCONG = tongngaycong;
+                    _kcct.Update(kcct, 1);
+                }
+
+                // Cập nhật lại hiển thị tổng ngày công trên dòng đang sửa
+                gvBangCongChiTiet.SetRowCellValue(e.RowHandle, "TONGNGAYCONG", tongngaycong);
+                gvBangCongChiTiet.SetRowCellValue(e.RowHandle, "NGAYPHEP", tongngayphep);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi đồng bộ dữ liệu sửa nhanh: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
     }
 }

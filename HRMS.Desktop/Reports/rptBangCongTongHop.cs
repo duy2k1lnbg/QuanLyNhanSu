@@ -1,4 +1,4 @@
-﻿using DA;
+using DA;
 using DevExpress.Office.Utils;
 using DevExpress.XtraReports.UI;
 using System;
@@ -32,7 +32,14 @@ namespace QLyNSu.Reports
         public List<TB_KYCONGCHITIET> _lstKCCT;
         private void BinData()
         {
-            lblTitle.Text = "BẢNG CÔNG TỔNG HỢP THÁNG " + _title.Substring(4) + " NĂM " + _title.Substring(0, 4);
+            int year = DateTime.Now.Year;
+            int month = DateTime.Now.Month;
+            if (int.TryParse(_title, out int kc) && kc >= 100000)
+            {
+                year = kc / 100;
+                month = kc % 100;
+            }
+            lblTitle.Text = $"BẢNG CÔNG TỔNG HỢP THÁNG {month} NĂM {year}";
             MANV.DataBindings.Add("Text", DataSource, "MANV");
             HOTEN.DataBindings.Add("Text", DataSource, "HOTEN");
 
@@ -117,27 +124,15 @@ namespace QLyNSu.Reports
 
         private void RemoveInvalidDaysInMonth(string _MAKYCONG)
         {
-            // Parse _MAKYCONG to get the year and month
-            string yearString = _MAKYCONG.Substring(0, 4);
-            string monthString = _MAKYCONG.Substring(4);
+            int year = DateTime.Now.Year;
+            int month = DateTime.Now.Month;
+            if (int.TryParse(_MAKYCONG, out int kc) && kc >= 100000)
+            {
+                year = kc / 100;
+                month = kc % 100;
+            }
 
-            int year = int.Parse(yearString);
-            int month = int.Parse(monthString);
-
-            // Determine the number of days in the month
-            int daysInMonth;
-            if (month == 2) // February
-            {
-                daysInMonth = DateTime.IsLeapYear(year) ? 29 : 28;
-            }
-            else if (month == 4 || month == 6 || month == 9 || month == 11) // April, June, September, November
-            {
-                daysInMonth = 30;
-            }
-            else // January, March, May, July, August, October, December
-            {
-                daysInMonth = 31;
-            }
+            int daysInMonth = DateTime.DaysInMonth(year, month);
 
             // Remove days that exceed the number of days in the month
             for (int day = 31; day > daysInMonth; day--)

@@ -1,4 +1,4 @@
-﻿using Bu.CLASS_CHAMCONG;
+using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
 using QLyNSu.Functions;
@@ -229,6 +229,19 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnXemBC_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (_MAKYCONG == 0 && gvDanhSach.RowCount > 0 && gvDanhSach.FocusedRowHandle >= 0)
+            {
+                object val = gvDanhSach.GetFocusedRowCellValue("MAKYCONG");
+                if (val != null && int.TryParse(val.ToString(), out int mkc))
+                {
+                    _MAKYCONG = mkc;
+                }
+            }
+            if (_MAKYCONG == 0 && int.TryParse(cboNam.Text, out int n) && int.TryParse(cboThang.Text, out int t))
+            {
+                _MAKYCONG = n * 100 + t;
+            }
+
             FrmBangCong_ChiTiet frm = new FrmBangCong_ChiTiet();
             frm._MAKYCONG = _MAKYCONG;
             frm._thang = int.Parse(cboThang.Text);

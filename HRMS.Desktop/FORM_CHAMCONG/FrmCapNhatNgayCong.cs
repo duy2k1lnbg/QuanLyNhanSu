@@ -39,130 +39,206 @@ namespace QLyNSu.FORM_CHAMCONG
             _bcct_nv = new BANGCONG_NV_CHITIET();
             lblMANV.Text = _manv.ToString();
             lblHoTen.Text = _hoten;
-            lblKyCong.Text = _MAKYCONG.ToString();
 
             try
             {
-                string nam = _MAKYCONG.ToString().Substring(0, 4);
-                string thang = _MAKYCONG.ToString().Substring(4);
-                string ngay = _ngay.ToString().Substring(1);
-                DateTime _d = DateTime.Parse(nam + "/" + thang + "/" + ngay);
+                int nam = 0;
+                int thang = 0;
+                int ngay = 0;
+
+                // 1. Xác định năm và tháng an toàn (không dùng Substring để tránh lỗi khi _MAKYCONG = 0)
+                if (_MAKYCONG >= 100000)
+                {
+                    nam = _MAKYCONG / 100;
+                    thang = _MAKYCONG % 100;
+                }
+                else if (nam_f_bcct1 > 0 && thang_f1_bcct > 0)
+                {
+                    nam = nam_f_bcct1;
+                    thang = thang_f1_bcct;
+                    _MAKYCONG = nam * 100 + thang;
+                }
+                else
+                {
+                    nam = DateTime.Now.Year;
+                    thang = DateTime.Now.Month;
+                    _MAKYCONG = nam * 100 + thang;
+                }
+
+                lblKyCong.Text = _MAKYCONG.ToString();
+
+                // 2. Xác định ngày từ _ngay (ví dụ: "D1", "D2", ..., "D31")
+                if (!string.IsNullOrEmpty(_ngay))
+                {
+                    string dayStr = _ngay.StartsWith("D", StringComparison.OrdinalIgnoreCase)
+                        ? _ngay.Substring(1)
+                        : _ngay;
+                    int.TryParse(dayStr, out ngay);
+                }
+
+                if (nam <= 0 || thang <= 0 || thang > 12 || ngay <= 0 || ngay > DateTime.DaysInMonth(nam, thang))
+                {
+                    MessageBox.Show("Ngày hoặc kỳ công không hợp lệ. Vui lòng chọn một ô ngày công hợp lệ (D1-D31).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    this.Close();
+                    return;
+                }
+
+                DateTime _d = new DateTime(nam, thang, ngay);
                 cldNgayCong.SetDate(_d);
                 lblNgay.Text = _d.ToString("dd/MM/yyyy");
-                _cngay = int.Parse(ngay);
+                _cngay = ngay;
             }
-            catch (FormatException ex)
+            catch (Exception ex)
             {
-                MessageBox.Show($"Vui lòng chọn 1 ô để cập nhật.\nLỗi: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Stop);
-                //throw new Exception("Có lỗi xảy ra: " + ex.Message, ex);
+                MessageBox.Show($"Vui lòng chọn đúng ô ngày công để cập nhật.\nLỗi: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 this.Close();
             }
         }
 
         private void btnCapNhat_Click(object sender, EventArgs e)
         {
-            string _valueChamCong = radioChamCong.Properties.Items[radioChamCong.SelectedIndex].Value.ToString();
-            string _valueNgayNghi = radioNgayNghi.Properties.Items[radioNgayNghi.SelectedIndex].Value.ToString();
-            string fieldName = "D" + _cngay.ToString();
-            var kcct = _kcct.getItem(_MAKYCONG, _manv);
-            //double _tongngayphep = kcct.NGAYPHEP.HasValue ? Convert.ToDouble(kcct.NGAYPHEP.Value) : 0.0;
-            //double _tongngayle = kcct.CONGNGAYLE.HasValue ? Convert.ToDouble(kcct.CONGNGAYLE.Value) : 0.0;
-            //double _tongngaykhongphep = kcct.NGHIKHONGPHEP.HasValue ? Convert.ToDouble(kcct.NGHIKHONGPHEP.Value) : 0.0;
-            //double _tongngaycong = kcct.NGAYCONG.HasValue ? Convert.ToDouble(kcct.NGAYCONG.Value) : 0.0;
-
-            if (cldNgayCong.SelectionRange.Start.Year * 100 + cldNgayCong.SelectionRange.Start.Month != _MAKYCONG)
+            try
             {
-                MessageBox.Show("Vui lòng chọn đúng ngày công tháng hiện tại", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            }
+                if (radioChamCong.SelectedIndex < 0)
+                {
+                    MessageBox.Show("Vui lòng chọn ký hiệu chấm công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
 
-            // Cập nhật KYCONGCHITIET => BANGCONG_NV_CHITIET
-            //GetData_Functions.execQuery("Update TB_KYCONGCHITIET SET " + fieldName+ "='"+_valueChamCong +"' WHERE MAKYCONG="+_MAKYCONG+" AND MANV="+ _manv);
-            _kcct.UpdateChamCong(_MAKYCONG, _manv, _cngay, _valueChamCong);
+                string _valueChamCong = radioChamCong.Properties.Items[radioChamCong.SelectedIndex].Value.ToString();
+                string _valueNgayNghi = radioNgayNghi.SelectedIndex >= 0 
+                    ? radioNgayNghi.Properties.Items[radioNgayNghi.SelectedIndex].Value.ToString() 
+                    : "NN";
 
-            TB_BANGCONG_CHITIET bcctnv = _bcct_nv.getItem(_MAKYCONG, _manv, cldNgayCong.SelectionStart.Day);
-            //if (bcctnv == null)
-            //{
-            //    MessageBox.Show("Không tìm thấy dữ liệu cho ngày: " + cldNgayCong.SelectionStart.Day +
-            //                    " với MAKYCONG: " + _MAKYCONG +
-            //                    " và MANV: " + _manv,
-            //                    "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            //    return;
-            //}
-            bcctnv.KYHIEU = _valueChamCong;
-            switch (_valueChamCong)
-            {
-                case "X":
-                    bcctnv.NGAYCONG = 1;
-                    bcctnv.NGAYPHEP = 0;
-                    bcctnv.GIOVAO = "08:00";
-                    bcctnv.GIORA = "17:00";
-                    break;
-                case "CD":
-                    bcctnv.NGAYCONG = 1;
-                    bcctnv.NGAYPHEP = 0;
-                    bcctnv.GIOVAO = "22:00";
-                    bcctnv.GIORA = "06:00";
-                    break;
-                case "P":
-                    if (_valueNgayNghi == "NN")
+                if (cldNgayCong.SelectionRange.Start.Year * 100 + cldNgayCong.SelectionRange.Start.Month != _MAKYCONG)
+                {
+                    MessageBox.Show("Vui lòng chọn đúng ngày công thuộc tháng hiện tại của kỳ công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                int ngayChon = cldNgayCong.SelectionStart.Day;
+                _cngay = ngayChon;
+
+                var kcct = _kcct.getItem(_MAKYCONG, _manv);
+                if (kcct == null)
+                {
+                    MessageBox.Show("Không tìm thấy dữ liệu kỳ công chi tiết của nhân viên.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                TB_BANGCONG_CHITIET bcctnv = _bcct_nv.getItem(_MAKYCONG, _manv, ngayChon);
+                if (bcctnv == null)
+                {
+                    DateTime dateVal = new DateTime(_MAKYCONG / 100, _MAKYCONG % 100, ngayChon);
+                    bcctnv = new TB_BANGCONG_CHITIET
                     {
-                        bcctnv.NGAYPHEP = 1;
+                        MAKYCONG = _MAKYCONG,
+                        MANV = _manv,
+                        HOTEN = _hoten,
+                        IDCTY = 1,
+                        NGAY = dateVal,
+                        THU = dateVal.DayOfWeek == DayOfWeek.Sunday ? "Chủ nhật" : ("Thứ " + ((int)dateVal.DayOfWeek + 1)),
+                        GIOVAO = "08:00",
+                        GIORA = "17:00",
+                        NGAYPHEP = 0,
+                        CONGNGAYLE = 0,
+                        CONGCHUNHAT = dateVal.DayOfWeek == DayOfWeek.Sunday ? 1 : 0,
+                        CREATED_BY = 1,
+                        CREATED_DATE = DateTime.Now
+                    };
+                    _bcct_nv.Add(bcctnv);
+                }
+
+                // Cập nhật KYCONGCHITIET => BANGCONG_NV_CHITIET
+                _kcct.UpdateChamCong(_MAKYCONG, _manv, _cngay, _valueChamCong);
+
+                bcctnv.KYHIEU = _valueChamCong;
+                switch (_valueChamCong)
+                {
+                    case "X":
                         bcctnv.NGAYCONG = 1;
-                    }
-                    else
-                    {
-                        bcctnv.NGAYPHEP = (decimal)0.5;
-                        bcctnv.NGAYCONG = (decimal)0.5;
-                    }
-                    break;
-                case "CT":
-                    if (_valueNgayNghi == "NN")
-                    {
-                        bcctnv.NGAYCONG = 1;
-                    }
-                    else
-                    {
-                        bcctnv.NGAYPHEP = (decimal)0.5;
-                        bcctnv.NGAYCONG = (decimal)0.5;
-                    }
-                    break;
-                case "V":
-                    if (_valueNgayNghi == "NN")
-                    {
-                        bcctnv.NGAYCONG = 0;
                         bcctnv.NGAYPHEP = 0;
-                    }
-                    else
-                    {
-                        bcctnv.NGAYPHEP = (decimal)0.5;
-                        bcctnv.NGAYCONG = (decimal)0.5;
-                    }
-                    break;
-                case "VR":
-                    if (_valueNgayNghi == "NN")
-                    {
-                        bcctnv.NGAYCONG = 0;
-                        bcctnv.NGAYPHEP = 1;
-                    }
-                    else
-                    {
-                        bcctnv.NGAYPHEP = (decimal)0.5;
-                        bcctnv.NGAYCONG = (decimal)0.5;
-                    }
-                    break;
-                default:
-                    break;
+                        bcctnv.GIOVAO = "08:00";
+                        bcctnv.GIORA = "17:00";
+                        break;
+                    case "CD":
+                        bcctnv.NGAYCONG = 1;
+                        bcctnv.NGAYPHEP = 0;
+                        bcctnv.GIOVAO = "22:00";
+                        bcctnv.GIORA = "06:00";
+                        break;
+                    case "P":
+                        if (_valueNgayNghi == "NN")
+                        {
+                            bcctnv.NGAYPHEP = 1;
+                            bcctnv.NGAYCONG = 1;
+                        }
+                        else
+                        {
+                            bcctnv.NGAYPHEP = (decimal)0.5;
+                            bcctnv.NGAYCONG = (decimal)0.5;
+                        }
+                        break;
+                    case "CT":
+                        if (_valueNgayNghi == "NN")
+                        {
+                            bcctnv.NGAYCONG = 1;
+                        }
+                        else
+                        {
+                            bcctnv.NGAYPHEP = (decimal)0.5;
+                            bcctnv.NGAYCONG = (decimal)0.5;
+                        }
+                        break;
+                    case "V":
+                        if (_valueNgayNghi == "NN")
+                        {
+                            bcctnv.NGAYCONG = 0;
+                            bcctnv.NGAYPHEP = 0;
+                        }
+                        else
+                        {
+                            bcctnv.NGAYPHEP = (decimal)0.5;
+                            bcctnv.NGAYCONG = (decimal)0.5;
+                        }
+                        break;
+                    case "VR":
+                        if (_valueNgayNghi == "NN")
+                        {
+                            bcctnv.NGAYCONG = 0;
+                            bcctnv.NGAYPHEP = 1;
+                        }
+                        else
+                        {
+                            bcctnv.NGAYPHEP = (decimal)0.5;
+                            bcctnv.NGAYCONG = (decimal)0.5;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                _bcct_nv.Update(bcctnv);
+
+                // Tính lại các ngày công
+                decimal tongngaycong = _bcct_nv.tongNgayCong(_MAKYCONG, _manv);
+                decimal tongngayphep = _bcct_nv.tongNgayPhep(_MAKYCONG, _manv);
+
+                kcct.NGAYPHEP = tongngayphep;
+                kcct.TONGNGAYCONG = tongngaycong;
+                _kcct.Update(kcct, 1);
+
+                if (frmBCCC == null)
+                {
+                    frmBCCC = Application.OpenForms["FrmBangCong_ChiTiet"] as FrmBangCong_ChiTiet;
+                }
+                frmBCCC?.loadBangCong();
+
+                MessageBox.Show("Cập nhật ngày công thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            _bcct_nv.Update(bcctnv);
-
-            //Tính lại các ngày công
-            decimal tongngaycong = _bcct_nv.tongNgayCong(_MAKYCONG, _manv);
-            decimal tongngayphep = _bcct_nv.tongNgayPhep(_MAKYCONG, _manv);
-
-            kcct.NGAYPHEP = tongngayphep;
-            kcct.TONGNGAYCONG = tongngaycong;
-            _kcct.Update(kcct,1);
-            frmBCCC.loadBangCong();
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi khi cập nhật ngày công: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private void btnDong_Click(object sender, EventArgs e)
@@ -173,9 +249,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private void cldNgayCong_DateSelected(object sender, DateRangeEventArgs e)
         {
             _cngay = cldNgayCong.SelectionRange.Start.Day;
-            //lblNgay.Text = cldNgayCong.SelectionRange.Start.ToString("dd/MM/yyyy");
-            //lblNgay.Text = 
-            //MessageBox.Show(cldNgayCong.SelectionRange.Start.Day.ToString());
+            lblNgay.Text = cldNgayCong.SelectionRange.Start.ToString("dd/MM/yyyy");
         }
     }
 }
