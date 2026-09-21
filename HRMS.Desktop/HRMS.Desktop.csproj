@@ -175,6 +175,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FORM_SYSTEM\FrmQuanLyTaiKhoan.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmQuanLyTaiKhoan.Designer.cs">
+      <DependentUpon>FrmQuanLyTaiKhoan.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmDataExport.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -477,6 +483,12 @@
     <Compile Include="FORM_NHANSU\FrmTrinhDo.Designer.cs">
       <DependentUpon>FrmTrinhDo.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_NHANSU\FrmPheDuyetYeuCau.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_NHANSU\FrmPheDuyetYeuCau.Designer.cs">
+      <DependentUpon>FrmPheDuyetYeuCau.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmWaiting.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -635,6 +647,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmTrinhDo.resx">
       <DependentUpon>FrmTrinhDo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_NHANSU\FrmPheDuyetYeuCau.resx">
+      <DependentUpon>FrmPheDuyetYeuCau.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmQuanLyTaiKhoan.resx">
+      <DependentUpon>FrmQuanLyTaiKhoan.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmAI.resx">
       <DependentUpon>FrmAI.cs</DependentUpon>

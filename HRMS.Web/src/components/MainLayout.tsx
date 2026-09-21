@@ -36,6 +36,8 @@ import {
   GlobalOutlined,
   DownOutlined,
   CheckOutlined,
+  CheckSquareOutlined,
+  AuditOutlined,
 } from '@ant-design/icons';
 import { Popover } from 'antd';
 import NotificationPopoverContent, { type NotificationItem } from './NotificationPopoverContent';
@@ -138,8 +140,14 @@ export function MainLayout({
     ...(canView(currentUser, 'UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA')
       ? [{ key: 'ungluong', icon: <SwapOutlined />, label: tApp.menuOvertime }]
       : []),
+    ...(canView(currentUser, 'APPROVE', 'CHAMCONG', 'F_CC_BANGCONG', 'F_CC_TANGCA', 'F_NV_NHANVIEN')
+      ? [{ key: 'approvals', icon: <CheckSquareOutlined />, label: tApp.menuApprovals }]
+      : []),
     ...(currentUser.IsAdmin || canView(currentUser, 'PHANQUYEN', 'F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER')
       ? [{ key: 'phanquyen', icon: <SafetyCertificateOutlined />, label: tApp.menuPermissions }]
+      : []),
+    ...(currentUser.IsAdmin || canView(currentUser, 'AUDIT', 'PHANQUYEN', 'F_SYSTEM_USER')
+      ? [{ key: 'audit', icon: <AuditOutlined />, label: tApp.menuAudit }]
       : []),
     {
       key: 'ai-drawer',
@@ -347,7 +355,9 @@ export function MainLayout({
                 {currentMenu === 'khenthuong' && tApp.titleRewards}
                 {currentMenu === 'nangluong' && tApp.titlePromotions}
                 {currentMenu === 'ungluong' && tApp.titleOvertime}
+                {currentMenu === 'approvals' && tApp.titleApprovals}
                 {currentMenu === 'phanquyen' && tApp.titlePermissions}
+                {currentMenu === 'audit' && tApp.titleAudit}
               </Text>
             </div>
           </div>

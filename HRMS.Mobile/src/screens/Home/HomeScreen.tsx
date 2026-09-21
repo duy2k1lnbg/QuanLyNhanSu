@@ -41,14 +41,28 @@ export const HomeScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
+
   const fetchDashboard = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     setErrorMessage(null);
 
     try {
-      const data = await meApi.getDashboard();
-      setDashboard(data);
+      const [dashData, reqData] = await Promise.allSettled([
+        meApi.getDashboard(),
+        meApi.getAllRequests(),
+      ]);
+
+      if (dashData.status === 'fulfilled') {
+        setDashboard(dashData.value);
+      }
+      if (reqData.status === 'fulfilled' && reqData.value) {
+        const leavesPending = (reqData.value.leaves || []).filter((l) => l.status === 'PENDING').length;
+        const corrPending = (reqData.value.corrections || []).filter((c) => c.status === 'PENDING').length;
+        const otPending = (reqData.value.overtimes || []).filter((o) => o.status === 'PENDING').length;
+        setPendingRequestsCount(leavesPending + corrPending + otPending);
+      }
     } catch (error: any) {
       setErrorMessage(mapApiError(error));
     } finally {
@@ -106,7 +120,7 @@ export const HomeScreen: React.FC = () => {
               {profile?.hoten || user?.fullName || '---'}
             </Text>
             <View style={styles.tagsRow}>
-              <AppBadge label={`${t('home.employeeId')}: ${profile?.manv || user?.manv || '---'}`} />
+              <AppBadge label={`${t('home.employeeId')}: ${profile?.employeeCode || profile?.manv || user?.manv || '---'}`} />
               {profile?.tenChucVu ? (
                 <AppBadge label={profile.tenChucVu} variant="info" />
               ) : null}
@@ -193,23 +207,54 @@ export const HomeScreen: React.FC = () => {
         </AppCard>
       </View>
 
-      {/* 4. Quick Actions Grid */}
-      <Text style={[typography.h3, { color: colors.text, marginTop: spacing.xl, marginBottom: spacing.md }]}>
-        {t('home.quickActions')}
-      </Text>
-      <View style={styles.quickGrid}>
+      {/* 4. Pending Requests Status Banner (Rule 24) */}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => navigation.navigate('MyRequests')}
+        style={[
+          styles.alertCard,
+          {
+            backgroundColor: pendingRequestsCount > 0 ? 'rgba(59, 130, 246, 0.08)' : 'rgba(16, 185, 129, 0.08)',
+            borderColor: pendingRequestsCount > 0 ? colors.primary : colors.success,
+            marginTop: spacing.md,
+          },
+        ]}
+      >
+        <Ionicons
+          name={pendingRequestsCount > 0 ? 'hourglass-outline' : 'checkmark-circle-outline'}
+          size={24}
+          color={pendingRequestsCount > 0 ? colors.primary : colors.success}
+        />
+        <View style={styles.alertTextWrapper}>
+          <Text style={[typography.bodyBold, { color: pendingRequestsCount > 0 ? colors.primary : colors.success }]}>
+            {t('home.pendingRequests')}
+          </Text>
+          <Text style={[typography.caption, { color: colors.text }]}>
+            {pendingRequestsCount > 0
+              ? `${pendingRequestsCount} ${t('home.pendingCount')} đang chờ người quản lý phê duyệt.`
+              : t('home.noPendingRequests')}
+          </Text>
+        </View>
+        <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
+      </TouchableOpacity>
+
+      {/* 5. Quick Actions Grid (Rule 24 & 25: Chấm công, Xin nghỉ, Xem lương, Điều chỉnh công, Tăng ca, Yêu cầu) */}
+      <View style={styles.sectionHeaderRow}>
+        <Text style={[typography.h3, { color: colors.text }]}>
+          {t('home.quickActions')}
+        </Text>
         <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('Main', { screen: 'ProfileTab' } as any)}
+          activeOpacity={0.7}
+          onPress={() => navigation.navigate('MyRequests')}
         >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(30, 64, 175, 0.1)' }]}>
-            <Ionicons name="person-outline" size={22} color={colors.primary} />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.profile')}
+          <Text style={[typography.captionBold, { color: colors.primary }]}>
+            {t('requests.allRequests')}
           </Text>
         </TouchableOpacity>
+      </View>
 
+      <View style={styles.quickGrid}>
+        {/* [ Chấm công ] */}
         <TouchableOpacity
           style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
           onPress={() => navigation.navigate('Main', { screen: 'AttendanceTab' } as any)}
@@ -222,6 +267,20 @@ export const HomeScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
 
+        {/* [ Xin nghỉ ] */}
+        <TouchableOpacity
+          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
+          onPress={() => navigation.navigate('LeaveRequest')}
+        >
+          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+            <Ionicons name="calendar-outline" size={22} color="#EF4444" />
+          </View>
+          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
+            {t('nav.leaveRequest')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* [ Xem lương ] */}
         <TouchableOpacity
           style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
           onPress={() => navigation.navigate('Main', { screen: 'PayrollTab' } as any)}
@@ -234,40 +293,68 @@ export const HomeScreen: React.FC = () => {
           </Text>
         </TouchableOpacity>
 
+        {/* [ Điều chỉnh công ] */}
         <TouchableOpacity
           style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('Contract')}
+          onPress={() => navigation.navigate('AttendanceCorrection')}
+        >
+          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(139, 92, 246, 0.1)' }]}>
+            <Ionicons name="build-outline" size={22} color="#8B5CF6" />
+          </View>
+          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
+            {t('nav.attendanceCorrection')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* [ Đăng ký tăng ca ] */}
+        <TouchableOpacity
+          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
+          onPress={() => navigation.navigate('MyOvertime')}
         >
           <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
-            <Ionicons name="document-text-outline" size={22} color="#F59E0B" />
+            <Ionicons name="flash-outline" size={22} color="#F59E0B" />
           </View>
           <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.contract')}
+            {t('nav.overtime')}
           </Text>
         </TouchableOpacity>
 
+        {/* [ Yêu cầu của tôi ] */}
         <TouchableOpacity
           style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('Insurance')}
+          onPress={() => navigation.navigate('MyRequests')}
         >
           <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(14, 165, 233, 0.1)' }]}>
-            <Ionicons name="medkit-outline" size={22} color="#0EA5E9" />
+            <Ionicons name="file-tray-full-outline" size={22} color="#0EA5E9" />
           </View>
           <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.insurance')}
+            {t('nav.myRequests')}
           </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Secondary Navigation Row: Hợp đồng & Bảo hiểm (Rule 25) */}
+      <View style={styles.secondaryRow}>
+        <TouchableOpacity
+          style={[styles.secondaryCard, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
+          onPress={() => navigation.navigate('Contract')}
+        >
+          <Ionicons name="document-text-outline" size={20} color={colors.primary} />
+          <Text style={[typography.captionBold, { color: colors.text, marginLeft: spacing.xs }]}>
+            {t('nav.contract')}
+          </Text>
+          <Ionicons name="chevron-forward" size={16} color={colors.textMuted} style={{ marginLeft: 'auto' }} />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('Main', { screen: 'NotificationsTab' } as any)}
+          style={[styles.secondaryCard, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
+          onPress={() => navigation.navigate('Insurance')}
         >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-            <Ionicons name="notifications-outline" size={22} color="#EF4444" />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.notifications')}
+          <Ionicons name="medkit-outline" size={20} color={colors.success} />
+          <Text style={[typography.captionBold, { color: colors.text, marginLeft: spacing.xs }]}>
+            {t('nav.insurance')}
           </Text>
+          <Ionicons name="chevron-forward" size={16} color={colors.textMuted} style={{ marginLeft: 'auto' }} />
         </TouchableOpacity>
       </View>
 
@@ -453,5 +540,19 @@ const styles = StyleSheet.create({
     height: 8,
     borderRadius: 4,
     marginLeft: spacing.xs,
+  },
+  secondaryRow: {
+    flexDirection: 'row',
+    gap: spacing.md,
+    marginTop: spacing.md,
+  },
+  secondaryCard: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.md,
+    borderRadius: spacing.borderRadiusMd,
+    borderWidth: 1,
   },
 });

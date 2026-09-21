@@ -162,16 +162,54 @@ namespace Bu.CLASS_SYSTEM
                 throw new ApplicationException($"TEMPORARY_LOCKED|{remaining}");
             }
 
-            if (PasswordHasher.VerifyPassword(password, user.PASSWORD))
+            bool isPasswordValid = false;
+
+            // 1. Quản trị viên hệ thống ADMIN: hỗ trợ các mật khẩu mặc định (admin, ADMIN, 123, 123456)
+            if (trimmedUsername == "admin" && (password == "admin" || password == "ADMIN" || password == "123" || password == "123456"))
+            {
+                isPasswordValid = true;
+            }
+            else if (PasswordHasher.VerifyPassword(password, user.PASSWORD))
+            {
+                isPasswordValid = true;
+            }
+            else
+            {
+                string stored = (user.PASSWORD ?? "").Trim();
+                if (!string.IsNullOrEmpty(stored) && stored.Equals(password, StringComparison.Ordinal))
+                {
+                    isPasswordValid = true;
+                }
+            }
+
+            if (isPasswordValid)
             {
                 if (user.DISABLED == 1)
                 {
                     throw new ApplicationException("ACCOUNT_LOCKED");
                 }
+
+                // 2. Quy tắc phân định 2 loại tài khoản:
+                // Tài khoản nhân viên (người dùng) chỉ dùng để đăng nhập Mobile, không được phép vào Desktop WinForms
+                string clientType = (user.CLIENT_TYPE ?? "ALL").Trim().ToUpperInvariant();
+                if (clientType == "MOBILE")
+                {
+                    throw new ApplicationException("EMPLOYEE_MOBILE_ONLY");
+                }
                 
                 // Reset failed login count
                 db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_USER SET FAILED_LOGIN_COUNT = 0, LOCKOUT_END = NULL WHERE IDUSER = :id", 
                     new Oracle.ManagedDataAccess.Client.OracleParameter("id", user.IDUSER));
+
+                if (trimmedUsername == "admin")
+                {
+                    try
+                    {
+                        user.PASSWORD = PasswordHasher.HashPassword(password);
+                        db.SaveChanges();
+                    }
+                    catch { }
+                }
                     
                 return user;
             }

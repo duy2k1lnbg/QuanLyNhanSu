@@ -151,7 +151,9 @@ export const I18N_DICTIONARY = {
       menuRewards: 'Khen thưởng & Kỷ luật',
       menuPromotions: 'Nâng lương & Chuyển phòng',
       menuOvertime: 'Tăng ca & Ứng lương',
+      menuApprovals: 'Trung tâm phê duyệt',
       menuPermissions: 'Người dùng & Phân quyền',
+      menuAudit: 'Nhật ký kiểm toán',
       menuAiCopilot: 'AI Copilot',
       aiBadge: 'AI Trợ Lý',
 
@@ -164,7 +166,9 @@ export const I18N_DICTIONARY = {
       titleRewards: '🏆 Khen thưởng & Xử lý Kỷ luật',
       titlePromotions: '📈 Quyết định Nâng lương & Điều chuyển',
       titleOvertime: '💸 Tăng ca & Tạm ứng lương',
+      titleApprovals: '✅ Trung tâm Phê duyệt Yêu cầu',
       titlePermissions: '🔐 Quản trị Hệ thống & Phân quyền',
+      titleAudit: '🛡️ Nhật ký Kiểm toán Hệ thống (Audit Trail)',
 
       // Toolbar Actions & Tooltips
       homeTooltip: 'Về trang chủ Dashboard (Home)',
@@ -310,7 +314,9 @@ export const I18N_DICTIONARY = {
       menuRewards: 'Rewards & Discipline',
       menuPromotions: 'Promotions & Transfers',
       menuOvertime: 'Overtime & Advances',
+      menuApprovals: 'Approval Center',
       menuPermissions: 'Users & Permissions',
+      menuAudit: 'Audit Trail',
       menuAiCopilot: 'AI Copilot',
       aiBadge: 'AI Assistant',
 
@@ -322,7 +328,9 @@ export const I18N_DICTIONARY = {
       titleRewards: '🏆 Rewards & Disciplinary Actions',
       titlePromotions: '📈 Salary Adjustments & Transfers',
       titleOvertime: '💸 Overtime & Salary Advances',
+      titleApprovals: '✅ Workforce Approval Center',
       titlePermissions: '🔐 System Administration & RBAC',
+      titleAudit: '🛡️ System Audit Trail',
 
       homeTooltip: 'Return to Dashboard (Home)',
       online: 'Online',
@@ -467,7 +475,9 @@ export const I18N_DICTIONARY = {
       menuRewards: '表彰・懲戒処分',
       menuPromotions: '昇給・部署異动',
       menuOvertime: '残業・給与前払い',
+      menuApprovals: '承認センター',
       menuPermissions: 'ユーザー・権限管理',
+      menuAudit: '監査証跡ログ',
       menuAiCopilot: 'AIコパイロット',
       aiBadge: 'AIアシスタント',
 
@@ -479,7 +489,9 @@ export const I18N_DICTIONARY = {
       titleRewards: '🏆 表彰・懲戒処分記録',
       titlePromotions: '📈 昇給辞令・人事異動',
       titleOvertime: '💸 時間外労働・前払い申請',
+      titleApprovals: '✅ 各種申請承認センター',
       titlePermissions: '🔐 システム管理＆RBAC権限設定',
+      titleAudit: '🛡️ システム監査証跡ログ',
 
       homeTooltip: 'ダッシュボードへ戻る (Home)',
       online: 'オンライン',

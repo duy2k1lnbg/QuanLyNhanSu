@@ -19,5 +19,6 @@
     <Reference Include="HRMS_API">
       <HintPath>..\HRMS.Api\bin\HRMS_API.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web.Extensions" />
   </ItemGroup>
 </Project>

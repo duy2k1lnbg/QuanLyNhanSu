@@ -20,8 +20,8 @@
   "auth": {
     "login": "ログイン",
     "loggingIn": "ログイン中...",
-    "username": "社員番号 / ユーザー名",
-    "usernamePlaceholder": "社員番号を入力してください (例: 10025)",
+    "username": "ログインIDまたは社員コード",
+    "usernamePlaceholder": "例: NV000001 または 社員コード",
     "password": "パスワード",
     "passwordPlaceholder": "パスワードを入力してください",
     "forgotPassword": "パスワードをお忘れですか？",
@@ -29,7 +29,7 @@
     "version": "バージョン",
     "welcome": "ようこそ",
     "subtitle": "企業向け人事給与管理システム",
-    "validationEmptyUser": "社員番号またはユーザー名を入力してください。",
+    "validationEmptyUser": "ログインIDまたは社員コードを入力してください。",
     "validationEmptyPass": "パスワードを入力してください。",
     "changePassword": "パスワード変更",
     "oldPassword": "現在のパスワード",
@@ -53,7 +53,11 @@
     "insurance": "社会保険",
     "settings": "設定",
     "language": "言語",
-    "theme": "テーマ"
+    "theme": "テーマ",
+    "leaveRequest": "休暇申請",
+    "attendanceCorrection": "打刻補正申請",
+    "overtime": "残業申請",
+    "myRequests": "マイ申請一覧"
   },
   "home": {
     "greeting": "こんにちは",
@@ -67,7 +71,10 @@
     "contractAlertTitle": "契約に関する通知",
     "recentNotifications": "最新のお知らせ",
     "viewAll": "すべて見る",
-    "noNotifications": "新しいお知らせはありません。"
+    "noNotifications": "新しいお知らせはありません。",
+    "pendingRequests": "承認待ちの申請",
+    "noPendingRequests": "承認待ちの申請はありません。",
+    "pendingCount": "件の申請"
   },
   "profile": {
     "title": "マイプロフィール",
@@ -88,7 +95,9 @@
     "address": "住所",
     "employmentStatus": "雇用ステータス",
     "active": "在籍中",
-    "resigned": "退職済"
+    "resigned": "退職済",
+    "editProfile": "連絡先情報の編集",
+    "updateSuccess": "個人情報を正常に更新しました！"
   },
   "attendance": {
     "title": "勤怠管理",
@@ -197,6 +206,45 @@
     "japanese": "日本語 (Japanese)",
     "english": "English (英語)",
     "continue": "次へ進む"
+  },
+  "requests": {
+    "title": "マイ申請一覧",
+    "leaveTitle": "休暇申請",
+    "leaveSubtitle": "有給休暇や特別休暇の申請を管理者に送信します",
+    "correctionTitle": "打刻補正申請",
+    "correctionSubtitle": "打刻忘れや誤打刻の修正を申請します",
+    "overtimeTitle": "残業申請",
+    "overtimeSubtitle": "時間外労働（残業・休日出勤）の事前申請を行います",
+    "allRequests": "すべての申請",
+    "leaveType": "休暇の種類",
+    "annualLeave": "年次有給休暇",
+    "sickLeave": "傷病休暇（社保）",
+    "unpaidLeave": "無給休暇",
+    "otherLeave": "慶弔・特別休暇",
+    "fromDate": "開始日",
+    "toDate": "終了日",
+    "totalDays": "取得日数",
+    "reason": "申請理由",
+    "reasonPlaceholder": "具体的な理由を入力してください...",
+    "workDate": "対象勤務日",
+    "checkIn": "修正出勤時間",
+    "checkOut": "修正退勤時間",
+    "hours": "残業時間数",
+    "shiftType": "時間外区分",
+    "dayShift": "通常残業 (150%)",
+    "nightShift": "深夜残業 (200%)",
+    "holidayShift": "休日出勤 (300%)",
+    "statusPending": "承認待ち",
+    "statusApproved": "承認済み",
+    "statusRejected": "却下",
+    "submit": "申請を送信",
+    "submitting": "送信中...",
+    "submitSuccess": "申請を正常に送信しました！",
+    "emptyRequests": "登録された申請はありません。",
+    "approver": "承認者",
+    "approvedAt": "承認日時",
+    "note": "管理者コメント",
+    "history": "最近の申請履歴"
   },
   "errors": {
     "networkUnavailable": "サーバーに接続できません。ネットワーク接続を確認してください。",

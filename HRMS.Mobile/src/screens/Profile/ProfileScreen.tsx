@@ -6,6 +6,8 @@ import {
   ScrollView,
   RefreshControl,
   TouchableOpacity,
+  Modal,
+  Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useNavigation } from '@react-navigation/native';
@@ -20,6 +22,8 @@ import { ProfileDto } from '../../types/me';
 import { AppAvatar } from '../../components/AppAvatar';
 import { AppCard } from '../../components/AppCard';
 import { AppBadge } from '../../components/AppBadge';
+import { AppButton } from '../../components/AppButton';
+import { AppTextInput } from '../../components/AppTextInput';
 import { AppLoading } from '../../components/AppLoading';
 import { AppErrorState } from '../../components/AppErrorState';
 import { AppDivider } from '../../components/AppDivider';
@@ -39,6 +43,13 @@ export const ProfileScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  // Edit personal info states
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [editPhone, setEditPhone] = useState('');
+  const [editEmail, setEditEmail] = useState('');
+  const [editAddress, setEditAddress] = useState('');
+  const [updating, setUpdating] = useState(false);
 
   const fetchProfile = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -121,7 +132,7 @@ export const ProfileScreen: React.FC = () => {
           {profile?.hoten || '---'}
         </Text>
         <View style={styles.badgeRow}>
-          <AppBadge label={`${t('profile.employeeId')}: ${profile?.manv || '---'}`} />
+          <AppBadge label={`${t('profile.employeeId')}: ${profile?.employeeCode || profile?.manv || '---'}`} />
           {profile?.trangThaiLaoDong ? (
             <AppBadge
               label={profile.trangThaiLaoDong}
@@ -164,7 +175,7 @@ export const ProfileScreen: React.FC = () => {
         </View>
       </AppCard>
 
-      {/* 2. Work Information */}
+      {/* 2. Work Information (HR-Owned, Read-Only per Rule 32) */}
       <Text style={[typography.h3, { color: colors.text, marginTop: spacing.lg, marginBottom: spacing.sm }]}>
         {t('profile.generalInfo')}
       </Text>
@@ -180,10 +191,27 @@ export const ProfileScreen: React.FC = () => {
         {renderInfoRow('calendar-outline', t('profile.hireDate'), formatDate(profile?.ngayVaoLam, activeLanguage))}
       </AppCard>
 
-      {/* 3. Personal Information */}
-      <Text style={[typography.h3, { color: colors.text, marginTop: spacing.lg, marginBottom: spacing.sm }]}>
-        {t('profile.personalInfo')}
-      </Text>
+      {/* 3. Personal Information (Editable for phone, email, address per Rule 32) */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg, marginBottom: spacing.sm }}>
+        <Text style={[typography.h3, { color: colors.text }]}>
+          {t('profile.personalInfo')}
+        </Text>
+        <TouchableOpacity
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+          onPress={() => {
+            setEditPhone(profile?.dienthoai || '');
+            setEditEmail(profile?.email || '');
+            setEditAddress(profile?.diachi || '');
+            setEditModalVisible(true);
+          }}
+        >
+          <Ionicons name="create-outline" size={16} color={colors.primary} />
+          <Text style={[typography.captionBold, { color: colors.primary }]}>
+            {t('common.save') !== 'Lưu' ? 'Edit' : 'Sửa'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       <AppCard>
         {renderInfoRow('male-female-outline', t('profile.gender'), profile?.gioitinh)}
         <AppDivider marginVertical={spacing.sm} />
@@ -197,6 +225,83 @@ export const ProfileScreen: React.FC = () => {
         <AppDivider marginVertical={spacing.sm} />
         {renderInfoRow('home-outline', t('profile.address'), profile?.diachi)}
       </AppCard>
+
+      {/* Edit Personal Info Modal */}
+      <Modal
+        visible={editModalVisible}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setEditModalVisible(false)}
+      >
+        <View style={{ flex: 1, justifyContent: 'center', backgroundColor: 'rgba(0,0,0,0.5)', padding: spacing.lg }}>
+          <View style={{ backgroundColor: colors.surfaceCard, borderRadius: spacing.borderRadiusLg, padding: spacing.xl }}>
+            <Text style={[typography.h3, { color: colors.text, marginBottom: spacing.md }]}>
+              {t('profile.editProfile')}
+            </Text>
+
+            <AppTextInput
+              label={t('profile.phone')}
+              value={editPhone}
+              onChangeText={setEditPhone}
+              keyboardType="phone-pad"
+              leftIcon="call-outline"
+            />
+
+            <AppTextInput
+              label={t('profile.email')}
+              value={editEmail}
+              onChangeText={setEditEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              leftIcon="mail-outline"
+            />
+
+            <AppTextInput
+              label={t('profile.address')}
+              value={editAddress}
+              onChangeText={setEditAddress}
+              multiline
+              numberOfLines={2}
+              leftIcon="home-outline"
+            />
+
+            <View style={{ flexDirection: 'row', gap: spacing.md, marginTop: spacing.md }}>
+              <View style={{ flex: 1 }}>
+                <AppButton
+                  title={t('common.cancel')}
+                  onPress={() => setEditModalVisible(false)}
+                  variant="outline"
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <AppButton
+                  title={updating ? t('common.loading') : t('common.save')}
+                  onPress={async () => {
+                    if (updating) return;
+                    setUpdating(true);
+                    try {
+                      await meApi.updateProfile({
+                        dienthoai: editPhone.trim(),
+                        email: editEmail.trim(),
+                        diachi: editAddress.trim(),
+                      });
+                      Alert.alert(t('common.success'), t('profile.updateSuccess'));
+                      setEditModalVisible(false);
+                      fetchProfile(true);
+                    } catch (error: any) {
+                      Alert.alert(t('common.error'), mapApiError(error));
+                    } finally {
+                      setUpdating(false);
+                    }
+                  }}
+                  loading={updating}
+                  variant="primary"
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };

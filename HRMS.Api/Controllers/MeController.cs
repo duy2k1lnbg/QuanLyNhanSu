@@ -1,6 +1,7 @@
 using DA;
 using HRMS_API.Filters;
 using HRMS_API.Models;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,6 +47,36 @@ namespace HRMS_API.Controllers
                 return false;
             }
 
+            // Phân giải hồ sơ nhân viên và quyền Mobile từ TB_USER_EMPLOYEE_MAPPING nếu có
+            int isMobileEnabled = 1;
+            try
+            {
+                var mapRow = db.Database.SqlQuery<MappingCheckRow>(
+                    "SELECT EMPLOYEE_ID, IS_MOBILE_ENABLED FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0 AND ROWNUM = 1",
+                    new OracleParameter("p0", user.IDUSER)
+                ).FirstOrDefault();
+
+                if (mapRow != null)
+                {
+                    if (mapRow.EMPLOYEE_ID.HasValue && mapRow.EMPLOYEE_ID.Value > 0)
+                    {
+                        user.MANV = mapRow.EMPLOYEE_ID.Value;
+                    }
+                    if (mapRow.IS_MOBILE_ENABLED.HasValue)
+                    {
+                        isMobileEnabled = (int)mapRow.IS_MOBILE_ENABLED.Value;
+                    }
+                }
+            }
+            catch { }
+
+            string clientType = (jwtUser?.ClientType ?? user.CLIENT_TYPE ?? "ALL").Trim().ToUpperInvariant();
+            if (clientType == "MOBILE" && isMobileEnabled == 0)
+            {
+                errorResult = Content(HttpStatusCode.Forbidden, new { success = false, message = "Tài khoản chưa được kích hoạt quyền truy cập ứng dụng di động (Mobile Access)." });
+                return false;
+            }
+
             if (!user.MANV.HasValue || user.MANV.Value <= 0)
             {
                 errorResult = Content(HttpStatusCode.Forbidden, new { success = false, message = "Tài khoản chưa được liên kết với hồ sơ nhân viên. Vui lòng liên hệ bộ phận nhân sự." });
@@ -57,6 +88,12 @@ namespace HRMS_API.Controllers
             if (nv == null)
             {
                 errorResult = Content(HttpStatusCode.NotFound, new { success = false, message = "Không tìm thấy hồ sơ nhân sự tương ứng với tài khoản này." });
+                return false;
+            }
+
+            if ((nv.DATHOIVIEC ?? 0) == 1)
+            {
+                errorResult = Content(HttpStatusCode.Forbidden, new { success = false, message = "Hồ sơ nhân viên liên kết đã thôi việc. Tài khoản tạm dừng hoạt động." });
                 return false;
             }
 
@@ -85,12 +122,23 @@ namespace HRMS_API.Controllers
 
                     var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
 
+                    string empCode = null;
+                    try
+                    {
+                        empCode = db.Database.SqlQuery<string>(
+                            "SELECT EMPLOYEE_CODE FROM HR.TB_NHANVIEN WHERE MANV = :p0 AND ROWNUM = 1",
+                            new OracleParameter("p0", nv.MANV)
+                        ).FirstOrDefault();
+                    }
+                    catch { }
+
                     var result = new MobileMeDto
                     {
                         IdUser = (int)user.IDUSER,
                         Username = user.USERNAME,
                         FullName = nv.HOTEN ?? user.FULLNAME ?? user.USERNAME,
                         Manv = user.MANV,
+                        EmployeeCode = empCode,
                         ClientType = user.CLIENT_TYPE ?? "ALL",
                         MaCty = user.MACTY,
                         MaDvi = user.MADVI,
@@ -275,9 +323,20 @@ namespace HRMS_API.Controllers
 
                     DateTime? joinDate = earliestContract?.NGAYBATDAU ?? earliestContract?.NGAYKY ?? nv.CREATED_DATE;
 
+                    string empCode = null;
+                    try
+                    {
+                        empCode = db.Database.SqlQuery<string>(
+                            "SELECT EMPLOYEE_CODE FROM HR.TB_NHANVIEN WHERE MANV = :p0 AND ROWNUM = 1",
+                            new OracleParameter("p0", nv.MANV)
+                        ).FirstOrDefault();
+                    }
+                    catch { }
+
                     var profile = new MobileProfileDto
                     {
                         Manv = nv.MANV,
+                        EmployeeCode = empCode,
                         Hoten = nv.HOTEN,
                         Gioitinh = nv.IDGT == 1 ? "Nam" : "Nữ",
                         Ngaysinh = nv.NGAYSINH.HasValue ? nv.NGAYSINH.Value.ToString("dd/MM/yyyy") : "Chưa cập nhật",
@@ -301,6 +360,71 @@ namespace HRMS_API.Controllers
             {
                 System.Diagnostics.Trace.TraceError("[GET /api/me/profile Error]: " + ex);
                 return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Hệ thống đang gặp sự cố khi tải thông tin hồ sơ." });
+            }
+        }
+
+        /// <summary>
+        /// PUT: api/me/profile
+        /// Cập nhật thông tin cá nhân tự phục vụ (Số điện thoại, Địa chỉ, Ảnh đại diện)
+        /// Các trường HR-owned (Mã NV, Họ tên, Phòng ban, Chức vụ, Lương...) tuyệt đối Readonly (Quy tắc 32)
+        /// </summary>
+        [HttpPut]
+        [Route("profile")]
+        public IHttpActionResult UpdateProfile([FromBody] UpdateProfileRequest req)
+        {
+            try
+            {
+                if (req == null) return BadRequest("Dữ liệu cập nhật không hợp lệ.");
+
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(req.Dienthoai))
+                    {
+                        nv.DIENTHOAI = req.Dienthoai.Trim();
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(req.Diachi))
+                    {
+                        nv.DIACHI = req.Diachi.Trim();
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(req.AvatarBase64))
+                    {
+                        try
+                        {
+                            string base64Data = req.AvatarBase64;
+                            if (base64Data.Contains(","))
+                            {
+                                base64Data = base64Data.Split(',')[1];
+                            }
+                            nv.HINHANH = Convert.FromBase64String(base64Data);
+                        }
+                        catch
+                        {
+                            return BadRequest("Định dạng ảnh đại diện không hợp lệ.");
+                        }
+                    }
+
+                    nv.UPDATED_BY = (int)user.IDUSER;
+                    nv.UPDATED_DATE = DateTime.Now;
+                    db.SaveChanges();
+
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Cập nhật hồ sơ cá nhân thành công!"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[PUT /api/me/profile Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi cập nhật hồ sơ." });
             }
         }
 
@@ -527,6 +651,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpGet]
         [Route("contract")]
+        [Route("contracts")]
         public IHttpActionResult GetContract()
         {
             try
@@ -750,5 +875,710 @@ namespace HRMS_API.Controllers
                 return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Hệ thống đang gặp sự cố khi tải chi tiết thông báo." });
             }
         }
+
+        /// <summary>
+        /// GET: api/me/leave
+        /// Lấy danh sách đơn xin nghỉ phép của nhân viên đang đăng nhập (Quy tắc 26)
+        /// </summary>
+        [HttpGet]
+        [Route("leave")]
+        public IHttpActionResult GetMyLeaveRequests()
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    var list = db.Database.SqlQuery<LeaveRequestRow>(
+                        "SELECT Y.ID AS ID_YEUCAU, Y.MANV, Y.LOAIPHEP AS LOAI_NGHI, Y.TUNGAY AS TU_NGAY, Y.DENNGAY AS DEN_NGAY, Y.SONGAY AS SO_NGAY, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO, " +
+                        "NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI " +
+                        "FROM HR.TB_YEUCAU_NGHIPHEP Y " +
+                        "LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER " +
+                        "WHERE Y.MANV = :p0 ORDER BY Y.CREATED_DATE DESC",
+                        new OracleParameter("p0", nv.MANV)
+                    ).ToList();
+
+                    var result = list.Select(r => new MobileLeaveRequestDto
+                    {
+                        IdYeuCau = r.ID_YEUCAU,
+                        Manv = r.MANV,
+                        LoaiNghi = r.LOAI_NGHI ?? "Nghỉ phép năm",
+                        TuNgay = r.TU_NGAY.HasValue ? r.TU_NGAY.Value.ToString("dd/MM/yyyy") : "",
+                        DenNgay = r.DEN_NGAY.HasValue ? r.DEN_NGAY.Value.ToString("dd/MM/yyyy") : "",
+                        SoNgay = r.SO_NGAY ?? 1,
+                        LyDo = r.LYDO,
+                        TrangThai = r.TRANGTHAI ?? "PENDING",
+                        NgayTao = r.NGAY_TAO.HasValue ? r.NGAY_TAO.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                        NguoiDuyet = r.NGUOI_DUYET,
+                        NgayDuyet = r.NGAY_DUYET.HasValue ? r.NGAY_DUYET.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                        LyDoTuChoi = r.LYDO_TUCHOI
+                    }).ToList();
+
+                    return Ok(new { success = true, data = result });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/me/leave Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh sách yêu cầu nghỉ phép." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/me/leave
+        /// Gửi yêu cầu xin nghỉ phép mới (Trạng thái mặc định: PENDING)
+        /// Nhân viên không được tự APPROVE (Quy tắc 26)
+        /// </summary>
+        [HttpPost]
+        [Route("leave")]
+        public IHttpActionResult CreateLeaveRequest([FromBody] CreateLeaveRequest req)
+        {
+            try
+            {
+                if (req == null || string.IsNullOrWhiteSpace(req.TuNgay) || string.IsNullOrWhiteSpace(req.DenNgay))
+                {
+                    return BadRequest("Vui lòng chọn thời gian bắt đầu và kết thúc nghỉ.");
+                }
+
+                if (!DateTime.TryParse(req.TuNgay, out var tuNgay) || !DateTime.TryParse(req.DenNgay, out var denNgay))
+                {
+                    return BadRequest("Định dạng ngày không hợp lệ. Vui lòng nhập định dạng chuẩn YYYY-MM-DD.");
+                }
+
+                if (denNgay < tuNgay)
+                {
+                    return BadRequest("Ngày kết thúc nghỉ không được nhỏ hơn ngày bắt đầu.");
+                }
+
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    decimal soNgay = req.SoNgay.HasValue && req.SoNgay.Value > 0 ? req.SoNgay.Value : (decimal)(denNgay - tuNgay).TotalDays + 1;
+
+                    string insertSql = @"
+                        INSERT INTO HR.TB_YEUCAU_NGHIPHEP 
+                        (MANV, LOAIPHEP, TUNGAY, DENNGAY, SONGAY, LYDO, TRANGTHAI, CREATED_DATE)
+                        VALUES (:p0, :p1, :p2, :p3, :p4, :p5, 'PENDING', SYSDATE)";
+
+                    db.Database.ExecuteSqlCommand(
+                        insertSql,
+                        new OracleParameter("p0", nv.MANV),
+                        new OracleParameter("p1", req.LoaiNghi ?? "Nghỉ phép năm"),
+                        new OracleParameter("p2", tuNgay),
+                        new OracleParameter("p3", denNgay),
+                        new OracleParameter("p4", soNgay),
+                        new OracleParameter("p5", req.LyDo ?? "")
+                    );
+
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Gửi đơn xin nghỉ phép thành công! Đơn của bạn đang chờ phê duyệt."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[POST /api/me/leave Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tạo yêu cầu nghỉ phép." });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/me/attendance-corrections
+        /// Lấy danh sách yêu cầu điều chỉnh công của nhân viên
+        /// </summary>
+        [HttpGet]
+        [Route("attendance-corrections")]
+        public IHttpActionResult GetMyAttendanceCorrections()
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    var list = db.Database.SqlQuery<AttendanceCorrectionRow>(
+                        "SELECT Y.ID AS ID_YEUCAU, Y.MANV, Y.NGAY AS NGAY_CONG, Y.GIO_VAO AS GIO_VAO_MOI, Y.GIO_RA AS GIO_RA_MOI, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO, " +
+                        "NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI " +
+                        "FROM HR.TB_YEUCAU_DIEUCHINHCONG Y " +
+                        "LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER " +
+                        "WHERE Y.MANV = :p0 ORDER BY Y.CREATED_DATE DESC",
+                        new OracleParameter("p0", nv.MANV)
+                    ).ToList();
+
+                    var result = list.Select(r => new MobileAttendanceCorrectionDto
+                    {
+                        IdYeuCau = r.ID_YEUCAU,
+                        Manv = r.MANV,
+                        NgayCong = r.NGAY_CONG.HasValue ? r.NGAY_CONG.Value.ToString("dd/MM/yyyy") : "",
+                        GioVaoMoi = r.GIO_VAO_MOI ?? "--:--",
+                        GioRaMoi = r.GIO_RA_MOI ?? "--:--",
+                        LyDo = r.LYDO,
+                        TrangThai = r.TRANGTHAI ?? "PENDING",
+                        NgayTao = r.NGAY_TAO.HasValue ? r.NGAY_TAO.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                        NguoiDuyet = r.NGUOI_DUYET,
+                        NgayDuyet = r.NGAY_DUYET.HasValue ? r.NGAY_DUYET.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                        LyDoTuChoi = r.LYDO_TUCHOI
+                    }).ToList();
+
+                    return Ok(new { success = true, data = result });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/me/attendance-corrections Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh sách điều chỉnh công." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/me/attendance-corrections
+        /// Tạo yêu cầu điều chỉnh chấm công (Quy tắc 27: Không sửa trực tiếp Attendance gốc, gửi request chờ duyệt)
+        /// </summary>
+        [HttpPost]
+        [Route("attendance-corrections")]
+        public IHttpActionResult CreateAttendanceCorrection([FromBody] CreateAttendanceCorrectionRequest req)
+        {
+            try
+            {
+                if (req == null || string.IsNullOrWhiteSpace(req.NgayCong))
+                {
+                    return BadRequest("Vui lòng chỉ định ngày cần điều chỉnh công.");
+                }
+
+                if (!DateTime.TryParse(req.NgayCong, out var ngayCong))
+                {
+                    return BadRequest("Định dạng ngày công không hợp lệ.");
+                }
+
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    string insertSql = @"
+                        INSERT INTO HR.TB_YEUCAU_DIEUCHINHCONG 
+                        (MANV, NGAY, LOAIDIEUCHINH, GIO_VAO, GIO_RA, LYDO, TRANGTHAI, CREATED_DATE)
+                        VALUES (:p0, :p1, 'Điều chỉnh công', :p2, :p3, :p4, 'PENDING', SYSDATE)";
+
+                    db.Database.ExecuteSqlCommand(
+                        insertSql,
+                        new OracleParameter("p0", nv.MANV),
+                        new OracleParameter("p1", ngayCong),
+                        new OracleParameter("p2", req.GioVaoMoi ?? "08:00"),
+                        new OracleParameter("p3", req.GioRaMoi ?? "17:00"),
+                        new OracleParameter("p4", req.LyDo ?? "")
+                    );
+
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Gửi yêu cầu điều chỉnh chấm công thành công! Vui lòng chờ cấp quản lý phê duyệt."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[POST /api/me/attendance-corrections Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi gửi yêu cầu điều chỉnh công." });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/me/overtime
+        /// Lấy danh sách yêu cầu đăng ký tăng ca của nhân viên (Quy tắc 28)
+        /// </summary>
+        [HttpGet]
+        [Route("overtime")]
+        public IHttpActionResult GetMyOvertimeRequests()
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    var list = db.Database.SqlQuery<OvertimeRequestRow>(
+                        @"SELECT Y.ID AS ID_YEUCAU, Y.MANV, Y.NGAY AS NGAY_TANGCA, Y.GIOTANGCA AS SO_GIO, 
+                                 NVL(L.HESO, 1.0) AS HE_SO, Y.IDCA, NVL(L.TENLOAICA, 'Ca ngày') AS TEN_CA, 
+                                 Y.LYDO AS NOI_DUNG, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO, 
+                                 NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI 
+                          FROM HR.TB_YEUCAU_TANGCA Y 
+                          LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER 
+                          LEFT JOIN HR.TB_LOAICA L ON Y.IDCA = L.IDLOAICA 
+                          WHERE Y.MANV = :p0 ORDER BY Y.CREATED_DATE DESC",
+                        new OracleParameter("p0", nv.MANV)
+                    ).ToList();
+
+                    var result = list.Select(r => new MobileOvertimeRequestDto
+                    {
+                        Id = r.ID_YEUCAU,
+                        IdYeuCau = r.ID_YEUCAU,
+                        Manv = r.MANV,
+                        NgayTangCa = r.NGAY_TANGCA.HasValue ? r.NGAY_TANGCA.Value.ToString("dd/MM/yyyy") : "",
+                        OtDate = r.NGAY_TANGCA.HasValue ? r.NGAY_TANGCA.Value.ToString("yyyy-MM-dd") : "",
+                        SoGio = r.SO_GIO ?? 0,
+                        Hours = r.SO_GIO ?? 0,
+                        IdCa = r.IDCA ?? 1,
+                        TenCa = r.TEN_CA ?? "Ca ngày",
+                        ShiftType = r.TEN_CA ?? "Ca ngày",
+                        HeSo = r.HE_SO ?? 1.0m,
+                        Coefficient = r.HE_SO ?? 1.0m,
+                        NoiDung = r.NOI_DUNG,
+                        Reason = r.NOI_DUNG,
+                        TrangThai = r.TRANGTHAI ?? "PENDING",
+                        Status = r.TRANGTHAI ?? "PENDING",
+                        NgayTao = r.NGAY_TAO.HasValue ? r.NGAY_TAO.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                        CreatedAt = r.NGAY_TAO.HasValue ? r.NGAY_TAO.Value.ToString("yyyy-MM-dd HH:mm") : "",
+                        NguoiDuyet = r.NGUOI_DUYET,
+                        NgayDuyet = r.NGAY_DUYET.HasValue ? r.NGAY_DUYET.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                        LyDoTuChoi = r.LYDO_TUCHOI,
+                        Note = r.LYDO_TUCHOI
+                    }).ToList();
+
+                    return Ok(new { success = true, data = result });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/me/overtime Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh sách đăng ký tăng ca." });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/me/overtime/{id}
+        /// Xem chi tiết một đề xuất tăng ca của chính nhân viên (Security: Employee không xem được request người khác)
+        /// </summary>
+        [HttpGet]
+        [Route("overtime/{id:decimal}")]
+        public IHttpActionResult GetOvertimeRequestDetail(decimal id)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    var r = db.Database.SqlQuery<OvertimeRequestRow>(
+                        @"SELECT Y.ID AS ID_YEUCAU, Y.MANV, Y.NGAY AS NGAY_TANGCA, Y.GIOTANGCA AS SO_GIO, 
+                                 NVL(L.HESO, 1.0) AS HE_SO, Y.IDCA, NVL(L.TENLOAICA, 'Ca ngày') AS TEN_CA, 
+                                 Y.LYDO AS NOI_DUNG, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO, 
+                                 NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI 
+                          FROM HR.TB_YEUCAU_TANGCA Y 
+                          LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER 
+                          LEFT JOIN HR.TB_LOAICA L ON Y.IDCA = L.IDLOAICA 
+                          WHERE Y.ID = :p0",
+                        new OracleParameter("p0", id)
+                    ).FirstOrDefault();
+
+                    if (r == null)
+                    {
+                        return NotFound();
+                    }
+
+                    // Security: Employee chỉ được xem request của chính mình
+                    if (r.MANV != nv.MANV)
+                    {
+                        return Content(HttpStatusCode.Forbidden, new { success = false, message = "Bạn không có quyền xem đề xuất tăng ca của nhân viên khác." });
+                    }
+
+                    var dto = new MobileOvertimeRequestDto
+                    {
+                        Id = r.ID_YEUCAU,
+                        IdYeuCau = r.ID_YEUCAU,
+                        Manv = r.MANV,
+                        NgayTangCa = r.NGAY_TANGCA.HasValue ? r.NGAY_TANGCA.Value.ToString("dd/MM/yyyy") : "",
+                        OtDate = r.NGAY_TANGCA.HasValue ? r.NGAY_TANGCA.Value.ToString("yyyy-MM-dd") : "",
+                        SoGio = r.SO_GIO ?? 0,
+                        Hours = r.SO_GIO ?? 0,
+                        IdCa = r.IDCA ?? 1,
+                        TenCa = r.TEN_CA ?? "Ca ngày",
+                        ShiftType = r.TEN_CA ?? "Ca ngày",
+                        HeSo = r.HE_SO ?? 1.0m,
+                        Coefficient = r.HE_SO ?? 1.0m,
+                        NoiDung = r.NOI_DUNG,
+                        Reason = r.NOI_DUNG,
+                        TrangThai = r.TRANGTHAI ?? "PENDING",
+                        Status = r.TRANGTHAI ?? "PENDING",
+                        NgayTao = r.NGAY_TAO.HasValue ? r.NGAY_TAO.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                        CreatedAt = r.NGAY_TAO.HasValue ? r.NGAY_TAO.Value.ToString("yyyy-MM-dd HH:mm") : "",
+                        NguoiDuyet = r.NGUOI_DUYET,
+                        NgayDuyet = r.NGAY_DUYET.HasValue ? r.NGAY_DUYET.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                        LyDoTuChoi = r.LYDO_TUCHOI,
+                        Note = r.LYDO_TUCHOI
+                    };
+
+                    return Ok(new { success = true, data = dto });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/me/overtime/{id} Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi khi xem chi tiết đề xuất tăng ca." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/me/overtime
+        /// Gửi yêu cầu đăng ký tăng ca (Tự động lấy MANV từ token xác thực, kiểm tra chống trùng, validate ràng buộc DB)
+        /// </summary>
+        [HttpPost]
+        [Route("overtime")]
+        public IHttpActionResult CreateOvertimeRequest([FromBody] CreateOvertimeRequest req)
+        {
+            try
+            {
+                if (req == null)
+                {
+                    return BadRequest("Dữ liệu đề xuất tăng ca không hợp lệ.");
+                }
+
+                string dateStr = !string.IsNullOrWhiteSpace(req.NgayTangCa) ? req.NgayTangCa : req.OtDate;
+                if (string.IsNullOrWhiteSpace(dateStr))
+                {
+                    return BadRequest("Vui lòng nhập ngày tăng ca.");
+                }
+
+                if (!DateTime.TryParse(dateStr, out var ngayTangCa))
+                {
+                    return BadRequest("Định dạng ngày tăng ca không hợp lệ.");
+                }
+
+                decimal hours = req.SoGio > 0 ? req.SoGio : req.Hours;
+                if (hours <= 0)
+                {
+                    return BadRequest("Số giờ tăng ca phải lớn hơn 0.");
+                }
+                if (hours > 24)
+                {
+                    return BadRequest("Số giờ tăng ca không được vượt quá 24 giờ/ngày.");
+                }
+
+                string reason = !string.IsNullOrWhiteSpace(req.NoiDung) ? req.NoiDung : req.Reason;
+                if (string.IsNullOrWhiteSpace(reason))
+                {
+                    return BadRequest("Vui lòng nêu rõ lý do/nội dung tăng ca.");
+                }
+
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    // 1. Kiểm tra IDCA hợp lệ với bảng TB_LOAICA
+                    decimal shiftId = req.IdCa ?? 1;
+                    bool shiftExists = db.TB_LOAICA.Any(l => l.IDLOAICA == shiftId);
+                    if (!shiftExists)
+                    {
+                        return BadRequest("Ca làm việc (IDCA) không hợp lệ hoặc không tồn tại trong hệ thống.");
+                    }
+
+                    // 2. Chống request trùng lặp (Rule: Một NV không thể có nhiều request PENDING/APPROVED cùng ngày và ca)
+                    var hasDuplicate = db.Database.SqlQuery<decimal>(@"
+                        SELECT COUNT(*) FROM HR.TB_YEUCAU_TANGCA 
+                        WHERE MANV = :p0 
+                          AND TRUNC(NGAY) = TRUNC(:p1) 
+                          AND NVL(IDCA, 1) = :p2 
+                          AND TRANGTHAI IN ('PENDING', 'APPROVED')",
+                        new OracleParameter("p0", nv.MANV),
+                        new OracleParameter("p1", ngayTangCa),
+                        new OracleParameter("p2", shiftId)
+                    ).FirstOrDefault() > 0;
+
+                    if (hasDuplicate)
+                    {
+                        return BadRequest("Bạn đã có đề xuất tăng ca cho ca làm việc ngày này đang chờ duyệt hoặc đã được duyệt.");
+                    }
+
+                    string insertSql = @"
+                        INSERT INTO HR.TB_YEUCAU_TANGCA 
+                        (MANV, NGAY, GIOTANGCA, IDCA, LYDO, TRANGTHAI, CREATED_DATE)
+                        VALUES (:p0, :p1, :p2, :p3, :p4, 'PENDING', SYSDATE)";
+
+                    db.Database.ExecuteSqlCommand(
+                        insertSql,
+                        new OracleParameter("p0", nv.MANV),
+                        new OracleParameter("p1", ngayTangCa),
+                        new OracleParameter("p2", hours),
+                        new OracleParameter("p3", shiftId),
+                        new OracleParameter("p4", reason.Trim())
+                    );
+
+                    return Ok(new
+                    {
+                        success = true,
+                        message = "Gửi đơn đăng ký tăng ca thành công! Đang chờ phê duyệt."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[POST /api/me/overtime Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi gửi đơn đăng ký tăng ca: " + ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/me/overtime/{id}/cancel
+        /// Nhân viên tự hủy đề xuất tăng ca khi còn ở trạng thái PENDING
+        /// </summary>
+        [HttpPost]
+        [Route("overtime/{id:decimal}/cancel")]
+        public IHttpActionResult CancelOvertimeRequest(decimal id)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    var reqItem = db.Database.SqlQuery<OvertimeRequestRow>(
+                        "SELECT ID AS ID_YEUCAU, MANV, TRANGTHAI FROM HR.TB_YEUCAU_TANGCA WHERE ID = :p0",
+                        new OracleParameter("p0", id)
+                    ).FirstOrDefault();
+
+                    if (reqItem == null)
+                    {
+                        return NotFound();
+                    }
+
+                    if (reqItem.MANV != nv.MANV)
+                    {
+                        return Content(HttpStatusCode.Forbidden, new { success = false, message = "Bạn không có quyền hủy đề xuất tăng ca của nhân viên khác." });
+                    }
+
+                    if (reqItem.TRANGTHAI != "PENDING")
+                    {
+                        return BadRequest($"Không thể hủy đề xuất ở trạng thái '{reqItem.TRANGTHAI}'. Chỉ có thể hủy đề xuất đang Chờ duyệt (PENDING).");
+                    }
+
+                    int affected = db.Database.ExecuteSqlCommand(
+                        "UPDATE HR.TB_YEUCAU_TANGCA SET TRANGTHAI = 'CANCELLED', GHICHUDUYET = 'Nhân viên tự hủy đề xuất', NGAYDUYET = SYSDATE WHERE ID = :p0 AND MANV = :p1 AND TRANGTHAI = 'PENDING'",
+                        new OracleParameter("p0", id),
+                        new OracleParameter("p1", nv.MANV)
+                    );
+
+                    if (affected == 0)
+                    {
+                        return BadRequest("Không thể hủy đề xuất tăng ca hoặc đề xuất đã được xử lý trước đó.");
+                    }
+
+                    return Ok(new { success = true, message = "Đã hủy đề xuất tăng ca thành công." });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[CancelOvertimeRequest Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi hủy đề xuất tăng ca." });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/me/requests
+        /// Lấy toàn bộ danh sách yêu cầu (Nghỉ phép, Điều chỉnh công, Tăng ca) của nhân viên gộp chung
+        /// </summary>
+        [HttpGet]
+        [Route("requests")]
+        public IHttpActionResult GetMyAllRequests()
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    var unified = new List<UnifiedRequestDto>();
+
+                    // 1. Nghỉ phép
+                    try
+                    {
+                        var leaves = db.Database.SqlQuery<LeaveRequestRow>(
+                            "SELECT Y.ID AS ID_YEUCAU, Y.MANV, Y.LOAIPHEP AS LOAI_NGHI, Y.TUNGAY AS TU_NGAY, Y.DENNGAY AS DEN_NGAY, Y.SONGAY AS SO_NGAY, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO, " +
+                            "NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI " +
+                            "FROM HR.TB_YEUCAU_NGHIPHEP Y " +
+                            "LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER " +
+                            "WHERE Y.MANV = :p0 ORDER BY Y.CREATED_DATE DESC",
+                            new OracleParameter("p0", nv.MANV)
+                        ).ToList();
+
+                        foreach (var l in leaves)
+                        {
+                            string tu = l.TU_NGAY.HasValue ? l.TU_NGAY.Value.ToString("dd/MM/yyyy") : "";
+                            string den = l.DEN_NGAY.HasValue ? l.DEN_NGAY.Value.ToString("dd/MM/yyyy") : "";
+                            unified.Add(new UnifiedRequestDto
+                            {
+                                Id = l.ID_YEUCAU,
+                                RequestType = "LEAVE",
+                                TypeLabel = "Xin nghỉ phép",
+                                Title = l.LOAI_NGHI ?? "Nghỉ phép năm",
+                                Subtitle = $"{l.SO_NGAY ?? 1} ngày",
+                                DateRange = tu == den ? tu : $"{tu} - {den}",
+                                Status = l.TRANGTHAI ?? "PENDING",
+                                CreatedAt = l.NGAY_TAO.HasValue ? l.NGAY_TAO.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                                Reason = l.LYDO,
+                                RejectionReason = l.LYDO_TUCHOI
+                            });
+                        }
+                    }
+                    catch { }
+
+                    // 2. Điều chỉnh công
+                    try
+                    {
+                        var atts = db.Database.SqlQuery<AttendanceCorrectionRow>(
+                            "SELECT Y.ID AS ID_YEUCAU, Y.MANV, Y.NGAY AS NGAY_CONG, Y.GIO_VAO AS GIO_VAO_MOI, Y.GIO_RA AS GIO_RA_MOI, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO, " +
+                            "NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI " +
+                            "FROM HR.TB_YEUCAU_DIEUCHINHCONG Y " +
+                            "LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER " +
+                            "WHERE Y.MANV = :p0 ORDER BY Y.CREATED_DATE DESC",
+                            new OracleParameter("p0", nv.MANV)
+                        ).ToList();
+
+                        foreach (var a in atts)
+                        {
+                            string dt = a.NGAY_CONG.HasValue ? a.NGAY_CONG.Value.ToString("dd/MM/yyyy") : "";
+                            unified.Add(new UnifiedRequestDto
+                            {
+                                Id = a.ID_YEUCAU,
+                                RequestType = "ATTENDANCE",
+                                TypeLabel = "Điều chỉnh công",
+                                Title = $"Điều chỉnh công ngày {dt}",
+                                Subtitle = $"Vào: {a.GIO_VAO_MOI ?? "--:--"} | Ra: {a.GIO_RA_MOI ?? "--:--"}",
+                                DateRange = dt,
+                                Status = a.TRANGTHAI ?? "PENDING",
+                                CreatedAt = a.NGAY_TAO.HasValue ? a.NGAY_TAO.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                                Reason = a.LYDO,
+                                RejectionReason = a.LYDO_TUCHOI
+                            });
+                        }
+                    }
+                    catch { }
+
+                    // 3. Tăng ca
+                    try
+                    {
+                        var ots = db.Database.SqlQuery<OvertimeRequestRow>(
+                            "SELECT Y.ID AS ID_YEUCAU, Y.MANV, Y.NGAY AS NGAY_TANGCA, Y.GIOTANGCA AS SO_GIO, 1.5 AS HE_SO, Y.LYDO AS NOI_DUNG, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO, " +
+                            "NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI " +
+                            "FROM HR.TB_YEUCAU_TANGCA Y " +
+                            "LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER " +
+                            "WHERE Y.MANV = :p0 ORDER BY Y.CREATED_DATE DESC",
+                            new OracleParameter("p0", nv.MANV)
+                        ).ToList();
+
+                        foreach (var o in ots)
+                        {
+                            string dt = o.NGAY_TANGCA.HasValue ? o.NGAY_TANGCA.Value.ToString("dd/MM/yyyy") : "";
+                            unified.Add(new UnifiedRequestDto
+                            {
+                                Id = o.ID_YEUCAU,
+                                RequestType = "OVERTIME",
+                                TypeLabel = "Đăng ký tăng ca",
+                                Title = $"Tăng ca {o.SO_GIO ?? 0} giờ (Hệ số {o.HE_SO ?? 1.5m}x)",
+                                Subtitle = o.NOI_DUNG ?? "Tăng ca theo kế hoạch",
+                                DateRange = dt,
+                                Status = o.TRANGTHAI ?? "PENDING",
+                                CreatedAt = o.NGAY_TAO.HasValue ? o.NGAY_TAO.Value.ToString("dd/MM/yyyy HH:mm") : "",
+                                Reason = o.NOI_DUNG,
+                                RejectionReason = o.LYDO_TUCHOI
+                            });
+                        }
+                    }
+                    catch { }
+
+                    var sorted = unified.OrderByDescending(u => u.CreatedAt).ToList();
+                    return Ok(new { success = true, data = sorted });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/me/requests Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh sách yêu cầu." });
+            }
+        }
+    }
+
+    public class MappingCheckRow
+    {
+        public decimal? EMPLOYEE_ID { get; set; }
+        public decimal? IS_MOBILE_ENABLED { get; set; }
+    }
+
+    public class LeaveRequestRow
+    {
+        public decimal ID_YEUCAU { get; set; }
+        public decimal MANV { get; set; }
+        public string LOAI_NGHI { get; set; }
+        public DateTime? TU_NGAY { get; set; }
+        public DateTime? DEN_NGAY { get; set; }
+        public decimal? SO_NGAY { get; set; }
+        public string LYDO { get; set; }
+        public string TRANGTHAI { get; set; }
+        public DateTime? NGAY_TAO { get; set; }
+        public string NGUOI_DUYET { get; set; }
+        public DateTime? NGAY_DUYET { get; set; }
+        public string LYDO_TUCHOI { get; set; }
+    }
+
+    public class AttendanceCorrectionRow
+    {
+        public decimal ID_YEUCAU { get; set; }
+        public decimal MANV { get; set; }
+        public DateTime? NGAY_CONG { get; set; }
+        public string GIO_VAO_MOI { get; set; }
+        public string GIO_RA_MOI { get; set; }
+        public string LYDO { get; set; }
+        public string TRANGTHAI { get; set; }
+        public DateTime? NGAY_TAO { get; set; }
+        public string NGUOI_DUYET { get; set; }
+        public DateTime? NGAY_DUYET { get; set; }
+        public string LYDO_TUCHOI { get; set; }
+    }
+
+    public class OvertimeRequestRow
+    {
+        public decimal ID_YEUCAU { get; set; }
+        public decimal MANV { get; set; }
+        public DateTime? NGAY_TANGCA { get; set; }
+        public decimal? SO_GIO { get; set; }
+        public decimal? HE_SO { get; set; }
+        public decimal? IDCA { get; set; }
+        public string TEN_CA { get; set; }
+        public string NOI_DUNG { get; set; }
+        public string TRANGTHAI { get; set; }
+        public DateTime? NGAY_TAO { get; set; }
+        public string NGUOI_DUYET { get; set; }
+        public DateTime? NGAY_DUYET { get; set; }
+        public string LYDO_TUCHOI { get; set; }
     }
 }
+

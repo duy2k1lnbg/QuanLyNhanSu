@@ -9,6 +9,7 @@ namespace HRMS_API.Models
         public string Username { get; set; }
         public string FullName { get; set; }
         public decimal? Manv { get; set; }
+        public string EmployeeCode { get; set; }
         public string ClientType { get; set; }
         public string MaCty { get; set; }
         public string MaDvi { get; set; }
@@ -19,6 +20,7 @@ namespace HRMS_API.Models
     public class MobileProfileDto
     {
         public decimal Manv { get; set; }
+        public string EmployeeCode { get; set; }
         public string Hoten { get; set; }
         public string Gioitinh { get; set; }
         public string Ngaysinh { get; set; }
@@ -150,5 +152,113 @@ namespace HRMS_API.Models
         public string ExpiringContractInfo { get; set; }
         public int UnreadNotificationCount { get; set; }
         public List<MobileNotificationDto> RecentNotifications { get; set; } = new List<MobileNotificationDto>();
+    }
+
+    public class UpdateProfileRequest
+    {
+        public string Dienthoai { get; set; }
+        public string Diachi { get; set; }
+        public string AvatarBase64 { get; set; }
+    }
+
+    public class MobileLeaveRequestDto
+    {
+        public decimal IdYeuCau { get; set; }
+        public decimal Manv { get; set; }
+        public string LoaiNghi { get; set; }
+        public string TuNgay { get; set; }
+        public string DenNgay { get; set; }
+        public decimal SoNgay { get; set; }
+        public string LyDo { get; set; }
+        public string TrangThai { get; set; }
+        public string NgayTao { get; set; }
+        public string NguoiDuyet { get; set; }
+        public string NgayDuyet { get; set; }
+        public string LyDoTuChoi { get; set; }
+    }
+
+    public class CreateLeaveRequest
+    {
+        public string LoaiNghi { get; set; }
+        public string TuNgay { get; set; }
+        public string DenNgay { get; set; }
+        public decimal? SoNgay { get; set; }
+        public string LyDo { get; set; }
+    }
+
+    public class MobileAttendanceCorrectionDto
+    {
+        public decimal IdYeuCau { get; set; }
+        public decimal Manv { get; set; }
+        public string NgayCong { get; set; }
+        public string GioVaoMoi { get; set; }
+        public string GioRaMoi { get; set; }
+        public string LyDo { get; set; }
+        public string TrangThai { get; set; }
+        public string NgayTao { get; set; }
+        public string NguoiDuyet { get; set; }
+        public string NgayDuyet { get; set; }
+        public string LyDoTuChoi { get; set; }
+    }
+
+    public class CreateAttendanceCorrectionRequest
+    {
+        public string NgayCong { get; set; }
+        public string GioVaoMoi { get; set; }
+        public string GioRaMoi { get; set; }
+        public string LyDo { get; set; }
+    }
+
+    public class MobileOvertimeRequestDto
+    {
+        public decimal Id { get; set; }
+        public decimal IdYeuCau { get; set; }
+        public decimal Manv { get; set; }
+        public string NgayTangCa { get; set; }
+        public string OtDate { get; set; }
+        public decimal SoGio { get; set; }
+        public decimal Hours { get; set; }
+        public decimal? IdCa { get; set; }
+        public string TenCa { get; set; }
+        public string ShiftType { get; set; }
+        public decimal HeSo { get; set; }
+        public decimal Coefficient { get; set; }
+        public string NoiDung { get; set; }
+        public string Reason { get; set; }
+        public string TrangThai { get; set; }
+        public string Status { get; set; }
+        public string NgayTao { get; set; }
+        public string CreatedAt { get; set; }
+        public string NguoiDuyet { get; set; }
+        public string NgayDuyet { get; set; }
+        public string LyDoTuChoi { get; set; }
+        public string Note { get; set; }
+    }
+
+    public class CreateOvertimeRequest
+    {
+        public string NgayTangCa { get; set; }
+        public string OtDate { get; set; }
+        public decimal SoGio { get; set; }
+        public decimal Hours { get; set; }
+        public decimal? IdCa { get; set; }
+        public string ShiftType { get; set; }
+        public decimal? HeSo { get; set; }
+        public string NoiDung { get; set; }
+        public string Reason { get; set; }
+    }
+
+    public class UnifiedRequestDto
+    {
+        public decimal Id { get; set; }
+        public string RequestType { get; set; } // 'LEAVE', 'ATTENDANCE', 'OVERTIME'
+        public string TypeLabel { get; set; }
+        public string Title { get; set; }
+        public string Subtitle { get; set; }
+        public string DateRange { get; set; }
+        public string Status { get; set; } // 'PENDING', 'APPROVED', 'REJECTED'
+        public string CreatedAt { get; set; }
+        public string Reason { get; set; }
+        public string RejectionReason { get; set; }
     }
 }

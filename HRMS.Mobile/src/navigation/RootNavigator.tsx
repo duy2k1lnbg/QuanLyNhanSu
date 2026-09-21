@@ -12,6 +12,10 @@ import { LanguageSettingsScreen } from '../screens/Settings/LanguageSettingsScre
 import { ThemeSettingsScreen } from '../screens/Settings/ThemeSettingsScreen';
 import { ChangePasswordScreen } from '../screens/Settings/ChangePasswordScreen';
 import { NotificationDetailScreen } from '../screens/Notifications/NotificationDetailScreen';
+import { LeaveRequestScreen } from '../screens/Requests/LeaveRequestScreen';
+import { AttendanceCorrectionScreen } from '../screens/Requests/AttendanceCorrectionScreen';
+import { MyOvertimeScreen } from '../screens/Requests/MyOvertimeScreen';
+import { MyRequestsScreen } from '../screens/Requests/MyRequestsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -35,6 +39,10 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="ThemeSettings" component={ThemeSettingsScreen} />
       <Stack.Screen name="ChangePassword" component={ChangePasswordScreen} />
       <Stack.Screen name="NotificationDetail" component={NotificationDetailScreen} />
+      <Stack.Screen name="LeaveRequest" component={LeaveRequestScreen} />
+      <Stack.Screen name="AttendanceCorrection" component={AttendanceCorrectionScreen} />
+      <Stack.Screen name="MyOvertime" component={MyOvertimeScreen} />
+      <Stack.Screen name="MyRequests" component={MyRequestsScreen} />
     </Stack.Navigator>
   );
 };

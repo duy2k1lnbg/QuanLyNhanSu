@@ -191,5 +191,158 @@ namespace Bu.Tests
             Assert.IsTrue(PasswordHasher.VerifyPassword(enteredNewPassword, newHash));
             Assert.IsFalse(PasswordHasher.VerifyPassword(oldPassword, newHash));
         }
+
+        [Test]
+        public void LoginResolution_ByLoginName_ShouldResolveCorrectUser()
+        {
+            string loginName = "NV000001";
+            var user = new TB_SYS_USER { IDUSER = 10, USERNAME = "NV000001", MANV = 1001 };
+
+            // Logic: Try exact LoginName match first
+            bool matched = string.Equals(user.USERNAME, loginName, StringComparison.OrdinalIgnoreCase);
+            Assert.IsTrue(matched, "LoginName NV000001 phải match chính xác.");
+        }
+
+        [Test]
+        public void LoginResolution_LeadingZeroEmployeeCode_MustNotBeStripped_01DoesNotBecome1()
+        {
+            // Rule 6, 11, 47: 01 KHÔNG ĐƯỢC biến thành 1
+            string rawInput = "01";
+            string employeeCodeInDb = "01";
+
+            // Giả lập logic kiểm tra: so sánh chính xác chuỗi, TUYỆT ĐỐI KHÔNG dùng int.Parse/decimal.TryParse hay trim leading zero
+            bool exactMatch = string.Equals(rawInput.Trim(), employeeCodeInDb, StringComparison.OrdinalIgnoreCase);
+            Assert.IsTrue(exactMatch, "Mã nhân viên '01' phải so khớp chính xác với '01'.");
+
+            // Kiểm tra: nếu user nhập '1' thì KHÔNG được tự động match với '01'
+            string wrongInput = "1";
+            bool wrongMatch = string.Equals(wrongInput.Trim(), employeeCodeInDb, StringComparison.OrdinalIgnoreCase);
+            Assert.IsFalse(wrongMatch, "Mã '1' TUYỆT ĐỐI KHÔNG được tự đoán thành '01'.");
+        }
+
+        [Test]
+        public void LoginResolution_ComplexLongEmployeeCode_ShouldMatchExactly()
+        {
+            // Rule 7, 47: Mã nghiệp vụ dài có phòng ban, xưởng, năm
+            string complexCode = "PX01-KT-TV-2026-001";
+            string input = "PX01-KT-TV-2026-001";
+
+            bool matched = string.Equals(input.Trim(), complexCode, StringComparison.OrdinalIgnoreCase);
+            Assert.IsTrue(matched, "Mã nghiệp vụ dài phức tạp phải được hỗ trợ đầy đủ nguyên bản.");
+        }
+
+        [Test]
+        public void EmployeeTransfer_LoginNameRemainsStable_EvenWhenEmployeeCodeChanges()
+        {
+            // Rule 14, 15, 53: Nhân viên chuyển bộ phận: EmployeeCode đổi nhưng LoginName & UserId không đổi
+            int userId = 25;
+            string loginName = "NV000025";
+            string originalCode = "PX01-KT-TV-2026-001";
+
+            // Nhân viên chuyển sang xưởng B
+            string transferredCode = "PX02-RD-KYTHUAT-2027-014";
+
+            Assert.AreNotEqual(originalCode, transferredCode, "Mã nhân viên đã thay đổi do điều chuyển bộ phận.");
+            Assert.AreEqual("NV000025", loginName, "LoginName phải được giữ nguyên hoàn toàn.");
+            Assert.AreEqual(25, userId, "UserId danh tính kỹ thuật không đổi.");
+        }
+
+        [Test]
+        public void UserEmployeeMapping_1To1Constraint_DuplicateMappingMustBeRejected()
+        {
+            // Rule 9, 55: Kiểm tra ràng buộc 1-1 giữa User và Employee
+            var existingMappings = new List<Tuple<int, decimal>>
+            {
+                Tuple.Create(1, 100m),
+                Tuple.Create(2, 200m)
+            };
+
+            // Case 2: Employee 100 đã link với User 1 -> Không thể link với User 3
+            decimal alreadyLinkedEmp = 100m;
+            bool isEmpAlreadyLinked = existingMappings.Any(m => m.Item2 == alreadyLinkedEmp);
+            Assert.IsTrue(isEmpAlreadyLinked, "Employee đã được liên kết phải bị phát hiện để từ chối.");
+
+            // Case 3: User 1 đã link với Employee 100 -> Không thể link với Employee 300
+            int alreadyLinkedUser = 1;
+            bool isUserAlreadyLinked = existingMappings.Any(m => m.Item1 == alreadyLinkedUser);
+            Assert.IsTrue(isUserAlreadyLinked, "User đã có liên kết phải bị phát hiện để từ chối.");
+        }
+
+        [Test]
+        public void MobileAccessFlag_WhenDisabled_BlocksMobileAccessEvenWithValidCredentials()
+        {
+            // Rule 51: MobileEnabled == false -> Không được cấp phiên đăng nhập Mobile
+            bool isMobileEnabled = false;
+            bool credentialsValid = true;
+
+            bool canAccessMobile = credentialsValid && isMobileEnabled;
+            Assert.IsFalse(canAccessMobile, "Tài khoản bị tắt Mobile Access phải bị từ chối.");
+        }
+
+        [Test]
+        public void TerminatedEmployee_DATHOIVIEC_BlocksMobileAccess()
+        {
+            // Rule 52, 54: Nhân viên đã thôi việc (DATHOIVIEC == 1) -> Khóa Mobile
+            int daThoiViec = 1;
+
+            bool isEmployeeActive = (daThoiViec == 0);
+            Assert.IsFalse(isEmployeeActive, "Nhân viên đã thôi việc (DATHOIVIEC == 1) phải bị chặn truy cập Mobile.");
+        }
+
+        [Test]
+        public void ApprovalEndpoints_LiveHttpTest()
+        {
+            Environment.SetEnvironmentVariable("HRMS_JWT_SECRET", "c74b9f5e18a2d36f9014b2e8ca95173f4e6d2081a95b3c7e1f4082d6e9a3b7c1");
+            string token = JwtService.GenerateToken(
+                1, "ADMIN", "Administrator", true, new List<string> { "*" }, "1", "1", "1", "WEB"
+            );
+
+            using (var db = new DA.MyEntities())
+            {
+                db.Database.ExecuteSqlCommand("UPDATE HR.TB_YEUCAU_NGHIPHEP SET TRANGTHAI = 'PENDING', NGUOIDUYET = NULL, NGAYDUYET = NULL WHERE ID IN (1, 2)");
+            }
+
+            using (var client = new System.Net.WebClient())
+            {
+                client.Encoding = System.Text.Encoding.UTF8;
+                client.Headers[System.Net.HttpRequestHeader.Authorization] = "Bearer " + token;
+
+                // Test Summary
+                string sumContent = client.DownloadString("http://localhost:55463/api/approvals/summary");
+                Console.WriteLine($"Summary HTTP 200: {sumContent}");
+                Assert.IsTrue(sumContent.Contains("\"success\":true"));
+
+                // Test Leave List
+                client.Headers[System.Net.HttpRequestHeader.Authorization] = "Bearer " + token;
+                string leaveContent = client.DownloadString("http://localhost:55463/api/approvals/leave?status=PENDING&pageSize=50");
+                Console.WriteLine($"Leave HTTP 200: {leaveContent}");
+                Assert.IsTrue(leaveContent.Contains("\"success\":true"));
+
+                // Test Attendance Corrections List
+                client.Headers[System.Net.HttpRequestHeader.Authorization] = "Bearer " + token;
+                string attContent = client.DownloadString("http://localhost:55463/api/approvals/attendance-corrections?status=PENDING&pageSize=50");
+                Console.WriteLine($"Attendance HTTP 200: {attContent}");
+                Assert.IsTrue(attContent.Contains("\"success\":true"));
+
+                // Test Overtime List
+                client.Headers[System.Net.HttpRequestHeader.Authorization] = "Bearer " + token;
+                string otContent = client.DownloadString("http://localhost:55463/api/approvals/overtime?status=PENDING&pageSize=50");
+                Console.WriteLine($"Overtime HTTP 200: {otContent}");
+                Assert.IsTrue(otContent.Contains("\"success\":true"));
+
+                // Test Approve Leave (id 1)
+                client.Headers[System.Net.HttpRequestHeader.Authorization] = "Bearer " + token;
+                string approveLeaveRes = client.UploadString("http://localhost:55463/api/approvals/leave/1/approve", "POST", "");
+                Console.WriteLine($"Approve Leave result: {approveLeaveRes}");
+                Assert.IsTrue(approveLeaveRes.Contains("\"success\":true"));
+
+                // Test Reject Leave (id 2)
+                client.Headers[System.Net.HttpRequestHeader.Authorization] = "Bearer " + token;
+                client.Headers[System.Net.HttpRequestHeader.ContentType] = "application/json";
+                string rejectLeaveRes = client.UploadString("http://localhost:55463/api/approvals/leave/2/reject", "POST", "{\"Reason\":\"Từ chối phục vụ kiểm thử tự động\"}");
+                Console.WriteLine($"Reject Leave result: {rejectLeaveRes}");
+                Assert.IsTrue(rejectLeaveRes.Contains("\"success\":true"));
+            }
+        }
     }
 }

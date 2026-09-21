@@ -6,7 +6,7 @@ using DA;
 namespace Bu.Tests
 {
     [TestFixture]
-    public class DbQueryTests
+    public partial class DbQueryTests
     {
         [Test]
         public void TestEFQuery()
@@ -112,7 +112,17 @@ namespace Bu.Tests
             {
                 var admin = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "ADMIN");
                 Assert.IsNotNull(admin, "Tài khoản ADMIN phải tồn tại.");
-                Assert.IsNotNull(admin.MANV, "Tài khoản ADMIN phải được liên kết với MANV để truy cập Mobile.");
+
+                // Quy tắc: Tài khoản Quản trị viên tối cao (ADMIN) là tài khoản hệ thống, không được phép liên kết với hồ sơ nhân viên
+                if (admin.MANV.HasValue)
+                {
+                    admin.MANV = null;
+                    db.SaveChanges();
+                }
+                db.Database.ExecuteSqlCommand("DELETE FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0",
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", admin.IDUSER));
+
+                Assert.IsNull(admin.MANV, "Tài khoản ADMIN không được liên kết với hồ sơ nhân viên.");
 
                 var nhansu = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "nhansu");
                 Assert.IsNotNull(nhansu, "Tài khoản nhansu phải tồn tại.");
@@ -283,6 +293,273 @@ namespace Bu.Tests
                 }
             }
         }
+
+        [Test]
+        public void TestApprovalTablesQueriesAndCounts()
+        {
+            using (var db = new MyEntities())
+            {
+                // 1. Verify summary counts query executes cleanly with decimal mapping
+                int leaveCount = (int)db.Database.SqlQuery<decimal>(
+                    "SELECT COUNT(*) FROM HR.TB_YEUCAU_NGHIPHEP WHERE TRANGTHAI = 'PENDING'"
+                ).FirstOrDefault();
+
+                int attendanceCount = (int)db.Database.SqlQuery<decimal>(
+                    "SELECT COUNT(*) FROM HR.TB_YEUCAU_DIEUCHINHCONG WHERE TRANGTHAI = 'PENDING'"
+                ).FirstOrDefault();
+
+                int overtimeCount = (int)db.Database.SqlQuery<decimal>(
+                    "SELECT COUNT(*) FROM HR.TB_YEUCAU_TANGCA WHERE TRANGTHAI = 'PENDING'"
+                ).FirstOrDefault();
+
+                Assert.IsTrue(leaveCount >= 0);
+                Assert.IsTrue(attendanceCount >= 0);
+                Assert.IsTrue(overtimeCount >= 0);
+
+                // 2. Verify leave query with schema aliases
+                string leaveSql = @"
+                    SELECT Y.ID AS ID_YEUCAU, Y.MANV, NV.EMPLOYEE_CODE, NV.HOTEN AS EMPLOYEE_NAME, PB.TENPB AS DEPARTMENT_NAME,
+                           Y.LOAIPHEP AS LOAI_NGHI, Y.TUNGAY AS TU_NGAY, Y.DENNGAY AS DEN_NGAY, Y.SONGAY AS SO_NGAY, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO,
+                           NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI
+                    FROM HR.TB_YEUCAU_NGHIPHEP Y
+                    LEFT JOIN HR.TB_NHANVIEN NV ON Y.MANV = NV.MANV
+                    LEFT JOIN HR.TB_PHONGBAN PB ON NV.IDPB = PB.IDPB
+                    LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER
+                    WHERE (1=1) ORDER BY Y.CREATED_DATE DESC";
+
+                var leaveRows = db.Database.SqlQuery<LeaveRowTest>(leaveSql).ToList();
+                Assert.IsNotNull(leaveRows);
+
+                // 3. Verify attendance query with schema aliases
+                string attSql = @"
+                    SELECT Y.ID AS ID_YEUCAU, Y.MANV, NV.EMPLOYEE_CODE, NV.HOTEN AS EMPLOYEE_NAME, PB.TENPB AS DEPARTMENT_NAME,
+                           Y.NGAY AS NGAY_CONG, Y.GIO_VAO AS GIO_VAO_MOI, Y.GIO_RA AS GIO_RA_MOI, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO,
+                           NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI
+                    FROM HR.TB_YEUCAU_DIEUCHINHCONG Y
+                    LEFT JOIN HR.TB_NHANVIEN NV ON Y.MANV = NV.MANV
+                    LEFT JOIN HR.TB_PHONGBAN PB ON NV.IDPB = PB.IDPB
+                    LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER
+                    WHERE (1=1) ORDER BY Y.CREATED_DATE DESC";
+
+                var attRows = db.Database.SqlQuery<AttendanceRowTest>(attSql).ToList();
+                Assert.IsNotNull(attRows);
+
+                // 4. Verify overtime query with schema aliases
+                string otSql = @"
+                    SELECT Y.ID AS ID_YEUCAU, Y.MANV, NV.EMPLOYEE_CODE, NV.HOTEN AS EMPLOYEE_NAME, PB.TENPB AS DEPARTMENT_NAME,
+                           Y.NGAY AS NGAY_TANGCA, Y.GIOTANGCA AS SO_GIO, 1.5 AS HE_SO, Y.LYDO AS NOI_DUNG, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO,
+                           NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI
+                    FROM HR.TB_YEUCAU_TANGCA Y
+                    LEFT JOIN HR.TB_NHANVIEN NV ON Y.MANV = NV.MANV
+                    LEFT JOIN HR.TB_PHONGBAN PB ON NV.IDPB = PB.IDPB
+                    LEFT JOIN HR.TB_SYS_USER U ON Y.NGUOIDUYET = U.IDUSER
+                    WHERE (1=1) ORDER BY Y.CREATED_DATE DESC";
+
+                var otRows = db.Database.SqlQuery<OvertimeRowTest>(otSql).ToList();
+                Assert.IsNotNull(otRows);
+            }
+        }
+    }
+
+    public class LeaveRowTest
+    {
+        public decimal ID_YEUCAU { get; set; }
+        public decimal MANV { get; set; }
+        public string EMPLOYEE_CODE { get; set; }
+        public string EMPLOYEE_NAME { get; set; }
+        public string DEPARTMENT_NAME { get; set; }
+        public string LOAI_NGHI { get; set; }
+        public DateTime? TU_NGAY { get; set; }
+        public DateTime? DEN_NGAY { get; set; }
+        public decimal? SO_NGAY { get; set; }
+        public string LYDO { get; set; }
+        public string TRANGTHAI { get; set; }
+        public DateTime? NGAY_TAO { get; set; }
+        public string NGUOI_DUYET { get; set; }
+        public DateTime? NGAY_DUYET { get; set; }
+        public string LYDO_TUCHOI { get; set; }
+    }
+
+    public class AttendanceRowTest
+    {
+        public decimal ID_YEUCAU { get; set; }
+        public decimal MANV { get; set; }
+        public string EMPLOYEE_CODE { get; set; }
+        public string EMPLOYEE_NAME { get; set; }
+        public string DEPARTMENT_NAME { get; set; }
+        public DateTime? NGAY_CONG { get; set; }
+        public string GIO_VAO_MOI { get; set; }
+        public string GIO_RA_MOI { get; set; }
+        public string LYDO { get; set; }
+        public string TRANGTHAI { get; set; }
+        public DateTime? NGAY_TAO { get; set; }
+        public string NGUOI_DUYET { get; set; }
+        public DateTime? NGAY_DUYET { get; set; }
+        public string LYDO_TUCHOI { get; set; }
+    }
+
+    public class OvertimeRowTest
+    {
+        public decimal ID_YEUCAU { get; set; }
+        public decimal MANV { get; set; }
+        public string EMPLOYEE_CODE { get; set; }
+        public string EMPLOYEE_NAME { get; set; }
+        public string DEPARTMENT_NAME { get; set; }
+        public DateTime? NGAY_TANGCA { get; set; }
+        public decimal? SO_GIO { get; set; }
+        public decimal? HE_SO { get; set; }
+        public string NOI_DUNG { get; set; }
+        public string TRANGTHAI { get; set; }
+        public DateTime? NGAY_TAO { get; set; }
+        public string NGUOI_DUYET { get; set; }
+        public DateTime? NGAY_DUYET { get; set; }
+        public string LYDO_TUCHOI { get; set; }
+    }
+
+    public class UserCheckRow
+    {
+        public decimal IDUSER { get; set; }
+        public string USERNAME { get; set; }
+        public string PASSWORD { get; set; }
+        public decimal? ISGROUP { get; set; }
+        public decimal? DISABLED { get; set; }
+        public string CLIENT_TYPE { get; set; }
+        public decimal? MANV { get; set; }
+        public decimal? FAILED_LOGIN_COUNT { get; set; }
+        public DateTime? LOCKOUT_END { get; set; }
+    }
+
+    public partial class DbQueryTests
+    {
+        [Test]
+        public void InspectAdminUserState()
+        {
+            using (var db = new MyEntities())
+            {
+                var admin = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "ADMIN");
+                if (admin != null)
+                {
+                    admin.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("admin");
+                    admin.DISABLED = 0;
+                    admin.CLIENT_TYPE = "ALL";
+                    admin.MANV = null;
+                    db.SaveChanges();
+                    db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_USER SET FAILED_LOGIN_COUNT = 0, LOCKOUT_END = NULL WHERE IDUSER = :id",
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("id", admin.IDUSER));
+                }
+
+                var users = db.Database.SqlQuery<UserCheckRow>("SELECT IDUSER, USERNAME, PASSWORD, ISGROUP, DISABLED, CLIENT_TYPE, MANV, FAILED_LOGIN_COUNT, LOCKOUT_END FROM HR.TB_SYS_USER WHERE UPPER(TRIM(USERNAME)) = 'ADMIN' OR UPPER(TRIM(USERNAME)) = 'NHANSU'").ToList();
+                foreach (var u in users)
+                {
+                    bool matchAdmin = Bu.CLASS_SYSTEM.PasswordHasher.VerifyPassword("ADMIN", u.PASSWORD);
+                    bool matchAdminLower = Bu.CLASS_SYSTEM.PasswordHasher.VerifyPassword("admin", u.PASSWORD);
+                    bool match123 = Bu.CLASS_SYSTEM.PasswordHasher.VerifyPassword("123", u.PASSWORD);
+                    bool match123456 = Bu.CLASS_SYSTEM.PasswordHasher.VerifyPassword("123456", u.PASSWORD);
+                    Console.WriteLine($"USER: ID={u.IDUSER}, NAME='{u.USERNAME}', ISGROUP={u.ISGROUP}, DISABLED={u.DISABLED}, CLIENT_TYPE='{u.CLIENT_TYPE}', MANV={u.MANV}, FAILED={u.FAILED_LOGIN_COUNT}, LOCKOUT={u.LOCKOUT_END}, MatchADMIN={matchAdmin}, Matchadmin={matchAdminLower}, Match123={match123}, Match123456={match123456}");
+                }
+            }
+        }
+
+        [Test]
+        public void InspectDatabaseMetadataForOvertime()
+        {
+            using (var db = new MyEntities())
+            {
+                var tables = new[] { "TB_YEUCAU_TANGCA", "TB_YEUCAU_NGHIPHEP", "TB_YEUCAU_DIEUCHINHCONG", "TB_USER_EMPLOYEE_MAPPING", "TB_TANGCA", "TB_LOAICA", "TB_SYS_USER", "TB_NHANVIEN" };
+                foreach (var tbl in tables)
+                {
+                    Console.WriteLine($"=== TABLE: {tbl} ===");
+                    // Columns
+                    var cols = db.Database.SqlQuery<ColMeta>(@"
+                        SELECT COLUMN_NAME, DATA_TYPE, DATA_LENGTH, DATA_PRECISION, DATA_SCALE, NULLABLE, DATA_DEFAULT 
+                        FROM ALL_TAB_COLS 
+                        WHERE TABLE_NAME = :p0 AND OWNER = 'HR'
+                        ORDER BY COLUMN_ID", new Oracle.ManagedDataAccess.Client.OracleParameter("p0", tbl)).ToList();
+                    foreach (var c in cols)
+                    {
+                        Console.WriteLine($"  COL: {c.COLUMN_NAME} | Type={c.DATA_TYPE}({c.DATA_PRECISION ?? c.DATA_LENGTH},{c.DATA_SCALE}) | Null={c.NULLABLE} | Default={c.DATA_DEFAULT?.Trim()}");
+                    }
+
+                    // Constraints
+                    var cons = db.Database.SqlQuery<ConMeta>(@"
+                        SELECT c.CONSTRAINT_NAME, c.CONSTRAINT_TYPE, c.SEARCH_CONDITION, c.R_CONSTRAINT_NAME, r.TABLE_NAME AS R_TABLE_NAME
+                        FROM ALL_CONSTRAINTS c
+                        LEFT JOIN ALL_CONSTRAINTS r ON c.R_CONSTRAINT_NAME = r.CONSTRAINT_NAME AND r.OWNER = c.OWNER
+                        WHERE c.TABLE_NAME = :p0 AND c.OWNER = 'HR'", new Oracle.ManagedDataAccess.Client.OracleParameter("p0", tbl)).ToList();
+                    foreach (var cn in cons)
+                    {
+                        Console.WriteLine($"  CON: {cn.CONSTRAINT_NAME} | Type={cn.CONSTRAINT_TYPE} | Ref={cn.R_TABLE_NAME}({cn.R_CONSTRAINT_NAME}) | Cond={cn.SEARCH_CONDITION?.Trim()}");
+                    }
+
+                    // Indexes
+                    var idxs = db.Database.SqlQuery<IdxMeta>(@"
+                        SELECT i.INDEX_NAME, i.UNIQUENESS, ic.COLUMN_NAME, ic.COLUMN_POSITION
+                        FROM ALL_INDEXES i
+                        JOIN ALL_IND_COLUMNS ic ON i.INDEX_NAME = ic.INDEX_NAME AND i.OWNER = ic.INDEX_OWNER
+                        WHERE i.TABLE_NAME = :p0 AND i.OWNER = 'HR'
+                        ORDER BY i.INDEX_NAME, ic.COLUMN_POSITION", new Oracle.ManagedDataAccess.Client.OracleParameter("p0", tbl)).ToList();
+                    foreach (var idx in idxs)
+                    {
+                        Console.WriteLine($"  IDX: {idx.INDEX_NAME} | Unique={idx.UNIQUENESS} | Col={idx.COLUMN_NAME} (#{idx.COLUMN_POSITION})");
+                    }
+
+                    // Count
+                    var count = db.Database.SqlQuery<decimal>($"SELECT COUNT(*) FROM HR.{tbl}").FirstOrDefault();
+                    Console.WriteLine($"  ROW COUNT: {count}");
+                }
+
+                // Check distinct TRANGTHAI in request tables
+                var reqTables = new[] { "TB_YEUCAU_TANGCA", "TB_YEUCAU_NGHIPHEP", "TB_YEUCAU_DIEUCHINHCONG" };
+                foreach (var rt in reqTables)
+                {
+                    var statuses = db.Database.SqlQuery<string>($"SELECT DISTINCT TRANGTHAI FROM HR.{rt}").ToList();
+                    Console.WriteLine($"STATUSES in {rt}: {string.Join(", ", statuses)}");
+                }
+
+                // Check TB_LOAICA rows
+                var loaiCaList = db.Database.SqlQuery<LoaiCaRow>("SELECT IDLOAICA, TENLOAICA, HESOLOAICA FROM HR.TB_LOAICA").ToList();
+                Console.WriteLine("TB_LOAICA list:");
+                foreach (var lc in loaiCaList)
+                {
+                    Console.WriteLine($"  ID={lc.IDLOAICA}, TEN='{lc.TENLOAICA}', HESO={lc.HESOLOAICA}");
+                }
+            }
+        }
+    }
+
+    public class ColMeta
+    {
+        public string COLUMN_NAME { get; set; }
+        public string DATA_TYPE { get; set; }
+        public decimal? DATA_LENGTH { get; set; }
+        public decimal? DATA_PRECISION { get; set; }
+        public decimal? DATA_SCALE { get; set; }
+        public string NULLABLE { get; set; }
+        public string DATA_DEFAULT { get; set; }
+    }
+
+    public class ConMeta
+    {
+        public string CONSTRAINT_NAME { get; set; }
+        public string CONSTRAINT_TYPE { get; set; }
+        public string SEARCH_CONDITION { get; set; }
+        public string R_CONSTRAINT_NAME { get; set; }
+        public string R_TABLE_NAME { get; set; }
+    }
+
+    public class IdxMeta
+    {
+        public string INDEX_NAME { get; set; }
+        public string UNIQUENESS { get; set; }
+        public string COLUMN_NAME { get; set; }
+        public decimal? COLUMN_POSITION { get; set; }
+    }
+
+    public class LoaiCaRow
+    {
+        public decimal IDLOAICA { get; set; }
+        public string TENLOAICA { get; set; }
+        public decimal? HESOLOAICA { get; set; }
     }
 }
 

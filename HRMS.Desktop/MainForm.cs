@@ -4,6 +4,7 @@ using Bu.DTO;
 using DevExpress.XtraSplashScreen;
 using QLyNSu.FORM_BAOCAO;
 using QLyNSu.FORM_CHAMCONG;
+using QLyNSu.FORM_NHANSU;
 using QLyNSu.FORM_SYSTEM;
 using QLyNSu.Functions;
 using System;
@@ -180,6 +181,7 @@ namespace QLyNSu
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            this.WindowState = FormWindowState.Maximized;
             try
             {
                 // Ensure default users and rights are seeded
@@ -202,6 +204,11 @@ namespace QLyNSu
 
             // Apply default authorization (lock ui elements) - deferred to avoid Ribbon initialization overwriting it
             this.BeginInvoke(new Action(() => ApplyAuthorization()));
+        }
+
+        private async void btnPheDuyet_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmPheDuyetYeuCau));
         }
 
         private void ShowLoginDialog()
@@ -265,6 +272,7 @@ namespace QLyNSu
                 btnBaoCao.Enabled = false;
                 btnGroup.Enabled = false;
                 btnUser.Enabled = false;
+                btnCapTaiKhoanHangLoat.Enabled = false;
                 btnUser_Update.Enabled = false;
                 btnChucNang.Enabled = false;
                 btnPQ_BaoCao.Enabled = false;
@@ -275,6 +283,7 @@ namespace QLyNSu
                 btnDashboardLuong.Enabled = false;
                 
                 btnThongBao.Enabled = false;
+                btnPheDuyet.Enabled = false;
             }
             else
             {
@@ -285,9 +294,11 @@ namespace QLyNSu
                 // Check rights
                 btnPass.Enabled = true;
                 btnUser_Update.Enabled = true;
+                btnPheDuyet.Enabled = true;
                 
                 btnGroup.Enabled = UserSession.HasRight("F_SYSTEM_GROUP");
                 btnUser.Enabled = UserSession.HasRight("F_SYSTEM_USER");
+                btnCapTaiKhoanHangLoat.Enabled = UserSession.HasRight("F_SYSTEM_USER");
                 btnSaoLuu_DB.Enabled = UserSession.HasRight("F_SYSTEM_SAULUU");
                 btnPhucHoi_DB.Enabled = UserSession.HasRight("F_SYSTEM_PHUCHOI");
                 BtnAI.Enabled = UserSession.HasRight("F_SYSTEM_AI");
@@ -580,7 +591,17 @@ namespace QLyNSu
 
         private async void btnUser_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            await _formManager.OpenFormWithSplashScreen(typeof(FrmCreateAccount));
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmQuanLyTaiKhoan));
+        }
+
+        private async void btnCapTaiKhoanHangLoat_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FrmQuanLyTaiKhoan));
+            var frm = this.MdiChildren.OfType<FrmQuanLyTaiKhoan>().FirstOrDefault();
+            if (frm != null)
+            {
+                frm.SelectBatchProvisioningTab();
+            }
         }
 
         private async void barButtonItem2_ItemClick_1(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

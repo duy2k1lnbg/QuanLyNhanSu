@@ -346,6 +346,10 @@ namespace QLyNSu.FORM_SYSTEM
                     string mins = appEx.Message.Split('|')[1];
                     lblThongBao.Text = TranslationManager.Translate($"Tài khoản đang bị khóa tạm thời. Vui lòng thử lại sau {mins} phút.");
                 }
+                else if (appEx.Message == "EMPLOYEE_MOBILE_ONLY")
+                {
+                    lblThongBao.Text = TranslationManager.Translate("Tài khoản nhân viên chỉ dùng để đăng nhập Mobile, không được phép vào Desktop.");
+                }
                 else
                 {
                     lblThongBao.Text = TranslationManager.Translate("Lỗi: ") + appEx.Message;

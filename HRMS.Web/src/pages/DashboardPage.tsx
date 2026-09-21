@@ -269,9 +269,16 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
               }}
             >
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text strong style={{ color: '#991b1b', fontSize: 13 }}>
-                  🔴 VẮNG MẶT
-                </Text>
+                <Space size={6}>
+                  <Text strong style={{ color: '#991b1b', fontSize: 13 }}>
+                    🔴 VẮNG MẶT
+                  </Text>
+                  {late > 0 && (
+                    <Tag color="warning" style={{ margin: 0, fontSize: 11, padding: '0 4px', lineHeight: '18px' }}>
+                      {late} đi trễ
+                    </Tag>
+                  )}
+                </Space>
                 {!canAccessCc ? (
                   <LockOutlined style={{ color: '#dc2626', fontSize: 16 }} />
                 ) : (
@@ -282,7 +289,13 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                 {absent}
               </div>
               <Text style={{ color: '#dc2626', fontSize: 12 }}>
-                {late > 0 ? `${late} lượt đi trễ ghi nhận` : 'Không có nhân viên đi trễ'}
+                {countTotal === 0
+                  ? 'Chưa có dữ liệu nhân sự'
+                  : present === 0
+                  ? 'Chưa có lượt chấm công hôm nay'
+                  : absent === 0
+                  ? (late > 0 ? `Đủ quân số (${late} lượt đi trễ)` : 'Đi làm đầy đủ 100%')
+                  : `Tỷ lệ vắng: ${Math.round((absent / countTotal) * 100)}%${late > 0 ? ` • ${late} lượt đi trễ` : ''}`}
               </Text>
             </Card>
           </Tooltip>

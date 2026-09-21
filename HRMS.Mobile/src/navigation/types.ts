@@ -21,4 +21,8 @@ export type RootStackParamList = {
   ThemeSettings: undefined;
   ChangePassword: undefined;
   NotificationDetail: { notificationId: number; initialData?: NotificationDto };
+  LeaveRequest: undefined;
+  AttendanceCorrection: undefined;
+  MyOvertime: undefined;
+  MyRequests: undefined;
 };

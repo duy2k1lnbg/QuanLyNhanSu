@@ -14,7 +14,9 @@ export const ROUTE_FUNCTION_CODES: Record<string, string[]> = {
   khenthuong: ['F_NV_KHENTHUONG', 'F_NV_KYLUAT', 'KHENTHUONG', 'KYLUAT'],
   nangluong: ['F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN', 'NANGLUONG', 'DIEUCHUYEN'],
   ungluong: ['F_CC_UNGLUONG', 'F_CC_TANGCA', 'UNGLUONG', 'TANGCA'],
+  approvals: ['F_CC_BANGCONG', 'F_CC_TANGCA', 'F_NV_NHANVIEN', 'APPROVE', 'CHAMCONG'],
   phanquyen: ['F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER', 'PHANQUYEN'],
+  audit: ['F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'PHANQUYEN', 'AUDIT'],
 };
 
 /**

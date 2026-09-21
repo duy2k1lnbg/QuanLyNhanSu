@@ -19,6 +19,8 @@ import KhenThuongKyLuatPage from './pages/KhenThuongKyLuatPage';
 import NangLuongDieuChuyenPage from './pages/NangLuongDieuChuyenPage';
 import TangCaUngLuongPage from './pages/TangCaUngLuongPage';
 import UserManagementPage from './pages/UserManagementPage';
+import ApprovalCenterPage from './pages/ApprovalCenterPage';
+import AuditLogPage from './pages/AuditLogPage';
 
 import type {
   NhanVienDTO,
@@ -674,6 +676,10 @@ export function App() {
               />
             )}
 
+            {currentMenu === 'approvals' && (
+              <ApprovalCenterPage />
+            )}
+
             {currentMenu === 'phanquyen' && (
               <UserManagementPage
                 userList={userList}
@@ -684,6 +690,10 @@ export function App() {
                 canEdit={checkCanEdit}
                 canDelete={checkCanDelete}
               />
+            )}
+
+            {currentMenu === 'audit' && (
+              <AuditLogPage />
             )}
           </>
         )}

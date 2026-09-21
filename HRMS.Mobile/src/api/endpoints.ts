@@ -13,5 +13,11 @@ export const ENDPOINTS = {
     INSURANCE: '/me/insurance',
     NOTIFICATIONS: '/me/notifications',
     NOTIFICATION_DETAIL: (id: string | number) => `/me/notifications/${id}`,
+    LEAVE: '/me/leave',
+    ATTENDANCE_CORRECTIONS: '/me/attendance-corrections',
+    OVERTIME: '/me/overtime',
+    OVERTIME_DETAIL: (id: string | number) => `/me/overtime/${id}`,
+    OVERTIME_CANCEL: (id: string | number) => `/me/overtime/${id}/cancel`,
+    REQUESTS: '/me/requests',
   },
 };

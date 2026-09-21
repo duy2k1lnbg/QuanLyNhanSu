@@ -35,6 +35,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       const res = await api.post('/auth/login', {
         Username: values.username.trim(),
         Password: values.password,
+        ClientType: 'WEB',
       });
 
       const token = res.data?.token || res.data?.Token;

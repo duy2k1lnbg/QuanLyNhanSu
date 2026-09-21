@@ -188,6 +188,8 @@
     <Compile Include="Controllers\NangLuongDieuChuyenController.cs" />
     <Compile Include="Controllers\PhuCapUngLuongController.cs" />
     <Compile Include="Controllers\MeController.cs" />
+    <Compile Include="Controllers\ApprovalController.cs" />
+    <Compile Include="Controllers\AuditController.cs" />
     <Compile Include="Models\MobileDtos.cs" />
     <Compile Include="Filters\JwtAuthorizeAttribute.cs" />
     <Compile Include="Services\JwtService.cs" />

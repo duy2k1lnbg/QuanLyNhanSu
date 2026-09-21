@@ -20,6 +20,8 @@ import {
   notification,
   Spin,
   Empty,
+  Switch,
+  Alert,
 } from 'antd';
 import {
   UserOutlined,
@@ -39,9 +41,10 @@ import {
   LoadingOutlined,
   AlertOutlined,
   CloseOutlined,
+  MobileOutlined,
 } from '@ant-design/icons';
 import api from '../services/api';
-import type { NhanVienDTO, BangLuongDTO, CurrentUserDTO } from '../types/hrms';
+import type { NhanVienDTO, BangLuongDTO, CurrentUserDTO, SysUserDTO } from '../types/hrms';
 import { canEdit, canPrint } from '../utils/permissionUtils';
 import PhieuLuongModal from './PhieuLuongModal';
 
@@ -122,6 +125,8 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
   const [loadingProfile, setLoadingProfile] = useState<boolean>(false);
   const [payslipModalVisible, setPayslipModalVisible] = useState<boolean>(false);
   const [selectedPayslipRecord, setSelectedPayslipRecord] = useState<BangLuongDTO | null>(null);
+  const [linkedAccount, setLinkedAccount] = useState<SysUserDTO | null>(null);
+  const [togglingMobile, setTogglingMobile] = useState<boolean>(false);
 
   // Fallback to localStorage user if not provided in prop
   const currentUser: CurrentUserDTO | undefined = React.useMemo(() => {
@@ -158,6 +163,17 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
       .finally(() => {
         setLoadingProfile(false);
       });
+
+    // Tải thông tin tài khoản liên kết
+    api.get('/users')
+      .then((res) => {
+        const users: SysUserDTO[] = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        const found = users.find(
+          (u) => (u.Manv === employee.MANV || u.manv === employee.MANV) && !u.IsGroup
+        );
+        setLinkedAccount(found || null);
+      })
+      .catch(() => setLinkedAccount(null));
   }, [visible, employee?.MANV]);
 
   if (!employee) return null;
@@ -728,6 +744,110 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                           </div>
                         ))}
                       </Space>
+                    </Card>
+                  </div>
+                ),
+              },
+              {
+                key: 'account',
+                label: '🔐 Tài khoản & Quyền Mobile',
+                children: (
+                  <div style={{ padding: '8px 12px' }}>
+                    <Alert
+                      message="Quản lý Tài khoản & Quyền Mobile Self-Service"
+                      description="Hồ sơ nhân sự có thể liên kết 1-1 với tài khoản người dùng để đăng nhập vào ứng dụng Mobile. Tên đăng nhập (LoginName) và Mã nhân sự (EmployeeCode) được phân tách độc lập theo Quy tắc 6, 7 & 21."
+                      type="info"
+                      showIcon
+                      style={{ marginBottom: 16 }}
+                    />
+
+                    <Card size="small" style={{ background: '#f8fafc', borderColor: '#e2e8f0', borderRadius: 8 }}>
+                      <Descriptions bordered size="middle" column={{ xs: 1, sm: 2 }}>
+                        <Descriptions.Item label="Mã nhân sự (EmployeeCode)">
+                          <Text strong style={{ color: '#1677ff', fontSize: 14 }}>
+                            <IdcardOutlined style={{ marginRight: 6 }} />
+                            {employee?.EMPLOYEE_CODE || employee?.EmployeeCode || `NV${String(employee?.MANV).padStart(6, '0')}`}
+                          </Text>
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Họ và tên">
+                          <Text strong>{employee?.HOTEN}</Text>
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Tài khoản liên kết (LoginName)">
+                          {linkedAccount ? (
+                            <Space>
+                              <Tag color="blue" icon={<UserOutlined />}>
+                                {linkedAccount.Username}
+                              </Tag>
+                              <Text type="secondary">({linkedAccount.FullName})</Text>
+                            </Space>
+                          ) : (
+                            <Tag color="orange">Chưa liên kết tài khoản</Tag>
+                          )}
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Trạng thái tài khoản">
+                          {linkedAccount ? (
+                            linkedAccount.Disabled ? (
+                              <Tag color="red">Bị tạm khóa</Tag>
+                            ) : (
+                              <Tag color="green">Đang hoạt động</Tag>
+                            )
+                          ) : (
+                            <Text type="secondary">N/A</Text>
+                          )}
+                        </Descriptions.Item>
+
+                        <Descriptions.Item label="Quyền truy cập Mobile (Mobile Access)" span={2}>
+                          {linkedAccount ? (
+                            <Space size="middle">
+                              <Switch
+                                checked={
+                                  linkedAccount.IsMobileEnabled !== undefined
+                                    ? linkedAccount.IsMobileEnabled
+                                    : linkedAccount.ClientType !== 'DESKTOP'
+                                }
+                                loading={togglingMobile}
+                                checkedChildren={<Space><MobileOutlined />Bật</Space>}
+                                unCheckedChildren="Tắt"
+                                onChange={async (checked) => {
+                                  try {
+                                    setTogglingMobile(true);
+                                    await api.post(`/users/${linkedAccount.IdUser}/toggle-mobile`, {
+                                      IsMobileEnabled: checked,
+                                    });
+                                    setLinkedAccount({
+                                      ...linkedAccount,
+                                      IsMobileEnabled: checked,
+                                    });
+                                    notification.success({
+                                      message: 'Thành công',
+                                      description: `Đã ${checked ? 'kích hoạt' : 'vô hiệu hóa'} Mobile Access cho [${linkedAccount.Username}]!`,
+                                    });
+                                  } catch {
+                                    notification.error({
+                                      message: 'Lỗi',
+                                      description: 'Không thể cập nhật quyền Mobile Access.',
+                                    });
+                                  } finally {
+                                    setTogglingMobile(false);
+                                  }
+                                }}
+                              />
+                              <Text type="secondary" style={{ fontSize: 13 }}>
+                                {linkedAccount.IsMobileEnabled !== false && linkedAccount.ClientType !== 'DESKTOP'
+                                  ? 'Nhân viên được phép sử dụng ứng dụng di động Self-Service.'
+                                  : 'Truy cập di động đang bị vô hiệu hóa cho nhân viên này.'}
+                              </Text>
+                            </Space>
+                          ) : (
+                            <Text type="secondary" italic>
+                              Cần liên kết tài khoản người dùng trước khi cấu hình Mobile Access.
+                            </Text>
+                          )}
+                        </Descriptions.Item>
+                      </Descriptions>
                     </Card>
                   </div>
                 ),

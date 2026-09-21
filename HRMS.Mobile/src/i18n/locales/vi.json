@@ -20,8 +20,8 @@
   "auth": {
     "login": "ĐĂNG NHẬP",
     "loggingIn": "ĐANG ĐĂNG NHẬP...",
-    "username": "Tên đăng nhập / Mã nhân viên",
-    "usernamePlaceholder": "Nhập mã nhân viên (VD: 10025)",
+    "username": "Mã đăng nhập hoặc mã nhân viên",
+    "usernamePlaceholder": "VD: NV000001 hoặc mã nhân viên",
     "password": "Mật khẩu",
     "passwordPlaceholder": "Nhập mật khẩu của bạn",
     "forgotPassword": "Quên mật khẩu?",
@@ -29,7 +29,7 @@
     "version": "Phiên bản",
     "welcome": "Chào mừng bạn đến với",
     "subtitle": "Hệ thống Quản trị Nhân sự & Tiền lương Doanh nghiệp",
-    "validationEmptyUser": "Vui lòng nhập mã nhân viên hoặc tên đăng nhập.",
+    "validationEmptyUser": "Vui lòng nhập mã đăng nhập hoặc mã nhân viên.",
     "validationEmptyPass": "Vui lòng nhập mật khẩu.",
     "changePassword": "Đổi mật khẩu",
     "oldPassword": "Mật khẩu hiện tại",
@@ -53,7 +53,11 @@
     "insurance": "Bảo hiểm",
     "settings": "Cài đặt",
     "language": "Ngôn ngữ",
-    "theme": "Giao diện"
+    "theme": "Giao diện",
+    "leaveRequest": "Xin nghỉ phép",
+    "attendanceCorrection": "Điều chỉnh công",
+    "overtime": "Đăng ký tăng ca",
+    "myRequests": "Yêu cầu của tôi"
   },
   "home": {
     "greeting": "Xin chào",
@@ -67,7 +71,10 @@
     "contractAlertTitle": "Cảnh báo hợp đồng",
     "recentNotifications": "Thông báo mới nhất",
     "viewAll": "Xem tất cả",
-    "noNotifications": "Không có thông báo mới."
+    "noNotifications": "Không có thông báo mới.",
+    "pendingRequests": "Yêu cầu chờ xử lý",
+    "noPendingRequests": "Không có yêu cầu nào đang chờ duyệt.",
+    "pendingCount": "yêu cầu"
   },
   "profile": {
     "title": "Hồ sơ của tôi",
@@ -88,7 +95,9 @@
     "address": "Địa chỉ thường trú",
     "employmentStatus": "Trạng thái công tác",
     "active": "Đang làm việc",
-    "resigned": "Đã thôi việc"
+    "resigned": "Đã thôi việc",
+    "editProfile": "Chỉnh sửa thông tin liên hệ",
+    "updateSuccess": "Cập nhật thông tin thành công!"
   },
   "attendance": {
     "title": "Bảng chấm công",
@@ -197,6 +206,45 @@
     "japanese": "日本語 (Japanese)",
     "english": "English (Tiếng Anh)",
     "continue": "Tiếp tục"
+  },
+  "requests": {
+    "title": "Yêu cầu của tôi",
+    "leaveTitle": "Đơn xin nghỉ phép",
+    "leaveSubtitle": "Gửi đơn xin nghỉ phép gửi cấp quản lý phê duyệt",
+    "correctionTitle": "Điều chỉnh công",
+    "correctionSubtitle": "Yêu cầu bổ sung giờ vào/ra khi quên chấm công",
+    "overtimeTitle": "Đăng ký tăng ca",
+    "overtimeSubtitle": "Đăng ký làm thêm giờ (OT) gửi phòng nhân sự",
+    "allRequests": "Tất cả yêu cầu",
+    "leaveType": "Loại nghỉ phép",
+    "annualLeave": "Nghỉ phép năm",
+    "sickLeave": "Nghỉ ốm hưởng BHXH",
+    "unpaidLeave": "Nghỉ không lương",
+    "otherLeave": "Nghỉ việc riêng",
+    "fromDate": "Từ ngày",
+    "toDate": "Đến ngày",
+    "totalDays": "Số ngày nghỉ",
+    "reason": "Lý do",
+    "reasonPlaceholder": "Nhập lý do cụ thể...",
+    "workDate": "Ngày làm việc",
+    "checkIn": "Giờ vào đề xuất",
+    "checkOut": "Giờ ra đề xuất",
+    "hours": "Số giờ làm thêm",
+    "shiftType": "Loại ca tăng ca",
+    "dayShift": "Ca ngày (150%)",
+    "nightShift": "Ca đêm (200%)",
+    "holidayShift": "Ngày lễ (300%)",
+    "statusPending": "Chờ phê duyệt",
+    "statusApproved": "Đã phê duyệt",
+    "statusRejected": "Bị từ chối",
+    "submit": "Gửi yêu cầu",
+    "submitting": "Đang gửi yêu cầu...",
+    "submitSuccess": "Gửi yêu cầu thành công!",
+    "emptyRequests": "Bạn chưa có yêu cầu nào.",
+    "approver": "Người duyệt",
+    "approvedAt": "Ngày duyệt",
+    "note": "Ghi chú phản hồi",
+    "history": "Lịch sử yêu cầu gần đây"
   },
   "errors": {
     "networkUnavailable": "Không thể kết nối máy chủ. Vui lòng kiểm tra lại mạng.",

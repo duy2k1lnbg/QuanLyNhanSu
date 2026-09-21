@@ -3,6 +3,8 @@
 export interface NhanVienDTO {
   MANV: number;
   HOTEN: string;
+  EMPLOYEE_CODE?: string;
+  EmployeeCode?: string;
   GIOITINH?: string;
   TENGT?: string;
   IDGT?: number;
@@ -267,6 +269,16 @@ export interface SysUserDTO {
   Groups?: string[];
   MACTY?: string;
   MADVI?: string;
+  Manv?: number;
+  manv?: number;
+  EmployeeCode?: string;
+  employeeCode?: string;
+  EmployeeName?: string;
+  employeeName?: string;
+  IsMobileEnabled?: boolean;
+  isMobileEnabled?: boolean;
+  ClientType?: string;
+  clientType?: string;
 }
 
 export interface GroupMemberItemDTO {

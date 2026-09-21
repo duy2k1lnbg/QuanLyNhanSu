@@ -20,8 +20,8 @@
   "auth": {
     "login": "SIGN IN",
     "loggingIn": "SIGNING IN...",
-    "username": "Username / Employee ID",
-    "usernamePlaceholder": "Enter Employee ID (e.g. 10025)",
+    "username": "Login ID or Employee Code",
+    "usernamePlaceholder": "e.g. NV000001 or employee code",
     "password": "Password",
     "passwordPlaceholder": "Enter your password",
     "forgotPassword": "Forgot password?",
@@ -29,7 +29,7 @@
     "version": "Version",
     "welcome": "Welcome to",
     "subtitle": "Enterprise Human Resource & Payroll Management System",
-    "validationEmptyUser": "Please enter your employee ID or username.",
+    "validationEmptyUser": "Please enter your login ID or employee code.",
     "validationEmptyPass": "Please enter your password.",
     "changePassword": "Change Password",
     "oldPassword": "Current Password",
@@ -53,7 +53,11 @@
     "insurance": "Insurance",
     "settings": "Settings",
     "language": "Language",
-    "theme": "Theme"
+    "theme": "Theme",
+    "leaveRequest": "Leave Request",
+    "attendanceCorrection": "Attendance Correction",
+    "overtime": "Overtime Request",
+    "myRequests": "My Requests"
   },
   "home": {
     "greeting": "Hello",
@@ -67,7 +71,10 @@
     "contractAlertTitle": "Contract Expiry Alert",
     "recentNotifications": "Latest Announcements",
     "viewAll": "View all",
-    "noNotifications": "No new announcements."
+    "noNotifications": "No new announcements.",
+    "pendingRequests": "Pending Requests",
+    "noPendingRequests": "No pending approval requests.",
+    "pendingCount": "requests"
   },
   "profile": {
     "title": "My Profile",
@@ -88,7 +95,9 @@
     "address": "Permanent Address",
     "employmentStatus": "Employment Status",
     "active": "Active",
-    "resigned": "Resigned"
+    "resigned": "Resigned",
+    "editProfile": "Edit Contact Information",
+    "updateSuccess": "Information updated successfully!"
   },
   "attendance": {
     "title": "Attendance Timesheet",
@@ -197,6 +206,45 @@
     "japanese": "日本語 (Japanese)",
     "english": "English",
     "continue": "Continue"
+  },
+  "requests": {
+    "title": "My Requests",
+    "leaveTitle": "Leave Request",
+    "leaveSubtitle": "Submit leave request for managerial approval",
+    "correctionTitle": "Attendance Correction",
+    "correctionSubtitle": "Request missing punch in/out adjustment",
+    "overtimeTitle": "Overtime Request",
+    "overtimeSubtitle": "Register overtime hours for HR approval",
+    "allRequests": "All Requests",
+    "leaveType": "Leave Type",
+    "annualLeave": "Annual Paid Leave",
+    "sickLeave": "Sick Leave (Insurance)",
+    "unpaidLeave": "Unpaid Leave",
+    "otherLeave": "Personal Leave",
+    "fromDate": "From Date",
+    "toDate": "To Date",
+    "totalDays": "Total Days",
+    "reason": "Reason",
+    "reasonPlaceholder": "Enter detailed reason...",
+    "workDate": "Work Date",
+    "checkIn": "Requested Check-In",
+    "checkOut": "Requested Check-Out",
+    "hours": "Overtime Hours",
+    "shiftType": "Overtime Shift",
+    "dayShift": "Day Shift (150%)",
+    "nightShift": "Night Shift (200%)",
+    "holidayShift": "Holiday Shift (300%)",
+    "statusPending": "Pending Approval",
+    "statusApproved": "Approved",
+    "statusRejected": "Rejected",
+    "submit": "Submit Request",
+    "submitting": "Submitting Request...",
+    "submitSuccess": "Request submitted successfully!",
+    "emptyRequests": "You have no requests recorded.",
+    "approver": "Approver",
+    "approvedAt": "Approved At",
+    "note": "Feedback Note",
+    "history": "Recent Request History"
   },
   "errors": {
     "networkUnavailable": "Unable to connect to the server. Please check your network.",

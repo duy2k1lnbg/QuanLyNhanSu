@@ -1,5 +1,6 @@
 export interface ProfileDto {
   manv: number;
+  employeeCode?: string;
   hoten: string;
   gioitinh: string;
   ngaysinh: string;
@@ -14,6 +15,86 @@ export interface ProfileDto {
   email: string;
   avatarBase64?: string | null;
   trangThaiLaoDong: string;
+}
+
+export interface UpdateProfileDto {
+  dienthoai?: string;
+  email?: string;
+  diachi?: string;
+  avatarBase64?: string;
+}
+
+export interface LeaveRequestDto {
+  id: number;
+  manv: number;
+  leaveType: string;
+  fromDate: string;
+  toDate: string;
+  totalDays: number;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  note?: string;
+  createdAt: string;
+  approverName?: string;
+  approvedAt?: string;
+}
+
+export interface CreateLeaveRequestDto {
+  leaveType: string;
+  fromDate: string;
+  toDate: string;
+  totalDays: number;
+  reason: string;
+}
+
+export interface AttendanceCorrectionDto {
+  id: number;
+  manv: number;
+  workDate: string;
+  requestedCheckIn?: string;
+  requestedCheckOut?: string;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  note?: string;
+  createdAt: string;
+}
+
+export interface CreateAttendanceCorrectionDto {
+  workDate: string;
+  requestedCheckIn?: string;
+  requestedCheckOut?: string;
+  reason: string;
+}
+
+export interface OvertimeRequestDto {
+  id: number;
+  manv: number;
+  otDate: string;
+  hours: number;
+  idCa?: number;
+  shiftType: string;
+  tenCa?: string;
+  coefficient: number;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  note?: string;
+  createdAt: string;
+  nguoiDuyet?: string;
+  ngayDuyet?: string;
+}
+
+export interface CreateOvertimeRequestDto {
+  otDate: string;
+  hours: number;
+  idCa?: number;
+  shiftType?: string;
+  reason: string;
+}
+
+export interface UnifiedRequestsDto {
+  leaves: LeaveRequestDto[];
+  corrections: AttendanceCorrectionDto[];
+  overtimes: OvertimeRequestDto[];
 }
 
 export interface AttendanceDailyItemDto {

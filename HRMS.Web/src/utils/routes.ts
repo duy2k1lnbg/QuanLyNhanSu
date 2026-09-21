@@ -7,7 +7,9 @@ export const VALID_ROUTES: Record<string, string> = {
   khenthuong: 'khenthuong',
   nangluong: 'nangluong',
   ungluong: 'ungluong',
+  approvals: 'approvals',
   phanquyen: 'phanquyen',
+  audit: 'audit',
 };
 
 export const ROUTE_TITLES: Record<string, string> = {
@@ -19,7 +21,9 @@ export const ROUTE_TITLES: Record<string, string> = {
   khenthuong: 'Khen thưởng & Kỷ luật | HRMS Enterprise',
   nangluong: 'Nâng lương & Điều chuyển | HRMS Enterprise',
   ungluong: 'Tăng ca & Tạm ứng | HRMS Enterprise',
+  approvals: 'Trung tâm Phê duyệt | HRMS Enterprise',
   phanquyen: 'Phân quyền & Hệ thống | HRMS Enterprise',
+  audit: 'Nhật ký Kiểm toán | HRMS Enterprise',
 };
 
 export const getRouteFromLocation = (): string => {
