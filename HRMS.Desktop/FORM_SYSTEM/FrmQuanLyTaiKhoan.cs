@@ -17,7 +17,6 @@ namespace QLyNSu.FORM_SYSTEM
         private DataTable _dtUsers;
         private DataTable _dtCandidates;
         private DataTable _dtBulkResults;
-        private DataTable _dtAudit;
 
         public FrmQuanLyTaiKhoan()
         {
@@ -32,12 +31,24 @@ namespace QLyNSu.FORM_SYSTEM
             SetupGridAppearance(gvUsers);
             SetupGridAppearance(gvCandidates);
             SetupGridAppearance(gvBulkResults);
-            SetupGridAppearance(gvMobile);
-            SetupGridAppearance(gvAudit);
 
             LoadDepartments();
             LoadAllData();
             LoadBulkPreview();
+
+            // Tự động tải lại danh sách ứng viên khi thay đổi tiêu chí lọc
+            cboBulkDept.EditValueChanged += (s, ev) =>
+            {
+                if (tabBulkSub != null) tabBulkSub.SelectedTabPage = tabSubCandidates;
+                LoadBulkPreview();
+            };
+            chkBulkOnlyWithoutAcc.CheckedChanged += (s, ev) =>
+            {
+                if (tabBulkSub != null) tabBulkSub.SelectedTabPage = tabSubCandidates;
+                LoadBulkPreview();
+            };
+
+            QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
         private void SetupGridAppearance(GridView gv)
@@ -54,14 +65,6 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 LoadBulkPreview();
             }
-            else if (e.Page == tabMobileAccess)
-            {
-                LoadMobileGrid();
-            }
-            else if (e.Page == tabAuditLog)
-            {
-                LoadAuditLog();
-            }
         }
 
         #region DATA LOADING & DIRECT ORACLE ACCESS
@@ -72,7 +75,7 @@ namespace QLyNSu.FORM_SYSTEM
                 using (var db = new MyEntities())
                 {
                     var depts = db.Database.SqlQuery<DeptItem>("SELECT IDPB, TENPB FROM HR.TB_PHONGBAN ORDER BY TENPB").ToList();
-                    depts.Insert(0, new DeptItem { IDPB = 0, TENPB = "-- Tất cả phòng ban --" });
+                    depts.Insert(0, new DeptItem { IDPB = 0, TENPB = QLyNSu.Functions.TranslationManager.Translate("-- Tất cả phòng ban --") });
 
                     cboPhongBan.Properties.DataSource = depts;
                     cboPhongBan.Properties.DisplayMember = "TENPB";
@@ -95,8 +98,6 @@ namespace QLyNSu.FORM_SYSTEM
         {
             LoadStatsDirectOracle();
             LoadUsersDirectOracle();
-            LoadMobileGrid();
-            LoadAuditLog();
         }
 
         private void LoadStatsDirectOracle()
@@ -585,31 +586,21 @@ namespace QLyNSu.FORM_SYSTEM
                         return;
                     }
 
-                    int mapExists = db.Database.SqlQuery<int>(
-                        "SELECT COUNT(*) FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0",
-                        new Oracle.ManagedDataAccess.Client.OracleParameter("p0", userId)
-                    ).FirstOrDefault();
+                    string mergeSql = @"
+                        MERGE INTO HR.TB_USER_EMPLOYEE_MAPPING M
+                        USING (SELECT :p0 AS USER_ID, :p1 AS EMPLOYEE_ID, 1 AS IS_MOBILE_ENABLED FROM DUAL) S
+                        ON (M.USER_ID = S.USER_ID)
+                        WHEN MATCHED THEN
+                            UPDATE SET M.EMPLOYEE_ID = S.EMPLOYEE_ID, M.IS_MOBILE_ENABLED = 1, M.UPDATED_AT = SYSDATE
+                        WHEN NOT MATCHED THEN
+                            INSERT (USER_ID, EMPLOYEE_ID, IS_MOBILE_ENABLED, CREATED_AT, UPDATED_AT)
+                            VALUES (S.USER_ID, S.EMPLOYEE_ID, 1, SYSDATE, SYSDATE)";
 
-                    if (mapExists > 0)
-                    {
-                        db.Database.ExecuteSqlCommand(
-                            "UPDATE HR.TB_USER_EMPLOYEE_MAPPING SET EMPLOYEE_ID = :p0, UPDATED_AT = SYSDATE WHERE USER_ID = :p1",
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p0", manv),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p1", userId)
-                        );
-                    }
-                    else
-                    {
-                        decimal nextMapId = db.Database.SqlQuery<decimal>("SELECT HR.TB_USER_EMP_MAP_SEQ.NEXTVAL FROM DUAL").FirstOrDefault();
-                        if (nextMapId == 0) nextMapId = db.Database.SqlQuery<decimal>("SELECT NVL(MAX(ID), 0) + 1 FROM HR.TB_USER_EMPLOYEE_MAPPING").FirstOrDefault();
-
-                        db.Database.ExecuteSqlCommand(
-                            "INSERT INTO HR.TB_USER_EMPLOYEE_MAPPING (ID, USER_ID, EMPLOYEE_ID, IS_MOBILE_ENABLED, CREATED_AT, UPDATED_AT) VALUES (:p0, :p1, :p2, 1, SYSDATE, SYSDATE)",
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p0", nextMapId),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p1", userId),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p2", manv)
-                        );
-                    }
+                    db.Database.ExecuteSqlCommand(
+                        mergeSql,
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("p0", userId),
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("p1", manv)
+                    );
 
                     db.Database.ExecuteSqlCommand(
                         "UPDATE HR.TB_SYS_USER SET MANV = :p0, CLIENT_TYPE = 'MOBILE' WHERE IDUSER = :p1",
@@ -632,6 +623,10 @@ namespace QLyNSu.FORM_SYSTEM
         public void SelectBatchProvisioningTab()
         {
             tabMain.SelectedTabPage = tabCapPhatHangLoat;
+            if (tabBulkSub != null)
+            {
+                tabBulkSub.SelectedTabPage = tabSubCandidates;
+            }
             if (_dtCandidates == null)
             {
                 LoadBulkPreview();
@@ -641,6 +636,10 @@ namespace QLyNSu.FORM_SYSTEM
         private void btnChuyenSangCapPhat_Click(object sender, EventArgs e)
         {
             tabMain.SelectedTabPage = tabCapPhatHangLoat;
+            if (tabBulkSub != null)
+            {
+                tabBulkSub.SelectedTabPage = tabSubCandidates;
+            }
         }
 
         private void btnXuatExcel_Click(object sender, EventArgs e)
@@ -683,8 +682,12 @@ namespace QLyNSu.FORM_SYSTEM
         #endregion
 
         #region TAB 3: CẤP PHÁT HÀNG LOẠT (BULK PROVISIONING)
-        private void btnBulkPreview_Click(object sender, EventArgs e)
+        private void btnBulkRefresh_Click(object sender, EventArgs e)
         {
+            if (tabBulkSub != null)
+            {
+                tabBulkSub.SelectedTabPage = tabSubCandidates;
+            }
             LoadBulkPreview();
         }
 
@@ -946,60 +949,50 @@ namespace QLyNSu.FORM_SYSTEM
                                 }
                                 existingUsernames.Add(loginName.ToUpper());
 
-                                // 3. Get next USER_ID
-                                decimal newUserId = db.Database.SqlQuery<decimal>("SELECT HR.TB_SYS_USER_SEQ.NEXTVAL FROM DUAL").FirstOrDefault();
-                                if (newUserId == 0)
+                                // 3. Create TB_SYS_USER via EF
+                                var newUser = new TB_SYS_USER
                                 {
-                                    newUserId = db.Database.SqlQuery<decimal>("SELECT NVL(MAX(IDUSER), 0) + 1 FROM HR.TB_SYS_USER").FirstOrDefault();
-                                }
+                                    USERNAME = loginName,
+                                    FULLNAME = empName,
+                                    PASSWORD = hashedPass,
+                                    MANV = empId,
+                                    DISABLED = 0,
+                                    CLIENT_TYPE = enableMobile ? "ALL" : "DESKTOP",
+                                    ISGROUP = 0,
+                                    MACTY = "1",
+                                    MADVI = "1"
+                                };
 
-                                // 4. Insert TB_SYS_USER: CLIENT_TYPE = 'MOBILE' (Quy tắc tài khoản nhân viên)
-                                string insertUserSql = @"
-                                    INSERT INTO HR.TB_SYS_USER (
-                                        IDUSER, USERNAME, FULLNAME, PASSWORD, ISGROUP, DISABLED, MACTY, MADVI, MANV, CLIENT_TYPE
-                                    ) VALUES (
-                                        :p0, :p1, :p2, :p3, 0, 0, 'CTY01', 'DVI01', :p4, :p5
-                                    )";
+                                db.TB_SYS_USER.Add(newUser);
+                                db.SaveChanges();
+
+                                // 4. MERGE into TB_USER_EMPLOYEE_MAPPING (1-1)
+                                int mobileFlag = enableMobile ? 1 : 0;
+                                string mergeSql = @"
+                                    MERGE INTO HR.TB_USER_EMPLOYEE_MAPPING M
+                                    USING (SELECT :p0 AS USER_ID, :p1 AS EMPLOYEE_ID, :p2 AS IS_MOBILE_ENABLED FROM DUAL) S
+                                    ON (M.USER_ID = S.USER_ID)
+                                    WHEN MATCHED THEN
+                                        UPDATE SET M.EMPLOYEE_ID = S.EMPLOYEE_ID, M.IS_MOBILE_ENABLED = S.IS_MOBILE_ENABLED, M.UPDATED_AT = SYSDATE
+                                    WHEN NOT MATCHED THEN
+                                        INSERT (USER_ID, EMPLOYEE_ID, IS_MOBILE_ENABLED, CREATED_AT, UPDATED_AT)
+                                        VALUES (S.USER_ID, S.EMPLOYEE_ID, S.IS_MOBILE_ENABLED, SYSDATE, SYSDATE)";
 
                                 db.Database.ExecuteSqlCommand(
-                                    insertUserSql,
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", newUserId),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p1", loginName),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p2", empName),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p3", hashedPass),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p4", empId),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p5", enableMobile ? "MOBILE" : "NONE")
-                                );
-
-                                // 5. Insert TB_USER_EMPLOYEE_MAPPING (1-1)
-                                decimal nextMapId = db.Database.SqlQuery<decimal>("SELECT HR.TB_USER_EMP_MAP_SEQ.NEXTVAL FROM DUAL").FirstOrDefault();
-                                if (nextMapId == 0)
-                                {
-                                    nextMapId = db.Database.SqlQuery<decimal>("SELECT NVL(MAX(ID), 0) + 1 FROM HR.TB_USER_EMPLOYEE_MAPPING").FirstOrDefault();
-                                }
-
-                                string insertMapSql = @"
-                                    INSERT INTO HR.TB_USER_EMPLOYEE_MAPPING (
-                                        ID, USER_ID, EMPLOYEE_ID, IS_MOBILE_ENABLED, CREATED_AT, UPDATED_AT
-                                    ) VALUES (
-                                        :p0, :p1, :p2, :p3, SYSDATE, SYSDATE
-                                    )";
-
-                                db.Database.ExecuteSqlCommand(
-                                    insertMapSql,
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", nextMapId),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p1", newUserId),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p2", empId),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p3", enableMobile ? 1 : 0)
+                                    mergeSql,
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", newUser.IDUSER),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p1", empId),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p2", mobileFlag)
                                 );
 
                                 successCnt++;
-                                dtResults.Rows.Add(empCode, empName, loginName, "SUCCESS", "Đã tạo tài khoản nhân viên (Mobile Only) thành công");
+                                dtResults.Rows.Add(empCode, empName, loginName, "SUCCESS", enableMobile ? "Đã tạo tài khoản & kích hoạt Mobile thành công" : "Đã tạo tài khoản thành công");
                             }
                             catch (Exception exRow)
                             {
                                 failedCnt++;
-                                dtResults.Rows.Add(empCode, empName, $"NV{((long)empId):D6}", "FAILED", exRow.Message);
+                                string errMsg = exRow.InnerException?.InnerException?.Message ?? exRow.InnerException?.Message ?? exRow.Message;
+                                dtResults.Rows.Add(empCode, empName, $"NV{((long)empId):D6}", "FAILED", errMsg);
                             }
                         }
 
@@ -1021,6 +1014,11 @@ namespace QLyNSu.FORM_SYSTEM
                         gcBulkResults.DataSource = _dtBulkResults;
                         gvBulkResults.PopulateColumns();
                         ConfigureBulkResultGridColumns();
+
+                        if (tabBulkSub != null)
+                        {
+                            tabBulkSub.SelectedTabPage = tabSubResults;
+                        }
 
                         LoadAllData();
                         LoadBulkPreview();
@@ -1045,183 +1043,6 @@ namespace QLyNSu.FORM_SYSTEM
         }
         #endregion
 
-        #region TAB 4: PHÂN QUYỀN & NHÓM
-        private void btnOpenPhanQuyenChucNang_Click(object sender, EventArgs e)
-        {
-            using (var frm = new FrmPhanQuyenChucNang())
-            {
-                frm.ShowDialog();
-            }
-        }
-
-        private void btnOpenPhanQuyenBaoCao_Click(object sender, EventArgs e)
-        {
-            using (var frm = new FrmPhanQuyenBaoCao())
-            {
-                frm.ShowDialog();
-            }
-        }
-        #endregion
-
-        #region TAB 5: MOBILE ACCESS
-        private void btnMobileEnableSel_Click(object sender, EventArgs e)
-        {
-            SetMobileAccessForSelected(true);
-        }
-
-        private void btnMobileDisableSel_Click(object sender, EventArgs e)
-        {
-            SetMobileAccessForSelected(false);
-        }
-
-        private void SetMobileAccessForSelected(bool enabled)
-        {
-            int rowHandle = gvMobile.FocusedRowHandle;
-            if (rowHandle < 0) return;
-
-            int userId = Convert.ToInt32(gvMobile.GetRowCellValue(rowHandle, "IDUSER"));
-            string username = Convert.ToString(gvMobile.GetRowCellValue(rowHandle, "USERNAME"));
-
-            if (username.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
-            {
-                XtraMessageBox.Show("Tài khoản Quản trị tối cao (ADMIN) bị cấm sử dụng Mobile.", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-
-            try
-            {
-                using (var db = new MyEntities())
-                {
-                    db.Database.ExecuteSqlCommand(
-                        "UPDATE HR.TB_USER_EMPLOYEE_MAPPING SET IS_MOBILE_ENABLED = :p0, UPDATED_AT = SYSDATE WHERE USER_ID = :p1",
-                        new Oracle.ManagedDataAccess.Client.OracleParameter("p0", enabled ? 1 : 0),
-                        new Oracle.ManagedDataAccess.Client.OracleParameter("p1", userId)
-                    );
-
-                    WriteAuditDirectOracle(enabled ? "ENABLE_MOBILE" : "DISABLE_MOBILE", userId.ToString(), $"Đổi Mobile Access thành {(enabled ? "BẬT" : "TẮT")} cho [{username}]", UserSession.CurrentUser?.USERNAME ?? "ADMIN");
-
-                    XtraMessageBox.Show($"Đã {(enabled ? "kích hoạt" : "tắt")} Mobile Access cho [{username}]!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadAllData();
-                }
-            }
-            catch (Exception ex)
-            {
-                XtraMessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-        }
-
-        private void LoadMobileGrid()
-        {
-            try
-            {
-                using (var db = new MyEntities())
-                {
-                    string sql = @"
-                        SELECT 
-                            U.IDUSER,
-                            U.USERNAME,
-                            U.FULLNAME,
-                            NV.EMPLOYEE_CODE,
-                            NV.HOTEN AS EMPLOYEE_NAME,
-                            CASE 
-                                WHEN UPPER(TRIM(U.USERNAME)) = 'ADMIN' THEN 'BLOCKED (Cấm Mobile)'
-                                WHEN UPPER(TRIM(NVL(U.CLIENT_TYPE, 'ALL'))) IN ('SYSTEM', 'DESKTOP', 'WEB') THEN 'BLOCKED (Tài khoản hệ thống)'
-                                WHEN M.IS_MOBILE_ENABLED = 1 THEN 'BẬT (Enabled)'
-                                WHEN M.IS_MOBILE_ENABLED = 0 THEN 'TẮT (Disabled)'
-                                ELSE 'TẮT (Mặc định)'
-                            END AS TRANGTHAI_MOBILE
-                        FROM HR.TB_SYS_USER U
-                        LEFT JOIN HR.TB_USER_EMPLOYEE_MAPPING M ON U.IDUSER = M.USER_ID
-                        LEFT JOIN HR.TB_NHANVIEN NV ON M.EMPLOYEE_ID = NV.MANV
-                        WHERE (U.ISGROUP IS NULL OR U.ISGROUP = 0)
-                        ORDER BY U.IDUSER";
-
-                    var rows = db.Database.SqlQuery<MobileRow>(sql).ToList();
-                    gcMobile.DataSource = ConvertListToDataTable(rows);
-                    gvMobile.PopulateColumns();
-                    ConfigureMobileGridColumns();
-                }
-            }
-            catch { }
-        }
-
-        private void ConfigureMobileGridColumns()
-        {
-            SetColumn(gvMobile, "IDUSER", "ID", 60);
-            SetColumn(gvMobile, "USERNAME", "Tên Đăng Nhập", 120);
-            SetColumn(gvMobile, "FULLNAME", "Tên Người Dùng", 150);
-            SetColumn(gvMobile, "EMPLOYEE_CODE", "Mã Nhân Viên", 100);
-            SetColumn(gvMobile, "EMPLOYEE_NAME", "Họ và Tên", 160);
-            SetColumn(gvMobile, "TRANGTHAI_MOBILE", "Quyền Mobile", 150);
-            gvMobile.BestFitColumns();
-        }
-        #endregion
-
-        #region TAB 6: AUDIT LOG
-        private void btnAuditFilter_Click(object sender, EventArgs e)
-        {
-            LoadAuditLog();
-        }
-
-        private void LoadAuditLog()
-        {
-            try
-            {
-                using (var db = new MyEntities())
-                {
-                    string kw = (txtAuditSearch?.Text ?? "").Trim();
-                    string act = cboAuditAction?.SelectedIndex > 0 ? cboAuditAction.Text.Trim() : "";
-
-                    string sql = @"
-                        SELECT 
-                            ID,
-                            TO_CHAR(THOIGIAN, 'DD/MM/YYYY HH24:MI:SS') AS THOIGIAN,
-                            TEN_THUCHIEN,
-                            HANHDONG,
-                            TEN_BANG,
-                            ID_BAN_GHI,
-                            DU_LIEU_MOI,
-                            IP_ADDRESS,
-                            MODULE_NAME
-                        FROM HR.TB_SYS_LOG
-                        WHERE 1=1";
-
-                    if (!string.IsNullOrEmpty(act))
-                    {
-                        sql += $" AND UPPER(HANHDONG) = '{act.ToUpper()}'";
-                    }
-                    if (!string.IsNullOrEmpty(kw))
-                    {
-                        sql += $" AND (TEN_THUCHIEN LIKE '%{kw}%' OR DU_LIEU_MOI LIKE '%{kw}%')";
-                    }
-
-                    sql += " ORDER BY ID DESC FETCH FIRST 300 ROWS ONLY";
-
-                    var rows = db.Database.SqlQuery<AuditLogRow>(sql).ToList();
-                    _dtAudit = ConvertListToDataTable(rows);
-                    gcAudit.DataSource = _dtAudit;
-                    gvAudit.PopulateColumns();
-                    ConfigureAuditGridColumns();
-                }
-            }
-            catch { }
-        }
-
-        private void ConfigureAuditGridColumns()
-        {
-            SetColumn(gvAudit, "ID", "ID", 60);
-            SetColumn(gvAudit, "THOIGIAN", "Thời Gian", 140);
-            SetColumn(gvAudit, "TEN_THUCHIEN", "Người Thực Hiện", 120);
-            SetColumn(gvAudit, "HANHDONG", "Hành Động", 130);
-            SetColumn(gvAudit, "TEN_BANG", "Bảng Dữ Liệu", 110);
-            SetColumn(gvAudit, "ID_BAN_GHI", "ID Bản Ghi", 90);
-            SetColumn(gvAudit, "DU_LIEU_MOI", "Chi Tiết Nhật Ký", 250);
-            SetColumn(gvAudit, "IP_ADDRESS", "IP", 100);
-            SetColumn(gvAudit, "MODULE_NAME", "Phân Hệ", 90);
-            gvAudit.BestFitColumns();
-        }
-        #endregion
-
         #region UTILITIES
         private void SetColumn(GridView gv, string fieldName, string caption, int width)
         {
@@ -1230,7 +1051,7 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 col = gv.Columns.AddField(fieldName);
             }
-            col.Caption = caption;
+            col.Caption = QLyNSu.Functions.TranslationManager.Translate(caption);
             col.Width = width;
             col.Visible = true;
         }
@@ -1361,28 +1182,6 @@ namespace QLyNSu.FORM_SYSTEM
             public decimal? DATHOIVIEC { get; set; }
         }
 
-        private class MobileRow
-        {
-            public decimal IDUSER { get; set; }
-            public string USERNAME { get; set; }
-            public string FULLNAME { get; set; }
-            public string EMPLOYEE_CODE { get; set; }
-            public string EMPLOYEE_NAME { get; set; }
-            public string TRANGTHAI_MOBILE { get; set; }
-        }
-
-        private class AuditLogRow
-        {
-            public decimal ID { get; set; }
-            public string THOIGIAN { get; set; }
-            public string TEN_THUCHIEN { get; set; }
-            public string HANHDONG { get; set; }
-            public string TEN_BANG { get; set; }
-            public string ID_BAN_GHI { get; set; }
-            public string DU_LIEU_MOI { get; set; }
-            public string IP_ADDRESS { get; set; }
-            public string MODULE_NAME { get; set; }
-        }
         #endregion
 
         private void txtBulkDefaultPass_EditValueChanged(object sender, EventArgs e)

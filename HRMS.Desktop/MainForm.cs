@@ -294,11 +294,13 @@ namespace QLyNSu
                 // Check rights
                 btnPass.Enabled = true;
                 btnUser_Update.Enabled = true;
-                btnPheDuyet.Enabled = true;
+                
+                // Phê duyệt yêu cầu online (FrmPheDuyetYeuCau)
+                btnPheDuyet.Enabled = UserSession.HasRight("F_NV_PHEDUYET");
                 
                 btnGroup.Enabled = UserSession.HasRight("F_SYSTEM_GROUP");
                 btnUser.Enabled = UserSession.HasRight("F_SYSTEM_USER");
-                btnCapTaiKhoanHangLoat.Enabled = UserSession.HasRight("F_SYSTEM_USER");
+                btnCapTaiKhoanHangLoat.Enabled = UserSession.HasRight("F_SYSTEM_CAPTAIKHOAN") || UserSession.HasRight("F_SYSTEM_USER");
                 btnSaoLuu_DB.Enabled = UserSession.HasRight("F_SYSTEM_SAULUU");
                 btnPhucHoi_DB.Enabled = UserSession.HasRight("F_SYSTEM_PHUCHOI");
                 BtnAI.Enabled = UserSession.HasRight("F_SYSTEM_AI");
@@ -330,17 +332,17 @@ namespace QLyNSu
                 btnTangCa.Enabled = UserSession.HasRight("F_CC_TANGCA");
                 btnUngLuong.Enabled = UserSession.HasRight("F_CC_UNGLUONG");
                 btnBangCong.Enabled = UserSession.HasRight("F_CC_BANGCONG");
-                btnBCCT_NV.Enabled = UserSession.HasRight("F_CC_BCCT");
+                btnBCCT_NV.Enabled = UserSession.HasRight("F_CC_BCCT") || UserSession.HasRight("F_CC_BCCT_IN");
                 btnBangLuong.Enabled = UserSession.HasRight("F_CC_BANGLUONG");
                 btnLoaiHopDong.Enabled = UserSession.HasRight("F_NV_LOAIHOPDONG");
                 btnNgayLe.Enabled = UserSession.HasRight("F_CC_NGAYLE");
                 
                 btnBaoCao.Enabled = UserSession.HasRight("F_BC_BAOCAO");
                 
-                btnChucNang.Enabled = UserSession.CurrentUser.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase);
-                btnPQ_BaoCao.Enabled = UserSession.CurrentUser.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase);
+                btnChucNang.Enabled = UserSession.IsAdmin || UserSession.HasRight("F_SYSTEM_PQ_CHUCNANG");
+                btnPQ_BaoCao.Enabled = UserSession.IsAdmin || UserSession.HasRight("F_SYSTEM_PQ_BAOCAO");
                 
-                btnThongBao.Enabled = true;
+                btnThongBao.Enabled = UserSession.HasRight("F_SYSTEM_THONGBAO");
             }
             loadMainFormThongBao();
         }

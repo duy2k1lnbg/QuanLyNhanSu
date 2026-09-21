@@ -68,6 +68,7 @@ namespace QLyNSu.FORM_SYSTEM
         private void FrmDatabaseConfig_Load(object sender, EventArgs e)
         {
             LoadData();
+            QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
         private void SetMode(bool isEditing)

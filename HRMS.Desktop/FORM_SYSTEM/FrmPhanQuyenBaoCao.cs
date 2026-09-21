@@ -34,6 +34,7 @@ namespace QLyNSu.FORM_SYSTEM
             gvRight.CellValueChanged += gvRight_CellValueChanged;
 
             loadUsers();
+            QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
         private void loadUsers()
@@ -42,8 +43,8 @@ namespace QLyNSu.FORM_SYSTEM
             
             // Format User columns
             if (gvUser.Columns["IDUSER"] != null) gvUser.Columns["IDUSER"].Caption = "ID";
-            if (gvUser.Columns["USERNAME"] != null) gvUser.Columns["USERNAME"].Caption = "Tài khoản/Nhóm";
-            if (gvUser.Columns["FULLNAME"] != null) gvUser.Columns["FULLNAME"].Caption = "Họ và tên / Mô tả";
+            if (gvUser.Columns["USERNAME"] != null) gvUser.Columns["USERNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Tài khoản/Nhóm");
+            if (gvUser.Columns["FULLNAME"] != null) gvUser.Columns["FULLNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Họ và tên / Mô tả");
             
             // Hide other columns
             foreach (DevExpress.XtraGrid.Columns.GridColumn col in gvUser.Columns)
@@ -80,7 +81,7 @@ namespace QLyNSu.FORM_SYSTEM
             _rightList = allReports.Select(r => new ReportRightItem
             {
                 REP_CODE = r.REP_CODE,
-                DESCRIPTION = r.DESCRIPTION,
+                DESCRIPTION = QLyNSu.Functions.TranslationManager.Translate(r.DESCRIPTION),
                 HAS_RIGHT = userReportRights.Contains(r.REP_CODE)
             }).ToList();
 
@@ -89,17 +90,17 @@ namespace QLyNSu.FORM_SYSTEM
             // Format right columns
             if (gvRight.Columns["REP_CODE"] != null)
             {
-                gvRight.Columns["REP_CODE"].Caption = "Mã báo cáo";
+                gvRight.Columns["REP_CODE"].Caption = QLyNSu.Functions.TranslationManager.Translate("Mã báo cáo");
                 gvRight.Columns["REP_CODE"].OptionsColumn.AllowEdit = false;
             }
             if (gvRight.Columns["DESCRIPTION"] != null)
             {
-                gvRight.Columns["DESCRIPTION"].Caption = "Tên báo cáo";
+                gvRight.Columns["DESCRIPTION"].Caption = QLyNSu.Functions.TranslationManager.Translate("Tên báo cáo");
                 gvRight.Columns["DESCRIPTION"].OptionsColumn.AllowEdit = false;
             }
             if (gvRight.Columns["HAS_RIGHT"] != null)
             {
-                gvRight.Columns["HAS_RIGHT"].Caption = "Cho phép xem";
+                gvRight.Columns["HAS_RIGHT"].Caption = QLyNSu.Functions.TranslationManager.Translate("Cho phép xem");
                 gvRight.Columns["HAS_RIGHT"].OptionsColumn.AllowEdit = true;
             }
         }

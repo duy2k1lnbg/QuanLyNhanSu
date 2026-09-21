@@ -35,6 +35,7 @@ namespace QLyNSu.FORM_SYSTEM
             LoadData();
             ApplyAuthorization();
             gvDanhSach.CustomColumnDisplayText += gvDanhSach_CustomColumnDisplayText;
+            QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
         public void LoadCombo()
@@ -43,17 +44,17 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 // 1. Static list for cboLoaiTB
                 cboLoaiTB.Properties.Items.Clear();
-                cboLoaiTB.Properties.Items.Add("Thông báo chung");
-                cboLoaiTB.Properties.Items.Add("Chính sách mới");
-                cboLoaiTB.Properties.Items.Add("Tin khẩn cấp");
-                cboLoaiTB.Properties.Items.Add("Quy chế công ty");
+                cboLoaiTB.Properties.Items.Add(QLyNSu.Functions.TranslationManager.Translate("Thông báo chung"));
+                cboLoaiTB.Properties.Items.Add(QLyNSu.Functions.TranslationManager.Translate("Chính sách mới"));
+                cboLoaiTB.Properties.Items.Add(QLyNSu.Functions.TranslationManager.Translate("Tin khẩn cấp"));
+                cboLoaiTB.Properties.Items.Add(QLyNSu.Functions.TranslationManager.Translate("Quy chế công ty"));
                 cboLoaiTB.SelectedIndex = 0;
 
                 // 2. Static list for cboTrangThai
                 cboTrangThai.Properties.Items.Clear();
-                cboTrangThai.Properties.Items.Add("Bản nháp");
-                cboTrangThai.Properties.Items.Add("Đã đăng");
-                cboTrangThai.Properties.Items.Add("Đã ẩn");
+                cboTrangThai.Properties.Items.Add(QLyNSu.Functions.TranslationManager.Translate("Bản nháp"));
+                cboTrangThai.Properties.Items.Add(QLyNSu.Functions.TranslationManager.Translate("Đã đăng"));
+                cboTrangThai.Properties.Items.Add(QLyNSu.Functions.TranslationManager.Translate("Đã ẩn"));
                 cboTrangThai.SelectedIndex = 1; // Default to "Đã đăng"
 
                 // 3. Load cboCongTy list from Database
@@ -62,7 +63,7 @@ namespace QLyNSu.FORM_SYSTEM
                 cboCongTy.Properties.DisplayMember = "TENCTY";
                 cboCongTy.Properties.ValueMember = "IDCTY";
                 cboCongTy.Properties.Columns.Clear();
-                cboCongTy.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TENCTY", "Tên Công ty"));
+                cboCongTy.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TENCTY", QLyNSu.Functions.TranslationManager.Translate("Tên Công ty")));
 
                 // 4. Load cboPhongBan list from Database
                 var listPhongBan = new PHONGBAN().getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
@@ -70,11 +71,11 @@ namespace QLyNSu.FORM_SYSTEM
                 cboPhongBan.Properties.DisplayMember = "TENPB";
                 cboPhongBan.Properties.ValueMember = "IDPB";
                 cboPhongBan.Properties.Columns.Clear();
-                cboPhongBan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TENPB", "Tên Phòng ban"));
+                cboPhongBan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TENPB", QLyNSu.Functions.TranslationManager.Translate("Tên Phòng ban")));
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi tải danh mục: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Lỗi khi tải danh mục:") + " " + ex.Message, QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -86,20 +87,20 @@ namespace QLyNSu.FORM_SYSTEM
                 switch (val)
                 {
                     case 0:
-                        e.DisplayText = "Bản nháp";
+                        e.DisplayText = QLyNSu.Functions.TranslationManager.Translate("Bản nháp");
                         break;
                     case 1:
-                        e.DisplayText = "Đã đăng";
+                        e.DisplayText = QLyNSu.Functions.TranslationManager.Translate("Đã đăng");
                         break;
                     case 2:
-                        e.DisplayText = "Đã ẩn";
+                        e.DisplayText = QLyNSu.Functions.TranslationManager.Translate("Đã ẩn");
                         break;
                 }
             }
             else if (e.Column.FieldName == "IS_PINNED" && e.Value != null)
             {
                 int val = Convert.ToInt32(e.Value);
-                e.DisplayText = val == 1 ? "Ghim" : "";
+                e.DisplayText = val == 1 ? QLyNSu.Functions.TranslationManager.Translate("Ghim") : "";
             }
         }
 
@@ -184,6 +185,11 @@ namespace QLyNSu.FORM_SYSTEM
                     return false;
                 }
 
+                string loaiTb = "Thông báo chung";
+                if (cboLoaiTB.SelectedIndex == 1) loaiTb = "Chính sách mới";
+                else if (cboLoaiTB.SelectedIndex == 2) loaiTb = "Tin khẩn cấp";
+                else if (cboLoaiTB.SelectedIndex == 3) loaiTb = "Quy chế công ty";
+
                 if (_them)
                 {
                     TB_THONGBAO tb = new TB_THONGBAO
@@ -192,7 +198,7 @@ namespace QLyNSu.FORM_SYSTEM
                         NOIDUNG = txtNoiDung.Text.Trim(),
                         NGUOIDANG = UserSession.CurrentUser != null ? UserSession.CurrentUser.FULLNAME : "ADMIN",
                         NGAYDANG = DateTime.Now,
-                        LOAI_TB = cboLoaiTB.Text,
+                        LOAI_TB = loaiTb,
                         IS_PINNED = chkGhim.Checked,
                         TRANGTHAI = cboTrangThai.SelectedIndex == 1,
                         NGAY_HETHAN = dtNgayHetHan.EditValue != null ? (DateTime?)dtNgayHetHan.DateTime : null,
@@ -211,7 +217,7 @@ namespace QLyNSu.FORM_SYSTEM
                         tb.NOIDUNG = txtNoiDung.Text.Trim();
                         tb.NGUOIDANG = UserSession.CurrentUser != null ? UserSession.CurrentUser.FULLNAME : "ADMIN";
                         tb.NGAYDANG = DateTime.Now;
-                        tb.LOAI_TB = cboLoaiTB.Text;
+                        tb.LOAI_TB = loaiTb;
                         tb.IS_PINNED = chkGhim.Checked;
                         tb.TRANGTHAI = cboTrangThai.SelectedIndex == 1;
                         tb.NGAY_HETHAN = dtNgayHetHan.EditValue != null ? (DateTime?)dtNgayHetHan.DateTime : null;
@@ -222,7 +228,7 @@ namespace QLyNSu.FORM_SYSTEM
                     }
                     else
                     {
-                        MessageBox.Show("Không tìm thấy thông báo cần cập nhật.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Không tìm thấy thông báo cần cập nhật."), QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return false;
                     }
                 }
@@ -230,7 +236,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi lưu thông báo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Lỗi khi lưu thông báo:") + " " + ex.Message, QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
         }
@@ -323,7 +329,7 @@ namespace QLyNSu.FORM_SYSTEM
                 txtNguoiDang.Text = item.NGUOIDANG ?? string.Empty;
                 txtNgayDang.Text = item.NGAYDANG.ToString("dd/MM/yyyy HH:mm");
 
-                cboLoaiTB.Text = item.LOAI_TB ?? "Thông báo chung";
+                cboLoaiTB.Text = QLyNSu.Functions.TranslationManager.Translate(item.LOAI_TB ?? "Thông báo chung");
                 chkGhim.Checked = item.IS_PINNED == 1;
 
                 if (item.TRANGTHAI != null)

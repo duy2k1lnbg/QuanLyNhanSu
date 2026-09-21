@@ -436,59 +436,105 @@ namespace Bu.CLASS_SYSTEM
                 // 1. Seed Functions
                 var functions = new List<TB_SYS_FUNCTION>
                 {
+                    // === HỆ THỐNG & QUẢN TRỊ ===
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_GROUP", SORT = 1, DESCRIPTION = "Nhóm Người Dùng", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_USER", SORT = 2, DESCRIPTION = "Người Dùng", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_LOCK_USER", SORT = 2, DESCRIPTION = "Khóa Tài Khoản (Admin/Cấp quyền)", ISGROUP = 0, MENU = 0, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_SAULUU", SORT = 3, DESCRIPTION = "Sao Lưu Dữ Liệu", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_PHUCHOI", SORT = 4, DESCRIPTION = "Phục Hồi Dữ Liệu", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_AI", SORT = 5, DESCRIPTION = "Trợ Lý AI", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_SETTING", SORT = 6, DESCRIPTION = "Cấu Hình Ngôn Ngữ", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_AI_CONFIG", SORT = 7, DESCRIPTION = "Cấu Hình AI Server", ISGROUP = 0, MENU = 0, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_GIAMSAT", SORT = 9, DESCRIPTION = "Giám Sát Đăng Nhập", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_NHANSU", SORT = 7, DESCRIPTION = "Dashboard Nhân Sự", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_LUONG", SORT = 8, DESCRIPTION = "Dashboard Lương", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_DANTOC", SORT = 10, DESCRIPTION = "Dân Tộc", ISGROUP = 0, MENU = 1, PARENT = "DM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_TONGIAO", SORT = 11, DESCRIPTION = "Tôn Giáo", ISGROUP = 0, MENU = 1, PARENT = "DM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_TRINHDO", SORT = 12, DESCRIPTION = "Trình Độ", ISGROUP = 0, MENU = 1, PARENT = "DM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_NHANVIEN", SORT = 13, DESCRIPTION = "Nhân Viên", ISGROUP = 0, MENU = 1, PARENT = "DM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_PHONGBAN", SORT = 14, DESCRIPTION = "Phòng Ban", ISGROUP = 0, MENU = 1, PARENT = "DM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_BOPHAN", SORT = 15, DESCRIPTION = "Bộ Phận", ISGROUP = 0, MENU = 1, PARENT = "DM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_CONGTY", SORT = 16, DESCRIPTION = "Công Ty", ISGROUP = 0, MENU = 1, PARENT = "DM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_CHUCVU", SORT = 17, DESCRIPTION = "Chức Vụ", ISGROUP = 0, MENU = 1, PARENT = "DM" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_HOPDONG", SORT = 30, DESCRIPTION = "Hợp Đồng", ISGROUP = 0, MENU = 1, PARENT = "NV" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_NANGLUONG", SORT = 31, DESCRIPTION = "Lên Lương", ISGROUP = 0, MENU = 1, PARENT = "NV" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_KHENTHUONG", SORT = 32, DESCRIPTION = "Khen Thưởng", ISGROUP = 0, MENU = 1, PARENT = "NV" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_KYLUAT", SORT = 33, DESCRIPTION = "Kỷ Luật", ISGROUP = 0, MENU = 1, PARENT = "NV" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_DIEUCHUYEN", SORT = 34, DESCRIPTION = "Điều Chuyển", ISGROUP = 0, MENU = 1, PARENT = "NV" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_THOIVIEC", SORT = 35, DESCRIPTION = "Thôi Việc", ISGROUP = 0, MENU = 1, PARENT = "NV" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_LOAIHOPDONG", SORT = 36, DESCRIPTION = "Loại Hợp Đồng", ISGROUP = 0, MENU = 1, PARENT = "NV" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_LOAICA", SORT = 50, DESCRIPTION = "Loại Ca", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_LOAICONG", SORT = 51, DESCRIPTION = "Loại Công", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_PHUCAP", SORT = 52, DESCRIPTION = "Phụ Cấp", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_TANGCA", SORT = 53, DESCRIPTION = "Tăng Ca", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_UNGLUONG", SORT = 54, DESCRIPTION = "Ứng Lương", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BANGCONG", SORT = 55, DESCRIPTION = "Bảng Công", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BCCT", SORT = 56, DESCRIPTION = "Bảng Công Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BANGLUONG", SORT = 57, DESCRIPTION = "Bảng Lương", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_NGAYLE", SORT = 58, DESCRIPTION = "Ngày Lễ", ISGROUP = 0, MENU = 1, PARENT = "CC" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_BC_BAOCAO", SORT = 70, DESCRIPTION = "Báo Cáo Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "BC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_USER", SORT = 2, DESCRIPTION = "Quản Lý Tài Khoản", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_CAPTAIKHOAN", SORT = 3, DESCRIPTION = "Cấp Tài Khoản Hàng Loạt", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_LOCK_USER", SORT = 4, DESCRIPTION = "Khóa/Mở Khóa Tài Khoản", ISGROUP = 0, MENU = 0, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_PQ_CHUCNANG", SORT = 5, DESCRIPTION = "Phân Quyền Chức Năng", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_PQ_BAOCAO", SORT = 6, DESCRIPTION = "Phân Quyền Báo Cáo", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_THONGBAO", SORT = 7, DESCRIPTION = "Thông Báo Hệ Thống", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_SAULUU", SORT = 8, DESCRIPTION = "Sao Lưu Dữ Liệu", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_PHUCHOI", SORT = 9, DESCRIPTION = "Phục Hồi Dữ Liệu", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_GIAMSAT", SORT = 10, DESCRIPTION = "Giám Sát Đăng Nhập", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_AI", SORT = 11, DESCRIPTION = "Trợ Lý AI & Chatbot", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_SETTING", SORT = 12, DESCRIPTION = "Cấu Hình Ngôn Ngữ & Hệ Thống", ISGROUP = 0, MENU = 1, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_AI_CONFIG", SORT = 13, DESCRIPTION = "Cấu Hình AI Server (Ollama)", ISGROUP = 0, MENU = 0, PARENT = "SYSTEM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_SYSTEM_DB_CONFIG", SORT = 14, DESCRIPTION = "Cấu Hình Kết Nối CSDL", ISGROUP = 0, MENU = 0, PARENT = "SYSTEM" },
+
+                    // === DASHBOARD & THỐNG KÊ ===
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_NHANSU", SORT = 20, DESCRIPTION = "Dashboard Nhân Sự", ISGROUP = 0, MENU = 1, PARENT = "DASHBOARD" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DB_LUONG", SORT = 21, DESCRIPTION = "Dashboard Lương", ISGROUP = 0, MENU = 1, PARENT = "DASHBOARD" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_BC_BAOCAO", SORT = 22, DESCRIPTION = "Báo Cáo Tổng Hợp & Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "DASHBOARD" },
+
+                    // === DANH MỤC DÙNG CHUNG ===
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_DANTOC", SORT = 30, DESCRIPTION = "Dân Tộc", ISGROUP = 0, MENU = 1, PARENT = "DM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_TONGIAO", SORT = 31, DESCRIPTION = "Tôn Giáo", ISGROUP = 0, MENU = 1, PARENT = "DM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_TRINHDO", SORT = 32, DESCRIPTION = "Trình Độ", ISGROUP = 0, MENU = 1, PARENT = "DM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_NHANVIEN", SORT = 33, DESCRIPTION = "Hồ Sơ Nhân Viên", ISGROUP = 0, MENU = 1, PARENT = "DM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_PHONGBAN", SORT = 34, DESCRIPTION = "Phòng Ban", ISGROUP = 0, MENU = 1, PARENT = "DM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_BOPHAN", SORT = 35, DESCRIPTION = "Bộ Phận", ISGROUP = 0, MENU = 1, PARENT = "DM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_CONGTY", SORT = 36, DESCRIPTION = "Công Ty", ISGROUP = 0, MENU = 1, PARENT = "DM" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_DM_CHUCVU", SORT = 37, DESCRIPTION = "Chức Vụ", ISGROUP = 0, MENU = 1, PARENT = "DM" },
+
+                    // === QUẢN LÝ NHÂN SỰ & NGHIỆP VỤ ===
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_HOPDONG", SORT = 50, DESCRIPTION = "Hợp Đồng Lao Động", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_LOAIHOPDONG", SORT = 51, DESCRIPTION = "Loại Hợp Đồng", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_NANGLUONG", SORT = 52, DESCRIPTION = "Lên Lương Nhân Viên", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_KHENTHUONG", SORT = 53, DESCRIPTION = "Khen Thưởng", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_KYLUAT", SORT = 54, DESCRIPTION = "Kỷ Luật", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_DIEUCHUYEN", SORT = 55, DESCRIPTION = "Điều Chuyển Nhân Viên", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_THOIVIEC", SORT = 56, DESCRIPTION = "Thôi Việc", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_NV_PHEDUYET", SORT = 57, DESCRIPTION = "Phê Duyệt Yêu Cầu (Online)", ISGROUP = 0, MENU = 1, PARENT = "NV" },
+
+                    // === CHẤM CÔNG & TIỀN LƯƠNG ===
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_LOAICA", SORT = 70, DESCRIPTION = "Loại Ca", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_LOAICONG", SORT = 71, DESCRIPTION = "Loại Công", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_NGAYLE", SORT = 72, DESCRIPTION = "Ngày Lễ", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_PHUCAP", SORT = 73, DESCRIPTION = "Phụ Cấp Nhân Viên", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_TANGCA", SORT = 74, DESCRIPTION = "Tăng Ca", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_UNGLUONG", SORT = 75, DESCRIPTION = "Ứng Lương", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BANGCONG", SORT = 76, DESCRIPTION = "Quản Lý Bảng Công", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BCCT", SORT = 77, DESCRIPTION = "Bảng Công Chi Tiết", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BCCT_IN", SORT = 78, DESCRIPTION = "In Bảng Công Nhân Viên", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_CAPNHATCONG", SORT = 79, DESCRIPTION = "Cập Nhật Ngày Công", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "F_CC_BANGLUONG", SORT = 80, DESCRIPTION = "Bảng Lương", ISGROUP = 0, MENU = 1, PARENT = "CC" },
+
+                    // === DỊCH VỤ MOBILE APP ===
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_ROOT", SORT = 200, DESCRIPTION = "Phân Hệ Mobile App", ISGROUP = 0, MENU = 1, PARENT = "MOBILE" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_PROFILE_VIEW", SORT = 201, DESCRIPTION = "Xem Hồ Sơ Cá Nhân Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_ATTENDANCE_VIEW", SORT = 202, DESCRIPTION = "Xem Bảng Công Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_PAYROLL_VIEW", SORT = 203, DESCRIPTION = "Xem Bảng Lương Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_CONTRACT_VIEW", SORT = 204, DESCRIPTION = "Xem Hợp Đồng Lao Động Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_INSURANCE_VIEW", SORT = 205, DESCRIPTION = "Xem Bảo Hiểm Xã Hội Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_NOTIFICATION_VIEW", SORT = 206, DESCRIPTION = "Xem Thông Báo Nội Bộ Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" }
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_NOTIFICATION_VIEW", SORT = 206, DESCRIPTION = "Xem Thông Báo Nội Bộ Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_LEAVE", SORT = 207, DESCRIPTION = "Gửi Đơn Nghỉ Phép Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_OVERTIME", SORT = 208, DESCRIPTION = "Gửi Đơn Tăng Ca Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_ADVANCE", SORT = 209, DESCRIPTION = "Gửi Yêu Cầu Ứng Lương Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" }
                 };
 
                 foreach (var f in functions)
                 {
-                    if (!db.TB_SYS_FUNCTION.Any(x => x.FUNCTION_CODE == f.FUNCTION_CODE))
+                    try
                     {
-                        db.TB_SYS_FUNCTION.Add(f);
+                        var existing = db.TB_SYS_FUNCTION.FirstOrDefault(x => x.FUNCTION_CODE == f.FUNCTION_CODE);
+                        if (existing == null)
+                        {
+                            db.TB_SYS_FUNCTION.Add(new TB_SYS_FUNCTION
+                            {
+                                FUNCTION_CODE = f.FUNCTION_CODE,
+                                SORT = f.SORT,
+                                DESCRIPTION = f.DESCRIPTION,
+                                PARENT = f.PARENT,
+                                MENU = f.MENU,
+                                ISGROUP = f.ISGROUP
+                            });
+                        }
+                        else
+                        {
+                            // In EF6, SORT is part of composite EntityKey, so do not modify existing.SORT directly on entity
+                            existing.DESCRIPTION = f.DESCRIPTION;
+                            existing.PARENT = f.PARENT;
+                            existing.MENU = f.MENU;
+                            existing.ISGROUP = f.ISGROUP;
+                        }
+                        db.SaveChanges();
+                    }
+                    catch (Exception exFunc)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[DB MIGRATION]: Seed function {f.FUNCTION_CODE} error: {exFunc.Message}");
                     }
                 }
-                db.SaveChanges();
 
                 // 2. Seed Users if table is empty
                 if (!db.TB_SYS_USER.Any())
@@ -505,25 +551,65 @@ namespace Bu.CLASS_SYSTEM
                     db.SaveChanges();
 
                     // 3. Seed Rights
-                    // nhansu: HR page (F_DM_..., F_NV_..., F_SYSTEM_AI)
-                    var nhansuRights = new List<string> { "F_SYSTEM_AI", "F_DM_DANTOC", "F_DM_TONGIAO", "F_DM_TRINHDO", "F_DM_NHANVIEN", "F_DM_PHONGBAN", "F_DM_BOPHAN", "F_DM_CONGTY", "F_DM_CHUCVU", "F_NV_HOPDONG", "F_NV_NANGLUONG", "F_NV_KHENTHUONG", "F_NV_KYLUAT", "F_NV_DIEUCHUYEN", "F_NV_THOIVIEC" };
+                    // nhansu: HR page
+                    var nhansuRights = new List<string> { 
+                        "F_SYSTEM_AI", "F_DM_DANTOC", "F_DM_TONGIAO", "F_DM_TRINHDO", "F_DM_NHANVIEN", 
+                        "F_DM_PHONGBAN", "F_DM_BOPHAN", "F_DM_CONGTY", "F_DM_CHUCVU", "F_NV_HOPDONG", 
+                        "F_NV_LOAIHOPDONG", "F_NV_NANGLUONG", "F_NV_KHENTHUONG", "F_NV_KYLUAT", 
+                        "F_NV_DIEUCHUYEN", "F_NV_THOIVIEC", "F_NV_PHEDUYET", "F_SYSTEM_THONGBAO" 
+                    };
                     foreach (var code in nhansuRights)
                     {
-                        db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT { FUNCTION_CODE = code, IDUSER = nhansu.IDUSER, USER_RIGHT = 1 });
+                        db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT { FUNCTION_CODE = code, IDUSER = nhansu.IDUSER, USER_RIGHT = 1, CAN_VIEW = 1, CAN_ADD = 1, CAN_EDIT = 1, CAN_DELETE = 1, CAN_PRINT = 1 });
                     }
 
-                    // chamcong: Timekeeping and Payroll (F_CC_..., F_SYSTEM_AI)
-                    var chamcongRights = new List<string> { "F_SYSTEM_AI", "F_CC_LOAICA", "F_CC_LOAICONG", "F_CC_PHUCAP", "F_CC_TANGCA", "F_CC_UNGLUONG", "F_CC_BANGCONG", "F_CC_BCCT", "F_CC_BANGLUONG" };
+                    // chamcong: Timekeeping and Payroll
+                    var chamcongRights = new List<string> { 
+                        "F_SYSTEM_AI", "F_CC_LOAICA", "F_CC_LOAICONG", "F_CC_NGAYLE", "F_CC_PHUCAP", 
+                        "F_CC_TANGCA", "F_CC_UNGLUONG", "F_CC_BANGCONG", "F_CC_BCCT", "F_CC_BCCT_IN", 
+                        "F_CC_CAPNHATCONG", "F_CC_BANGLUONG" 
+                    };
                     foreach (var code in chamcongRights)
                     {
-                        db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT { FUNCTION_CODE = code, IDUSER = chamcong.IDUSER, USER_RIGHT = 1 });
+                        db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT { FUNCTION_CODE = code, IDUSER = chamcong.IDUSER, USER_RIGHT = 1, CAN_VIEW = 1, CAN_ADD = 1, CAN_EDIT = 1, CAN_DELETE = 1, CAN_PRINT = 1 });
                     }
 
-                    // baocao: Reports only (F_BC_BAOCAO, F_SYSTEM_AI)
-                    var baocaoRights = new List<string> { "F_SYSTEM_AI", "F_BC_BAOCAO" };
+                    // baocao: Reports only
+                    var baocaoRights = new List<string> { "F_SYSTEM_AI", "F_BC_BAOCAO", "F_DB_NHANSU", "F_DB_LUONG" };
                     foreach (var code in baocaoRights)
                     {
-                        db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT { FUNCTION_CODE = code, IDUSER = baocao.IDUSER, USER_RIGHT = 1 });
+                        db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT { FUNCTION_CODE = code, IDUSER = baocao.IDUSER, USER_RIGHT = 1, CAN_VIEW = 1, CAN_PRINT = 1 });
+                    }
+
+                    db.SaveChanges();
+                }
+                else
+                {
+                    // Update default users with new rights if missing
+                    var nhansuUser = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME.ToLower() == "nhansu");
+                    if (nhansuUser != null)
+                    {
+                        var extraRights = new List<string> { "F_NV_PHEDUYET", "F_SYSTEM_THONGBAO", "F_NV_LOAIHOPDONG" };
+                        foreach (var code in extraRights)
+                        {
+                            if (!db.TB_SYS_RIGHT.Any(r => r.IDUSER == nhansuUser.IDUSER && r.FUNCTION_CODE == code))
+                            {
+                                db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT { FUNCTION_CODE = code, IDUSER = nhansuUser.IDUSER, USER_RIGHT = 1, CAN_VIEW = 1, CAN_ADD = 1, CAN_EDIT = 1, CAN_DELETE = 1, CAN_PRINT = 1 });
+                            }
+                        }
+                    }
+
+                    var chamcongUser = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME.ToLower() == "chamcong");
+                    if (chamcongUser != null)
+                    {
+                        var extraRights = new List<string> { "F_CC_NGAYLE", "F_CC_BCCT_IN", "F_CC_CAPNHATCONG" };
+                        foreach (var code in extraRights)
+                        {
+                            if (!db.TB_SYS_RIGHT.Any(r => r.IDUSER == chamcongUser.IDUSER && r.FUNCTION_CODE == code))
+                            {
+                                db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT { FUNCTION_CODE = code, IDUSER = chamcongUser.IDUSER, USER_RIGHT = 1, CAN_VIEW = 1, CAN_ADD = 1, CAN_EDIT = 1, CAN_DELETE = 1, CAN_PRINT = 1 });
+                            }
+                        }
                     }
 
                     db.SaveChanges();
@@ -581,6 +667,52 @@ namespace Bu.CLASS_SYSTEM
                     new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình AI Server", LANGUAGE_CODE = "JA", VALUE = "AIサーバー設定" },
                     new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình AI Server", LANGUAGE_CODE = "ZH", VALUE = "AI服务器配置" },
                     new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình AI Server", LANGUAGE_CODE = "KO", VALUE = "AI 서버 구성" },
+
+                    // Core UI Translations
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Phân hệ", LANGUAGE_CODE = "EN", VALUE = "Subsystem" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Phân hệ", LANGUAGE_CODE = "JA", VALUE = "サブシステム" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Phân hệ", LANGUAGE_CODE = "ZH", VALUE = "子系统" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Phân hệ", LANGUAGE_CODE = "KO", VALUE = "하위 시스템" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Phê Duyệt Yêu Cầu (Online)", LANGUAGE_CODE = "EN", VALUE = "Online Request Approvals" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Phê Duyệt Yêu Cầu (Online)", LANGUAGE_CODE = "JA", VALUE = "オンライン申請承認" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Phê Duyệt Yêu Cầu (Online)", LANGUAGE_CODE = "ZH", VALUE = "在线申请审批" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Phê Duyệt Yêu Cầu (Online)", LANGUAGE_CODE = "KO", VALUE = "온라인 신청 결재" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Thông Báo Hệ Thống", LANGUAGE_CODE = "EN", VALUE = "System Announcements" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Thông Báo Hệ Thống", LANGUAGE_CODE = "JA", VALUE = "システム通知" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Thông Báo Hệ Thống", LANGUAGE_CODE = "ZH", VALUE = "系统公告" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Thông Báo Hệ Thống", LANGUAGE_CODE = "KO", VALUE = "시스템 공지" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấp Tài Khoản Hàng Loạt", LANGUAGE_CODE = "EN", VALUE = "Bulk Account Provisioning" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấp Tài Khoản Hàng Loạt", LANGUAGE_CODE = "JA", VALUE = "一括アカウント発行" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấp Tài Khoản Hàng Loạt", LANGUAGE_CODE = "ZH", VALUE = "批量账号分配" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấp Tài Khoản Hàng Loạt", LANGUAGE_CODE = "KO", VALUE = "일괄 계정 발급" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình Kết Nối CSDL", LANGUAGE_CODE = "EN", VALUE = "Database Connection Config" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình Kết Nối CSDL", LANGUAGE_CODE = "JA", VALUE = "DB接続設定" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình Kết Nối CSDL", LANGUAGE_CODE = "ZH", VALUE = "数据库连接配置" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Cấu Hình Kết Nối CSDL", LANGUAGE_CODE = "KO", VALUE = "데이터베이스 연결 설정" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Chọn tất cả", LANGUAGE_CODE = "EN", VALUE = "Select All" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Chọn tất cả", LANGUAGE_CODE = "JA", VALUE = "すべて選択" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Chọn tất cả", LANGUAGE_CODE = "ZH", VALUE = "全选" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Chọn tất cả", LANGUAGE_CODE = "KO", VALUE = "모두 선택" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Bỏ tất cả", LANGUAGE_CODE = "EN", VALUE = "Deselect All" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Bỏ tất cả", LANGUAGE_CODE = "JA", VALUE = "すべて解除" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Bỏ tất cả", LANGUAGE_CODE = "ZH", VALUE = "取消全选" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Bỏ tất cả", LANGUAGE_CODE = "KO", VALUE = "모두 해제" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Sửa quyền", LANGUAGE_CODE = "EN", VALUE = "Edit Rights" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Sửa quyền", LANGUAGE_CODE = "JA", VALUE = "権限編集" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Sửa quyền", LANGUAGE_CODE = "ZH", VALUE = "编辑权限" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Sửa quyền", LANGUAGE_CODE = "KO", VALUE = "권한 편집" },
+
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Làm mới", LANGUAGE_CODE = "EN", VALUE = "Refresh" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Làm mới", LANGUAGE_CODE = "JA", VALUE = "更新" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Làm mới", LANGUAGE_CODE = "ZH", VALUE = "刷新" },
+                    new TB_TRANSLATIONS { TABLE_NAME = "UI_LABEL", COLUMN_NAME = "Làm mới", LANGUAGE_CODE = "KO", VALUE = "새로고침" },
                 };
 
                 foreach (var trans in newTranslations)

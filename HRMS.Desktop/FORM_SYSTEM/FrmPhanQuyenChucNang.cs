@@ -19,6 +19,9 @@ namespace QLyNSu.FORM_SYSTEM
         private List<FunctionRightItem> _rightList = new List<FunctionRightItem>();
         private RadioButton rdoGroup;
         private RadioButton rdoUser;
+        private SimpleButton btnLamMoi;
+        private SimpleButton btnChonTatCa;
+        private SimpleButton btnBoChonTatCa;
         private SimpleButton btnSua;
         private SimpleButton btnLuu;
         private SimpleButton btnHuy;
@@ -38,7 +41,7 @@ namespace QLyNSu.FORM_SYSTEM
             pnlToggle.BackColor = Color.FromArgb(240, 240, 240);
 
             rdoGroup = new RadioButton();
-            rdoGroup.Text = "Nhóm người dùng";
+            rdoGroup.Text = QLyNSu.Functions.TranslationManager.Translate("Nhóm người dùng");
             rdoGroup.Location = new Point(15, 12);
             rdoGroup.AutoSize = true;
             rdoGroup.Checked = true;
@@ -47,7 +50,7 @@ namespace QLyNSu.FORM_SYSTEM
             rdoGroup.CheckedChanged += (s, ev) => { if (rdoGroup.Checked) loadUsers(); };
 
             rdoUser = new RadioButton();
-            rdoUser.Text = "Người dùng";
+            rdoUser.Text = QLyNSu.Functions.TranslationManager.Translate("Người dùng");
             rdoUser.Location = new Point(170, 12);
             rdoUser.AutoSize = true;
             rdoUser.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
@@ -83,33 +86,101 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void SetupActionButtons()
         {
+            btnLamMoi = new SimpleButton();
+            btnLamMoi.Text = QLyNSu.Functions.TranslationManager.Translate("Làm mới");
+            btnLamMoi.Size = new Size(105, 40);
+            btnLamMoi.Location = new Point(110, 10);
+            btnLamMoi.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnLamMoi.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            btnLamMoi.ImageOptions.SvgImage = GetSafeSvg("svgimages/dashboards/resetview.svg", "svgimages/icon builder/actions_refresh.svg");
+            btnLamMoi.Click += (s, ev) =>
+            {
+                try
+                {
+                    new Bu.CLASS_SYSTEM.SYS_USER().EnsureSeeded();
+                    db = new MyEntities();
+                    loadUsers();
+                    loadRights();
+                    XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Đã làm mới dữ liệu chức năng và phân quyền thành công!"), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch (Exception ex)
+                {
+                    XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Lỗi khi làm mới:") + " " + ex.Message, QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            };
+
+            btnChonTatCa = new SimpleButton();
+            btnChonTatCa.Text = QLyNSu.Functions.TranslationManager.Translate("Chọn tất cả");
+            btnChonTatCa.Size = new Size(115, 40);
+            btnChonTatCa.Location = new Point(225, 10);
+            btnChonTatCa.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnChonTatCa.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            btnChonTatCa.ImageOptions.SvgImage = GetSafeSvg("svgimages/spreadsheet/selectall.svg", "svgimages/actions/apply.svg");
+            btnChonTatCa.Click += (s, ev) =>
+            {
+                if (!_isEditing || _rightList == null) return;
+                foreach (var item in _rightList)
+                {
+                    item.CAN_VIEW = true;
+                    item.CAN_ADD = true;
+                    item.CAN_EDIT = true;
+                    item.CAN_DELETE = true;
+                    item.CAN_PRINT = true;
+                }
+                gcRight.RefreshDataSource();
+            };
+
+            btnBoChonTatCa = new SimpleButton();
+            btnBoChonTatCa.Text = QLyNSu.Functions.TranslationManager.Translate("Bỏ tất cả");
+            btnBoChonTatCa.Size = new Size(105, 40);
+            btnBoChonTatCa.Location = new Point(350, 10);
+            btnBoChonTatCa.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            btnBoChonTatCa.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
+            btnBoChonTatCa.ImageOptions.SvgImage = GetSafeSvg("svgimages/actions/delete.svg", "svgimages/dashboards/cleargridfiltering.svg");
+            btnBoChonTatCa.Click += (s, ev) =>
+            {
+                if (!_isEditing || _rightList == null) return;
+                foreach (var item in _rightList)
+                {
+                    item.CAN_VIEW = false;
+                    item.CAN_ADD = false;
+                    item.CAN_EDIT = false;
+                    item.CAN_DELETE = false;
+                    item.CAN_PRINT = false;
+                }
+                gcRight.RefreshDataSource();
+            };
+
             btnSua = new SimpleButton();
-            btnSua.Text = "Sửa quyền";
-            btnSua.Size = new Size(120, 40);
-            btnSua.Location = new Point(440, 10);
+            btnSua.Text = QLyNSu.Functions.TranslationManager.Translate("Sửa quyền");
+            btnSua.Size = new Size(115, 40);
+            btnSua.Location = new Point(465, 10);
             btnSua.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnSua.Appearance.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold);
             btnSua.ImageOptions.SvgImage = GetSafeSvg("svgimages/actions/edit.svg", "svgimages/icon builder/actions_edit.svg");
             btnSua.Click += btnSua_Click;
 
             btnLuu = new SimpleButton();
-            btnLuu.Text = "Lưu";
-            btnLuu.Size = new Size(120, 40);
-            btnLuu.Location = new Point(570, 10);
+            btnLuu.Text = QLyNSu.Functions.TranslationManager.Translate("Lưu");
+            btnLuu.Size = new Size(115, 40);
+            btnLuu.Location = new Point(590, 10);
             btnLuu.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnLuu.Appearance.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold);
             btnLuu.ImageOptions.SvgImage = GetSafeSvg("svgimages/save/save.svg", "svgimages/actions/save.svg");
             btnLuu.Click += btnLuu_Click;
 
             btnHuy = new SimpleButton();
-            btnHuy.Text = "Hủy";
-            btnHuy.Size = new Size(120, 40);
-            btnHuy.Location = new Point(700, 10);
+            btnHuy.Text = QLyNSu.Functions.TranslationManager.Translate("Hủy");
+            btnHuy.Size = new Size(115, 40);
+            btnHuy.Location = new Point(715, 10);
             btnHuy.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnHuy.Appearance.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold);
             btnHuy.ImageOptions.SvgImage = GetSafeSvg("svgimages/actions/cancel.svg", "svgimages/actions/undo.svg");
             btnHuy.Click += btnHuy_Click;
 
+            panelControl1.Controls.Add(btnLamMoi);
+            panelControl1.Controls.Add(btnChonTatCa);
+            panelControl1.Controls.Add(btnBoChonTatCa);
             panelControl1.Controls.Add(btnSua);
             panelControl1.Controls.Add(btnLuu);
             panelControl1.Controls.Add(btnHuy);
@@ -118,6 +189,9 @@ namespace QLyNSu.FORM_SYSTEM
         private void SetEditingState(bool editing)
         {
             _isEditing = editing;
+            if (btnLamMoi != null) btnLamMoi.Enabled = !editing;
+            if (btnChonTatCa != null) btnChonTatCa.Enabled = editing;
+            if (btnBoChonTatCa != null) btnBoChonTatCa.Enabled = editing;
             if (btnSua != null) btnSua.Enabled = !editing;
             if (btnLuu != null) btnLuu.Enabled = editing;
             if (btnHuy != null) btnHuy.Enabled = editing;
@@ -131,6 +205,14 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void FrmPhanQuyenChucNang_Load(object sender, EventArgs e)
         {
+            try
+            {
+                new Bu.CLASS_SYSTEM.SYS_USER().EnsureSeeded();
+            }
+            catch { }
+
+            db = new MyEntities();
+
             SetupTogglePanel();
             SetupActionButtons();
 
@@ -138,11 +220,16 @@ namespace QLyNSu.FORM_SYSTEM
             FormManager_Functions.CustomView_Colums(gvUser);
             FormManager_Functions.CustomView_Colums(gvRight);
 
+            gvRight.OptionsFind.AlwaysVisible = true;
+            gvRight.OptionsFind.FindNullPrompt = QLyNSu.Functions.TranslationManager.Translate("Tìm kiếm chức năng / phân hệ...");
+
             // Configure event handlers
             gvUser.FocusedRowChanged += gvUser_FocusedRowChanged;
 
             SetEditingState(false);
             loadUsers();
+
+            QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
         private void loadUsers()
@@ -155,13 +242,13 @@ namespace QLyNSu.FORM_SYSTEM
             if (gvUser.Columns["IDUSER"] != null) gvUser.Columns["IDUSER"].Caption = "ID";
             if (targetMode == 1)
             {
-                if (gvUser.Columns["USERNAME"] != null) gvUser.Columns["USERNAME"].Caption = "Tên nhóm";
-                if (gvUser.Columns["FULLNAME"] != null) gvUser.Columns["FULLNAME"].Caption = "Mô tả nhóm";
+                if (gvUser.Columns["USERNAME"] != null) gvUser.Columns["USERNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Tên nhóm");
+                if (gvUser.Columns["FULLNAME"] != null) gvUser.Columns["FULLNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Mô tả nhóm");
             }
             else
             {
-                if (gvUser.Columns["USERNAME"] != null) gvUser.Columns["USERNAME"].Caption = "Tên tài khoản";
-                if (gvUser.Columns["FULLNAME"] != null) gvUser.Columns["FULLNAME"].Caption = "Họ và tên";
+                if (gvUser.Columns["USERNAME"] != null) gvUser.Columns["USERNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Tên tài khoản");
+                if (gvUser.Columns["FULLNAME"] != null) gvUser.Columns["FULLNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Họ và tên");
             }
             
             // Hide other columns
@@ -177,6 +264,22 @@ namespace QLyNSu.FORM_SYSTEM
             loadRights();
         }
 
+        private string GetModuleName(string parent)
+        {
+            if (string.IsNullOrEmpty(parent)) return "Hệ Thống";
+            switch (parent.Trim().ToUpperInvariant())
+            {
+                case "SYSTEM": return "Hệ Thống";
+                case "DASHBOARD": return "Dashboard & Báo Cáo";
+                case "DM": return "Danh Mục";
+                case "NV": return "Quản Lý Nhân Sự";
+                case "CC": return "Chấm Công & Lương";
+                case "MOBILE":
+                case "MOBILE_ROOT": return "Mobile App";
+                default: return parent;
+            }
+        }
+
         private void loadRights()
         {
             var selectedUser = (TB_SYS_USER)gvUser.GetFocusedRow();
@@ -186,11 +289,11 @@ namespace QLyNSu.FORM_SYSTEM
                 return;
             }
 
-            // Load all functions
-            var allFunctions = db.TB_SYS_FUNCTION.OrderBy(f => f.SORT).ToList();
+            // Load all functions directly from DB with AsNoTracking to guarantee fresh data
+            var allFunctions = db.TB_SYS_FUNCTION.AsNoTracking().OrderBy(f => f.SORT).ThenBy(f => f.FUNCTION_CODE).ToList();
 
             // Load current user rights
-            var userRights = db.TB_SYS_RIGHT
+            var userRights = db.TB_SYS_RIGHT.AsNoTracking()
                 .Where(r => r.IDUSER == selectedUser.IDUSER)
                 .ToList();
 
@@ -202,8 +305,9 @@ namespace QLyNSu.FORM_SYSTEM
                 rightDict.TryGetValue(f.FUNCTION_CODE, out var r);
                 return new FunctionRightItem
                 {
+                    MODULE_NAME = QLyNSu.Functions.TranslationManager.Translate(GetModuleName(f.PARENT)),
                     FUNCTION_CODE = f.FUNCTION_CODE,
-                    DESCRIPTION = f.DESCRIPTION,
+                    DESCRIPTION = QLyNSu.Functions.TranslationManager.Translate(f.DESCRIPTION),
                     CAN_VIEW = r != null && ((r.CAN_VIEW ?? 0) == 1 || (r.USER_RIGHT ?? 0) == 1),
                     CAN_ADD = r != null && (r.CAN_ADD ?? 0) == 1,
                     CAN_EDIT = r != null && (r.CAN_EDIT ?? 0) == 1,
@@ -215,45 +319,53 @@ namespace QLyNSu.FORM_SYSTEM
             gcRight.DataSource = new BindingList<FunctionRightItem>(_rightList);
 
             // Format right columns
+            if (gvRight.Columns["MODULE_NAME"] != null)
+            {
+                gvRight.Columns["MODULE_NAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Phân hệ");
+                gvRight.Columns["MODULE_NAME"].OptionsColumn.AllowEdit = false;
+                gvRight.Columns["MODULE_NAME"].Visible = true;
+                gvRight.Columns["MODULE_NAME"].Width = 140;
+            }
             if (gvRight.Columns["FUNCTION_CODE"] != null)
             {
-                gvRight.Columns["FUNCTION_CODE"].Caption = "Mã chức năng";
+                gvRight.Columns["FUNCTION_CODE"].Caption = QLyNSu.Functions.TranslationManager.Translate("Mã chức năng");
                 gvRight.Columns["FUNCTION_CODE"].OptionsColumn.AllowEdit = false;
-                gvRight.Columns["FUNCTION_CODE"].Visible = false;
+                gvRight.Columns["FUNCTION_CODE"].Visible = true;
+                gvRight.Columns["FUNCTION_CODE"].Width = 160;
             }
             if (gvRight.Columns["DESCRIPTION"] != null)
             {
-                gvRight.Columns["DESCRIPTION"].Caption = "Chức năng";
+                gvRight.Columns["DESCRIPTION"].Caption = QLyNSu.Functions.TranslationManager.Translate("Tên chức năng");
                 gvRight.Columns["DESCRIPTION"].OptionsColumn.AllowEdit = false;
-                gvRight.Columns["DESCRIPTION"].Width = 260;
+                gvRight.Columns["DESCRIPTION"].Width = 230;
             }
             if (gvRight.Columns["CAN_VIEW"] != null)
             {
-                gvRight.Columns["CAN_VIEW"].Caption = "Xem";
+                gvRight.Columns["CAN_VIEW"].Caption = QLyNSu.Functions.TranslationManager.Translate("Xem");
                 gvRight.Columns["CAN_VIEW"].OptionsColumn.AllowEdit = true;
                 gvRight.Columns["CAN_VIEW"].Width = 65;
             }
             if (gvRight.Columns["CAN_ADD"] != null)
             {
-                gvRight.Columns["CAN_ADD"].Caption = "Thêm";
+                gvRight.Columns["CAN_ADD"].Caption = QLyNSu.Functions.TranslationManager.Translate("Thêm");
                 gvRight.Columns["CAN_ADD"].OptionsColumn.AllowEdit = true;
                 gvRight.Columns["CAN_ADD"].Width = 65;
             }
             if (gvRight.Columns["CAN_EDIT"] != null)
             {
-                gvRight.Columns["CAN_EDIT"].Caption = "Sửa";
+                gvRight.Columns["CAN_EDIT"].Caption = QLyNSu.Functions.TranslationManager.Translate("Sửa");
                 gvRight.Columns["CAN_EDIT"].OptionsColumn.AllowEdit = true;
                 gvRight.Columns["CAN_EDIT"].Width = 65;
             }
             if (gvRight.Columns["CAN_DELETE"] != null)
             {
-                gvRight.Columns["CAN_DELETE"].Caption = "Xóa";
+                gvRight.Columns["CAN_DELETE"].Caption = QLyNSu.Functions.TranslationManager.Translate("Xóa");
                 gvRight.Columns["CAN_DELETE"].OptionsColumn.AllowEdit = true;
                 gvRight.Columns["CAN_DELETE"].Width = 65;
             }
             if (gvRight.Columns["CAN_PRINT"] != null)
             {
-                gvRight.Columns["CAN_PRINT"].Caption = "In";
+                gvRight.Columns["CAN_PRINT"].Caption = QLyNSu.Functions.TranslationManager.Translate("In");
                 gvRight.Columns["CAN_PRINT"].OptionsColumn.AllowEdit = true;
                 gvRight.Columns["CAN_PRINT"].Width = 65;
             }
@@ -263,7 +375,7 @@ namespace QLyNSu.FORM_SYSTEM
         {
             if (gvUser.GetFocusedRow() == null)
             {
-                MessageBox.Show("Vui lòng chọn người dùng hoặc nhóm để sửa quyền.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Vui lòng chọn người dùng hoặc nhóm để sửa quyền."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             SetEditingState(true);
@@ -307,14 +419,14 @@ namespace QLyNSu.FORM_SYSTEM
                 }
 
                 db.SaveChanges();
-                MessageBox.Show("Lưu phân quyền thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Lưu phân quyền thành công."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 
                 SetEditingState(false);
                 loadRights();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Lỗi khi lưu phân quyền: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Lỗi khi lưu phân quyền:") + " " + ex.Message, QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -328,7 +440,7 @@ namespace QLyNSu.FORM_SYSTEM
         {
             if (_isEditing)
             {
-                var choice = MessageBox.Show("Dữ liệu phân quyền đang thay đổi chưa được lưu. Bạn có chắc chắn muốn đóng và hủy thay đổi không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                var choice = XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Dữ liệu phân quyền đang thay đổi chưa được lưu. Bạn có chắc chắn muốn đóng và hủy thay đổi không?"), QLyNSu.Functions.TranslationManager.Translate("Xác nhận"), MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (choice == DialogResult.No)
                 {
                     return;
@@ -340,6 +452,7 @@ namespace QLyNSu.FORM_SYSTEM
         // Custom model for GridView mapping
         public class FunctionRightItem
         {
+            public string MODULE_NAME { get; set; }
             public string FUNCTION_CODE { get; set; }
             public string DESCRIPTION { get; set; }
             public bool CAN_VIEW { get; set; }

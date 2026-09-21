@@ -29,11 +29,30 @@ namespace QLyNSu.FORM_NHANSU
             SetupGridViewAppearance(gvAttendance);
             SetupGridViewAppearance(gvOvertime);
 
+            TranslateStatusCombo(cboLeaveStatus);
+            TranslateStatusCombo(cboAttStatus);
+            TranslateStatusCombo(cboOtStatus);
+
             cboLeaveStatus.SelectedIndex = 1; // Default PENDING
             cboAttStatus.SelectedIndex = 1;   // Default PENDING
             cboOtStatus.SelectedIndex = 1;    // Default PENDING
 
+            QLyNSu.Functions.TranslationManager.Translate(this);
+
             LoadAllRequests();
+        }
+
+        private void TranslateStatusCombo(ComboBoxEdit cbo)
+        {
+            if (cbo == null || cbo.Properties == null) return;
+            for (int i = 0; i < cbo.Properties.Items.Count; i++)
+            {
+                string original = cbo.Properties.Items[i]?.ToString();
+                if (!string.IsNullOrEmpty(original))
+                {
+                    cbo.Properties.Items[i] = QLyNSu.Functions.TranslationManager.Translate(original);
+                }
+            }
         }
 
         private void SetupGridViewAppearance(GridView gv)
@@ -46,6 +65,17 @@ namespace QLyNSu.FORM_NHANSU
             gv.RowHeight = 28;
             gv.Appearance.HeaderPanel.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
             gv.Appearance.Row.Font = new Font("Segoe UI", 9F);
+
+            gv.CustomColumnDisplayText += (s, e) =>
+            {
+                if (e.Column.FieldName == "TRANGTHAI" && e.Value != null)
+                {
+                    string st = Convert.ToString(e.Value);
+                    if (st == "PENDING") e.DisplayText = QLyNSu.Functions.TranslationManager.Translate("Chờ duyệt");
+                    else if (st == "APPROVED") e.DisplayText = QLyNSu.Functions.TranslationManager.Translate("Đã duyệt");
+                    else if (st == "REJECTED") e.DisplayText = QLyNSu.Functions.TranslationManager.Translate("Từ chối");
+                }
+            };
 
             gv.RowCellStyle += (s, e) =>
             {
@@ -198,10 +228,10 @@ namespace QLyNSu.FORM_NHANSU
             if (_rawLeaves == null) return;
             var list = _rawLeaves.AsEnumerable();
 
-            string status = cboLeaveStatus?.SelectedItem?.ToString();
-            if (status == "Chờ duyệt (PENDING)") list = list.Where(x => x.TRANGTHAI == "PENDING");
-            else if (status == "Đã duyệt (APPROVED)") list = list.Where(x => x.TRANGTHAI == "APPROVED");
-            else if (status == "Đã từ chối (REJECTED)") list = list.Where(x => x.TRANGTHAI == "REJECTED");
+            int statusIdx = cboLeaveStatus != null ? cboLeaveStatus.SelectedIndex : 0;
+            if (statusIdx == 1) list = list.Where(x => x.TRANGTHAI == "PENDING");
+            else if (statusIdx == 2) list = list.Where(x => x.TRANGTHAI == "APPROVED");
+            else if (statusIdx == 3) list = list.Where(x => x.TRANGTHAI == "REJECTED");
 
             string search = txtLeaveSearch?.Text?.Trim()?.ToLower();
             if (!string.IsNullOrEmpty(search))
@@ -255,7 +285,7 @@ namespace QLyNSu.FORM_NHANSU
             int row = gvLeave.FocusedRowHandle;
             if (row < 0)
             {
-                XtraMessageBox.Show("Vui lòng chọn một đơn xin nghỉ phép trên bảng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Vui lòng chọn một đơn xin nghỉ phép trên bảng."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -265,14 +295,14 @@ namespace QLyNSu.FORM_NHANSU
 
             if (currentStatus != "PENDING")
             {
-                XtraMessageBox.Show("Chỉ có thể xử lý các đơn đang ở trạng thái PENDING (Chờ duyệt).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Chỉ có thể xử lý các đơn đang ở trạng thái PENDING (Chờ duyệt)."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             string reason = null;
             if (!isApprove)
             {
-                reason = XtraInputBox.Show("Nhập lý do từ chối đơn nghỉ phép:", "Lý Do Từ Chối", "Không phù hợp lịch công tác");
+                reason = XtraInputBox.Show(QLyNSu.Functions.TranslationManager.Translate("Nhập lý do từ chối đơn nghỉ phép:"), QLyNSu.Functions.TranslationManager.Translate("Lý Do Từ Chối"), "Không phù hợp lịch công tác");
                 if (string.IsNullOrWhiteSpace(reason)) return;
             }
 
@@ -292,13 +322,14 @@ namespace QLyNSu.FORM_NHANSU
 
                     WriteAudit("TB_YEUCAU_NGHIPHEP", id.ToString(), isApprove ? "APPROVE_LEAVE" : "REJECT_LEAVE", $"Đã {(isApprove ? "duyệt" : "từ chối")} đơn nghỉ phép của [{empName}]");
 
-                    XtraMessageBox.Show($"Đã {(isApprove ? "phê duyệt" : "từ chối")} đơn nghỉ phép thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string successMsg = isApprove ? QLyNSu.Functions.TranslationManager.Translate("Đã phê duyệt đơn nghỉ phép thành công!") : QLyNSu.Functions.TranslationManager.Translate("Đã từ chối đơn nghỉ phép thành công!");
+                    XtraMessageBox.Show(successMsg, QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadAllRequests();
                 }
             }
             catch (Exception ex)
             {
-                XtraMessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Lỗi:") + " " + ex.Message, QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         #endregion
@@ -319,10 +350,10 @@ namespace QLyNSu.FORM_NHANSU
             if (_rawAtts == null) return;
             var list = _rawAtts.AsEnumerable();
 
-            string status = cboAttStatus?.SelectedItem?.ToString();
-            if (status == "Chờ duyệt (PENDING)") list = list.Where(x => x.TRANGTHAI == "PENDING");
-            else if (status == "Đã duyệt (APPROVED)") list = list.Where(x => x.TRANGTHAI == "APPROVED");
-            else if (status == "Đã từ chối (REJECTED)") list = list.Where(x => x.TRANGTHAI == "REJECTED");
+            int statusIdx = cboAttStatus != null ? cboAttStatus.SelectedIndex : 0;
+            if (statusIdx == 1) list = list.Where(x => x.TRANGTHAI == "PENDING");
+            else if (statusIdx == 2) list = list.Where(x => x.TRANGTHAI == "APPROVED");
+            else if (statusIdx == 3) list = list.Where(x => x.TRANGTHAI == "REJECTED");
 
             string search = txtAttSearch?.Text?.Trim()?.ToLower();
             if (!string.IsNullOrEmpty(search))
@@ -375,7 +406,7 @@ namespace QLyNSu.FORM_NHANSU
             int row = gvAttendance.FocusedRowHandle;
             if (row < 0)
             {
-                XtraMessageBox.Show("Vui lòng chọn một bản ghi giải trình chấm công trên bảng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Vui lòng chọn một bản ghi giải trình chấm công trên bảng."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -385,14 +416,14 @@ namespace QLyNSu.FORM_NHANSU
 
             if (currentStatus != "PENDING")
             {
-                XtraMessageBox.Show("Chỉ có thể xử lý các đơn đang ở trạng thái PENDING (Chờ duyệt).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Chỉ có thể xử lý các đơn đang ở trạng thái PENDING (Chờ duyệt)."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             string reason = null;
             if (!isApprove)
             {
-                reason = XtraInputBox.Show("Nhập lý do từ chối giải trình chấm công:", "Lý Do Từ Chối", "Không hợp lệ theo quy chế");
+                reason = XtraInputBox.Show(QLyNSu.Functions.TranslationManager.Translate("Nhập lý do từ chối giải trình chấm công:"), QLyNSu.Functions.TranslationManager.Translate("Lý Do Từ Chối"), "Không hợp lệ theo quy chế");
                 if (string.IsNullOrWhiteSpace(reason)) return;
             }
 
@@ -441,13 +472,14 @@ namespace QLyNSu.FORM_NHANSU
 
                     WriteAudit("TB_YEUCAU_DIEUCHINHCONG", id.ToString(), isApprove ? "APPROVE_ATTENDANCE" : "REJECT_ATTENDANCE", $"Đã {(isApprove ? "duyệt" : "từ chối")} giải trình công của [{empName}]");
 
-                    XtraMessageBox.Show($"Đã {(isApprove ? "phê duyệt" : "từ chối")} giải trình chấm công thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    string successMsg = isApprove ? QLyNSu.Functions.TranslationManager.Translate("Đã phê duyệt giải trình chấm công thành công!") : QLyNSu.Functions.TranslationManager.Translate("Đã từ chối giải trình chấm công thành công!");
+                    XtraMessageBox.Show(successMsg, QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                     LoadAllRequests();
                 }
             }
             catch (Exception ex)
             {
-                XtraMessageBox.Show("Lỗi: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Lỗi:") + " " + ex.Message, QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
         #endregion
@@ -468,10 +500,10 @@ namespace QLyNSu.FORM_NHANSU
             if (_rawOts == null) return;
             var list = _rawOts.AsEnumerable();
 
-            string status = cboOtStatus?.SelectedItem?.ToString();
-            if (status == "Chờ duyệt (PENDING)") list = list.Where(x => x.TRANGTHAI == "PENDING");
-            else if (status == "Đã duyệt (APPROVED)") list = list.Where(x => x.TRANGTHAI == "APPROVED");
-            else if (status == "Đã từ chối (REJECTED)") list = list.Where(x => x.TRANGTHAI == "REJECTED");
+            int statusIdx = cboOtStatus != null ? cboOtStatus.SelectedIndex : 0;
+            if (statusIdx == 1) list = list.Where(x => x.TRANGTHAI == "PENDING");
+            else if (statusIdx == 2) list = list.Where(x => x.TRANGTHAI == "APPROVED");
+            else if (statusIdx == 3) list = list.Where(x => x.TRANGTHAI == "REJECTED");
 
             string search = txtOtSearch?.Text?.Trim()?.ToLower();
             if (!string.IsNullOrEmpty(search))
@@ -524,7 +556,7 @@ namespace QLyNSu.FORM_NHANSU
             int row = gvOvertime.FocusedRowHandle;
             if (row < 0)
             {
-                XtraMessageBox.Show("Vui lòng chọn một đơn đăng ký tăng ca trên bảng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Vui lòng chọn một đơn đăng ký tăng ca trên bảng."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -534,14 +566,14 @@ namespace QLyNSu.FORM_NHANSU
 
             if (currentStatus != "PENDING")
             {
-                XtraMessageBox.Show("Chỉ có thể xử lý các đơn đang ở trạng thái PENDING (Chờ duyệt).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Chỉ có thể xử lý các đơn đang ở trạng thái PENDING (Chờ duyệt)."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             string reason = null;
             if (!isApprove)
             {
-                reason = XtraInputBox.Show("Nhập lý do từ chối đăng ký làm thêm giờ:", "Lý Do Từ Chối", "Kế hoạch sản xuất không yêu cầu");
+                reason = XtraInputBox.Show(QLyNSu.Functions.TranslationManager.Translate("Nhập lý do từ chối đăng ký làm thêm giờ:"), QLyNSu.Functions.TranslationManager.Translate("Lý Do Từ Chối"), "Kế hoạch sản xuất không yêu cầu");
                 if (string.IsNullOrWhiteSpace(reason)) return;
             }
 
@@ -561,13 +593,13 @@ namespace QLyNSu.FORM_NHANSU
 
                     if (reqItem == null)
                     {
-                        XtraMessageBox.Show("Không tìm thấy đề xuất tăng ca.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Không tìm thấy đề xuất tăng ca."), QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
 
                     if (reqItem.TRANGTHAI != "PENDING")
                     {
-                        XtraMessageBox.Show($"Đề xuất này đang ở trạng thái '{reqItem.TRANGTHAI}', không thể xử lý tiếp!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Đề xuất không còn ở trạng thái chờ duyệt hoặc đã có người khác xử lý."), QLyNSu.Functions.TranslationManager.Translate("Cảnh báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
 
@@ -579,7 +611,7 @@ namespace QLyNSu.FORM_NHANSU
 
                     if (approverEmpId.HasValue && approverEmpId.Value == reqItem.MANV)
                     {
-                        XtraMessageBox.Show("Bạn không thể tự phê duyệt hoặc từ chối đề xuất tăng ca của chính mình!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Bạn không thể tự phê duyệt hoặc từ chối đề xuất tăng ca của chính mình!"), QLyNSu.Functions.TranslationManager.Translate("Cảnh báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
 
@@ -594,7 +626,7 @@ namespace QLyNSu.FORM_NHANSU
 
                     if (affected == 0)
                     {
-                        XtraMessageBox.Show("Đề xuất không còn ở trạng thái chờ duyệt hoặc đã có người khác xử lý.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Đề xuất không còn ở trạng thái chờ duyệt hoặc đã có người khác xử lý."), QLyNSu.Functions.TranslationManager.Translate("Cảnh báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                         return;
                     }
 
@@ -656,7 +688,7 @@ namespace QLyNSu.FORM_NHANSU
             {
                 col = gv.Columns.AddField(fieldName);
             }
-            col.Caption = caption;
+            col.Caption = QLyNSu.Functions.TranslationManager.Translate(caption);
             col.Width = width;
             col.Visible = true;
         }
@@ -698,7 +730,7 @@ namespace QLyNSu.FORM_NHANSU
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     gv.ExportToXlsx(sfd.FileName);
-                    XtraMessageBox.Show("Xuất file Excel thành công:\n" + sfd.FileName, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Xuất file Excel thành công:\n") + sfd.FileName, QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
         }

@@ -41,30 +41,6 @@ namespace QLyNSu.FORM_SYSTEM
             this.lblCard7Title = new DevExpress.XtraEditors.LabelControl();
             this.lblSysVal = new DevExpress.XtraEditors.LabelControl();
             this.tabMain = new DevExpress.XtraTab.XtraTabControl();
-            this.tabCapPhatHangLoat = new DevExpress.XtraTab.XtraTabPage();
-            this.gcCandidates = new DevExpress.XtraGrid.GridControl();
-            this.gvCandidates = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.pnlBulkActions = new System.Windows.Forms.Panel();
-            this.btnBulkSelectAll = new DevExpress.XtraEditors.SimpleButton();
-            this.btnBulkDeselectAll = new DevExpress.XtraEditors.SimpleButton();
-            this.btnExecuteBulk = new DevExpress.XtraEditors.SimpleButton();
-            this.lblBulkResultsTitle = new DevExpress.XtraEditors.LabelControl();
-            this.gcBulkResults = new DevExpress.XtraGrid.GridControl();
-            this.gvBulkResults = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.grpBulkFilter = new DevExpress.XtraEditors.GroupControl();
-            this.lblBulkDept = new DevExpress.XtraEditors.LabelControl();
-            this.cboBulkDept = new DevExpress.XtraEditors.LookUpEdit();
-            this.chkBulkOnlyWithoutAcc = new DevExpress.XtraEditors.CheckEdit();
-            this.chkBulkEnableMobile = new DevExpress.XtraEditors.CheckEdit();
-            this.lblBulkDefaultPass = new DevExpress.XtraEditors.LabelControl();
-            this.txtBulkDefaultPass = new DevExpress.XtraEditors.TextEdit();
-            this.btnBulkPreview = new DevExpress.XtraEditors.SimpleButton();
-            this.pnlBulkMetrics = new System.Windows.Forms.Panel();
-            this.lblBulkEligible = new DevExpress.XtraEditors.LabelControl();
-            this.lblBulkReady = new DevExpress.XtraEditors.LabelControl();
-            this.lblBulkExisting = new DevExpress.XtraEditors.LabelControl();
-            this.lblBulkSystem = new DevExpress.XtraEditors.LabelControl();
-            this.lblBulkInactive = new DevExpress.XtraEditors.LabelControl();
             this.tabDanhSach = new DevExpress.XtraTab.XtraTabPage();
             this.gcUsers = new DevExpress.XtraGrid.GridControl();
             this.gvUsers = new DevExpress.XtraGrid.Views.Grid.GridView();
@@ -113,26 +89,33 @@ namespace QLyNSu.FORM_SYSTEM
             this.txtDetailDept = new DevExpress.XtraEditors.TextEdit();
             this.lblDetailPos = new DevExpress.XtraEditors.LabelControl();
             this.txtDetailPos = new DevExpress.XtraEditors.TextEdit();
-            this.tabPhanQuyen = new DevExpress.XtraTab.XtraTabPage();
-            this.pnlPhanQuyen = new System.Windows.Forms.Panel();
-            this.lblPqNotice = new DevExpress.XtraEditors.LabelControl();
-            this.btnOpenPhanQuyenChucNang = new DevExpress.XtraEditors.SimpleButton();
-            this.btnOpenPhanQuyenBaoCao = new DevExpress.XtraEditors.SimpleButton();
-            this.tabMobileAccess = new DevExpress.XtraTab.XtraTabPage();
-            this.gcMobile = new DevExpress.XtraGrid.GridControl();
-            this.gvMobile = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.pnlMobileActions = new System.Windows.Forms.Panel();
-            this.btnMobileEnableSel = new DevExpress.XtraEditors.SimpleButton();
-            this.btnMobileDisableSel = new DevExpress.XtraEditors.SimpleButton();
-            this.tabAuditLog = new DevExpress.XtraTab.XtraTabPage();
-            this.gcAudit = new DevExpress.XtraGrid.GridControl();
-            this.gvAudit = new DevExpress.XtraGrid.Views.Grid.GridView();
-            this.pnlAuditFilter = new System.Windows.Forms.Panel();
-            this.lblAuditSearch = new DevExpress.XtraEditors.LabelControl();
-            this.txtAuditSearch = new DevExpress.XtraEditors.TextEdit();
-            this.lblAuditAction = new DevExpress.XtraEditors.LabelControl();
-            this.cboAuditAction = new DevExpress.XtraEditors.ComboBoxEdit();
-            this.btnAuditFilter = new DevExpress.XtraEditors.SimpleButton();
+            this.tabCapPhatHangLoat = new DevExpress.XtraTab.XtraTabPage();
+            this.tabBulkSub = new DevExpress.XtraTab.XtraTabControl();
+            this.tabSubCandidates = new DevExpress.XtraTab.XtraTabPage();
+            this.gcCandidates = new DevExpress.XtraGrid.GridControl();
+            this.gvCandidates = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.tabSubResults = new DevExpress.XtraTab.XtraTabPage();
+            this.gcBulkResults = new DevExpress.XtraGrid.GridControl();
+            this.gvBulkResults = new DevExpress.XtraGrid.Views.Grid.GridView();
+            this.pnlBulkActions = new System.Windows.Forms.Panel();
+            this.btnBulkSelectAll = new DevExpress.XtraEditors.SimpleButton();
+            this.btnBulkDeselectAll = new DevExpress.XtraEditors.SimpleButton();
+            this.btnExecuteBulk = new DevExpress.XtraEditors.SimpleButton();
+            this.lblBulkResultsTitle = new DevExpress.XtraEditors.LabelControl();
+            this.grpBulkFilter = new DevExpress.XtraEditors.GroupControl();
+            this.lblBulkDept = new DevExpress.XtraEditors.LabelControl();
+            this.cboBulkDept = new DevExpress.XtraEditors.LookUpEdit();
+            this.chkBulkOnlyWithoutAcc = new DevExpress.XtraEditors.CheckEdit();
+            this.chkBulkEnableMobile = new DevExpress.XtraEditors.CheckEdit();
+            this.lblBulkDefaultPass = new DevExpress.XtraEditors.LabelControl();
+            this.txtBulkDefaultPass = new DevExpress.XtraEditors.TextEdit();
+            this.btnBulkRefresh = new DevExpress.XtraEditors.SimpleButton();
+            this.pnlBulkMetrics = new System.Windows.Forms.Panel();
+            this.lblBulkEligible = new DevExpress.XtraEditors.LabelControl();
+            this.lblBulkReady = new DevExpress.XtraEditors.LabelControl();
+            this.lblBulkExisting = new DevExpress.XtraEditors.LabelControl();
+            this.lblBulkSystem = new DevExpress.XtraEditors.LabelControl();
+            this.lblBulkInactive = new DevExpress.XtraEditors.LabelControl();
             this.pnlHeader.SuspendLayout();
             this.pnlDashboard.SuspendLayout();
             this.pnlCard1.SuspendLayout();
@@ -144,19 +127,6 @@ namespace QLyNSu.FORM_SYSTEM
             this.pnlCard7.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabMain)).BeginInit();
             this.tabMain.SuspendLayout();
-            this.tabCapPhatHangLoat.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gcCandidates)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvCandidates)).BeginInit();
-            this.pnlBulkActions.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gcBulkResults)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvBulkResults)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.grpBulkFilter)).BeginInit();
-            this.grpBulkFilter.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.cboBulkDept.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chkBulkOnlyWithoutAcc.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chkBulkEnableMobile.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtBulkDefaultPass.Properties)).BeginInit();
-            this.pnlBulkMetrics.SuspendLayout();
             this.tabDanhSach.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.gcUsers)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvUsers)).BeginInit();
@@ -182,18 +152,23 @@ namespace QLyNSu.FORM_SYSTEM
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailEmpName.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailDept.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailPos.Properties)).BeginInit();
-            this.tabPhanQuyen.SuspendLayout();
-            this.pnlPhanQuyen.SuspendLayout();
-            this.tabMobileAccess.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gcMobile)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvMobile)).BeginInit();
-            this.pnlMobileActions.SuspendLayout();
-            this.tabAuditLog.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gcAudit)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvAudit)).BeginInit();
-            this.pnlAuditFilter.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.txtAuditSearch.Properties)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cboAuditAction.Properties)).BeginInit();
+            this.tabCapPhatHangLoat.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.tabBulkSub)).BeginInit();
+            this.tabBulkSub.SuspendLayout();
+            this.tabSubCandidates.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gcCandidates)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvCandidates)).BeginInit();
+            this.tabSubResults.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.gcBulkResults)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvBulkResults)).BeginInit();
+            this.pnlBulkActions.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grpBulkFilter)).BeginInit();
+            this.grpBulkFilter.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboBulkDept.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkBulkOnlyWithoutAcc.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkBulkEnableMobile.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtBulkDefaultPass.Properties)).BeginInit();
+            this.pnlBulkMetrics.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlHeader
@@ -497,262 +472,14 @@ namespace QLyNSu.FORM_SYSTEM
             this.tabMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabMain.Location = new System.Drawing.Point(0, 124);
             this.tabMain.Name = "tabMain";
-            this.tabMain.SelectedTabPage = this.tabCapPhatHangLoat;
+            this.tabMain.SelectedTabPage = this.tabDanhSach;
             this.tabMain.Size = new System.Drawing.Size(1325, 717);
             this.tabMain.TabIndex = 0;
             this.tabMain.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
             this.tabDanhSach,
             this.tabChiTiet,
-            this.tabCapPhatHangLoat,
-            this.tabPhanQuyen,
-            this.tabMobileAccess,
-            this.tabAuditLog});
+            this.tabCapPhatHangLoat});
             this.tabMain.SelectedPageChanged += new DevExpress.XtraTab.TabPageChangedEventHandler(this.tabMain_SelectedPageChanged);
-            // 
-            // tabCapPhatHangLoat
-            // 
-            this.tabCapPhatHangLoat.Controls.Add(this.gcCandidates);
-            this.tabCapPhatHangLoat.Controls.Add(this.pnlBulkActions);
-            this.tabCapPhatHangLoat.Controls.Add(this.gcBulkResults);
-            this.tabCapPhatHangLoat.Controls.Add(this.grpBulkFilter);
-            this.tabCapPhatHangLoat.Name = "tabCapPhatHangLoat";
-            this.tabCapPhatHangLoat.Size = new System.Drawing.Size(1323, 687);
-            this.tabCapPhatHangLoat.Text = "⚡ Cấp Tài Khoản Hàng Loạt";
-            // 
-            // gcCandidates
-            // 
-            this.gcCandidates.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gcCandidates.Location = new System.Drawing.Point(0, 270);
-            this.gcCandidates.MainView = this.gvCandidates;
-            this.gcCandidates.Name = "gcCandidates";
-            this.gcCandidates.Size = new System.Drawing.Size(1323, 0);
-            this.gcCandidates.TabIndex = 0;
-            this.gcCandidates.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gvCandidates});
-            // 
-            // gvCandidates
-            // 
-            this.gvCandidates.GridControl = this.gcCandidates;
-            this.gvCandidates.Name = "gvCandidates";
-            this.gvCandidates.OptionsView.ShowGroupPanel = false;
-            // 
-            // pnlBulkActions
-            // 
-            this.pnlBulkActions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(244)))), ((int)(((byte)(250)))));
-            this.pnlBulkActions.Controls.Add(this.btnBulkSelectAll);
-            this.pnlBulkActions.Controls.Add(this.btnBulkDeselectAll);
-            this.pnlBulkActions.Controls.Add(this.btnExecuteBulk);
-            this.pnlBulkActions.Controls.Add(this.lblBulkResultsTitle);
-            this.pnlBulkActions.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlBulkActions.Location = new System.Drawing.Point(0, -3158);
-            this.pnlBulkActions.Name = "pnlBulkActions";
-            this.pnlBulkActions.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlBulkActions.Size = new System.Drawing.Size(1323, 3845);
-            this.pnlBulkActions.TabIndex = 1;
-            // 
-            // btnBulkSelectAll
-            // 
-            this.btnBulkSelectAll.Location = new System.Drawing.Point(12, 8);
-            this.btnBulkSelectAll.Name = "btnBulkSelectAll";
-            this.btnBulkSelectAll.Size = new System.Drawing.Size(140, 28);
-            this.btnBulkSelectAll.TabIndex = 0;
-            this.btnBulkSelectAll.Text = "Chọn Tất Cả Hợp Lệ";
-            this.btnBulkSelectAll.Click += new System.EventHandler(this.btnBulkSelectAll_Click);
-            // 
-            // btnBulkDeselectAll
-            // 
-            this.btnBulkDeselectAll.Location = new System.Drawing.Point(160, 8);
-            this.btnBulkDeselectAll.Name = "btnBulkDeselectAll";
-            this.btnBulkDeselectAll.Size = new System.Drawing.Size(120, 28);
-            this.btnBulkDeselectAll.TabIndex = 1;
-            this.btnBulkDeselectAll.Text = "Bỏ Chọn Tất Cả";
-            this.btnBulkDeselectAll.Click += new System.EventHandler(this.btnBulkDeselectAll_Click);
-            // 
-            // btnExecuteBulk
-            // 
-            this.btnExecuteBulk.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.btnExecuteBulk.Appearance.ForeColor = System.Drawing.Color.DarkGreen;
-            this.btnExecuteBulk.Appearance.Options.UseFont = true;
-            this.btnExecuteBulk.Appearance.Options.UseForeColor = true;
-            this.btnExecuteBulk.Location = new System.Drawing.Point(290, 8);
-            this.btnExecuteBulk.Name = "btnExecuteBulk";
-            this.btnExecuteBulk.Size = new System.Drawing.Size(160, 28);
-            this.btnExecuteBulk.TabIndex = 2;
-            this.btnExecuteBulk.Text = "⚡ Thực Thi Cấp Phát";
-            this.btnExecuteBulk.Click += new System.EventHandler(this.btnExecuteBulk_Click);
-            // 
-            // lblBulkResultsTitle
-            // 
-            this.lblBulkResultsTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblBulkResultsTitle.Appearance.Options.UseFont = true;
-            this.lblBulkResultsTitle.Location = new System.Drawing.Point(500, 14);
-            this.lblBulkResultsTitle.Name = "lblBulkResultsTitle";
-            this.lblBulkResultsTitle.Size = new System.Drawing.Size(188, 20);
-            this.lblBulkResultsTitle.TabIndex = 3;
-            this.lblBulkResultsTitle.Text = "Kết quả cấp phát gần nhất:";
-            // 
-            // gcBulkResults
-            // 
-            this.gcBulkResults.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gcBulkResults.Location = new System.Drawing.Point(0, 270);
-            this.gcBulkResults.MainView = this.gvBulkResults;
-            this.gcBulkResults.Name = "gcBulkResults";
-            this.gcBulkResults.Size = new System.Drawing.Size(1323, 417);
-            this.gcBulkResults.TabIndex = 2;
-            this.gcBulkResults.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gvBulkResults});
-            // 
-            // gvBulkResults
-            // 
-            this.gvBulkResults.GridControl = this.gcBulkResults;
-            this.gvBulkResults.Name = "gvBulkResults";
-            this.gvBulkResults.OptionsBehavior.Editable = false;
-            this.gvBulkResults.OptionsView.ShowGroupPanel = false;
-            // 
-            // grpBulkFilter
-            // 
-            this.grpBulkFilter.Controls.Add(this.lblBulkDept);
-            this.grpBulkFilter.Controls.Add(this.cboBulkDept);
-            this.grpBulkFilter.Controls.Add(this.chkBulkOnlyWithoutAcc);
-            this.grpBulkFilter.Controls.Add(this.chkBulkEnableMobile);
-            this.grpBulkFilter.Controls.Add(this.lblBulkDefaultPass);
-            this.grpBulkFilter.Controls.Add(this.txtBulkDefaultPass);
-            this.grpBulkFilter.Controls.Add(this.btnBulkPreview);
-            this.grpBulkFilter.Controls.Add(this.pnlBulkMetrics);
-            this.grpBulkFilter.Dock = System.Windows.Forms.DockStyle.Top;
-            this.grpBulkFilter.Location = new System.Drawing.Point(0, 0);
-            this.grpBulkFilter.Name = "grpBulkFilter";
-            this.grpBulkFilter.Size = new System.Drawing.Size(1323, 270);
-            this.grpBulkFilter.TabIndex = 3;
-            this.grpBulkFilter.Text = "Bộ Lọc & Tiêu Chí Cấp Phát";
-            // 
-            // lblBulkDept
-            // 
-            this.lblBulkDept.Location = new System.Drawing.Point(12, 44);
-            this.lblBulkDept.Name = "lblBulkDept";
-            this.lblBulkDept.Size = new System.Drawing.Size(65, 16);
-            this.lblBulkDept.TabIndex = 0;
-            this.lblBulkDept.Text = "Phòng ban:";
-            // 
-            // cboBulkDept
-            // 
-            this.cboBulkDept.Location = new System.Drawing.Point(83, 41);
-            this.cboBulkDept.Name = "cboBulkDept";
-            this.cboBulkDept.Size = new System.Drawing.Size(180, 22);
-            this.cboBulkDept.TabIndex = 1;
-            // 
-            // chkBulkOnlyWithoutAcc
-            // 
-            this.chkBulkOnlyWithoutAcc.EditValue = true;
-            this.chkBulkOnlyWithoutAcc.Location = new System.Drawing.Point(280, 40);
-            this.chkBulkOnlyWithoutAcc.Name = "chkBulkOnlyWithoutAcc";
-            this.chkBulkOnlyWithoutAcc.Properties.Caption = "Chỉ nhân sự chưa có tài khoản";
-            this.chkBulkOnlyWithoutAcc.Size = new System.Drawing.Size(214, 24);
-            this.chkBulkOnlyWithoutAcc.TabIndex = 2;
-            // 
-            // chkBulkEnableMobile
-            // 
-            this.chkBulkEnableMobile.EditValue = true;
-            this.chkBulkEnableMobile.Location = new System.Drawing.Point(500, 40);
-            this.chkBulkEnableMobile.Name = "chkBulkEnableMobile";
-            this.chkBulkEnableMobile.Properties.Caption = "Tự động kích hoạt quyền Mobile";
-            this.chkBulkEnableMobile.Size = new System.Drawing.Size(214, 24);
-            this.chkBulkEnableMobile.TabIndex = 3;
-            // 
-            // lblBulkDefaultPass
-            // 
-            this.lblBulkDefaultPass.Location = new System.Drawing.Point(732, 44);
-            this.lblBulkDefaultPass.Name = "lblBulkDefaultPass";
-            this.lblBulkDefaultPass.Size = new System.Drawing.Size(113, 16);
-            this.lblBulkDefaultPass.TabIndex = 4;
-            this.lblBulkDefaultPass.Text = "Mật khẩu mặc định:";
-            // 
-            // txtBulkDefaultPass
-            // 
-            this.txtBulkDefaultPass.EditValue = "123456";
-            this.txtBulkDefaultPass.Location = new System.Drawing.Point(851, 37);
-            this.txtBulkDefaultPass.Name = "txtBulkDefaultPass";
-            this.txtBulkDefaultPass.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 10F);
-            this.txtBulkDefaultPass.Properties.Appearance.Options.UseFont = true;
-            this.txtBulkDefaultPass.Size = new System.Drawing.Size(110, 28);
-            this.txtBulkDefaultPass.TabIndex = 5;
-            this.txtBulkDefaultPass.EditValueChanged += new System.EventHandler(this.txtBulkDefaultPass_EditValueChanged);
-            // 
-            // btnBulkPreview
-            // 
-            this.btnBulkPreview.Location = new System.Drawing.Point(1003, 38);
-            this.btnBulkPreview.Name = "btnBulkPreview";
-            this.btnBulkPreview.Size = new System.Drawing.Size(150, 28);
-            this.btnBulkPreview.TabIndex = 6;
-            this.btnBulkPreview.Text = "Xem Trước Danh Sách";
-            this.btnBulkPreview.Click += new System.EventHandler(this.btnBulkPreview_Click);
-            // 
-            // pnlBulkMetrics
-            // 
-            this.pnlBulkMetrics.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
-            this.pnlBulkMetrics.Controls.Add(this.lblBulkEligible);
-            this.pnlBulkMetrics.Controls.Add(this.lblBulkReady);
-            this.pnlBulkMetrics.Controls.Add(this.lblBulkExisting);
-            this.pnlBulkMetrics.Controls.Add(this.lblBulkSystem);
-            this.pnlBulkMetrics.Controls.Add(this.lblBulkInactive);
-            this.pnlBulkMetrics.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlBulkMetrics.Location = new System.Drawing.Point(2, 25);
-            this.pnlBulkMetrics.Name = "pnlBulkMetrics";
-            this.pnlBulkMetrics.Padding = new System.Windows.Forms.Padding(8, 4, 8, 4);
-            this.pnlBulkMetrics.Size = new System.Drawing.Size(1319, 243);
-            this.pnlBulkMetrics.TabIndex = 7;
-            // 
-            // lblBulkEligible
-            // 
-            this.lblBulkEligible.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblBulkEligible.Appearance.Options.UseFont = true;
-            this.lblBulkEligible.Location = new System.Drawing.Point(16, 8);
-            this.lblBulkEligible.Name = "lblBulkEligible";
-            this.lblBulkEligible.Size = new System.Drawing.Size(100, 20);
-            this.lblBulkEligible.TabIndex = 0;
-            this.lblBulkEligible.Text = "Tổng hợp lệ: 0";
-            // 
-            // lblBulkReady
-            // 
-            this.lblBulkReady.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
-            this.lblBulkReady.Appearance.ForeColor = System.Drawing.Color.DarkGreen;
-            this.lblBulkReady.Appearance.Options.UseFont = true;
-            this.lblBulkReady.Appearance.Options.UseForeColor = true;
-            this.lblBulkReady.Location = new System.Drawing.Point(160, 8);
-            this.lblBulkReady.Name = "lblBulkReady";
-            this.lblBulkReady.Size = new System.Drawing.Size(106, 20);
-            this.lblBulkReady.TabIndex = 1;
-            this.lblBulkReady.Text = "Sẵn sàng tạo: 0";
-            // 
-            // lblBulkExisting
-            // 
-            this.lblBulkExisting.Appearance.ForeColor = System.Drawing.Color.DarkBlue;
-            this.lblBulkExisting.Appearance.Options.UseForeColor = true;
-            this.lblBulkExisting.Location = new System.Drawing.Point(310, 8);
-            this.lblBulkExisting.Name = "lblBulkExisting";
-            this.lblBulkExisting.Size = new System.Drawing.Size(68, 16);
-            this.lblBulkExisting.TabIndex = 2;
-            this.lblBulkExisting.Text = "Đã có TK: 0";
-            // 
-            // lblBulkSystem
-            // 
-            this.lblBulkSystem.Appearance.ForeColor = System.Drawing.Color.DarkGoldenrod;
-            this.lblBulkSystem.Appearance.Options.UseForeColor = true;
-            this.lblBulkSystem.Location = new System.Drawing.Point(430, 8);
-            this.lblBulkSystem.Name = "lblBulkSystem";
-            this.lblBulkSystem.Size = new System.Drawing.Size(99, 16);
-            this.lblBulkSystem.TabIndex = 3;
-            this.lblBulkSystem.Text = "Admin/System: 0";
-            // 
-            // lblBulkInactive
-            // 
-            this.lblBulkInactive.Appearance.ForeColor = System.Drawing.Color.DarkRed;
-            this.lblBulkInactive.Appearance.Options.UseForeColor = true;
-            this.lblBulkInactive.Location = new System.Drawing.Point(570, 8);
-            this.lblBulkInactive.Name = "lblBulkInactive";
-            this.lblBulkInactive.Size = new System.Drawing.Size(83, 16);
-            this.lblBulkInactive.TabIndex = 4;
-            this.lblBulkInactive.Text = "Đã thôi việc: 0";
             // 
             // tabDanhSach
             // 
@@ -766,10 +493,10 @@ namespace QLyNSu.FORM_SYSTEM
             // gcUsers
             // 
             this.gcUsers.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gcUsers.Location = new System.Drawing.Point(0, 108);
+            this.gcUsers.Location = new System.Drawing.Point(0, 169);
             this.gcUsers.MainView = this.gvUsers;
             this.gcUsers.Name = "gcUsers";
-            this.gcUsers.Size = new System.Drawing.Size(1323, 431);
+            this.gcUsers.Size = new System.Drawing.Size(1654, 401);
             this.gcUsers.TabIndex = 0;
             this.gcUsers.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
             this.gvUsers});
@@ -795,10 +522,10 @@ namespace QLyNSu.FORM_SYSTEM
             this.pnlActions.Controls.Add(this.btnChuyenSangCapPhat);
             this.pnlActions.Controls.Add(this.btnXuatExcel);
             this.pnlActions.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlActions.Location = new System.Drawing.Point(0, 539);
+            this.pnlActions.Location = new System.Drawing.Point(0, 628);
             this.pnlActions.Name = "pnlActions";
             this.pnlActions.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlActions.Size = new System.Drawing.Size(1323, 148);
+            this.pnlActions.Size = new System.Drawing.Size(1654, 231);
             this.pnlActions.TabIndex = 1;
             // 
             // btnThem
@@ -871,7 +598,7 @@ namespace QLyNSu.FORM_SYSTEM
             // btnXuatExcel
             // 
             this.btnXuatExcel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnXuatExcel.Location = new System.Drawing.Point(4396, 18);
+            this.btnXuatExcel.Location = new System.Drawing.Point(4727, 18);
             this.btnXuatExcel.Name = "btnXuatExcel";
             this.btnXuatExcel.Size = new System.Drawing.Size(90, 30);
             this.btnXuatExcel.TabIndex = 7;
@@ -895,7 +622,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.pnlFilter.Location = new System.Drawing.Point(0, 0);
             this.pnlFilter.Name = "pnlFilter";
             this.pnlFilter.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlFilter.Size = new System.Drawing.Size(1323, 108);
+            this.pnlFilter.Size = new System.Drawing.Size(1654, 135);
             this.pnlFilter.TabIndex = 2;
             // 
             // lblSearch
@@ -1022,9 +749,9 @@ namespace QLyNSu.FORM_SYSTEM
             this.grpAccountInfo.Controls.Add(this.chkDetailDisabled);
             this.grpAccountInfo.Controls.Add(this.lblDetailMobileBadge);
             this.grpAccountInfo.Controls.Add(this.btnSaveDetail);
-            this.grpAccountInfo.Location = new System.Drawing.Point(9, 10);
+            this.grpAccountInfo.Location = new System.Drawing.Point(16, 16);
             this.grpAccountInfo.Name = "grpAccountInfo";
-            this.grpAccountInfo.Size = new System.Drawing.Size(457, 245);
+            this.grpAccountInfo.Size = new System.Drawing.Size(560, 340);
             this.grpAccountInfo.TabIndex = 0;
             this.grpAccountInfo.Text = "Thông Tin Tài Khoản";
             // 
@@ -1041,12 +768,12 @@ namespace QLyNSu.FORM_SYSTEM
             this.txtDetailId.Location = new System.Drawing.Point(140, 36);
             this.txtDetailId.Name = "txtDetailId";
             this.txtDetailId.Properties.ReadOnly = true;
-            this.txtDetailId.Size = new System.Drawing.Size(380, 22);
+            this.txtDetailId.Size = new System.Drawing.Size(390, 22);
             this.txtDetailId.TabIndex = 1;
             // 
             // lblDetailUsername
             // 
-            this.lblDetailUsername.Location = new System.Drawing.Point(20, 80);
+            this.lblDetailUsername.Location = new System.Drawing.Point(20, 78);
             this.lblDetailUsername.Name = "lblDetailUsername";
             this.lblDetailUsername.Size = new System.Drawing.Size(91, 16);
             this.lblDetailUsername.TabIndex = 2;
@@ -1054,15 +781,15 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // txtDetailUsername
             // 
-            this.txtDetailUsername.Location = new System.Drawing.Point(140, 76);
+            this.txtDetailUsername.Location = new System.Drawing.Point(140, 74);
             this.txtDetailUsername.Name = "txtDetailUsername";
             this.txtDetailUsername.Properties.ReadOnly = true;
-            this.txtDetailUsername.Size = new System.Drawing.Size(380, 22);
+            this.txtDetailUsername.Size = new System.Drawing.Size(390, 22);
             this.txtDetailUsername.TabIndex = 3;
             // 
             // lblDetailFullName
             // 
-            this.lblDetailFullName.Location = new System.Drawing.Point(20, 120);
+            this.lblDetailFullName.Location = new System.Drawing.Point(20, 116);
             this.lblDetailFullName.Name = "lblDetailFullName";
             this.lblDetailFullName.Size = new System.Drawing.Size(88, 16);
             this.lblDetailFullName.TabIndex = 4;
@@ -1070,14 +797,14 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // txtDetailFullName
             // 
-            this.txtDetailFullName.Location = new System.Drawing.Point(140, 116);
+            this.txtDetailFullName.Location = new System.Drawing.Point(140, 112);
             this.txtDetailFullName.Name = "txtDetailFullName";
-            this.txtDetailFullName.Size = new System.Drawing.Size(380, 22);
+            this.txtDetailFullName.Size = new System.Drawing.Size(390, 22);
             this.txtDetailFullName.TabIndex = 5;
             // 
             // lblDetailClientType
             // 
-            this.lblDetailClientType.Location = new System.Drawing.Point(20, 160);
+            this.lblDetailClientType.Location = new System.Drawing.Point(20, 154);
             this.lblDetailClientType.Name = "lblDetailClientType";
             this.lblDetailClientType.Size = new System.Drawing.Size(93, 16);
             this.lblDetailClientType.TabIndex = 6;
@@ -1085,7 +812,7 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // cboDetailClientType
             // 
-            this.cboDetailClientType.Location = new System.Drawing.Point(140, 156);
+            this.cboDetailClientType.Location = new System.Drawing.Point(140, 150);
             this.cboDetailClientType.Name = "cboDetailClientType";
             this.cboDetailClientType.Properties.Items.AddRange(new object[] {
             "ALL",
@@ -1093,22 +820,22 @@ namespace QLyNSu.FORM_SYSTEM
             "DESKTOP",
             "WEB",
             "SYSTEM"});
-            this.cboDetailClientType.Size = new System.Drawing.Size(380, 22);
+            this.cboDetailClientType.Size = new System.Drawing.Size(390, 22);
             this.cboDetailClientType.TabIndex = 7;
             // 
             // chkDetailDisabled
             // 
-            this.chkDetailDisabled.Location = new System.Drawing.Point(140, 196);
+            this.chkDetailDisabled.Location = new System.Drawing.Point(140, 188);
             this.chkDetailDisabled.Name = "chkDetailDisabled";
             this.chkDetailDisabled.Properties.Caption = "Khóa tài khoản này";
-            this.chkDetailDisabled.Size = new System.Drawing.Size(150, 24);
+            this.chkDetailDisabled.Size = new System.Drawing.Size(180, 24);
             this.chkDetailDisabled.TabIndex = 8;
             // 
             // lblDetailMobileBadge
             // 
             this.lblDetailMobileBadge.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
             this.lblDetailMobileBadge.Appearance.Options.UseFont = true;
-            this.lblDetailMobileBadge.Location = new System.Drawing.Point(140, 230);
+            this.lblDetailMobileBadge.Location = new System.Drawing.Point(140, 224);
             this.lblDetailMobileBadge.Name = "lblDetailMobileBadge";
             this.lblDetailMobileBadge.Size = new System.Drawing.Size(147, 20);
             this.lblDetailMobileBadge.TabIndex = 9;
@@ -1116,9 +843,9 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // btnSaveDetail
             // 
-            this.btnSaveDetail.Location = new System.Drawing.Point(140, 266);
+            this.btnSaveDetail.Location = new System.Drawing.Point(140, 262);
             this.btnSaveDetail.Name = "btnSaveDetail";
-            this.btnSaveDetail.Size = new System.Drawing.Size(180, 32);
+            this.btnSaveDetail.Size = new System.Drawing.Size(220, 36);
             this.btnSaveDetail.TabIndex = 10;
             this.btnSaveDetail.Text = "Lưu Cập Nhật Tài Khoản";
             this.btnSaveDetail.Click += new System.EventHandler(this.btnSaveDetail_Click);
@@ -1135,9 +862,9 @@ namespace QLyNSu.FORM_SYSTEM
             this.grpEmployeeInfo.Controls.Add(this.txtDetailDept);
             this.grpEmployeeInfo.Controls.Add(this.lblDetailPos);
             this.grpEmployeeInfo.Controls.Add(this.txtDetailPos);
-            this.grpEmployeeInfo.Location = new System.Drawing.Point(471, 10);
+            this.grpEmployeeInfo.Location = new System.Drawing.Point(596, 16);
             this.grpEmployeeInfo.Name = "grpEmployeeInfo";
-            this.grpEmployeeInfo.Size = new System.Drawing.Size(460, 245);
+            this.grpEmployeeInfo.Size = new System.Drawing.Size(560, 340);
             this.grpEmployeeInfo.TabIndex = 1;
             this.grpEmployeeInfo.Text = "Thông Tin Nhân Sự Liên Kết (1:1)";
             // 
@@ -1154,12 +881,12 @@ namespace QLyNSu.FORM_SYSTEM
             this.txtDetailEmpId.Location = new System.Drawing.Point(140, 36);
             this.txtDetailEmpId.Name = "txtDetailEmpId";
             this.txtDetailEmpId.Properties.ReadOnly = true;
-            this.txtDetailEmpId.Size = new System.Drawing.Size(380, 22);
+            this.txtDetailEmpId.Size = new System.Drawing.Size(390, 22);
             this.txtDetailEmpId.TabIndex = 1;
             // 
             // lblDetailEmpCode
             // 
-            this.lblDetailEmpCode.Location = new System.Drawing.Point(20, 80);
+            this.lblDetailEmpCode.Location = new System.Drawing.Point(20, 78);
             this.lblDetailEmpCode.Name = "lblDetailEmpCode";
             this.lblDetailEmpCode.Size = new System.Drawing.Size(72, 16);
             this.lblDetailEmpCode.TabIndex = 2;
@@ -1167,15 +894,15 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // txtDetailEmpCode
             // 
-            this.txtDetailEmpCode.Location = new System.Drawing.Point(140, 76);
+            this.txtDetailEmpCode.Location = new System.Drawing.Point(140, 74);
             this.txtDetailEmpCode.Name = "txtDetailEmpCode";
             this.txtDetailEmpCode.Properties.ReadOnly = true;
-            this.txtDetailEmpCode.Size = new System.Drawing.Size(380, 22);
+            this.txtDetailEmpCode.Size = new System.Drawing.Size(390, 22);
             this.txtDetailEmpCode.TabIndex = 3;
             // 
             // lblDetailEmpName
             // 
-            this.lblDetailEmpName.Location = new System.Drawing.Point(20, 120);
+            this.lblDetailEmpName.Location = new System.Drawing.Point(20, 116);
             this.lblDetailEmpName.Name = "lblDetailEmpName";
             this.lblDetailEmpName.Size = new System.Drawing.Size(101, 16);
             this.lblDetailEmpName.TabIndex = 4;
@@ -1183,15 +910,15 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // txtDetailEmpName
             // 
-            this.txtDetailEmpName.Location = new System.Drawing.Point(140, 116);
+            this.txtDetailEmpName.Location = new System.Drawing.Point(140, 112);
             this.txtDetailEmpName.Name = "txtDetailEmpName";
             this.txtDetailEmpName.Properties.ReadOnly = true;
-            this.txtDetailEmpName.Size = new System.Drawing.Size(380, 22);
+            this.txtDetailEmpName.Size = new System.Drawing.Size(390, 22);
             this.txtDetailEmpName.TabIndex = 5;
             // 
             // lblDetailDept
             // 
-            this.lblDetailDept.Location = new System.Drawing.Point(20, 160);
+            this.lblDetailDept.Location = new System.Drawing.Point(20, 154);
             this.lblDetailDept.Name = "lblDetailDept";
             this.lblDetailDept.Size = new System.Drawing.Size(65, 16);
             this.lblDetailDept.TabIndex = 6;
@@ -1199,15 +926,15 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // txtDetailDept
             // 
-            this.txtDetailDept.Location = new System.Drawing.Point(140, 156);
+            this.txtDetailDept.Location = new System.Drawing.Point(140, 150);
             this.txtDetailDept.Name = "txtDetailDept";
             this.txtDetailDept.Properties.ReadOnly = true;
-            this.txtDetailDept.Size = new System.Drawing.Size(380, 22);
+            this.txtDetailDept.Size = new System.Drawing.Size(390, 22);
             this.txtDetailDept.TabIndex = 7;
             // 
             // lblDetailPos
             // 
-            this.lblDetailPos.Location = new System.Drawing.Point(20, 200);
+            this.lblDetailPos.Location = new System.Drawing.Point(20, 192);
             this.lblDetailPos.Name = "lblDetailPos";
             this.lblDetailPos.Size = new System.Drawing.Size(51, 16);
             this.lblDetailPos.TabIndex = 8;
@@ -1215,216 +942,283 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             // txtDetailPos
             // 
-            this.txtDetailPos.Location = new System.Drawing.Point(140, 196);
+            this.txtDetailPos.Location = new System.Drawing.Point(140, 188);
             this.txtDetailPos.Name = "txtDetailPos";
             this.txtDetailPos.Properties.ReadOnly = true;
-            this.txtDetailPos.Size = new System.Drawing.Size(380, 22);
+            this.txtDetailPos.Size = new System.Drawing.Size(390, 22);
             this.txtDetailPos.TabIndex = 9;
             // 
-            // tabPhanQuyen
+            // tabCapPhatHangLoat
             // 
-            this.tabPhanQuyen.Controls.Add(this.pnlPhanQuyen);
-            this.tabPhanQuyen.Name = "tabPhanQuyen";
-            this.tabPhanQuyen.Size = new System.Drawing.Size(1323, 687);
-            this.tabPhanQuyen.Text = "🛡️ Phân Quyền & Nhóm";
+            this.tabCapPhatHangLoat.Controls.Add(this.tabBulkSub);
+            this.tabCapPhatHangLoat.Controls.Add(this.pnlBulkActions);
+            this.tabCapPhatHangLoat.Controls.Add(this.grpBulkFilter);
+            this.tabCapPhatHangLoat.Name = "tabCapPhatHangLoat";
+            this.tabCapPhatHangLoat.Size = new System.Drawing.Size(1323, 687);
+            this.tabCapPhatHangLoat.Text = "⚡ Cấp Tài Khoản Hàng Loạt";
             // 
-            // pnlPhanQuyen
+            // tabBulkSub
             // 
-            this.pnlPhanQuyen.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(252)))), ((int)(((byte)(255)))));
-            this.pnlPhanQuyen.Controls.Add(this.lblPqNotice);
-            this.pnlPhanQuyen.Controls.Add(this.btnOpenPhanQuyenChucNang);
-            this.pnlPhanQuyen.Controls.Add(this.btnOpenPhanQuyenBaoCao);
-            this.pnlPhanQuyen.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pnlPhanQuyen.Location = new System.Drawing.Point(0, 0);
-            this.pnlPhanQuyen.Name = "pnlPhanQuyen";
-            this.pnlPhanQuyen.Padding = new System.Windows.Forms.Padding(32);
-            this.pnlPhanQuyen.Size = new System.Drawing.Size(1323, 687);
-            this.pnlPhanQuyen.TabIndex = 0;
+            this.tabBulkSub.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabBulkSub.Location = new System.Drawing.Point(0, 131);
+            this.tabBulkSub.Name = "tabBulkSub";
+            this.tabBulkSub.SelectedTabPage = this.tabSubCandidates;
+            this.tabBulkSub.Size = new System.Drawing.Size(1323, 481);
+            this.tabBulkSub.TabIndex = 0;
+            this.tabBulkSub.TabPages.AddRange(new DevExpress.XtraTab.XtraTabPage[] {
+            this.tabSubCandidates,
+            this.tabSubResults});
             // 
-            // lblPqNotice
+            // tabSubCandidates
             // 
-            this.lblPqNotice.Appearance.Font = new System.Drawing.Font("Segoe UI", 10F);
-            this.lblPqNotice.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(40)))), ((int)(((byte)(50)))), ((int)(((byte)(70)))));
-            this.lblPqNotice.Appearance.Options.UseFont = true;
-            this.lblPqNotice.Appearance.Options.UseForeColor = true;
-            this.lblPqNotice.Location = new System.Drawing.Point(32, 28);
-            this.lblPqNotice.Name = "lblPqNotice";
-            this.lblPqNotice.Size = new System.Drawing.Size(747, 69);
-            this.lblPqNotice.TabIndex = 0;
-            this.lblPqNotice.Text = "🛡️ TRUNG TÂM PHÂN QUYỀN CHỨC NĂNG & PHÂN QUYỀN BÁO CÁO\r\n\r\nBạn có thể phân quyền " +
-    "chi tiết (Xem, Thêm, Sửa, Xóa, In) cho từng nhóm hoặc tài khoản cá nhân.";
+            this.tabSubCandidates.Controls.Add(this.gcCandidates);
+            this.tabSubCandidates.Name = "tabSubCandidates";
+            this.tabSubCandidates.Size = new System.Drawing.Size(1321, 451);
+            this.tabSubCandidates.Text = "👥 1. Danh Sách Ứng Viên Cấp Phát";
             // 
-            // btnOpenPhanQuyenChucNang
+            // gcCandidates
             // 
-            this.btnOpenPhanQuyenChucNang.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
-            this.btnOpenPhanQuyenChucNang.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(70)))), ((int)(((byte)(140)))));
-            this.btnOpenPhanQuyenChucNang.Appearance.Options.UseFont = true;
-            this.btnOpenPhanQuyenChucNang.Appearance.Options.UseForeColor = true;
-            this.btnOpenPhanQuyenChucNang.Location = new System.Drawing.Point(32, 110);
-            this.btnOpenPhanQuyenChucNang.Name = "btnOpenPhanQuyenChucNang";
-            this.btnOpenPhanQuyenChucNang.Size = new System.Drawing.Size(340, 46);
-            this.btnOpenPhanQuyenChucNang.TabIndex = 1;
-            this.btnOpenPhanQuyenChucNang.Text = "🛡️  Phân Quyền Chức Năng";
-            this.btnOpenPhanQuyenChucNang.Click += new System.EventHandler(this.btnOpenPhanQuyenChucNang_Click);
+            this.gcCandidates.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gcCandidates.Location = new System.Drawing.Point(0, 0);
+            this.gcCandidates.MainView = this.gvCandidates;
+            this.gcCandidates.Name = "gcCandidates";
+            this.gcCandidates.Size = new System.Drawing.Size(1321, 451);
+            this.gcCandidates.TabIndex = 0;
+            this.gcCandidates.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gvCandidates});
             // 
-            // btnOpenPhanQuyenBaoCao
+            // gvCandidates
             // 
-            this.btnOpenPhanQuyenBaoCao.Appearance.Font = new System.Drawing.Font("Segoe UI", 10.5F, System.Drawing.FontStyle.Bold);
-            this.btnOpenPhanQuyenBaoCao.Appearance.ForeColor = System.Drawing.Color.FromArgb(((int)(((byte)(20)))), ((int)(((byte)(120)))), ((int)(((byte)(80)))));
-            this.btnOpenPhanQuyenBaoCao.Appearance.Options.UseFont = true;
-            this.btnOpenPhanQuyenBaoCao.Appearance.Options.UseForeColor = true;
-            this.btnOpenPhanQuyenBaoCao.Location = new System.Drawing.Point(32, 175);
-            this.btnOpenPhanQuyenBaoCao.Name = "btnOpenPhanQuyenBaoCao";
-            this.btnOpenPhanQuyenBaoCao.Size = new System.Drawing.Size(340, 46);
-            this.btnOpenPhanQuyenBaoCao.TabIndex = 2;
-            this.btnOpenPhanQuyenBaoCao.Text = "📊  Phân Quyền Báo Cáo";
-            this.btnOpenPhanQuyenBaoCao.Click += new System.EventHandler(this.btnOpenPhanQuyenBaoCao_Click);
+            this.gvCandidates.GridControl = this.gcCandidates;
+            this.gvCandidates.Name = "gvCandidates";
+            this.gvCandidates.OptionsView.ShowGroupPanel = false;
             // 
-            // tabMobileAccess
+            // tabSubResults
             // 
-            this.tabMobileAccess.Controls.Add(this.gcMobile);
-            this.tabMobileAccess.Controls.Add(this.pnlMobileActions);
-            this.tabMobileAccess.Name = "tabMobileAccess";
-            this.tabMobileAccess.Size = new System.Drawing.Size(1323, 687);
-            this.tabMobileAccess.Text = "📱 Quản Lý Mobile Access";
+            this.tabSubResults.Controls.Add(this.gcBulkResults);
+            this.tabSubResults.Name = "tabSubResults";
+            this.tabSubResults.Size = new System.Drawing.Size(1321, 466);
+            this.tabSubResults.Text = "📋 2. Kết Quả Cấp Phát";
             // 
-            // gcMobile
+            // gcBulkResults
             // 
-            this.gcMobile.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gcMobile.Location = new System.Drawing.Point(0, 0);
-            this.gcMobile.MainView = this.gvMobile;
-            this.gcMobile.Name = "gcMobile";
-            this.gcMobile.Size = new System.Drawing.Size(1323, 643);
-            this.gcMobile.TabIndex = 0;
-            this.gcMobile.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gvMobile});
+            this.gcBulkResults.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.gcBulkResults.Location = new System.Drawing.Point(0, 0);
+            this.gcBulkResults.MainView = this.gvBulkResults;
+            this.gcBulkResults.Name = "gcBulkResults";
+            this.gcBulkResults.Size = new System.Drawing.Size(1321, 466);
+            this.gcBulkResults.TabIndex = 0;
+            this.gcBulkResults.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
+            this.gvBulkResults});
             // 
-            // gvMobile
+            // gvBulkResults
             // 
-            this.gvMobile.GridControl = this.gcMobile;
-            this.gvMobile.Name = "gvMobile";
-            this.gvMobile.OptionsBehavior.Editable = false;
-            this.gvMobile.OptionsView.ShowGroupPanel = false;
+            this.gvBulkResults.GridControl = this.gcBulkResults;
+            this.gvBulkResults.Name = "gvBulkResults";
+            this.gvBulkResults.OptionsBehavior.Editable = false;
+            this.gvBulkResults.OptionsView.ShowGroupPanel = false;
             // 
-            // pnlMobileActions
+            // pnlBulkActions
             // 
-            this.pnlMobileActions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(244)))), ((int)(((byte)(250)))));
-            this.pnlMobileActions.Controls.Add(this.btnMobileEnableSel);
-            this.pnlMobileActions.Controls.Add(this.btnMobileDisableSel);
-            this.pnlMobileActions.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlMobileActions.Location = new System.Drawing.Point(0, 643);
-            this.pnlMobileActions.Name = "pnlMobileActions";
-            this.pnlMobileActions.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlMobileActions.Size = new System.Drawing.Size(1323, 44);
-            this.pnlMobileActions.TabIndex = 1;
+            this.pnlBulkActions.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(244)))), ((int)(((byte)(250)))));
+            this.pnlBulkActions.Controls.Add(this.btnBulkSelectAll);
+            this.pnlBulkActions.Controls.Add(this.btnBulkDeselectAll);
+            this.pnlBulkActions.Controls.Add(this.btnExecuteBulk);
+            this.pnlBulkActions.Controls.Add(this.lblBulkResultsTitle);
+            this.pnlBulkActions.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlBulkActions.Location = new System.Drawing.Point(0, 784);
+            this.pnlBulkActions.Name = "pnlBulkActions";
+            this.pnlBulkActions.Padding = new System.Windows.Forms.Padding(8);
+            this.pnlBulkActions.Size = new System.Drawing.Size(1654, 75);
+            this.pnlBulkActions.TabIndex = 1;
             // 
-            // btnMobileEnableSel
+            // btnBulkSelectAll
             // 
-            this.btnMobileEnableSel.Location = new System.Drawing.Point(12, 8);
-            this.btnMobileEnableSel.Name = "btnMobileEnableSel";
-            this.btnMobileEnableSel.Size = new System.Drawing.Size(150, 28);
-            this.btnMobileEnableSel.TabIndex = 0;
-            this.btnMobileEnableSel.Text = "✅ Bật Quyền Mobile";
-            this.btnMobileEnableSel.Click += new System.EventHandler(this.btnMobileEnableSel_Click);
+            this.btnBulkSelectAll.Location = new System.Drawing.Point(12, 10);
+            this.btnBulkSelectAll.Name = "btnBulkSelectAll";
+            this.btnBulkSelectAll.Size = new System.Drawing.Size(140, 28);
+            this.btnBulkSelectAll.TabIndex = 0;
+            this.btnBulkSelectAll.Text = "Chọn Tất Cả Hợp Lệ";
+            this.btnBulkSelectAll.Click += new System.EventHandler(this.btnBulkSelectAll_Click);
             // 
-            // btnMobileDisableSel
+            // btnBulkDeselectAll
             // 
-            this.btnMobileDisableSel.Location = new System.Drawing.Point(170, 8);
-            this.btnMobileDisableSel.Name = "btnMobileDisableSel";
-            this.btnMobileDisableSel.Size = new System.Drawing.Size(150, 28);
-            this.btnMobileDisableSel.TabIndex = 1;
-            this.btnMobileDisableSel.Text = "❌ Tắt Quyền Mobile";
-            this.btnMobileDisableSel.Click += new System.EventHandler(this.btnMobileDisableSel_Click);
+            this.btnBulkDeselectAll.Location = new System.Drawing.Point(160, 10);
+            this.btnBulkDeselectAll.Name = "btnBulkDeselectAll";
+            this.btnBulkDeselectAll.Size = new System.Drawing.Size(120, 28);
+            this.btnBulkDeselectAll.TabIndex = 1;
+            this.btnBulkDeselectAll.Text = "Bỏ Chọn Tất Cả";
+            this.btnBulkDeselectAll.Click += new System.EventHandler(this.btnBulkDeselectAll_Click);
             // 
-            // tabAuditLog
+            // btnExecuteBulk
             // 
-            this.tabAuditLog.Controls.Add(this.gcAudit);
-            this.tabAuditLog.Controls.Add(this.pnlAuditFilter);
-            this.tabAuditLog.Name = "tabAuditLog";
-            this.tabAuditLog.Size = new System.Drawing.Size(1323, 687);
-            this.tabAuditLog.Text = "📜 Nhật Ký Hệ Thống (Audit)";
+            this.btnExecuteBulk.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.btnExecuteBulk.Appearance.ForeColor = System.Drawing.Color.DarkGreen;
+            this.btnExecuteBulk.Appearance.Options.UseFont = true;
+            this.btnExecuteBulk.Appearance.Options.UseForeColor = true;
+            this.btnExecuteBulk.Location = new System.Drawing.Point(290, 10);
+            this.btnExecuteBulk.Name = "btnExecuteBulk";
+            this.btnExecuteBulk.Size = new System.Drawing.Size(170, 28);
+            this.btnExecuteBulk.TabIndex = 2;
+            this.btnExecuteBulk.Text = "⚡ Thực Thi Cấp Phát";
+            this.btnExecuteBulk.Click += new System.EventHandler(this.btnExecuteBulk_Click);
             // 
-            // gcAudit
+            // lblBulkResultsTitle
             // 
-            this.gcAudit.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.gcAudit.Location = new System.Drawing.Point(0, 44);
-            this.gcAudit.MainView = this.gvAudit;
-            this.gcAudit.Name = "gcAudit";
-            this.gcAudit.Size = new System.Drawing.Size(1323, 643);
-            this.gcAudit.TabIndex = 0;
-            this.gcAudit.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] {
-            this.gvAudit});
+            this.lblBulkResultsTitle.Appearance.Font = new System.Drawing.Font("Segoe UI", 8.5F, System.Drawing.FontStyle.Italic);
+            this.lblBulkResultsTitle.Appearance.ForeColor = System.Drawing.Color.DimGray;
+            this.lblBulkResultsTitle.Appearance.Options.UseFont = true;
+            this.lblBulkResultsTitle.Appearance.Options.UseForeColor = true;
+            this.lblBulkResultsTitle.Location = new System.Drawing.Point(480, 16);
+            this.lblBulkResultsTitle.Name = "lblBulkResultsTitle";
+            this.lblBulkResultsTitle.Size = new System.Drawing.Size(399, 20);
+            this.lblBulkResultsTitle.TabIndex = 3;
+            this.lblBulkResultsTitle.Text = "* Chỉ các nhân sự được tích chọn [Hợp Lệ] mới được cấp phát.";
             // 
-            // gvAudit
+            // grpBulkFilter
             // 
-            this.gvAudit.GridControl = this.gcAudit;
-            this.gvAudit.Name = "gvAudit";
-            this.gvAudit.OptionsBehavior.Editable = false;
-            this.gvAudit.OptionsView.ShowGroupPanel = false;
+            this.grpBulkFilter.Controls.Add(this.lblBulkDept);
+            this.grpBulkFilter.Controls.Add(this.cboBulkDept);
+            this.grpBulkFilter.Controls.Add(this.chkBulkOnlyWithoutAcc);
+            this.grpBulkFilter.Controls.Add(this.chkBulkEnableMobile);
+            this.grpBulkFilter.Controls.Add(this.lblBulkDefaultPass);
+            this.grpBulkFilter.Controls.Add(this.txtBulkDefaultPass);
+            this.grpBulkFilter.Controls.Add(this.btnBulkRefresh);
+            this.grpBulkFilter.Controls.Add(this.pnlBulkMetrics);
+            this.grpBulkFilter.Dock = System.Windows.Forms.DockStyle.Top;
+            this.grpBulkFilter.Location = new System.Drawing.Point(0, 0);
+            this.grpBulkFilter.Name = "grpBulkFilter";
+            this.grpBulkFilter.Size = new System.Drawing.Size(1654, 131);
+            this.grpBulkFilter.TabIndex = 2;
+            this.grpBulkFilter.Text = "Bộ Lọc & Tiêu Chí Cấp Phát";
             // 
-            // pnlAuditFilter
+            // lblBulkDept
             // 
-            this.pnlAuditFilter.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(247)))), ((int)(((byte)(250)))));
-            this.pnlAuditFilter.Controls.Add(this.lblAuditSearch);
-            this.pnlAuditFilter.Controls.Add(this.txtAuditSearch);
-            this.pnlAuditFilter.Controls.Add(this.lblAuditAction);
-            this.pnlAuditFilter.Controls.Add(this.cboAuditAction);
-            this.pnlAuditFilter.Controls.Add(this.btnAuditFilter);
-            this.pnlAuditFilter.Dock = System.Windows.Forms.DockStyle.Top;
-            this.pnlAuditFilter.Location = new System.Drawing.Point(0, 0);
-            this.pnlAuditFilter.Name = "pnlAuditFilter";
-            this.pnlAuditFilter.Padding = new System.Windows.Forms.Padding(8);
-            this.pnlAuditFilter.Size = new System.Drawing.Size(1323, 44);
-            this.pnlAuditFilter.TabIndex = 1;
+            this.lblBulkDept.Location = new System.Drawing.Point(14, 35);
+            this.lblBulkDept.Name = "lblBulkDept";
+            this.lblBulkDept.Size = new System.Drawing.Size(65, 16);
+            this.lblBulkDept.TabIndex = 0;
+            this.lblBulkDept.Text = "Phòng ban:";
             // 
-            // lblAuditSearch
+            // cboBulkDept
             // 
-            this.lblAuditSearch.Location = new System.Drawing.Point(12, 14);
-            this.lblAuditSearch.Name = "lblAuditSearch";
-            this.lblAuditSearch.Size = new System.Drawing.Size(58, 16);
-            this.lblAuditSearch.TabIndex = 0;
-            this.lblAuditSearch.Text = "Tìm kiếm:";
+            this.cboBulkDept.Location = new System.Drawing.Point(84, 31);
+            this.cboBulkDept.Name = "cboBulkDept";
+            this.cboBulkDept.Size = new System.Drawing.Size(185, 22);
+            this.cboBulkDept.TabIndex = 1;
             // 
-            // txtAuditSearch
+            // chkBulkOnlyWithoutAcc
             // 
-            this.txtAuditSearch.Location = new System.Drawing.Point(72, 10);
-            this.txtAuditSearch.Name = "txtAuditSearch";
-            this.txtAuditSearch.Size = new System.Drawing.Size(200, 22);
-            this.txtAuditSearch.TabIndex = 1;
+            this.chkBulkOnlyWithoutAcc.EditValue = true;
+            this.chkBulkOnlyWithoutAcc.Location = new System.Drawing.Point(285, 31);
+            this.chkBulkOnlyWithoutAcc.Name = "chkBulkOnlyWithoutAcc";
+            this.chkBulkOnlyWithoutAcc.Properties.Caption = "Chỉ nhân sự chưa có tài khoản";
+            this.chkBulkOnlyWithoutAcc.Size = new System.Drawing.Size(232, 24);
+            this.chkBulkOnlyWithoutAcc.TabIndex = 2;
             // 
-            // lblAuditAction
+            // chkBulkEnableMobile
             // 
-            this.lblAuditAction.Location = new System.Drawing.Point(290, 14);
-            this.lblAuditAction.Name = "lblAuditAction";
-            this.lblAuditAction.Size = new System.Drawing.Size(66, 16);
-            this.lblAuditAction.TabIndex = 2;
-            this.lblAuditAction.Text = "Hành động:";
+            this.chkBulkEnableMobile.EditValue = true;
+            this.chkBulkEnableMobile.Location = new System.Drawing.Point(546, 31);
+            this.chkBulkEnableMobile.Name = "chkBulkEnableMobile";
+            this.chkBulkEnableMobile.Properties.Caption = "Tự động kích hoạt Mobile";
+            this.chkBulkEnableMobile.Size = new System.Drawing.Size(190, 24);
+            this.chkBulkEnableMobile.TabIndex = 3;
             // 
-            // cboAuditAction
+            // lblBulkDefaultPass
             // 
-            this.cboAuditAction.EditValue = "Tất cả hành động";
-            this.cboAuditAction.Location = new System.Drawing.Point(360, 10);
-            this.cboAuditAction.Name = "cboAuditAction";
-            this.cboAuditAction.Properties.Items.AddRange(new object[] {
-            "Tất cả hành động",
-            "LOCK_USER",
-            "UNLOCK_USER",
-            "RESET_PASSWORD",
-            "ENABLE_MOBILE",
-            "DISABLE_MOBILE",
-            "BULK_PROVISION",
-            "LINK_EMPLOYEE"});
-            this.cboAuditAction.Size = new System.Drawing.Size(180, 22);
-            this.cboAuditAction.TabIndex = 3;
+            this.lblBulkDefaultPass.Location = new System.Drawing.Point(769, 36);
+            this.lblBulkDefaultPass.Name = "lblBulkDefaultPass";
+            this.lblBulkDefaultPass.Size = new System.Drawing.Size(113, 16);
+            this.lblBulkDefaultPass.TabIndex = 4;
+            this.lblBulkDefaultPass.Text = "Mật khẩu mặc định:";
             // 
-            // btnAuditFilter
+            // txtBulkDefaultPass
             // 
-            this.btnAuditFilter.Location = new System.Drawing.Point(550, 10);
-            this.btnAuditFilter.Name = "btnAuditFilter";
-            this.btnAuditFilter.Size = new System.Drawing.Size(80, 24);
-            this.btnAuditFilter.TabIndex = 4;
-            this.btnAuditFilter.Text = "Tra Cứu";
-            this.btnAuditFilter.Click += new System.EventHandler(this.btnAuditFilter_Click);
+            this.txtBulkDefaultPass.EditValue = "123456";
+            this.txtBulkDefaultPass.Location = new System.Drawing.Point(891, 32);
+            this.txtBulkDefaultPass.Name = "txtBulkDefaultPass";
+            this.txtBulkDefaultPass.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9.5F);
+            this.txtBulkDefaultPass.Properties.Appearance.Options.UseFont = true;
+            this.txtBulkDefaultPass.Size = new System.Drawing.Size(96, 26);
+            this.txtBulkDefaultPass.TabIndex = 5;
+            this.txtBulkDefaultPass.EditValueChanged += new System.EventHandler(this.txtBulkDefaultPass_EditValueChanged);
+            // 
+            // btnBulkRefresh
+            // 
+            this.btnBulkRefresh.Location = new System.Drawing.Point(1010, 32);
+            this.btnBulkRefresh.Name = "btnBulkRefresh";
+            this.btnBulkRefresh.Size = new System.Drawing.Size(110, 28);
+            this.btnBulkRefresh.TabIndex = 6;
+            this.btnBulkRefresh.Text = "🔄 Tải Lại";
+            this.btnBulkRefresh.Click += new System.EventHandler(this.btnBulkRefresh_Click);
+            // 
+            // pnlBulkMetrics
+            // 
+            this.pnlBulkMetrics.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(248)))), ((int)(((byte)(252)))));
+            this.pnlBulkMetrics.Controls.Add(this.lblBulkEligible);
+            this.pnlBulkMetrics.Controls.Add(this.lblBulkReady);
+            this.pnlBulkMetrics.Controls.Add(this.lblBulkExisting);
+            this.pnlBulkMetrics.Controls.Add(this.lblBulkSystem);
+            this.pnlBulkMetrics.Controls.Add(this.lblBulkInactive);
+            this.pnlBulkMetrics.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.pnlBulkMetrics.Location = new System.Drawing.Point(2, 61);
+            this.pnlBulkMetrics.Name = "pnlBulkMetrics";
+            this.pnlBulkMetrics.Padding = new System.Windows.Forms.Padding(8, 4, 8, 4);
+            this.pnlBulkMetrics.Size = new System.Drawing.Size(1650, 68);
+            this.pnlBulkMetrics.TabIndex = 7;
+            // 
+            // lblBulkEligible
+            // 
+            this.lblBulkEligible.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblBulkEligible.Appearance.Options.UseFont = true;
+            this.lblBulkEligible.Location = new System.Drawing.Point(16, 8);
+            this.lblBulkEligible.Name = "lblBulkEligible";
+            this.lblBulkEligible.Size = new System.Drawing.Size(100, 20);
+            this.lblBulkEligible.TabIndex = 0;
+            this.lblBulkEligible.Text = "Tổng hợp lệ: 0";
+            // 
+            // lblBulkReady
+            // 
+            this.lblBulkReady.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold);
+            this.lblBulkReady.Appearance.ForeColor = System.Drawing.Color.DarkGreen;
+            this.lblBulkReady.Appearance.Options.UseFont = true;
+            this.lblBulkReady.Appearance.Options.UseForeColor = true;
+            this.lblBulkReady.Location = new System.Drawing.Point(160, 8);
+            this.lblBulkReady.Name = "lblBulkReady";
+            this.lblBulkReady.Size = new System.Drawing.Size(106, 20);
+            this.lblBulkReady.TabIndex = 1;
+            this.lblBulkReady.Text = "Sẵn sàng tạo: 0";
+            // 
+            // lblBulkExisting
+            // 
+            this.lblBulkExisting.Appearance.ForeColor = System.Drawing.Color.DarkBlue;
+            this.lblBulkExisting.Appearance.Options.UseForeColor = true;
+            this.lblBulkExisting.Location = new System.Drawing.Point(310, 8);
+            this.lblBulkExisting.Name = "lblBulkExisting";
+            this.lblBulkExisting.Size = new System.Drawing.Size(68, 16);
+            this.lblBulkExisting.TabIndex = 2;
+            this.lblBulkExisting.Text = "Đã có TK: 0";
+            // 
+            // lblBulkSystem
+            // 
+            this.lblBulkSystem.Appearance.ForeColor = System.Drawing.Color.DarkGoldenrod;
+            this.lblBulkSystem.Appearance.Options.UseForeColor = true;
+            this.lblBulkSystem.Location = new System.Drawing.Point(430, 8);
+            this.lblBulkSystem.Name = "lblBulkSystem";
+            this.lblBulkSystem.Size = new System.Drawing.Size(99, 16);
+            this.lblBulkSystem.TabIndex = 3;
+            this.lblBulkSystem.Text = "Admin/System: 0";
+            // 
+            // lblBulkInactive
+            // 
+            this.lblBulkInactive.Appearance.ForeColor = System.Drawing.Color.DarkRed;
+            this.lblBulkInactive.Appearance.Options.UseForeColor = true;
+            this.lblBulkInactive.Location = new System.Drawing.Point(570, 8);
+            this.lblBulkInactive.Name = "lblBulkInactive";
+            this.lblBulkInactive.Size = new System.Drawing.Size(83, 16);
+            this.lblBulkInactive.TabIndex = 4;
+            this.lblBulkInactive.Text = "Đã thôi việc: 0";
             // 
             // FrmQuanLyTaiKhoan
             // 
@@ -1455,22 +1249,6 @@ namespace QLyNSu.FORM_SYSTEM
             this.pnlCard7.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tabMain)).EndInit();
             this.tabMain.ResumeLayout(false);
-            this.tabCapPhatHangLoat.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.gcCandidates)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvCandidates)).EndInit();
-            this.pnlBulkActions.ResumeLayout(false);
-            this.pnlBulkActions.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.gcBulkResults)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvBulkResults)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.grpBulkFilter)).EndInit();
-            this.grpBulkFilter.ResumeLayout(false);
-            this.grpBulkFilter.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.cboBulkDept.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chkBulkOnlyWithoutAcc.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.chkBulkEnableMobile.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.txtBulkDefaultPass.Properties)).EndInit();
-            this.pnlBulkMetrics.ResumeLayout(false);
-            this.pnlBulkMetrics.PerformLayout();
             this.tabDanhSach.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.gcUsers)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvUsers)).EndInit();
@@ -1499,20 +1277,26 @@ namespace QLyNSu.FORM_SYSTEM
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailEmpName.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailDept.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txtDetailPos.Properties)).EndInit();
-            this.tabPhanQuyen.ResumeLayout(false);
-            this.pnlPhanQuyen.ResumeLayout(false);
-            this.pnlPhanQuyen.PerformLayout();
-            this.tabMobileAccess.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.gcMobile)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvMobile)).EndInit();
-            this.pnlMobileActions.ResumeLayout(false);
-            this.tabAuditLog.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.gcAudit)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.gvAudit)).EndInit();
-            this.pnlAuditFilter.ResumeLayout(false);
-            this.pnlAuditFilter.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.txtAuditSearch.Properties)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.cboAuditAction.Properties)).EndInit();
+            this.tabCapPhatHangLoat.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.tabBulkSub)).EndInit();
+            this.tabBulkSub.ResumeLayout(false);
+            this.tabSubCandidates.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.gcCandidates)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvCandidates)).EndInit();
+            this.tabSubResults.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.gcBulkResults)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.gvBulkResults)).EndInit();
+            this.pnlBulkActions.ResumeLayout(false);
+            this.pnlBulkActions.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grpBulkFilter)).EndInit();
+            this.grpBulkFilter.ResumeLayout(false);
+            this.grpBulkFilter.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.cboBulkDept.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkBulkOnlyWithoutAcc.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.chkBulkEnableMobile.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.txtBulkDefaultPass.Properties)).EndInit();
+            this.pnlBulkMetrics.ResumeLayout(false);
+            this.pnlBulkMetrics.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1551,9 +1335,6 @@ namespace QLyNSu.FORM_SYSTEM
         private DevExpress.XtraTab.XtraTabPage tabDanhSach;
         private DevExpress.XtraTab.XtraTabPage tabChiTiet;
         private DevExpress.XtraTab.XtraTabPage tabCapPhatHangLoat;
-        private DevExpress.XtraTab.XtraTabPage tabPhanQuyen;
-        private DevExpress.XtraTab.XtraTabPage tabMobileAccess;
-        private DevExpress.XtraTab.XtraTabPage tabAuditLog;
 
         // Tab 1
         private System.Windows.Forms.Panel pnlFilter;
@@ -1614,7 +1395,7 @@ namespace QLyNSu.FORM_SYSTEM
         private DevExpress.XtraEditors.CheckEdit chkBulkOnlyWithoutAcc;
         private DevExpress.XtraEditors.CheckEdit chkBulkEnableMobile;
         private DevExpress.XtraEditors.TextEdit txtBulkDefaultPass;
-        private DevExpress.XtraEditors.SimpleButton btnBulkPreview;
+        private DevExpress.XtraEditors.SimpleButton btnBulkRefresh;
         private System.Windows.Forms.Panel pnlBulkMetrics;
         private DevExpress.XtraEditors.LabelControl lblBulkEligible;
         private DevExpress.XtraEditors.LabelControl lblBulkReady;
@@ -1630,28 +1411,8 @@ namespace QLyNSu.FORM_SYSTEM
         private DevExpress.XtraEditors.LabelControl lblBulkResultsTitle;
         private DevExpress.XtraGrid.GridControl gcBulkResults;
         private DevExpress.XtraGrid.Views.Grid.GridView gvBulkResults;
-
-        // Tab 4
-        private System.Windows.Forms.Panel pnlPhanQuyen;
-        private DevExpress.XtraEditors.LabelControl lblPqNotice;
-        private DevExpress.XtraEditors.SimpleButton btnOpenPhanQuyenChucNang;
-        private DevExpress.XtraEditors.SimpleButton btnOpenPhanQuyenBaoCao;
-
-        // Tab 5
-        private DevExpress.XtraGrid.GridControl gcMobile;
-        private DevExpress.XtraGrid.Views.Grid.GridView gvMobile;
-        private System.Windows.Forms.Panel pnlMobileActions;
-        private DevExpress.XtraEditors.SimpleButton btnMobileEnableSel;
-        private DevExpress.XtraEditors.SimpleButton btnMobileDisableSel;
-
-        // Tab 6
-        private System.Windows.Forms.Panel pnlAuditFilter;
-        private DevExpress.XtraEditors.LabelControl lblAuditSearch;
-        private DevExpress.XtraEditors.LabelControl lblAuditAction;
-        private DevExpress.XtraEditors.TextEdit txtAuditSearch;
-        private DevExpress.XtraEditors.ComboBoxEdit cboAuditAction;
-        private DevExpress.XtraEditors.SimpleButton btnAuditFilter;
-        private DevExpress.XtraGrid.GridControl gcAudit;
-        private DevExpress.XtraGrid.Views.Grid.GridView gvAudit;
+        private DevExpress.XtraTab.XtraTabControl tabBulkSub;
+        private DevExpress.XtraTab.XtraTabPage tabSubCandidates;
+        private DevExpress.XtraTab.XtraTabPage tabSubResults;
     }
 }

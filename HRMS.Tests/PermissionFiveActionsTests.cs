@@ -178,5 +178,31 @@ namespace Bu.Tests
                 }
             }
         }
+
+        [Test]
+        public void SYS_USER_EnsureSeeded_SeedsAllNewFunctions()
+        {
+            var sysUser = new SYS_USER();
+            sysUser.EnsureSeeded();
+
+            using (var db = new MyEntities())
+            {
+                var allDbFuncs = db.TB_SYS_FUNCTION.Select(x => x.FUNCTION_CODE).ToList();
+                Console.WriteLine($"Total functions in DB now: {allDbFuncs.Count}");
+
+                string[] expected = new string[] {
+                    "F_NV_PHEDUYET", "F_SYSTEM_THONGBAO", "F_SYSTEM_CAPTAIKHOAN", 
+                    "F_SYSTEM_PQ_CHUCNANG", "F_SYSTEM_PQ_BAOCAO", "F_SYSTEM_DB_CONFIG", 
+                    "F_CC_BCCT_IN", "F_CC_CAPNHATCONG", "MOBILE_REQUEST_LEAVE",
+                    "MOBILE_REQUEST_OVERTIME", "MOBILE_REQUEST_ADVANCE"
+                };
+
+                foreach (var exp in expected)
+                {
+                    Assert.IsTrue(allDbFuncs.Contains(exp), $"Function {exp} is missing from Oracle database TB_SYS_FUNCTION table.");
+                }
+            }
+        }
     }
 }
+
