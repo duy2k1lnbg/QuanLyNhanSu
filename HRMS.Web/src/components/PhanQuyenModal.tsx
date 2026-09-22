@@ -488,7 +488,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
       }
       open={visible}
       onCancel={onClose}
-      width={1060}
+      width="min(1060px, 95vw)"
       footer={[
         <Button key="cancel" onClick={onClose}>
           Đóng

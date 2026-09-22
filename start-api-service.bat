@@ -4,10 +4,10 @@ echo [HRMS Mobile] Starting Backend Services...
 echo ===================================================
 
 REM 1. Start IIS Express on port 5001
-start "IIS Express Backend (Port 5001)" "C:\Program Files\IIS Express\iisexpress.exe" /path:%~dp0HRMS.Api /port:5001
+start "IIS Express Backend (Port 5001)" "C:\Program Files\IIS Express\iisexpress.exe" /path:"%~dp0HRMS.Api" /port:5001
 
 REM 2. Wait 2 seconds
-timeout /t 2 >nul
+ping 127.0.0.1 -n 3 >nul
 
 REM 3. Start Node.js Reverse Proxy on port 5000
 start "HRMS Reverse Proxy (Port 5000)" node "%~dp0proxy.js"

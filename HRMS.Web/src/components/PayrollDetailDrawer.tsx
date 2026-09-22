@@ -52,7 +52,7 @@ export const PayrollDetailDrawer: React.FC<PayrollDetailDrawerProps> = ({
         </div>
       }
       placement="right"
-      width={480}
+      width="min(480px, 95vw)"
       open={visible}
       onClose={onClose}
       extra={

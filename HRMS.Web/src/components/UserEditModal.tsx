@@ -76,7 +76,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
       onCancel={onClose}
       okText="Lưu thay đổi"
       cancelText="Hủy"
-      width={500}
+      width="min(500px, 95vw)"
     >
       <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
         <Form.Item name="Username" label={isGroup ? 'Mã nhóm quyền' : 'Tên tài khoản'}>

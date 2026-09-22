@@ -272,7 +272,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         </div>
       }
       closable={false}
-      width={640}
+      width="min(640px, 95vw)"
       style={{ top: 80 }}
       bodyStyle={{ padding: '16px 20px 8px 20px' }}
     >

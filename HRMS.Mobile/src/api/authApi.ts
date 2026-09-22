@@ -19,4 +19,19 @@ export const authApi = {
     );
     return response.data;
   },
+
+  async logout(): Promise<void> {
+    try {
+      await apiClient.post(ENDPOINTS.AUTH.LOGOUT);
+    } catch (e) {
+      console.warn('[authApi] logout network error:', e);
+    }
+  },
+
+  async logoutAll(): Promise<{ success: boolean; revokedSessionsCount: number; message: string }> {
+    const response = await apiClient.post<{ success: boolean; revokedSessionsCount: number; message: string }>(
+      ENDPOINTS.AUTH.LOGOUT_ALL
+    );
+    return response.data;
+  },
 };

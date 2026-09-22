@@ -1,9 +1,11 @@
 import { Platform } from 'react-native';
 
-// Cấu hình máy chủ HRMS API
-// - Khi chạy trên Android Emulator: 10.0.2.2 đại diện cho localhost của máy tính chủ
-// - Khi chạy trên Điện thoại thật: Sử dụng IP LAN của máy tính (192.168.3.178)
-// - Khi Production: Domain HTTPS chính thức
+// Cấu hình máy chủ HRMS API:
+// 1. VPS Domain (chuẩn Port 80 IIS sub-application /api & RoutePrefix 'api/...'):
+export const VPS_DOMAIN_URL = 'http://tryhardagain.com/api/api';
+// 2. VPS Direct IP (Port 5000 Backend ASP.NET):
+export const VPS_DIRECT_IP_URL = 'http://103.200.22.79:5000/api';
+
 const DEFAULT_DEV_HOST = Platform.OS === 'android' ? 'http://10.0.2.2:5000/api' : 'http://localhost:5000/api';
 const DEFAULT_LAN_HOST = 'http://192.168.3.178:5000/api';
 
@@ -11,11 +13,12 @@ export const APP_CONFIG = {
   appName: 'HRMS Mobile',
   version: '1.0.0',
   buildNumber: '1',
-  env: 'development',
-  apiBaseUrl: DEFAULT_LAN_HOST,
-  defaultApiBaseUrl: DEFAULT_LAN_HOST,
+  env: 'production',
+  apiBaseUrl: VPS_DOMAIN_URL,
+  defaultApiBaseUrl: VPS_DOMAIN_URL,
+  fallbackApiBaseUrl: VPS_DIRECT_IP_URL,
   devEmulatorApiUrl: DEFAULT_DEV_HOST,
-  productionApiUrl: 'https://tryhardagain.com/api/api',
+  productionApiUrl: VPS_DOMAIN_URL,
   requestTimeout: 15000,
   storageKeys: {
     token: 'hrms_mobile_token',

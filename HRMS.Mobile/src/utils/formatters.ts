@@ -8,6 +8,12 @@ export const formatCurrency = (amount: number | null | undefined, locale: string
     if (locale === 'en') {
       return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'VND' }).format(amount);
     }
+    if (locale === 'zh-CN' || locale === 'zh') {
+      return new Intl.NumberFormat('zh-CN', { style: 'currency', currency: 'VND' }).format(amount);
+    }
+    if (locale === 'ko') {
+      return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'VND' }).format(amount);
+    }
     // Mặc định chuẩn tiếng Việt
     return new Intl.NumberFormat('vi-VN').format(amount) + ' ₫';
   } catch {
@@ -29,8 +35,11 @@ export const formatDateByLocale = (dateStr: string | null | undefined, locale: s
       const month = dmyMatch[2].padStart(2, '0');
       const year = dmyMatch[3];
 
-      if (locale === 'ja') {
+      if (locale === 'ja' || locale === 'zh-CN' || locale === 'zh') {
         return `${year}/${month}/${day}`;
+      }
+      if (locale === 'ko') {
+        return `${year}.${month}.${day}`;
       }
       if (locale === 'en') {
         return `${month}/${day}/${year}`;
@@ -45,8 +54,11 @@ export const formatDateByLocale = (dateStr: string | null | undefined, locale: s
     const month = (d.getMonth() + 1).toString().padStart(2, '0');
     const year = d.getFullYear();
 
-    if (locale === 'ja') {
+    if (locale === 'ja' || locale === 'zh-CN' || locale === 'zh') {
       return `${year}/${month}/${day}`;
+    }
+    if (locale === 'ko') {
+      return `${year}.${month}.${day}`;
     }
     if (locale === 'en') {
       return `${month}/${day}/${year}`;

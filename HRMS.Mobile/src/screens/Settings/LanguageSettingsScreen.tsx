@@ -20,8 +20,10 @@ export const LanguageSettingsScreen: React.FC = () => {
   const options: { id: LanguagePreference; label: string; flag: string }[] = [
     { id: 'system', label: t('language.followSystem'), flag: '🌐' },
     { id: 'vi', label: t('language.vietnamese'), flag: '🇻🇳' },
-    { id: 'ja', label: t('language.japanese'), flag: '🇯🇵' },
     { id: 'en', label: t('language.english'), flag: '🇺🇸' },
+    { id: 'zh-CN', label: t('language.chinese'), flag: '🇨🇳' },
+    { id: 'ko', label: t('language.korean'), flag: '🇰🇷' },
+    { id: 'ja', label: t('language.japanese'), flag: '🇯🇵' },
   ];
 
   const handleSelect = async (id: LanguagePreference) => {

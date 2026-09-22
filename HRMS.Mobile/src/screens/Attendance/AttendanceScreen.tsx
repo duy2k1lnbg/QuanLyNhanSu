@@ -20,6 +20,7 @@ import { AppLoading } from '../../components/AppLoading';
 import { AppEmptyState } from '../../components/AppEmptyState';
 import { AppErrorState } from '../../components/AppErrorState';
 import { mapApiError } from '../../utils/errorMapper';
+import { getLocalizedAttendanceStatus } from '../../utils/statusMapper';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 
@@ -206,7 +207,7 @@ export const AttendanceScreen: React.FC = () => {
                     </View>
 
                     <AppBadge
-                      label={item.trangThai || item.kyHieu || 'OK'}
+                      label={getLocalizedAttendanceStatus(item.trangThai) || item.kyHieu || 'OK'}
                       variant={getStatusVariant(item.trangThai || '')}
                     />
                   </View>

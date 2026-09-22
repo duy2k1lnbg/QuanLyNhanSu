@@ -157,7 +157,7 @@ export const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
           </Space>
         }
         placement="right"
-        width={560}
+        width="min(560px, 95vw)"
         open={visible}
         onClose={onClose}
         footer={

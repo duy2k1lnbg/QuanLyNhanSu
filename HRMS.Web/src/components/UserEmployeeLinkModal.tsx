@@ -138,7 +138,7 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
           {currentManv ? 'Cập nhật liên kết' : 'Xác nhận liên kết'}
         </Button>,
       ]}
-      width={560}
+      width="min(560px, 95vw)"
     >
       <Alert
         message="Nguyên tắc phân định danh tính an toàn"

@@ -30,6 +30,7 @@ import api from '../services/api';
 import PhieuLuongModal from '../components/PhieuLuongModal';
 import PayrollDetailDrawer from '../components/PayrollDetailDrawer';
 import type { KyCongDTO, BangLuongDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text, Title } = Typography;
 
@@ -67,6 +68,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   danhMuc,
   onRefreshKyCong,
 }) => {
+  const { t } = useAppLanguage();
   const [selectedBangLuong, setSelectedBangLuong] = useState<BangLuongDTO | null>(null);
   const [phieuLuongModalVisible, setPhieuLuongModalVisible] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -79,7 +81,6 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
   const [phongBanList, setPhongBanList] = useState<{ IDPB: number; TENPB: string }[]>([]);
 
-  // Tải danh mục phòng ban từ API nếu props chưa có
   useEffect(() => {
     if (danhMuc?.phongBan && Array.isArray(danhMuc.phongBan) && danhMuc.phongBan.length > 0) {
       setPhongBanList(danhMuc.phongBan);
@@ -101,9 +102,8 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   const currentKyCong = kyCongList.find((k) => k.MAKYCONG === selectedKyCong);
   const isPeriodLocked = currentKyCong?.KHOA === 1;
 
-  // Tổng hợp đầy đủ 20 phòng ban thực tế từ CSDL Oracle & dữ liệu bảng lương
   const deptOptions = useMemo(() => {
-    const list = [{ value: 'all', label: 'Tất cả phòng ban' }];
+    const list = [{ value: 'all', label: t('common.all') }];
     const set = new Set<string>();
 
     if (Array.isArray(phongBanList)) {
@@ -123,7 +123,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
     });
 
     return list;
-  }, [phongBanList, bangLuongList]);
+  }, [phongBanList, bangLuongList, t]);
 
   const handleOpenDrawer = (record: BangLuongDTO) => {
     setSelectedBangLuong(record);
@@ -137,7 +137,6 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
   const safeBangLuongList = Array.isArray(bangLuongList) ? bangLuongList : [];
 
-  // Logic lọc chuẩn xác kết hợp tìm kiếm, phòng ban thực tế và trạng thái chi trả
   const filteredList = useMemo(() => {
     return safeBangLuongList.filter((item) => {
       const matchSearch =
@@ -163,7 +162,6 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
     });
   }, [safeBangLuongList, searchKeyword, selectedDept, selectedStatus, isPeriodLocked]);
 
-  // Executive Totals calculation (tự động cập nhật theo kết quả lọc)
   const totals = useMemo(() => {
     const targetList = filteredList;
     const count = targetList.length;
@@ -194,20 +192,17 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   }, [filteredList]);
 
   const handleExportExcel = () => {
-    message.success('Đã xuất dữ liệu Bảng lương Kỳ hiện tại sang định dạng Excel/CSV!');
+    message.success(t('common.success'));
   };
 
-  // Khóa / Mở khóa kỳ lương gọi API thực tế tới Backend
   const handleToggleLock = () => {
     if (!selectedKyCong) return;
-    const targetAction = isPeriodLocked ? 'Mở khóa' : 'Khóa sổ & Chi trả';
+    const targetAction = isPeriodLocked ? t('attendance.btnUnlockPeriod') : t('attendance.btnLockPeriod');
     Modal.confirm({
-      title: `Xác nhận ${targetAction} kỳ lương ${selectedKyCong}?`,
-      content: isPeriodLocked
-        ? 'Kỳ lương sẽ chuyển về trạng thái Chờ chi trả để có thể tính lại hoặc điều chỉnh thông tin lương.'
-        : 'Kỳ lương sẽ được khóa sổ, xác nhận hoàn tất chi trả cho toàn bộ nhân viên trong kỳ.',
-      okText: targetAction,
-      cancelText: 'Hủy bỏ',
+      title: `${targetAction}: #${selectedKyCong}?`,
+      content: t('common.confirmDeleteMsg'),
+      okText: t('common.confirm'),
+      cancelText: t('common.cancel'),
       okButtonProps: { type: isPeriodLocked ? 'default' : 'primary', danger: isPeriodLocked },
       onOk: async () => {
         try {
@@ -217,14 +212,14 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
             khoa: !isPeriodLocked,
           });
           if (res.data?.success) {
-            message.success(res.data.message);
+            message.success(res.data.message || t('common.updateSuccess'));
             onRefreshKyCong?.();
             onRefresh();
           } else {
-            message.error(res.data?.message || 'Có lỗi xảy ra khi cập nhật trạng thái.');
+            message.error(res.data?.message || t('common.error'));
           }
         } catch (err: any) {
-          message.error(err.response?.data?.message || 'Không thể cập nhật trạng thái kỳ lương.');
+          message.error(err.response?.data?.message || t('common.error'));
         } finally {
           setLocking(false);
         }
@@ -234,14 +229,14 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
   const bangLuongColumns: ColumnsType<BangLuongDTO> = [
     {
-      title: 'Mã NV',
+      title: t('payroll.colEmpCode'),
       dataIndex: 'MANV',
       key: 'MANV',
       width: 80,
       render: (id: number) => <Tag color="blue">#{id}</Tag>,
     },
     {
-      title: 'Nhân viên',
+      title: t('payroll.colFullName'),
       dataIndex: 'HOTEN',
       key: 'HOTEN',
       render: (name: string, record) => (
@@ -251,24 +246,24 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
         >
           <Text strong style={{ color: '#1d4ed8' }}>{name}</Text>
           <div style={{ fontSize: 11, color: '#64748b' }}>
-            Mã #{record.MANV} &bull; {record.CONG_THUCTE ?? 22} công
+            #{record.MANV} &bull; {record.CONG_THUCTE ?? 22} {t('attendance.colActualDays')}
           </div>
         </div>
       ),
     },
     {
-      title: 'Phòng ban',
+      title: t('employee.labelDepartment'),
       dataIndex: 'TENPB',
       key: 'TENPB',
       width: 170,
       render: (pb: string) => (
         <Tag color="blue" style={{ fontSize: 11, borderRadius: 4 }}>
-          {pb || 'Chưa phân bổ'}
+          {pb || '-'}
         </Tag>
       ),
     },
     {
-      title: 'Gross',
+      title: t('payroll.colTotalIncome'),
       key: 'gross',
       align: 'right',
       render: (_, record) => {
@@ -280,7 +275,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       },
     },
     {
-      title: 'OT (Làm thêm)',
+      title: t('payroll.colOvertimeSalary'),
       dataIndex: 'TIEN_TANGCA',
       key: 'TIEN_TANGCA',
       align: 'right',
@@ -290,7 +285,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       },
     },
     {
-      title: 'BHXH (-8%)',
+      title: t('payroll.colInsurance'),
       dataIndex: 'TIEN_BHXH_TRICH',
       key: 'TIEN_BHXH_TRICH',
       align: 'right',
@@ -304,7 +299,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       },
     },
     {
-      title: 'Thuế TNCN',
+      title: t('payroll.colTax'),
       key: 'thue',
       align: 'right',
       render: (_, record) => {
@@ -317,7 +312,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       },
     },
     {
-      title: 'Thực lĩnh (NET)',
+      title: t('payroll.colNetSalary'),
       dataIndex: 'THUC_LINH',
       key: 'THUC_LINH',
       align: 'right',
@@ -328,27 +323,27 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       ),
     },
     {
-      title: 'Trạng thái',
+      title: t('payroll.colPaymentStatus'),
       key: 'status',
       align: 'center',
       width: 120,
       render: (_, record) => {
         const isPaid = record.TRANGTHAI_CHITRA === 'Đã chi trả' || isPeriodLocked;
         return isPaid ? (
-          <Tag color="success">Đã chi trả</Tag>
+          <Tag color="success">{t('status.paid')}</Tag>
         ) : (
-          <Tag color="warning">Chờ chi trả</Tag>
+          <Tag color="warning">{t('status.unpaid')}</Tag>
         );
       },
     },
     {
-      title: 'Thao tác',
+      title: t('common.actions'),
       key: 'action',
       width: 110,
       align: 'center',
       render: (_, record) => (
         <Space size="small">
-          <Tooltip title="Xem chi tiết Gross-to-Net">
+          <Tooltip title={t('common.view')}>
             <Button
               size="small"
               type="text"
@@ -356,7 +351,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
               onClick={() => handleOpenDrawer(record)}
             />
           </Tooltip>
-          <Tooltip title={canPrint && !canPrint('BANGLUONG', 'F_CC_BANGLUONG') ? 'Bạn không có quyền in phiếu lương' : 'In Phiếu lương (Payslip)'}>
+          <Tooltip title={t('payroll.btnPrintPayslip')}>
             <Button
               size="small"
               type="text"
@@ -384,23 +379,25 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
         <Row align="middle" justify="space-between" gutter={[16, 16]} style={{ marginBottom: 20 }}>
           <Col xs={24} sm={12}>
             <Title level={4} style={{ color: '#fff', margin: 0 }}>
-              Quản lý Bảng Lương & Chi Trả Thu Nhập
+              {t('payroll.pageTitle')}
             </Title>
             <Text style={{ color: '#94a3b8', fontSize: 13 }}>
-              Kỳ thanh toán: {currentKyCong ? `Tháng ${currentKyCong.THANG}/${currentKyCong.NAM}` : 'Tháng 08/2026'}
+              {currentKyCong
+                ? t('payroll.payslipPeriodHeader', { month: currentKyCong.THANG ?? 0, year: currentKyCong.NAM ?? 0 })
+                : ''}
             </Text>
           </Col>
 
           <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
             <Space wrap>
-              <Text style={{ color: '#e2e8f0' }}>Chọn kỳ:</Text>
+              <Text style={{ color: '#e2e8f0' }}>{t('common.period')}:</Text>
               <Select
                 value={selectedKyCong}
                 onChange={onSelectKyCong}
                 style={{ width: 150 }}
                 options={kyCongList.map((kc) => ({
                   value: kc.MAKYCONG,
-                  label: `Kỳ ${kc.THANG}/${kc.NAM}`,
+                  label: `${kc.THANG}/${kc.NAM}`,
                 }))}
               />
               {((canEdit ? canEdit('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
@@ -413,7 +410,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
                   loading={tinhLuongLoading}
                   style={{ background: '#10b981', borderColor: '#10b981', fontWeight: 600 }}
                 >
-                  Tính Lương Tự Động
+                  {t('payroll.btnCalculatePayroll')}
                 </Button>
               )}
             </Space>
@@ -424,7 +421,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
         <Row gutter={[16, 16]}>
           <Col xs={12} sm={8} lg={4}>
             <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>Tổng nhân viên</div>
+              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('dashboard.statTotalEmployees')}</div>
               <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginTop: 4 }}>
                 {totals.count}
               </div>
@@ -433,7 +430,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
           <Col xs={12} sm={8} lg={5}>
             <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>Tổng quỹ Gross</div>
+              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('payroll.colTotalIncome')}</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: '#60a5fa', marginTop: 4 }}>
                 {totals.totalGross.toLocaleString('vi-VN')} đ
               </div>
@@ -442,7 +439,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
           <Col xs={12} sm={8} lg={5}>
             <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>Bảo hiểm BHXH (8%)</div>
+              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('payroll.colInsurance')}</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: '#f87171', marginTop: 4 }}>
                 -{totals.totalBhxh.toLocaleString('vi-VN')} đ
               </div>
@@ -451,7 +448,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
           <Col xs={12} sm={8} lg={4}>
             <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>Thuế TNCN (-3%)</div>
+              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('payroll.colTax')}</div>
               <div style={{ fontSize: 20, fontWeight: 700, color: '#f87171', marginTop: 4 }}>
                 -{totals.totalTax.toLocaleString('vi-VN')} đ
               </div>
@@ -460,7 +457,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
           <Col xs={24} sm={8} lg={6}>
             <div style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#a7f3d0', fontSize: 12 }}>Tổng Thực Lĩnh (NET)</div>
+              <div style={{ color: '#a7f3d0', fontSize: 12 }}>{t('payroll.colNetSalary')}</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: '#34d399', marginTop: 4 }}>
                 {totals.totalNet.toLocaleString('vi-VN')} đ
               </div>
@@ -487,10 +484,10 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
           <Space wrap>
             <Input
               prefix={<SearchOutlined style={{ color: '#94a3b8' }} />}
-              placeholder="Tìm theo tên hoặc mã NV..."
+              placeholder={t('common.searchPlaceholder')}
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
-              style={{ width: 240 }}
+              style={{ minWidth: 200 }}
               allowClear
             />
             <Select
@@ -499,19 +496,19 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
               filterOption={(input, option) =>
                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
               }
-              style={{ width: 230 }}
+              style={{ minWidth: 180 }}
               onChange={setSelectedDept}
               options={deptOptions}
-              placeholder="Chọn phòng ban..."
+              placeholder={t('employee.labelDepartment')}
             />
             <Select
               value={selectedStatus}
-              style={{ width: 160 }}
+              style={{ minWidth: 140 }}
               onChange={setSelectedStatus}
               options={[
-                { value: 'all', label: 'Tất cả trạng thái' },
-                { value: 'pending', label: 'Chờ chi trả' },
-                { value: 'paid', label: 'Đã chi trả' },
+                { value: 'all', label: t('common.all') },
+                { value: 'pending', label: t('status.unpaid') },
+                { value: 'paid', label: t('status.paid') },
               ]}
             />
           </Space>
@@ -519,7 +516,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
           <Space wrap>
             {(!canPrint || canPrint('BANGLUONG', 'F_CC_BANGLUONG')) && (
               <Button icon={<FileExcelOutlined />} onClick={handleExportExcel}>
-                Xuất Excel
+                {t('payroll.btnExportPayroll')}
               </Button>
             )}
             {((canEdit ? canEdit('BANGLUONG', 'F_CC_BANGLUONG') : hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG'))) && (
@@ -529,11 +526,11 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
                 loading={locking}
                 onClick={handleToggleLock}
               >
-                {isPeriodLocked ? 'Mở khóa kỳ lương' : 'Khóa kỳ lương'}
+                {isPeriodLocked ? t('attendance.btnUnlockPeriod') : t('payroll.btnLockPayroll')}
               </Button>
             )}
             <Button icon={<ReloadOutlined />} onClick={onRefresh}>
-              Làm mới
+              {t('common.refresh')}
             </Button>
           </Space>
         </div>
@@ -544,8 +541,8 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
           dataSource={filteredList}
           rowKey={(r) => `${r.MANV}-${r.MAKYCONG}`}
           loading={bangLuongLoading}
-          scroll={{ x: 1200 }}
-          pagination={{ pageSize: 10, showTotal: (total) => `Tổng cộng ${total} nhân viên trong danh sách` }}
+          scroll={{ x: 'max-content' }}
+          pagination={{ pageSize: 10, showTotal: (total) => t('common.totalRecords', { total }) }}
         />
       </Card>
 

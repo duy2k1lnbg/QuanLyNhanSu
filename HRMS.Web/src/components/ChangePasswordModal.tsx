@@ -2,18 +2,22 @@ import React, { useState } from 'react';
 import { Modal, Form, Input, message } from 'antd';
 import { LockOutlined, SafetyOutlined } from '@ant-design/icons';
 import api from '../services/api';
+import { useAppLanguage } from '../services/i18n';
 
 interface ChangePasswordModalProps {
   visible: boolean;
   onClose: () => void;
   username: string;
+  onPasswordChanged?: () => void;
 }
 
 export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   visible,
   onClose,
   username,
+  onPasswordChanged,
 }) => {
+  const { t } = useAppLanguage();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
@@ -21,7 +25,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     try {
       const values = await form.validateFields();
       if (values.newPassword !== values.confirmPassword) {
-        message.error('Mật khẩu xác nhận không khớp với mật khẩu mới.');
+        message.error(t('auth.passwordMismatch'));
         return;
       }
 
@@ -31,12 +35,15 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         NewPassword: values.newPassword,
       });
 
-      message.success('Đổi mật khẩu thành công!');
+      message.success('Đổi mật khẩu thành công! Toàn bộ phiên đăng nhập cũ đã được thu hồi. Vui lòng đăng nhập lại.');
       form.resetFields();
       onClose();
+      if (onPasswordChanged) {
+        onPasswordChanged();
+      }
     } catch (err: unknown) {
-      const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      message.error(errorObj.response?.data?.Message || 'Đổi mật khẩu thất bại. Vui lòng kiểm tra mật khẩu hiện tại.');
+      const errorObj = err as { response?: { data?: { Message?: string; message?: string } }; message?: string };
+      message.error(errorObj.response?.data?.message || errorObj.response?.data?.Message || t('common.error'));
     } finally {
       setLoading(false);
     }
@@ -47,7 +54,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
       title={
         <span>
           <SafetyOutlined style={{ color: '#1677ff', marginRight: 8 }} />
-          Đổi mật khẩu tài khoản: <b>{username}</b>
+          {t('auth.changePasswordTitle')}: <b>{username}</b>
         </span>
       }
       open={visible}
@@ -57,36 +64,36 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         onClose();
       }}
       confirmLoading={loading}
-      okText="Xác nhận đổi mật khẩu"
-      cancelText="Hủy"
-      width={460}
+      okText={t('auth.changePasswordBtn')}
+      cancelText={t('common.cancel')}
+      width="min(460px, 95vw)"
     >
       <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
         <Form.Item
           name="oldPassword"
-          label="Mật khẩu hiện tại"
-          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu hiện tại' }]}
+          label={t('auth.oldPassword')}
+          rules={[{ required: true, message: t('auth.oldPassword') }]}
         >
-          <Input.Password prefix={<LockOutlined />} placeholder="Nhập mật khẩu đang sử dụng" />
+          <Input.Password prefix={<LockOutlined />} placeholder={t('auth.oldPassword')} />
         </Form.Item>
 
         <Form.Item
           name="newPassword"
-          label="Mật khẩu mới"
+          label={t('auth.newPassword')}
           rules={[
-            { required: true, message: 'Vui lòng nhập mật khẩu mới' },
+            { required: true, message: t('auth.newPassword') },
             { min: 3, message: 'Mật khẩu phải từ 3 ký tự trở lên' },
           ]}
         >
-          <Input.Password prefix={<LockOutlined />} placeholder="Nhập mật khẩu mới" />
+          <Input.Password prefix={<LockOutlined />} placeholder={t('auth.newPassword')} />
         </Form.Item>
 
         <Form.Item
           name="confirmPassword"
-          label="Xác nhận mật khẩu mới"
-          rules={[{ required: true, message: 'Vui lòng xác nhận mật khẩu mới' }]}
+          label={t('auth.confirmPassword')}
+          rules={[{ required: true, message: t('auth.confirmPassword') }]}
         >
-          <Input.Password prefix={<LockOutlined />} placeholder="Nhập lại mật khẩu mới" />
+          <Input.Password prefix={<LockOutlined />} placeholder={t('auth.confirmPassword')} />
         </Form.Item>
       </Form>
     </Modal>

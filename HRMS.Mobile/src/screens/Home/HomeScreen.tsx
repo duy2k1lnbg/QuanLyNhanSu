@@ -25,6 +25,7 @@ import { AppLoading } from '../../components/AppLoading';
 import { AppErrorState } from '../../components/AppErrorState';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { mapApiError } from '../../utils/errorMapper';
+import { getLocalizedPayrollStatus } from '../../utils/statusMapper';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 
@@ -202,7 +203,7 @@ export const HomeScreen: React.FC = () => {
             {payroll ? formatCurrency(payroll.thucLinh, activeLanguage) : '---'}
           </Text>
           <Text style={[typography.caption, { color: colors.textMuted, marginTop: spacing.xs }]} numberOfLines={1}>
-            {payroll?.trangThaiChiTra || t('payroll.statusPending')}
+            {payroll ? getLocalizedPayrollStatus(payroll.trangThaiChiTra) : t('payroll.statusPending')}
           </Text>
         </AppCard>
       </View>

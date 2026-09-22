@@ -27,6 +27,15 @@ const getInitialApiBaseUrl = (): string => {
   return '/api/api';
 };
 
+const getOrCreateDeviceId = (): string => {
+  let deviceId = localStorage.getItem('hrms_device_id');
+  if (!deviceId) {
+    deviceId = 'web_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+    localStorage.setItem('hrms_device_id', deviceId);
+  }
+  return deviceId;
+};
+
 const api = axios.create({
   baseURL: getInitialApiBaseUrl(),
   timeout: 60000,
@@ -35,12 +44,18 @@ const api = axios.create({
   },
 });
 
-// Interceptor tự động gán Token vào header Authorization cho mọi request
+// Interceptor tự động gán Token và Security Headers vào mọi request
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('hrms_token');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.headers) {
+      config.headers['X-Platform'] = 'WEB';
+      config.headers['X-Device-Id'] = getOrCreateDeviceId();
+      config.headers['X-Device-Name'] = 'Web Browser';
+      config.headers['X-Correlation-Id'] = 'req_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
     }
     return config;
   },
@@ -71,9 +86,10 @@ api.interceptors.response.use(
     }
 
     if (error.response && error.response.status === 401) {
-      console.warn('Phiên đăng nhập đã hết hạn hoặc chưa xác thực.');
+      console.warn('Phiên đăng nhập đã hết hạn hoặc đã bị thu hồi.');
       localStorage.removeItem('hrms_token');
       localStorage.removeItem('hrms_user');
+      window.dispatchEvent(new Event('hrms:unauthorized'));
     }
     return Promise.reject(error);
   }

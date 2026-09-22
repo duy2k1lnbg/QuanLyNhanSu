@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, LogBox } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
@@ -8,6 +8,10 @@ import { LanguageProvider } from './src/i18n/LanguageContext';
 import { AuthProvider } from './src/auth/AuthContext';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { initializeI18n } from './src/i18n/i18n';
+
+LogBox.ignoreLogs([
+  '[AuthContext] Network or server error during session restore',
+]);
 
 const AppContent: React.FC = () => {
   const { isDark, colors } = useTheme();

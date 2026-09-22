@@ -14,6 +14,7 @@ interface DownloadModalProps {
   onClose: () => void;
   downloadType: 'windows' | 'mobile' | 'general';
   onDownloadWindows: () => void;
+  onDownloadMobile: () => void;
   tLanding: any;
 }
 
@@ -22,6 +23,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
   onClose,
   downloadType,
   onDownloadWindows,
+  onDownloadMobile,
   tLanding,
 }) => {
   return (
@@ -114,25 +116,45 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
             style={{
               display: 'flex',
               gap: 14,
-              padding: '14px 16px',
-              borderRadius: 10,
+              padding: '16px',
+              borderRadius: 12,
               background: '#f8fafc',
               border: '1px solid #e2e8f0',
+              alignItems: 'flex-start',
             }}
           >
-            <MobileOutlined style={{ fontSize: 28, color: '#a855f7', marginTop: 2 }} />
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>
-                {tLanding.downloadMobileSectionTitle}
+            <MobileOutlined style={{ fontSize: 32, color: '#a855f7', marginTop: 2 }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
+                <span style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>
+                  {tLanding.downloadMobileSectionTitle}
+                </span>
+                <Tag color="success" style={{ fontWeight: 600 }}>{tLanding.mobileTagComing || 'APK Ready'}</Tag>
               </div>
-              <div style={{ fontSize: 13, color: '#475569', marginTop: 4, lineHeight: 1.5 }}>
+              <div style={{ fontSize: 13, color: '#475569', marginTop: 6, lineHeight: 1.5 }}>
                 {tLanding.downloadMobileSectionDesc}
-                <div style={{ marginTop: 4 }}>
-                  <Tag color="blue" style={{ fontSize: 12, fontWeight: 600 }}>
-                    https://tryhardagain.com
-                  </Tag>
-                  <span style={{ fontSize: 12, color: '#64748b' }}>{tLanding.downloadMobileResponsiveNote}</span>
-                </div>
+              </div>
+              <div style={{ marginTop: 12 }}>
+                <Button
+                  type="primary"
+                  icon={<CloudDownloadOutlined />}
+                  onClick={onDownloadMobile}
+                  style={{
+                    background: 'linear-gradient(135deg, #9333ea 0%, #7e22ce 100%)',
+                    border: 'none',
+                    borderRadius: 8,
+                    fontWeight: 600,
+                  }}
+                >
+                  {tLanding.downloadMobileBtnText}
+                </Button>
+              </div>
+              <div style={{ marginTop: 10, fontSize: 12, color: '#64748b', lineHeight: 1.6 }}>
+                <span>{tLanding.downloadMobileWebNote} </span>
+                <Tag color="blue" style={{ fontSize: 12, fontWeight: 600, margin: '2px 4px' }}>
+                  https://tryhardagain.com
+                </Tag>
+                <span>{tLanding.downloadMobileResponsiveNote}</span>
               </div>
             </div>
           </div>

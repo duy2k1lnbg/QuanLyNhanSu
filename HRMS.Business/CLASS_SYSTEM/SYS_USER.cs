@@ -62,7 +62,22 @@ namespace Bu.CLASS_SYSTEM
                     entity.CLIENT_TYPE = user.CLIENT_TYPE;
                     if (!string.IsNullOrEmpty(user.PASSWORD))
                     {
-                        entity.PASSWORD = user.PASSWORD;
+                        if (entity.PASSWORD != user.PASSWORD)
+                        {
+                            entity.PASSWORD = user.PASSWORD;
+                            try
+                            {
+                                db.Database.ExecuteSqlCommand(
+                                    "UPDATE HR.TB_SYS_USER SET TOKEN_VERSION = NVL(TOKEN_VERSION, 1) + 1 WHERE IDUSER = :p0",
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", entity.IDUSER)
+                                );
+                                db.Database.ExecuteSqlCommand(
+                                    "UPDATE HR.TB_AUTH_SESSION SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'PASSWORD_CHANGED' WHERE USER_ID = :p0 AND REVOKED_AT IS NULL",
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", entity.IDUSER)
+                                );
+                            }
+                            catch { }
+                        }
                     }
                     db.SaveChanges();
                 }
@@ -164,12 +179,7 @@ namespace Bu.CLASS_SYSTEM
 
             bool isPasswordValid = false;
 
-            // 1. Quản trị viên hệ thống ADMIN: hỗ trợ các mật khẩu mặc định (admin, ADMIN, 123, 123456)
-            if (trimmedUsername == "admin" && (password == "admin" || password == "ADMIN" || password == "123" || password == "123456"))
-            {
-                isPasswordValid = true;
-            }
-            else if (PasswordHasher.VerifyPassword(password, user.PASSWORD))
+            if (PasswordHasher.VerifyPassword(password, user.PASSWORD))
             {
                 isPasswordValid = true;
             }
@@ -179,6 +189,12 @@ namespace Bu.CLASS_SYSTEM
                 if (!string.IsNullOrEmpty(stored) && stored.Equals(password, StringComparison.Ordinal))
                 {
                     isPasswordValid = true;
+                    try
+                    {
+                        user.PASSWORD = PasswordHasher.HashPassword(password);
+                        db.SaveChanges();
+                    }
+                    catch { }
                 }
             }
 

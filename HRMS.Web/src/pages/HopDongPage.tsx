@@ -29,6 +29,7 @@ import {
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type { HopDongDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text } = Typography;
 
@@ -43,7 +44,6 @@ interface HopDongPageProps {
   canPrint?: (...codes: string[]) => boolean;
 }
 
-// Hàm chuẩn hóa & định dạng ngày tháng hợp đồng chính xác
 export const formatContractDate = (d?: string | null): string => {
   if (!d || !d.trim()) return '-';
   const trimmed = d.trim();
@@ -51,10 +51,9 @@ export const formatContractDate = (d?: string | null): string => {
     return trimmed;
   }
   const parsed = dayjs(trimmed);
-  return parsed.isValid() ? parsed.format('DD/MM/YYYY') : trimmed;
+  return parsed.isValid() ? parsed.format('YYYY-MM-DD') : trimmed;
 };
 
-// Hàm kiểm tra hợp đồng hết hạn dựa trên ngày kết thúc thực tế
 export const checkIsContractExpired = (endDateStr?: string | null): boolean => {
   if (!endDateStr || !endDateStr.trim()) return false;
   const trimmed = endDateStr.trim();
@@ -73,6 +72,7 @@ export function HopDongPage({
   onRefresh,
   canPrint,
 }: HopDongPageProps) {
+  const { t } = useAppLanguage();
   const {
     token: { borderRadiusLG, colorPrimary },
   } = theme.useToken();
@@ -81,7 +81,6 @@ export function HopDongPage({
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedHopDong, setSelectedHopDong] = useState<HopDongDTO | null>(null);
 
-  // Thống kê nhanh số liệu từ CSDL
   const stats = useMemo(() => {
     let active = 0;
     let expired = 0;
@@ -101,7 +100,6 @@ export function HopDongPage({
     return { total: hopDongList.length, active, expired, indefinite };
   }, [hopDongList]);
 
-  // Bộ lọc dữ liệu danh sách
   const filteredList = useMemo(() => {
     let result = hopDongList;
 
@@ -131,54 +129,54 @@ export function HopDongPage({
 
   const hopDongColumns: ColumnsType<HopDongDTO> = [
     {
-      title: 'Số Hợp đồng',
+      title: t('contract.colContractNo'),
       dataIndex: 'SOHD',
       key: 'SOHD',
       render: (sohd: string) => <Tag color="blue" style={{ fontWeight: 600 }}>{sohd}</Tag>,
     },
     {
-      title: 'Mã NV',
+      title: t('employee.colEmpCode'),
       dataIndex: 'MANV',
       key: 'MANV',
       width: 80,
       render: (id: number) => <Tag color="cyan">#{id}</Tag>,
     },
     {
-      title: 'Họ tên Nhân viên',
+      title: t('contract.colEmployee'),
       dataIndex: 'HOTEN',
       key: 'HOTEN',
       render: (text: string, r) => (
         <Space direction="vertical" size={0}>
-          <Text strong>{text || 'Chưa cập nhật'}</Text>
+          <Text strong>{text || '-'}</Text>
           {r.CCCD && <Text type="secondary" style={{ fontSize: 11 }}>CCCD: {r.CCCD}</Text>}
         </Space>
       ),
     },
     {
-      title: 'Ngày bắt đầu',
+      title: t('contract.colStartDate'),
       dataIndex: 'NGAYBATDAU',
       key: 'NGAYBATDAU',
       render: (d: string) => formatContractDate(d),
     },
     {
-      title: 'Ngày kết thúc',
+      title: t('contract.colEndDate'),
       dataIndex: 'NGAYKETTHUC',
       key: 'NGAYKETTHUC',
       render: (d: string) => {
         if (!d || !d.trim()) {
-          return <Tag color="green">Vô thời hạn</Tag>;
+          return <Tag color="green">{t('contract.statusActive')}</Tag>;
         }
         return formatContractDate(d);
       },
     },
     {
-      title: 'Thời hạn',
+      title: t('contract.labelDuration'),
       dataIndex: 'THOIHAN',
       key: 'THOIHAN',
-      render: (th: string) => th || 'Không xác định',
+      render: (th: string) => th || '-',
     },
     {
-      title: 'Hệ số / Lương',
+      title: t('contract.colSalary'),
       dataIndex: 'HESOLUONG',
       key: 'HESOLUONG',
       render: (h: number) => {
@@ -190,31 +188,31 @@ export function HopDongPage({
       },
     },
     {
-      title: 'Lần ký',
+      title: t('contract.colSignTimes'),
       dataIndex: 'LANKY',
       key: 'LANKY',
       width: 75,
       align: 'center',
-      render: (l: number) => <Tag color="default">Lần {l ?? 1}</Tag>,
+      render: (l: number) => <Tag color="default">#{l ?? 1}</Tag>,
     },
     {
-      title: 'Trạng thái',
+      title: t('contract.colStatus'),
       key: 'status',
       width: 120,
       render: (_, r) => {
         if (!r.NGAYKETTHUC || !r.NGAYKETTHUC.trim()) {
-          return <Tag color="success">Vô thời hạn</Tag>;
+          return <Tag color="success">{t('contract.statusActive')}</Tag>;
         }
         const expired = checkIsContractExpired(r.NGAYKETTHUC);
         return expired ? (
-          <Tag color="error">Hết hạn</Tag>
+          <Tag color="error">{t('contract.statusExpired')}</Tag>
         ) : (
-          <Tag color="processing">Đang hiệu lực</Tag>
+          <Tag color="processing">{t('contract.statusActive')}</Tag>
         );
       },
     },
     {
-      title: 'Thao tác',
+      title: t('common.actions'),
       key: 'action',
       width: 90,
       align: 'center',
@@ -225,7 +223,7 @@ export function HopDongPage({
           icon={<EyeOutlined />}
           onClick={() => setSelectedHopDong(r)}
         >
-          Chi tiết
+          {t('common.view')}
         </Button>
       ),
     },
@@ -238,7 +236,7 @@ export function HopDongPage({
         <Col xs={12} sm={6}>
           <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
             <Statistic
-              title="Tổng hợp đồng"
+              title={t('dashboard.statContracts')}
               value={stats.total}
               prefix={<FileTextOutlined style={{ color: colorPrimary }} />}
             />
@@ -247,7 +245,7 @@ export function HopDongPage({
         <Col xs={12} sm={6}>
           <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
             <Statistic
-              title="Đang hiệu lực"
+              title={t('contract.statusActive')}
               value={stats.active}
               valueStyle={{ color: '#52c41a' }}
               prefix={<CheckCircleOutlined />}
@@ -257,7 +255,7 @@ export function HopDongPage({
         <Col xs={12} sm={6}>
           <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
             <Statistic
-              title="Đã hết hạn"
+              title={t('contract.statusExpired')}
               value={stats.expired}
               valueStyle={{ color: stats.expired > 0 ? '#ff4d4f' : '#8c8c8c' }}
               prefix={<CloseCircleOutlined />}
@@ -267,7 +265,7 @@ export function HopDongPage({
         <Col xs={12} sm={6}>
           <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
             <Statistic
-              title="HĐ Vô thời hạn"
+              title={t('contract.statusActive')}
               value={stats.indefinite}
               valueStyle={{ color: '#1677ff' }}
               prefix={<ClockCircleOutlined />}
@@ -276,32 +274,32 @@ export function HopDongPage({
         </Col>
       </Row>
 
-      {/* Bảng danh sách hợp đồng với tìm kiếm & lọc */}
+      {/* Bảng danh sách hợp đồng */}
       <Card
-        title={`Danh sách Hợp đồng Lao động (${filteredList.length}/${hopDongList.length})`}
+        title={`${t('contract.pageTitle')} (${filteredList.length}/${hopDongList.length})`}
         extra={
           <Space wrap>
             <Input
-              placeholder="Tìm kiếm mã NV, tên, số HĐ, CCCD..."
+              placeholder={t('contract.searchPlaceholder')}
               prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
               value={searchText}
               onChange={(e) => setSearchText(e.target.value)}
               allowClear
-              style={{ width: 260 }}
+              style={{ minWidth: 220 }}
             />
             <Select
               value={statusFilter}
               onChange={setStatusFilter}
-              style={{ width: 150 }}
+              style={{ minWidth: 150 }}
               options={[
-                { value: 'all', label: 'Tất cả trạng thái' },
-                { value: 'active', label: 'Đang hiệu lực' },
-                { value: 'expired', label: 'Hết hạn' },
-                { value: 'indefinite', label: 'Vô thời hạn' },
+                { value: 'all', label: t('common.all') },
+                { value: 'active', label: t('contract.statusActive') },
+                { value: 'expired', label: t('contract.statusExpired') },
+                { value: 'indefinite', label: t('contract.statusActive') },
               ]}
             />
             <Button icon={<ReloadOutlined />} onClick={onRefresh} loading={hopDongLoading}>
-              Làm mới
+              {t('common.refresh')}
             </Button>
           </Space>
         }
@@ -313,21 +311,21 @@ export function HopDongPage({
           dataSource={filteredList}
           rowKey="SOHD"
           loading={hopDongLoading}
-          scroll={{ x: 1000 }}
+          scroll={{ x: 'max-content' }}
           pagination={{
             pageSize: 10,
             showSizeChanger: true,
             pageSizeOptions: ['10', '20', '50', '100'],
-            showTotal: (total) => `Tổng cộng ${total} hợp đồng lao động`,
+            showTotal: (total) => t('common.totalRecords', { total }),
           }}
         />
       </Card>
 
       {/* Drawer Chi tiết hợp đồng lao động */}
       <Drawer
-        title={`Chi tiết Hợp đồng: ${selectedHopDong?.SOHD || ''}`}
+        title={`${t('contract.pageTitle')}: ${selectedHopDong?.SOHD || ''}`}
         placement="right"
-        width={typeof window !== 'undefined' && window.innerWidth < 640 ? '100%' : 540}
+        width="min(540px, 95vw)"
         open={!!selectedHopDong}
         onClose={() => setSelectedHopDong(null)}
         extra={
@@ -337,48 +335,48 @@ export function HopDongPage({
               onClick={() => window.print()}
               size="small"
             >
-              In hợp đồng
+              {t('common.print')}
             </Button>
           )
         }
       >
         {selectedHopDong && (
           <div>
-            <Descriptions title="Thông tin Hợp đồng" bordered size="small" column={1}>
-              <Descriptions.Item label="Số hợp đồng">
+            <Descriptions title={t('contract.pageTitle')} bordered size="small" column={1}>
+              <Descriptions.Item label={t('contract.colContractNo')}>
                 <Tag color="blue" style={{ fontSize: 13, padding: '2px 8px' }}>
                   {selectedHopDong.SOHD}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Lần ký">
-                Lần {selectedHopDong.LANKY ?? 1}
+              <Descriptions.Item label={t('contract.colSignTimes')}>
+                #{selectedHopDong.LANKY ?? 1}
               </Descriptions.Item>
-              <Descriptions.Item label="Ngày ký">
+              <Descriptions.Item label={t('contract.labelSignDate')}>
                 {formatContractDate(selectedHopDong.NGAYKY)}
               </Descriptions.Item>
-              <Descriptions.Item label="Ngày bắt đầu">
+              <Descriptions.Item label={t('contract.colStartDate')}>
                 {formatContractDate(selectedHopDong.NGAYBATDAU)}
               </Descriptions.Item>
-              <Descriptions.Item label="Ngày kết thúc">
+              <Descriptions.Item label={t('contract.colEndDate')}>
                 {selectedHopDong.NGAYKETTHUC && selectedHopDong.NGAYKETTHUC.trim() ? (
                   formatContractDate(selectedHopDong.NGAYKETTHUC)
                 ) : (
-                  <Tag color="green">Vô thời hạn</Tag>
+                  <Tag color="green">{t('contract.statusActive')}</Tag>
                 )}
               </Descriptions.Item>
-              <Descriptions.Item label="Thời hạn">
-                {selectedHopDong.THOIHAN || 'Không xác định'}
+              <Descriptions.Item label={t('contract.labelDuration')}>
+                {selectedHopDong.THOIHAN || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="Trạng thái">
+              <Descriptions.Item label={t('contract.colStatus')}>
                 {!selectedHopDong.NGAYKETTHUC || !selectedHopDong.NGAYKETTHUC.trim() ? (
-                  <Tag color="success">Vô thời hạn (Hiệu lực)</Tag>
+                  <Tag color="success">{t('contract.statusActive')}</Tag>
                 ) : checkIsContractExpired(selectedHopDong.NGAYKETTHUC) ? (
-                  <Tag color="error">Hết hạn</Tag>
+                  <Tag color="error">{t('contract.statusExpired')}</Tag>
                 ) : (
-                  <Tag color="processing">Đang hiệu lực</Tag>
+                  <Tag color="processing">{t('contract.statusActive')}</Tag>
                 )}
               </Descriptions.Item>
-              <Descriptions.Item label="Mức lương / Hệ số">
+              <Descriptions.Item label={t('contract.colSalary')}>
                 {selectedHopDong.HESOLUONG
                   ? selectedHopDong.HESOLUONG > 1000
                     ? `${selectedHopDong.HESOLUONG.toLocaleString('vi-VN')} đ`
@@ -386,7 +384,7 @@ export function HopDongPage({
                   : '-'}
               </Descriptions.Item>
               {selectedHopDong.NOIDUNG && (
-                <Descriptions.Item label="Nội dung">
+                <Descriptions.Item label={t('contract.labelContent')}>
                   {selectedHopDong.NOIDUNG}
                 </Descriptions.Item>
               )}
@@ -394,26 +392,26 @@ export function HopDongPage({
 
             <Divider style={{ margin: '20px 0' }} />
 
-            <Descriptions title="Thông tin Nhân viên" bordered size="small" column={1}>
-              <Descriptions.Item label="Mã nhân viên">
+            <Descriptions title={t('employee360.tabOverview')} bordered size="small" column={1}>
+              <Descriptions.Item label={t('employee.colEmpCode')}>
                 <Tag color="cyan">#{selectedHopDong.MANV}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Họ tên">
-                <Text strong>{selectedHopDong.HOTEN || 'Chưa cập nhật'}</Text>
+              <Descriptions.Item label={t('employee.colFullName')}>
+                <Text strong>{selectedHopDong.HOTEN || '-'}</Text>
               </Descriptions.Item>
-              <Descriptions.Item label="Số CCCD">
+              <Descriptions.Item label={t('employee.colIdCard')}>
                 {selectedHopDong.CCCD || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="Ngày sinh">
+              <Descriptions.Item label={t('employee.colBirthDate')}>
                 {formatContractDate(selectedHopDong.NGAYSINH)}
               </Descriptions.Item>
-              <Descriptions.Item label="Địa chỉ">
+              <Descriptions.Item label={t('employee.labelAddress')}>
                 {selectedHopDong.DIACHI || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="Trình độ">
+              <Descriptions.Item label={t('employee.labelEducation')}>
                 {selectedHopDong.TENTD || '-'}
               </Descriptions.Item>
-              <Descriptions.Item label="Quốc tịch">
+              <Descriptions.Item label={t('common.info')}>
                 {selectedHopDong.TENQT || '-'}
               </Descriptions.Item>
             </Descriptions>

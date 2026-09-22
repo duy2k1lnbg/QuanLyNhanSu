@@ -11,7 +11,6 @@ import {
   Modal,
   Descriptions,
   Typography,
-  message,
   Tooltip,
 } from 'antd';
 import {
@@ -23,6 +22,7 @@ import {
 } from '@ant-design/icons';
 import api from '../services/api';
 import dayjs from 'dayjs';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -50,6 +50,7 @@ interface AuditLogDetail extends AuditLogItem {
 }
 
 export function AuditLogPage() {
+  const { t } = useAppLanguage();
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -71,7 +72,6 @@ export function AuditLogPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [selectedLog, setSelectedLog] = useState<AuditLogDetail | null>(null);
 
-  // Load modules & actions
   const fetchFilterOptions = async () => {
     try {
       const res = await api.get('/audit/modules');
@@ -103,7 +103,7 @@ export function AuditLogPage() {
         setTotal(res.data.total || 0);
       }
     } catch {
-      message.error('Không thể tải nhật ký kiểm toán. Vui lòng thử lại!');
+      // fallback
     } finally {
       setLoading(false);
     }
@@ -111,12 +111,8 @@ export function AuditLogPage() {
 
   useEffect(() => {
     fetchFilterOptions();
-  }, []);
-
-  useEffect(() => {
     fetchLogs(1, pageSize);
-    setPage(1);
-  }, [action, moduleFilter, dateRange]);
+  }, []);
 
   const handleSearch = () => {
     fetchLogs(1, pageSize);
@@ -164,14 +160,14 @@ export function AuditLogPage() {
 
   const columns = [
     {
-      title: 'Thời gian',
+      title: t('audit.colTimestamp'),
       dataIndex: 'timestamp',
       key: 'timestamp',
       width: 160,
       render: (val: string) => <Text style={{ fontSize: 13, fontFamily: 'monospace' }}>{val}</Text>,
     },
     {
-      title: 'Người thực hiện',
+      title: t('audit.colActor'),
       dataIndex: 'username',
       key: 'username',
       width: 140,
@@ -179,13 +175,13 @@ export function AuditLogPage() {
         <Space direction="vertical" size={0}>
           <Text strong style={{ fontSize: 13 }}>{val || 'System'}</Text>
           {record.userId ? (
-            <Text type="secondary" style={{ fontSize: 11 }}>NV#{record.userId}</Text>
+            <Text type="secondary" style={{ fontSize: 11 }}>#{record.userId}</Text>
           ) : null}
         </Space>
       ),
     },
     {
-      title: 'Hành động',
+      title: t('audit.colAction'),
       dataIndex: 'action',
       key: 'action',
       width: 110,
@@ -196,25 +192,18 @@ export function AuditLogPage() {
       ),
     },
     {
-      title: 'Phân hệ / Bảng',
+      title: t('audit.colTarget'),
       key: 'moduleTable',
       width: 160,
       render: (_: any, record: AuditLogItem) => (
         <Space direction="vertical" size={0}>
-          <Tag color="geekblue" style={{ margin: 0, fontSize: 11 }}>{record.module || 'Hệ thống'}</Tag>
+          <Tag color="geekblue" style={{ margin: 0, fontSize: 11 }}>{record.module || '-'}</Tag>
           <Text type="secondary" style={{ fontSize: 12, fontFamily: 'monospace' }}>{record.tableName}</Text>
         </Space>
       ),
     },
     {
-      title: 'Mã bản ghi',
-      dataIndex: 'recordId',
-      key: 'recordId',
-      width: 110,
-      render: (val: string) => <Tag style={{ fontFamily: 'monospace' }}>{val || '-'}</Tag>,
-    },
-    {
-      title: 'IP / Thiết bị',
+      title: t('audit.colIpAddress'),
       key: 'ipDevice',
       width: 150,
       render: (_: any, record: AuditLogItem) => (
@@ -230,7 +219,7 @@ export function AuditLogPage() {
       ),
     },
     {
-      title: 'Trường thay đổi',
+      title: t('audit.colDetails'),
       dataIndex: 'changedFields',
       key: 'changedFields',
       ellipsis: true,
@@ -241,130 +230,100 @@ export function AuditLogPage() {
       ),
     },
     {
-      title: 'Thao tác',
+      title: t('common.actions'),
       key: 'actionBtn',
       width: 80,
+      fixed: 'right' as const,
       align: 'center' as const,
       render: (_: any, record: AuditLogItem) => (
         <Button
           type="text"
-          size="small"
           icon={<EyeOutlined />}
           onClick={() => handleViewDetail(record)}
-        >
-          Chi tiết
-        </Button>
+          size="small"
+        />
       ),
     },
   ];
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* Header card */}
       <Card
-        style={{
-          borderRadius: 12,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-        }}
-        bodyStyle={{ padding: '16px 20px' }}
-      >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-          <Space size={12}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: 10,
-                background: 'linear-gradient(135deg, #1890ff, #096dd9)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                fontSize: 20,
-              }}
-            >
-              <AuditOutlined />
-            </div>
-            <div>
-              <Text strong style={{ fontSize: 18 }}>Nhật ký kiểm toán hệ thống (Audit Trail)</Text>
-              <div>
-                <Text type="secondary" style={{ fontSize: 13 }}>
-                  Theo dõi, truy vết toàn bộ hoạt động thêm, sửa, xóa, đăng nhập và bảo mật trên CSDL Oracle
-                </Text>
-              </div>
-            </div>
+        title={
+          <Space>
+            <AuditOutlined style={{ color: '#1890ff', fontSize: 20 }} />
+            <span>{t('audit.pageTitle')}</span>
           </Space>
-
-          <Button
-            icon={<ReloadOutlined spin={loading} />}
-            onClick={() => fetchLogs(page, pageSize)}
-          >
-            Làm mới
-          </Button>
-        </div>
-
-        {/* Filter bar */}
-        <div style={{ marginTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+        }
+        bordered={false}
+        style={{ borderRadius: 8 }}
+      >
+        {/* Filters */}
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: 12,
+            marginBottom: 16,
+            alignItems: 'center',
+          }}
+        >
           <Input
-            placeholder="Tìm theo người dùng, mã bản ghi, IP..."
-            prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
-            style={{ width: 260 }}
+            placeholder={t('common.searchPlaceholder')}
+            prefix={<SearchOutlined />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onPressEnter={handleSearch}
+            style={{ width: 220 }}
             allowClear
           />
 
           <Select
             value={action}
-            onChange={setAction}
+            onChange={(val) => setAction(val)}
             style={{ width: 140 }}
-            placeholder="Hành động"
-          >
-            <Select.Option value="ALL">Tất cả hành động</Select.Option>
-            {actionOptions.map((act) => (
-              <Select.Option key={act} value={act}>
-                {act}
-              </Select.Option>
-            ))}
-          </Select>
+            options={[
+              { value: 'ALL', label: t('audit.filterAction') },
+              ...actionOptions.map((act) => ({ value: act, label: act })),
+            ]}
+          />
 
           <Select
             value={moduleFilter}
-            onChange={setModuleFilter}
-            style={{ width: 170 }}
-            placeholder="Phân hệ"
-          >
-            <Select.Option value="ALL">Tất cả phân hệ</Select.Option>
-            {moduleOptions.map((mod) => (
-              <Select.Option key={mod} value={mod}>
-                {mod}
-              </Select.Option>
-            ))}
-          </Select>
+            onChange={(val) => setModuleFilter(val)}
+            style={{ width: 150 }}
+            options={[
+              { value: 'ALL', label: t('common.all') },
+              ...moduleOptions.map((mod) => ({ value: mod, label: mod })),
+            ]}
+          />
 
           <RangePicker
-            placeholder={['Từ ngày', 'Đến ngày']}
-            format="DD/MM/YYYY"
             value={dateRange}
-            onChange={(dates) => setDateRange(dates as any)}
-            style={{ width: 240 }}
+            onChange={(val) => setDateRange(val)}
+            format="YYYY-MM-DD"
+            style={{ minWidth: 230 }}
           />
 
           <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
-            Lọc
+            {t('common.search')}
+          </Button>
+
+          <Button
+            icon={<ReloadOutlined />}
+            onClick={() => {
+              setSearch('');
+              setAction('ALL');
+              setModuleFilter('ALL');
+              setDateRange(null);
+              fetchLogs(1, pageSize);
+            }}
+          >
+            {t('common.reset')}
           </Button>
         </div>
-      </Card>
 
-      {/* Table Card */}
-      <Card
-        style={{
-          borderRadius: 12,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
-        }}
-        bodyStyle={{ padding: 0 }}
-      >
+        {/* Audit Log Table */}
         <Table
           columns={columns}
           dataSource={logs}
@@ -372,11 +331,10 @@ export function AuditLogPage() {
           loading={loading}
           pagination={{
             current: page,
-            pageSize: pageSize,
-            total: total,
+            pageSize,
+            total,
             showSizeChanger: true,
-            pageSizeOptions: ['10', '20', '50', '100'],
-            showTotal: (tot) => `Tổng cộng ${tot} bản ghi kiểm toán`,
+            showTotal: (totalCount) => t('common.totalRecords', { total: totalCount }),
             onChange: (p, ps) => {
               setPage(p);
               setPageSize(ps);
@@ -384,7 +342,7 @@ export function AuditLogPage() {
             },
           }}
           size="middle"
-          scroll={{ x: 950 }}
+          scroll={{ x: 'max-content' }}
         />
       </Card>
 
@@ -393,53 +351,41 @@ export function AuditLogPage() {
         title={
           <Space>
             <AuditOutlined style={{ color: '#1890ff' }} />
-            <span>Chi tiết nhật ký kiểm toán #{selectedLog?.id}</span>
+            <span>{t('audit.colDetails')} #{selectedLog?.id}</span>
           </Space>
         }
         open={detailModalVisible}
         onCancel={() => setDetailModalVisible(false)}
         footer={[
           <Button key="close" type="primary" onClick={() => setDetailModalVisible(false)}>
-            Đóng
+            {t('common.close')}
           </Button>,
         ]}
-        width={750}
+        width="min(750px, 95vw)"
       >
         {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: '30px 0' }}>Đang tải chi tiết...</div>
+          <div style={{ textAlign: 'center', padding: '30px 0' }}>{t('common.loading')}</div>
         ) : selectedLog ? (
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
             <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
-              <Descriptions.Item label="Thời gian">{selectedLog.timestamp}</Descriptions.Item>
-              <Descriptions.Item label="Hành động">
+              <Descriptions.Item label={t('audit.colTimestamp')}>{selectedLog.timestamp}</Descriptions.Item>
+              <Descriptions.Item label={t('audit.colAction')}>
                 <Tag color={getActionColor(selectedLog.action)} style={{ fontWeight: 600 }}>
                   {selectedLog.action}
                 </Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Người thực hiện">
+              <Descriptions.Item label={t('audit.colActor')}>
                 <Text strong>{selectedLog.username}</Text> {selectedLog.userId ? `(ID: ${selectedLog.userId})` : ''}
               </Descriptions.Item>
-              <Descriptions.Item label="Phân hệ / Bảng">
+              <Descriptions.Item label={t('audit.colTarget')}>
                 <Tag color="geekblue">{selectedLog.module}</Tag> / <code>{selectedLog.tableName}</code>
               </Descriptions.Item>
-              <Descriptions.Item label="Mã bản ghi">
-                <Tag>{selectedLog.recordId || '-'}</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Địa chỉ IP">{selectedLog.ipAddress || '127.0.0.1'}</Descriptions.Item>
-              {selectedLog.macAddress && (
-                <Descriptions.Item label="Địa chỉ MAC">{selectedLog.macAddress}</Descriptions.Item>
-              )}
+              <Descriptions.Item label={t('audit.colIpAddress')}>{selectedLog.ipAddress || '127.0.0.1'}</Descriptions.Item>
               {selectedLog.computerName && (
-                <Descriptions.Item label="Tên máy">{selectedLog.computerName}</Descriptions.Item>
-              )}
-              {selectedLog.appVersion && (
-                <Descriptions.Item label="Phiên bản">{selectedLog.appVersion}</Descriptions.Item>
-              )}
-              {selectedLog.sessionId && (
-                <Descriptions.Item label="Session ID">{selectedLog.sessionId}</Descriptions.Item>
+                <Descriptions.Item label="Host">{selectedLog.computerName}</Descriptions.Item>
               )}
               {selectedLog.changedFields && (
-                <Descriptions.Item label="Trường thay đổi" span={2}>
+                <Descriptions.Item label={t('audit.colDetails')} span={2}>
                   <Text code>{selectedLog.changedFields}</Text>
                 </Descriptions.Item>
               )}
@@ -448,7 +394,7 @@ export function AuditLogPage() {
             {/* Old vs New data */}
             {selectedLog.oldData && (
               <div>
-                <Text strong style={{ color: '#d46b08' }}>Dữ liệu cũ (Trước khi sửa / Trước khi xóa):</Text>
+                <Text strong style={{ color: '#d46b08' }}>Old Data:</Text>
                 <pre
                   style={{
                     backgroundColor: '#fffbe6',
@@ -468,7 +414,7 @@ export function AuditLogPage() {
 
             {selectedLog.newData && (
               <div>
-                <Text strong style={{ color: '#389e0d' }}>Dữ liệu mới (Sau khi thêm / Sau khi sửa):</Text>
+                <Text strong style={{ color: '#389e0d' }}>New Data:</Text>
                 <pre
                   style={{
                     backgroundColor: '#f6ffed',

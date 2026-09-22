@@ -40,6 +40,18 @@ namespace HRMS_API.Services
         [JsonProperty("client_type")]
         public string ClientType { get; set; }
 
+        [JsonProperty("jti")]
+        public string Jti { get; set; }
+
+        [JsonProperty("token_version")]
+        public long TokenVersion { get; set; }
+
+        [JsonProperty("iss")]
+        public string Issuer { get; set; }
+
+        [JsonProperty("aud")]
+        public string Audience { get; set; }
+
         [JsonProperty("iat")]
         public long IssuedAt { get; set; }
 
@@ -105,7 +117,18 @@ namespace HRMS_API.Services
         /// <summary>
         /// Tạo JSON Web Token chuẩn RFC 7519 có chữ ký HMAC-SHA256
         /// </summary>
-        public static string GenerateToken(int userId, string username, string fullName, bool isAdmin, List<string> rights, string maCty = null, string maDvi = null, string manv = null, string clientType = null)
+        public static string GenerateToken(
+            int userId, 
+            string username, 
+            string fullName, 
+            bool isAdmin, 
+            List<string> rights, 
+            string maCty = null, 
+            string maDvi = null, 
+            string manv = null, 
+            string clientType = null,
+            string jti = null,
+            long tokenVersion = 1)
         {
             var header = new
             {
@@ -115,6 +138,11 @@ namespace HRMS_API.Services
 
             var now = DateTimeOffset.UtcNow;
             var exp = now.AddHours(ExpireHours);
+
+            if (string.IsNullOrWhiteSpace(jti))
+            {
+                jti = Guid.NewGuid().ToString("N");
+            }
 
             var payload = new JwtUserClaims
             {
@@ -128,6 +156,10 @@ namespace HRMS_API.Services
                 MaDvi = maDvi,
                 Manv = manv,
                 ClientType = clientType ?? "ALL",
+                Jti = jti,
+                TokenVersion = tokenVersion,
+                Issuer = "HRMS.Api",
+                Audience = "HRMS.Clients",
                 IssuedAt = now.ToUnixTimeSeconds(),
                 ExpiresAt = exp.ToUnixTimeSeconds()
             };
@@ -208,7 +240,9 @@ namespace HRMS_API.Services
                     new Claim(ClaimTypes.Name, claims.Username),
                     new Claim("FullName", claims.FullName ?? ""),
                     new Claim(ClaimTypes.Role, claims.Role ?? "User"),
-                    new Claim("IsAdmin", claims.IsAdmin.ToString())
+                    new Claim("IsAdmin", claims.IsAdmin.ToString()),
+                    new Claim("jti", claims.Jti ?? ""),
+                    new Claim("token_version", claims.TokenVersion.ToString())
                 };
 
                 if (claims.Rights != null)
@@ -227,6 +261,16 @@ namespace HRMS_API.Services
                 if (!string.IsNullOrEmpty(claims.ClientType))
                 {
                     identityClaims.Add(new Claim("client_type", claims.ClientType));
+                }
+
+                if (!string.IsNullOrEmpty(claims.MaCty))
+                {
+                    identityClaims.Add(new Claim("macty", claims.MaCty));
+                }
+
+                if (!string.IsNullOrEmpty(claims.MaDvi))
+                {
+                    identityClaims.Add(new Claim("madvi", claims.MaDvi));
                 }
 
                 var identity = new ClaimsIdentity(identityClaims, "Jwt");

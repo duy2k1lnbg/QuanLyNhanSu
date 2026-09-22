@@ -366,7 +366,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         </Tooltip>
       }
       placement="right"
-      width={isMobile ? '100%' : 460}
+      width={isMobile ? '100%' : 'min(460px, 95vw)'}
       onClose={onClose}
       open={open}
       bodyStyle={{ display: 'flex', flexDirection: 'column', padding: '16px' }}

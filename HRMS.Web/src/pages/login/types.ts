@@ -7,3 +7,4 @@ export const AUTHOR_INFO = {
 };
 
 export const WINDOWS_PACKAGE_URL = '/downloads/HRMS_Setup_v3.5.0.zip';
+export const MOBILE_APK_URL = '/downloads/HRMS_Mobile.apk';

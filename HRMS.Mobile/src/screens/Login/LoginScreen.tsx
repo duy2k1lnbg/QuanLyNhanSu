@@ -20,7 +20,8 @@ import { useLanguage } from '../../hooks/useLanguage';
 import { AppTextInput } from '../../components/AppTextInput';
 import { AppButton } from '../../components/AppButton';
 import { mapApiError } from '../../utils/errorMapper';
-import { APP_CONFIG } from '../../config';
+import { APP_CONFIG, VPS_DOMAIN_URL, VPS_DIRECT_IP_URL } from '../../config';
+import { getActiveApiUrl, setActiveApiUrl } from '../../api/client';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 
@@ -35,8 +36,33 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [currentServerUrl, setCurrentServerUrl] = useState<string>(getActiveApiUrl());
 
   const passwordInputRef = useRef<TextInput>(null);
+
+  const handleServerSwitch = () => {
+    Alert.alert(
+      'Chọn Máy Chủ Kết Nối',
+      `Máy chủ hiện tại:\n${getActiveApiUrl()}`,
+      [
+        {
+          text: 'Domain (tryhardagain.com)',
+          onPress: () => {
+            setActiveApiUrl(VPS_DOMAIN_URL);
+            setCurrentServerUrl(VPS_DOMAIN_URL);
+          },
+        },
+        {
+          text: 'IP VPS (103.200.22.79:5000)',
+          onPress: () => {
+            setActiveApiUrl(VPS_DIRECT_IP_URL);
+            setCurrentServerUrl(VPS_DIRECT_IP_URL);
+          },
+        },
+        { text: 'Đóng', style: 'cancel' },
+      ]
+    );
+  };
 
   const handleLogin = async () => {
     setErrorMessage(null);
@@ -78,10 +104,14 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
     switch (activeLanguage) {
       case 'vi':
         return '🇻🇳 Tiếng Việt';
-      case 'ja':
-        return '🇯🇵 日本語';
       case 'en':
         return '🇺🇸 English';
+      case 'zh-CN':
+        return '🇨🇳 简体中文';
+      case 'ko':
+        return '🇰🇷 한국어';
+      case 'ja':
+        return '🇯🇵 日本語';
       default:
         return '🌐 ' + activeLanguage;
     }
@@ -190,6 +220,18 @@ export const LoginScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={[typography.caption, { color: colors.textMuted, marginTop: spacing.xs }]}>
             {t('auth.version')} {APP_CONFIG.version} (Build {APP_CONFIG.buildNumber})
           </Text>
+
+          <TouchableOpacity
+            activeOpacity={0.7}
+            onPress={handleServerSwitch}
+            style={[styles.metaRow, { marginTop: 4, paddingVertical: 2 }]}
+          >
+            <Text style={[typography.caption, { color: colors.textSecondary, fontSize: 11 }]}>
+              🌐 Máy chủ: <Text style={{ color: colors.primary, fontWeight: '600' }}>
+                {currentServerUrl.includes('5000') ? 'VPS IP (103.200.22.79:5000)' : 'tryhardagain.com'}
+              </Text>
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>

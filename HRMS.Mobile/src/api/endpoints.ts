@@ -2,6 +2,8 @@ export const ENDPOINTS = {
   AUTH: {
     LOGIN: '/auth/login',
     CHANGE_PASSWORD: '/auth/change-password',
+    LOGOUT: '/auth/logout',
+    LOGOUT_ALL: '/auth/logout-all',
   },
   ME: {
     BASE: '/me',

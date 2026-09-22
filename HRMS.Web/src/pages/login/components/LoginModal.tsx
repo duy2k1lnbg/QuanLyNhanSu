@@ -8,6 +8,7 @@ import {
 } from '@ant-design/icons';
 import api from '../../../services/api';
 import type { CurrentUserDTO } from '../../../types/hrms';
+import { useAppLanguage } from '../../../services/i18n';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -15,18 +16,38 @@ interface LoginModalProps {
   visible: boolean;
   onClose: () => void;
   onLoginSuccess: (user: CurrentUserDTO, token: string) => void;
-  tLanding: any;
+  tLanding?: any;
+  tAuth?: any;
 }
 
 export const LoginModal: React.FC<LoginModalProps> = ({
   visible,
   onClose,
   onLoginSuccess,
-  tLanding,
+  tLanding: propTLanding,
+  tAuth: propTAuth,
 }) => {
+  const { dict, tLanding: hookTLanding, tAuth: hookTAuth } = useAppLanguage();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const auth = propTAuth || hookTAuth || dict?.auth || {};
+  const landing = propTLanding || hookTLanding || dict?.landing || {};
+
+  // Comprehensive fallbacks so labels and placeholders are NEVER empty
+  const title = auth.loginModalTitle || landing.loginModalTitle || 'ĐĂNG NHẬP HỆ THỐNG';
+  const subtitle = auth.loginModalSubtitle || landing.loginModalSubtitle || 'Cổng Quản Trị Nhân Sự Trực Tuyến';
+  const sslTag = auth.loginModalSSLTag || landing.loginModalSSLTag || 'Cổng Xác Thực Bảo Mật SSL';
+  const usernameLabel = auth.usernameLabel || landing.usernameLabel || 'Tên đăng nhập';
+  const usernamePlaceholder = auth.usernamePlaceholder || landing.usernamePlaceholder || 'Nhập tên đăng nhập...';
+  const usernameRequired = auth.usernameRequired || landing.usernameRequired || 'Vui lòng nhập tên tài khoản!';
+  const passwordLabel = auth.passwordLabel || landing.passwordLabel || 'Mật khẩu';
+  const passwordPlaceholder = auth.passwordPlaceholder || landing.passwordPlaceholder || 'Nhập mật khẩu...';
+  const passwordRequired = auth.passwordRequired || landing.passwordRequired || 'Vui lòng nhập mật khẩu!';
+  const btnSubmitText = auth.btnLoginSubmit || landing.btnLoginSubmit || 'Đăng nhập hệ thống';
+  const loggingInText = auth.loggingIn || 'Đang xác thực...';
+  const securityFooter = auth.loginSecurityFooter || landing.loginSecurityFooter || '🔒 Bảo mật mã hóa SSL 256-bit • Tiêu chuẩn RFC 7519 JWT';
 
   const handleLogin = async (values: { username: string; password: string }) => {
     setLoading(true);
@@ -58,7 +79,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         onLoginSuccess(normalizedUser, token);
       } else {
         setErrorMessage(
-          res.data?.message || res.data?.Message || 'Tên đăng nhập hoặc mật khẩu không chính xác.'
+          res.data?.message || res.data?.Message || auth.loginError || 'Tên đăng nhập hoặc mật khẩu không chính xác.'
         );
       }
     } catch (err: unknown) {
@@ -127,13 +148,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           <SafetyCertificateOutlined style={{ fontSize: 28, color: '#fff' }} />
         </div>
         <Title level={3} style={{ margin: 0, fontWeight: 800, color: '#0f172a' }}>
-          {tLanding.loginModalTitle}
+          {title}
         </Title>
         <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 0, fontSize: 13 }}>
-          {tLanding.loginModalSubtitle}
+          {subtitle}
         </Paragraph>
         <Tag color="processing" style={{ marginTop: 8, borderRadius: 10, fontWeight: 500 }}>
-          <SafetyCertificateOutlined style={{ marginRight: 4 }} /> {tLanding.loginModalSSLTag}
+          <SafetyCertificateOutlined style={{ marginRight: 4 }} /> {sslTag}
         </Tag>
       </div>
 
@@ -151,13 +172,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       <Form form={form} layout="vertical" onFinish={handleLogin}>
         <Form.Item
           name="username"
-          label={<Text strong style={{ color: '#334155' }}>{tLanding.usernameLabel}</Text>}
-          rules={[{ required: true, message: tLanding.usernameRequired }]}
+          label={<Text strong style={{ color: '#334155' }}>{usernameLabel}</Text>}
+          rules={[{ required: true, message: usernameRequired }]}
         >
           <Input
             size="large"
             prefix={<UserOutlined style={{ color: '#94a3b8' }} />}
-            placeholder={tLanding.usernamePlaceholder}
+            placeholder={usernamePlaceholder}
             autoFocus
             style={{ borderRadius: 8 }}
           />
@@ -165,13 +186,13 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         <Form.Item
           name="password"
-          label={<Text strong style={{ color: '#334155' }}>{tLanding.passwordLabel}</Text>}
-          rules={[{ required: true, message: tLanding.passwordRequired }]}
+          label={<Text strong style={{ color: '#334155' }}>{passwordLabel}</Text>}
+          rules={[{ required: true, message: passwordRequired }]}
         >
           <Input.Password
             size="large"
             prefix={<LockOutlined style={{ color: '#94a3b8' }} />}
-            placeholder={tLanding.passwordPlaceholder}
+            placeholder={passwordPlaceholder}
             style={{ borderRadius: 8 }}
           />
         </Form.Item>
@@ -194,7 +215,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
               boxShadow: '0 6px 16px rgba(37,99,235,0.4)',
             }}
           >
-            {tLanding.btnLoginSubmit}
+            {loading ? loggingInText : btnSubmitText}
           </Button>
         </Form.Item>
       </Form>
@@ -209,7 +230,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
           color: '#64748b',
         }}
       >
-        {tLanding.loginSecurityFooter}
+        {securityFooter}
       </div>
     </Modal>
   );

@@ -279,6 +279,8 @@ export interface SysUserDTO {
   isMobileEnabled?: boolean;
   ClientType?: string;
   clientType?: string;
+  TenPb?: string;
+  TenCv?: string;
 }
 
 export interface GroupMemberItemDTO {

@@ -9,11 +9,12 @@ export interface CinematicSlide {
   altText: string;
   quote: string;
   quoteSub?: string;
+  author?: string;
   whyNotYou?: string;
   isJapanese?: boolean;
 }
 
-// 9 CÂU TRUYỀN CẢM HỨNG GIỮ NGUYÊN 100% NGUYÊN BẢN, KHÔNG DỊCH
+// 10 CÂU TRUYỀN CẢM HỨNG GIỮ NGUYÊN 100% NGUYÊN BẢN, KHÔNG DỊCH
 const CINEMATIC_SLIDES: CinematicSlide[] = [
   {
     id: 'hero-01',
@@ -81,6 +82,14 @@ const CINEMATIC_SLIDES: CinematicSlide[] = [
     quote: 'But I want you to take it personal, and my personal question to you is: Why not you?',
     quoteSub: "You've got the brains, you can make decisions, you can study the plan, you can change your life, you can make your dreams come true. Why not you?",
     whyNotYou: 'Why not you?',
+  },
+  {
+    id: 'hero-10',
+    tag: 'TRY HARD AGAIN',
+    imageSrc: '/images/inspirational/hero-10.jpg',
+    altText: 'Con đường uốn lượn qua thung lũng sương mù hướng về phía bình minh rạng rỡ',
+    quote: 'Ever tried. Ever failed. No matter. Try again. Fail again. Fail better. The world is yours. Treat everyone kindly and light up the night.',
+    author: '— Peter Dinklage',
   },
 ];
 
@@ -237,6 +246,26 @@ export const CinematicHeroGallery: React.FC = () => {
             </p>
           )}
 
+          {activeSlide.author && (
+            <div
+              className={`v2-quote-author ${isTypingComplete ? 'is-revealed' : ''}`}
+              style={{
+                fontFamily: "'Cinzel', 'Plus Jakarta Sans', -apple-system, sans-serif",
+                fontSize: 'clamp(14px, 1.4vw, 18px)',
+                fontWeight: 700,
+                color: '#93c5fd',
+                letterSpacing: '1px',
+                marginTop: 4,
+                textShadow: '0 2px 10px rgba(0, 0, 0, 0.9)',
+                opacity: isTypingComplete ? 1 : 0,
+                transform: isTypingComplete ? 'translateY(0)' : 'translateY(6px)',
+                transition: 'opacity 0.5s ease, transform 0.5s ease',
+              }}
+            >
+              {activeSlide.author}
+            </div>
+          )}
+
           {activeSlide.whyNotYou && (
             <div
               className={`v2-why-not-you-highlight ${isTypingComplete ? 'is-revealed' : ''}`}
@@ -334,9 +363,9 @@ export const CinematicHeroGallery: React.FC = () => {
 
           {/* Slide Counter */}
           <div className="v2-slide-counter">
-            <span className="current">0{activeIndex + 1}</span>
+            <span className="current">{String(activeIndex + 1).padStart(2, '0')}</span>
             <span className="sep">/</span>
-            <span className="total">0{totalSlides}</span>
+            <span className="total">{String(totalSlides).padStart(2, '0')}</span>
           </div>
         </div>
       </div>

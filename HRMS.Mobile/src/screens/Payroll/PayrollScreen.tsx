@@ -22,6 +22,7 @@ import { AppErrorState } from '../../components/AppErrorState';
 import { AppDivider } from '../../components/AppDivider';
 import { formatCurrency } from '../../utils/formatters';
 import { mapApiError } from '../../utils/errorMapper';
+import { getLocalizedPayrollStatus } from '../../utils/statusMapper';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 
@@ -154,8 +155,8 @@ export const PayrollScreen: React.FC = () => {
               </Text>
               <View style={styles.statusBadgeRow}>
                 <AppBadge
-                  label={payroll.trangThaiChiTra || t('payroll.statusPending')}
-                  variant={payroll.trangThaiChiTra === 'Đã chi trả' ? 'success' : 'warning'}
+                  label={getLocalizedPayrollStatus(payroll.trangThaiChiTra)}
+                  variant={payroll.trangThaiChiTra?.toLowerCase().includes('đã') || payroll.trangThaiChiTra?.toLowerCase().includes('paid') ? 'success' : 'warning'}
                 />
               </View>
             </AppCard>

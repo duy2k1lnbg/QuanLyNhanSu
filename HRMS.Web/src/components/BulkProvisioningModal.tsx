@@ -399,7 +399,7 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
       }
       open={visible}
       onCancel={onClose}
-      width={960}
+      width="min(960px, 95vw)"
       footer={null}
       destroyOnClose
     >

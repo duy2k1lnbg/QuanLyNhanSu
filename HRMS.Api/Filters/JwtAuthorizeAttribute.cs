@@ -59,6 +59,34 @@ namespace HRMS_API.Filters
                 return;
             }
 
+            // 4. Kiểm tra trạng thái phiên làm việc phía Server (Nguồn sự thật DB)
+            if (decimal.TryParse(claims.UserId, out decimal userIdVal))
+            {
+                var authSecurityService = new Bu.CLASS_SECURITY.AuthSecurityService();
+                bool isSessionValid = authSecurityService.ValidateSession(claims.Jti, claims.TokenVersion, userIdVal);
+                if (!isSessionValid)
+                {
+                    actionContext.Response = actionContext.Request.CreateResponse(
+                        HttpStatusCode.Unauthorized,
+                        new 
+                        { 
+                            success = false, 
+                            code = "SESSION_REVOKED_OR_EXPIRED",
+                            message = "Phiên làm việc đã bị thu hồi hoặc tài khoản đã thay đổi bảo mật. Vui lòng đăng nhập lại." 
+                        }
+                    );
+                    return;
+                }
+            }
+            else
+            {
+                actionContext.Response = actionContext.Request.CreateResponse(
+                    HttpStatusCode.Unauthorized,
+                    new { success = false, message = "Định danh người dùng trong Token không hợp lệ." }
+                );
+                return;
+            }
+
             // 4. Kiểm tra quyền Quản trị viên (nếu có yêu cầu)
             if (RequireAdmin && !claims.IsAdmin)
             {

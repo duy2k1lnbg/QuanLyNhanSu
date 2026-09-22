@@ -289,7 +289,7 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
     <Modal
       open={visible}
       onCancel={onClose}
-      width={960}
+      width="min(960px, 95vw)"
       style={{ top: 20 }}
       className="payslip-modal"
       styles={{

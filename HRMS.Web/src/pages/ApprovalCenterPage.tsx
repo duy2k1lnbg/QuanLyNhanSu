@@ -27,8 +27,9 @@ import {
   FieldTimeOutlined,
 } from '@ant-design/icons';
 import api from '../services/api';
+import { useAppLanguage } from '../services/i18n';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface LeaveItem {
   id: number;
@@ -90,6 +91,7 @@ interface SummaryData {
 }
 
 export function ApprovalCenterPage() {
+  const { t } = useAppLanguage();
   const [activeTab, setActiveTab] = useState<string>('leave');
   const [statusFilter, setStatusFilter] = useState<string>('PENDING');
   const [searchKeyword, setSearchKeyword] = useState<string>('');
@@ -108,7 +110,7 @@ export function ApprovalCenterPage() {
 
   // Reject Modal
   const [rejectModalVisible, setRejectModalVisible] = useState<boolean>(false);
-  const [rejectTarget, setRejectTarget] = useState<{ type: 'leave' | 'attendance' | 'overtime'; id: number } | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<{ type: 'leave' | 'attendance' | 'overtime'; id: number; name?: string } | null>(null);
   const [rejectReason, setRejectReason] = useState<string>('');
   const [submittingReject, setSubmittingReject] = useState<boolean>(false);
 
@@ -151,7 +153,7 @@ export function ApprovalCenterPage() {
         setOvertimeList(res.data?.data || []);
       }
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể tải danh sách phê duyệt.' });
+      notification.error({ message: t('common.error'), description: t('common.loading') });
     } finally {
       setLoading(false);
     }
@@ -166,22 +168,22 @@ export function ApprovalCenterPage() {
 
       const res = await api.post(endpoint);
       notification.success({
-        message: 'Thành công',
-        description: res.data?.message || 'Phê duyệt thành công!',
+        message: t('common.success'),
+        description: res.data?.message || t('approval.approveSuccess'),
       });
       fetchSummary();
       fetchData();
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } } };
       notification.error({
-        message: 'Lỗi phê duyệt',
-        description: errorObj.response?.data?.message || 'Không thể thực hiện phê duyệt.',
+        message: t('common.error'),
+        description: errorObj.response?.data?.message || t('common.saveError'),
       });
     }
   };
 
-  const openRejectModal = (type: 'leave' | 'attendance' | 'overtime', id: number) => {
-    setRejectTarget({ type, id });
+  const openRejectModal = (type: 'leave' | 'attendance' | 'overtime', id: number, name?: string) => {
+    setRejectTarget({ type, id, name });
     setRejectReason('');
     setRejectModalVisible(true);
   };
@@ -195,10 +197,10 @@ export function ApprovalCenterPage() {
       else if (rejectTarget.type === 'attendance') endpoint = `/approvals/attendance-corrections/${rejectTarget.id}/reject`;
       else if (rejectTarget.type === 'overtime') endpoint = `/approvals/overtime/${rejectTarget.id}/reject`;
 
-      const res = await api.post(endpoint, { reason: rejectReason.trim() || 'Cấp quản lý từ chối yêu cầu.' });
+      const res = await api.post(endpoint, { reason: rejectReason.trim() || 'Rejected' });
       notification.success({
-        message: 'Đã từ chối',
-        description: res.data?.message || 'Đã từ chối yêu cầu thành công.',
+        message: t('common.success'),
+        description: res.data?.message || t('approval.rejectSuccess'),
       });
       setRejectModalVisible(false);
       setRejectTarget(null);
@@ -207,8 +209,8 @@ export function ApprovalCenterPage() {
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } } };
       notification.error({
-        message: 'Lỗi từ chối',
-        description: errorObj.response?.data?.message || 'Không thể từ chối yêu cầu.',
+        message: t('common.error'),
+        description: errorObj.response?.data?.message || t('common.saveError'),
       });
     } finally {
       setSubmittingReject(false);
@@ -218,379 +220,360 @@ export function ApprovalCenterPage() {
   const renderStatusTag = (status: string) => {
     switch (status) {
       case 'APPROVED':
-        return <Tag color="success" icon={<CheckCircleOutlined />}>Đã duyệt</Tag>;
+        return <Tag color="success" icon={<CheckCircleOutlined />}>{t('status.approved')}</Tag>;
       case 'REJECTED':
-        return <Tag color="error" icon={<CloseCircleOutlined />}>Đã từ chối</Tag>;
+        return <Tag color="error" icon={<CloseCircleOutlined />}>{t('status.rejected')}</Tag>;
       default:
-        return <Tag color="warning" icon={<ClockCircleOutlined />}>Chờ phê duyệt</Tag>;
+        return <Tag color="processing" icon={<ClockCircleOutlined />}>{t('status.pending')}</Tag>;
     }
   };
 
-  // Leave Table Columns
   const leaveColumns: ColumnsType<LeaveItem> = [
     {
-      title: 'Mã NV',
+      title: t('employee.colEmpCode'),
       dataIndex: 'employeeCode',
       key: 'employeeCode',
-      width: 130,
-      render: (code: string) => <Tag color="blue">{code}</Tag>,
+      width: 90,
+      render: (c, r) => <Tag color="blue">{c || `#${r.manv}`}</Tag>,
     },
     {
-      title: 'Họ và tên',
+      title: t('approval.colApplicant'),
       dataIndex: 'employeeName',
       key: 'employeeName',
-      render: (name: string, r) => (
-        <Space direction="vertical" size={0}>
-          <Text strong>{name}</Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>{r.departmentName}</Text>
-        </Space>
-      ),
+      width: 170,
+      render: (text) => <Text strong>{text}</Text>,
     },
     {
-      title: 'Loại nghỉ',
+      title: t('employee.labelDepartment'),
+      dataIndex: 'departmentName',
+      key: 'departmentName',
+      width: 140,
+      render: (tVal) => <Tag color="cyan">{tVal || '-'}</Tag>,
+    },
+    {
+      title: t('approval.colType'),
       dataIndex: 'loaiNghi',
       key: 'loaiNghi',
-      render: (type: string) => <Tag color="geekblue">{type}</Tag>,
+      width: 130,
+      render: (tVal) => <Tag color="purple">{tVal}</Tag>,
     },
     {
-      title: 'Thời gian nghỉ',
-      key: 'period',
+      title: t('approval.colTimeSpan'),
+      key: 'thoigian',
+      width: 200,
       render: (_, r) => (
         <Space direction="vertical" size={0}>
-          <Text>{r.tuNgay === r.denNgay ? r.tuNgay : `${r.tuNgay} -> ${r.denNgay}`}</Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>({r.soNgay} ngày)</Text>
+          <Text style={{ fontSize: 12 }}>{r.tuNgay} ~ {r.denNgay}</Text>
+          <Text type="secondary" style={{ fontSize: 11 }}>({r.soNgay} {t('attendance.colActualDays')})</Text>
         </Space>
       ),
     },
     {
-      title: 'Lý do xin nghỉ',
+      title: t('approval.colReason'),
       dataIndex: 'lyDo',
       key: 'lyDo',
-      render: (reason: string) => reason || <Text italic type="secondary">Không có lý do</Text>,
+      ellipsis: true,
     },
     {
-      title: 'Trạng thái',
+      title: t('approval.colStatus'),
       dataIndex: 'trangThai',
       key: 'trangThai',
       width: 130,
-      render: (s: string) => renderStatusTag(s),
+      render: renderStatusTag,
     },
     {
-      title: 'Ngày gửi',
-      dataIndex: 'ngayTao',
-      key: 'ngayTao',
-      width: 140,
-      render: (d: string) => <Text type="secondary" style={{ fontSize: 12 }}>{d}</Text>,
-    },
-    {
-      title: 'Thao tác',
+      title: t('common.actions'),
       key: 'actions',
-      width: 180,
-      render: (_, r) =>
-        r.trangThai === 'PENDING' ? (
-          <Space size="small">
+      width: 160,
+      fixed: 'right',
+      render: (_, r) => {
+        if (r.trangThai !== 'PENDING') {
+          return <Text type="secondary" style={{ fontSize: 12 }}>{r.ngayDuyet || '-'}</Text>;
+        }
+        return (
+          <Space>
             <Button
               type="primary"
               size="small"
-              icon={<CheckCircleOutlined />}
+              style={{ background: '#10b981', borderColor: '#10b981' }}
               onClick={() => handleApprove('leave', r.id)}
             >
-              Duyệt
+              {t('approval.btnApprove')}
             </Button>
             <Button
               danger
               size="small"
-              icon={<CloseCircleOutlined />}
-              onClick={() => openRejectModal('leave', r.id)}
+              onClick={() => openRejectModal('leave', r.id, r.employeeName)}
             >
-              Từ chối
+              {t('approval.btnReject')}
             </Button>
           </Space>
-        ) : (
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {r.nguoiDuyet ? `Bởi: ${r.nguoiDuyet}` : 'Đã xử lý'}
-          </Text>
-        ),
+        );
+      },
     },
   ];
 
-  // Attendance Correction Columns
   const attendanceColumns: ColumnsType<AttendanceCorrectionItem> = [
     {
-      title: 'Mã NV',
+      title: t('employee.colEmpCode'),
       dataIndex: 'employeeCode',
       key: 'employeeCode',
-      width: 130,
-      render: (code: string) => <Tag color="blue">{code}</Tag>,
+      width: 90,
+      render: (c, r) => <Tag color="blue">{c || `#${r.manv}`}</Tag>,
     },
     {
-      title: 'Họ và tên',
+      title: t('approval.colApplicant'),
       dataIndex: 'employeeName',
       key: 'employeeName',
-      render: (name: string, r) => (
-        <Space direction="vertical" size={0}>
-          <Text strong>{name}</Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>{r.departmentName}</Text>
-        </Space>
-      ),
+      width: 170,
+      render: (text) => <Text strong>{text}</Text>,
     },
     {
-      title: 'Ngày điều chỉnh',
+      title: t('employee.labelDepartment'),
+      dataIndex: 'departmentName',
+      key: 'departmentName',
+      width: 140,
+      render: (tVal) => <Tag color="cyan">{tVal || '-'}</Tag>,
+    },
+    {
+      title: t('common.date'),
       dataIndex: 'ngayCong',
       key: 'ngayCong',
-      render: (d: string) => <Tag color="purple">{d}</Tag>,
+      width: 110,
     },
     {
-      title: 'Giờ vào / ra đề nghị',
-      key: 'times',
+      title: t('approval.colTimeSpan'),
+      key: 'gio',
+      width: 150,
       render: (_, r) => (
-        <Space>
-          <Tag color="cyan">Vào: {r.gioVaoMoi || '--:--'}</Tag>
-          <Tag color="geekblue">Ra: {r.gioRaMoi || '--:--'}</Tag>
-        </Space>
+        <Tag color="geekblue">{r.gioVaoMoi || '--:--'} ~ {r.gioRaMoi || '--:--'}</Tag>
       ),
     },
     {
-      title: 'Lý do giải trình',
+      title: t('approval.colReason'),
       dataIndex: 'lyDo',
       key: 'lyDo',
-      render: (reason: string) => reason || <Text italic type="secondary">Không có lý do</Text>,
+      ellipsis: true,
     },
     {
-      title: 'Trạng thái',
+      title: t('approval.colStatus'),
       dataIndex: 'trangThai',
       key: 'trangThai',
       width: 130,
-      render: (s: string) => renderStatusTag(s),
+      render: renderStatusTag,
     },
     {
-      title: 'Ngày gửi',
-      dataIndex: 'ngayTao',
-      key: 'ngayTao',
-      width: 140,
-      render: (d: string) => <Text type="secondary" style={{ fontSize: 12 }}>{d}</Text>,
-    },
-    {
-      title: 'Thao tác',
+      title: t('common.actions'),
       key: 'actions',
-      width: 180,
-      render: (_, r) =>
-        r.trangThai === 'PENDING' ? (
-          <Space size="small">
+      width: 160,
+      fixed: 'right',
+      render: (_, r) => {
+        if (r.trangThai !== 'PENDING') {
+          return <Text type="secondary" style={{ fontSize: 12 }}>{r.ngayDuyet || '-'}</Text>;
+        }
+        return (
+          <Space>
             <Button
               type="primary"
               size="small"
-              icon={<CheckCircleOutlined />}
+              style={{ background: '#10b981', borderColor: '#10b981' }}
               onClick={() => handleApprove('attendance', r.id)}
             >
-              Duyệt
+              {t('approval.btnApprove')}
             </Button>
             <Button
               danger
               size="small"
-              icon={<CloseCircleOutlined />}
-              onClick={() => openRejectModal('attendance', r.id)}
+              onClick={() => openRejectModal('attendance', r.id, r.employeeName)}
             >
-              Từ chối
+              {t('approval.btnReject')}
             </Button>
           </Space>
-        ) : (
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {r.nguoiDuyet ? `Bởi: ${r.nguoiDuyet}` : 'Đã xử lý'}
-          </Text>
-        ),
+        );
+      },
     },
   ];
 
-  // Overtime Columns
   const overtimeColumns: ColumnsType<OvertimeItem> = [
     {
-      title: 'Mã NV',
+      title: t('employee.colEmpCode'),
       dataIndex: 'employeeCode',
       key: 'employeeCode',
-      width: 130,
-      render: (code: string) => <Tag color="blue">{code}</Tag>,
+      width: 90,
+      render: (c, r) => <Tag color="blue">{c || `#${r.manv}`}</Tag>,
     },
     {
-      title: 'Họ và tên',
+      title: t('approval.colApplicant'),
       dataIndex: 'employeeName',
       key: 'employeeName',
-      render: (name: string, r) => (
-        <Space direction="vertical" size={0}>
-          <Text strong>{name}</Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>{r.departmentName}</Text>
-        </Space>
-      ),
+      width: 170,
+      render: (text) => <Text strong>{text}</Text>,
     },
     {
-      title: 'Ngày tăng ca',
+      title: t('employee.labelDepartment'),
+      dataIndex: 'departmentName',
+      key: 'departmentName',
+      width: 140,
+      render: (tVal) => <Tag color="cyan">{tVal || '-'}</Tag>,
+    },
+    {
+      title: t('common.date'),
       dataIndex: 'ngayTangCa',
       key: 'ngayTangCa',
-      render: (d: string) => <Tag color="orange">{d}</Tag>,
+      width: 110,
     },
     {
-      title: 'Số giờ / Hệ số',
+      title: t('overtime.colHours'),
       key: 'hours',
+      width: 130,
       render: (_, r) => (
         <Space>
-          <Tag color="volcano">{r.soGio} giờ</Tag>
-          <Tag color="gold">x{r.heSo}</Tag>
+          <Text strong>{r.soGio}h</Text>
+          <Tag color="orange">x{r.heSo}</Tag>
         </Space>
       ),
     },
     {
-      title: 'Nội dung công việc',
+      title: t('approval.colReason'),
       dataIndex: 'noiDung',
       key: 'noiDung',
-      render: (txt: string) => txt || <Text italic type="secondary">Tăng ca dự án</Text>,
+      ellipsis: true,
     },
     {
-      title: 'Trạng thái',
+      title: t('approval.colStatus'),
       dataIndex: 'trangThai',
       key: 'trangThai',
       width: 130,
-      render: (s: string) => renderStatusTag(s),
+      render: renderStatusTag,
     },
     {
-      title: 'Ngày gửi',
-      dataIndex: 'ngayTao',
-      key: 'ngayTao',
-      width: 140,
-      render: (d: string) => <Text type="secondary" style={{ fontSize: 12 }}>{d}</Text>,
-    },
-    {
-      title: 'Thao tác',
+      title: t('common.actions'),
       key: 'actions',
-      width: 180,
-      render: (_, r) =>
-        r.trangThai === 'PENDING' ? (
-          <Space size="small">
+      width: 160,
+      fixed: 'right',
+      render: (_, r) => {
+        if (r.trangThai !== 'PENDING') {
+          return <Text type="secondary" style={{ fontSize: 12 }}>{r.ngayDuyet || '-'}</Text>;
+        }
+        return (
+          <Space>
             <Button
               type="primary"
               size="small"
-              icon={<CheckCircleOutlined />}
+              style={{ background: '#10b981', borderColor: '#10b981' }}
               onClick={() => handleApprove('overtime', r.id)}
             >
-              Duyệt
+              {t('approval.btnApprove')}
             </Button>
             <Button
               danger
               size="small"
-              icon={<CloseCircleOutlined />}
-              onClick={() => openRejectModal('overtime', r.id)}
+              onClick={() => openRejectModal('overtime', r.id, r.employeeName)}
             >
-              Từ chối
+              {t('approval.btnReject')}
             </Button>
           </Space>
-        ) : (
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            {r.nguoiDuyet ? `Bởi: ${r.nguoiDuyet}` : 'Đã xử lý'}
-          </Text>
-        ),
+        );
+      },
     },
   ];
 
   return (
-    <div style={{ padding: '24px' }}>
-      <div style={{ marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <Title level={3} style={{ margin: 0 }}>
-            Trung tâm Phê duyệt Yêu cầu (Approval Center)
-          </Title>
-          <Text type="secondary">
-            Điều phối và xử lý toàn bộ các yêu cầu tự phục vụ (Self-Service) phát sinh từ nhân viên qua ứng dụng Mobile.
-          </Text>
-        </div>
-        <Button icon={<ReloadOutlined />} onClick={() => { fetchSummary(); fetchData(); }}>
-          Làm mới
-        </Button>
-      </div>
-
-      {/* SUMMARY STATISTIC CARDS */}
-      <Row gutter={16} style={{ marginBottom: 24 }}>
-        <Col xs={24} sm={6}>
-          <Card size="small" style={{ borderRadius: 8, borderColor: summary.totalPending > 0 ? '#fa8c16' : '#d9d9d9' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {/* 4 THẺ THỐNG KÊ NHANH */}
+      <Row gutter={[16, 16]}>
+        <Col xs={12} sm={6}>
+          <Card bordered={false} style={{ borderRadius: 8 }}>
             <Statistic
-              title="Tổng chờ phê duyệt"
+              title={t('status.pending')}
               value={summary.totalPending}
-              valueStyle={{ color: summary.totalPending > 0 ? '#fa8c16' : '#52c41a', fontWeight: 700 }}
+              valueStyle={{ color: '#1677ff', fontWeight: 700 }}
               prefix={<ClockCircleOutlined />}
             />
           </Card>
         </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small" style={{ borderRadius: 8 }}>
+        <Col xs={12} sm={6}>
+          <Card bordered={false} style={{ borderRadius: 8 }}>
             <Statistic
-              title="Nghỉ phép chờ duyệt"
+              title={t('approval.tabLeaves', { count: '' })}
               value={summary.leavePending}
-              valueStyle={{ color: '#1890ff', fontWeight: 700 }}
+              valueStyle={{ color: '#10b981', fontWeight: 700 }}
               prefix={<CalendarOutlined />}
             />
           </Card>
         </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small" style={{ borderRadius: 8 }}>
+        <Col xs={12} sm={6}>
+          <Card bordered={false} style={{ borderRadius: 8 }}>
             <Statistic
-              title="Điều chỉnh công chờ duyệt"
+              title={t('approval.tabCorrections', { count: '' })}
               value={summary.attendancePending}
-              valueStyle={{ color: '#722ed1', fontWeight: 700 }}
+              valueStyle={{ color: '#8b5cf6', fontWeight: 700 }}
               prefix={<ScheduleOutlined />}
             />
           </Card>
         </Col>
-        <Col xs={24} sm={6}>
-          <Card size="small" style={{ borderRadius: 8 }}>
+        <Col xs={12} sm={6}>
+          <Card bordered={false} style={{ borderRadius: 8 }}>
             <Statistic
-              title="Tăng ca chờ duyệt"
+              title={t('approval.tabOvertimes', { count: '' })}
               value={summary.overtimePending}
-              valueStyle={{ color: '#eb2f96', fontWeight: 700 }}
+              valueStyle={{ color: '#ec4899', fontWeight: 700 }}
               prefix={<FieldTimeOutlined />}
             />
           </Card>
         </Col>
       </Row>
 
-      {/* MAIN CONTENT CARD */}
-      <Card style={{ borderRadius: 12 }}>
-        {/* FILTER BAR */}
-        <Row gutter={[16, 16]} style={{ marginBottom: 20 }}>
-          <Col xs={24} sm={10} md={8}>
+      {/* FILTER & TABS */}
+      <Card bordered={false} style={{ borderRadius: 8 }}>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: 12,
+            marginBottom: 16,
+          }}
+        >
+          <Space wrap>
             <Input
-              placeholder="Tìm kiếm theo mã NV hoặc tên nhân viên..."
-              prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+              prefix={<SearchOutlined style={{ color: '#94a3b8' }} />}
+              placeholder={t('common.searchPlaceholder')}
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
+              style={{ minWidth: 200 }}
               allowClear
             />
-          </Col>
-          <Col xs={24} sm={8} md={6}>
             <Select
               value={statusFilter}
               onChange={setStatusFilter}
-              style={{ width: '100%' }}
+              style={{ minWidth: 140 }}
               options={[
-                { value: 'PENDING', label: '⏳ Đang chờ phê duyệt' },
-                { value: 'APPROVED', label: '✅ Đã được phê duyệt' },
-                { value: 'REJECTED', label: '❌ Đã bị từ chối' },
-                { value: 'ALL', label: '📋 Tất cả trạng thái' },
+                { value: 'PENDING', label: t('status.pending') },
+                { value: 'APPROVED', label: t('status.approved') },
+                { value: 'REJECTED', label: t('status.rejected') },
+                { value: 'ALL', label: t('common.all') },
               ]}
             />
-          </Col>
-        </Row>
+          </Space>
 
-        {/* TABS FOR DIFFERENT WORKFLOWS */}
+          <Button icon={<ReloadOutlined />} onClick={() => { fetchSummary(); fetchData(); }}>
+            {t('common.refresh')}
+          </Button>
+        </div>
+
         <Tabs
           activeKey={activeTab}
           onChange={setActiveTab}
-          type="card"
           items={[
             {
               key: 'leave',
               label: (
                 <Space>
                   <CalendarOutlined />
-                  <span>Đơn xin nghỉ phép</span>
-                  {summary.leavePending > 0 && <Tag color="warning">{summary.leavePending}</Tag>}
+                  <span>{t('approval.tabLeaves', { count: summary.leavePending > 0 ? summary.leavePending : '' })}</span>
+                  {summary.leavePending > 0 && <Tag color="green">{summary.leavePending}</Tag>}
                 </Space>
               ),
               children: (
@@ -599,7 +582,8 @@ export function ApprovalCenterPage() {
                   dataSource={leaveList}
                   rowKey="id"
                   loading={loading}
-                  pagination={{ pageSize: 15, showTotal: (t) => `Tổng cộng ${t} yêu cầu` }}
+                  scroll={{ x: 'max-content' }}
+                  pagination={{ pageSize: 15, showTotal: (tVal) => t('common.totalRecords', { total: tVal }) }}
                 />
               ),
             },
@@ -608,7 +592,7 @@ export function ApprovalCenterPage() {
               label: (
                 <Space>
                   <ScheduleOutlined />
-                  <span>Yêu cầu điều chỉnh công</span>
+                  <span>{t('approval.tabCorrections', { count: summary.attendancePending > 0 ? summary.attendancePending : '' })}</span>
                   {summary.attendancePending > 0 && <Tag color="purple">{summary.attendancePending}</Tag>}
                 </Space>
               ),
@@ -618,7 +602,8 @@ export function ApprovalCenterPage() {
                   dataSource={attendanceList}
                   rowKey="id"
                   loading={loading}
-                  pagination={{ pageSize: 15, showTotal: (t) => `Tổng cộng ${t} yêu cầu` }}
+                  scroll={{ x: 'max-content' }}
+                  pagination={{ pageSize: 15, showTotal: (tVal) => t('common.totalRecords', { total: tVal }) }}
                 />
               ),
             },
@@ -627,7 +612,7 @@ export function ApprovalCenterPage() {
               label: (
                 <Space>
                   <FieldTimeOutlined />
-                  <span>Đăng ký tăng ca (OT)</span>
+                  <span>{t('approval.tabOvertimes', { count: summary.overtimePending > 0 ? summary.overtimePending : '' })}</span>
                   {summary.overtimePending > 0 && <Tag color="magenta">{summary.overtimePending}</Tag>}
                 </Space>
               ),
@@ -637,7 +622,8 @@ export function ApprovalCenterPage() {
                   dataSource={overtimeList}
                   rowKey="id"
                   loading={loading}
-                  pagination={{ pageSize: 15, showTotal: (t) => `Tổng cộng ${t} yêu cầu` }}
+                  scroll={{ x: 'max-content' }}
+                  pagination={{ pageSize: 15, showTotal: (tVal) => t('common.totalRecords', { total: tVal }) }}
                 />
               ),
             },
@@ -650,23 +636,24 @@ export function ApprovalCenterPage() {
         title={
           <Space>
             <CloseCircleOutlined style={{ color: '#ff4d4f' }} />
-            <span>Xác nhận từ chối yêu cầu</span>
+            <span>{t('approval.modalRejectTitle', { name: rejectTarget?.name || '' })}</span>
           </Space>
         }
         open={rejectModalVisible}
         onCancel={() => setRejectModalVisible(false)}
         onOk={handleConfirmReject}
         confirmLoading={submittingReject}
-        okText="Xác nhận từ chối"
+        okText={t('approval.btnReject')}
         okButtonProps={{ danger: true }}
-        cancelText="Hủy"
+        cancelText={t('common.cancel')}
+        width="min(500px, 95vw)"
       >
         <div style={{ marginTop: 12, marginBottom: 8 }}>
-          <Text>Vui lòng nhập lý do từ chối để thông báo đến nhân viên:</Text>
+          <Text>{t('approval.rejectReasonPrompt')}</Text>
         </div>
         <Input.TextArea
           rows={4}
-          placeholder="Ví dụ: Thiếu tài liệu chứng minh, trùng ca công việc, hoặc kế hoạch nhân sự không đáp ứng..."
+          placeholder={t('approval.rejectReasonPrompt')}
           value={rejectReason}
           onChange={(e) => setRejectReason(e.target.value)}
         />

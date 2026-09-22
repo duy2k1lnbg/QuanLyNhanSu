@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { notification, Result, Button } from 'antd';
+import { notification, Result, Button, ConfigProvider } from 'antd';
+import { useAppLanguage } from './services/i18n';
 import api from './services/api';
 import Login from './pages/Login';
 import MainLayout from './components/MainLayout';
@@ -59,6 +60,7 @@ import {
 
 
 export function App() {
+  const { antdLocale } = useAppLanguage();
   // 1. Trạng thái xác thực người dùng
   const [currentUser, setCurrentUser] = useState<CurrentUserDTO | null>(() => {
     const saved = localStorage.getItem('hrms_user');
@@ -489,7 +491,10 @@ export function App() {
     });
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch { }
     localStorage.removeItem('hrms_token');
     localStorage.removeItem('hrms_user');
     setCurrentUser(null);
@@ -499,6 +504,22 @@ export function App() {
     }
     notification.info({ message: 'Đã đăng xuất', description: 'Hẹn gặp lại bạn!' });
   };
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      if (currentUser) {
+        localStorage.removeItem('hrms_token');
+        localStorage.removeItem('hrms_user');
+        setCurrentUser(null);
+        notification.warning({
+          message: 'Phiên làm việc kết thúc',
+          description: 'Phiên làm việc đã bị thu hồi hoặc hết hạn. Vui lòng đăng nhập lại.',
+        });
+      }
+    };
+    window.addEventListener('hrms:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('hrms:unauthorized', handleUnauthorized);
+  }, [currentUser]);
 
   const handleMarkAllNotificationsRead = () => {
     setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
@@ -511,11 +532,15 @@ export function App() {
 
   // Chưa đăng nhập -> hiển thị màn hình Login
   if (!currentUser) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
+    return (
+      <ConfigProvider locale={antdLocale}>
+        <Login onLoginSuccess={handleLoginSuccess} />
+      </ConfigProvider>
+    );
   }
 
   return (
-    <>
+    <ConfigProvider locale={antdLocale}>
       <MainLayout
         currentUser={currentUser}
         currentMenu={currentMenu}
@@ -712,6 +737,7 @@ export function App() {
         visible={changePasswordModalVisible}
         onClose={() => setChangePasswordModalVisible(false)}
         username={currentUser.Username}
+        onPasswordChanged={handleLogout}
       />
 
       {/* Command Palette Global Search (Ctrl + K) */}
@@ -737,7 +763,7 @@ export function App() {
         employee={globalEmployee360}
         currentUser={currentUser}
       />
-    </>
+    </ConfigProvider>
   );
 }
 

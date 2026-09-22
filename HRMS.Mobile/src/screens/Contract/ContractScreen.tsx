@@ -118,7 +118,7 @@ export const ContractScreen: React.FC = () => {
                     {contract.sohd || '---'}
                   </Text>
                 </View>
-                <AppBadge label={contract.tenLoaihd || 'Chính thức'} variant="info" />
+                <AppBadge label={contract.tenLoaihd || '---'} variant="info" />
               </View>
 
               <AppDivider marginVertical={spacing.md} />

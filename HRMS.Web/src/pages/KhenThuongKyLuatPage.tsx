@@ -25,6 +25,7 @@ import {
 import dayjs from 'dayjs';
 import api from '../services/api';
 import type { KhenThuongDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text } = Typography;
 
@@ -49,6 +50,7 @@ export function KhenThuongKyLuatPage({
   canAdd,
   canDelete,
 }: KhenThuongKyLuatPageProps) {
+  const { t } = useAppLanguage();
   const [ktModalVisible, setKtModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formKt] = Form.useForm();
@@ -69,13 +71,13 @@ export function KhenThuongKyLuatPage({
         NoiDung: values.NoiDung,
         LyDo: values.LyDo,
       });
-      notification.success({ message: 'Thành công', description: 'Đã lưu quyết định thành công.' });
+      notification.success({ message: t('common.success'), description: t('common.saveSuccess') });
       setKtModalVisible(false);
       formKt.resetFields();
       onRefresh();
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi lưu quyết định.' });
+      notification.error({ message: t('common.error'), description: errorObj.response?.data?.Message || t('common.saveError') });
     } finally {
       setSaving(false);
     }
@@ -84,17 +86,17 @@ export function KhenThuongKyLuatPage({
   const handleDeleteKt = async (soqd: string) => {
     try {
       await api.delete(`/khenthuong/${encodeURIComponent(soqd)}`);
-      notification.success({ message: 'Thành công', description: 'Đã xóa quyết định.' });
+      notification.success({ message: t('common.success'), description: t('common.deleteSuccess') });
       onRefresh();
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể xóa quyết định.' });
+      notification.error({ message: t('common.error'), description: t('common.deleteError') });
     }
   };
 
   return (
     <>
       <Card
-        title="🏆 Quản lý Khen thưởng & Kỷ luật"
+        title={`🏆 ${t('reward.pageTitle')}`}
         extra={
           <Space>
             {(canAdd ? canAdd('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT') : hasRight('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT')) && (
@@ -106,11 +108,11 @@ export function KhenThuongKyLuatPage({
                   setKtModalVisible(true);
                 }}
               >
-                Tạo Quyết định mới
+                {t('reward.btnAddReward')}
               </Button>
             )}
             <Button icon={<ReloadOutlined />} onClick={onRefresh}>
-              Làm mới
+              {t('common.refresh')}
             </Button>
           </Space>
         }
@@ -122,24 +124,30 @@ export function KhenThuongKyLuatPage({
           items={[
             {
               key: 'khenthuong',
-              label: `Quyết định Khen thưởng (${khenThuongList.length})`,
+              label: `${t('reward.tabRewards')} (${khenThuongList.length})`,
               children: (
                 <Table
                   scroll={{ x: 'max-content' }}
                   columns={[
-                    { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="green">{t}</Tag> },
-                    { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
-                    { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                    { title: 'Ngày ban hành', dataIndex: 'NGAY', key: 'NGAY' },
-                    { title: 'Nội dung khen thưởng', dataIndex: 'NOIDUNG', key: 'NOIDUNG' },
-                    { title: 'Lý do', dataIndex: 'LYDO', key: 'LYDO' },
+                    { title: t('reward.colDecisionNo'), dataIndex: 'SOQD', key: 'SOQD', render: (tVal) => <Tag color="green">{tVal}</Tag> },
+                    { title: t('employee.colEmpCode'), dataIndex: 'MANV', key: 'MANV', width: 80, render: (tVal) => <Tag color="blue">#{tVal}</Tag> },
+                    { title: t('reward.colEmployee'), dataIndex: 'HOTEN', key: 'HOTEN', render: (tVal) => <Text strong>{tVal}</Text> },
+                    { title: t('reward.colDate'), dataIndex: 'NGAY', key: 'NGAY' },
+                    { title: t('common.description'), dataIndex: 'NOIDUNG', key: 'NOIDUNG' },
+                    { title: t('reward.colReason'), dataIndex: 'LYDO', key: 'LYDO' },
                     {
-                      title: 'Thao tác',
+                      title: t('common.actions'),
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
                         (canDelete ? canDelete('KHENTHUONG', 'F_NV_KHENTHUONG') : hasRight('KHENTHUONG', 'F_NV_KHENTHUONG')) && (
-                          <Popconfirm title="Xóa quyết định này?" onConfirm={() => handleDeleteKt(r.SOQD)}>
+                          <Popconfirm
+                            title={t('common.confirmDeleteTitle')}
+                            onConfirm={() => handleDeleteKt(r.SOQD)}
+                            okText={t('common.confirm')}
+                            cancelText={t('common.cancel')}
+                            okButtonProps={{ danger: true }}
+                          >
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>
                         )
@@ -149,30 +157,36 @@ export function KhenThuongKyLuatPage({
                   dataSource={khenThuongList}
                   rowKey="SOQD"
                   loading={ktLoading}
-                  pagination={{ pageSize: 8 }}
+                  pagination={{ pageSize: 10, showTotal: (tot) => t('common.totalRecords', { total: tot }) }}
                 />
               ),
             },
             {
               key: 'kyluat',
-              label: `Quyết định Kỷ luật (${kyLuatList.length})`,
+              label: `${t('reward.tabDisciplines')} (${kyLuatList.length})`,
               children: (
                 <Table
                   scroll={{ x: 'max-content' }}
                   columns={[
-                    { title: 'Số QĐ', dataIndex: 'SOQD', key: 'SOQD', render: (t) => <Tag color="red">{t}</Tag> },
-                    { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="blue">#{t}</Tag> },
-                    { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                    { title: 'Ngày ban hành', dataIndex: 'NGAY', key: 'NGAY' },
-                    { title: 'Nội dung kỷ luật', dataIndex: 'NOIDUNG', key: 'NOIDUNG' },
-                    { title: 'Lý do vi phạm', dataIndex: 'LYDO', key: 'LYDO' },
+                    { title: t('reward.colDecisionNo'), dataIndex: 'SOQD', key: 'SOQD', render: (tVal) => <Tag color="red">{tVal}</Tag> },
+                    { title: t('employee.colEmpCode'), dataIndex: 'MANV', key: 'MANV', width: 80, render: (tVal) => <Tag color="blue">#{tVal}</Tag> },
+                    { title: t('reward.colEmployee'), dataIndex: 'HOTEN', key: 'HOTEN', render: (tVal) => <Text strong>{tVal}</Text> },
+                    { title: t('reward.colDate'), dataIndex: 'NGAY', key: 'NGAY' },
+                    { title: t('common.description'), dataIndex: 'NOIDUNG', key: 'NOIDUNG' },
+                    { title: t('reward.colReason'), dataIndex: 'LYDO', key: 'LYDO' },
                     {
-                      title: 'Thao tác',
+                      title: t('common.actions'),
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
                         (canDelete ? canDelete('KYLUAT', 'F_NV_KYLUAT') : hasRight('KYLUAT', 'F_NV_KYLUAT')) && (
-                          <Popconfirm title="Xóa quyết định này?" onConfirm={() => handleDeleteKt(r.SOQD)}>
+                          <Popconfirm
+                            title={t('common.confirmDeleteTitle')}
+                            onConfirm={() => handleDeleteKt(r.SOQD)}
+                            okText={t('common.confirm')}
+                            cancelText={t('common.cancel')}
+                            okButtonProps={{ danger: true }}
+                          >
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>
                         )
@@ -182,7 +196,7 @@ export function KhenThuongKyLuatPage({
                   dataSource={kyLuatList}
                   rowKey="SOQD"
                   loading={ktLoading}
-                  pagination={{ pageSize: 8 }}
+                  pagination={{ pageSize: 10, showTotal: (tot) => t('common.totalRecords', { total: tot }) }}
                 />
               ),
             },
@@ -191,31 +205,39 @@ export function KhenThuongKyLuatPage({
       </Card>
 
       <Modal
-        title="Ban hành Quyết định Khen thưởng / Kỷ luật"
+        title={t('reward.btnAddReward')}
         open={ktModalVisible}
         onCancel={() => setKtModalVisible(false)}
         onOk={handleSaveKt}
         confirmLoading={saving}
         destroyOnClose
+        okText={t('common.save')}
+        cancelText={t('common.cancel')}
+        width="min(540px, 95vw)"
       >
         <Form form={formKt} layout="vertical">
-          <Form.Item name="SoQd" label="Số Quyết định" rules={[{ required: true, message: 'Nhập số QĐ' }]}>
-            <Input placeholder="Ví dụ: QD-2026-001" />
+          <Form.Item name="SoQd" label={t('reward.colDecisionNo')} rules={[{ required: true, message: t('reward.colDecisionNo') }]}>
+            <Input placeholder="QD-2026-001" />
           </Form.Item>
-          <Form.Item name="Loai" label="Loại quyết định" initialValue={1} rules={[{ required: true }]}>
-            <Select options={[{ value: 1, label: 'Khen thưởng (+)' }, { value: 2, label: 'Kỷ luật (-)' }]} />
+          <Form.Item name="Loai" label={t('common.actions')} initialValue={1} rules={[{ required: true }]}>
+            <Select
+              options={[
+                { value: 1, label: `${t('reward.tabRewards')} (+)` },
+                { value: 2, label: `${t('reward.tabDisciplines')} (-)` },
+              ]}
+            />
           </Form.Item>
-          <Form.Item name="MaNv" label="Mã Nhân viên" rules={[{ required: true, message: 'Nhập mã NV' }]}>
-            <InputNumber style={{ width: '100%' }} placeholder="Mã số nhân viên (ví dụ: 10)" />
+          <Form.Item name="MaNv" label={t('employee.colEmpCode')} rules={[{ required: true, message: t('employee.colEmpCode') }]}>
+            <InputNumber style={{ width: '100%' }} placeholder="10" />
           </Form.Item>
-          <Form.Item name="Ngay" label="Ngày áp dụng" initialValue={dayjs()}>
-            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+          <Form.Item name="Ngay" label={t('reward.colDate')} initialValue={dayjs()}>
+            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
           </Form.Item>
-          <Form.Item name="NoiDung" label="Nội dung">
-            <Input.TextArea rows={2} placeholder="Chi tiết nội dung quyết định..." />
+          <Form.Item name="NoiDung" label={t('common.description')}>
+            <Input.TextArea rows={2} placeholder={t('common.description')} />
           </Form.Item>
-          <Form.Item name="LyDo" label="Lý do">
-            <Input placeholder="Lý do khen thưởng hoặc vi phạm..." />
+          <Form.Item name="LyDo" label={t('reward.colReason')}>
+            <Input placeholder={t('reward.colReason')} />
           </Form.Item>
         </Form>
       </Modal>

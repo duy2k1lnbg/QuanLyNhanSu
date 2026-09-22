@@ -26,6 +26,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const handleLogout = useCallback(async () => {
     try {
+      await authApi.logout();
+    } catch (e) {
+      console.warn('[AuthContext] Error calling server logout:', e);
+    }
+    try {
       await SecureTokenStorage.removeToken();
     } catch (e) {
       console.warn('[AuthContext] Error removing token on logout:', e);
@@ -66,7 +71,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               setToken(null);
               setUser(null);
             } else {
-              console.warn('[AuthContext] Network or server error during session restore:', apiError.message);
+              console.log('[AuthContext] Network or server error during session restore:', apiError.message);
             }
           }
         }

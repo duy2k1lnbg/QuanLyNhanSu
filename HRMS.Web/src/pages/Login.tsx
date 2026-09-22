@@ -10,7 +10,7 @@ import { LandingFeatures } from './login/components/LandingFeatures';
 import { LandingArchitecture } from './login/components/LandingArchitecture';
 import { LoginModal } from './login/components/LoginModal';
 import { DownloadModal } from './login/components/DownloadModal';
-import { WINDOWS_PACKAGE_URL } from './login/types';
+import { WINDOWS_PACKAGE_URL, MOBILE_APK_URL } from './login/types';
 
 interface LoginProps {
   onLoginSuccess: (user: CurrentUserDTO, token: string) => void;
@@ -21,14 +21,24 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [downloadModalVisible, setDownloadModalVisible] = useState<boolean>(false);
   const [downloadType, setDownloadType] = useState<'windows' | 'mobile' | 'general'>('windows');
 
-  // Hook đa ngôn ngữ toàn hệ thống (Việt, Anh, Nhật)
-  const { lang: currentLang, setLang: handleLanguageChange, tLanding, allConfigs } = useAppLanguage();
+  // Hook đa ngôn ngữ toàn hệ thống (Việt, Anh, Nhật, Hàn, Trung)
+  const { lang: currentLang, setLang: handleLanguageChange, tLanding, tAuth, allConfigs } = useAppLanguage();
 
   const handleDownloadWindows = () => {
     message.loading({ content: 'Đang bắt đầu tải xuống HRMS_Setup_v3.5.0.zip...', key: 'dl_win', duration: 2 });
     const link = document.createElement('a');
     link.href = WINDOWS_PACKAGE_URL;
     link.setAttribute('download', 'HRMS_Setup_v3.5.0.zip');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleDownloadMobile = () => {
+    message.loading({ content: 'Đang bắt đầu tải xuống HRMS_Mobile.apk...', key: 'dl_apk', duration: 2 });
+    const link = document.createElement('a');
+    link.href = MOBILE_APK_URL;
+    link.setAttribute('download', 'HRMS_Mobile.apk');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -111,6 +121,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         <LandingEcosystem
           tLanding={tLanding}
           onDownloadWindows={handleDownloadWindows}
+          onDownloadMobile={handleDownloadMobile}
           onOpenLogin={handleOpenLogin}
           onOpenDownload={handleOpenDownload}
         />
@@ -148,6 +159,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         onClose={() => setLoginModalVisible(false)}
         onLoginSuccess={onLoginSuccess}
         tLanding={tLanding}
+        tAuth={tAuth}
       />
 
       {/* MODAL TẢI BỘ CÀI ĐẶT */}
@@ -156,6 +168,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         onClose={() => setDownloadModalVisible(false)}
         downloadType={downloadType}
         onDownloadWindows={handleDownloadWindows}
+        onDownloadMobile={handleDownloadMobile}
         tLanding={tLanding}
       />
     </div>

@@ -500,53 +500,23 @@ export function MainLayout({
               </Tooltip>
             </div>
 
-            {/* BỘ CHUYỂN ĐỔI NGÔN NGỮ (VI, EN, JA) */}
+            {/* BỘ CHUYỂN ĐỔI NGÔN NGỮ (VI, EN, ZH, KO, JA) */}
             <Dropdown
               menu={{
-                items: [
-                  {
-                    key: 'vi',
-                    label: (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
-                        <Space size={8}>
-                          <span style={{ fontSize: 16 }}>{allConfigs.vi.flag}</span>
-                          <span style={{ fontWeight: currentLang === 'vi' ? 700 : 600, color: currentLang === 'vi' ? '#1677ff' : '#0f172a', fontSize: 13 }}>
-                            {allConfigs.vi.name}
-                          </span>
-                        </Space>
-                        {currentLang === 'vi' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 13 }} />}
-                      </div>
-                    ),
-                  },
-                  {
-                    key: 'en',
-                    label: (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
-                        <Space size={8}>
-                          <span style={{ fontSize: 16 }}>{allConfigs.en.flag}</span>
-                          <span style={{ fontWeight: currentLang === 'en' ? 700 : 600, color: currentLang === 'en' ? '#1677ff' : '#0f172a', fontSize: 13 }}>
-                            {allConfigs.en.name}
-                          </span>
-                        </Space>
-                        {currentLang === 'en' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 13 }} />}
-                      </div>
-                    ),
-                  },
-                  {
-                    key: 'ja',
-                    label: (
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
-                        <Space size={8}>
-                          <span style={{ fontSize: 16 }}>{allConfigs.ja.flag}</span>
-                          <span style={{ fontWeight: currentLang === 'ja' ? 700 : 600, color: currentLang === 'ja' ? '#1677ff' : '#0f172a', fontSize: 13 }}>
-                            {allConfigs.ja.name}
-                          </span>
-                        </Space>
-                        {currentLang === 'ja' && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 13 }} />}
-                      </div>
-                    ),
-                  },
-                ],
+                items: (Object.keys(allConfigs) as AppLanguage[]).map((lKey) => ({
+                  key: lKey,
+                  label: (
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
+                      <Space size={8}>
+                        <span style={{ fontSize: 16 }}>{allConfigs[lKey]?.flag}</span>
+                        <span style={{ fontWeight: currentLang === lKey ? 700 : 600, color: currentLang === lKey ? '#1677ff' : '#0f172a', fontSize: 13 }}>
+                          {allConfigs[lKey]?.name}
+                        </span>
+                      </Space>
+                      {currentLang === lKey && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 13 }} />}
+                    </div>
+                  ),
+                })),
                 selectedKeys: [currentLang],
                 onClick: ({ key }) => handleLanguageChange(key as AppLanguage),
               }}

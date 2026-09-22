@@ -15,7 +15,8 @@
     "error": "エラーが発生しました",
     "viewDetails": "詳細を見る",
     "all": "すべて",
-    "close": "閉じる"
+    "close": "閉じる",
+    "edit": "編集"
   },
   "auth": {
     "login": "ログイン",
@@ -205,6 +206,8 @@
     "vietnamese": "Tiếng Việt (ベトナム語)",
     "japanese": "日本語 (Japanese)",
     "english": "English (英語)",
+    "chinese": "简体中文 (中国語)",
+    "korean": "한국어 (韓国語)",
     "continue": "次へ進む"
   },
   "requests": {

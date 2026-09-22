@@ -15,7 +15,8 @@
     "error": "An error occurred",
     "viewDetails": "View details",
     "all": "All",
-    "close": "Close"
+    "close": "Close",
+    "edit": "Edit"
   },
   "auth": {
     "login": "SIGN IN",
@@ -205,6 +206,8 @@
     "vietnamese": "Tiếng Việt (Vietnamese)",
     "japanese": "日本語 (Japanese)",
     "english": "English",
+    "chinese": "简体中文 (Chinese)",
+    "korean": "한국어 (Korean)",
     "continue": "Continue"
   },
   "requests": {

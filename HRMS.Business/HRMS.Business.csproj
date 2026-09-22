@@ -337,6 +337,10 @@
     <Compile Include="Services\AI_Services\Core\JsonPromptManager.cs" />
     <Compile Include="Services\AI_Services\AiServiceLocator.cs" />
     <Compile Include="Services\AI_Services\Vector\AiDataSyncHub.cs" />
+    <Compile Include="CLASS_SECURITY\AuthModels.cs" />
+    <Compile Include="CLASS_SECURITY\AuthAuditService.cs" />
+    <Compile Include="CLASS_SECURITY\SessionPolicyService.cs" />
+    <Compile Include="CLASS_SECURITY\AuthSecurityService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

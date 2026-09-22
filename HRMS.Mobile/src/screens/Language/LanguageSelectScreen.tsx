@@ -20,10 +20,12 @@ export const LanguageSelectScreen: React.FC<Props> = ({ navigation }) => {
   const [selected, setSelected] = useState<LanguagePreference>(preference);
 
   const languages: { id: LanguagePreference; title: string; flag: string; desc: string }[] = [
-    { id: 'system', title: t('language.followSystem'), flag: '🌐', desc: 'Auto detect Android locale' },
+    { id: 'system', title: t('language.followSystem'), flag: '🌐', desc: 'Auto detect system locale' },
     { id: 'vi', title: 'Tiếng Việt', flag: '🇻🇳', desc: 'Vietnamese' },
-    { id: 'ja', title: '日本語', flag: '🇯🇵', desc: 'Japanese' },
     { id: 'en', title: 'English', flag: '🇺🇸', desc: 'English (US)' },
+    { id: 'zh-CN', title: '简体中文', flag: '🇨🇳', desc: 'Simplified Chinese' },
+    { id: 'ko', title: '한국어', flag: '🇰🇷', desc: 'Korean' },
+    { id: 'ja', title: '日本語', flag: '🇯🇵', desc: 'Japanese' },
   ];
 
   const handleSelect = async (id: LanguagePreference) => {

@@ -24,7 +24,7 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     const init = async () => {
       const savedPref = await storage.getLanguagePreference();
       let pref: LanguagePreference = 'system';
-      if (savedPref === 'vi' || savedPref === 'ja' || savedPref === 'en' || savedPref === 'system') {
+      if (savedPref === 'vi' || savedPref === 'en' || savedPref === 'zh-CN' || savedPref === 'ko' || savedPref === 'ja' || savedPref === 'system') {
         pref = savedPref;
       }
       setPreference(pref);

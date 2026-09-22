@@ -35,7 +35,6 @@ import {
   ThunderboltOutlined,
   EyeOutlined,
   CheckCircleOutlined,
-  UserAddOutlined,
   LockOutlined,
 } from '@ant-design/icons';
 import api from '../services/api';
@@ -46,6 +45,7 @@ import UserEmployeeLinkModal from '../components/UserEmployeeLinkModal';
 import BulkProvisioningModal from '../components/BulkProvisioningModal';
 import UserDetailDrawer from '../components/UserDetailDrawer';
 import type { SysUserDTO, CurrentUserDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text } = Typography;
 
@@ -68,6 +68,7 @@ export function UserManagementPage({
   canEdit,
   canDelete,
 }: UserManagementPageProps) {
+  const { t } = useAppLanguage();
   const [userTab, setUserTab] = useState<'users' | 'groups'>('users');
   const [userSearchText, setUserSearchText] = useState('');
   const [selectedUserForPerms, setSelectedUserForPerms] = useState<SysUserDTO | null>(null);
@@ -116,7 +117,7 @@ export function UserManagementPage({
         setStats(res.data);
       }
     } catch {
-      // Keep default stats if fetch fails
+      // Keep default stats
     } finally {
       setStatsLoading(false);
     }
@@ -135,20 +136,20 @@ export function UserManagementPage({
     try {
       await api.post(`/users/${user.IdUser}/toggle-lock`);
       notification.success({
-        message: 'Thành công',
-        description: `Đã ${user.Disabled ? 'mở khóa' : 'khóa'} tài khoản [${user.Username}]!`,
+        message: t('common.success'),
+        description: t('common.updateSuccess'),
       });
       handleRefreshAll();
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể thay đổi trạng thái tài khoản.' });
+      notification.error({ message: t('common.error'), description: t('common.saveError') });
     }
   };
 
   const handleToggleMobile = async (user: SysUserDTO) => {
     if (user.IsAdmin || user.Username?.toUpperCase() === 'ADMIN') {
       notification.warning({
-        message: 'Không áp dụng',
-        description: 'Tài khoản Quản trị viên tối cao (ADMIN) là tài khoản hệ thống, không áp dụng quyền truy cập ứng dụng di động.',
+        message: t('common.warning'),
+        description: 'ADMIN',
       });
       return;
     }
@@ -159,12 +160,12 @@ export function UserManagementPage({
         IsMobileEnabled: targetState,
       });
       notification.success({
-        message: 'Thành công',
-        description: `Đã ${targetState ? 'kích hoạt' : 'tắt'} Mobile Access cho [${user.Username}]!`,
+        message: t('common.success'),
+        description: t('common.updateSuccess'),
       });
       handleRefreshAll();
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể thay đổi quyền Mobile Access.' });
+      notification.error({ message: t('common.error'), description: t('common.saveError') });
     }
   };
 
@@ -172,13 +173,13 @@ export function UserManagementPage({
     try {
       await api.delete(`/users/${user.IdUser}`);
       notification.success({
-        message: 'Thành công',
-        description: `Đã xóa ${user.IsGroup ? 'nhóm' : 'tài khoản'} [${user.Username}]!`,
+        message: t('common.success'),
+        description: t('common.deleteSuccess'),
       });
       handleRefreshAll();
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi khi xóa.' });
+      notification.error({ message: t('common.error'), description: errorObj.response?.data?.Message || t('common.deleteError') });
     }
   };
 
@@ -195,158 +196,115 @@ export function UserManagementPage({
         MaDvi: values.MaDvi || 'DVI01',
       });
       notification.success({
-        message: 'Thành công',
-        description: `Đã tạo ${isCreatingGroup ? 'nhóm quyền' : 'tài khoản'} [${values.Username}] thành công!`,
+        message: t('common.success'),
+        description: t('common.saveSuccess'),
       });
       setCreateUserModalVisible(false);
-      formCreateUser.resetFields();
       handleRefreshAll();
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi khi tạo mới.' });
+      notification.error({ message: t('common.error'), description: errorObj.response?.data?.Message || t('common.saveError') });
     } finally {
       setSaving(false);
     }
   };
 
   const safeUserList = Array.isArray(userList) ? userList : [];
-  const rawList = safeUserList.filter((u) => (userTab === 'users' ? !u.IsGroup : u.IsGroup));
-  const filteredUsers = rawList.filter((u) => {
-    if (userSearchText) {
-      const kw = userSearchText.toLowerCase();
-      const matchUser = Boolean(u.Username && u.Username.toLowerCase().includes(kw));
-      const matchName = Boolean(u.FullName && u.FullName.toLowerCase().includes(kw));
-      const code = u.EmployeeCode || u.employeeCode;
-      const matchCode = Boolean(code && code.toLowerCase().includes(kw));
-      if (!matchUser && !matchName && !matchCode) return false;
-    }
+
+  const filteredUsers = safeUserList.filter((u) => {
+    if (userTab === 'users' && u.IsGroup) return false;
+    if (userTab === 'groups' && !u.IsGroup) return false;
 
     if (userTab === 'users') {
-      // Account link filter
-      if (filterAccountStatus === 'linked') {
-        if (!u.Manv && !u.manv) return false;
-      } else if (filterAccountStatus === 'unlinked') {
-        if (u.Manv || u.manv) return false;
-      } else if (filterAccountStatus === 'locked') {
-        if (!u.Disabled) return false;
-      } else if (filterAccountStatus === 'system') {
-        if (!u.IsAdmin && u.Username?.toUpperCase() !== 'ADMIN') return false;
-      }
+      if (filterAccountStatus === 'linked' && (!u.Manv && !u.manv)) return false;
+      if (filterAccountStatus === 'unlinked' && (u.Manv || u.manv || u.IsAdmin || u.Username?.toUpperCase() === 'ADMIN')) return false;
+      if (filterAccountStatus === 'locked' && !u.Disabled) return false;
+      if (filterAccountStatus === 'system' && !u.IsAdmin && u.Username?.toUpperCase() !== 'ADMIN') return false;
 
-      // Mobile filter
-      if (filterMobileStatus === 'enabled') {
-        const isEnabled = u.IsMobileEnabled !== undefined ? u.IsMobileEnabled : (u.ClientType !== 'DESKTOP');
-        if (!isEnabled || u.IsAdmin || u.Username?.toUpperCase() === 'ADMIN') return false;
-      } else if (filterMobileStatus === 'disabled') {
-        const isEnabled = u.IsMobileEnabled !== undefined ? u.IsMobileEnabled : (u.ClientType !== 'DESKTOP');
-        if (isEnabled || u.IsAdmin || u.Username?.toUpperCase() === 'ADMIN') return false;
-      } else if (filterMobileStatus === 'blocked') {
-        if (!u.IsAdmin && u.Username?.toUpperCase() === 'ADMIN') return false;
-      }
+      const isEnabled = u.IsMobileEnabled !== undefined ? u.IsMobileEnabled : (u.ClientType !== 'DESKTOP');
+      if (filterMobileStatus === 'enabled' && !isEnabled) return false;
+      if (filterMobileStatus === 'disabled' && isEnabled) return false;
     }
 
-    return true;
+    if (!userSearchText.trim()) return true;
+    const q = userSearchText.toLowerCase();
+    const matchU = u.Username?.toLowerCase().includes(q);
+    const matchN = u.FullName?.toLowerCase().includes(q);
+    const matchE = (u.Manv || u.manv)?.toString().includes(q);
+    const matchD = u.TenPb?.toLowerCase().includes(q);
+    return matchU || matchN || matchE || matchD;
   });
 
   const userColumns: ColumnsType<SysUserDTO> = [
     {
-      title: 'ID',
-      dataIndex: 'IdUser',
-      key: 'IdUser',
-      width: 70,
-      render: (id: number) => <Tag color="blue">#{id}</Tag>,
-    },
-    {
-      title: 'Tài khoản',
+      title: t('user.colUsername'),
       dataIndex: 'Username',
       key: 'Username',
-      width: 160,
-      render: (u: string, record: SysUserDTO) => (
-        <Space direction="vertical" size={2}>
-          <Space>
-            <UserOutlined style={{ color: '#1677ff' }} />
-            <Text strong style={{ color: '#1677ff' }}>{u}</Text>
-          </Space>
-          {record.IsAdmin && (
-            <Tag color="red" icon={<SafetyCertificateOutlined />} style={{ fontSize: 11 }}>
-              Super Admin
-            </Tag>
-          )}
+      width: 140,
+      render: (u: string, record) => (
+        <Space>
+          <UserOutlined style={{ color: record.IsAdmin ? '#f5222d' : '#1890ff' }} />
+          <Text strong style={{ color: record.IsAdmin ? '#cf1322' : '#1890ff' }}>{u}</Text>
+          {record.IsAdmin && <Tag color="red" style={{ fontSize: 10 }}>ADMIN</Tag>}
         </Space>
       ),
     },
     {
-      title: 'Họ và tên',
+      title: t('user.colFullName'),
       dataIndex: 'FullName',
       key: 'FullName',
-      render: (fn: string) => fn || 'Chưa cập nhật',
+      width: 170,
+      render: (name: string, record) => (
+        <Space direction="vertical" size={0}>
+          <Text strong>{name || record.Username}</Text>
+          {record.TenCv && <Text type="secondary" style={{ fontSize: 11 }}>{record.TenCv}</Text>}
+        </Space>
+      ),
     },
     {
-      title: 'Nhóm quyền trực thuộc',
-      dataIndex: 'Groups',
-      key: 'Groups',
-      render: (groups?: string[]) =>
-        groups && groups.length > 0 ? (
-          <Space wrap size={[4, 4]}>
-            {groups.map((g, idx) => (
-              <Tag color="purple" key={idx} icon={<TeamOutlined />}>
-                {g}
-              </Tag>
-            ))}
-          </Space>
-        ) : (
-          <Text type="secondary" italic>Chưa gán nhóm</Text>
-        ),
-    },
-    {
-      title: 'Trạng thái',
-      dataIndex: 'Disabled',
-      key: 'Disabled',
-      width: 130,
-      render: (disabled?: boolean) =>
-        disabled ? (
-          <Tag color="red">Bị tạm khóa</Tag>
-        ) : (
-          <Tag color="green">Đang hoạt động</Tag>
-        ),
-    },
-    {
-      title: 'Hồ sơ liên kết (1:1)',
+      title: t('user.colEmployeeCode'),
       key: 'linkedEmployee',
-      width: 220,
-      render: (_, record: SysUserDTO) => {
+      width: 170,
+      render: (_, record) => {
+        const manv = record.Manv || record.manv;
         const isRootAdmin = Boolean(record.IsAdmin || record.Username?.toUpperCase() === 'ADMIN');
+
         if (isRootAdmin) {
           return (
-            <Tag color="default" style={{ fontStyle: 'italic', fontSize: 12 }}>
-              Không áp dụng (Admin hệ thống)
+            <Tag color="gold" icon={<SafetyCertificateOutlined />}>
+              ADMIN
             </Tag>
           );
         }
 
-        const manv = record.Manv || record.manv;
-        const code = record.EmployeeCode || record.employeeCode;
-        const name = record.EmployeeName || record.employeeName;
-
-        if (!manv) {
+        if (manv) {
           return (
-            <Tag color="default" style={{ fontSize: 12 }}>
-              Chưa liên kết
-            </Tag>
+            <Space direction="vertical" size={0}>
+              <Space>
+                <Tag color="cyan" icon={<IdcardOutlined />}>#{manv}</Tag>
+                <CheckCircleOutlined style={{ color: '#52c41a', fontSize: 13 }} />
+              </Space>
+              {record.TenPb && <Text type="secondary" style={{ fontSize: 11 }}>{record.TenPb}</Text>}
+            </Space>
           );
         }
 
         return (
-          <Space direction="vertical" size={1}>
-            <Space size={4}>
-              <IdcardOutlined style={{ color: '#52c41a' }} />
-              <Text strong style={{ color: '#389e0d' }}>
-                {code || `NV#${manv}`}
-              </Text>
-            </Space>
-            {name && <Text type="secondary" style={{ fontSize: 12 }}>{name}</Text>}
-          </Space>
+          <Tag color="default">
+            {t('status.draft')}
+          </Tag>
         );
+      },
+    },
+    {
+      title: t('user.colStatus'),
+      key: 'status',
+      width: 110,
+      render: (_, record) => {
+        if (record.Disabled) {
+          return <Tag color="error">{t('status.locked')}</Tag>;
+        }
+        return <Tag color="success">{t('status.active')}</Tag>;
       },
     },
     {
@@ -358,7 +316,7 @@ export function UserManagementPage({
         if (isRootAdmin) {
           return (
             <Tag color="default" style={{ fontStyle: 'italic', fontSize: 12 }}>
-              Không áp dụng
+              -
             </Tag>
           );
         }
@@ -372,7 +330,7 @@ export function UserManagementPage({
               color={isEnabled && hasLinked ? 'cyan' : isEnabled ? 'blue' : 'default'}
               icon={<MobileOutlined />}
             >
-              {isEnabled ? 'Bật' : 'Tắt'}
+              {isEnabled ? t('common.yes') : t('common.no')}
             </Tag>
             {(!canEdit || canEdit('F_SYSTEM_USER')) && (
               <Button
@@ -381,7 +339,7 @@ export function UserManagementPage({
                 onClick={() => handleToggleMobile(record)}
                 style={{ fontSize: 12, padding: 0 }}
               >
-                Đổi
+                {t('common.edit')}
               </Button>
             )}
           </Space>
@@ -389,9 +347,10 @@ export function UserManagementPage({
       },
     },
     {
-      title: 'Thao tác quản trị',
+      title: t('common.actions'),
       key: 'actions',
-      width: 380,
+      width: 320,
+      fixed: 'right',
       render: (_, record) => {
         const isRootAdmin = Boolean(record.IsAdmin || record.Username?.toUpperCase() === 'ADMIN');
 
@@ -399,7 +358,7 @@ export function UserManagementPage({
           return (
             <Space size="small">
               <Tag color="gold" icon={<SafetyCertificateOutlined />} style={{ padding: '3px 10px', fontWeight: 600, fontSize: 12 }}>
-                Toàn quyền hệ thống
+                SUPER ADMIN
               </Tag>
               <Button
                 size="small"
@@ -409,7 +368,7 @@ export function UserManagementPage({
                   setDetailDrawerVisible(true);
                 }}
               >
-                Chi tiết
+                {t('common.view')}
               </Button>
             </Space>
           );
@@ -425,7 +384,7 @@ export function UserManagementPage({
                 setDetailDrawerVisible(true);
               }}
             >
-              Chi tiết
+              {t('common.view')}
             </Button>
             {(!canEdit || canEdit('F_SYSTEM_USER')) && (
               <Button
@@ -437,7 +396,7 @@ export function UserManagementPage({
                   setLinkModalVisible(true);
                 }}
               >
-                Liên kết NV
+                {t('user.colEmployeeCode')}
               </Button>
             )}
             {(!canEdit || canEdit('F_SYSTEM_USER', 'PHANQUYEN')) && (
@@ -450,7 +409,7 @@ export function UserManagementPage({
                   setPhanQuyenModalVisible(true);
                 }}
               >
-                Phân quyền
+                {t('user.btnPermissions')}
               </Button>
             )}
             {(!canEdit || canEdit('F_SYSTEM_USER')) && (
@@ -462,29 +421,30 @@ export function UserManagementPage({
                   setUserEditModalVisible(true);
                 }}
               >
-                Sửa
+                {t('common.edit')}
               </Button>
             )}
             {(!canEdit || canEdit('F_SYSTEM_USER')) && (
               <Popconfirm
-                title={record.Disabled ? 'Mở khóa tài khoản?' : 'Khóa tài khoản?'}
-                description={`Bạn có chắc muốn ${record.Disabled ? 'mở khóa' : 'tạm khóa'} tài khoản [${record.Username}]?`}
+                title={record.Disabled ? t('user.btnUnlock') : t('user.btnLock')}
+                description={`${record.Disabled ? t('user.btnUnlock') : t('user.btnLock')} [${record.Username}]?`}
                 onConfirm={() => handleToggleLock(record)}
-                okText="Đồng ý"
-                cancelText="Hủy"
+                okText={t('common.confirm')}
+                cancelText={t('common.cancel')}
               >
                 <Button size="small" danger={!record.Disabled}>
-                  {record.Disabled ? 'Mở khóa' : 'Khóa'}
+                  {record.Disabled ? t('user.btnUnlock') : t('user.btnLock')}
                 </Button>
               </Popconfirm>
             )}
             {(!canDelete || canDelete('F_SYSTEM_USER')) && (
               <Popconfirm
-                title="Xóa tài khoản?"
-                description={`Bạn có chắc chắn muốn xóa tài khoản [${record.Username}] không?`}
+                title={t('common.confirmDeleteTitle')}
+                description={`${t('common.delete')}: [${record.Username}]?`}
                 onConfirm={() => handleDeleteUser(record)}
-                okText="Xóa"
-                cancelText="Hủy"
+                okText={t('common.confirm')}
+                cancelText={t('common.cancel')}
+                okButtonProps={{ danger: true }}
               >
                 <Button size="small" danger icon={<DeleteOutlined />} />
               </Popconfirm>
@@ -497,14 +457,14 @@ export function UserManagementPage({
 
   const groupColumns: ColumnsType<SysUserDTO> = [
     {
-      title: 'ID Nhóm',
+      title: 'ID',
       dataIndex: 'IdUser',
       key: 'IdUser',
       width: 80,
       render: (id: number) => <Tag color="purple">#{id}</Tag>,
     },
     {
-      title: 'Mã nhóm',
+      title: t('user.colUsername'),
       dataIndex: 'Username',
       key: 'Username',
       width: 180,
@@ -516,22 +476,23 @@ export function UserManagementPage({
       ),
     },
     {
-      title: 'Tên nhóm quyền',
+      title: t('user.colRoles'),
       dataIndex: 'FullName',
       key: 'FullName',
-      render: (fn: string) => fn || 'Chưa đặt tên',
+      render: (fn: string) => fn || '-',
     },
     {
-      title: 'Số thành viên',
+      title: t('user.colRoles'),
       dataIndex: 'MemberCount',
       key: 'MemberCount',
       width: 120,
-      render: (cnt: number) => <Tag color="geekblue">{cnt || 0} người</Tag>,
+      render: (cnt: number) => <Tag color="geekblue">{cnt || 0}</Tag>,
     },
     {
-      title: 'Thao tác quản trị nhóm',
+      title: t('common.actions'),
       key: 'actions',
-      width: 320,
+      width: 280,
+      fixed: 'right',
       render: (_, record) => (
         <Space size="small" wrap>
           {(!canEdit || canEdit('F_SYSTEM_GROUP', 'PHANQUYEN')) && (
@@ -544,7 +505,7 @@ export function UserManagementPage({
                 setPhanQuyenModalVisible(true);
               }}
             >
-              Phân quyền nhóm
+              {t('user.btnPermissions')}
             </Button>
           )}
           {(!canEdit || canEdit('F_SYSTEM_GROUP')) && (
@@ -558,7 +519,7 @@ export function UserManagementPage({
                 setGroupMembersModalVisible(true);
               }}
             >
-              Thành viên ({record.MemberCount || 0})
+              ({record.MemberCount || 0})
             </Button>
           )}
           {(!canEdit || canEdit('F_SYSTEM_GROUP')) && (
@@ -570,16 +531,17 @@ export function UserManagementPage({
                 setUserEditModalVisible(true);
               }}
             >
-              Sửa
+              {t('common.edit')}
             </Button>
           )}
           {(!canDelete || canDelete('F_SYSTEM_GROUP')) && (
             <Popconfirm
-              title="Xóa nhóm quyền?"
-              description={`Bạn có chắc muốn xóa nhóm [${record.Username}] không? Toàn bộ liên kết thành viên và quyền hạn liên quan sẽ bị xóa.`}
+              title={t('common.confirmDeleteTitle')}
+              description={`${t('common.delete')}: [${record.Username}]?`}
               onConfirm={() => handleDeleteUser(record)}
-              okText="Xóa"
-              cancelText="Hủy"
+              okText={t('common.confirm')}
+              cancelText={t('common.cancel')}
+              okButtonProps={{ danger: true }}
             >
               <Button size="small" danger icon={<DeleteOutlined />} />
             </Popconfirm>
@@ -593,20 +555,20 @@ export function UserManagementPage({
     <>
       {/* Dashboard KPI Summary Cards */}
       <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-        <Col xs={12} sm={8} md={6} lg={3}>
+        <Col xs={12} sm={8} md={6} lg={4}>
           <Card size="small" style={{ borderRadius: 8, background: '#fafafa' }} loading={statsLoading}>
             <Statistic
-              title="Tổng nhân sự"
+              title={t('dashboard.statTotalEmployees')}
               value={stats.TotalEmployees}
-              valueStyle={{ color: '#1890ff', fontWeight: 700 }}
-              prefix={<TeamOutlined />}
+              valueStyle={{ fontWeight: 700 }}
+              prefix={<UserOutlined />}
             />
           </Card>
         </Col>
-        <Col xs={12} sm={8} md={6} lg={3}>
+        <Col xs={12} sm={8} md={6} lg={4}>
           <Card size="small" style={{ borderRadius: 8, background: '#f6ffed' }} loading={statsLoading}>
             <Statistic
-              title="Đã có tài khoản"
+              title={t('user.tabUsers', { count: '' })}
               value={stats.AccountsCreated}
               valueStyle={{ color: '#52c41a', fontWeight: 700 }}
               prefix={<CheckCircleOutlined />}
@@ -614,31 +576,21 @@ export function UserManagementPage({
           </Card>
         </Col>
         <Col xs={12} sm={8} md={6} lg={4}>
-          <Card size="small" style={{ borderRadius: 8, background: '#fff7e6' }} loading={statsLoading}>
+          <Card size="small" style={{ borderRadius: 8, background: '#fff2e8' }} loading={statsLoading}>
             <Statistic
-              title="Chưa có tài khoản"
+              title={t('common.noData')}
               value={stats.EmployeesWithoutAccount}
-              valueStyle={{ color: '#fa8c16', fontWeight: 700 }}
-              prefix={<UserAddOutlined />}
+              valueStyle={{ color: '#fa541c', fontWeight: 700 }}
+              prefix={<ThunderboltOutlined />}
             />
           </Card>
         </Col>
-        <Col xs={12} sm={8} md={6} lg={3}>
+        <Col xs={12} sm={8} md={6} lg={4}>
           <Card size="small" style={{ borderRadius: 8, background: '#e6f7ff' }} loading={statsLoading}>
             <Statistic
-              title="Mobile Bật"
+              title="Mobile Enabled"
               value={stats.MobileEnabled}
-              valueStyle={{ color: '#13c2c2', fontWeight: 700 }}
-              prefix={<MobileOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={6} lg={3}>
-          <Card size="small" style={{ borderRadius: 8, background: '#f5f5f5' }} loading={statsLoading}>
-            <Statistic
-              title="Mobile Tắt"
-              value={stats.MobileDisabled}
-              valueStyle={{ color: '#8c8c8c', fontWeight: 700 }}
+              valueStyle={{ color: '#1890ff', fontWeight: 700 }}
               prefix={<MobileOutlined />}
             />
           </Card>
@@ -646,7 +598,7 @@ export function UserManagementPage({
         <Col xs={12} sm={8} md={6} lg={4}>
           <Card size="small" style={{ borderRadius: 8, background: '#fff1f0' }} loading={statsLoading}>
             <Statistic
-              title="Tài khoản bị khóa"
+              title={t('status.locked')}
               value={stats.LockedAccounts}
               valueStyle={{ color: '#f5222d', fontWeight: 700 }}
               prefix={<LockOutlined />}
@@ -656,7 +608,7 @@ export function UserManagementPage({
         <Col xs={12} sm={8} md={6} lg={4}>
           <Card size="small" style={{ borderRadius: 8, background: '#fffbe6' }} loading={statsLoading}>
             <Statistic
-              title="Tài khoản hệ thống"
+              title="Super Admin"
               value={stats.SystemAccounts}
               valueStyle={{ color: '#faad14', fontWeight: 700 }}
               prefix={<SafetyCertificateOutlined />}
@@ -666,7 +618,7 @@ export function UserManagementPage({
       </Row>
 
       <Card
-        title="🔐 Quản trị Người dùng & Phân quyền Hệ thống"
+        title={t('user.pageTitle')}
         extra={
           <Space wrap>
             {userTab === 'users' && (!canAdd || canAdd('F_SYSTEM_USER')) && (
@@ -676,7 +628,7 @@ export function UserManagementPage({
                 icon={<ThunderboltOutlined />}
                 onClick={() => setBulkModalVisible(true)}
               >
-                Cấp tài khoản Mobile hàng loạt
+                {t('user.btnBulkProvision')}
               </Button>
             )}
             {(!canAdd || (userTab === 'users' ? canAdd('F_SYSTEM_USER') : canAdd('F_SYSTEM_GROUP'))) && (
@@ -689,11 +641,11 @@ export function UserManagementPage({
                   setCreateUserModalVisible(true);
                 }}
               >
-                {userTab === 'users' ? 'Thêm Người Dùng' : 'Thêm Nhóm Quyền'}
+                {userTab === 'users' ? t('user.btnAddUser') : t('common.add')}
               </Button>
             )}
             <Button icon={<ReloadOutlined />} onClick={handleRefreshAll}>
-              Làm mới
+              {t('common.refresh')}
             </Button>
           </Space>
         }
@@ -711,16 +663,15 @@ export function UserManagementPage({
               key: 'users',
               label: (
                 <span>
-                  <UserOutlined /> Người dùng cá nhân ({safeUserList.filter((u) => !u.IsGroup).length})
+                  <UserOutlined /> {t('user.tabUsers', { count: safeUserList.filter((u) => !u.IsGroup).length })}
                 </span>
               ),
               children: (
                 <>
-                  {/* Filter Toolbar */}
                   <Row gutter={[12, 12]} style={{ marginBottom: 16 }} align="middle">
                     <Col xs={24} sm={10} md={8}>
                       <Input
-                        placeholder="Tìm tài khoản, họ tên, mã NV..."
+                        placeholder={t('common.searchPlaceholder')}
                         prefix={<SearchOutlined />}
                         value={userSearchText}
                         onChange={(e) => setUserSearchText(e.target.value)}
@@ -733,11 +684,11 @@ export function UserManagementPage({
                         value={filterAccountStatus}
                         onChange={setFilterAccountStatus}
                         options={[
-                          { value: 'all', label: 'Tất cả trạng thái hồ sơ' },
-                          { value: 'linked', label: 'Đã liên kết nhân sự' },
-                          { value: 'unlinked', label: 'Chưa liên kết nhân sự' },
-                          { value: 'locked', label: 'Đang bị tạm khóa' },
-                          { value: 'system', label: 'Tài khoản hệ thống (Admin)' },
+                          { value: 'all', label: t('common.all') },
+                          { value: 'linked', label: t('employee.colStatus') },
+                          { value: 'unlinked', label: t('status.draft') },
+                          { value: 'locked', label: t('status.locked') },
+                          { value: 'system', label: 'Admin' },
                         ]}
                       />
                     </Col>
@@ -747,10 +698,9 @@ export function UserManagementPage({
                         value={filterMobileStatus}
                         onChange={setFilterMobileStatus}
                         options={[
-                          { value: 'all', label: 'Tất cả Mobile Access' },
-                          { value: 'enabled', label: 'Mobile: Đã bật' },
-                          { value: 'disabled', label: 'Mobile: Đang tắt' },
-                          { value: 'blocked', label: 'Mobile: Bị chặn (Admin)' },
+                          { value: 'all', label: 'Mobile Access (All)' },
+                          { value: 'enabled', label: 'Mobile (On)' },
+                          { value: 'disabled', label: 'Mobile (Off)' },
                         ]}
                       />
                     </Col>
@@ -762,7 +712,7 @@ export function UserManagementPage({
                     rowKey="IdUser"
                     loading={userLoading}
                     scroll={{ x: 'max-content' }}
-                    pagination={{ pageSize: 8, showTotal: (t) => `Tổng số ${t} người dùng` }}
+                    pagination={{ pageSize: 15, showTotal: (tVal) => t('common.totalRecords', { total: tVal }) }}
                   />
                 </>
               ),
@@ -771,67 +721,58 @@ export function UserManagementPage({
               key: 'groups',
               label: (
                 <span>
-                  <TeamOutlined /> Nhóm quyền hạn ({safeUserList.filter((u) => u.IsGroup).length})
+                  <TeamOutlined /> {t('user.tabRoles')} ({safeUserList.filter((u) => u.IsGroup).length})
                 </span>
               ),
               children: (
-                <>
-                  <div style={{ marginBottom: 16 }}>
-                    <Input
-                      placeholder="Tìm mã nhóm, tên nhóm..."
-                      prefix={<SearchOutlined />}
-                      value={userSearchText}
-                      onChange={(e) => setUserSearchText(e.target.value)}
-                      allowClear
-                      style={{ width: 280 }}
-                    />
-                  </div>
-                  <Table
-                    columns={groupColumns}
-                    dataSource={filteredUsers}
-                    rowKey="IdUser"
-                    loading={userLoading}
-                    scroll={{ x: 'max-content' }}
-                    pagination={{ pageSize: 8, showTotal: (t) => `Tổng số ${t} nhóm quyền` }}
-                  />
-                </>
+                <Table
+                  columns={groupColumns}
+                  dataSource={filteredUsers}
+                  rowKey="IdUser"
+                  loading={userLoading}
+                  scroll={{ x: 'max-content' }}
+                  pagination={{ pageSize: 15, showTotal: (tVal) => t('common.totalRecords', { total: tVal }) }}
+                />
               ),
             },
           ]}
         />
       </Card>
 
-      {/* Modal Tạo người dùng / Nhóm mới */}
+      {/* Tạo Người Dùng / Nhóm Quyền Modal */}
       <Modal
-        title={isCreatingGroup ? 'Tạo Nhóm Quyền Mới' : 'Tạo Tài Khoản Người Dùng Mới'}
+        title={isCreatingGroup ? t('common.create') : t('user.btnAddUser')}
         open={createUserModalVisible}
         onCancel={() => setCreateUserModalVisible(false)}
         onOk={handleCreateUser}
         confirmLoading={saving}
         destroyOnClose
+        okText={t('common.save')}
+        cancelText={t('common.cancel')}
+        width="min(500px, 95vw)"
       >
         <Form form={formCreateUser} layout="vertical">
           <Form.Item
             name="Username"
-            label={isCreatingGroup ? 'Mã Nhóm (Ví dụ: G_NHANSU)' : 'Tên đăng nhập (Username)'}
-            rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập/mã nhóm' }]}
+            label={isCreatingGroup ? t('common.description') : t('auth.usernameLabel')}
+            rules={[{ required: true, message: t('auth.usernameRequired') }]}
           >
-            <Input placeholder={isCreatingGroup ? 'G_KETOAN' : 'nguyenvana'} />
+            <Input placeholder={t('auth.usernamePlaceholder')} />
           </Form.Item>
           <Form.Item
             name="FullName"
-            label={isCreatingGroup ? 'Tên Nhóm quyền' : 'Họ và tên đầy đủ'}
-            rules={[{ required: true, message: 'Vui lòng nhập họ tên' }]}
+            label={t('employee.labelFullName')}
+            rules={[{ required: true, message: t('employee.reqFullName') }]}
           >
-            <Input placeholder={isCreatingGroup ? 'Nhóm Kế Toán & Tiền Lương' : 'Nguyễn Văn A'} />
+            <Input placeholder={t('employee.labelFullName')} />
           </Form.Item>
           {!isCreatingGroup && (
             <Form.Item
               name="Password"
-              label="Mật khẩu khởi tạo"
-              rules={[{ required: true, message: 'Vui lòng nhập mật khẩu' }]}
+              label={t('auth.passwordLabel')}
+              rules={[{ required: true, message: t('auth.passwordRequired') }]}
             >
-              <Input.Password placeholder="Nhập mật khẩu an toàn..." />
+              <Input.Password placeholder={t('auth.passwordPlaceholder')} />
             </Form.Item>
           )}
         </Form>
@@ -916,4 +857,3 @@ export function UserManagementPage({
 }
 
 export default UserManagementPage;
-

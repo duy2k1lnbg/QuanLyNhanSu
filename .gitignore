@@ -367,3 +367,8 @@ FodyWeavers.xsd
 # Deployment artifacts
 deploy_vps/
 *.log
+*.dmp
+*.DMP
+*.apk
+*.APK
+/HRMS.Web/public/downloads

@@ -143,6 +143,12 @@ if (Test-Path (Join-Path $root "HRMS.Api\Scripts")) {
     Copy-Item -Recurse -Force (Join-Path $root "HRMS.Api\Scripts") $deployBackend
 }
 
+$dbSrc = Join-Path $root "database"
+if (Test-Path $dbSrc) {
+    Copy-Item -Recurse -Force $dbSrc (Join-Path $deployRoot "database")
+    Write-Host "  -> [OK] Da copy database migrations vao deploy_vps\database!" -ForegroundColor Green
+}
+
 # ------------------------------------------------------------------------------
 # 4. TAO CAC FILE CHAY TU DONG TRONG D:\QL_NS\deploy_vps
 # ------------------------------------------------------------------------------
@@ -374,12 +380,15 @@ $guide = @'
    - Giao dien Web : http://localhost (hoac http://<IP_VPS>)
    - Backend API   : http://localhost/api (hoac http://localhost:5000)
 
-4. LUU Y VE KET NOI ORACLE DATABASE
+4. LUU Y VE KET NOI & MIGRATION ORACLE DATABASE
    - Mac dinh ket noi Database tro toi: localhost:1521/xe (Oracle XE).
    - Neu VPS cua ban dung ten Service khac (vi du: 'orcl' hoac 'ORCLPDB'):
      Mo file: C:\HRMS\backend\Web.config
      Tim dong "localhost:1521/xe" va thay doi thanh ten Service cua ban.
      Sau do mo CMD/PowerShell chay "iisreset" de ap dung.
+   - CHAY MIGRATION BẢO MẬT MỚI (V1_15):
+     Neu database tren VPS chua chay migration V1_15, hay ket noi schema HR tren VPS (bang SQL Developer / DBeaver / SQL*Plus) va chay file:
+     C:\deploy_vps\database\migrations\V1_15__auth_security_sessions_and_audit.sql
 
 ================================================================================
 '@

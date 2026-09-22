@@ -29,6 +29,7 @@ import { AppErrorState } from '../../components/AppErrorState';
 import { AppDivider } from '../../components/AppDivider';
 import { formatDate } from '../../utils/formatters';
 import { mapApiError } from '../../utils/errorMapper';
+import { getLocalizedEmploymentStatus } from '../../utils/statusMapper';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 
@@ -135,8 +136,8 @@ export const ProfileScreen: React.FC = () => {
           <AppBadge label={`${t('profile.employeeId')}: ${profile?.employeeCode || profile?.manv || '---'}`} />
           {profile?.trangThaiLaoDong ? (
             <AppBadge
-              label={profile.trangThaiLaoDong}
-              variant={profile.trangThaiLaoDong.toLowerCase().includes('làm việc') ? 'success' : 'default'}
+              label={getLocalizedEmploymentStatus(profile.trangThaiLaoDong)}
+              variant={profile.trangThaiLaoDong.toLowerCase().includes('làm việc') || profile.trangThaiLaoDong.toLowerCase().includes('active') ? 'success' : 'default'}
             />
           ) : null}
         </View>
@@ -207,7 +208,7 @@ export const ProfileScreen: React.FC = () => {
         >
           <Ionicons name="create-outline" size={16} color={colors.primary} />
           <Text style={[typography.captionBold, { color: colors.primary }]}>
-            {t('common.save') !== 'Lưu' ? 'Edit' : 'Sửa'}
+            {t('common.edit')}
           </Text>
         </TouchableOpacity>
       </View>

@@ -28,6 +28,7 @@ import {
   ApartmentOutlined,
 } from '@ant-design/icons';
 import type { KyCongDTO, KyCongChiTietDTO, LoaiCaDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text } = Typography;
 
@@ -63,8 +64,6 @@ interface DayStat {
   status: 'good' | 'late' | 'bad' | 'weekend';
 }
 
-const DOW_NAMES = ['Chủ nhật', 'Thứ hai', 'Thứ ba', 'Thứ tư', 'Thứ năm', 'Thứ sáu', 'Thứ bảy'];
-
 export const ChamCongPage: React.FC<ChamCongPageProps> = ({
   kyCongList,
   selectedKyCong,
@@ -74,6 +73,7 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
   loaiCaList,
   onRefresh,
 }) => {
+  const { lang, t } = useAppLanguage();
   const {
     token: { borderRadiusLG, colorPrimary },
   } = theme.useToken();
@@ -91,29 +91,37 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
 
   const safeChamCongList = Array.isArray(chamCongList) ? chamCongList : [];
   const currentKyCong = kyCongList.find((k) => k.MAKYCONG === selectedKyCong);
-  const month = currentKyCong?.THANG || (new Date().getMonth() + 1);
+  const month = currentKyCong?.THANG || new Date().getMonth() + 1;
   const year = currentKyCong?.NAM || new Date().getFullYear();
   const daysInMonth = new Date(year, month, 0).getDate();
 
-  // Tính ngày bắt đầu tháng rơi vào thứ mấy để căn chỉnh lịch Heatmap chuẩn
-  // 0 = Sun, 1 = Mon, ..., 6 = Sat
-  // Cột bắt đầu từ Thứ 2 (Mon) -> Chủ nhật (Sun)
+  // Tính ngày bắt đầu tháng rơi vào thứ mấy
   const firstDayWeek = new Date(year, month - 1, 1).getDay();
   const startColOffset = firstDayWeek === 0 ? 6 : firstDayWeek - 1;
+
+  // Localized Day of week headers
+  const dayOfWeekHeaders = useMemo(() => {
+    // Mon (5) to Sun (11) Jan 2026
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(2026, 0, 5 + i);
+      const name = new Intl.DateTimeFormat(lang === 'zh-CN' ? 'zh-CN' : lang, { weekday: 'short' }).format(d);
+      return { name, isSat: i === 5, isSun: i === 6 };
+    });
+  }, [lang]);
 
   // Danh sách phòng ban thực tế từ CSDL
   const departmentOptions = useMemo(() => {
     const map = new Map<string, number>();
     safeChamCongList.forEach((r) => {
-      const pb = r.TENPB || 'Chưa phân phòng';
+      const pb = r.TENPB || t('employee.labelDepartment');
       map.set(pb, (map.get(pb) || 0) + 1);
     });
     const list = Array.from(map.entries()).map(([name, count]) => ({
       value: name,
       label: `${name} (${count})`,
     }));
-    return [{ value: 'all', label: `Tất cả phòng ban (${safeChamCongList.length})` }, ...list];
-  }, [safeChamCongList]);
+    return [{ value: 'all', label: `${t('common.all')} (${safeChamCongList.length})` }, ...list];
+  }, [safeChamCongList, t]);
 
   // Đếm số lượng theo trạng thái làm việc thực tế
   const statusCounts = useMemo(() => {
@@ -134,19 +142,16 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
   const filteredList = useMemo(() => {
     let result = safeChamCongList;
 
-    // 1. Lọc theo trạng thái làm việc (Mặc định: Chỉ hiện nhân viên đang làm việc ~971 người)
     if (statusFilter === 'active') {
       result = result.filter((r) => r.IS_ACTIVE !== false && r.DATHOIVIEC !== 1);
     } else if (statusFilter === 'resigned') {
       result = result.filter((r) => r.DATHOIVIEC === 1);
     }
 
-    // 2. Lọc theo phòng ban
     if (selectedDept !== 'all') {
       result = result.filter((r) => r.TENPB === selectedDept);
     }
 
-    // 3. Lọc theo tìm kiếm từ khóa
     if (searchText.trim()) {
       const q = searchText.trim().toLowerCase();
       result = result.filter(
@@ -156,7 +161,6 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
       );
     }
 
-    // 4. Lọc theo chỉ số chuyên cần trong tháng
     if (attendanceFilter === 'leave') {
       result = result.filter((r) => (r.NGAYPHEP ?? 0) > 0);
     } else if (attendanceFilter === 'absent') {
@@ -173,15 +177,15 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
     return result;
   }, [safeChamCongList, statusFilter, selectedDept, searchText, attendanceFilter]);
 
-  // Thống kê từng ngày 100% từ danh sách nhân viên đã lọc theo các tiêu chí
+  // Thống kê từng ngày từ danh sách nhân viên đã lọc
   const monthDays: DayStat[] = useMemo(() => {
     return Array.from({ length: daysInMonth }, (_, i) => {
       const day = i + 1;
       const dateObj = new Date(year, month - 1, day);
-      const dayOfWeek = dateObj.getDay(); // 0 = Chủ nhật, 6 = Thứ 7
+      const dayOfWeek = dateObj.getDay();
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
       const dayKey = `D${day}` as keyof KyCongChiTietDTO;
-      const dayOfWeekName = DOW_NAMES[dayOfWeek];
+      const dayOfWeekName = new Intl.DateTimeFormat(lang === 'zh-CN' ? 'zh-CN' : lang, { weekday: 'long' }).format(dateObj);
 
       let presentCount = 0;
       let leaveCount = 0;
@@ -203,16 +207,16 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
               hoten: row.HOTEN,
               tenpb: row.TENPB,
               symbol: rawVal,
-              reason: 'Nghỉ phép năm',
+              reason: t('status.leavePaid'),
             });
-          } else if (rawVal === 'V' || rawVal === 'KP' || rawVal === 'RO') {
+          } else if (rawVal === 'V' || rawVal === 'RO') {
             absentCount++;
             exceptions.push({
               manv: row.MANV,
               hoten: row.HOTEN,
               tenpb: row.TENPB,
               symbol: rawVal,
-              reason: 'Vắng không phép / việc riêng',
+              reason: t('status.absent'),
             });
           } else if (rawVal === 'CT') {
             tripCount++;
@@ -221,26 +225,20 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
               hoten: row.HOTEN,
               tenpb: row.TENPB,
               symbol: rawVal,
-              reason: 'Đi công tác',
+              reason: t('common.description'),
             });
           }
         });
       }
 
-      let status: 'good' | 'late' | 'bad' | 'weekend' = 'good';
-      if (isWeekend) {
-        status = 'weekend';
-      } else if (absentCount > 5) {
-        status = 'bad';
-      } else if (leaveCount > 10) {
-        status = 'late';
-      }
-
-      const dateStr = `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year}`;
+      let status: DayStat['status'] = 'good';
+      if (isWeekend) status = 'weekend';
+      else if (absentCount > 0) status = 'bad';
+      else if (leaveCount > 0) status = 'late';
 
       return {
         day,
-        dateStr,
+        dateStr: `${day < 10 ? '0' + day : day}/${month < 10 ? '0' + month : month}/${year}`,
         dayOfWeekName,
         isWeekend,
         present: presentCount,
@@ -252,57 +250,42 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
         status,
       };
     });
-  }, [filteredList, daysInMonth, month, year]);
+  }, [daysInMonth, year, month, filteredList, lang, t]);
 
-  const currentDayData = monthDays.find((d) => d.day === selectedDay) || monthDays[0] || {
-    day: 1,
-    dateStr: `01/${month < 10 ? '0' + month : month}/${year}`,
-    dayOfWeekName: 'Thứ hai',
-    isWeekend: false,
-    present: 0,
-    late: 0,
-    absent: 0,
-    leave: 0,
-    trip: 0,
-    exceptions: [],
-    status: 'good',
-  };
+  const currentDayData = useMemo(() => {
+    return (
+      monthDays.find((d) => d.day === selectedDay) ||
+      monthDays[0] || {
+        day: 1,
+        dateStr: `01/${month}/${year}`,
+        dayOfWeekName: '',
+        isWeekend: false,
+        present: 0,
+        late: 0,
+        absent: 0,
+        leave: 0,
+        trip: 0,
+        exceptions: [],
+        status: 'good',
+      }
+    );
+  }, [monthDays, selectedDay, month, year]);
 
   const chamCongColumns: ColumnsType<KyCongChiTietDTO> = [
     {
-      title: 'Mã NV',
+      title: t('employee.colEmpCode'),
       dataIndex: 'MANV',
       key: 'MANV',
-      fixed: 'left',
       width: 75,
-      onCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
-      onHeaderCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
+      fixed: 'left',
       render: (id: number) => <Tag color="blue">#{id}</Tag>,
     },
     {
-      title: 'Họ và tên',
+      title: t('employee.colFullName'),
       dataIndex: 'HOTEN',
       key: 'HOTEN',
-      fixed: 'left',
       width: 170,
-      onCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
-      onHeaderCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
+      fixed: 'left',
       render: (name: string, r) => (
         <Space direction="vertical" size={0}>
           <Text strong>{name}</Text>
@@ -315,79 +298,39 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
       ),
     },
     {
-      title: 'Trạng thái',
+      title: t('employee.colStatus'),
       key: 'status',
       fixed: 'left',
       width: 105,
-      onCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
-      onHeaderCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
       render: (_, r) => {
-        if (r.DATHOIVIEC === 1) return <Tag color="default">Đã thôi việc</Tag>;
-        return <Tag color="green">Đang làm việc</Tag>;
+        if (r.DATHOIVIEC === 1) return <Tag color="default">{t('status.resigned')}</Tag>;
+        return <Tag color="green">{t('status.active')}</Tag>;
       },
     },
     {
-      title: 'Tổng công',
+      title: t('attendance.colTotalWorkDays'),
       dataIndex: 'TONGNGAYCONG',
       key: 'TONGNGAYCONG',
-      width: 95,
+      width: 100,
       fixed: 'left',
-      onCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
-      onHeaderCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
       render: (v: number) => (
         <Tag color="geekblue" style={{ fontWeight: 'bold' }}>
-          {v ?? 0} công
+          {v ?? 0}
         </Tag>
       ),
     },
     {
-      title: 'Phép (P)',
+      title: t('attendance.colPaidLeave'),
       dataIndex: 'NGAYPHEP',
       key: 'NGAYPHEP',
       width: 80,
-      onCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
-      onHeaderCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
       render: (v: number) => (v && v > 0 ? <Tag color="gold">{v} P</Tag> : <Text type="secondary">0</Text>),
     },
     {
-      title: 'Vắng (V)',
+      title: t('status.absent'),
       dataIndex: 'NGHIKHONGPHEP',
       key: 'NGHIKHONGPHEP',
       width: 80,
-      onCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
-      onHeaderCell: () => ({
-        onMouseEnter: () => {
-          if (hoveredColKey !== null) setHoveredColKey(null);
-        },
-      }),
       render: (v: number) => (v && v > 0 ? <Tag color="red">{v} V</Tag> : <Text type="secondary">0</Text>),
     },
     ...Array.from({ length: 31 }, (_, i) => {
@@ -414,18 +357,10 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
         key: dayKey,
         width: 44,
         align: 'center' as const,
-        className: isHovered ? 'matrix-col-hovered' : undefined,
         onCell: () => ({
           onMouseEnter: () => {
             if (hoveredColKey !== dayKey) setHoveredColKey(dayKey);
           },
-          className: isHovered ? 'matrix-col-hovered' : undefined,
-        }),
-        onHeaderCell: () => ({
-          onMouseEnter: () => {
-            if (hoveredColKey !== dayKey) setHoveredColKey(dayKey);
-          },
-          className: isHovered ? 'matrix-header-col-hovered' : undefined,
         }),
         render: (val: string) => {
           if (!val) return <span style={{ color: '#d9d9d9' }}>-</span>;
@@ -446,30 +381,30 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
       title={
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <CalendarOutlined style={{ color: '#1677ff', fontSize: 20 }} />
-          <span>Theo dõi Chuyên cần & Bảng Chấm công Nhân sự</span>
+          <span>{t('attendance.pageTitle')}</span>
         </div>
       }
       extra={
         <Space wrap>
-          <Text strong>Kỳ công:</Text>
+          <Text strong>{t('common.period')}:</Text>
           <Select
             value={selectedKyCong}
             onChange={onSelectKyCong}
             style={{ width: 140 }}
             options={kyCongList.map((kc) => ({
               value: kc.MAKYCONG,
-              label: `Kỳ ${kc.THANG}/${kc.NAM}`,
+              label: `${kc.THANG}/${kc.NAM}`,
             }))}
           />
           <Button icon={<ReloadOutlined />} onClick={onRefresh} loading={chamCongLoading}>
-            Làm mới
+            {t('common.refresh')}
           </Button>
         </Space>
       }
       bordered={false}
       style={{ borderRadius: borderRadiusLG }}
     >
-      {/* THANH BỘ LỌC ĐẦY ĐỦ TIÊU CHÍ (PHÒNG BAN, TRẠNG THÁI LÀM VIỆC, TÌM KIẾM, CHUYÊN CẦN) */}
+      {/* THANH BỘ LỌC */}
       <div
         style={{
           display: 'flex',
@@ -485,10 +420,10 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
         }}
       >
         <Space wrap size="middle">
-          {/* Lọc trạng thái nhân sự */}
+          {/* Lọc trạng thái */}
           <Space>
             <UserOutlined style={{ color: colorPrimary }} />
-            <Text strong>Trạng thái:</Text>
+            <Text strong>{t('common.status')}:</Text>
             <Radio.Group
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -496,35 +431,35 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
               size="small"
             >
               <Radio.Button value="all">
-                Tất cả ({statusCounts.total})
+                {t('common.all')} ({statusCounts.total})
               </Radio.Button>
               <Radio.Button value="active">
-                Đang làm việc ({statusCounts.active})
+                {t('status.active')} ({statusCounts.active})
               </Radio.Button>
               {statusCounts.resigned > 0 && (
                 <Radio.Button value="resigned">
-                  Đã thôi việc ({statusCounts.resigned})
+                  {t('status.resigned')} ({statusCounts.resigned})
                 </Radio.Button>
               )}
             </Radio.Group>
           </Space>
 
-          {/* Lọc phòng ban thực tế */}
+          {/* Lọc phòng ban */}
           <Space>
             <ApartmentOutlined style={{ color: colorPrimary }} />
-            <Text strong>Phòng ban:</Text>
+            <Text strong>{t('employee.labelDepartment')}:</Text>
             <Select
               value={selectedDept}
               onChange={setSelectedDept}
-              style={{ width: 230 }}
+              style={{ minWidth: 180 }}
               size="small"
               options={departmentOptions}
             />
           </Space>
 
-          {/* Tìm kiếm họ tên, mã NV */}
+          {/* Tìm kiếm */}
           <Input
-            placeholder="Tìm theo tên NV, mã NV..."
+            placeholder={t('common.searchPlaceholder')}
             prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
@@ -533,19 +468,19 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
             style={{ width: 200 }}
           />
 
-          {/* Lọc tình trạng chấm công */}
+          {/* Lọc tình trạng chuyên cần */}
           <Space>
             <FilterOutlined style={{ color: '#64748b' }} />
             <Select
               value={attendanceFilter}
               onChange={setAttendanceFilter}
               size="small"
-              style={{ width: 170 }}
+              style={{ minWidth: 160 }}
               options={[
-                { value: 'all', label: 'Tất cả chấm công' },
-                { value: 'leave', label: 'Có nghỉ phép (P)' },
-                { value: 'absent', label: 'Có vắng mặt (V)' },
-                { value: 'full', label: 'Đi làm đủ (≥24 công)' },
+                { value: 'all', label: t('common.all') },
+                { value: 'leave', label: t('attendance.colPaidLeave') },
+                { value: 'absent', label: t('status.absent') },
+                { value: 'full', label: t('status.fullDay') },
               ]}
             />
           </Space>
@@ -560,7 +495,7 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
             key: 'calendar',
             label: (
               <span>
-                <CalendarOutlined /> Lịch Chuyên cần Heatmap (Tháng {month < 10 ? '0' + month : month}/{year})
+                <CalendarOutlined /> {t('attendance.pageTitle')} ({month < 10 ? '0' + month : month}/{year})
               </span>
             ),
             children: (
@@ -581,18 +516,20 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                           fontSize: 13,
                         }}
                       >
-                        <div>Thứ 2 (Mon)</div>
-                        <div>Thứ 3 (Tue)</div>
-                        <div>Thứ 4 (Wed)</div>
-                        <div>Thứ 5 (Thu)</div>
-                        <div>Thứ 6 (Fri)</div>
-                        <div style={{ color: '#fa8c16' }}>Thứ 7 (Sat)</div>
-                        <div style={{ color: '#ef4444' }}>Chủ nhật (Sun)</div>
+                        {dayOfWeekHeaders.map((dh, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              color: dh.isSun ? '#ef4444' : dh.isSat ? '#fa8c16' : undefined,
+                            }}
+                          >
+                            {dh.name}
+                          </div>
+                        ))}
                       </div>
 
-                      {/* Các ô ngày trong tháng (CÓ CĂN CHỈNH START OFFSET THEO THỨ THỰC TẾ) */}
+                      {/* Các ô ngày trong tháng */}
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 8 }}>
-                        {/* Các ô trống bù đầu tháng để ngày 1 rơi đúng thứ */}
                         {Array.from({ length: startColOffset }).map((_, idx) => (
                           <div
                             key={`empty-${idx}`}
@@ -607,7 +544,6 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                           />
                         ))}
 
-                        {/* Danh sách ngày 1..daysInMonth */}
                         {monthDays.map((item) => {
                           const isSelected = item.day === selectedDay;
                           let icon = '🟢';
@@ -652,19 +588,19 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
 
                               {item.isWeekend ? (
                                 <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>
-                                  Nghỉ
+                                  -
                                 </div>
                               ) : (
                                 <div style={{ fontSize: 11, color: '#0f172a', marginTop: 2, fontWeight: 500 }}>
-                                  {item.present} có mặt
+                                  {item.present}
                                   {item.leave > 0 && (
                                     <div style={{ color: '#d97706', fontSize: 10 }}>
-                                      {item.leave} phép
+                                      {item.leave} P
                                     </div>
                                   )}
                                   {item.absent > 0 && (
                                     <div style={{ color: '#dc2626', fontSize: 10 }}>
-                                      {item.absent} vắng
+                                      {item.absent} V
                                     </div>
                                   )}
                                 </div>
@@ -676,16 +612,16 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                     </div>
                   </Col>
 
-                  {/* CHI TIẾT NGÀY ĐANG CHỌN (MINH BẠCH 100% AI NGHỈ / AI VẮNG) */}
+                  {/* CHI TIẾT NGÀY ĐANG CHỌN */}
                   <Col xs={24} lg={8}>
                     <Card
                       title={
                         <div>
                           <Text strong style={{ fontSize: 16 }}>
-                            {currentDayData.dayOfWeekName}, Ngày {currentDayData.dateStr}
+                            {currentDayData.dayOfWeekName}, {currentDayData.dateStr}
                           </Text>
                           <div style={{ fontSize: 12, color: '#64748b' }}>
-                            Đang theo dõi: {filteredList.length} nhân sự
+                            {t('common.totalRecords', { total: filteredList.length })}
                           </div>
                         </div>
                       }
@@ -696,7 +632,7 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                       <Space direction="vertical" style={{ width: '100%' }} size={12}>
                         <div>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                            <Text style={{ fontSize: 13 }}>Tỷ lệ đi làm:</Text>
+                            <Text style={{ fontSize: 13 }}>{t('dashboard.statAttendanceRate')}:</Text>
                             <Text strong style={{ color: '#1677ff' }}>
                               {filteredList.length > 0 && !currentDayData.isWeekend
                                 ? Math.round((currentDayData.present / filteredList.length) * 100)
@@ -729,7 +665,7 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                         >
                           <Space>
                             <CheckCircleOutlined style={{ color: '#16a34a' }} />
-                            <Text>Có mặt đi làm</Text>
+                            <Text>{t('status.active')}</Text>
                           </Space>
                           <Text strong style={{ color: '#16a34a', fontSize: 15 }}>
                             {currentDayData.present}
@@ -748,7 +684,7 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                         >
                           <Space>
                             <CalendarOutlined style={{ color: '#d97706' }} />
-                            <Text>Nghỉ phép năm (P)</Text>
+                            <Text>{t('attendance.colPaidLeave')}</Text>
                           </Space>
                           <Text strong style={{ color: '#d97706', fontSize: 15 }}>
                             {currentDayData.leave}
@@ -767,39 +703,18 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                         >
                           <Space>
                             <CloseCircleOutlined style={{ color: '#dc2626' }} />
-                            <Text>Vắng mặt (V)</Text>
+                            <Text>{t('status.absent')}</Text>
                           </Space>
                           <Text strong style={{ color: '#dc2626', fontSize: 15 }}>
                             {currentDayData.absent}
                           </Text>
                         </div>
 
-                        {currentDayData.trip > 0 && (
-                          <div
-                            style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              padding: '8px 12px',
-                              background: '#eff6ff',
-                              borderRadius: 6,
-                              border: '1px solid #bfdbfe',
-                            }}
-                          >
-                            <Space>
-                              <CheckCircleOutlined style={{ color: '#2563eb' }} />
-                              <Text>Công tác (CT)</Text>
-                            </Space>
-                            <Text strong style={{ color: '#2563eb', fontSize: 15 }}>
-                              {currentDayData.trip}
-                            </Text>
-                          </div>
-                        )}
-
-                        {/* DANH SÁCH CHI TIẾT NHÂN VIÊN CÓ NGHỈ PHÉP / VẮNG / CÔNG TÁC TRONG NGÀY */}
+                        {/* DANH SÁCH CHI TIẾT NHÂN VIÊN */}
                         {currentDayData.exceptions.length > 0 ? (
                           <div style={{ marginTop: 6 }}>
                             <Text strong style={{ fontSize: 13 }}>
-                              Danh sách nhân sự nghỉ / công tác ({currentDayData.exceptions.length}):
+                              {t('common.info')} ({currentDayData.exceptions.length}):
                             </Text>
                             <div
                               style={{
@@ -849,9 +764,7 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                           </div>
                         ) : (
                           <div style={{ textAlign: 'center', padding: '10px 0', color: '#94a3b8', fontSize: 12 }}>
-                            {currentDayData.isWeekend
-                              ? 'Ngày nghỉ cuối tuần hàng tuần'
-                              : '100% nhân viên có mặt đi làm đầy đủ'}
+                            {currentDayData.isWeekend ? '-' : t('status.active')}
                           </div>
                         )}
 
@@ -861,7 +774,7 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                           icon={<TableOutlined />}
                           onClick={() => setActiveView('bangcong')}
                         >
-                          Xem chi tiết toàn bộ bảng chấm công
+                          {t('attendance.tabTimesheets')}
                         </Button>
                       </Space>
                     </Card>
@@ -874,7 +787,7 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
             key: 'bangcong',
             label: (
               <span>
-                <TableOutlined /> Bảng chấm công chi tiết ({filteredList.length} nhân sự)
+                <TableOutlined /> {t('attendance.tabTimesheets')} ({filteredList.length})
               </span>
             ),
             children: (
@@ -883,41 +796,34 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                   className="cham-cong-matrix-table"
                   columns={chamCongColumns}
                   dataSource={filteredList}
-                rowKey="MANV"
-                loading={chamCongLoading}
-                scroll={{ x: 2200 }}
-                pagination={{
-                  pageSize: 15,
-                  showSizeChanger: true,
-                  pageSizeOptions: ['15', '30', '50', '100'],
-                  showTotal: (total) =>
-                    `Tổng cộng ${total} nhân sự (Đang lọc: ${
-                      statusFilter === 'active'
-                        ? 'Đang làm việc'
-                        : statusFilter === 'resigned'
-                        ? 'Đã thôi việc'
-                        : 'Tất cả'
-                    })`,
-                }}
-                size="small"
-              />
-            </div>
-          ),
+                  rowKey="MANV"
+                  loading={chamCongLoading}
+                  scroll={{ x: 'max-content' }}
+                  pagination={{
+                    pageSize: 15,
+                    showSizeChanger: true,
+                    pageSizeOptions: ['15', '30', '50', '100'],
+                    showTotal: (total) => t('common.totalRecords', { total }),
+                  }}
+                  size="small"
+                />
+              </div>
+            ),
           },
           {
             key: 'loaica',
-            label: '⚙️ Danh mục Loại ca & Ca làm việc',
+            label: `⚙️ ${t('attendance.tabShifts')}`,
             children: (
               <Row gutter={[16, 16]}>
                 <Col xs={24} md={12}>
-                  <Card title="Danh sách Loại ca làm việc" size="small">
+                  <Card title={t('attendance.tabShifts')} size="small">
                     <Table
                       scroll={{ x: 'max-content' }}
                       columns={[
-                        { title: 'Mã', dataIndex: 'IDLOAICA', key: 'IDLOAICA', width: 70 },
-                        { title: 'Tên ca làm', dataIndex: 'TENLOAICA', key: 'TENLOAICA' },
+                        { title: t('employee.colEmpCode'), dataIndex: 'IDLOAICA', key: 'IDLOAICA', width: 70 },
+                        { title: t('attendance.shiftName'), dataIndex: 'TENLOAICA', key: 'TENLOAICA' },
                         {
-                          title: 'Hệ số ca',
+                          title: t('attendance.shiftCoefficient'),
                           dataIndex: 'HESOLOAICA',
                           key: 'HESOLOAICA',
                           render: (h: number) => <Tag color="blue">{h ?? 1.0}x</Tag>,
@@ -930,15 +836,15 @@ export const ChamCongPage: React.FC<ChamCongPageProps> = ({
                   </Card>
                 </Col>
                 <Col xs={24} md={12}>
-                  <Card title="Ký hiệu quy ước chấm công" size="small">
+                  <Card title={t('attendance.tabWorkTypes')} size="small">
                     <ul style={{ lineHeight: '28px', margin: 0, paddingLeft: 20 }}>
-                      <li><Tag color="blue">X</Tag> : Đi làm cả ngày (1.0 công chuẩn)</li>
-                      <li><Tag color="cyan">X/2</Tag> : Đi làm nửa ngày (0.5 công)</li>
-                      <li><Tag color="gold">P</Tag> : Nghỉ phép năm có hưởng lương</li>
-                      <li><Tag color="red">V / Ro</Tag> : Nghỉ việc riêng / vắng không phép</li>
-                      <li><Tag color="cyan">CT</Tag> : Đi công tác bên ngoài</li>
-                      <li><Tag color="purple">CD</Tag> : Chế độ (thai sản / ốm đau)</li>
-                      <li><Tag color="red">CN</Tag> : Ngày nghỉ Chủ nhật hàng tuần</li>
+                      <li><Tag color="blue">X</Tag> : {t('status.fullDay')}</li>
+                      <li><Tag color="cyan">X/2</Tag> : {t('status.halfDay')}</li>
+                      <li><Tag color="gold">P</Tag> : {t('status.leavePaid')}</li>
+                      <li><Tag color="red">V / RO</Tag> : {t('status.leaveUnpaid')}</li>
+                      <li><Tag color="cyan">CT</Tag> : {t('common.description')}</li>
+                      <li><Tag color="purple">CD</Tag> : {t('common.info')}</li>
+                      <li><Tag color="red">CN</Tag> : {t('status.sunday')}</li>
                     </ul>
                   </Card>
                 </Col>

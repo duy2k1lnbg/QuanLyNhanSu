@@ -50,8 +50,8 @@ export const MyOvertimeScreen: React.FC = () => {
   const [cancellingId, setCancellingId] = useState<number | null>(null);
 
   const shiftOptions = [
-    { label: 'Ca ngày (Hệ số 1.0x)', value: 'Ca ngày', idCa: 1 },
-    { label: 'Ca đêm (Hệ số 1.3x)', value: 'Ca đêm', idCa: 2 },
+    { label: t('requests.dayShift'), value: 'Ca ngày', idCa: 1 },
+    { label: t('requests.nightShift'), value: 'Ca đêm', idCa: 2 },
   ];
 
   const fetchHistory = useCallback(async (isRefresh = false) => {
@@ -159,13 +159,13 @@ export const MyOvertimeScreen: React.FC = () => {
   const getStatusLabel = (status: string) => {
     switch (status?.toUpperCase()) {
       case 'APPROVED':
-        return 'Đã duyệt';
+        return t('requests.statusApproved');
       case 'REJECTED':
-        return 'Từ chối';
+        return t('requests.statusRejected');
       case 'CANCELLED':
-        return 'Đã hủy';
+        return t('common.cancel');
       default:
-        return 'Chờ duyệt';
+        return t('requests.statusPending');
     }
   };
 
@@ -195,7 +195,7 @@ export const MyOvertimeScreen: React.FC = () => {
           </Text>
 
           <Text style={[typography.captionBold, { color: colors.text, marginBottom: spacing.xs }]}>
-            Ca làm việc tăng ca
+            {t('requests.shiftType')}
           </Text>
           <View style={styles.chipRow}>
             {shiftOptions.map((opt) => {

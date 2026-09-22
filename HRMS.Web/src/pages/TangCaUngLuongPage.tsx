@@ -25,6 +25,7 @@ import {
 import dayjs from 'dayjs';
 import api from '../services/api';
 import type { UngLuongDTO, TangCaDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text } = Typography;
 
@@ -49,6 +50,7 @@ export function TangCaUngLuongPage({
   canAdd,
   canDelete,
 }: TangCaUngLuongPageProps) {
+  const { t } = useAppLanguage();
   const [ulModalVisible, setUlModalVisible] = useState(false);
   const [tcModalVisible, setTcModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -71,13 +73,13 @@ export function TangCaUngLuongPage({
         SoTien: values.SoTien,
         GhiChu: values.GhiChu,
       });
-      notification.success({ message: 'Thành công', description: 'Đã lập phiếu tạm ứng lương.' });
+      notification.success({ message: t('common.success'), description: t('common.saveSuccess') });
       setUlModalVisible(false);
       formUl.resetFields();
       onRefresh();
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi lưu tạm ứng.' });
+      notification.error({ message: t('common.error'), description: errorObj.response?.data?.Message || t('common.saveError') });
     } finally {
       setSaving(false);
     }
@@ -86,10 +88,10 @@ export function TangCaUngLuongPage({
   const handleDeleteUl = async (id: number) => {
     try {
       await api.delete(`/ungluong/${id}`);
-      notification.success({ message: 'Thành công', description: 'Đã hủy phiếu tạm ứng.' });
+      notification.success({ message: t('common.success'), description: t('common.deleteSuccess') });
       onRefresh();
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể xóa tạm ứng.' });
+      notification.error({ message: t('common.error'), description: t('common.deleteError') });
     }
   };
 
@@ -101,18 +103,18 @@ export function TangCaUngLuongPage({
         Nam: values.Nam || dayjs().year(),
         Thang: values.Thang || dayjs().month() + 1,
         Ngay: values.Ngay ? dayjs(values.Ngay).date() : dayjs().date(),
-        MaNv: values.MaNv,
         SoGio: values.SoGio,
+        MaNv: values.MaNv,
         IdLoaiCa: values.IdLoaiCa,
         GhiChu: values.GhiChu,
       });
-      notification.success({ message: 'Thành công', description: 'Đã ghi nhận tăng ca thành công.' });
+      notification.success({ message: t('common.success'), description: t('common.saveSuccess') });
       setTcModalVisible(false);
       formTc.resetFields();
       onRefresh();
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      notification.error({ message: 'Lỗi', description: errorObj.response?.data?.Message || 'Lỗi lưu tăng ca.' });
+      notification.error({ message: t('common.error'), description: errorObj.response?.data?.Message || t('common.saveError') });
     } finally {
       setSaving(false);
     }
@@ -121,44 +123,45 @@ export function TangCaUngLuongPage({
   const handleDeleteTc = async (id: number) => {
     try {
       await api.delete(`/tangca/${id}`);
-      notification.success({ message: 'Thành công', description: 'Đã hủy bản ghi tăng ca.' });
+      notification.success({ message: t('common.success'), description: t('common.deleteSuccess') });
       onRefresh();
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể xóa tăng ca.' });
+      notification.error({ message: t('common.error'), description: t('common.deleteError') });
     }
   };
 
   return (
     <>
       <Card
-        title="💸 Quản lý Tăng ca & Tạm ứng Lương"
+        title={`💸 ${t('overtime.pageTitle')}`}
         extra={
           <Space>
-            {(canAdd ? canAdd('TANGCA', 'F_CC_TANGCA') : hasRight('TANGCA', 'F_CC_TANGCA')) && (
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  formTc.resetFields();
-                  setTcModalVisible(true);
-                }}
-              >
-                Ghi nhận Tăng ca
-              </Button>
-            )}
-            {(canAdd ? canAdd('UNGLUONG', 'F_CC_UNGLUONG') : hasRight('UNGLUONG', 'F_CC_UNGLUONG')) && (
-              <Button
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  formUl.resetFields();
-                  setUlModalVisible(true);
-                }}
-              >
-                Lập Phiếu Ứng lương
-              </Button>
+            {(canAdd ? canAdd('UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA') : hasRight('UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA')) && (
+              <>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    formUl.resetFields();
+                    setUlModalVisible(true);
+                  }}
+                >
+                  {t('overtime.btnAddAdvance')}
+                </Button>
+                <Button
+                  type="default"
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    formTc.resetFields();
+                    setTcModalVisible(true);
+                  }}
+                >
+                  {t('overtime.btnAddOvertime')}
+                </Button>
+              </>
             )}
             <Button icon={<ReloadOutlined />} onClick={onRefresh}>
-              Làm mới
+              {t('common.refresh')}
             </Button>
           </Space>
         }
@@ -166,87 +169,47 @@ export function TangCaUngLuongPage({
         style={{ borderRadius: borderRadiusLG }}
       >
         <Tabs
-          defaultActiveKey="tangca"
+          defaultActiveKey="ungluong"
           items={[
             {
-              key: 'tangca',
-              label: `Hồ sơ Tăng ca (${tangCaList.length})`,
+              key: 'ungluong',
+              label: `${t('overtime.tabAdvance')} (${ungLuongList.length})`,
               children: (
                 <Table
                   scroll={{ x: 'max-content' }}
                   columns={[
-                    { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70, render: (t) => <Tag color="blue">#{t}</Tag> },
-                    { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="cyan">#{t}</Tag> },
-                    { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                    { title: 'Phòng ban', dataIndex: 'TENPB', key: 'TENPB' },
-                    { title: 'Loại ca', dataIndex: 'TENLOAICA', key: 'TENLOAICA', render: (t) => <Tag color="geekblue">{t}</Tag> },
+                    { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70 },
+                    { title: t('employee.colEmpCode'), dataIndex: 'MANV', key: 'MANV', width: 80, render: (tVal) => <Tag color="blue">#{tVal}</Tag> },
+                    { title: t('overtime.colEmployee'), dataIndex: 'HOTEN', key: 'HOTEN', render: (tVal) => <Text strong>{tVal}</Text> },
                     {
-                      title: 'Số giờ',
-                      dataIndex: 'SOGIO',
-                      key: 'SOGIO',
-                      render: (t) => <Text strong style={{ color: '#1677ff' }}>{t} giờ</Text>,
-                    },
-                    {
-                      title: 'Thành tiền',
-                      dataIndex: 'SOTIEN',
-                      key: 'SOTIEN',
-                      render: (t) => <Text style={{ color: '#52c41a', fontWeight: 600 }}>{Number(t ?? 0).toLocaleString('vi-VN')} đ</Text>,
-                    },
-                    {
-                      title: 'Thời gian',
-                      key: 'time',
+                      title: t('overtime.colDate'),
+                      key: 'date',
                       render: (_, r) => `${r.NGAY}/${r.THANG}/${r.NAM}`,
                     },
                     {
-                      title: 'Thao tác',
-                      key: 'action',
-                      width: 90,
-                      render: (_, r) => (
-                        (canDelete ? canDelete('TANGCA', 'F_CC_TANGCA') : hasRight('TANGCA', 'F_CC_TANGCA')) && (
-                          <Popconfirm title="Hủy bản ghi tăng ca này?" onConfirm={() => handleDeleteTc(r.ID)}>
-                            <Button type="text" danger icon={<DeleteOutlined />} size="small" />
-                          </Popconfirm>
-                        )
+                      title: t('overtime.colAmount'),
+                      dataIndex: 'SOTIEN',
+                      key: 'SOTIEN',
+                      render: (st: number) => (
+                        <Text strong style={{ color: '#fa8c16' }}>
+                          {st?.toLocaleString('vi-VN')} đ
+                        </Text>
                       ),
                     },
-                  ]}
-                  dataSource={tangCaList}
-                  rowKey="ID"
-                  loading={tcUlLoading}
-                  pagination={{ pageSize: 8 }}
-                />
-              ),
-            },
-            {
-              key: 'ungluong',
-              label: `Hồ sơ Tạm ứng Lương (${ungLuongList.length})`,
-              children: (
-                <Table
-                  scroll={{ x: 'max-content' }}
-                  columns={[
-                    { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70, render: (t) => <Tag color="blue">#{t}</Tag> },
-                    { title: 'Mã NV', dataIndex: 'MANV', key: 'MANV', width: 80, render: (t) => <Tag color="cyan">#{t}</Tag> },
-                    { title: 'Họ tên', dataIndex: 'HOTEN', key: 'HOTEN', render: (t) => <Text strong>{t}</Text> },
-                    { title: 'Phòng ban', dataIndex: 'TENPB', key: 'TENPB' },
+                    { title: t('common.note'), dataIndex: 'GHICHU', key: 'GHICHU' },
                     {
-                      title: 'Số tiền ứng',
-                      dataIndex: 'SOTIEN',
-                      key: 'SOTIEN',
-                      render: (t) => <Text strong style={{ color: '#fa8c16' }}>{Number(t ?? 0).toLocaleString('vi-VN')} đ</Text>,
-                    },
-                    {
-                      title: 'Kỳ ứng',
-                      key: 'ky',
-                      render: (_, r) => `${r.NGAY}/${r.THANG}/${r.NAM}`,
-                    },
-                    { title: 'Ghi chú', dataIndex: 'GHICHU', key: 'GHICHU' },
-                    {
-                      title: 'Thao tác',
+                      title: t('common.actions'),
                       key: 'action',
                       width: 90,
                       render: (_, r) => (
                         (canDelete ? canDelete('UNGLUONG', 'F_CC_UNGLUONG') : hasRight('UNGLUONG', 'F_CC_UNGLUONG')) && (
-                          <Popconfirm title="Hủy phiếu tạm ứng này?" onConfirm={() => handleDeleteUl(r.ID)}>
+                          <Popconfirm
+                            title={t('common.confirmDeleteTitle')}
+                            onConfirm={() => handleDeleteUl(r.ID)}
+                            okText={t('common.confirm')}
+                            cancelText={t('common.cancel')}
+                            okButtonProps={{ danger: true }}
+                          >
                             <Button type="text" danger icon={<DeleteOutlined />} size="small" />
                           </Popconfirm>
                         )
@@ -256,7 +219,67 @@ export function TangCaUngLuongPage({
                   dataSource={ungLuongList}
                   rowKey="ID"
                   loading={tcUlLoading}
-                  pagination={{ pageSize: 8 }}
+                  pagination={{ pageSize: 10, showTotal: (tot) => t('common.totalRecords', { total: tot }) }}
+                />
+              ),
+            },
+            {
+              key: 'tangca',
+              label: `${t('overtime.tabOvertime')} (${tangCaList.length})`,
+              children: (
+                <Table
+                  scroll={{ x: 'max-content' }}
+                  columns={[
+                    { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70 },
+                    { title: t('employee.colEmpCode'), dataIndex: 'MANV', key: 'MANV', width: 80, render: (tVal) => <Tag color="blue">#{tVal}</Tag> },
+                    { title: t('overtime.colEmployee'), dataIndex: 'HOTEN', key: 'HOTEN', render: (tVal) => <Text strong>{tVal}</Text> },
+                    {
+                      title: t('overtime.colDate'),
+                      key: 'date',
+                      render: (_, r) => `${r.NGAY}/${r.THANG}/${r.NAM}`,
+                    },
+                    {
+                      title: t('overtime.colHours'),
+                      dataIndex: 'SOGIO',
+                      key: 'SOGIO',
+                      render: (g: number) => <Tag color="green">{g}h</Tag>,
+                    },
+                    {
+                      title: t('attendance.tabShifts'),
+                      dataIndex: 'TENLOAICA',
+                      key: 'TENLOAICA',
+                      render: (tVal) => <Tag color="geekblue">{tVal || '-'}</Tag>,
+                    },
+                    {
+                      title: t('overtime.colCoefficient'),
+                      dataIndex: 'HESO',
+                      key: 'HESO',
+                      render: (h: number) => <Tag color="orange">{h ?? 1.5}x</Tag>,
+                    },
+                    { title: t('common.note'), dataIndex: 'GHICHU', key: 'GHICHU' },
+                    {
+                      title: t('common.actions'),
+                      key: 'action',
+                      width: 90,
+                      render: (_, r) => (
+                        (canDelete ? canDelete('TANGCA', 'F_CC_TANGCA') : hasRight('TANGCA', 'F_CC_TANGCA')) && (
+                          <Popconfirm
+                            title={t('common.confirmDeleteTitle')}
+                            onConfirm={() => handleDeleteTc(r.ID)}
+                            okText={t('common.confirm')}
+                            cancelText={t('common.cancel')}
+                            okButtonProps={{ danger: true }}
+                          >
+                            <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+                          </Popconfirm>
+                        )
+                      ),
+                    },
+                  ]}
+                  dataSource={tangCaList}
+                  rowKey="ID"
+                  loading={tcUlLoading}
+                  pagination={{ pageSize: 10, showTotal: (tot) => t('common.totalRecords', { total: tot }) }}
                 />
               ),
             },
@@ -264,69 +287,70 @@ export function TangCaUngLuongPage({
         />
       </Card>
 
-      {/* Modal Tăng ca */}
-      <Modal
-        title="Ghi nhận Tăng ca (Overtime)"
-        open={tcModalVisible}
-        onCancel={() => setTcModalVisible(false)}
-        onOk={handleSaveTc}
-        confirmLoading={saving}
-        destroyOnClose
-      >
-        <Form form={formTc} layout="vertical">
-          <Form.Item name="MaNv" label="Mã Nhân viên" rules={[{ required: true, message: 'Nhập mã NV' }]}>
-            <InputNumber style={{ width: '100%' }} placeholder="Mã NV" />
-          </Form.Item>
-          <Form.Item name="IdLoaiCa" label="Loại ca làm việc" initialValue={1} rules={[{ required: true }]}>
-            <Select
-              options={[
-                { value: 1, label: 'Ca ngày thường (Hệ số 1.5x)' },
-                { value: 2, label: 'Ca ban đêm (Hệ số 2.0x)' },
-                { value: 3, label: 'Ca ngày nghỉ / Chủ nhật (Hệ số 2.0x)' },
-                { value: 4, label: 'Ca ngày lễ, tết (Hệ số 3.0x)' },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item name="SoGio" label="Số giờ làm thêm" initialValue={2} rules={[{ required: true }]}>
-            <InputNumber min={0.5} max={12} step={0.5} style={{ width: '100%' }} />
-          </Form.Item>
-          <Form.Item name="Ngay" label="Ngày tăng ca" initialValue={dayjs()}>
-            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
-          </Form.Item>
-          <Form.Item name="GhiChu" label="Ghi chú">
-            <Input placeholder="Chi tiết dự án / công việc làm thêm..." />
-          </Form.Item>
-        </Form>
-      </Modal>
-
       {/* Modal Tạm ứng */}
       <Modal
-        title="Lập Phiếu Tạm ứng Lương"
+        title={t('overtime.btnAddAdvance')}
         open={ulModalVisible}
         onCancel={() => setUlModalVisible(false)}
         onOk={handleSaveUl}
         confirmLoading={saving}
         destroyOnClose
+        okText={t('common.save')}
+        cancelText={t('common.cancel')}
+        width="min(500px, 95vw)"
       >
         <Form form={formUl} layout="vertical">
-          <Form.Item name="MaNv" label="Mã Nhân viên" rules={[{ required: true, message: 'Nhập mã NV' }]}>
-            <InputNumber style={{ width: '100%' }} placeholder="Mã NV" />
+          <Form.Item name="MaNv" label={t('employee.colEmpCode')} rules={[{ required: true, message: t('employee.colEmpCode') }]}>
+            <InputNumber style={{ width: '100%' }} placeholder="10" />
           </Form.Item>
-          <Form.Item name="SoTien" label="Số tiền tạm ứng (VNĐ)" rules={[{ required: true, message: 'Nhập số tiền ứng' }]}>
-            <InputNumber<number>
+          <Form.Item name="Ngay" label={t('overtime.colDate')} initialValue={dayjs()}>
+            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+          </Form.Item>
+          <Form.Item name="SoTien" label={t('overtime.colAmount')} rules={[{ required: true, message: t('overtime.colAmount') }]}>
+            <InputNumber
               style={{ width: '100%' }}
-              min={100000}
-              step={500000}
-              formatter={(v) => `${v}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-              parser={(v) => Number(v?.replace(/\$\s?|(,*)/g, '') || 0)}
-              placeholder="Ví dụ: 2,000,000"
+              formatter={(val) => `${val}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+              placeholder="1,000,000"
             />
           </Form.Item>
-          <Form.Item name="Ngay" label="Ngày ứng" initialValue={dayjs()}>
-            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+          <Form.Item name="GhiChu" label={t('common.note')}>
+            <Input placeholder={t('common.note')} />
           </Form.Item>
-          <Form.Item name="GhiChu" label="Lý do tạm ứng">
-            <Input placeholder="Ứng tiền khám bệnh, việc gia đình..." />
+        </Form>
+      </Modal>
+
+      {/* Modal Tăng ca */}
+      <Modal
+        title={t('overtime.btnAddOvertime')}
+        open={tcModalVisible}
+        onCancel={() => setTcModalVisible(false)}
+        onOk={handleSaveTc}
+        confirmLoading={saving}
+        destroyOnClose
+        okText={t('common.save')}
+        cancelText={t('common.cancel')}
+        width="min(500px, 95vw)"
+      >
+        <Form form={formTc} layout="vertical">
+          <Form.Item name="MaNv" label={t('employee.colEmpCode')} rules={[{ required: true, message: t('employee.colEmpCode') }]}>
+            <InputNumber style={{ width: '100%' }} placeholder="10" />
+          </Form.Item>
+          <Form.Item name="Ngay" label={t('overtime.colDate')} initialValue={dayjs()}>
+            <DatePicker style={{ width: '100%' }} format="YYYY-MM-DD" />
+          </Form.Item>
+          <Form.Item name="SoGio" label={t('overtime.colHours')} rules={[{ required: true, message: t('overtime.colHours') }]}>
+            <InputNumber step={0.5} style={{ width: '100%' }} placeholder="2.0" />
+          </Form.Item>
+          <Form.Item name="IdLoaiCa" label={t('attendance.tabShifts')} initialValue={1}>
+            <Select
+              options={[
+                { value: 1, label: `${t('attendance.tabShifts')} 1 (1.5x)` },
+                { value: 2, label: `${t('attendance.tabShifts')} 2 (2.0x)` },
+              ]}
+            />
+          </Form.Item>
+          <Form.Item name="GhiChu" label={t('common.note')}>
+            <Input placeholder={t('common.note')} />
           </Form.Item>
         </Form>
       </Modal>

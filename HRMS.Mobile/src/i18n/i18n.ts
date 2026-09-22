@@ -2,11 +2,13 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import { getLocales } from 'expo-localization';
 import vi from './locales/vi.json';
-import ja from './locales/ja.json';
 import en from './locales/en.json';
+import zhCN from './locales/zh-CN.json';
+import ko from './locales/ko.json';
+import ja from './locales/ja.json';
 import { storage } from '../utils/storage';
 
-export const SUPPORTED_LANGUAGES = ['vi', 'ja', 'en'] as const;
+export const SUPPORTED_LANGUAGES = ['vi', 'en', 'zh-CN', 'ko', 'ja'] as const;
 export type SupportedLanguage = typeof SUPPORTED_LANGUAGES[number];
 
 export const getSystemLanguage = (): SupportedLanguage => {
@@ -16,6 +18,8 @@ export const getSystemLanguage = (): SupportedLanguage => {
       const languageCode = locales[0].languageCode?.toLowerCase();
       if (languageCode === 'ja') return 'ja';
       if (languageCode === 'en') return 'en';
+      if (languageCode === 'zh') return 'zh-CN';
+      if (languageCode === 'ko') return 'ko';
       if (languageCode === 'vi') return 'vi';
     }
   } catch (error) {
@@ -37,8 +41,10 @@ export const initializeI18n = async () => {
   await i18n.use(initReactI18next).init({
     resources: {
       vi: { translation: vi },
-      ja: { translation: ja },
       en: { translation: en },
+      'zh-CN': { translation: zhCN },
+      ko: { translation: ko },
+      ja: { translation: ja },
     },
     lng: activeLang,
     fallbackLng: 'vi',

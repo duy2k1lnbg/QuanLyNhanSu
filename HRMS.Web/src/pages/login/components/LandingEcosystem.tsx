@@ -13,6 +13,7 @@ const { Title, Paragraph } = Typography;
 interface LandingEcosystemProps {
   tLanding: any;
   onDownloadWindows: () => void;
+  onDownloadMobile?: () => void;
   onOpenLogin: () => void;
   onOpenDownload: (type?: 'windows' | 'mobile' | 'general') => void;
 }
@@ -20,6 +21,7 @@ interface LandingEcosystemProps {
 export const LandingEcosystem: React.FC<LandingEcosystemProps> = ({
   tLanding,
   onDownloadWindows,
+  onDownloadMobile,
   onOpenLogin,
   onOpenDownload,
 }) => {
@@ -199,7 +201,7 @@ export const LandingEcosystem: React.FC<LandingEcosystemProps> = ({
               >
                 <MobileOutlined />
               </div>
-              <Tag color="purple" style={{ borderRadius: 6, fontWeight: 600, padding: '2px 8px' }}>
+              <Tag color="success" style={{ borderRadius: 6, fontWeight: 600, padding: '2px 8px' }}>
                 {tLanding.mobileTagComing}
               </Tag>
             </div>
@@ -215,16 +217,17 @@ export const LandingEcosystem: React.FC<LandingEcosystemProps> = ({
             </Paragraph>
 
             <Button
-              ghost
+              type="primary"
               icon={<CloudDownloadOutlined />}
               block
-              onClick={() => onOpenDownload('mobile')}
+              onClick={() => onDownloadMobile ? onDownloadMobile() : onOpenDownload('mobile')}
               style={{
                 height: 42,
                 borderRadius: 10,
                 fontWeight: 700,
-                color: '#c084fc',
-                borderColor: '#a855f7',
+                background: 'linear-gradient(135deg, #a855f7 0%, #7e22ce 100%)',
+                border: 'none',
+                color: '#fff',
                 marginTop: 16,
               }}
             >

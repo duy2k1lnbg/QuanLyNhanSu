@@ -125,53 +125,23 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
           {tLanding.downloadApp}
         </Button>
 
-        {/* BỘ CHỌN ĐA NGÔN NGỮ: VI / EN / JA (Co giãn tự thích ứng) */}
+        {/* BỘ CHỌN ĐA NGÔN NGỮ: VI / EN / ZH / KO / JA (Co giãn tự thích ứng) */}
         <Dropdown
           menu={{
-            items: [
-              {
-                key: 'vi',
-                label: (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
-                    <Space size={8}>
-                      <span style={{ fontSize: 16 }}>{allConfigs.vi.flag}</span>
-                      <span style={{ fontWeight: currentLang === 'vi' ? 700 : 600, color: currentLang === 'vi' ? '#0284c7' : '#0f172a', fontSize: 13 }}>
-                        {allConfigs.vi.name}
-                      </span>
-                    </Space>
-                    {currentLang === 'vi' && <CheckOutlined style={{ color: '#0284c7', fontWeight: 700, fontSize: 13 }} />}
-                  </div>
-                ),
-              },
-              {
-                key: 'en',
-                label: (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
-                    <Space size={8}>
-                      <span style={{ fontSize: 16 }}>{allConfigs.en.flag}</span>
-                      <span style={{ fontWeight: currentLang === 'en' ? 700 : 600, color: currentLang === 'en' ? '#0284c7' : '#0f172a', fontSize: 13 }}>
-                        {allConfigs.en.name}
-                      </span>
-                    </Space>
-                    {currentLang === 'en' && <CheckOutlined style={{ color: '#0284c7', fontWeight: 700, fontSize: 13 }} />}
-                  </div>
-                ),
-              },
-              {
-                key: 'ja',
-                label: (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 130, padding: '4px 0' }}>
-                    <Space size={8}>
-                      <span style={{ fontSize: 16 }}>{allConfigs.ja.flag}</span>
-                      <span style={{ fontWeight: currentLang === 'ja' ? 700 : 600, color: currentLang === 'ja' ? '#0284c7' : '#0f172a', fontSize: 13 }}>
-                        {allConfigs.ja.name}
-                      </span>
-                    </Space>
-                    {currentLang === 'ja' && <CheckOutlined style={{ color: '#0284c7', fontWeight: 700, fontSize: 13 }} />}
-                  </div>
-                ),
-              },
-            ],
+            items: (Object.keys(allConfigs) as AppLanguage[]).map((lKey) => ({
+              key: lKey,
+              label: (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
+                  <Space size={8}>
+                    <span style={{ fontSize: 16 }}>{allConfigs[lKey]?.flag}</span>
+                    <span style={{ fontWeight: currentLang === lKey ? 700 : 600, color: currentLang === lKey ? '#0284c7' : '#0f172a', fontSize: 13 }}>
+                      {allConfigs[lKey]?.name}
+                    </span>
+                  </Space>
+                  {currentLang === lKey && <CheckOutlined style={{ color: '#0284c7', fontWeight: 700, fontSize: 13 }} />}
+                </div>
+              ),
+            })),
             selectedKeys: [currentLang],
             onClick: ({ key }) => onLanguageChange(key as AppLanguage),
           }}

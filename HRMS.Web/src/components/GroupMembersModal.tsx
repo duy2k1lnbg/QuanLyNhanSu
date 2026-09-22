@@ -170,7 +170,7 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
       }
       open={visible}
       onCancel={onClose}
-      width={720}
+      width="min(720px, 95vw)"
       footer={[
         <Button key="close" type="primary" onClick={onClose}>
           Hoàn tất
