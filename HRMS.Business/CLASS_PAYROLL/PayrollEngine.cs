@@ -501,7 +501,7 @@ namespace Bu.CLASS_PAYROLL
                 StandardDaysMonth = standardDays
             };
 
-            // Attendance summary from TB_KYCONGCHITIET
+            // 1. Attendance summary from TB_KYCONGCHITIET and TB_BANGCONG_CHITIET
             var kcct = db.Database.SqlQuery<AttendanceSummaryRow>(@"
                 SELECT TONGNGAYCONG, NGAYPHEP, CONGCHUNHAT
                 FROM TB_KYCONGCHITIET
@@ -510,9 +510,47 @@ namespace Bu.CLASS_PAYROLL
                 new OracleParameter("p1", makycong)
             ).FirstOrDefault();
 
-            input.ActualDaysWorked = kcct?.TONGNGAYCONG ?? 26.0m;
-            input.LeaveDaysWithPay = kcct?.NGAYPHEP ?? 0.0m;
-            input.NightShiftDays = 0.0m;
+            decimal actualDays = 0m;
+            decimal leaveDays = 0m;
+
+            if (kcct != null && kcct.TONGNGAYCONG.HasValue)
+            {
+                actualDays = kcct.TONGNGAYCONG.Value;
+                leaveDays = kcct.NGAYPHEP ?? 0.0m;
+            }
+            else
+            {
+                // Fallback to TB_BANGCONG_CHITIET directly
+                var bcctSummary = db.Database.SqlQuery<AttendanceSummaryRow>(@"
+                    SELECT SUM(NVL(NGAYCONG, 0)) AS TONGNGAYCONG,
+                           SUM(NVL(NGAYPHEP, 0)) AS NGAYPHEP,
+                           SUM(NVL(CONGCHUNHAT, 0)) AS CONGCHUNHAT
+                    FROM TB_BANGCONG_CHITIET
+                    WHERE MANV = :p0 AND MAKYCONG = :p1",
+                    new OracleParameter("p0", manv),
+                    new OracleParameter("p1", makycong)
+                ).FirstOrDefault();
+
+                if (bcctSummary != null)
+                {
+                    actualDays = bcctSummary.TONGNGAYCONG ?? 0m;
+                    leaveDays = bcctSummary.NGAYPHEP ?? 0m;
+                }
+            }
+
+            // Count night shifts from TB_BANGCONG_CHITIET (ca đêm: ký hiệu CD, Đ, XĐ hoặc giờ vào ban đêm)
+            var bcctNight = db.Database.SqlQuery<decimal?>(@"
+                SELECT SUM(NVL(NGAYCONG, 0))
+                FROM TB_BANGCONG_CHITIET
+                WHERE MANV = :p0 AND MAKYCONG = :p1
+                  AND (KYHIEU IN ('CD', 'Đ', 'XĐ') OR GIOVAO >= '18:00' OR (GIOVAO IS NOT NULL AND GIOVAO < '06:00'))",
+                new OracleParameter("p0", manv),
+                new OracleParameter("p1", makycong)
+            ).FirstOrDefault();
+
+            input.ActualDaysWorked = actualDays;
+            input.LeaveDaysWithPay = leaveDays;
+            input.NightShiftDays = bcctNight ?? 0.0m;
 
             // Allowances from TB_NHANVIEN_PHUCAP
             var pcs = db.Database.SqlQuery<AllowanceQueryRow>(@"

@@ -274,6 +274,84 @@ namespace HRMS_API.Controllers
                 return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi phát sinh kỳ công chi tiết." });
             }
         }
+
+        /// <summary>
+        /// POST: api/chamcong/import-raw
+        /// Import dữ liệu quẹt thẻ thô từ file Excel/máy chấm công vào TB_BANGCONG và tự động đồng bộ (Yêu cầu quyền F_CHAMCONG_ADD)
+        /// </summary>
+        [HttpPost]
+        [Route("import-raw")]
+        [JwtAuthorize(Right = "F_CHAMCONG_ADD")]
+        public IHttpActionResult ImportRawTimekeeping([FromBody] ImportRawTimekeepingParam param)
+        {
+            try
+            {
+                if (param == null || param.Thang < 1 || param.Thang > 12 || param.Nam < 2000 || param.Punches == null || param.Punches.Count == 0)
+                {
+                    return BadRequest("Dữ liệu chấm công thô hoặc thông tin kỳ công không hợp lệ.");
+                }
+
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
+                int ctyId = param.MaCty > 0 ? param.MaCty : ((jwtUser != null && int.TryParse(jwtUser.MaCty, out int uc) && uc > 0) ? uc : 1);
+                int makycong = param.Nam * 100 + param.Thang;
+
+                // Đảm bảo kỳ công chi tiết đã được khởi tạo
+                _kyCongCTBus.phatSinhKyCongChiTiet(ctyId, param.Thang, param.Nam, currentUserId);
+
+                // Import dữ liệu quẹt thẻ thô và tự động phát sinh/đồng bộ bảng công chi tiết
+                int importedCount = _bcChiTietBus.ImportBangCongRaw(param.Punches, makycong, param.Nam, param.Thang, currentUserId);
+
+                return Ok(new
+                {
+                    success = true,
+                    count = importedCount,
+                    message = $"Đã nạp {importedCount} lượt quẹt thẻ và đồng bộ bảng công chi tiết tháng {param.Thang}/{param.Nam} thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi khi import chấm công thô: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi import dữ liệu quẹt thẻ: " + ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/chamcong/dongbo-raw
+        /// Đồng bộ lại bảng công chi tiết & ma trận kỳ công từ dữ liệu máy chấm công TB_BANGCONG (hoặc mẫu hành chính nếu chưa có máy)
+        /// </summary>
+        [HttpPost]
+        [Route("dongbo-raw")]
+        [JwtAuthorize(Right = "F_CHAMCONG_ADD")]
+        public IHttpActionResult DongBoRawTimekeeping([FromBody] PhatSinhKyCongParam param)
+        {
+            try
+            {
+                if (param == null || param.Thang < 1 || param.Thang > 12 || param.Nam < 2000)
+                {
+                    return BadRequest("Thông tin tháng hoặc năm không hợp lệ.");
+                }
+
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
+                int ctyId = param.MaCty > 0 ? param.MaCty : ((jwtUser != null && int.TryParse(jwtUser.MaCty, out int uc) && uc > 0) ? uc : 1);
+                int makycong = param.Nam * 100 + param.Thang;
+
+                _kyCongCTBus.phatSinhKyCongChiTiet(ctyId, param.Thang, param.Nam, currentUserId);
+                _bcChiTietBus.PhatSinhBangCongChiTiet(makycong, param.Nam, param.Thang, currentUserId, null);
+
+                return Ok(new
+                {
+                    success = true,
+                    message = $"Đã đồng bộ chấm công tháng {param.Thang}/{param.Nam} thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi khi đồng bộ chấm công: " + ex.ToString());
+                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi đồng bộ chấm công: " + ex.Message });
+            }
+        }
     }
 
     public class PhatSinhKyCongParam
@@ -282,5 +360,13 @@ namespace HRMS_API.Controllers
         public int Thang { get; set; }
         public int Nam { get; set; }
         public int? IdUser { get; set; }
+    }
+
+    public class ImportRawTimekeepingParam
+    {
+        public int MaCty { get; set; }
+        public int Thang { get; set; }
+        public int Nam { get; set; }
+        public List<RawTimekeepingItemDto> Punches { get; set; }
     }
 }
