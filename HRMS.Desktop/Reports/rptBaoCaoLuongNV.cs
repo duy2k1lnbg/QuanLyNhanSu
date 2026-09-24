@@ -77,11 +77,11 @@ namespace QLyNSu.Reports
             xrTableCell167.Text = string.Format("{0:N0}", totalGross);
             
             // Các khoản trích trừ bảo hiểm
-            decimal insuranceBase = 0;
-            decimal bhxh = 0;
-            decimal bhyt = 0;
-            decimal bhtn = 0;
-            if (bl.TIEN_BHXH_TRICH != null && bl.TIEN_BHXH_TRICH > 0)
+            decimal insuranceBase = bl.LUONG_BHXH ?? 0;
+            decimal bhxh = bl.TIEN_BHXH ?? 0;
+            decimal bhyt = bl.TIEN_BHYT ?? 0;
+            decimal bhtn = bl.TIEN_BHTN ?? 0;
+            if (insuranceBase == 0 && bl.TIEN_BHXH_TRICH != null && bl.TIEN_BHXH_TRICH > 0)
             {
                 insuranceBase = bl.TIEN_BHXH_TRICH.Value / 0.105m;
                 bhxh = insuranceBase * 0.08m;
@@ -93,9 +93,11 @@ namespace QLyNSu.Reports
             xrTableCell174.Text = string.Format("{0:N0}", bhxh);
             xrTableCell178.Text = string.Format("{0:N0}", bhyt);
             xrTableCell182.Text = string.Format("{0:N0}", bhtn);
-            xrTableCell186.Text = "0"; // Phí công đoàn mặc định 0
+            decimal unionFee = bl.TIEN_CONG_DOAN ?? 0;
+            xrTableCell186.Text = string.Format("{0:N0}", unionFee);
             
-            xrTableCell190.Text = string.Format("{0:N0}", bl.KHOAN_TRU_KHAC ?? 0); // Thuế TNCN
+            decimal tax = bl.THUE_TNCN ?? (bl.KHOAN_TRU_KHAC ?? 0);
+            xrTableCell190.Text = string.Format("{0:N0}", tax); // Thuế TNCN
             xrTableCell198.Text = string.Format("{0:N0}", bl.TIEN_TAMUNG ?? 0);     // Tạm ứng
             
             xrTableCell202.Text = string.Format("{0:N0}", bl.THUC_LINH ?? 0);       // Thực lĩnh

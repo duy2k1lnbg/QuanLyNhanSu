@@ -115,6 +115,7 @@ export interface BangLuongDTO {
   NAM: number;
   CONG_CHUAN?: number;
   CONG_THUCTE?: number;
+  CONG_LAMNGAY?: number;
   CONG_LAMDEM?: number;
   DAILY_RATE?: number;
   DAILY_ALLOWANCE?: number;
@@ -124,10 +125,41 @@ export interface BangLuongDTO {
   TIEN_CHUYENCAN?: number;
   TIEN_AN_CA?: number;
   KHOAN_CONG_KHAC?: number;
+  TONG_CONG?: number;
+  LUONG_BHXH?: number;
+  TIEN_BHXH?: number;
+  TIEN_BHYT?: number;
+  TIEN_BHTN?: number;
   TIEN_BHXH_TRICH?: number;
+  TIEN_CONG_DOAN?: number;
   TIEN_TAMUNG?: number;
+  THUE_TNCN?: number;
   KHOAN_TRU_KHAC?: number;
+  HOAN_THUE?: number;
   THUC_LINH?: number;
+  LUONG_CA_NGAY?: number;
+  LUONG_CA_DEM?: number;
+
+  // 2026 Snapshot & Trace Properties
+  IS_LEGACY?: number;
+  TRANG_THAI?: string;
+  VUNG_LUONG?: number;
+  LUONG_TOI_THIEU_VUNG?: number;
+  MUC_THAM_CHIEU_BH?: number;
+  LUONG_DONG_BHXH?: number;
+  TIEN_BHXH_NSDLD?: number;
+  TIEN_BHYT_NSDLD?: number;
+  TIEN_BHTN_NSDLD?: number;
+  TIEN_TNLD_BNN_NSDLD?: number;
+  TIEN_DOAN_PHI_NLD?: number;
+  TIEN_KINH_PHI_CD_NSDLD?: number;
+  SO_NGUOI_PHU_THUOC?: number;
+  GIAM_TRU_BAN_THAN?: number;
+  GIAM_TRU_PHU_THUOC?: number;
+  GIAM_TRU_BAO_HIEM?: number;
+  TONG_THU_NHAP_CHIU_THUE?: number;
+  THU_NHAP_TINH_THUE?: number;
+  TONG_CHI_PHI_NSDLD?: number;
 }
 
 export interface KyCongChiTietDTO {

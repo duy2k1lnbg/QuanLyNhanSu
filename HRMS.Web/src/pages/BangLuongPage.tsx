@@ -172,9 +172,16 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
     targetList.forEach((b) => {
       const net = b.THUC_LINH ?? 0;
-      const gross = (b.LUONG_CONG_THUCTE ?? 0) + (b.PHUCAP_CONG_THUCTE ?? 0) + (b.TIEN_TANGCA ?? 0);
-      const bh = b.TIEN_BHXH_TRICH ?? 0;
-      const tax = b.KHOAN_TRU_KHAC ?? 0;
+      const gross = b.TONG_CONG ?? (
+        (b.LUONG_CONG_THUCTE ?? 0) +
+        (b.PHUCAP_CONG_THUCTE ?? 0) +
+        (b.TIEN_TANGCA ?? 0) +
+        (b.TIEN_CHUYENCAN ?? 0) +
+        (b.TIEN_AN_CA ?? 0) +
+        (b.KHOAN_CONG_KHAC ?? 0)
+      );
+      const bh = b.TIEN_BHXH_TRICH ?? ((b.TIEN_BHXH ?? 0) + (b.TIEN_BHYT ?? 0) + (b.TIEN_BHTN ?? 0));
+      const tax = b.THUE_TNCN ?? 0;
 
       totalGross += gross;
       totalNet += net;
@@ -244,9 +251,17 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
           style={{ cursor: 'pointer' }}
           onClick={() => handleOpenDrawer(record)}
         >
-          <Text strong style={{ color: '#1d4ed8' }}>{name}</Text>
+          <Space size="small">
+            <Text strong style={{ color: '#1d4ed8' }}>{name}</Text>
+            {record.IS_LEGACY === 1 && (
+              <Tag color="default" style={{ fontSize: 10, padding: '0 4px', borderRadius: 4 }}>
+                Legacy
+              </Tag>
+            )}
+          </Space>
           <div style={{ fontSize: 11, color: '#64748b' }}>
-            #{record.MANV} &bull; {record.CONG_THUCTE ?? 22} {t('attendance.colActualDays')}
+            #{record.MANV} &bull; {record.CONG_THUCTE ?? 0} {t('attendance.colActualDays')}
+            {Boolean(record.CONG_CHUAN) && ` / ${record.CONG_CHUAN}`}
           </div>
         </div>
       ),
@@ -267,10 +282,14 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       key: 'gross',
       align: 'right',
       render: (_, record) => {
-        const gross =
-          (record.LUONG_CONG_THUCTE ?? 10000000) +
-          (record.PHUCAP_CONG_THUCTE ?? 1500000) +
-          (record.TIEN_TANGCA ?? 800000);
+        const gross = record.TONG_CONG ?? (
+          (record.LUONG_CONG_THUCTE ?? 0) +
+          (record.PHUCAP_CONG_THUCTE ?? 0) +
+          (record.TIEN_TANGCA ?? 0) +
+          (record.TIEN_CHUYENCAN ?? 0) +
+          (record.TIEN_AN_CA ?? 0) +
+          (record.KHOAN_CONG_KHAC ?? 0)
+        );
         return <Text strong>{gross.toLocaleString('vi-VN')} đ</Text>;
       },
     },
@@ -280,8 +299,12 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       key: 'TIEN_TANGCA',
       align: 'right',
       render: (v: number) => {
-        const val = v ?? 800000;
-        return <Text style={{ color: '#3b82f6' }}>+{Number(val).toLocaleString('vi-VN')} đ</Text>;
+        const val = v ?? 0;
+        return val > 0 ? (
+          <Text style={{ color: '#3b82f6' }}>+{Number(val).toLocaleString('vi-VN')} đ</Text>
+        ) : (
+          <Text type="secondary">0 đ</Text>
+        );
       },
     },
     {
@@ -290,12 +313,12 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       key: 'TIEN_BHXH_TRICH',
       align: 'right',
       render: (v: number, record) => {
-        const gross =
-          (record.LUONG_CONG_THUCTE ?? 10000000) +
-          (record.PHUCAP_CONG_THUCTE ?? 1500000) +
-          (record.TIEN_TANGCA ?? 800000);
-        const bh = v ?? Math.round(gross * 0.08);
-        return <Text type="danger">-{Number(bh).toLocaleString('vi-VN')} đ</Text>;
+        const bh = v ?? ((record.TIEN_BHXH ?? 0) + (record.TIEN_BHYT ?? 0) + (record.TIEN_BHTN ?? 0));
+        return bh > 0 ? (
+          <Text type="danger">-{Number(bh).toLocaleString('vi-VN')} đ</Text>
+        ) : (
+          <Text type="secondary">0 đ</Text>
+        );
       },
     },
     {
@@ -303,12 +326,12 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       key: 'thue',
       align: 'right',
       render: (_, record) => {
-        const gross =
-          (record.LUONG_CONG_THUCTE ?? 10000000) +
-          (record.PHUCAP_CONG_THUCTE ?? 1500000) +
-          (record.TIEN_TANGCA ?? 800000);
-        const tax = Math.round(gross * 0.03);
-        return <Text type="danger">-{tax.toLocaleString('vi-VN')} đ</Text>;
+        const tax = record.THUE_TNCN ?? 0;
+        return tax > 0 ? (
+          <Text type="danger">-{tax.toLocaleString('vi-VN')} đ</Text>
+        ) : (
+          <Text type="secondary">0 đ</Text>
+        );
       },
     },
     {
@@ -318,7 +341,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       align: 'right',
       render: (v: number) => (
         <Text strong style={{ color: '#059669', fontSize: '1.05rem' }}>
-          {Number(v ?? 12500000).toLocaleString('vi-VN')} đ
+          {Number(v ?? 0).toLocaleString('vi-VN')} đ
         </Text>
       ),
     },
@@ -326,8 +349,14 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       title: t('payroll.colPaymentStatus'),
       key: 'status',
       align: 'center',
-      width: 120,
+      width: 130,
       render: (_, record) => {
+        if (record.TRANG_THAI === 'APPROVED') {
+          return <Tag color="success">Đã duyệt</Tag>;
+        }
+        if (record.TRANG_THAI === 'LEGACY_READONLY') {
+          return <Tag color="default">Legacy</Tag>;
+        }
         const isPaid = record.TRANGTHAI_CHITRA === 'Đã chi trả' || isPeriodLocked;
         return isPaid ? (
           <Tag color="success">{t('status.paid')}</Tag>

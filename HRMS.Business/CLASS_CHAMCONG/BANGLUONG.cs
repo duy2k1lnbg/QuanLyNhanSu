@@ -53,7 +53,60 @@ namespace Bu.CLASS_CHAMCONG
                             LUONG_CA_NGAY = (bl.DAILY_RATE != null && bl.CONG_LAMNGAY != null) ? (bl.DAILY_RATE * bl.CONG_LAMNGAY) : 0,
                             LUONG_CA_DEM = (bl.DAILY_RATE != null && bl.CONG_LAMDEM != null) ? (bl.DAILY_RATE * bl.CONG_LAMDEM * 1.30m) : 0
                         };
-            return query.ToList();
+            var list = query.ToList();
+
+            if (makycong >= 202601 && list.Count > 0)
+            {
+                try
+                {
+                    var sql = @"SELECT IDBL, IS_LEGACY, TRANG_THAI, VUNG_LUONG, LUONG_TOI_THIEU_VUNG, MUC_THAM_CHIEU_BH,
+                                       LUONG_DONG_BHXH, TIEN_BHXH_NSDLD, TIEN_BHYT_NSDLD, TIEN_BHTN_NSDLD, TIEN_TNLD_BNN_NSDLD,
+                                       TIEN_DOAN_PHI_NLD, TIEN_KINH_PHI_CD_NSDLD, SO_NGUOI_PHU_THUOC, GIAM_TRU_BAN_THAN,
+                                       GIAM_TRU_PHU_THUOC, GIAM_TRU_BAO_HIEM, TONG_THU_NHAP_CHIU_THUE, THU_NHAP_TINH_THUE,
+                                       TONG_CHI_PHI_NSDLD
+                                FROM TB_BANGLUONG WHERE MAKYCONG = :p0";
+                    var snaps = db.Database.SqlQuery<ModernPayrollSnapshotDto>(
+                        sql,
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("p0", makycong)
+                    ).ToDictionary(x => x.IDBL);
+
+                    foreach (var item in list)
+                    {
+                        if (snaps.TryGetValue(item.IDBL, out var snap))
+                        {
+                            item.IS_LEGACY = snap.IS_LEGACY;
+                            item.TRANG_THAI = snap.TRANG_THAI;
+                            item.VUNG_LUONG = snap.VUNG_LUONG;
+                            item.LUONG_TOI_THIEU_VUNG = snap.LUONG_TOI_THIEU_VUNG;
+                            item.MUC_THAM_CHIEU_BH = snap.MUC_THAM_CHIEU_BH;
+                            item.LUONG_DONG_BHXH = snap.LUONG_DONG_BHXH;
+                            item.TIEN_BHXH_NSDLD = snap.TIEN_BHXH_NSDLD;
+                            item.TIEN_BHYT_NSDLD = snap.TIEN_BHYT_NSDLD;
+                            item.TIEN_BHTN_NSDLD = snap.TIEN_BHTN_NSDLD;
+                            item.TIEN_TNLD_BNN_NSDLD = snap.TIEN_TNLD_BNN_NSDLD;
+                            item.TIEN_DOAN_PHI_NLD = snap.TIEN_DOAN_PHI_NLD;
+                            item.TIEN_KINH_PHI_CD_NSDLD = snap.TIEN_KINH_PHI_CD_NSDLD;
+                            item.SO_NGUOI_PHU_THUOC = snap.SO_NGUOI_PHU_THUOC;
+                            item.GIAM_TRU_BAN_THAN = snap.GIAM_TRU_BAN_THAN;
+                            item.GIAM_TRU_PHU_THUOC = snap.GIAM_TRU_PHU_THUOC;
+                            item.GIAM_TRU_BAO_HIEM = snap.GIAM_TRU_BAO_HIEM;
+                            item.TONG_THU_NHAP_CHIU_THUE = snap.TONG_THU_NHAP_CHIU_THUE;
+                            item.THU_NHAP_TINH_THUE = snap.THU_NHAP_TINH_THUE;
+                            item.TONG_CHI_PHI_NSDLD = snap.TONG_CHI_PHI_NSDLD;
+                        }
+                        else
+                        {
+                            item.IS_LEGACY = 1;
+                        }
+                    }
+                }
+                catch
+                {
+                    // Fallback gracefully if modern columns are not yet present in some schemas
+                }
+            }
+
+            return list;
         }
 
         public void TinhLuongKyCong(int makycong, int iduser)
@@ -73,9 +126,31 @@ namespace Bu.CLASS_CHAMCONG
                 DateTime periodStart = new DateTime(nam, thang, 1);
                 DateTime periodEnd = new DateTime(nam, thang, DateTime.DaysInMonth(nam, thang));
 
+                // 0. Bảo vệ tính bất biến của dữ liệu lương lịch sử (Legacy Immutability)
+                var isLegacyCount = db.Database.SqlQuery<int>(
+                    "SELECT COUNT(*) FROM TB_BANGLUONG WHERE MAKYCONG = :p0 AND IS_LEGACY = 1",
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", makycong)
+                ).FirstOrDefault();
+
+                if (isLegacyCount > 0)
+                {
+                    throw new InvalidOperationException($"Kỳ công {makycong} chứa {isLegacyCount} bản ghi lương lịch sử (LEGACY_READONLY). Không được phép tính lại hoặc ghi đè.");
+                }
+
                 // 1. Tự động kiểm tra thời hạn hợp đồng và cập nhật DATHOIVIEC = 1 nếu đã hết hạn
                 NHANVIEN nhanvienBus = new NHANVIEN();
                 nhanvienBus.KiemTraVaCapNhatTrangThaiHopDong(nam, thang);
+
+                // 2. Chuyển tiếp sang Modern Payroll Engine nếu là kỳ tính lương 2026 trở đi
+                if (nam >= 2026)
+                {
+                    progress?.Invoke(20, 100, "Đang khởi tạo Production PayrollEngine 2026...");
+                    var engine = new Bu.CLASS_PAYROLL.PayrollEngine();
+                    progress?.Invoke(40, 100, "Đang tính toán chính sách, bảo hiểm, công đoàn, thuế và tuân thủ OT...");
+                    var run = engine.ExecuteFullPayrollRecalculation(nam, thang, "USER_" + iduser);
+                    progress?.Invoke(100, 100, $"Hoàn tất tính lương 2026! Đã xử lý thành công {run.SUCCESS_COUNT} nhân sự.");
+                    return;
+                }
 
                 progress?.Invoke(15, 100, "Đang tải dữ liệu kỳ công và danh mục...");
 

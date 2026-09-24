@@ -261,6 +261,16 @@
   <ItemGroup>
     <Compile Include="CLASS_CHAMCONG\BANGCONG_NV_CHITIET.cs" />
     <Compile Include="CLASS_CHAMCONG\BANGLUONG.cs" />
+    <Compile Include="CLASS_PAYROLL\PolicyExceptions.cs" />
+    <Compile Include="CLASS_PAYROLL\PayrollModels.cs" />
+    <Compile Include="CLASS_PAYROLL\PolicyResolver.cs" />
+    <Compile Include="CLASS_PAYROLL\EmployeeProfileResolver.cs" />
+    <Compile Include="CLASS_PAYROLL\OtComplianceEngine.cs" />
+    <Compile Include="CLASS_PAYROLL\InsuranceEngine.cs" />
+    <Compile Include="CLASS_PAYROLL\UnionEngine.cs" />
+    <Compile Include="CLASS_PAYROLL\TaxEngine.cs" />
+    <Compile Include="CLASS_PAYROLL\AnnualTaxFinalizationService.cs" />
+    <Compile Include="CLASS_PAYROLL\PayrollEngine.cs" />
     <Compile Include="CLASS_CHAMCONG\HESO_TANGCA.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONG.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONGCHITIET.cs" />

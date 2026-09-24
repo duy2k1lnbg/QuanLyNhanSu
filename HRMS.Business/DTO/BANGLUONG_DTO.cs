@@ -46,5 +46,50 @@ namespace Bu.DTO
         public Nullable<decimal> HOAN_THUE { get; set; }
         public Nullable<decimal> LUONG_CA_NGAY { get; set; }
         public Nullable<decimal> LUONG_CA_DEM { get; set; }
+
+        // Modern 2026 Snapshot & Trace Properties
+        public Nullable<int> IS_LEGACY { get; set; }
+        public string TRANG_THAI { get; set; }
+        public Nullable<decimal> VUNG_LUONG { get; set; }
+        public Nullable<decimal> LUONG_TOI_THIEU_VUNG { get; set; }
+        public Nullable<decimal> MUC_THAM_CHIEU_BH { get; set; }
+        public Nullable<decimal> LUONG_DONG_BHXH { get; set; }
+        public Nullable<decimal> TIEN_BHXH_NSDLD { get; set; }
+        public Nullable<decimal> TIEN_BHYT_NSDLD { get; set; }
+        public Nullable<decimal> TIEN_BHTN_NSDLD { get; set; }
+        public Nullable<decimal> TIEN_TNLD_BNN_NSDLD { get; set; }
+        public Nullable<decimal> TIEN_DOAN_PHI_NLD { get; set; }
+        public Nullable<decimal> TIEN_KINH_PHI_CD_NSDLD { get; set; }
+        public Nullable<int> SO_NGUOI_PHU_THUOC { get; set; }
+        public Nullable<decimal> GIAM_TRU_BAN_THAN { get; set; }
+        public Nullable<decimal> GIAM_TRU_PHU_THUOC { get; set; }
+        public Nullable<decimal> GIAM_TRU_BAO_HIEM { get; set; }
+        public Nullable<decimal> TONG_THU_NHAP_CHIU_THUE { get; set; }
+        public Nullable<decimal> THU_NHAP_TINH_THUE { get; set; }
+        public Nullable<decimal> TONG_CHI_PHI_NSDLD { get; set; }
+    }
+
+    public class ModernPayrollSnapshotDto
+    {
+        public decimal IDBL { get; set; }
+        public Nullable<int> IS_LEGACY { get; set; }
+        public string TRANG_THAI { get; set; }
+        public Nullable<decimal> VUNG_LUONG { get; set; }
+        public Nullable<decimal> LUONG_TOI_THIEU_VUNG { get; set; }
+        public Nullable<decimal> MUC_THAM_CHIEU_BH { get; set; }
+        public Nullable<decimal> LUONG_DONG_BHXH { get; set; }
+        public Nullable<decimal> TIEN_BHXH_NSDLD { get; set; }
+        public Nullable<decimal> TIEN_BHYT_NSDLD { get; set; }
+        public Nullable<decimal> TIEN_BHTN_NSDLD { get; set; }
+        public Nullable<decimal> TIEN_TNLD_BNN_NSDLD { get; set; }
+        public Nullable<decimal> TIEN_DOAN_PHI_NLD { get; set; }
+        public Nullable<decimal> TIEN_KINH_PHI_CD_NSDLD { get; set; }
+        public Nullable<int> SO_NGUOI_PHU_THUOC { get; set; }
+        public Nullable<decimal> GIAM_TRU_BAN_THAN { get; set; }
+        public Nullable<decimal> GIAM_TRU_PHU_THUOC { get; set; }
+        public Nullable<decimal> GIAM_TRU_BAO_HIEM { get; set; }
+        public Nullable<decimal> TONG_THU_NHAP_CHIU_THUE { get; set; }
+        public Nullable<decimal> THU_NHAP_TINH_THUE { get; set; }
+        public Nullable<decimal> TONG_CHI_PHI_NSDLD { get; set; }
     }
 }

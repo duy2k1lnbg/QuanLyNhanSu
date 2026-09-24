@@ -47,6 +47,7 @@ export interface ChiTietLuongNVDTO {
   BHTN_1?: number;
   TIEN_BHXH_TRICH?: number;
   PHI_CONG_DOAN?: number;
+  THUE_TNCN?: number;
   KHOAN_TRU_KHAC?: number;
   TIEN_TAMUNG?: number;
   TONG_KHAU_TRU?: number;
@@ -116,16 +117,16 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
 
   const otHours = detailData?.OT_HOURS ?? 0;
   const tienTangCa = detailData?.TIEN_TANGCA ?? record.TIEN_TANGCA ?? 0;
-  const totalGross = detailData?.TOTAL_GROSS ?? (tongNgayCongThucTe + tienTangCa);
+  const totalGross = detailData?.TOTAL_GROSS ?? record.TONG_CONG ?? (tongNgayCongThucTe + tienTangCa);
 
-  const insuranceBase = detailData?.INSURANCE_BASE ?? (record.TIEN_BHXH_TRICH ? Math.round(record.TIEN_BHXH_TRICH / 0.105) : 0);
-  const bhxh = detailData?.BHXH_8 ?? (record.TIEN_BHXH_TRICH ? Math.round(insuranceBase * 0.08) : 0);
-  const bhyt = detailData?.BHYT_15 ?? (record.TIEN_BHXH_TRICH ? Math.round(insuranceBase * 0.015) : 0);
-  const bhtn = detailData?.BHTN_1 ?? (record.TIEN_BHXH_TRICH ? Math.round(insuranceBase * 0.01) : 0);
-  const phiCongDoan = detailData?.PHI_CONG_DOAN ?? 0;
-  const thueTNCN = detailData?.KHOAN_TRU_KHAC ?? record.KHOAN_TRU_KHAC ?? 0;
+  const insuranceBase = detailData?.INSURANCE_BASE ?? record.LUONG_DONG_BHXH ?? record.LUONG_BHXH ?? (record.TIEN_BHXH_TRICH ? Math.round(record.TIEN_BHXH_TRICH / 0.105) : 0);
+  const bhxh = detailData?.BHXH_8 ?? record.TIEN_BHXH ?? (record.TIEN_BHXH_TRICH ? Math.round(insuranceBase * 0.08) : 0);
+  const bhyt = detailData?.BHYT_15 ?? record.TIEN_BHYT ?? (record.TIEN_BHXH_TRICH ? Math.round(insuranceBase * 0.015) : 0);
+  const bhtn = detailData?.BHTN_1 ?? record.TIEN_BHTN ?? (record.TIEN_BHXH_TRICH ? Math.round(insuranceBase * 0.01) : 0);
+  const phiCongDoan = detailData?.PHI_CONG_DOAN ?? record.TIEN_DOAN_PHI_NLD ?? record.TIEN_CONG_DOAN ?? 0;
+  const thueTNCN = detailData?.THUE_TNCN ?? record.THUE_TNCN ?? 0;
   const tienTamUng = detailData?.TIEN_TAMUNG ?? record.TIEN_TAMUNG ?? 0;
-  const thucLinh = detailData?.THUC_LINH ?? record.THUC_LINH ?? (totalGross - (bhxh + bhyt + bhtn + thueTNCN + tienTamUng));
+  const thucLinh = detailData?.THUC_LINH ?? record.THUC_LINH ?? (totalGross - (bhxh + bhyt + bhtn + phiCongDoan + thueTNCN + tienTamUng));
 
   const formatVnd = (val?: number | string | null) => {
     if (val === undefined || val === null || val === '-') return '-';
