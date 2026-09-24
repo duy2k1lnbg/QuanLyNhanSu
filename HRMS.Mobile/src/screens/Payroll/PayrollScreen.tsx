@@ -214,6 +214,128 @@ export const PayrollScreen: React.FC = () => {
                 </Text>
               </View>
             </AppCard>
+
+            {/* 4. Attendance Section */}
+            <Text style={[typography.h3, { color: colors.text, marginTop: spacing.xl, marginBottom: spacing.sm }]}>
+              Chấm công & Ngày làm việc
+            </Text>
+            <AppCard>
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Số công chuẩn</Text>
+                <Text style={[typography.bodyBold, { color: colors.text }]}>{payroll.congChuan ?? 0} ngày</Text>
+              </View>
+              <AppDivider marginVertical={spacing.sm} />
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Số công thực tế</Text>
+                <Text style={[typography.bodyBold, { color: colors.primary }]}>{payroll.congThucTe ?? 0} ngày</Text>
+              </View>
+              <AppDivider marginVertical={spacing.sm} />
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Công làm ca ngày</Text>
+                <Text style={[typography.bodyBold, { color: colors.text }]}>{payroll.congLamNgay ?? 0} ngày</Text>
+              </View>
+              <AppDivider marginVertical={spacing.sm} />
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Công làm ca đêm</Text>
+                <Text style={[typography.bodyBold, { color: colors.text }]}>{payroll.congLamDem ?? 0} ngày</Text>
+              </View>
+              <AppDivider marginVertical={spacing.sm} />
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Số giờ tăng ca</Text>
+                <Text style={[typography.bodyBold, { color: colors.text }]}>{payroll.soGioTangCa ?? 0} giờ</Text>
+              </View>
+              <AppDivider marginVertical={spacing.sm} />
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Đơn giá ngày</Text>
+                <Text style={[typography.bodyBold, { color: colors.text }]}>{formatCurrency(payroll.dailyRate, activeLanguage)}</Text>
+              </View>
+            </AppCard>
+
+            {/* 5. Personal Income Tax (PIT) Details */}
+            <Text style={[typography.h3, { color: colors.text, marginTop: spacing.xl, marginBottom: spacing.sm }]}>
+              Chi tiết thuế TNCN
+            </Text>
+            <AppCard>
+              {renderItemRow('Thu nhập chịu thuế', payroll.thuNhapChiuThue ?? payroll.tongThuNhap)}
+              <AppDivider marginVertical={spacing.sm} />
+              {renderItemRow('Giảm trừ bản thân', payroll.giamTruBanThan ?? 0, true)}
+              <AppDivider marginVertical={spacing.sm} />
+              {renderItemRow(`Giảm trừ người phụ thuộc (${payroll.soNguoiPhuThuoc ?? 0} người)`, payroll.giamTruPhuThuoc ?? 0, true)}
+              <AppDivider marginVertical={spacing.sm} />
+              {renderItemRow('Giảm trừ bảo hiểm bắt buộc', payroll.giamTruBaoHiem ?? (payroll.tienBhxh + payroll.tienBhyt + payroll.tienBhtn), true)}
+              <AppDivider marginVertical={spacing.sm} />
+              {renderItemRow('Thu nhập tính thuế (TNTT)', payroll.thuNhapTinhThue ?? 0)}
+              <AppDivider marginVertical={spacing.sm} />
+              <View style={styles.detailRow}>
+                <Text style={[typography.bodyBold, { color: colors.text }]}>Thuế TNCN khấu trừ</Text>
+                <Text style={[typography.bodyBold, { color: colors.danger }]}>
+                  {formatCurrency(payroll.thueTncn, activeLanguage)}
+                </Text>
+              </View>
+              {(payroll.hoanThue ?? 0) > 0 && (
+                <>
+                  <AppDivider marginVertical={spacing.sm} />
+                  <View style={styles.detailRow}>
+                    <Text style={[typography.bodyBold, { color: colors.text }]}>Hoàn thuế TNCN</Text>
+                    <Text style={[typography.bodyBold, { color: colors.success }]}>
+                      +{formatCurrency(payroll.hoanThue, activeLanguage)}
+                    </Text>
+                  </View>
+                </>
+              )}
+            </AppCard>
+
+            {/* 6. Cách tính (Plain Vietnamese Explanation) */}
+            <Text style={[typography.h3, { color: colors.text, marginTop: spacing.xl, marginBottom: spacing.sm }]}>
+              Cách tính lương & thuế
+            </Text>
+            <AppCard style={{ backgroundColor: colors.surfaceCard }}>
+              <View style={{ marginBottom: spacing.sm }}>
+                <Text style={[typography.captionBold, { color: colors.primary, marginBottom: 4 }]}>
+                  CÔNG THỨC LƯƠNG
+                </Text>
+                <Text style={[typography.body, { color: colors.text }]}>
+                  {payroll.cachTinhLuong || 'Lương thực tế = Đơn giá ngày × Số công thực tế'}
+                </Text>
+              </View>
+              <AppDivider marginVertical={spacing.sm} />
+              <View>
+                <Text style={[typography.captionBold, { color: colors.primary, marginBottom: 4 }]}>
+                  CÔNG THỨC THUẾ TNCN
+                </Text>
+                <Text style={[typography.body, { color: colors.text }]}>
+                  {payroll.cachTinhThue || 'Thuế TNCN tính theo biểu lũy tiến từng phần theo quy định của Luật Thuế TNCN'}
+                </Text>
+              </View>
+            </AppCard>
+
+            {/* 7. Nguồn & Chính sách áp dụng */}
+            <Text style={[typography.h3, { color: colors.text, marginTop: spacing.xl, marginBottom: spacing.sm }]}>
+              Nguồn & Chính sách áp dụng
+            </Text>
+            <AppCard>
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Phiên bản tính lương</Text>
+                <AppBadge
+                  label={payroll.payrollVersion || 'V2026.PROD'}
+                  variant={payroll.isLegacy ? 'default' : 'info'}
+                />
+              </View>
+              <AppDivider marginVertical={spacing.sm} />
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Bộ chính sách</Text>
+                <Text style={[typography.caption, { color: colors.text, flex: 1, textAlign: 'right' }]} numberOfLines={2}>
+                  {payroll.chinhSachApDung || 'Quy chuẩn sản xuất 2026'}
+                </Text>
+              </View>
+              <AppDivider marginVertical={spacing.sm} />
+              <View style={styles.detailRow}>
+                <Text style={[typography.body, { color: colors.textSecondary }]}>Phân loại dữ liệu</Text>
+                <Text style={[typography.bodyBold, { color: payroll.isLegacy ? colors.warning : colors.success }]}>
+                  {payroll.isLegacy ? 'Dữ liệu lịch sử (Legacy)' : 'Quy chuẩn sản xuất (Production)'}
+                </Text>
+              </View>
+            </AppCard>
           </>
         )}
       </ScrollView>

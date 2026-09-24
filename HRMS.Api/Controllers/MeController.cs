@@ -599,8 +599,38 @@ namespace HRMS_API.Controllers
                     var kc = db.TB_KYCONG.FirstOrDefault(k => k.MAKYCONG == bl.MAKYCONG);
                     bool isPaid = kc != null && kc.KHOA == 1;
 
-                    decimal tongThuNhap = (bl.LUONG_CONG_THUCTE ?? 0) + (bl.PHUCAP_CONG_THUCTE ?? 0) + (bl.TIEN_TANGCA ?? 0) + (bl.TIEN_CHUYENCAN ?? 0) + (bl.TIEN_AN_CA ?? 0) + (bl.KHOAN_CONG_KHAC ?? 0);
-                    decimal tongKhauTru = (bl.TIEN_BHXH_TRICH ?? 0) + (bl.TIEN_TAMUNG ?? 0) + (bl.THUE_TNCN ?? 0) + (bl.KHOAN_TRU_KHAC ?? 0);
+                    Bu.DTO.ModernPayrollSnapshotDto snap = null;
+                    if (bl.MAKYCONG >= 202601)
+                    {
+                        try
+                        {
+                            var sql = @"SELECT IDBL, IS_LEGACY, TRANG_THAI, VUNG_LUONG, LUONG_TOI_THIEU_VUNG, MUC_THAM_CHIEU_BH,
+                                               LUONG_DONG_BHXH, TIEN_BHXH_NSDLD, TIEN_BHYT_NSDLD, TIEN_BHTN_NSDLD, TIEN_TNLD_BNN_NSDLD,
+                                               TIEN_DOAN_PHI_NLD, TIEN_KINH_PHI_CD_NSDLD, SO_NGUOI_PHU_THUOC, GIAM_TRU_BAN_THAN,
+                                               GIAM_TRU_PHU_THUOC, GIAM_TRU_BAO_HIEM, TONG_THU_NHAP_CHIU_THUE, THU_NHAP_TINH_THUE,
+                                               TONG_CHI_PHI_NSDLD
+                                        FROM TB_BANGLUONG WHERE IDBL = :p0";
+                            snap = db.Database.SqlQuery<Bu.DTO.ModernPayrollSnapshotDto>(
+                                sql,
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p0", bl.IDBL)
+                            ).FirstOrDefault();
+                        }
+                        catch { }
+                    }
+
+                    decimal tongThuNhap = bl.TONG_CONG ?? ((bl.LUONG_CONG_THUCTE ?? 0) + (bl.PHUCAP_CONG_THUCTE ?? 0) + (bl.TIEN_TANGCA ?? 0) + (bl.TIEN_CHUYENCAN ?? 0) + (bl.TIEN_AN_CA ?? 0) + (bl.KHOAN_CONG_KHAC ?? 0));
+                    decimal tongKhauTru = (bl.TIEN_BHXH_TRICH ?? ((bl.TIEN_BHXH ?? 0) + (bl.TIEN_BHYT ?? 0) + (bl.TIEN_BHTN ?? 0))) + (bl.TIEN_CONG_DOAN ?? (snap?.TIEN_DOAN_PHI_NLD ?? 0)) + (bl.TIEN_TAMUNG ?? 0) + (bl.THUE_TNCN ?? 0) + (bl.KHOAN_TRU_KHAC ?? 0);
+                    decimal luongCoBan = (bl.DAILY_RATE.HasValue && bl.CONG_CHUAN.HasValue && bl.CONG_CHUAN.Value > 0) ? (bl.DAILY_RATE.Value * bl.CONG_CHUAN.Value) : (bl.LUONG_CONG_THUCTE ?? 0);
+                    bool isLegacy = (snap != null && snap.IS_LEGACY == 1) || (bl.MAKYCONG < 202601);
+
+                    decimal soGioTangCa = 0;
+                    try
+                    {
+                        soGioTangCa = db.TB_TANGCA
+                            .Where(t => t.MANV == manv && t.NAM == bl.NAM && t.THANG == bl.THANG)
+                            .Sum(t => (decimal?)t.SOGIO) ?? 0;
+                    }
+                    catch { }
 
                     var result = new MobilePayrollDto
                     {
@@ -608,11 +638,12 @@ namespace HRMS_API.Controllers
                         Makycong = (int)bl.MAKYCONG,
                         Thang = bl.THANG,
                         Nam = bl.NAM,
-                        LuongCoBan = bl.LUONG_CONG_THUCTE ?? 0,
-                        CongChuan = bl.CONG_CHUAN ?? 26,
+                        LuongCoBan = luongCoBan,
+                        CongChuan = bl.CONG_CHUAN ?? 0,
                         CongThucTe = bl.CONG_THUCTE ?? 0,
                         CongLamNgay = bl.CONG_LAMNGAY ?? 0,
                         CongLamDem = bl.CONG_LAMDEM ?? 0,
+                        SoGioTangCa = soGioTangCa,
                         DailyRate = bl.DAILY_RATE ?? 0,
                         LuongCaNgay = (bl.DAILY_RATE.HasValue && bl.CONG_LAMNGAY.HasValue) ? (bl.DAILY_RATE.Value * bl.CONG_LAMNGAY.Value) : 0,
                         LuongCaDem = (bl.DAILY_RATE.HasValue && bl.CONG_LAMDEM.HasValue) ? (bl.DAILY_RATE.Value * bl.CONG_LAMDEM.Value * 1.30m) : 0,
@@ -626,13 +657,29 @@ namespace HRMS_API.Controllers
                         TienBhxh = bl.TIEN_BHXH ?? 0,
                         TienBhyt = bl.TIEN_BHYT ?? 0,
                         TienBhtn = bl.TIEN_BHTN ?? 0,
-                        TienCongDoan = bl.TIEN_CONG_DOAN ?? 0,
+                        TienCongDoan = bl.TIEN_CONG_DOAN ?? (snap?.TIEN_DOAN_PHI_NLD ?? 0),
                         TienTamUng = bl.TIEN_TAMUNG ?? 0,
                         ThueTncn = bl.THUE_TNCN ?? 0,
+                        HoanThue = bl.HOAN_THUE ?? 0,
                         KhoanTruKhac = bl.KHOAN_TRU_KHAC ?? 0,
                         TongKhauTru = tongKhauTru,
                         ThucLinh = bl.THUC_LINH ?? 0,
-                        TrangThaiChiTra = isPaid ? "Đã chi trả" : "Dự kiến chi trả"
+                        TrangThaiChiTra = isPaid ? "Đã chi trả" : (snap != null && snap.TRANG_THAI == "APPROVED" ? "Đã duyệt chi" : "Dự kiến chi trả"),
+
+                        // Tax breakdown
+                        ThuNhapChiuThue = snap?.TONG_THU_NHAP_CHIU_THUE ?? (bl.TONG_CONG ?? 0),
+                        ThuNhapTinhThue = snap?.THU_NHAP_TINH_THUE ?? 0,
+                        GiamTruBanThan = snap?.GIAM_TRU_BAN_THAN ?? 0,
+                        GiamTruPhuThuoc = snap?.GIAM_TRU_PHU_THUOC ?? 0,
+                        GiamTruBaoHiem = snap?.GIAM_TRU_BAO_HIEM ?? (bl.TIEN_BHXH_TRICH ?? 0),
+                        SoNguoiPhuThuoc = snap?.SO_NGUOI_PHU_THUOC ?? 0,
+
+                        // Explanations & Policy
+                        CachTinhLuong = "Lương thực tế = Đơn giá ngày × Số công thực tế (" + (bl.DAILY_RATE ?? 0).ToString("N0") + " đ × " + (bl.CONG_THUCTE ?? 0) + " công)",
+                        CachTinhThue = (bl.THUE_TNCN > 0) ? "Thuế TNCN = Thu nhập tính thuế (" + (snap?.THU_NHAP_TINH_THUE ?? 0).ToString("N0") + " đ) × Thuế suất theo biểu lũy tiến" : "Thu nhập tính thuế không vượt mức giảm trừ gia cảnh (Miễn thuế)",
+                        PayrollVersion = !isLegacy ? "V2026.PROD" : "LEGACY",
+                        ChinhSachApDung = !isLegacy ? "Luật BHXH 41/2024, Luật Thuế TNCN 109/2025, NĐ 293/2025/NĐ-CP" : "Chính sách lương lịch sử",
+                        IsLegacy = isLegacy
                     };
 
                     return Ok(new { success = true, data = result });

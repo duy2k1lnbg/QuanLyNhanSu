@@ -82,6 +82,7 @@ namespace HRMS_API.Models
         public decimal CongThucTe { get; set; }
         public decimal CongLamNgay { get; set; }
         public decimal CongLamDem { get; set; }
+        public decimal SoGioTangCa { get; set; }
         public decimal DailyRate { get; set; }
         public decimal LuongCaNgay { get; set; }
         public decimal LuongCaDem { get; set; }
@@ -98,10 +99,26 @@ namespace HRMS_API.Models
         public decimal TienCongDoan { get; set; }
         public decimal TienTamUng { get; set; }
         public decimal ThueTncn { get; set; }
+        public decimal HoanThue { get; set; }
         public decimal KhoanTruKhac { get; set; }
         public decimal TongKhauTru { get; set; }
         public decimal ThucLinh { get; set; }
         public string TrangThaiChiTra { get; set; }
+
+        // Tax breakdown
+        public decimal ThuNhapChiuThue { get; set; }
+        public decimal ThuNhapTinhThue { get; set; }
+        public decimal GiamTruBanThan { get; set; }
+        public decimal GiamTruPhuThuoc { get; set; }
+        public decimal GiamTruBaoHiem { get; set; }
+        public int SoNguoiPhuThuoc { get; set; }
+
+        // Explanations & Policy
+        public string CachTinhLuong { get; set; }
+        public string CachTinhThue { get; set; }
+        public string PayrollVersion { get; set; }
+        public string ChinhSachApDung { get; set; }
+        public bool IsLegacy { get; set; }
     }
 
     public class MobileContractDto

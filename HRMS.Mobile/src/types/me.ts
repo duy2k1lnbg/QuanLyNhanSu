@@ -138,6 +138,7 @@ export interface PayrollDto {
   congThucTe: number;
   congLamNgay: number;
   congLamDem: number;
+  soGioTangCa?: number;
   dailyRate: number;
   luongCaNgay: number;
   luongCaDem: number;
@@ -154,10 +155,26 @@ export interface PayrollDto {
   tienCongDoan: number;
   tienTamUng: number;
   thueTncn: number;
+  hoanThue?: number;
   khoanTruKhac: number;
   tongKhauTru: number;
   thucLinh: number;
   trangThaiChiTra: string;
+
+  // Tax breakdown
+  thuNhapChiuThue?: number;
+  thuNhapTinhThue?: number;
+  giamTruBanThan?: number;
+  giamTruPhuThuoc?: number;
+  giamTruBaoHiem?: number;
+  soNguoiPhuThuoc?: number;
+
+  // Explanations & Policy
+  cachTinhLuong?: string;
+  cachTinhThue?: string;
+  payrollVersion?: string;
+  chinhSachApDung?: string;
+  isLegacy?: boolean;
 }
 
 export interface ContractDto {
