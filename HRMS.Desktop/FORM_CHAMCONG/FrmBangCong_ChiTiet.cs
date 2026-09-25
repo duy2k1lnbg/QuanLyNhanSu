@@ -120,11 +120,15 @@ namespace QLyNSu.FORM_CHAMCONG
                 SplashScreenManager.CloseForm();
                 return;
             }
-            if (_kycong.KiemTraPhatSinhKyCong(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text)) == 1)
+            int makycongCheck = int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text);
+            if (_kycong.KiemTraPhatSinhKyCong(makycongCheck) == 1)
             {
-                MessageBox.Show("Kỳ công đã tồn tại.", "Thông báo");
                 SplashScreenManager.CloseForm();
-                return;
+                if (XtraMessageBox.Show($"Kỳ công tháng {cboThang.Text}/{cboNam.Text} đã được phát sinh trước đó. Bạn có muốn phát sinh lại toàn bộ (bao gồm Bảng công gốc, Bảng công chi tiết và Kỳ công)?", "Xác nhận phát sinh lại", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
+                {
+                    return;
+                }
+                SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
             }
             #endregion
 
@@ -155,20 +159,8 @@ namespace QLyNSu.FORM_CHAMCONG
 
                 await Task.Run(() =>
                 {
-                    // 1. Kiểm tra hợp đồng, tự động cập nhật thôi việc & phát sinh kỳ công chi tiết
-                    _kcct.phatSinhKyCongChiTiet(macty, thang, nam, 1, onProgress);
-
-                    // 2. Phát sinh bảng công chi tiết từng ngày (tối ưu tốc độ cao qua Oracle SQL)
-                    _bangcong_ct.PhatSinhBangCongChiTiet(makycong, nam, thang, 1, onProgress);
-
-                    // 3. Cập nhật trạng thái kỳ công
-                    var kc = _kycong.getItem(nam * 100 + thang);
-                    if (kc != null)
-                    {
-                        kc.TRANGTHAI = 1;
-                        _kycong.Update(kc);
-                    }
-                    onProgress(100, 100, "Hoàn tất phát sinh kỳ công!");
+                    // Phát sinh toàn diện kỳ công & bảng công chi tiết theo chuẩn ACID (Nguyên tử hóa, rollback sạch nếu lỗi)
+                    _kcct.PhatSinhToanBoKyCongVaBangCong(macty, thang, nam, 1, onProgress);
                 });
 
                 SplashScreenManager.CloseForm();

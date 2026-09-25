@@ -87,11 +87,111 @@ namespace QLyNSu.FORM_CHAMCONG
                 cldNgayCong.SetDate(_d);
                 lblNgay.Text = _d.ToString("dd/MM/yyyy");
                 _cngay = ngay;
+
+                // Tải dữ liệu quẹt thẻ thực tế từ TB_BANGCONG và Bảng công chi tiết
+                LoadThongTinNgayCong(_cngay);
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Vui lòng chọn đúng ô ngày công để cập nhật.\nLỗi: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 this.Close();
+            }
+        }
+
+        /// <summary>
+        /// Tải thông tin giờ vào/ra từ TB_BANGCONG và trạng thái công từ TB_BANGCONG_CHITIET
+        /// </summary>
+        private void LoadThongTinNgayCong(int ngay)
+        {
+            try
+            {
+                int nam = _MAKYCONG / 100;
+                int thang = _MAKYCONG % 100;
+                if (nam <= 0 || thang <= 0 || ngay <= 0 || ngay > DateTime.DaysInMonth(nam, thang)) return;
+
+                DateTime _d = new DateTime(nam, thang, ngay);
+                lblNgay.Text = _d.ToString("dd/MM/yyyy");
+                _cngay = ngay;
+
+                // 1. Kiểm tra và tải dữ liệu quẹt thẻ thực tế từ TB_BANGCONG
+                var raw = _bcct_nv.GetBangCongRaw(_manv, nam, thang, ngay);
+                if (raw != null)
+                {
+                    int gv = (int)(raw.GIOVAO ?? 8);
+                    int pv = (int)(raw.PHUTVAO ?? 0);
+                    int gr = (int)(raw.GIORA ?? 17);
+                    int pr = (int)(raw.PHUTRA ?? 0);
+                    timeEditGioVao.Time = new DateTime(nam, thang, ngay, Math.Min(Math.Max(gv, 0), 23), Math.Min(Math.Max(pv, 0), 59), 0);
+                    timeEditGioRa.Time = new DateTime(nam, thang, ngay, Math.Min(Math.Max(gr, 0), 23), Math.Min(Math.Max(pr, 0), 59), 0);
+                    lblTrangThaiBangCong.Text = $"✓ Đã liên kết TB_BANGCONG (MABC: #{raw.MABC})";
+                    lblTrangThaiBangCong.ForeColor = Color.ForestGreen;
+                }
+                else
+                {
+                    // Fallback sang TB_BANGCONG_CHITIET nếu đã có
+                    var bcctnv = _bcct_nv.getItem(_MAKYCONG, _manv, ngay);
+                    if (bcctnv != null && !string.IsNullOrEmpty(bcctnv.GIOVAO) && !string.IsNullOrEmpty(bcctnv.GIORA))
+                    {
+                        if (TimeSpan.TryParse(bcctnv.GIOVAO, out TimeSpan tv))
+                        {
+                            timeEditGioVao.Time = new DateTime(nam, thang, ngay, tv.Hours, tv.Minutes, 0);
+                        }
+                        else
+                        {
+                            timeEditGioVao.Time = new DateTime(nam, thang, ngay, 8, 0, 0);
+                        }
+
+                        if (TimeSpan.TryParse(bcctnv.GIORA, out TimeSpan tr))
+                        {
+                            timeEditGioRa.Time = new DateTime(nam, thang, ngay, tr.Hours, tr.Minutes, 0);
+                        }
+                        else
+                        {
+                            timeEditGioRa.Time = new DateTime(nam, thang, ngay, 17, 0, 0);
+                        }
+                        lblTrangThaiBangCong.Text = "Chưa có TB_BANGCONG gốc (sẽ tự động tạo mới)";
+                        lblTrangThaiBangCong.ForeColor = Color.DarkOrange;
+                    }
+                    else
+                    {
+                        timeEditGioVao.Time = new DateTime(nam, thang, ngay, 8, 0, 0);
+                        timeEditGioRa.Time = new DateTime(nam, thang, ngay, 17, 0, 0);
+                        lblTrangThaiBangCong.Text = "Chưa có dữ liệu quẹt thẻ (sẽ tự động tạo mới)";
+                        lblTrangThaiBangCong.ForeColor = Color.Gray;
+                    }
+                }
+
+                // 2. Tải ký hiệu chấm công & thời gian nghỉ tương ứng từ TB_BANGCONG_CHITIET
+                var currentBcct = _bcct_nv.getItem(_MAKYCONG, _manv, ngay);
+                if (currentBcct != null && !string.IsNullOrEmpty(currentBcct.KYHIEU))
+                {
+                    string kh = currentBcct.KYHIEU.Trim();
+                    radioChamCong.EditValue = kh;
+
+                    if (currentBcct.NGAYPHEP == 1m)
+                    {
+                        radioNgayNghi.EditValue = "NN";
+                    }
+                    else if (currentBcct.NGAYPHEP == 0.5m)
+                    {
+                        radioNgayNghi.EditValue = "S";
+                    }
+                    else
+                    {
+                        radioNgayNghi.EditValue = "KHONG";
+                    }
+                }
+                else
+                {
+                    // Mặc định là Đi làm (1 ngày công) và Không nghỉ
+                    radioChamCong.EditValue = "X";
+                    radioNgayNghi.EditValue = "KHONG";
+                }
+            }
+            catch (Exception ex)
+            {
+                lblTrangThaiBangCong.Text = "Lỗi tải thông tin: " + ex.Message;
+                lblTrangThaiBangCong.ForeColor = Color.Red;
             }
         }
 
@@ -101,14 +201,14 @@ namespace QLyNSu.FORM_CHAMCONG
             {
                 if (radioChamCong.SelectedIndex < 0)
                 {
-                    MessageBox.Show("Vui lòng chọn ký hiệu chấm công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show("Vui lòng chọn trạng thái chấm công (Đi làm, Ca đêm, Nghỉ phép...).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
                 string _valueChamCong = radioChamCong.Properties.Items[radioChamCong.SelectedIndex].Value.ToString();
                 string _valueNgayNghi = radioNgayNghi.SelectedIndex >= 0 
                     ? radioNgayNghi.Properties.Items[radioNgayNghi.SelectedIndex].Value.ToString() 
-                    : "NN";
+                    : "KHONG";
 
                 if (cldNgayCong.SelectionRange.Start.Year * 100 + cldNgayCong.SelectionRange.Start.Month != _MAKYCONG)
                 {
@@ -116,116 +216,31 @@ namespace QLyNSu.FORM_CHAMCONG
                     return;
                 }
 
+                int nam = _MAKYCONG / 100;
+                int thang = _MAKYCONG % 100;
                 int ngayChon = cldNgayCong.SelectionStart.Day;
                 _cngay = ngayChon;
 
-                var kcct = _kcct.getItem(_MAKYCONG, _manv);
-                if (kcct == null)
-                {
-                    MessageBox.Show("Không tìm thấy dữ liệu kỳ công chi tiết của nhân viên.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
+                int gioVao = timeEditGioVao.Time.Hour;
+                int phutVao = timeEditGioVao.Time.Minute;
+                int gioRa = timeEditGioRa.Time.Hour;
+                int phutRa = timeEditGioRa.Time.Minute;
 
-                TB_BANGCONG_CHITIET bcctnv = _bcct_nv.getItem(_MAKYCONG, _manv, ngayChon);
-                if (bcctnv == null)
-                {
-                    DateTime dateVal = new DateTime(_MAKYCONG / 100, _MAKYCONG % 100, ngayChon);
-                    bcctnv = new TB_BANGCONG_CHITIET
-                    {
-                        MAKYCONG = _MAKYCONG,
-                        MANV = _manv,
-                        HOTEN = _hoten,
-                        IDCTY = 1,
-                        NGAY = dateVal,
-                        THU = dateVal.DayOfWeek == DayOfWeek.Sunday ? "Chủ nhật" : ("Thứ " + ((int)dateVal.DayOfWeek + 1)),
-                        GIOVAO = "08:00",
-                        GIORA = "17:00",
-                        NGAYPHEP = 0,
-                        CONGNGAYLE = 0,
-                        CONGCHUNHAT = dateVal.DayOfWeek == DayOfWeek.Sunday ? 1 : 0,
-                        CREATED_BY = 1,
-                        CREATED_DATE = DateTime.Now
-                    };
-                    _bcct_nv.Add(bcctnv);
-                }
-
-                // Cập nhật KYCONGCHITIET => BANGCONG_NV_CHITIET
-                _kcct.UpdateChamCong(_MAKYCONG, _manv, _cngay, _valueChamCong);
-
-                bcctnv.KYHIEU = _valueChamCong;
-                switch (_valueChamCong)
-                {
-                    case "X":
-                        bcctnv.NGAYCONG = 1;
-                        bcctnv.NGAYPHEP = 0;
-                        bcctnv.GIOVAO = "08:00";
-                        bcctnv.GIORA = "17:00";
-                        break;
-                    case "CD":
-                        bcctnv.NGAYCONG = 1;
-                        bcctnv.NGAYPHEP = 0;
-                        bcctnv.GIOVAO = "22:00";
-                        bcctnv.GIORA = "06:00";
-                        break;
-                    case "P":
-                        if (_valueNgayNghi == "NN")
-                        {
-                            bcctnv.NGAYPHEP = 1;
-                            bcctnv.NGAYCONG = 1;
-                        }
-                        else
-                        {
-                            bcctnv.NGAYPHEP = (decimal)0.5;
-                            bcctnv.NGAYCONG = (decimal)0.5;
-                        }
-                        break;
-                    case "CT":
-                        if (_valueNgayNghi == "NN")
-                        {
-                            bcctnv.NGAYCONG = 1;
-                        }
-                        else
-                        {
-                            bcctnv.NGAYPHEP = (decimal)0.5;
-                            bcctnv.NGAYCONG = (decimal)0.5;
-                        }
-                        break;
-                    case "V":
-                        if (_valueNgayNghi == "NN")
-                        {
-                            bcctnv.NGAYCONG = 0;
-                            bcctnv.NGAYPHEP = 0;
-                        }
-                        else
-                        {
-                            bcctnv.NGAYPHEP = (decimal)0.5;
-                            bcctnv.NGAYCONG = (decimal)0.5;
-                        }
-                        break;
-                    case "VR":
-                        if (_valueNgayNghi == "NN")
-                        {
-                            bcctnv.NGAYCONG = 0;
-                            bcctnv.NGAYPHEP = 1;
-                        }
-                        else
-                        {
-                            bcctnv.NGAYPHEP = (decimal)0.5;
-                            bcctnv.NGAYCONG = (decimal)0.5;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                _bcct_nv.Update(bcctnv);
-
-                // Tính lại các ngày công
-                decimal tongngaycong = _bcct_nv.tongNgayCong(_MAKYCONG, _manv);
-                decimal tongngayphep = _bcct_nv.tongNgayPhep(_MAKYCONG, _manv);
-
-                kcct.NGAYPHEP = tongngayphep;
-                kcct.TONGNGAYCONG = tongngaycong;
-                _kcct.Update(kcct, 1);
+                // Gọi method ACID cập nhật đồng thời TB_BANGCONG, TB_BANGCONG_CHITIET và TB_KYCONGCHITIET
+                _bcct_nv.CapNhatNgayCongVaBangCongRaw(
+                    _manv,
+                    _MAKYCONG,
+                    nam,
+                    thang,
+                    _cngay,
+                    gioVao,
+                    phutVao,
+                    gioRa,
+                    phutRa,
+                    _valueChamCong,
+                    _valueNgayNghi,
+                    1
+                );
 
                 if (frmBCCC == null)
                 {
@@ -233,7 +248,22 @@ namespace QLyNSu.FORM_CHAMCONG
                 }
                 frmBCCC?.loadBangCong();
 
-                MessageBox.Show("Cập nhật ngày công thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                // Cập nhật lại UI hiển thị thông tin vừa lưu
+                LoadThongTinNgayCong(_cngay);
+
+                string tenCong = (_valueChamCong == "X") ? "Đi làm (1 ngày công)" :
+                                 (_valueChamCong == "CD") ? "Ca đêm (1 ngày công)" :
+                                 (_valueChamCong == "P") ? "Nghỉ phép" :
+                                 (_valueChamCong == "V") ? "Vắng" :
+                                 (_valueChamCong == "VR") ? "Việc riêng" :
+                                 (_valueChamCong == "CT") ? "Công tác" : _valueChamCong;
+
+                MessageBox.Show($"Cập nhật thành công ngày {_cngay:D2}/{thang:D2}/{nam}!\n" +
+                                $"- Giờ vào: {gioVao:D2}:{phutVao:D2}\n" +
+                                $"- Giờ ra: {gioRa:D2}:{phutRa:D2}\n" +
+                                $"- Trạng thái: {tenCong}\n" +
+                                $"Dữ liệu đã được liên kết và cập nhật đồng bộ vào TB_BANGCONG.",
+                                "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             catch (Exception ex)
             {
@@ -249,7 +279,58 @@ namespace QLyNSu.FORM_CHAMCONG
         private void cldNgayCong_DateSelected(object sender, DateRangeEventArgs e)
         {
             _cngay = cldNgayCong.SelectionRange.Start.Day;
-            lblNgay.Text = cldNgayCong.SelectionRange.Start.ToString("dd/MM/yyyy");
+            LoadThongTinNgayCong(_cngay);
+        }
+
+        private void radioChamCong_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (radioChamCong.SelectedIndex < 0) return;
+            string val = radioChamCong.Properties.Items[radioChamCong.SelectedIndex].Value?.ToString();
+
+            if (val == "X") // Đi làm
+            {
+                radioNgayNghi.EditValue = "KHONG";
+                if (timeEditGioVao.Time.Hour == 22 && timeEditGioRa.Time.Hour == 6)
+                {
+                    timeEditGioVao.Time = new DateTime(timeEditGioVao.Time.Year, timeEditGioVao.Time.Month, timeEditGioVao.Time.Day, 8, 0, 0);
+                    timeEditGioRa.Time = new DateTime(timeEditGioRa.Time.Year, timeEditGioRa.Time.Month, timeEditGioRa.Time.Day, 17, 0, 0);
+                }
+            }
+            else if (val == "CD") // Ca đêm
+            {
+                radioNgayNghi.EditValue = "KHONG";
+                if (timeEditGioVao.Time.Hour == 8 && timeEditGioRa.Time.Hour == 17)
+                {
+                    timeEditGioVao.Time = new DateTime(timeEditGioVao.Time.Year, timeEditGioVao.Time.Month, timeEditGioVao.Time.Day, 22, 0, 0);
+                    timeEditGioRa.Time = new DateTime(timeEditGioRa.Time.Year, timeEditGioRa.Time.Month, timeEditGioRa.Time.Day, 6, 0, 0);
+                }
+            }
+            else if (val == "P" || val == "V" || val == "VR")
+            {
+                // Khi chuyển sang nghỉ phép / vắng, nếu đang chọn "Không nghỉ" thì tự động chuyển sang "Nguyên ngày"
+                if (radioNgayNghi.EditValue?.ToString() == "KHONG")
+                {
+                    radioNgayNghi.EditValue = "NN";
+                }
+            }
+        }
+
+        private void btnGioMacDinh_Click(object sender, EventArgs e)
+        {
+            string val = radioChamCong.SelectedIndex >= 0
+                ? radioChamCong.Properties.Items[radioChamCong.SelectedIndex].Value?.ToString()
+                : "X";
+
+            if (val == "CD")
+            {
+                timeEditGioVao.Time = new DateTime(timeEditGioVao.Time.Year, timeEditGioVao.Time.Month, timeEditGioVao.Time.Day, 22, 0, 0);
+                timeEditGioRa.Time = new DateTime(timeEditGioRa.Time.Year, timeEditGioRa.Time.Month, timeEditGioRa.Time.Day, 6, 0, 0);
+            }
+            else
+            {
+                timeEditGioVao.Time = new DateTime(timeEditGioVao.Time.Year, timeEditGioVao.Time.Month, timeEditGioVao.Time.Day, 8, 0, 0);
+                timeEditGioRa.Time = new DateTime(timeEditGioRa.Time.Year, timeEditGioRa.Time.Month, timeEditGioRa.Time.Day, 17, 0, 0);
+            }
         }
     }
 }

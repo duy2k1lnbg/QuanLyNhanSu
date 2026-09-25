@@ -65,8 +65,120 @@ namespace Bu.CLASS_CHAMCONG
             }
         }
 
-        public void PhatSinhBangCongChiTiet(int makycong, int nam, int thang, int iduser, Action<int, int, string> progress = null)
+        /// <summary>
+        /// Tự động phát sinh dữ liệu quẹt thẻ chuẩn vào TB_BANGCONG cho các ngày làm việc hành chính
+        /// (Giờ vào 08:00, giờ ra 17:00, loại trừ Chủ nhật, ngày lễ và ngày nghỉ phép đã duyệt).
+        /// </summary>
+        public int PhatSinhBangCongRaw(int nam, int thang, int iduser, MyEntities dbInstance = null)
         {
+            bool isLocalContext = (dbInstance == null);
+            var activeDb = dbInstance ?? new MyEntities();
+            try
+            {
+                string startDateStr = $"{nam:D4}-{thang:D2}-01";
+                int daysInMonth = DateTime.DaysInMonth(nam, thang);
+                string endDateStr = $"{nam:D4}-{thang:D2}-{daysInMonth:D2}";
+
+                // 1. Xóa các bản ghi cũ của tháng này trong TB_BANGCONG nếu có
+                activeDb.Database.ExecuteSqlCommand(
+                    "DELETE FROM TB_BANGCONG WHERE NAM = :p_nam AND THANG = :p_thang",
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_nam", nam),
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_thang", thang)
+                );
+
+                // 2. Chèn các lượt chấm công chuẩn vào TB_BANGCONG
+                string sql = @"
+INSERT INTO TB_BANGCONG (
+    NAM, THANG, NGAY, GIOVAO, PHUTVAO, GIORA, PHUTRA, MANV, IDLOAICONG
+)
+SELECT 
+    :p_nam,
+    :p_thang,
+    EXTRACT(DAY FROM d.ngay) as NGAY,
+    (CASE 
+        WHEN ct.ID IS NOT NULL AND ct.GIO_VAO IS NOT NULL AND INSTR(TO_CHAR(ct.GIO_VAO), ':') > 0 
+        THEN TO_NUMBER(SUBSTR(TO_CHAR(ct.GIO_VAO), 1, INSTR(TO_CHAR(ct.GIO_VAO), ':') - 1))
+        ELSE 8 
+    END) as GIOVAO,
+    (CASE 
+        WHEN ct.ID IS NOT NULL AND ct.GIO_VAO IS NOT NULL AND INSTR(TO_CHAR(ct.GIO_VAO), ':') > 0 
+        THEN TO_NUMBER(SUBSTR(TO_CHAR(ct.GIO_VAO), INSTR(TO_CHAR(ct.GIO_VAO), ':') + 1, 2))
+        ELSE 0 
+    END) as PHUTVAO,
+    (CASE 
+        WHEN ct.ID IS NOT NULL AND ct.GIO_RA IS NOT NULL AND INSTR(TO_CHAR(ct.GIO_RA), ':') > 0 
+        THEN TO_NUMBER(SUBSTR(TO_CHAR(ct.GIO_RA), 1, INSTR(TO_CHAR(ct.GIO_RA), ':') - 1))
+        ELSE 17 
+    END) as GIORA,
+    (CASE 
+        WHEN ct.ID IS NOT NULL AND ct.GIO_RA IS NOT NULL AND INSTR(TO_CHAR(ct.GIO_RA), ':') > 0 
+        THEN TO_NUMBER(SUBSTR(TO_CHAR(ct.GIO_RA), INSTR(TO_CHAR(ct.GIO_RA), ':') + 1, 2))
+        ELSE 0 
+    END) as PHUTRA,
+    nv.MANV,
+    1 as IDLOAICONG
+FROM (
+    SELECT TO_DATE(:p_start_date, 'YYYY-MM-DD') + LEVEL - 1 as ngay
+    FROM DUAL
+    CONNECT BY LEVEL <= :p_days
+) d
+CROSS JOIN (
+    SELECT nv.MANV
+    FROM TB_NHANVIEN nv
+    WHERE (nv.DATHOIVIEC IS NULL OR nv.DATHOIVIEC = 0)
+      AND nv.MANV != 3207
+      AND EXISTS (
+          SELECT 1 FROM (
+              SELECT hd.MANV, hd.NGAYBATDAU, hd.NGAYKETTHUC,
+                     ROW_NUMBER() OVER (PARTITION BY hd.MANV ORDER BY hd.NGAYBATDAU DESC, hd.SOHD DESC) as rn
+              FROM TB_HOPDONG hd
+          ) hd_latest
+          WHERE hd_latest.MANV = nv.MANV 
+            AND hd_latest.rn = 1
+            AND hd_latest.NGAYBATDAU <= TO_DATE(:p_end_date, 'YYYY-MM-DD')
+            AND (hd_latest.NGAYKETTHUC IS NULL OR hd_latest.NGAYKETTHUC >= TO_DATE(:p_start_date2, 'YYYY-MM-DD'))
+      )
+) nv
+LEFT JOIN TB_NGAYLE nl ON TRUNC(nl.NGAY) = TRUNC(d.ngay) AND nl.DELETED_BY IS NULL
+LEFT JOIN TB_YEUCAU_NGHIPHEP phep ON phep.MANV = nv.MANV 
+                                 AND TRUNC(d.ngay) BETWEEN TRUNC(phep.TUNGAY) AND TRUNC(phep.DENNGAY)
+                                 AND phep.TRANGTHAI = 'APPROVED'
+LEFT JOIN TB_YEUCAU_DIEUCHINHCONG ct ON ct.MANV = nv.MANV 
+                                    AND TRUNC(d.ngay) = TRUNC(ct.NGAY)
+                                    AND ct.TRANGTHAI = 'APPROVED'
+WHERE TO_CHAR(d.ngay, 'DY', 'NLS_DATE_LANGUAGE=AMERICAN') != 'SUN'
+  AND nl.NGAY IS NULL
+  AND phep.ID IS NULL";
+
+                int inserted = activeDb.Database.ExecuteSqlCommand(sql,
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_nam", nam),
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_thang", thang),
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_start_date", startDateStr),
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_days", daysInMonth),
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_end_date", endDateStr),
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_start_date2", startDateStr)
+                );
+
+                return inserted;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Lỗi tự động phát sinh TB_BANGCONG: " + ex.Message, ex);
+            }
+            finally
+            {
+                if (isLocalContext)
+                {
+                    activeDb.Dispose();
+                    this.db = new MyEntities();
+                }
+            }
+        }
+
+        public void PhatSinhBangCongChiTiet(int makycong, int nam, int thang, int iduser, Action<int, int, string> progress = null, MyEntities dbInstance = null, bool tuPhatSinhBangCong = true)
+        {
+            bool isLocalContext = (dbInstance == null);
+            var activeDb = dbInstance ?? new MyEntities();
             try
             {
                 progress?.Invoke(20, 100, "Đang kiểm tra nguồn dữ liệu chấm công...");
@@ -79,23 +191,30 @@ namespace Bu.CLASS_CHAMCONG
                 int rawCount = 0;
                 try
                 {
-                    rawCount = db.TB_BANGCONG.Count(b => b.NAM == nam && b.THANG == thang);
+                    rawCount = activeDb.TB_BANGCONG.Count(b => b.NAM == nam && b.THANG == thang);
                 }
                 catch { }
+
+                if (rawCount == 0 && tuPhatSinhBangCong)
+                {
+                    progress?.Invoke(30, 100, "Chưa có máy chấm công. Đang tự động phát sinh bảng chấm công gốc (TB_BANGCONG)...");
+                    rawCount = PhatSinhBangCongRaw(nam, thang, iduser, activeDb);
+                    progress?.Invoke(40, 100, $"Đã phát sinh {rawCount} lượt chấm công chuẩn vào TB_BANGCONG.");
+                }
 
                 bool hasRawPunches = rawCount > 0;
                 if (hasRawPunches)
                 {
-                    progress?.Invoke(40, 100, $"Phát hiện {rawCount} lượt quẹt thẻ trong TB_BANGCONG. Đang đồng bộ dữ liệu thực tế...");
+                    progress?.Invoke(45, 100, $"Phát hiện {rawCount} lượt quẹt thẻ trong TB_BANGCONG. Đang đồng bộ dữ liệu thực tế...");
                 }
                 else
                 {
-                    progress?.Invoke(40, 100, "Chưa có máy chấm công quẹt thẻ. Đang phát sinh lịch công chuẩn hành chính và đơn từ...");
+                    progress?.Invoke(45, 100, "Đang phát sinh lịch công chuẩn hành chính và đơn từ...");
                 }
 
                 // 2. Xóa các bản ghi cũ của kỳ công này nếu đã có trước khi sinh mới
                 var pDelMkc = new Oracle.ManagedDataAccess.Client.OracleParameter("p_del_makycong", makycong);
-                db.Database.ExecuteSqlCommand("DELETE FROM TB_BANGCONG_CHITIET WHERE MAKYCONG = :p_del_makycong", pDelMkc);
+                activeDb.Database.ExecuteSqlCommand("DELETE FROM TB_BANGCONG_CHITIET WHERE MAKYCONG = :p_del_makycong", pDelMkc);
 
                 string sql;
                 if (hasRawPunches)
@@ -113,13 +232,13 @@ SELECT
     nv.HOTEN,
     d.ngay,
     (CASE TO_CHAR(d.ngay, 'DY', 'NLS_DATE_LANGUAGE=AMERICAN')
-        WHEN 'MON' THEN N'Thứ hai'
-        WHEN 'TUE' THEN N'Thứ ba'
-        WHEN 'WED' THEN N'Thứ tư'
-        WHEN 'THU' THEN N'Thứ năm'
-        WHEN 'FRI' THEN N'Thứ sáu'
-        WHEN 'SAT' THEN N'Thứ bảy'
-        ELSE N'Chủ nhật'
+        WHEN 'MON' THEN 'Thứ hai'
+        WHEN 'TUE' THEN 'Thứ ba'
+        WHEN 'WED' THEN 'Thứ tư'
+        WHEN 'THU' THEN 'Thứ năm'
+        WHEN 'FRI' THEN 'Thứ sáu'
+        WHEN 'SAT' THEN 'Thứ bảy'
+        ELSE 'Chủ nhật'
     END),
     raw_bc.GIO_VAO,
     raw_bc.GIO_RA,
@@ -201,16 +320,16 @@ SELECT
     nv.HOTEN,
     d.ngay,
     (CASE TO_CHAR(d.ngay, 'DY', 'NLS_DATE_LANGUAGE=AMERICAN')
-        WHEN 'MON' THEN N'Thứ hai'
-        WHEN 'TUE' THEN N'Thứ ba'
-        WHEN 'WED' THEN N'Thứ tư'
-        WHEN 'THU' THEN N'Thứ năm'
-        WHEN 'FRI' THEN N'Thứ sáu'
-        WHEN 'SAT' THEN N'Thứ bảy'
-        ELSE N'Chủ nhật'
+        WHEN 'MON' THEN 'Thứ hai'
+        WHEN 'TUE' THEN 'Thứ ba'
+        WHEN 'WED' THEN 'Thứ tư'
+        WHEN 'THU' THEN 'Thứ năm'
+        WHEN 'FRI' THEN 'Thứ sáu'
+        WHEN 'SAT' THEN 'Thứ bảy'
+        ELSE 'Chủ nhật'
     END),
-    (CASE WHEN ct.ID IS NOT NULL AND ct.GIO_VAO IS NOT NULL THEN ct.GIO_VAO ELSE '08:00' END) AS GIOVAO,
-    (CASE WHEN ct.ID IS NOT NULL AND ct.GIO_RA IS NOT NULL THEN ct.GIO_RA ELSE '17:00' END) AS GIORA,
+    (CASE WHEN ct.ID IS NOT NULL AND ct.GIO_VAO IS NOT NULL THEN TO_CHAR(ct.GIO_VAO) ELSE '08:00' END) AS GIOVAO,
+    (CASE WHEN ct.ID IS NOT NULL AND ct.GIO_RA IS NOT NULL THEN TO_CHAR(ct.GIO_RA) ELSE '17:00' END) AS GIORA,
     (CASE WHEN phep.ID IS NOT NULL THEN 1 ELSE 0 END) AS NGAYPHEP,
     (CASE WHEN nl.NGAY IS NOT NULL THEN 1 ELSE 0 END) AS CONGNGAYLE,
     (CASE WHEN nl.NGAY IS NULL AND TO_CHAR(d.ngay, 'DY', 'NLS_DATE_LANGUAGE=AMERICAN') = 'SUN' THEN 1 ELSE 0 END) AS CONGCHUNHAT,
@@ -263,7 +382,7 @@ LEFT JOIN TB_YEUCAU_DIEUCHINHCONG ct ON ct.MANV = nv.MANV
 
                 if (hasRawPunches)
                 {
-                    db.Database.ExecuteSqlCommand(sql,
+                    activeDb.Database.ExecuteSqlCommand(sql,
                         new Oracle.ManagedDataAccess.Client.OracleParameter("p_makycong", makycong),
                         new Oracle.ManagedDataAccess.Client.OracleParameter("p_iduser", iduser),
                         new Oracle.ManagedDataAccess.Client.OracleParameter("p_start_date", startDateStr),
@@ -276,7 +395,7 @@ LEFT JOIN TB_YEUCAU_DIEUCHINHCONG ct ON ct.MANV = nv.MANV
                 }
                 else
                 {
-                    db.Database.ExecuteSqlCommand(sql,
+                    activeDb.Database.ExecuteSqlCommand(sql,
                         new Oracle.ManagedDataAccess.Client.OracleParameter("p_makycong", makycong),
                         new Oracle.ManagedDataAccess.Client.OracleParameter("p_iduser", iduser),
                         new Oracle.ManagedDataAccess.Client.OracleParameter("p_start_date", startDateStr),
@@ -287,73 +406,94 @@ LEFT JOIN TB_YEUCAU_DIEUCHINHCONG ct ON ct.MANV = nv.MANV
                 }
 
                 progress?.Invoke(80, 100, "Đang đồng bộ ngược lại ma trận TB_KYCONGCHITIET...");
-                DongBoSangKyCongChiTiet(makycong, nam, thang);
+                DongBoSangKyCongChiTiet(makycong, nam, thang, activeDb);
 
                 progress?.Invoke(100, 100, "Đã hoàn tất phát sinh và đồng bộ bảng công chi tiết.");
             }
             catch (Exception ex)
             {
-                throw new Exception("Lỗi phát sinh bảng công chi tiết: " + ex.Message);
+                throw new Exception("Lỗi phát sinh bảng công chi tiết: " + ex.Message, ex);
+            }
+            finally
+            {
+                if (isLocalContext)
+                {
+                    activeDb.Dispose();
+                    this.db = new MyEntities();
+                }
             }
         }
 
         /// <summary>
         /// Đồng bộ ngược từ TB_BANGCONG_CHITIET sang ma trận TB_KYCONGCHITIET (D1..D31, TONGNGAYCONG, NGAYPHEP...)
         /// </summary>
-        public void DongBoSangKyCongChiTiet(int makycong, int nam, int thang)
+        public void DongBoSangKyCongChiTiet(int makycong, int nam, int thang, MyEntities dbInstance = null)
         {
+            bool isLocalContext = (dbInstance == null);
+            var activeDb = dbInstance ?? new MyEntities();
             try
             {
-                var listBcct = db.TB_BANGCONG_CHITIET
-                    .Where(x => x.MAKYCONG == makycong)
-                    .ToList()
-                    .GroupBy(x => Convert.ToInt32(x.MANV))
-                    .ToDictionary(g => g.Key, g => g.OrderBy(x => x.NGAY).ToList());
+                // 1. Đồng bộ các chỉ số tổng hợp (TONGNGAYCONG, NGAYPHEP, CONGNGAYLE, CONGCHUNHAT, NGHIKHONGPHEP) trực tiếp bằng MERGE (quét 1 lần duy nhất)
+                string updateTotalsSql = @"
+MERGE INTO TB_KYCONGCHITIET kc
+USING (
+    SELECT 
+        bc.MAKYCONG,
+        bc.MANV,
+        SUM(bc.NGAYCONG) as tong_cong,
+        SUM(bc.NGAYPHEP) as tong_phep,
+        SUM(bc.CONGNGAYLE) as tong_le,
+        SUM(bc.CONGCHUNHAT) as tong_cn,
+        COUNT(CASE WHEN bc.KYHIEU = 'V' THEN 1 END) as tong_v
+    FROM TB_BANGCONG_CHITIET bc
+    WHERE bc.MAKYCONG = :p_makycong
+    GROUP BY bc.MAKYCONG, bc.MANV
+) src
+ON (kc.MAKYCONG = src.MAKYCONG AND kc.MANV = src.MANV)
+WHEN MATCHED THEN
+UPDATE SET
+    kc.TONGNGAYCONG = NVL(src.tong_cong, 0),
+    kc.NGAYPHEP = NVL(src.tong_phep, 0),
+    kc.CONGNGAYLE = NVL(src.tong_le, 0),
+    kc.CONGCHUNHAT = NVL(src.tong_cn, 0),
+    kc.NGHIKHONGPHEP = NVL(src.tong_v, 0)";
 
-                var listKcct = db.TB_KYCONGCHITIET.Where(x => x.MAKYCONG == makycong).ToList();
+                activeDb.Database.ExecuteSqlCommand(updateTotalsSql,
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_makycong", makycong)
+                );
 
-                foreach (var kc in listKcct)
-                {
-                    int manv = Convert.ToInt32(kc.MANV);
-                    if (!listBcct.TryGetValue(manv, out var days) || days == null) continue;
+                // 2. Cập nhật ký hiệu các ngày đặc biệt (P, CT, CD, V) vào các cột D1..D31
+                string updateSpecialDaysSql = @"
+DECLARE
+    v_mkc NUMBER := :p_makycong;
+BEGIN
+    FOR r IN (
+        SELECT bc.MANV, EXTRACT(DAY FROM bc.NGAY) as day_num, bc.KYHIEU 
+        FROM TB_BANGCONG_CHITIET bc 
+        WHERE bc.MAKYCONG = v_mkc 
+          AND bc.KYHIEU IN ('P', 'CT', 'CD', 'V')
+    ) LOOP
+        EXECUTE IMMEDIATE 'UPDATE TB_KYCONGCHITIET SET D' || r.day_num || ' = :1 WHERE MAKYCONG = :2 AND MANV = :3'
+        USING r.KYHIEU, v_mkc, r.MANV;
+    END LOOP;
+END;";
 
-                    decimal tongCong = 0;
-                    decimal tongPhep = 0;
-                    decimal tongLe = 0;
-                    decimal tongCN = 0;
-                    decimal tongVang = 0;
-
-                    foreach (var d in days)
-                    {
-                        if (!d.NGAY.HasValue) continue;
-                        int dayNum = d.NGAY.Value.Day;
-                        string kyhieu = d.KYHIEU ?? "X";
-
-                        var prop = kc.GetType().GetProperty("D" + dayNum);
-                        if (prop != null)
-                        {
-                            prop.SetValue(kc, kyhieu);
-                        }
-
-                        if (d.NGAYCONG.HasValue) tongCong += d.NGAYCONG.Value;
-                        if (d.NGAYPHEP.HasValue && d.NGAYPHEP.Value > 0) tongPhep += d.NGAYPHEP.Value;
-                        if (d.CONGNGAYLE.HasValue && d.CONGNGAYLE.Value > 0) tongLe += d.CONGNGAYLE.Value;
-                        if (d.CONGCHUNHAT.HasValue && d.CONGCHUNHAT.Value > 0) tongCN += d.CONGCHUNHAT.Value;
-                        if (kyhieu == "V") tongVang += 1;
-                    }
-
-                    kc.TONGNGAYCONG = tongCong;
-                    kc.NGAYPHEP = tongPhep;
-                    kc.CONGNGAYLE = tongLe;
-                    kc.CONGCHUNHAT = tongCN;
-                    kc.NGHIKHONGPHEP = tongVang;
-                }
-
-                db.SaveChanges();
+                activeDb.Database.ExecuteSqlCommand(updateSpecialDaysSql,
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_makycong", makycong)
+                );
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi đồng bộ sang TB_KYCONGCHITIET: " + ex.Message);
+                throw;
+            }
+            finally
+            {
+                if (isLocalContext)
+                {
+                    activeDb.Dispose();
+                    this.db = new MyEntities();
+                }
             }
         }
 
@@ -423,6 +563,211 @@ LEFT JOIN TB_YEUCAU_DIEUCHINHCONG ct ON ct.MANV = nv.MANV
         public decimal tongNgayCong(int makycong, int manv)
         {
             return db.TB_BANGCONG_CHITIET.Where(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAYCONG != null).Sum(p => p.NGAYCONG.Value);
+        }
+
+        /// <summary>
+        /// Lấy bản ghi chấm công quẹt thẻ gốc từ TB_BANGCONG theo nhân viên và ngày cụ thể
+        /// </summary>
+        public TB_BANGCONG GetBangCongRaw(int manv, int nam, int thang, int ngay)
+        {
+            return db.TB_BANGCONG.FirstOrDefault(x => x.MANV == manv && x.NAM == nam && x.THANG == thang && x.NGAY == ngay);
+        }
+
+        /// <summary>
+        /// Cập nhật đồng thời TB_BANGCONG (giờ vào, ra gốc), TB_BANGCONG_CHITIET và TB_KYCONGCHITIET trong 1 ACID transaction
+        /// </summary>
+        public void CapNhatNgayCongVaBangCongRaw(int manv, int makycong, int nam, int thang, int ngay, int gioVao, int phutVao, int gioRa, int phutRa, string kyhieu, string loaiNghi, int iduser, string ghiChu = null)
+        {
+            using (var trans = db.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
+            {
+                try
+                {
+                    DateTime ngayDate = new DateTime(nam, thang, ngay);
+                    var bcct = db.TB_BANGCONG_CHITIET.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAY == ngayDate);
+
+                    bool giuNguyenCong = (kyhieu == "KHONG_DOI" || string.IsNullOrEmpty(kyhieu));
+                    if (giuNguyenCong)
+                    {
+                        if (bcct != null && !string.IsNullOrEmpty(bcct.KYHIEU))
+                        {
+                            kyhieu = bcct.KYHIEU;
+                        }
+                        else
+                        {
+                            kyhieu = "X";
+                        }
+                    }
+
+                    // 1. Cập nhật hoặc thêm mới vào TB_BANGCONG (Dữ liệu quẹt thẻ gốc)
+                    var raw = db.TB_BANGCONG.FirstOrDefault(x => x.MANV == manv && x.NAM == nam && x.THANG == thang && x.NGAY == ngay);
+                    decimal idLoaiCong = (kyhieu == "CD") ? 2 : (raw != null && raw.IDLOAICONG.HasValue ? raw.IDLOAICONG.Value : 1);
+                    if (raw != null)
+                    {
+                        raw.GIOVAO = gioVao;
+                        raw.PHUTVAO = phutVao;
+                        raw.GIORA = gioRa;
+                        raw.PHUTRA = phutRa;
+                        if (!giuNguyenCong)
+                        {
+                            raw.IDLOAICONG = idLoaiCong;
+                        }
+                    }
+                    else
+                    {
+                        raw = new TB_BANGCONG
+                        {
+                            MANV = manv,
+                            NAM = nam,
+                            THANG = thang,
+                            NGAY = ngay,
+                            GIOVAO = gioVao,
+                            PHUTVAO = phutVao,
+                            GIORA = gioRa,
+                            PHUTRA = phutRa,
+                            IDLOAICONG = idLoaiCong
+                        };
+                        db.TB_BANGCONG.Add(raw);
+                    }
+                    db.SaveChanges();
+
+                    // 2. Cập nhật hoặc thêm mới vào TB_BANGCONG_CHITIET
+                    if (bcct == null)
+                    {
+                        var nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == manv);
+                        bcct = new TB_BANGCONG_CHITIET
+                        {
+                            MAKYCONG = makycong,
+                            MANV = manv,
+                            HOTEN = nv != null ? nv.HOTEN : "",
+                            IDCTY = nv != null ? nv.IDCTY : 1,
+                            NGAY = ngayDate,
+                            THU = ngayDate.DayOfWeek == DayOfWeek.Sunday ? "Chủ nhật" : ("Thứ " + ((int)ngayDate.DayOfWeek + 1)),
+                            CREATED_BY = iduser,
+                            CREATED_DATE = DateTime.Now
+                        };
+                        db.TB_BANGCONG_CHITIET.Add(bcct);
+                    }
+
+                    bcct.GIOVAO = $"{gioVao:D2}:{phutVao:D2}";
+                    bcct.GIORA = $"{gioRa:D2}:{phutRa:D2}";
+                    bcct.UPDATED_BY = iduser;
+                    bcct.UPDATED_DATE = DateTime.Now;
+                    if (!string.IsNullOrEmpty(ghiChu))
+                    {
+                        bcct.GHICHU = ghiChu;
+                    }
+
+                    if (!giuNguyenCong)
+                    {
+                        bcct.KYHIEU = kyhieu;
+
+                        // Nếu loaiNghi là KHONG_DOI thì giữ nguyên loại nghỉ hiện tại
+                        if (loaiNghi == "KHONG_DOI")
+                        {
+                            loaiNghi = (bcct.NGAYPHEP == 0.5m || bcct.NGAYCONG == 0.5m) ? "S" : "NN";
+                        }
+
+                        // Tính công dựa theo ký hiệu và loại nghỉ
+                        switch (kyhieu)
+                        {
+                            case "X":
+                                bcct.NGAYCONG = 1;
+                                bcct.NGAYPHEP = 0;
+                                break;
+                            case "CD":
+                                bcct.NGAYCONG = 1;
+                                bcct.NGAYPHEP = 0;
+                                break;
+                            case "P":
+                                if (loaiNghi == "NN" || loaiNghi == "KHONG")
+                                {
+                                    bcct.NGAYPHEP = 1;
+                                    bcct.NGAYCONG = 1;
+                                }
+                                else
+                                {
+                                    bcct.NGAYPHEP = 0.5m;
+                                    bcct.NGAYCONG = 0.5m;
+                                }
+                                break;
+                            case "CT":
+                                if (loaiNghi == "NN" || loaiNghi == "KHONG")
+                                {
+                                    bcct.NGAYCONG = 1;
+                                    bcct.NGAYPHEP = 0;
+                                }
+                                else
+                                {
+                                    bcct.NGAYCONG = 0.5m;
+                                    bcct.NGAYPHEP = 0.5m;
+                                }
+                                break;
+                            case "V":
+                                if (loaiNghi == "NN" || loaiNghi == "KHONG")
+                                {
+                                    bcct.NGAYCONG = 0;
+                                    bcct.NGAYPHEP = 0;
+                                }
+                                else
+                                {
+                                    bcct.NGAYCONG = 0.5m;
+                                    bcct.NGAYPHEP = 0;
+                                }
+                                break;
+                            case "VR":
+                                if (loaiNghi == "NN" || loaiNghi == "KHONG")
+                                {
+                                    bcct.NGAYCONG = 0;
+                                    bcct.NGAYPHEP = 1;
+                                }
+                                else
+                                {
+                                    bcct.NGAYCONG = 0.5m;
+                                    bcct.NGAYPHEP = 0.5m;
+                                }
+                                break;
+                            default:
+                                bcct.NGAYCONG = 1;
+                                bcct.NGAYPHEP = 0;
+                                break;
+                        }
+                    }
+                    db.SaveChanges();
+
+                    // 3. Cập nhật ma trận TB_KYCONGCHITIET (D1..D31, TONGNGAYCONG, NGAYPHEP)
+                    var kcct = db.TB_KYCONGCHITIET.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv);
+                    if (kcct != null)
+                    {
+                        if (!giuNguyenCong)
+                        {
+                            string fieldName = "D" + ngay;
+                            var prop = kcct.GetType().GetProperty(fieldName);
+                            if (prop != null)
+                            {
+                                prop.SetValue(kcct, kyhieu);
+                            }
+                        }
+
+                        decimal tongCong = db.TB_BANGCONG_CHITIET
+                            .Where(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAYCONG != null)
+                            .Sum(p => p.NGAYCONG.Value);
+                        decimal tongPhep = db.TB_BANGCONG_CHITIET
+                            .Where(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAYPHEP != null)
+                            .Sum(p => p.NGAYPHEP.Value);
+
+                        kcct.TONGNGAYCONG = tongCong;
+                        kcct.NGAYPHEP = tongPhep;
+                        db.SaveChanges();
+                    }
+
+                    trans.Commit();
+                }
+                catch (Exception ex)
+                {
+                    trans.Rollback();
+                    throw new Exception("Lỗi khi cập nhật ngày công và giờ vào/ra: " + ex.Message, ex);
+                }
+            }
         }
     }
 }

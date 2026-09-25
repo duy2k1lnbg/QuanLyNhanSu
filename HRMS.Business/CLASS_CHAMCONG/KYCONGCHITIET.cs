@@ -36,6 +36,9 @@ namespace Bu.CLASS_CHAMCONG
                 var lstNV = nhanvienBus.KiemTraVaCapNhatTrangThaiHopDong(nam, thang, macty > 0 ? (int?)macty : null);
                 if (lstNV == null || lstNV.Count == 0) return;
 
+                // Lọc bỏ trùng lặp MANV nếu có để đảm bảo tính duy nhất của khóa chính (MAKYCONG, MANV)
+                var distinctNV = lstNV.GroupBy(x => x.MANV).Select(g => g.First()).ToList();
+
                 int makycong = nam * 100 + thang;
 
                 // Chuẩn bị danh sách ký hiệu các ngày trong tháng (tính 1 lần dùng chung)
@@ -67,83 +70,246 @@ namespace Bu.CLASS_CHAMCONG
                 double soNgayLamViec = GetData_Functions.demSoNgayLamViecTrongThang(thang, nam);
                 DateTime now = DateTime.Now;
 
-                // Xóa dữ liệu cũ của kỳ công này nếu đã tồn tại để tránh trùng lặp
-                var pDelMkc = new Oracle.ManagedDataAccess.Client.OracleParameter("p_del_makycong", makycong);
-                db.Database.ExecuteSqlCommand("DELETE FROM TB_KYCONGCHITIET WHERE MAKYCONG = :p_del_makycong", pDelMkc);
-
-                // Tắt change tracking tạm thời để tăng tốc tối đa
-                db.Configuration.AutoDetectChangesEnabled = false;
-                db.Configuration.ValidateOnSaveEnabled = false;
-
-                int totalNV = lstNV.Count;
-                int currentNV = 0;
-
-                foreach (var item in lstNV)
+                // Sử dụng một DbContext mới, độc lập để tránh xung đột với các thực thể cũ đang được track trong ObjectStateManager
+                using (var cleanDb = new MyEntities())
                 {
-                    TB_KYCONGCHITIET kycongchitiet = new TB_KYCONGCHITIET
-                    {
-                        MAKYCONG = makycong,
-                        MANV = item.MANV,
-                        HOTEN = item.HOTEN,
-                        IDCTY = item.IDCTY,
-                        D1 = listDay[0],
-                        D2 = listDay[1],
-                        D3 = listDay[2],
-                        D4 = listDay[3],
-                        D5 = listDay[4],
-                        D6 = listDay[5],
-                        D7 = listDay[6],
-                        D8 = listDay[7],
-                        D9 = listDay[8],
-                        D10 = listDay[9],
-                        D11 = listDay[10],
-                        D12 = listDay[11],
-                        D13 = listDay[12],
-                        D14 = listDay[13],
-                        D15 = listDay[14],
-                        D16 = listDay[15],
-                        D17 = listDay[16],
-                        D18 = listDay[17],
-                        D19 = listDay[18],
-                        D20 = listDay[19],
-                        D21 = listDay[20],
-                        D22 = listDay[21],
-                        D23 = listDay[22],
-                        D24 = listDay[23],
-                        D25 = listDay[24],
-                        D26 = listDay[25],
-                        D27 = listDay[26],
-                        D28 = listDay[27],
-                        D29 = listDay[28],
-                        D30 = listDay[29],
-                        D31 = listDay[30],
-                        NGAYCONG = (decimal)soNgayLamViec,
-                        TONGNGAYCONG = (decimal)soNgayLamViec,
-                        CREATED_BY = iduser,
-                        CREATED_DATE = now
-                    };
+                    // 1. Xóa dữ liệu cũ của kỳ công này nếu đã tồn tại trong database
+                    var pDelMkc = new Oracle.ManagedDataAccess.Client.OracleParameter("p_del_makycong", makycong);
+                    cleanDb.Database.ExecuteSqlCommand("DELETE FROM TB_KYCONGCHITIET WHERE MAKYCONG = :p_del_makycong", pDelMkc);
 
-                    db.TB_KYCONGCHITIET.Add(kycongchitiet);
-                    currentNV++;
+                    // Tắt tracking và validation tạm thời để tăng tốc độ tối đa
+                    cleanDb.Configuration.AutoDetectChangesEnabled = false;
+                    cleanDb.Configuration.ValidateOnSaveEnabled = false;
 
-                    if (currentNV % 100 == 0 || currentNV == totalNV)
+                    int totalNV = distinctNV.Count;
+                    int currentNV = 0;
+                    var newKyCongList = new List<TB_KYCONGCHITIET>(totalNV);
+
+                    foreach (var item in distinctNV)
                     {
-                        int percent = (int)((double)currentNV / totalNV * 40); // 0% - 40%
-                        progress?.Invoke(percent, 100, $"Đang tạo kỳ công chi tiết: {currentNV}/{totalNV} nhân viên");
+                        TB_KYCONGCHITIET kycongchitiet = new TB_KYCONGCHITIET
+                        {
+                            MAKYCONG = makycong,
+                            MANV = item.MANV,
+                            HOTEN = item.HOTEN,
+                            IDCTY = item.IDCTY,
+                            D1 = listDay[0],
+                            D2 = listDay[1],
+                            D3 = listDay[2],
+                            D4 = listDay[3],
+                            D5 = listDay[4],
+                            D6 = listDay[5],
+                            D7 = listDay[6],
+                            D8 = listDay[7],
+                            D9 = listDay[8],
+                            D10 = listDay[9],
+                            D11 = listDay[10],
+                            D12 = listDay[11],
+                            D13 = listDay[12],
+                            D14 = listDay[13],
+                            D15 = listDay[14],
+                            D16 = listDay[15],
+                            D17 = listDay[16],
+                            D18 = listDay[17],
+                            D19 = listDay[18],
+                            D20 = listDay[19],
+                            D21 = listDay[20],
+                            D22 = listDay[21],
+                            D23 = listDay[22],
+                            D24 = listDay[23],
+                            D25 = listDay[24],
+                            D26 = listDay[25],
+                            D27 = listDay[26],
+                            D28 = listDay[27],
+                            D29 = listDay[28],
+                            D30 = listDay[29],
+                            D31 = listDay[30],
+                            NGAYCONG = (decimal)soNgayLamViec,
+                            TONGNGAYCONG = (decimal)soNgayLamViec,
+                            CREATED_BY = iduser,
+                            CREATED_DATE = now
+                        };
+
+                        newKyCongList.Add(kycongchitiet);
+                        currentNV++;
+
+                        if (currentNV % 100 == 0 || currentNV == totalNV)
+                        {
+                            int percent = (int)((double)currentNV / totalNV * 40); // 0% - 40%
+                            progress?.Invoke(percent, 100, $"Đang tạo kỳ công chi tiết: {currentNV}/{totalNV} nhân viên");
+                        }
                     }
+
+                    progress?.Invoke(40, 100, "Đang lưu dữ liệu kỳ công vào CSDL...");
+                    cleanDb.TB_KYCONGCHITIET.AddRange(newKyCongList);
+                    cleanDb.SaveChanges();
                 }
 
-                progress?.Invoke(40, 100, "Đang lưu dữ liệu kỳ công vào CSDL...");
-                db.SaveChanges();
-                db.Configuration.AutoDetectChangesEnabled = true;
-                db.Configuration.ValidateOnSaveEnabled = true;
+                // Làm mới lại db context của đối tượng hiện tại để các truy vấn sau luôn thấy dữ liệu mới nhất
+                this.db = new MyEntities();
             }
             catch (Exception ex)
             {
-                db.Configuration.AutoDetectChangesEnabled = true;
-                db.Configuration.ValidateOnSaveEnabled = true;
                 throw new Exception("Lỗi phát sinh kỳ công: " + ex.Message);
             }
+        }
+
+        /// <summary>
+        /// Phát sinh toàn diện kỳ công & bảng công chi tiết theo chuẩn ACID (Transaction ReadCommitted).
+        /// Đảm bảo tính nguyên tử tuyệt đối (All-or-Nothing): Nếu có bất kỳ lỗi nào, toàn bộ dữ liệu kỳ công cũ được giữ nguyên,
+        /// không bao giờ xảy ra tình trạng dữ liệu dở dang hoặc lỗi trùng khóa chính.
+        /// CHỈ DÀNH CHO BẢN DESKTOP NỘI BỘ (Không mở ra Web API public).
+        /// </summary>
+        public void PhatSinhToanBoKyCongVaBangCong(int macty, int thang, int nam, int iduser, Action<int, int, string> progress = null, bool tuPhatSinhBangCong = true)
+        {
+            using (var cleanDb = new MyEntities())
+            {
+                using (var trans = cleanDb.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
+                {
+                    try
+                    {
+                        progress?.Invoke(10, 100, "Đang kiểm tra thời hạn hợp đồng nhân sự...");
+                        NHANVIEN nhanvienBus = new NHANVIEN();
+                        var lstNV = nhanvienBus.KiemTraVaCapNhatTrangThaiHopDong(nam, thang, macty > 0 ? (int?)macty : null);
+                        if (lstNV == null || lstNV.Count == 0)
+                        {
+                            trans.Rollback();
+                            return;
+                        }
+
+                        // Lọc bỏ trùng lặp MANV nếu có để đảm bảo tính duy nhất của khóa chính (MAKYCONG, MANV)
+                        var distinctNV = lstNV.GroupBy(x => x.MANV).Select(g => g.First()).ToList();
+                        int makycong = nam * 100 + thang;
+
+                        progress?.Invoke(20, 100, "Đang xóa dữ liệu cũ trong Transaction an toàn...");
+                        var pDelBcct = new Oracle.ManagedDataAccess.Client.OracleParameter("p_del_makycong_bc", makycong);
+                        cleanDb.Database.ExecuteSqlCommand("DELETE FROM TB_BANGCONG_CHITIET WHERE MAKYCONG = :p_del_makycong_bc", pDelBcct);
+
+                        var pDelKcct = new Oracle.ManagedDataAccess.Client.OracleParameter("p_del_makycong_kc", makycong);
+                        cleanDb.Database.ExecuteSqlCommand("DELETE FROM TB_KYCONGCHITIET WHERE MAKYCONG = :p_del_makycong_kc", pDelKcct);
+
+                        // Tự động phát sinh bảng chấm công gốc TB_BANGCONG nếu chưa có máy chấm công
+                        BANGCONG_NV_CHITIET bangcongBus = new BANGCONG_NV_CHITIET();
+                        if (tuPhatSinhBangCong)
+                        {
+                            progress?.Invoke(25, 100, "Đang tự động phát sinh bảng chấm công gốc (TB_BANGCONG)...");
+                            int rawCount = bangcongBus.PhatSinhBangCongRaw(nam, thang, iduser, cleanDb);
+                            progress?.Invoke(35, 100, $"Đã phát sinh {rawCount} lượt chấm công chuẩn vào TB_BANGCONG.");
+                        }
+
+                        // Chuẩn bị danh sách ký hiệu các ngày trong tháng (tính 1 lần dùng chung)
+                        List<string> listDay = new List<string>();
+                        int daysInMonth = GetDayNumber(thang, nam);
+                        NGAYLE ngayLeBus = new NGAYLE();
+                        for (int j = 1; j <= daysInMonth; j++)
+                        {
+                            DateTime newDate = new DateTime(nam, thang, j);
+                            int loaiCong = ngayLeBus.XacDinhLoaiCong(newDate);
+                            if (loaiCong == 3)
+                            {
+                                listDay.Add("L"); // Ngày lễ
+                            }
+                            else if (loaiCong == 2)
+                            {
+                                listDay.Add("CN"); // Chủ nhật
+                            }
+                            else
+                            {
+                                listDay.Add("X"); // Ngày thường
+                            }
+                        }
+                        while (listDay.Count < 31)
+                        {
+                            listDay.Add("");
+                        }
+
+                        double soNgayLamViec = GetData_Functions.demSoNgayLamViecTrongThang(thang, nam);
+                        DateTime now = DateTime.Now;
+
+                        cleanDb.Configuration.AutoDetectChangesEnabled = false;
+                        cleanDb.Configuration.ValidateOnSaveEnabled = false;
+
+                        var newKyCongList = new List<TB_KYCONGCHITIET>(distinctNV.Count);
+                        foreach (var item in distinctNV)
+                        {
+                            TB_KYCONGCHITIET kycongchitiet = new TB_KYCONGCHITIET
+                            {
+                                MAKYCONG = makycong,
+                                MANV = item.MANV,
+                                HOTEN = item.HOTEN,
+                                IDCTY = item.IDCTY,
+                                D1 = listDay[0],
+                                D2 = listDay[1],
+                                D3 = listDay[2],
+                                D4 = listDay[3],
+                                D5 = listDay[4],
+                                D6 = listDay[5],
+                                D7 = listDay[6],
+                                D8 = listDay[7],
+                                D9 = listDay[8],
+                                D10 = listDay[9],
+                                D11 = listDay[10],
+                                D12 = listDay[11],
+                                D13 = listDay[12],
+                                D14 = listDay[13],
+                                D15 = listDay[14],
+                                D16 = listDay[15],
+                                D17 = listDay[16],
+                                D18 = listDay[17],
+                                D19 = listDay[18],
+                                D20 = listDay[19],
+                                D21 = listDay[20],
+                                D22 = listDay[21],
+                                D23 = listDay[22],
+                                D24 = listDay[23],
+                                D25 = listDay[24],
+                                D26 = listDay[25],
+                                D27 = listDay[26],
+                                D28 = listDay[27],
+                                D29 = listDay[28],
+                                D30 = listDay[29],
+                                D31 = listDay[30],
+                                NGAYCONG = (decimal)soNgayLamViec,
+                                TONGNGAYCONG = (decimal)soNgayLamViec,
+                                CREATED_BY = iduser,
+                                CREATED_DATE = now
+                            };
+
+                            newKyCongList.Add(kycongchitiet);
+                        }
+
+                        progress?.Invoke(45, 100, "Đang lưu ma trận kỳ công vào CSDL...");
+                        cleanDb.TB_KYCONGCHITIET.AddRange(newKyCongList);
+                        cleanDb.SaveChanges();
+
+                        // 3. Phát sinh bảng công chi tiết từng ngày (trên cùng context & transaction)
+                        progress?.Invoke(60, 100, "Đang tính toán chi tiết từng ngày công...");
+                        bangcongBus.PhatSinhBangCongChiTiet(makycong, nam, thang, iduser, progress, cleanDb, false);
+
+                        // 4. Cập nhật trạng thái kỳ công
+                        progress?.Invoke(90, 100, "Đang hoàn tất trạng thái kỳ công...");
+                        var kc = cleanDb.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
+                        if (kc != null)
+                        {
+                            kc.TRANGTHAI = 1;
+                            kc.NGAYTINHCONG = now;
+                            cleanDb.SaveChanges();
+                        }
+
+                        // 5. TẤT CẢ THÀNH CÔNG -> COMMIT TRANSACTION
+                        trans.Commit();
+                        progress?.Invoke(100, 100, "Phát sinh kỳ công và bảng công chi tiết thành công!");
+                    }
+                    catch (Exception ex)
+                    {
+                        try { trans.Rollback(); } catch { }
+                        throw new Exception("Lỗi phát sinh kỳ công (Đã rollback toàn bộ dữ liệu an toàn): " + ex.Message, ex);
+                    }
+                }
+            }
+
+            // Làm mới lại db context của đối tượng hiện tại
+            this.db = new MyEntities();
         }
 
 

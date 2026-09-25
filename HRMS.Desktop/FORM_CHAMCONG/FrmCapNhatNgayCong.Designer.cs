@@ -44,6 +44,13 @@ namespace QLyNSu.FORM_CHAMCONG
             this.lblMANV = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.lblKyCong = new System.Windows.Forms.Label();
+            this.grGioVaoRa = new DevExpress.XtraEditors.GroupControl();
+            this.lblGioVao = new System.Windows.Forms.Label();
+            this.timeEditGioVao = new DevExpress.XtraEditors.TimeEdit();
+            this.lblGioRa = new System.Windows.Forms.Label();
+            this.timeEditGioRa = new DevExpress.XtraEditors.TimeEdit();
+            this.btnGioMacDinh = new DevExpress.XtraEditors.SimpleButton();
+            this.lblTrangThaiBangCong = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.grChamCong)).BeginInit();
             this.grChamCong.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.radioChamCong.Properties)).BeginInit();
@@ -52,6 +59,10 @@ namespace QLyNSu.FORM_CHAMCONG
             ((System.ComponentModel.ISupportInitialize)(this.radioNgayNghi.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.groupControl1)).BeginInit();
             this.groupControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grGioVaoRa)).BeginInit();
+            this.grGioVaoRa.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.timeEditGioVao.Properties)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.timeEditGioRa.Properties)).BeginInit();
             this.SuspendLayout();
             // 
             // btnCapNhat
@@ -59,9 +70,9 @@ namespace QLyNSu.FORM_CHAMCONG
             this.btnCapNhat.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCapNhat.Appearance.Options.UseFont = true;
             this.btnCapNhat.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnCapNhat.ImageOptions.SvgImage")));
-            this.btnCapNhat.Location = new System.Drawing.Point(323, 344);
+            this.btnCapNhat.Location = new System.Drawing.Point(340, 380);
             this.btnCapNhat.Name = "btnCapNhat";
-            this.btnCapNhat.Size = new System.Drawing.Size(149, 46);
+            this.btnCapNhat.Size = new System.Drawing.Size(155, 46);
             this.btnCapNhat.TabIndex = 1;
             this.btnCapNhat.Text = "Cập Nhật";
             this.btnCapNhat.Click += new System.EventHandler(this.btnCapNhat_Click);
@@ -69,7 +80,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // cldNgayCong
             // 
             this.cldNgayCong.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cldNgayCong.Location = new System.Drawing.Point(38, 14);
+            this.cldNgayCong.Location = new System.Drawing.Point(35, 12);
             this.cldNgayCong.Name = "cldNgayCong";
             this.cldNgayCong.TabIndex = 2;
             this.cldNgayCong.DateSelected += new System.Windows.Forms.DateRangeEventHandler(this.cldNgayCong_DateSelected);
@@ -81,30 +92,31 @@ namespace QLyNSu.FORM_CHAMCONG
             this.grChamCong.AppearanceCaption.Options.UseFont = true;
             this.grChamCong.AppearanceCaption.Options.UseForeColor = true;
             this.grChamCong.Controls.Add(this.radioChamCong);
-            this.grChamCong.Location = new System.Drawing.Point(346, 14);
+            this.grChamCong.Location = new System.Drawing.Point(340, 10);
             this.grChamCong.Name = "grChamCong";
-            this.grChamCong.Size = new System.Drawing.Size(298, 136);
+            this.grChamCong.Size = new System.Drawing.Size(325, 136);
             this.grChamCong.TabIndex = 3;
             this.grChamCong.Text = "Chấm Công";
             // 
             // radioChamCong
             // 
             this.radioChamCong.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.radioChamCong.EditValue = "P";
+            this.radioChamCong.EditValue = "X";
             this.radioChamCong.Location = new System.Drawing.Point(2, 28);
             this.radioChamCong.Name = "radioChamCong";
-            this.radioChamCong.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioChamCong.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.radioChamCong.Properties.Appearance.Options.UseFont = true;
             this.radioChamCong.Properties.Columns = 2;
             this.radioChamCong.Properties.Items.AddRange(new DevExpress.XtraEditors.Controls.RadioGroupItem[] {
-            new DevExpress.XtraEditors.Controls.RadioGroupItem("X", "Ca ngày"),
+            new DevExpress.XtraEditors.Controls.RadioGroupItem("X", "Đi làm"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("CD", "Ca đêm"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("P", "Nghỉ phép"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("V", "Vắng"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("VR", "Việc riêng"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("CT", "Công tác")});
-            this.radioChamCong.Size = new System.Drawing.Size(294, 106);
+            this.radioChamCong.Size = new System.Drawing.Size(321, 106);
             this.radioChamCong.TabIndex = 0;
+            this.radioChamCong.SelectedIndexChanged += new System.EventHandler(this.radioChamCong_SelectedIndexChanged);
             // 
             // grTG
             // 
@@ -113,36 +125,123 @@ namespace QLyNSu.FORM_CHAMCONG
             this.grTG.AppearanceCaption.Options.UseFont = true;
             this.grTG.AppearanceCaption.Options.UseForeColor = true;
             this.grTG.Controls.Add(this.radioNgayNghi);
-            this.grTG.Location = new System.Drawing.Point(346, 156);
+            this.grTG.Location = new System.Drawing.Point(340, 150);
             this.grTG.Name = "grTG";
-            this.grTG.Size = new System.Drawing.Size(298, 133);
+            this.grTG.Size = new System.Drawing.Size(325, 94);
             this.grTG.TabIndex = 4;
             this.grTG.Text = "Thời Gian Nghỉ";
             // 
             // radioNgayNghi
             // 
             this.radioNgayNghi.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.radioNgayNghi.EditValue = "NN";
+            this.radioNgayNghi.EditValue = "KHONG";
             this.radioNgayNghi.Location = new System.Drawing.Point(2, 28);
             this.radioNgayNghi.Name = "radioNgayNghi";
-            this.radioNgayNghi.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.radioNgayNghi.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.radioNgayNghi.Properties.Appearance.Options.UseFont = true;
             this.radioNgayNghi.Properties.Columns = 2;
             this.radioNgayNghi.Properties.Items.AddRange(new DevExpress.XtraEditors.Controls.RadioGroupItem[] {
-            new DevExpress.XtraEditors.Controls.RadioGroupItem("S", "Sáng"),
+            new DevExpress.XtraEditors.Controls.RadioGroupItem("KHONG", "Không nghỉ"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("NN", "Nguyên ngày"),
+            new DevExpress.XtraEditors.Controls.RadioGroupItem("S", "Sáng"),
             new DevExpress.XtraEditors.Controls.RadioGroupItem("C", "Chiều")});
-            this.radioNgayNghi.Size = new System.Drawing.Size(294, 103);
+            this.radioNgayNghi.Size = new System.Drawing.Size(321, 64);
             this.radioNgayNghi.TabIndex = 0;
+            // 
+            // grGioVaoRa
+            // 
+            this.grGioVaoRa.AppearanceCaption.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.grGioVaoRa.AppearanceCaption.ForeColor = System.Drawing.Color.Blue;
+            this.grGioVaoRa.AppearanceCaption.Options.UseFont = true;
+            this.grGioVaoRa.AppearanceCaption.Options.UseForeColor = true;
+            this.grGioVaoRa.Controls.Add(this.lblGioVao);
+            this.grGioVaoRa.Controls.Add(this.timeEditGioVao);
+            this.grGioVaoRa.Controls.Add(this.lblGioRa);
+            this.grGioVaoRa.Controls.Add(this.timeEditGioRa);
+            this.grGioVaoRa.Controls.Add(this.btnGioMacDinh);
+            this.grGioVaoRa.Controls.Add(this.lblTrangThaiBangCong);
+            this.grGioVaoRa.Location = new System.Drawing.Point(340, 244);
+            this.grGioVaoRa.Name = "grGioVaoRa";
+            this.grGioVaoRa.Size = new System.Drawing.Size(325, 128);
+            this.grGioVaoRa.TabIndex = 7;
+            this.grGioVaoRa.Text = "Giờ Vào / Ra Thực Tế (TB_BANGCONG)";
+            // 
+            // lblGioVao
+            // 
+            this.lblGioVao.AutoSize = true;
+            this.lblGioVao.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGioVao.Location = new System.Drawing.Point(10, 32);
+            this.lblGioVao.Name = "lblGioVao";
+            this.lblGioVao.Size = new System.Drawing.Size(65, 18);
+            this.lblGioVao.TabIndex = 0;
+            this.lblGioVao.Text = "Giờ vào:";
+            // 
+            // timeEditGioVao
+            // 
+            this.timeEditGioVao.EditValue = new System.DateTime(2026, 1, 1, 8, 0, 0, 0);
+            this.timeEditGioVao.Location = new System.Drawing.Point(78, 28);
+            this.timeEditGioVao.Name = "timeEditGioVao";
+            this.timeEditGioVao.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timeEditGioVao.Properties.Appearance.Options.UseFont = true;
+            this.timeEditGioVao.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.timeEditGioVao.Properties.Mask.EditMask = "HH:mm";
+            this.timeEditGioVao.Size = new System.Drawing.Size(82, 28);
+            this.timeEditGioVao.TabIndex = 1;
+            // 
+            // lblGioRa
+            // 
+            this.lblGioRa.AutoSize = true;
+            this.lblGioRa.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblGioRa.Location = new System.Drawing.Point(168, 32);
+            this.lblGioRa.Name = "lblGioRa";
+            this.lblGioRa.Size = new System.Drawing.Size(56, 18);
+            this.lblGioRa.TabIndex = 2;
+            this.lblGioRa.Text = "Giờ ra:";
+            // 
+            // timeEditGioRa
+            // 
+            this.timeEditGioRa.EditValue = new System.DateTime(2026, 1, 1, 17, 0, 0, 0);
+            this.timeEditGioRa.Location = new System.Drawing.Point(228, 28);
+            this.timeEditGioRa.Name = "timeEditGioRa";
+            this.timeEditGioRa.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 10.2F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.timeEditGioRa.Properties.Appearance.Options.UseFont = true;
+            this.timeEditGioRa.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
+            new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
+            this.timeEditGioRa.Properties.Mask.EditMask = "HH:mm";
+            this.timeEditGioRa.Size = new System.Drawing.Size(82, 28);
+            this.timeEditGioRa.TabIndex = 3;
+            // 
+            // btnGioMacDinh
+            // 
+            this.btnGioMacDinh.Appearance.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnGioMacDinh.Appearance.Options.UseFont = true;
+            this.btnGioMacDinh.Location = new System.Drawing.Point(78, 62);
+            this.btnGioMacDinh.Name = "btnGioMacDinh";
+            this.btnGioMacDinh.Size = new System.Drawing.Size(232, 24);
+            this.btnGioMacDinh.TabIndex = 4;
+            this.btnGioMacDinh.Text = "Khôi phục giờ chuẩn (08:00 - 17:00)";
+            this.btnGioMacDinh.Click += new System.EventHandler(this.btnGioMacDinh_Click);
+            // 
+            // lblTrangThaiBangCong
+            // 
+            this.lblTrangThaiBangCong.AutoSize = true;
+            this.lblTrangThaiBangCong.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblTrangThaiBangCong.ForeColor = System.Drawing.Color.Green;
+            this.lblTrangThaiBangCong.Location = new System.Drawing.Point(10, 96);
+            this.lblTrangThaiBangCong.Name = "lblTrangThaiBangCong";
+            this.lblTrangThaiBangCong.Size = new System.Drawing.Size(200, 17);
+            this.lblTrangThaiBangCong.TabIndex = 5;
+            this.lblTrangThaiBangCong.Text = "✓ Đang liên kết TB_BANGCONG...";
             // 
             // btnDong
             // 
             this.btnDong.Appearance.Font = new System.Drawing.Font("Tahoma", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDong.Appearance.Options.UseFont = true;
             this.btnDong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnDong.ImageOptions.SvgImage")));
-            this.btnDong.Location = new System.Drawing.Point(523, 344);
+            this.btnDong.Location = new System.Drawing.Point(510, 380);
             this.btnDong.Name = "btnDong";
-            this.btnDong.Size = new System.Drawing.Size(136, 46);
+            this.btnDong.Size = new System.Drawing.Size(155, 46);
             this.btnDong.TabIndex = 5;
             this.btnDong.Text = "Đóng";
             this.btnDong.Click += new System.EventHandler(this.btnDong_Click);
@@ -160,9 +259,9 @@ namespace QLyNSu.FORM_CHAMCONG
             this.groupControl1.Controls.Add(this.lblHoTen);
             this.groupControl1.Controls.Add(this.label2);
             this.groupControl1.Controls.Add(this.lblMANV);
-            this.groupControl1.Location = new System.Drawing.Point(5, 245);
+            this.groupControl1.Location = new System.Drawing.Point(15, 200);
             this.groupControl1.Name = "groupControl1";
-            this.groupControl1.Size = new System.Drawing.Size(295, 168);
+            this.groupControl1.Size = new System.Drawing.Size(310, 172);
             this.groupControl1.TabIndex = 6;
             this.groupControl1.Text = "Thông Tin";
             // 
@@ -240,7 +339,8 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(678, 441);
+            this.ClientSize = new System.Drawing.Size(685, 440);
+            this.Controls.Add(this.grGioVaoRa);
             this.Controls.Add(this.groupControl1);
             this.Controls.Add(this.btnDong);
             this.Controls.Add(this.grTG);
@@ -261,6 +361,11 @@ namespace QLyNSu.FORM_CHAMCONG
             ((System.ComponentModel.ISupportInitialize)(this.groupControl1)).EndInit();
             this.groupControl1.ResumeLayout(false);
             this.groupControl1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.grGioVaoRa)).EndInit();
+            this.grGioVaoRa.ResumeLayout(false);
+            this.grGioVaoRa.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.timeEditGioVao.Properties)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.timeEditGioRa.Properties)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -282,5 +387,12 @@ namespace QLyNSu.FORM_CHAMCONG
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label lblKyCong;
+        private DevExpress.XtraEditors.GroupControl grGioVaoRa;
+        private System.Windows.Forms.Label lblGioVao;
+        private DevExpress.XtraEditors.TimeEdit timeEditGioVao;
+        private System.Windows.Forms.Label lblGioRa;
+        private DevExpress.XtraEditors.TimeEdit timeEditGioRa;
+        private DevExpress.XtraEditors.SimpleButton btnGioMacDinh;
+        private System.Windows.Forms.Label lblTrangThaiBangCong;
     }
 }

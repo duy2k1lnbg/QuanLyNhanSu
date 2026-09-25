@@ -197,5 +197,160 @@ namespace Bu.Tests
                 }
             }
         }
+
+        [Test]
+        public void Test_PhatSinhKyCongChiTiet_DoesNotThrowDuplicateKeyException()
+        {
+            var kcctBus = new KYCONGCHITIET();
+            int makycong = 202609;
+
+            // Mô phỏng đúng kịch bản của Desktop: form load gọi getList trước (làm dơ ObjectStateManager)
+            var preloaded = kcctBus.getList(makycong);
+
+            // Gọi phatSinhKyCongChiTiet không được ném ra exception 'more than one entity with same primary key'
+            Assert.DoesNotThrow(() =>
+            {
+                kcctBus.phatSinhKyCongChiTiet(1, 9, 2026, 1, null);
+            });
+
+            // Sau khi phát sinh, getList phải lấy được dữ liệu chuẩn
+            var afterList = kcctBus.getList(makycong);
+            Assert.IsNotNull(afterList);
+            Assert.IsTrue(afterList.Count > 0, "Bảng kỳ công chi tiết phải có dữ liệu nhân viên");
+        }
+
+        [Test]
+        public void Test_PhatSinhBangCongChiTiet_And_DongBoKyCong()
+        {
+            var bcctBus = new BANGCONG_NV_CHITIET();
+            int makycong = 202609;
+
+            Assert.DoesNotThrow(() =>
+            {
+                bcctBus.PhatSinhBangCongChiTiet(makycong, 2026, 9, 1, null);
+            });
+        }
+
+        [Test]
+        public void Test_PhatSinhToanBoKyCongVaBangCong_ACID_Transaction()
+        {
+            var kcctBus = new KYCONGCHITIET();
+            int makycong = 202609;
+
+            Assert.DoesNotThrow(() =>
+            {
+                kcctBus.PhatSinhToanBoKyCongVaBangCong(1, 9, 2026, 1, null, true);
+            });
+
+            using (var db = new MyEntities())
+            {
+                // 1. Kiểm tra TB_BANGCONG đã được tự động phát sinh
+                int bangCongCount = db.TB_BANGCONG.Count(b => b.NAM == 2026 && b.THANG == 9);
+                Assert.IsTrue(bangCongCount > 0, "TB_BANGCONG phải tự động được phát sinh dữ liệu quẹt thẻ chuẩn (8h-17h)");
+
+                // 2. Kiểm tra TB_BANGCONG_CHITIET đã có dữ liệu
+                int bcctCount = db.TB_BANGCONG_CHITIET.Count(b => b.MAKYCONG == makycong);
+                Assert.IsTrue(bcctCount > 0, "TB_BANGCONG_CHITIET phải có đầy đủ dữ liệu chi tiết từng ngày");
+
+                // 3. Kiểm tra TB_KYCONGCHITIET đã có dữ liệu ma trận D1..D31
+                var afterList = kcctBus.getList(makycong);
+                Assert.IsNotNull(afterList);
+                Assert.IsTrue(afterList.Count > 0, "Kỳ công chi tiết phải có dữ liệu nhân sự sau khi phát sinh toàn diện ACID");
+
+                // 4. Kiểm tra trạng thái kỳ công
+                var kc = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
+                Assert.IsNotNull(kc);
+                Assert.AreEqual(1, kc.TRANGTHAI, "Trạng thái kỳ công phải được cập nhật thành 1 (đã phát sinh)");
+            }
+        }
+
+        [Test]
+        public void Test_CapNhatNgayCongVaBangCongRaw_DirectLinkage()
+        {
+            var bcctBus = new BANGCONG_NV_CHITIET();
+            var kcctBus = new KYCONGCHITIET();
+            int makycong = 202609;
+            int manv = 2201; // Nhân viên mẫu trong kỳ công
+            int ngay = 15;
+
+            // Giả lập người dùng sửa Giờ Vào: 08:30, Giờ Ra: 17:45 từ UI
+            int gioVao = 8;
+            int phutVao = 30;
+            int gioRa = 17;
+            int phutRa = 45;
+            string kyHieu = "X";
+            string loaiNghi = "NN";
+
+            Assert.DoesNotThrow(() =>
+            {
+                bcctBus.CapNhatNgayCongVaBangCongRaw(manv, makycong, 2026, 9, ngay, gioVao, phutVao, gioRa, phutRa, kyHieu, loaiNghi, 1, "Sửa giờ quẹt thẻ từ UI");
+            });
+
+            // 1. Kiểm tra liên kết trực tiếp tới TB_BANGCONG
+            var raw = bcctBus.GetBangCongRaw(manv, 2026, 9, ngay);
+            Assert.IsNotNull(raw, "Bản ghi TB_BANGCONG phải tồn tại và được liên kết trực tiếp");
+            Assert.AreEqual(gioVao, (int)raw.GIOVAO, "TB_BANGCONG.GIOVAO phải cập nhật đúng 8h");
+            Assert.AreEqual(phutVao, (int)raw.PHUTVAO, "TB_BANGCONG.PHUTVAO phải cập nhật đúng 30p");
+            Assert.AreEqual(gioRa, (int)raw.GIORA, "TB_BANGCONG.GIORA phải cập nhật đúng 17h");
+            Assert.AreEqual(phutRa, (int)raw.PHUTRA, "TB_BANGCONG.PHUTRA phải cập nhật đúng 45p");
+
+            // 2. Kiểm tra đồng bộ sang TB_BANGCONG_CHITIET
+            var bcct = bcctBus.getItem(makycong, manv, ngay);
+            Assert.IsNotNull(bcct, "TB_BANGCONG_CHITIET phải tồn tại");
+            Assert.AreEqual("08:30", bcct.GIOVAO, "TB_BANGCONG_CHITIET.GIOVAO phải là 08:30");
+            Assert.AreEqual("17:45", bcct.GIORA, "TB_BANGCONG_CHITIET.GIORA phải là 17:45");
+            Assert.AreEqual(kyHieu, bcct.KYHIEU, "TB_BANGCONG_CHITIET.KYHIEU phải là X");
+            Assert.AreEqual(1, bcct.NGAYCONG, "TB_BANGCONG_CHITIET.NGAYCONG phải là 1");
+
+            // 3. Kiểm tra đồng bộ sang ma trận TB_KYCONGCHITIET (D15)
+            var kcct = kcctBus.getItem(makycong, manv);
+            Assert.IsNotNull(kcct, "TB_KYCONGCHITIET phải tồn tại");
+            Assert.AreEqual(kyHieu, kcct.D15, "Ô D15 trong TB_KYCONGCHITIET phải cập nhật thành X");
+        }
+
+        [Test]
+        public void Test_CapNhatNgayCongVaBangCongRaw_KhongThayDoiCong()
+        {
+            var bcctBus = new BANGCONG_NV_CHITIET();
+            var kcctBus = new KYCONGCHITIET();
+            int makycong = 202609;
+            int manv = 2201;
+            int ngay = 16;
+
+            // Bước 1: Thiết lập trạng thái ban đầu là "P" (Nghỉ phép)
+            bcctBus.CapNhatNgayCongVaBangCongRaw(manv, makycong, 2026, 9, ngay, 8, 0, 17, 0, "P", "NN", 1);
+            var initialBcct = bcctBus.getItem(makycong, manv, ngay);
+            Assert.AreEqual("P", initialBcct.KYHIEU);
+
+            // Bước 2: Người dùng chọn "Không thay đổi" ("KHONG_DOI") và chỉ sửa giờ vào: 09:15, giờ ra: 18:30
+            int newGioVao = 9;
+            int newPhutVao = 15;
+            int newGioRa = 18;
+            int newPhutRa = 30;
+
+            Assert.DoesNotThrow(() =>
+            {
+                bcctBus.CapNhatNgayCongVaBangCongRaw(manv, makycong, 2026, 9, ngay, newGioVao, newPhutVao, newGioRa, newPhutRa, "KHONG_DOI", "KHONG_DOI", 1);
+            });
+
+            // Bước 3: Kiểm tra TB_BANGCONG được cập nhật giờ mới
+            var raw = bcctBus.GetBangCongRaw(manv, 2026, 9, ngay);
+            Assert.IsNotNull(raw);
+            Assert.AreEqual(newGioVao, (int)raw.GIOVAO);
+            Assert.AreEqual(newPhutVao, (int)raw.PHUTVAO);
+            Assert.AreEqual(newGioRa, (int)raw.GIORA);
+            Assert.AreEqual(newPhutRa, (int)raw.PHUTRA);
+
+            // Bước 4: Kiểm tra TB_BANGCONG_CHITIET giữ nguyên ký hiệu "P" và cập nhật chuỗi giờ mới
+            var updatedBcct = bcctBus.getItem(makycong, manv, ngay);
+            Assert.IsNotNull(updatedBcct);
+            Assert.AreEqual("09:15", updatedBcct.GIOVAO);
+            Assert.AreEqual("18:30", updatedBcct.GIORA);
+            Assert.AreEqual("P", updatedBcct.KYHIEU, "Ký hiệu chấm công phải được giữ nguyên không đổi là 'P'");
+
+            // Bước 5: Kiểm tra ma trận TB_KYCONGCHITIET giữ nguyên "P"
+            var kcct = kcctBus.getItem(makycong, manv);
+            Assert.AreEqual("P", kcct.D16, "Ô D16 trong TB_KYCONGCHITIET phải giữ nguyên 'P'");
+        }
     }
 }

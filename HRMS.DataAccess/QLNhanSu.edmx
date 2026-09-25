@@ -670,16 +670,16 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_BANGCONG_NV_FK1">
-          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="1">
+          <End Role="TB_NHANVIEN" Type="Self.TB_NHANVIEN" Multiplicity="0..1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Role="TB_BANGCONG" Type="Self.TB_BANGCONG" Multiplicity="0..1" />
+          <End Role="TB_BANGCONG" Type="Self.TB_BANGCONG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
             </Principal>
             <Dependent Role="TB_BANGCONG">
-              <PropertyRef Name="MABC" />
+              <PropertyRef Name="MANV" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -1851,16 +1851,16 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="TB_BANGCONG_NV_FK1">
-          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="1">
+          <End Type="Model.TB_NHANVIEN" Role="TB_NHANVIEN" Multiplicity="0..1">
             <OnDelete Action="Cascade" />
           </End>
-          <End Type="Model.TB_BANGCONG" Role="TB_BANGCONG" Multiplicity="0..1" />
+          <End Type="Model.TB_BANGCONG" Role="TB_BANGCONG" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="TB_NHANVIEN">
               <PropertyRef Name="MANV" />
             </Principal>
             <Dependent Role="TB_BANGCONG">
-              <PropertyRef Name="MABC" />
+              <PropertyRef Name="MANV" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
