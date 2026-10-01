@@ -1,0 +1,398 @@
+[
+  {
+    "MANV": 1,
+    "CODE": "NV0001",
+    "HOTEN": "Hoàng Quốc Sơn",
+    "GENDER": "Nam",
+    "DOB": "1975-07-12",
+    "PHONE": "0915013734",
+    "CCCD": "027075264710",
+    "ADDRESS": "Số 79, Phố Lê Lợi, Phường Suối Hoa, Thành phố Bắc Ninh, Tỉnh Bắc Ninh",
+    "DEPT": "4 - Bộ phận hành chính văn phòng",
+    "POSITION": "1 - Tổng Giám Đốc",
+    "SALARY": "82.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 8.000.000 đ",
+      "IDPC 2: 300.000 đ",
+      "IDPC 10: 1.000.000 đ"
+    ],
+    "CONTRACT": "00001/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000001 (Bệnh viện Đa khoa thị xã Quế Võ)"
+  },
+  {
+    "MANV": 5,
+    "CODE": "NV0005",
+    "HOTEN": "Nguyễn Quỳnh Hoa",
+    "GENDER": "Nữ",
+    "DOB": "1999-12-27",
+    "PHONE": "0357235146",
+    "CCCD": "001199900046",
+    "ADDRESS": "Số 3, Phố Lý Thường Kiệt, Phường Bồ Đề, Quận Long Biên, Tỉnh Hà Nội",
+    "DEPT": "4 - Bộ phận hành chính văn phòng",
+    "POSITION": "27 - Lễ tân",
+    "SALARY": "9.500.000 đ",
+    "ALLOWANCES": [
+      "IDPC 1: 2.000.000 đ"
+    ],
+    "CONTRACT": "00005/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000005 (Bệnh viện Quân Y 108 - Hà Nội)"
+  },
+  {
+    "MANV": 6,
+    "CODE": "NV0006",
+    "HOTEN": "Lê Ngọc Minh",
+    "GENDER": "Nam",
+    "DOB": "1996-06-21",
+    "PHONE": "0941990007",
+    "CCCD": "027096396365",
+    "ADDRESS": "Số 160, Phố Đường Tỉnh 277, Phường Ninh Xá, Thành phố Bắc Ninh, Tỉnh Bắc Ninh",
+    "DEPT": "4 - Bộ phận hành chính văn phòng",
+    "POSITION": "25 - Nhân viên",
+    "SALARY": "14.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 2: 500.000 đ"
+    ],
+    "CONTRACT": "00006/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000006 (Bệnh viện Bạch Mai - Hà Nội)"
+  },
+  {
+    "MANV": 7,
+    "CODE": "NV0007",
+    "HOTEN": "Nguyễn Mai Trang",
+    "GENDER": "Nữ",
+    "DOB": "1997-06-13",
+    "PHONE": "0907176851",
+    "CCCD": "027197680096",
+    "ADDRESS": "Số 103, Phố Phan Chu Trinh, Thị trấn Lim, Huyện Tiên Du, Tỉnh Bắc Ninh",
+    "DEPT": "4 - Bộ phận hành chính văn phòng",
+    "POSITION": "25 - Nhân viên",
+    "SALARY": "11.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 1: 800.000 đ"
+    ],
+    "CONTRACT": "00007/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000007 (Bệnh viện Bạch Mai - Hà Nội)"
+  },
+  {
+    "MANV": 8,
+    "CODE": "NV0008",
+    "HOTEN": "Ngô Trọng Cường",
+    "GENDER": "Nam",
+    "DOB": "2000-09-27",
+    "PHONE": "0352972492",
+    "CCCD": "027200705262",
+    "ADDRESS": "Số 125, Phố Nguyễn Du, Thị trấn Phố Mới, Thị xã Quế Võ, Tỉnh Bắc Ninh",
+    "DEPT": "4 - Bộ phận hành chính văn phòng",
+    "POSITION": "25 - Nhân viên",
+    "SALARY": "11.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 2: 500.000 đ"
+    ],
+    "CONTRACT": "00008/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000008 (Bệnh viện Sản Nhi Bắc Ninh)"
+  },
+  {
+    "MANV": 9,
+    "CODE": "NV0009",
+    "HOTEN": "Lê Duy Tuấn",
+    "GENDER": "Nam",
+    "DOB": "1985-12-24",
+    "PHONE": "0975690856",
+    "CCCD": "001085955802",
+    "ADDRESS": "Số 128, Phố Lý Thường Kiệt, Phường Mỹ Đình 1, Quận Nam Từ Liêm, Tỉnh Hà Nội",
+    "DEPT": "40 - Bộ phận Pháp lý",
+    "POSITION": "23 - Trưởng phòng",
+    "SALARY": "36.500.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 3.000.000 đ",
+      "IDPC 2: 1.000.000 đ",
+      "IDPC 1: 1.200.000 đ"
+    ],
+    "CONTRACT": "00009/2026/HDLD (2026-01-01 -> 2029-12-31)",
+    "INSURANCE": "BH27000009 (Bệnh viện Đa khoa thị xã Quế Võ)"
+  },
+  {
+    "MANV": 12,
+    "CODE": "NV0012",
+    "HOTEN": "Lâm Thu Quyên",
+    "GENDER": "Nữ",
+    "DOB": "1982-10-18",
+    "PHONE": "0988068171",
+    "CCCD": "027182796311",
+    "ADDRESS": "Số 155, Phố Hoàng Hoa Thám, Thị trấn Phố Mới, Thị xã Quế Võ, Tỉnh Bắc Ninh",
+    "DEPT": "23 - Bộ phận Nhân sự",
+    "POSITION": "39 - Trưởng phòng nhân sự",
+    "SALARY": "34.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 3.000.000 đ",
+      "IDPC 2: 1.000.000 đ",
+      "IDPC 1: 1.500.000 đ",
+      "IDPC 10: 1.500.000 đ"
+    ],
+    "CONTRACT": "00012/2026/HDLD (2026-01-01 -> 2029-12-31)",
+    "INSURANCE": "BH27000012 (Bệnh viện Quân Y 108 - Hà Nội)"
+  },
+  {
+    "MANV": 17,
+    "CODE": "NV0017",
+    "HOTEN": "Lê Kim Thủy",
+    "GENDER": "Nữ",
+    "DOB": "1997-04-25",
+    "PHONE": "0366548341",
+    "CCCD": "001197202199",
+    "ADDRESS": "Số 151, Phố Hoàng Hoa Thám, Phường Dịch Vọng Hậu, Quận Cầu Giấy, Tỉnh Hà Nội",
+    "DEPT": "23 - Bộ phận Nhân sự",
+    "POSITION": "29 - Nhân sự",
+    "SALARY": "13.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 1: 800.000 đ"
+    ],
+    "CONTRACT": "00017/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000017 (Bệnh viện Đa khoa Gia Lâm - Hà Nội)"
+  },
+  {
+    "MANV": 18,
+    "CODE": "NV0018",
+    "HOTEN": "Phạm Văn Tùng",
+    "GENDER": "Nam",
+    "DOB": "1998-08-17",
+    "PHONE": "0969553202",
+    "CCCD": "027098523518",
+    "ADDRESS": "Số 113, Phố Ngô Gia Tự, Phường Đình Bảng, Thành phố Từ Sơn, Tỉnh Bắc Ninh",
+    "DEPT": "23 - Bộ phận Nhân sự",
+    "POSITION": "29 - Nhân sự",
+    "SALARY": "11.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 2: 800.000 đ",
+      "IDPC 1: 1.200.000 đ"
+    ],
+    "CONTRACT": "00018/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000018 (Bệnh viện Sản Nhi Bắc Ninh)"
+  },
+  {
+    "MANV": 20,
+    "CODE": "NV0020",
+    "HOTEN": "Cao Hồng Dung",
+    "GENDER": "Nữ",
+    "DOB": "1982-08-02",
+    "PHONE": "0361952353",
+    "CCCD": "030182474081",
+    "ADDRESS": "Số 67, Phố Lê Lợi, Thị trấn Lai Cách, Huyện Cẩm Giàng, Tỉnh Hải Dương",
+    "DEPT": "24 - Bộ phận Kế toán",
+    "POSITION": "23 - Trưởng phòng",
+    "SALARY": "31.500.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 3.000.000 đ",
+      "IDPC 6: 1.000.000 đ",
+      "IDPC 2: 1.000.000 đ",
+      "IDPC 1: 800.000 đ"
+    ],
+    "CONTRACT": "00020/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000020 (Bệnh viện Đa khoa tỉnh Bắc Ninh)"
+  },
+  {
+    "MANV": 30,
+    "CODE": "NV0030",
+    "HOTEN": "Ngô Ngọc Phong",
+    "GENDER": "Nam",
+    "DOB": "1982-06-21",
+    "PHONE": "0918779320",
+    "CCCD": "027082736639",
+    "ADDRESS": "Số 56, Phố Lý Thường Kiệt, Thị trấn Chờ, Huyện Yên Phong, Tỉnh Bắc Ninh",
+    "DEPT": "33 - Bộ phận Tài chính",
+    "POSITION": "21 - Giám đốc",
+    "SALARY": "55.500.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 5.000.000 đ",
+      "IDPC 12: 6.000.000 đ",
+      "IDPC 2: 500.000 đ",
+      "IDPC 10: 1.000.000 đ"
+    ],
+    "CONTRACT": "00030/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000030 (Bệnh viện Quân Y 110)"
+  },
+  {
+    "MANV": 44,
+    "CODE": "NV0044",
+    "HOTEN": "Huỳnh Duy Phúc",
+    "GENDER": "Nam",
+    "DOB": "1988-08-05",
+    "PHONE": "0369904976",
+    "CCCD": "027088109158",
+    "ADDRESS": "Số 90, Phố Nguyễn Văn Cừ, Phường Suối Hoa, Thành phố Bắc Ninh, Tỉnh Bắc Ninh",
+    "DEPT": "31 - Bộ phận Thiết kế",
+    "POSITION": "31 - Trưởng bộ phận",
+    "SALARY": "33.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 3.000.000 đ",
+      "IDPC 2: 300.000 đ",
+      "IDPC 1: 800.000 đ",
+      "IDPC 10: 1.000.000 đ"
+    ],
+    "CONTRACT": "00044/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000044 (Bệnh viện Đa khoa thị xã Việt Yên)"
+  },
+  {
+    "MANV": 48,
+    "CODE": "NV0048",
+    "HOTEN": "Mai Đức Huy",
+    "GENDER": "Nam",
+    "DOB": "1982-07-02",
+    "PHONE": "0865520601",
+    "CCCD": "027082101971",
+    "ADDRESS": "Số 145, Phố Đường Tỉnh 277, Phường Ninh Xá, Thành phố Bắc Ninh, Tỉnh Bắc Ninh",
+    "DEPT": "25 - Bộ phận IT",
+    "POSITION": "40 - Trưởng phòng IT",
+    "SALARY": "44.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 3.000.000 đ",
+      "IDPC 6: 2.000.000 đ",
+      "IDPC 2: 800.000 đ",
+      "IDPC 7: 1.200.000 đ"
+    ],
+    "CONTRACT": "00048/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000048 (Bệnh viện Đa khoa thị xã Quế Võ)"
+  },
+  {
+    "MANV": 75,
+    "CODE": "NV0075",
+    "HOTEN": "Nguyễn Trọng Dũng",
+    "GENDER": "Nam",
+    "DOB": "1980-12-23",
+    "PHONE": "0936784027",
+    "CCCD": "001080714425",
+    "ADDRESS": "Số 156, Phố Quang Trung, Phường Bồ Đề, Quận Long Biên, Tỉnh Hà Nội",
+    "DEPT": "34 - Bộ phận Nghiên cứu và Phát triển",
+    "POSITION": "23 - Trưởng phòng",
+    "SALARY": "47.500.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 3.000.000 đ",
+      "IDPC 12: 6.000.000 đ",
+      "IDPC 1: 1.500.000 đ",
+      "IDPC 10: 1.000.000 đ"
+    ],
+    "CONTRACT": "00075/2026/HDLD (2026-01-01 -> 2029-12-31)",
+    "INSURANCE": "BH27000075 (Bệnh viện Sản Nhi Bắc Ninh)"
+  },
+  {
+    "MANV": 80,
+    "CODE": "NV0080",
+    "HOTEN": "Dương Đình Sơn",
+    "GENDER": "Nam",
+    "DOB": "1986-09-08",
+    "PHONE": "0798944753",
+    "CCCD": "027086705034",
+    "ADDRESS": "Số 139, Phố Đường Tỉnh 277, Phường Vũ Ninh, Thành phố Bắc Ninh, Tỉnh Bắc Ninh",
+    "DEPT": "29 - Bộ phận Quản lý dự án",
+    "POSITION": "35 - Quản lý dự án",
+    "SALARY": "43.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 3.000.000 đ",
+      "IDPC 12: 6.000.000 đ",
+      "IDPC 2: 500.000 đ",
+      "IDPC 1: 1.200.000 đ"
+    ],
+    "CONTRACT": "00080/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000080 (Bệnh viện Đa khoa tỉnh Bắc Giang)"
+  },
+  {
+    "MANV": 96,
+    "CODE": "NV0096",
+    "HOTEN": "Nguyễn Thanh Long",
+    "GENDER": "Nam",
+    "DOB": "1983-05-03",
+    "PHONE": "0963972376",
+    "CCCD": "027083997611",
+    "ADDRESS": "Số 24, Phố Đường 295, Phường Tiền An, Thành phố Bắc Ninh, Tỉnh Bắc Ninh",
+    "DEPT": "36 - Bộ phận Bán hàng",
+    "POSITION": "41 - Trưởng phòng bán hàng",
+    "SALARY": "37.500.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 3.000.000 đ",
+      "IDPC 2: 300.000 đ",
+      "IDPC 13: 500.000 đ",
+      "IDPC 3: 600.000 đ"
+    ],
+    "CONTRACT": "00096/2026/HDLD (2026-01-01 -> 2029-12-31)",
+    "INSURANCE": "BH27000096 (Bệnh viện Bạch Mai - Hà Nội)"
+  },
+  {
+    "MANV": 104,
+    "CODE": "NV0104",
+    "HOTEN": "Phạm Quốc Vũ",
+    "GENDER": "Nam",
+    "DOB": "1982-03-18",
+    "PHONE": "0865289467",
+    "CCCD": "027082223996",
+    "ADDRESS": "Số 37, Phố Nguyễn Du, Phường Suối Hoa, Thành phố Bắc Ninh, Tỉnh Bắc Ninh",
+    "DEPT": "1 - Bộ phận kinh doanh",
+    "POSITION": "22 - Phó giám đốc",
+    "SALARY": "48.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 5.000.000 đ",
+      "IDPC 10: 1.500.000 đ"
+    ],
+    "CONTRACT": "00104/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000104 (Bệnh viện Đa khoa huyện Yên Phong)"
+  },
+  {
+    "MANV": 124,
+    "CODE": "NV0124",
+    "HOTEN": "Nguyễn Đức Hiếu",
+    "GENDER": "Nam",
+    "DOB": "1981-06-20",
+    "PHONE": "0911310108",
+    "CCCD": "030081721662",
+    "ADDRESS": "Số 64, Phố Hùng Vương, Thị trấn Lai Cách, Huyện Cẩm Giàng, Tỉnh Hải Dương",
+    "DEPT": "2 - Bộ phận kỹ thuật",
+    "POSITION": "21 - Giám đốc",
+    "SALARY": "56.500.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 5.000.000 đ",
+      "IDPC 2: 300.000 đ",
+      "IDPC 1: 2.000.000 đ"
+    ],
+    "CONTRACT": "00124/2026/HDLD (2026-01-01 -> 2029-12-31)",
+    "INSURANCE": "BH27000124 (Bệnh viện Bạch Mai - Hà Nội)"
+  },
+  {
+    "MANV": 151,
+    "CODE": "NV0151",
+    "HOTEN": "Đoàn Trung Hoàng",
+    "GENDER": "Nam",
+    "DOB": "1981-06-27",
+    "PHONE": "0888416936",
+    "CCCD": "001081283040",
+    "ADDRESS": "Số 81, Phố Quốc Lộ 1A, Thị trấn Trâu Quỳ, Huyện Gia Lâm, Tỉnh Hà Nội",
+    "DEPT": "3 - Bộ phận sản xuất",
+    "POSITION": "21 - Giám đốc",
+    "SALARY": "57.500.000 đ",
+    "ALLOWANCES": [
+      "IDPC 5: 5.000.000 đ",
+      "IDPC 2: 800.000 đ",
+      "IDPC 1: 1.200.000 đ",
+      "IDPC 9: 400.000 đ"
+    ],
+    "CONTRACT": "00151/2026/HDLD (2026-01-01 -> 2027-12-31)",
+    "INSURANCE": "BH27000151 (Bệnh viện Đa khoa thị xã Quế Võ)"
+  },
+  {
+    "MANV": 192,
+    "CODE": "NV0192",
+    "HOTEN": "Trần Văn Nam",
+    "GENDER": "Nam",
+    "DOB": "2002-05-19",
+    "PHONE": "0794497376",
+    "CCCD": "027202600111",
+    "ADDRESS": "Số 34, Phố Lê Lợi, Phường Vũ Ninh, Thành phố Bắc Ninh, Tỉnh Bắc Ninh",
+    "DEPT": "26 - Bộ phận Sản xuất",
+    "POSITION": "45 - Nhân viên sản xuất",
+    "SALARY": "11.000.000 đ",
+    "ALLOWANCES": [
+      "IDPC 1: 800.000 đ",
+      "IDPC 9: 300.000 đ"
+    ],
+    "CONTRACT": "00192/2026/HDLD (2024-01-01 -> 2026-09-15)",
+    "INSURANCE": "BH27000192 (Bệnh viện Đa khoa tỉnh Bắc Giang)"
+  }
+]

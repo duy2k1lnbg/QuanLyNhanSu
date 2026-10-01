@@ -299,7 +299,7 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
         },
       }}
       footer={
-        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '12px', paddingTop: '10px' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px', paddingTop: '10px', flexWrap: 'wrap' }}>
           <Button onClick={onClose} size="middle" style={{ borderRadius: '6px' }}>
             Đóng
           </Button>
@@ -327,6 +327,8 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
           style={{
             maxHeight: 'calc(86vh - 110px)',
             overflowY: 'auto',
+            overflowX: 'auto',
+            WebkitOverflowScrolling: 'touch',
             padding: '16px 20px',
             backgroundColor: '#ffffff',
           }}
@@ -340,6 +342,7 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
               padding: '12px 14px',
               fontSize: '12px',
               lineHeight: 1.4,
+              minWidth: '600px',
             }}
           >
             {/* HEADER SECTION */}

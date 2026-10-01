@@ -267,6 +267,8 @@ namespace QLyNSu.FORM_CHAMCONG
             this.THUC_LINH});
             this.gvBangLuong.GridControl = this.gcBangLuong;
             this.gvBangLuong.Name = "gvBangLuong";
+            this.gvBangLuong.OptionsView.ColumnAutoWidth = false;
+            this.gvBangLuong.HorzScrollVisibility = DevExpress.XtraGrid.Views.Base.ScrollVisibility.Always;
             this.gvBangLuong.OptionsView.ShowGroupPanel = false;
             // 
             // IDBL
@@ -441,7 +443,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.KHOAN_TRU_KHAC.AppearanceHeader.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
             this.KHOAN_TRU_KHAC.AppearanceHeader.Options.UseFont = true;
-            this.KHOAN_TRU_KHAC.Caption = "THUẾ TNCN";
+            this.KHOAN_TRU_KHAC.Caption = "TRỪ KHÁC";
             this.KHOAN_TRU_KHAC.DisplayFormat.FormatString = "n0";
             this.KHOAN_TRU_KHAC.DisplayFormat.FormatType = DevExpress.Utils.FormatType.Numeric;
             this.KHOAN_TRU_KHAC.FieldName = "KHOAN_TRU_KHAC";

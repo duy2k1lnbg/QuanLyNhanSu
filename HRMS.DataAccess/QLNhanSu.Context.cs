@@ -70,6 +70,46 @@ namespace DA
         public virtual DbSet<TB_SYS_LOGIN_HISTORY> TB_SYS_LOGIN_HISTORY { get; set; }
         public virtual DbSet<TB_LOAIHOPDONG> TB_LOAIHOPDONG { get; set; }
         public virtual DbSet<TB_NGAYLE> TB_NGAYLE { get; set; }
+        public virtual DbSet<SCHEMA_VERSION> SCHEMA_VERSION { get; set; }
+        public virtual DbSet<TB_AUTH_AUDIT> TB_AUTH_AUDIT { get; set; }
+        public virtual DbSet<TB_AUTH_LOGIN_ATTEMPT> TB_AUTH_LOGIN_ATTEMPT { get; set; }
+        public virtual DbSet<TB_AUTH_POLICY> TB_AUTH_POLICY { get; set; }
+        public virtual DbSet<TB_AUTH_SESSION> TB_AUTH_SESSION { get; set; }
+        public virtual DbSet<TB_BANGLUONG_BAOHIEM> TB_BANGLUONG_BAOHIEM { get; set; }
+        public virtual DbSet<TB_BANGLUONG_CONG_DOAN> TB_BANGLUONG_CONG_DOAN { get; set; }
+        public virtual DbSet<TB_BANGLUONG_CT> TB_BANGLUONG_CT { get; set; }
+        public virtual DbSet<TB_BANGLUONG_CT_SOURCE> TB_BANGLUONG_CT_SOURCE { get; set; }
+        public virtual DbSet<TB_BANGLUONG_OT_COMPLIANCE> TB_BANGLUONG_OT_COMPLIANCE { get; set; }
+        public virtual DbSet<TB_BANGLUONG_THUE_CT> TB_BANGLUONG_THUE_CT { get; set; }
+        public virtual DbSet<TB_CA_KHUNGGIO> TB_CA_KHUNGGIO { get; set; }
+        public virtual DbSet<TB_CA_PHIENBAN> TB_CA_PHIENBAN { get; set; }
+        public virtual DbSet<TB_CHAMCONG_BATTHUONG> TB_CHAMCONG_BATTHUONG { get; set; }
+        public virtual DbSet<TB_CHAMCONG_BT_LICHSU> TB_CHAMCONG_BT_LICHSU { get; set; }
+        public virtual DbSet<TB_CHAMCONG_KQ_NGAY> TB_CHAMCONG_KQ_NGAY { get; set; }
+        public virtual DbSet<TB_CHAMCONG_LANTINH> TB_CHAMCONG_LANTINH { get; set; }
+        public virtual DbSet<TB_CHINH_SACH_BHXH> TB_CHINH_SACH_BHXH { get; set; }
+        public virtual DbSet<TB_CHINH_SACH_BHXH_VUNG> TB_CHINH_SACH_BHXH_VUNG { get; set; }
+        public virtual DbSet<TB_CHINH_SACH_CONG_DOAN> TB_CHINH_SACH_CONG_DOAN { get; set; }
+        public virtual DbSet<TB_CHINH_SACH_LUONG> TB_CHINH_SACH_LUONG { get; set; }
+        public virtual DbSet<TB_CONG_PD_NGUON> TB_CONG_PD_NGUON { get; set; }
+        public virtual DbSet<TB_CONG_PHANDOAN> TB_CONG_PHANDOAN { get; set; }
+        public virtual DbSet<TB_HESO_TANGCA> TB_HESO_TANGCA { get; set; }
+        public virtual DbSet<TB_LICH_LAMVIEC> TB_LICH_LAMVIEC { get; set; }
+        public virtual DbSet<TB_NGUOI_PHU_THUOC> TB_NGUOI_PHU_THUOC { get; set; }
+        public virtual DbSet<TB_NHANVIEN_BAOHIEM_THAM_GIA> TB_NHANVIEN_BAOHIEM_THAM_GIA { get; set; }
+        public virtual DbSet<TB_NHANVIEN_CONG_DOAN_THAM_GIA> TB_NHANVIEN_CONG_DOAN_THAM_GIA { get; set; }
+        public virtual DbSet<TB_NHANVIEN_THUE> TB_NHANVIEN_THUE { get; set; }
+        public virtual DbSet<TB_PAYROLL_CALCULATION_RUN> TB_PAYROLL_CALCULATION_RUN { get; set; }
+        public virtual DbSet<TB_QUYDINH_CHAMCONG> TB_QUYDINH_CHAMCONG { get; set; }
+        public virtual DbSet<TB_QUYET_TOAN_THUE_NAM> TB_QUYET_TOAN_THUE_NAM { get; set; }
+        public virtual DbSet<TB_QUYET_TOAN_THUE_NAM_CT> TB_QUYET_TOAN_THUE_NAM_CT { get; set; }
+        public virtual DbSet<TB_THUE_TNCN_BAC> TB_THUE_TNCN_BAC { get; set; }
+        public virtual DbSet<TB_THUE_TNCN_CHINH_SACH> TB_THUE_TNCN_CHINH_SACH { get; set; }
+        public virtual DbSet<TB_USER_EMPLOYEE_MAPPING> TB_USER_EMPLOYEE_MAPPING { get; set; }
+        public virtual DbSet<TB_YEUCAU_DIEUCHINHCONG> TB_YEUCAU_DIEUCHINHCONG { get; set; }
+        public virtual DbSet<TB_YEUCAU_NGHIPHEP> TB_YEUCAU_NGHIPHEP { get; set; }
+        public virtual DbSet<TB_YEUCAU_TANGCA> TB_YEUCAU_TANGCA { get; set; }
+        public virtual DbSet<TB_SYS_RIGHT_BACKUP> TB_SYS_RIGHT_BACKUP { get; set; }
     
         public virtual int ADD_JOB_HISTORY(Nullable<decimal> p_EMP_ID, Nullable<System.DateTime> p_START_DATE, Nullable<System.DateTime> p_END_DATE, string p_JOB_ID, Nullable<decimal> p_DEPARTMENT_ID)
         {

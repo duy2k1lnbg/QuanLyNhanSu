@@ -9,6 +9,7 @@ import {
   GithubOutlined,
 } from '@ant-design/icons';
 import { AUTHOR_INFO } from '../types';
+import { ScrollReveal } from '../../../components/ScrollReveal';
 
 const { Title, Paragraph } = Typography;
 
@@ -36,6 +37,7 @@ export const LandingArchitecture: React.FC<LandingArchitectureProps> = ({
       >
         <Row gutter={[32, 24]} align="middle">
           <Col xs={24} lg={16}>
+            <ScrollReveal direction="left" duration={650}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <CodeOutlined style={{ color: '#60a5fa', fontSize: 20 }} />
               <span style={{ fontSize: 13, fontWeight: 700, color: '#93c5fd', textTransform: 'uppercase' }}>
@@ -58,9 +60,11 @@ export const LandingArchitecture: React.FC<LandingArchitectureProps> = ({
               <Tag color="green">BCrypt & JWT Authentication</Tag>
               <Tag color="gold">Cloud High Availability</Tag>
             </Space>
+            </ScrollReveal>
           </Col>
 
           <Col xs={24} lg={8} style={{ textAlign: 'center' }}>
+            <ScrollReveal direction="right" delay={80} duration={650}>
             <div
               style={{
                 background: 'rgba(15, 23, 42, 0.6)',
@@ -92,6 +96,7 @@ export const LandingArchitecture: React.FC<LandingArchitectureProps> = ({
                 {tLanding.archReadyBtn}
               </Button>
             </div>
+            </ScrollReveal>
           </Col>
         </Row>
       </div>
@@ -129,6 +134,7 @@ export const LandingArchitecture: React.FC<LandingArchitectureProps> = ({
         <Row gutter={[36, 32]} align="middle">
           {/* Cột ảnh đại diện + Thông tin tác giả */}
           <Col xs={24} md={9} lg={8} style={{ textAlign: 'center' }}>
+            <ScrollReveal direction="left" duration={650}>
             <div style={{ position: 'relative', display: 'inline-block', marginBottom: 18 }}>
               <div
                 style={{
@@ -197,10 +203,12 @@ export const LandingArchitecture: React.FC<LandingArchitectureProps> = ({
               <Tag color="geekblue" style={{ borderRadius: 6, fontSize: 11, padding: '2px 8px' }}>Database</Tag>
               <Tag color="purple" style={{ borderRadius: 6, fontSize: 11, padding: '2px 8px' }}>AI Integration</Tag>
             </Space>
+            </ScrollReveal>
           </Col>
 
           {/* Cột thông điệp marketing + Nút liên hệ Email & Facebook */}
           <Col xs={24} md={15} lg={16}>
+            <ScrollReveal direction="right" delay={80} duration={650}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
               <RocketOutlined style={{ color: '#a855f7', fontSize: 18 }} />
               <span style={{ fontSize: 12.5, fontWeight: 700, color: '#c084fc', textTransform: 'uppercase', letterSpacing: '1px' }}>
@@ -390,6 +398,7 @@ export const LandingArchitecture: React.FC<LandingArchitectureProps> = ({
                 </a>
               </Col>
             </Row>
+            </ScrollReveal>
           </Col>
         </Row>
       </div>

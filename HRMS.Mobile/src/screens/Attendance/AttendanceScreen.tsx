@@ -238,6 +238,104 @@ export const AttendanceScreen: React.FC = () => {
                       </Text>
                     </View>
                   </View>
+
+                  {/* Enriched Attribute Chips & Segments (Hours, Night, OT, Leave, Holiday, Violations) */}
+                  <View style={styles.chipsRow}>
+                    {item.gioThucTe != null && item.gioThucTe > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}>
+                        <Text style={[styles.hourChipText, { color: colors.textSecondary }]}>
+                          ⏱️ Thực làm: {item.gioThucTe}h
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.gioHuongCong != null && item.gioHuongCong > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: 'rgba(59, 130, 246, 0.08)', borderColor: colors.primary }]}>
+                        <Text style={[styles.hourChipText, { color: colors.primary }]}>
+                          ✅ Hưởng công: {item.gioHuongCong}h
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.gioOtXacNhan != null && item.gioOtXacNhan > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: 'rgba(245, 158, 11, 0.12)', borderColor: '#F59E0B' }]}>
+                        <Text style={[styles.hourChipText, { color: '#D97706' }]}>
+                          ⚡ OT duyệt: {item.gioOtXacNhan}h
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.gioDem != null && item.gioDem > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: 'rgba(139, 92, 246, 0.12)', borderColor: '#8B5CF6' }]}>
+                        <Text style={[styles.hourChipText, { color: '#7C3AED' }]}>
+                          🌙 Ca đêm: {item.gioDem}h
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.ngayPhep != null && item.ngayPhep > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: 'rgba(16, 185, 129, 0.12)', borderColor: '#10B981' }]}>
+                        <Text style={[styles.hourChipText, { color: '#059669' }]}>
+                          🏖️ Phép: {item.ngayPhep}
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.congNgayLe != null && item.congNgayLe > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: 'rgba(236, 72, 153, 0.12)', borderColor: '#EC4899' }]}>
+                        <Text style={[styles.hourChipText, { color: '#DB2777' }]}>
+                          🎉 Lễ: {item.congNgayLe}
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.congChuNhat != null && item.congChuNhat > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: 'rgba(14, 165, 233, 0.12)', borderColor: '#0EA5E9' }]}>
+                        <Text style={[styles.hourChipText, { color: '#0284C7' }]}>
+                          ☀️ CN: {item.congChuNhat}
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.phutDiMuonViPham != null && item.phutDiMuonViPham > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: 'rgba(239, 68, 68, 0.12)', borderColor: '#EF4444' }]}>
+                        <Text style={[styles.hourChipText, { color: '#DC2626' }]}>
+                          ⚠️ Muộn: {item.phutDiMuonViPham} phút
+                        </Text>
+                      </View>
+                    )}
+
+                    {item.phutVeSomViPham != null && item.phutVeSomViPham > 0 && (
+                      <View style={[styles.hourChip, { backgroundColor: 'rgba(239, 68, 68, 0.12)', borderColor: '#EF4444' }]}>
+                        <Text style={[styles.hourChipText, { color: '#DC2626' }]}>
+                          ⚠️ Về sớm: {item.phutVeSomViPham} phút
+                        </Text>
+                      </View>
+                    )}
+                  </View>
+
+                  {/* Anomaly & Period Closing Readiness Banner */}
+                  {item.coBatThuongChuaXacMinh ? (
+                    <View style={[styles.anomalyAlert, { backgroundColor: 'rgba(239, 68, 68, 0.08)', borderColor: '#EF4444' }]}>
+                      <Ionicons name="warning" size={14} color="#EF4444" />
+                      <Text style={[styles.anomalyAlertText, { color: '#DC2626' }]}>
+                        Ngoại lệ công chưa xác minh • Chặn chốt kỳ
+                      </Text>
+                    </View>
+                  ) : item.duDieuKienChot === true ? (
+                    <View style={[styles.anomalyAlert, { backgroundColor: 'rgba(16, 185, 129, 0.08)', borderColor: '#10B981' }]}>
+                      <Ionicons name="checkmark-circle" size={14} color="#10B981" />
+                      <Text style={[styles.anomalyAlertText, { color: '#059669' }]}>
+                        Hợp lệ • Đủ điều kiện chốt công
+                      </Text>
+                    </View>
+                  ) : null}
+
+                  {item.ghiChu ? (
+                    <Text style={[typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
+                      Ghi chú: {item.ghiChu}
+                    </Text>
+                  ) : null}
                 </AppCard>
               ))
             )}
@@ -309,5 +407,36 @@ const styles = StyleSheet.create({
   timeCol: {
     alignItems: 'center',
     flex: 1,
+  },
+  chipsRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 6,
+    marginTop: spacing.sm,
+    paddingTop: spacing.xs,
+  },
+  hourChip: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  hourChipText: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  anomalyAlert: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    marginTop: spacing.xs,
+    gap: 6,
+  },
+  anomalyAlertText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
 });

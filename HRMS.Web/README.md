@@ -1,32 +1,41 @@
-# React + TypeScript + Vite
+# HRMS.Web
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Giao diện Web của dự án quản lý nhân sự, dùng React, TypeScript, Vite và Ant Design. Ứng dụng gọi `HRMS.Api` để đọc và cập nhật dữ liệu; không kết nối trực tiếp Oracle.
 
-Currently, two official plugins are available:
+Cập nhật nội dung: 01/10/2026.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Chạy cục bộ
 
-## React Compiler
+Build/chạy backend trước theo [hướng dẫn cài đặt](../docs/installation.md). Vite proxy mặc định tới `http://localhost:55463`.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```powershell
+npm ci
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Vite dùng cổng `5173`. `VITE_API_BASE_URL` trong `.env` được ưu tiên hơn proxy mặc định. File `.env.example` hiện dùng cổng `5000`; kiểm tra cấu hình backend trước khi sao chép.
+
+## Lệnh kiểm tra
+
+```powershell
+npm run test
+npm run lint
+npm run build
+```
+
+Test hiện tập trung vào KPI/chấm công và intro/ngôn ngữ, chưa phải bộ kiểm thử giao diện E2E. Lint còn cảnh báo. Build đã được kiểm tra với output riêng do lỗi quyền truy cập ở `dist` hiện tại; xem [hiện trạng](../docs/current-status.md).
+
+## Nguồn mã
+
+- `src/App.tsx`: trạng thái ứng dụng, tải dữ liệu và điều hướng.
+- `src/pages`, `src/components`: trang và thành phần giao diện.
+- `src/services/api.ts`: Axios, token và URL API.
+- `src/utils/permissionUtils.ts`: quyền ở giao diện; server vẫn cần kiểm tra quyền riêng.
+- `src/theme`, `src/locales`: theme và năm ngôn ngữ.
+- `tests`: kiểm tra KPI/chấm công và welcome intro.
+
+## Khi triển khai
+
+Đặt `VITE_API_BASE_URL` theo cách bố trí IIS/API trước lúc build. Không coi cơ chế đổi `/api` ↔ `/api/api` sau 404 là cách cấu hình chính. Docker Web dùng Nginx và gọi API chạy riêng trên host.
+
+Xem [tài liệu triển khai](../docs/deployment.md) và [ghi chú giao diện](../docs/web.md). `build:vps` gọi script đóng gói có thao tác file ngoài thư mục Web; đọc script trước khi chạy.

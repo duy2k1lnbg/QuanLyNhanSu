@@ -559,4 +559,13 @@ export const ko: LocaleType = {
     noNotifications: '새로운 알림이 없습니다.',
     viewAll: '전체 알림 확인',
   },
+
+  intro: {
+    welcome: 'WELCOME',
+    toHrms: 'TO HRMS ENTERPRISE',
+    subtitle: '인사 관리 · 근태 관리 · 급여 관리',
+    hint: '아무 키나 누르거나 탭하여 계속',
+    skip: '건너뛰기',
+    skipShortcut: 'Esc / 아무 키',
+  },
 };

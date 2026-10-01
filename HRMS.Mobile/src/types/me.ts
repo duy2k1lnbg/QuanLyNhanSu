@@ -106,6 +106,116 @@ export interface AttendanceDailyItemDto {
   kyHieu: string;
   trangThai: string;
   ghiChu?: string | null;
+  ngayPhep?: number | null;
+  congNgayLe?: number | null;
+  congChuNhat?: number | null;
+  trangThaiCong?: string | null;
+  duDieuKienChot?: boolean | null;
+  gioThucTe?: number | null;
+  gioHuongCong?: number | null;
+  gioOtXacNhan?: number | null;
+  gioDem?: number | null;
+  phutDiMuonViPham?: number | null;
+  phutVeSomViPham?: number | null;
+  coBatThuongChuaXacMinh?: boolean;
+}
+
+export interface LeaveApprovalItemDto {
+  id: number;
+  idYeuCau: number;
+  manv: number;
+  employeeCode?: string;
+  employeeName: string;
+  departmentName: string;
+  loaiNghi: string;
+  tuNgay: string;
+  denNgay: string;
+  soNgay: number;
+  lyDo: string;
+  trangThai: 'PENDING' | 'APPROVED' | 'REJECTED';
+  ngayTao: string;
+  nguoiDuyet?: string;
+  ngayDuyet?: string;
+  lyDoTuChoi?: string;
+}
+
+export interface AttendanceCorrectionApprovalItemDto {
+  id: number;
+  idYeuCau: number;
+  manv: number;
+  employeeCode?: string;
+  employeeName: string;
+  departmentName: string;
+  ngayCong: string;
+  gioVaoMoi?: string;
+  gioRaMoi?: string;
+  lyDo: string;
+  trangThai: 'PENDING' | 'APPROVED' | 'REJECTED';
+  ngayTao: string;
+  nguoiDuyet?: string;
+  ngayDuyet?: string;
+  lyDoTuChoi?: string;
+}
+
+export interface OvertimeApprovalItemDto {
+  id: number;
+  idYeuCau: number;
+  manv: number;
+  employeeCode?: string;
+  employeeName: string;
+  departmentName: string;
+  ngayTangCa: string;
+  soGio: number;
+  heSo: number;
+  idCa: number;
+  tenCa: string;
+  noiDung: string;
+  trangThai: 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+  ngayTao: string;
+  nguoiDuyet?: string;
+  ngayDuyet?: string;
+  lyDoTuChoi?: string;
+}
+
+export interface InsuranceMovementApprovalItemDto {
+  id: number;
+  manv: number;
+  employeeCode?: string;
+  employeeName: string;
+  departmentName: string;
+  maKyCong: number;
+  loai: 'TANG' | 'GIAM' | 'DIEU_CHINH' | 'TAM_DUNG' | string;
+  ngayHieuLuc: string;
+  lyDo: string;
+  trangThai: 'DRAFT' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  nguoiDuyet?: string;
+  idNguoiDuyet?: number;
+}
+
+export interface LeaveTransactionDto {
+  id: number;
+  ngay: string;
+  loai: 'CAP' | 'SU_DUNG' | 'HOAN' | 'DIEU_CHINH' | 'HET_HAN' | string;
+  giayPhep: number;
+  soNgay: number;
+  idDon?: number;
+  lyDo: string;
+}
+
+export interface LeaveBalanceDto {
+  manv: number;
+  tongCapNgay: number;
+  daDungNgay: number;
+  conLaiNgay: number;
+  transactions: LeaveTransactionDto[];
+}
+
+export interface ApprovalSummaryDto {
+  totalPending: number;
+  leavePending: number;
+  attendancePending: number;
+  overtimePending: number;
+  insurancePending?: number;
 }
 
 export interface AttendanceSummaryDto {
@@ -192,6 +302,40 @@ export interface ContractDto {
   isExpiringSoon: boolean;
 }
 
+export interface InsuranceMovementDto {
+  id: number;
+  manv: number;
+  maKyCong: number;
+  loai: string;
+  ngayHieuLuc: string;
+  lyDo: string;
+  trangThai: string;
+  nguoiDuyet?: number;
+  tenNguoiDuyet?: string;
+}
+
+export interface InsuranceParticipationDto {
+  id: number;
+  vungLuong: number;
+  thamGiaBhxh: boolean;
+  thamGiaBhyt: boolean;
+  thamGiaBhtn: boolean;
+  thamGiaTnldBnn: boolean;
+  huongTyLeTnldUuDai: boolean;
+  luongDongBhxhRieng?: number | null;
+  ngayBatDau: string;
+  ngayKetThuc?: string | null;
+  trangThai: string;
+}
+
+export interface UnionParticipationDto {
+  id: number;
+  laDoanVien: boolean;
+  ngayGiaNhap: string;
+  ngayKetThuc?: string | null;
+  trangThai: string;
+}
+
 export interface InsuranceDto {
   idbh: number;
   sobh: string;
@@ -199,6 +343,9 @@ export interface InsuranceDto {
   noicap: string;
   noikhambenh: string;
   luongBhxh?: number | null;
+  movements?: InsuranceMovementDto[];
+  participations?: InsuranceParticipationDto[];
+  unionParticipation?: UnionParticipationDto;
 }
 
 export interface NotificationDto {

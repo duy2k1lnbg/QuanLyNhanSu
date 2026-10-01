@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
-  Card,
   Row,
   Col,
   Tag,
@@ -9,7 +8,6 @@ import {
   Button,
   Progress,
   List,
-  Tooltip,
 } from 'antd';
 import {
   TeamOutlined,
@@ -17,14 +15,16 @@ import {
   CalendarOutlined,
   CheckCircleOutlined,
   ArrowRightOutlined,
-  LockOutlined,
+  WarningOutlined,
+  ClockCircleOutlined,
 } from '@ant-design/icons';
 import {
   ResponsiveContainer,
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
+  CartesianGrid,
   Tooltip as RechartsTooltip,
 } from 'recharts';
 import type {
@@ -33,13 +33,19 @@ import type {
   DashboardPhongBanDTO,
   NhanVienDTO,
   BangLuongDTO,
+  HopDongDTO,
   ActionItemDTO,
   AnomalyItemDTO,
 } from '../types/hrms';
 import { canView } from '../utils/permissionUtils';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
+import { MetricCard } from '../theme/components/MetricCard';
+import { SectionCard } from '../theme/components/SectionCard';
+import { calculateDashboardMetrics } from '../utils/dashboardMetrics';
 
-const { Title, Text, Paragraph } = Typography;
+const { Text } = Typography;
 
 interface DashboardPageProps {
   totalEmployees: number;
@@ -51,12 +57,14 @@ interface DashboardPageProps {
   phongBanStats: DashboardPhongBanDTO[];
   nhanVienList: NhanVienDTO[];
   bangLuongList: BangLuongDTO[];
+  hopDongList?: HopDongDTO[];
   onNavigate: (key: string) => void;
   presentToday?: number;
   absentToday?: number;
   lateToday?: number;
   actionItems?: ActionItemDTO[];
   anomalies?: AnomalyItemDTO[];
+  selectedKyCongName?: string;
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
@@ -65,24 +73,37 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   currentUser,
   luongStats,
   nhanVienList,
+  bangLuongList,
+  hopDongList,
   onNavigate,
   presentToday: propPresent,
-  absentToday: propAbsent,
   actionItems: propActionItems,
+  selectedKyCongName,
 }) => {
   const { t, lang } = useAppLanguage();
-  const [, setActionCategory] = useState<string>('all');
+  const { tokens, isDark } = useAppTheme();
+  const [actionCategory, setActionCategory] = useState<'all' | 'urgent' | 'warning'>('all');
 
   const canAccessNv = canView(currentUser, 'F_DM_NHANVIEN', 'NV', 'NHANVIEN');
   const canAccessCc = canView(currentUser, 'F_CC_BANGCONG', 'CHAMCONG');
   const canAccessBl = canView(currentUser, 'F_CC_BANGLUONG', 'BANGLUONG', 'LUONG');
 
-  const countTotal = totalEmployees;
-  const present = propPresent ?? 0;
-  const absent = propAbsent ?? Math.max(0, countTotal - present);
+  const metrics = useMemo(() => {
+    return calculateDashboardMetrics(
+      nhanVienList,
+      hopDongList || [],
+      bangLuongList,
+      propPresent,
+      selectedKyCongName
+    );
+  }, [nhanVienList, hopDongList, bangLuongList, propPresent, selectedKyCongName]);
 
-  const presentPercentage = countTotal > 0 ? Math.round((present / countTotal) * 100) : 0;
+  const countTotal = metrics.totalEmployees || totalEmployees;
+  const activeCount = metrics.activeEmployees;
+  const present = metrics.distinctPresentToday;
+  const absent = Math.max(0, activeCount - present);
 
+  const presentPercentage = activeCount > 0 ? Math.min(100, Math.round((present / activeCount) * 100)) : 0;
   const actionList: ActionItemDTO[] = propActionItems || [];
 
   const formatPayroll = (amount: number) => {
@@ -98,6 +119,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const urgentCount = actionList.filter((a) => a.urgency === 'urgent').length;
   const warningCount = actionList.filter((a) => a.urgency === 'warning').length;
 
+  const filteredActionList = actionList.filter((item) => {
+    if (actionCategory === 'urgent') return item.urgency === 'urgent';
+    if (actionCategory === 'warning') return item.urgency === 'warning';
+    return true;
+  });
+
   const currentDateStr = new Date().toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : lang, {
     weekday: 'long',
     day: 'numeric',
@@ -106,298 +133,409 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   });
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      {/* 1. GREETING & STATUS BANNER */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #1e3a8a 100%)',
-          borderRadius: 12,
-          padding: '24px 30px',
-          color: '#ffffff',
-          boxShadow: '0 4px 20px rgba(15, 23, 42, 0.15)',
-        }}
-      >
-        <Row align="middle" justify="space-between" gutter={[16, 16]}>
-          <Col xs={24} md={16}>
-            <Space align="center" size="middle">
-              <Title level={3} style={{ color: '#fff', margin: 0 }}>
-                {currentUser.FullName} 👋
-              </Title>
-              <Tag color="cyan" style={{ border: 'none', background: 'rgba(255,255,255,0.15)', color: '#e0f2fe' }}>
-                {currentUser.IsAdmin ? t('app.tagSuperAdmin') : t('app.tagStaff')}
-              </Tag>
-            </Space>
-            <Paragraph style={{ color: '#94a3b8', margin: '6px 0 0 0', fontSize: 14 }}>
-              {t('app.titleDashboard')} &bull; {currentDateStr}
-            </Paragraph>
-          </Col>
-
-          <Col xs={24} md={8} style={{ textAlign: 'right' }}>
-            <Space size="middle" wrap>
-              <div
-                style={{
-                  background: 'rgba(239, 68, 68, 0.2)',
-                  border: '1px solid rgba(239, 68, 68, 0.4)',
-                  padding: '6px 14px',
-                  borderRadius: 20,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: '#fca5a5',
-                  cursor: 'pointer',
-                }}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
+      {/* 1. EXECUTIVE PAGE HEADER */}
+      <PageHeader
+        title={`Xin chào, ${currentUser.FullName || currentUser.Username} 👋`}
+        subtitle={`${t('app.titleDashboard')} • ${currentDateStr}`}
+        badge={
+          <Tag
+            color={currentUser.IsAdmin ? 'red' : 'purple'}
+            style={{ borderRadius: 6, fontWeight: 600, padding: '2px 8px' }}
+          >
+            {currentUser.IsAdmin ? t('app.tagSuperAdmin') : t('app.tagStaff')}
+          </Tag>
+        }
+        extra={
+          <Space size="middle" wrap>
+            {urgentCount > 0 && (
+              <Button
+                size="middle"
+                danger
                 onClick={() => setActionCategory('urgent')}
+                style={{ borderRadius: 8, fontWeight: 600 }}
               >
                 🔴 {urgentCount} {t('dashboard.actionNeededTitle')}
-              </div>
-              <div
-                style={{
-                  background: 'rgba(245, 158, 11, 0.2)',
-                  border: '1px solid rgba(245, 158, 11, 0.4)',
-                  padding: '6px 14px',
-                  borderRadius: 20,
-                  fontSize: 13,
-                  fontWeight: 600,
-                  color: '#fcd34d',
-                  cursor: 'pointer',
-                }}
+              </Button>
+            )}
+            {warningCount > 0 && (
+              <Button
+                size="middle"
                 onClick={() => setActionCategory('warning')}
+                style={{
+                  borderRadius: 8,
+                  fontWeight: 600,
+                  borderColor: tokens.warningText,
+                  color: tokens.warningText,
+                }}
               >
                 🟡 {warningCount} {t('common.info')}
-              </div>
-            </Space>
-          </Col>
-        </Row>
-      </div>
+              </Button>
+            )}
+            {canAccessNv && (
+              <Button
+                type="primary"
+                onClick={() => onNavigate('nhanvien')}
+                style={{
+                  borderRadius: 8,
+                  background: tokens.btnPrimaryBg,
+                  borderColor: tokens.btnPrimaryBg,
+                  fontWeight: 600,
+                }}
+              >
+                {t('employee.listTitle', { count: countTotal })}
+              </Button>
+            )}
+          </Space>
+        }
+      />
 
-      {/* 2. 4 CORE EXECUTIVE KPI CARDS */}
+      {/* 2. 4 EXECUTIVE KPI CARDS */}
       <Row gutter={[16, 16]}>
-        {/* Nhân sự */}
+        {/* Total Employees */}
         <Col xs={12} sm={12} lg={6}>
-          <Tooltip title={!canAccessNv ? t('common.error') : t('employee.listTitle', { count: countTotal })}>
-            <Card
-              hoverable={canAccessNv}
-              onClick={() => canAccessNv && onNavigate('nhanvien')}
-              style={{
-                borderRadius: 10,
-                border: '1px solid #e2e8f0',
-                background: '#ffffff',
-                cursor: canAccessNv ? 'pointer' : 'not-allowed',
-                opacity: canAccessNv ? 1 : 0.75,
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text type="secondary" strong style={{ fontSize: 13 }}>
-                  👥 {t('dashboard.statTotalEmployees')}
-                </Text>
-                {!canAccessNv ? (
-                  <LockOutlined style={{ color: '#94a3b8', fontSize: 16 }} />
-                ) : (
-                  <TeamOutlined style={{ color: '#3b82f6', fontSize: 18 }} />
-                )}
-              </div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: '8px 0 4px 0' }}>
-                {countTotal}
-              </div>
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                {t('dashboard.statTotalEmployeesSub')}
-              </Text>
-            </Card>
-          </Tooltip>
+          <MetricCard
+            title={t('dashboard.statTotalEmployees')}
+            value={countTotal}
+            icon={<TeamOutlined />}
+            accent="blue"
+            subtext={`${activeCount} đang làm việc • ${metrics.resignedEmployees} đã thôi việc`}
+            onClick={canAccessNv ? () => onNavigate('nhanvien') : undefined}
+            className="stagger-card-1"
+          />
         </Col>
 
-        {/* Có mặt */}
+        {/* Present Today / Active Headcount */}
         <Col xs={12} sm={12} lg={6}>
-          <Tooltip title={!canAccessCc ? t('common.error') : t('attendance.pageTitle')}>
-            <Card
-              hoverable={canAccessCc}
-              onClick={() => canAccessCc && onNavigate('chamcong')}
-              style={{
-                borderRadius: 10,
-                border: '1px solid #d1fae5',
-                background: '#f0fdf4',
-                cursor: canAccessCc ? 'pointer' : 'not-allowed',
-                opacity: canAccessCc ? 1 : 0.75,
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text strong style={{ color: '#065f46', fontSize: 13 }}>
-                  🟢 {t('status.active')}
-                </Text>
-                {!canAccessCc ? (
-                  <LockOutlined style={{ color: '#059669', fontSize: 16 }} />
-                ) : (
-                  <CheckCircleOutlined style={{ color: '#10b981', fontSize: 18 }} />
-                )}
-              </div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#047857', margin: '8px 0 4px 0' }}>
-                {present}
-              </div>
-              <Text style={{ color: '#059669', fontSize: 12 }}>
-                {t('dashboard.statPresentToday', { present })}
-              </Text>
-            </Card>
-          </Tooltip>
+          <MetricCard
+            title={t('status.active')}
+            value={activeCount}
+            icon={<CheckCircleOutlined />}
+            accent="green"
+            subtext={`Có mặt hôm nay: ${present} (${metrics.totalPunchesToday} lượt quẹt)`}
+            onClick={canAccessCc ? () => onNavigate('chamcong') : (canAccessNv ? () => onNavigate('nhanvien') : undefined)}
+            className="stagger-card-2"
+          />
         </Col>
 
-        {/* Quỹ lương */}
+        {/* Salary Fund (Net Pay) */}
         <Col xs={12} sm={12} lg={6}>
-          <Tooltip title={!canAccessBl ? t('common.error') : t('payroll.pageTitle')}>
-            <Card
-              hoverable={canAccessBl}
-              onClick={() => canAccessBl && onNavigate('bangluong')}
-              style={{
-                borderRadius: 10,
-                border: '1px solid #e2e8f0',
-                background: '#ffffff',
-                cursor: canAccessBl ? 'pointer' : 'not-allowed',
-                opacity: canAccessBl ? 1 : 0.75,
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text type="secondary" strong style={{ fontSize: 13 }}>
-                  💵 {t('dashboard.statSalaryFund')}
-                </Text>
-                {!canAccessBl ? (
-                  <LockOutlined style={{ color: '#94a3b8', fontSize: 16 }} />
-                ) : (
-                  <DollarOutlined style={{ color: '#10b981', fontSize: 18 }} />
-                )}
-              </div>
-              <div style={{ fontSize: 26, fontWeight: 800, color: '#0f172a', margin: '8px 0 4px 0' }}>
-                {formatPayroll(totalSalary)}
-              </div>
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                {t('dashboard.statSalaryFundSub')}
-              </Text>
-            </Card>
-          </Tooltip>
+          <MetricCard
+            title={`Tổng thực lĩnh (${metrics.payrollPeriodLabel})`}
+            value={formatPayroll(totalSalary || metrics.totalNetPayroll)}
+            icon={<DollarOutlined />}
+            accent="purple"
+            subtext={metrics.payrollCalculatedCount > 0 ? `${metrics.payrollCalculatedCount}/${countTotal} nhân sự đã tính lương` : 'Chi trả thực tế kỳ công'}
+            onClick={canAccessBl ? () => onNavigate('bangluong') : undefined}
+            className="stagger-card-3"
+          />
         </Col>
 
-        {/* Hợp đồng */}
+        {/* Active Contracts */}
         <Col xs={12} sm={12} lg={6}>
-          <Tooltip title={!canAccessNv ? t('common.error') : t('contract.pageTitle')}>
-            <Card
-              hoverable={canAccessNv}
-              onClick={() => canAccessNv && onNavigate('hopdong')}
-              style={{
-                borderRadius: 10,
-                border: '1px solid #e2e8f0',
-                background: '#ffffff',
-                cursor: canAccessNv ? 'pointer' : 'not-allowed',
-                opacity: canAccessNv ? 1 : 0.75,
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Text type="secondary" strong style={{ fontSize: 13 }}>
-                  📄 {t('dashboard.statContracts')}
-                </Text>
-                {!canAccessNv ? (
-                  <LockOutlined style={{ color: '#94a3b8', fontSize: 16 }} />
-                ) : (
-                  <CalendarOutlined style={{ color: '#8b5cf6', fontSize: 18 }} />
-                )}
-              </div>
-              <div style={{ fontSize: 28, fontWeight: 800, color: '#0f172a', margin: '8px 0 4px 0' }}>
-                {countTotal}
-              </div>
-              <Text type="secondary" style={{ fontSize: 12 }}>
-                {t('dashboard.statContractsSub')}
-              </Text>
-            </Card>
-          </Tooltip>
+          <MetricCard
+            title={t('dashboard.statContracts')}
+            value={metrics.activeContracts}
+            icon={<CalendarOutlined />}
+            accent="teal"
+            subtext={metrics.totalContracts > 0 ? `${metrics.activeContracts}/${metrics.totalContracts} hợp đồng còn hạn` : 'Hợp đồng lao động hiệu lực'}
+            onClick={canAccessNv ? () => onNavigate('hopdong') : undefined}
+            className="stagger-card-4"
+          />
         </Col>
       </Row>
 
       {/* 3. CHARTS ROW */}
       <Row gutter={[16, 16]}>
+        {/* Main Payroll Trend Chart */}
         <Col xs={24} lg={16}>
-          <Card
+          <SectionCard
             title={t('dashboard.chartPayrollDistribution')}
-            bordered={false}
-            style={{ borderRadius: 10, border: '1px solid #e2e8f0' }}
+            subtitle="Biểu đồ quỹ lương thực tế phân bổ qua các kỳ công"
+            icon={<DollarOutlined style={{ color: tokens.primary }} />}
           >
-            <div style={{ width: '100%', height: 260 }}>
+            <div style={{ width: '100%', height: 280, paddingTop: 10 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={luongStats}>
-                  <XAxis dataKey="thang" tick={{ fontSize: 12 }} />
-                  <YAxis tick={{ fontSize: 12 }} />
-                  <RechartsTooltip />
-                  <Bar dataKey="tongLuong" fill="#3b82f6" radius={[4, 4, 0, 0]} name={t('dashboard.chartSalaryFund')} />
-                </BarChart>
+                <AreaChart data={luongStats} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="payrollAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor={tokens.primary} stopOpacity={isDark ? 0.45 : 0.25} />
+                      <stop offset="95%" stopColor={tokens.primary} stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke={tokens.chartGrid} vertical={false} />
+                  <XAxis
+                    dataKey="thang"
+                    tick={{ fontSize: 12, fill: tokens.textSecondary }}
+                    stroke={tokens.borderSubtle}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 12, fill: tokens.textSecondary }}
+                    stroke={tokens.borderSubtle}
+                    tickFormatter={(val) => {
+                      if (val >= 1000000000) return `${(val / 1000000000).toFixed(1)}B`;
+                      if (val >= 1000000) return `${(val / 1000000).toFixed(0)}M`;
+                      return val;
+                    }}
+                  />
+                  <RechartsTooltip
+                    contentStyle={{
+                      backgroundColor: tokens.elevatedBg,
+                      borderColor: tokens.borderSubtle,
+                      borderRadius: 10,
+                      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                      color: tokens.textPrimary,
+                    }}
+                    itemStyle={{ color: tokens.primary, fontWeight: 600 }}
+                    formatter={(val: any) => [`${Number(val).toLocaleString('vi-VN')} đ`, t('dashboard.chartSalaryFund')]}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="tongLuong"
+                    stroke={tokens.primary}
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#payrollAreaGradient)"
+                    name={t('dashboard.chartSalaryFund')}
+                  />
+                </AreaChart>
               </ResponsiveContainer>
             </div>
-          </Card>
+          </SectionCard>
         </Col>
 
+        {/* Secondary Attendance Rate Radial Chart */}
         <Col xs={24} lg={8}>
-          <Card
+          <SectionCard
             title={t('dashboard.statAttendanceRate')}
-            bordered={false}
-            style={{ borderRadius: 10, border: '1px solid #e2e8f0' }}
+            subtitle="Tỷ lệ nhân sự đi làm hôm nay"
+            icon={<CheckCircleOutlined style={{ color: tokens.successText }} />}
           >
-            <div style={{ textAlign: 'center', padding: '10px 0' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 0' }}>
               <Progress
                 type="dashboard"
                 percent={presentPercentage}
-                strokeColor={{ '0%': '#10b981', '100%': '#3b82f6' }}
-                size={160}
+                strokeColor={{
+                  '0%': tokens.primary,
+                  '100%': tokens.successText,
+                }}
+                trailColor={isDark ? '#1E2638' : '#F1F3F9'}
+                size={175}
               />
-              <div style={{ marginTop: 16 }}>
+              <div style={{ marginTop: 20 }}>
                 <Space size="middle">
-                  <Tag color="green">{t('dashboard.statPresentToday', { present })}</Tag>
-                  <Tag color="red">{t('dashboard.statAbsentToday', { absent })}</Tag>
-                </Space>
-              </div>
-            </div>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* 4. RECENT EMPLOYEES */}
-      <Card
-        title={t('employee.listTitle', { count: nhanVienList.length })}
-        bordered={false}
-        style={{ borderRadius: 10, border: '1px solid #e2e8f0' }}
-        extra={
-          <Button type="link" onClick={() => onNavigate('nhanvien')}>
-            {t('common.view')} <ArrowRightOutlined />
-          </Button>
-        }
-      >
-        <List
-          itemLayout="horizontal"
-          dataSource={nhanVienList.slice(0, 5)}
-          renderItem={(item) => (
-            <List.Item>
-              <List.Item.Meta
-                avatar={
-                  <div
+                  <Tag
+                    color="green"
                     style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: '50%',
-                      backgroundColor: '#1677ff',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      color: '#fff',
+                      borderRadius: 6,
+                      padding: '4px 10px',
+                      fontSize: 12,
                       fontWeight: 600,
                     }}
                   >
-                    {item.HOTEN?.[0] || 'NV'}
-                  </div>
-                }
-                title={<Text strong>{item.HOTEN}</Text>}
-                description={`#${item.MANV} • ${item.TENPB || '-'} • ${item.TENCV || '-'}`}
+                    🟢 {t('dashboard.statPresentToday', { present })}
+                  </Tag>
+                  <Tag
+                    color="red"
+                    style={{
+                      borderRadius: 6,
+                      padding: '4px 10px',
+                      fontSize: 12,
+                      fontWeight: 600,
+                    }}
+                  >
+                    🔴 {t('dashboard.statAbsentToday', { absent })}
+                  </Tag>
+                </Space>
+              </div>
+            </div>
+          </SectionCard>
+        </Col>
+      </Row>
+
+      {/* 4. RECENT EMPLOYEES & ACTION ITEMS ROW */}
+      <Row gutter={[16, 16]}>
+        {/* Action Items Panel */}
+        <Col xs={24} lg={12}>
+          <SectionCard
+            title="Cần xử lý & Cảnh báo"
+            subtitle={`${actionList.length} việc cần lưu ý`}
+            icon={<WarningOutlined style={{ color: tokens.warningText }} />}
+            extra={
+              <Space size={6}>
+                <Button
+                  size="small"
+                  type={actionCategory === 'all' ? 'primary' : 'default'}
+                  onClick={() => setActionCategory('all')}
+                  style={{ borderRadius: 6, fontSize: 12 }}
+                >
+                  Tất cả ({actionList.length})
+                </Button>
+                {urgentCount > 0 && (
+                  <Button
+                    size="small"
+                    type={actionCategory === 'urgent' ? 'primary' : 'default'}
+                    danger={actionCategory === 'urgent'}
+                    onClick={() => setActionCategory('urgent')}
+                    style={{ borderRadius: 6, fontSize: 12 }}
+                  >
+                    Gấp ({urgentCount})
+                  </Button>
+                )}
+              </Space>
+            }
+          >
+            {filteredActionList.length === 0 ? (
+              <div style={{ padding: '36px 16px', textAlign: 'center', color: tokens.textMuted }}>
+                <CheckCircleOutlined style={{ fontSize: 32, color: tokens.successText, marginBottom: 8 }} />
+                <div>Hệ thống ổn định. Không có việc cần xử lý gấp.</div>
+              </div>
+            ) : (
+              <List
+                itemLayout="horizontal"
+                dataSource={filteredActionList.slice(0, 5)}
+                renderItem={(item) => (
+                  <List.Item
+                    style={{ padding: '12px 0', borderBottom: `1px solid ${tokens.borderSubtle}` }}
+                    actions={[
+                      item.route ? (
+                        <Button
+                          key="nav"
+                          type="link"
+                          size="small"
+                          onClick={() => onNavigate(item.route)}
+                          style={{ color: tokens.primary, fontWeight: 600, padding: 0 }}
+                        >
+                          {item.actionText || 'Xử lý'} <ArrowRightOutlined />
+                        </Button>
+                      ) : null,
+                    ]}
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        item.urgency === 'urgent' ? (
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 8,
+                              background: tokens.dangerBg,
+                              color: tokens.dangerText,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <WarningOutlined />
+                          </div>
+                        ) : (
+                          <div
+                            style={{
+                              width: 32,
+                              height: 32,
+                              borderRadius: 8,
+                              background: tokens.warningBg,
+                              color: tokens.warningText,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            <ClockCircleOutlined />
+                          </div>
+                        )
+                      }
+                      title={
+                        <Text strong style={{ fontSize: 13, color: tokens.textPrimary }}>
+                          {item.title}
+                        </Text>
+                      }
+                      description={
+                        <Text style={{ fontSize: 12, color: tokens.textSecondary }}>
+                          {item.count ? `${item.count} bản ghi cần kiểm tra` : item.actionText || '-'}
+                        </Text>
+                      }
+                    />
+                  </List.Item>
+                )}
               />
-              <Tag color={item.DATHOIVIEC === 1 ? 'default' : 'success'}>
-                {item.DATHOIVIEC === 1 ? t('status.resigned') : t('status.active')}
-              </Tag>
-            </List.Item>
-          )}
-        />
-      </Card>
-    </Space>
+            )}
+          </SectionCard>
+        </Col>
+
+        {/* Recent Employees List */}
+        <Col xs={24} lg={12}>
+          <SectionCard
+            title={t('employee.listTitle', { count: nhanVienList.length })}
+            subtitle="Danh sách nhân sự mới cập nhật trong hệ thống"
+            icon={<TeamOutlined style={{ color: tokens.primary }} />}
+            extra={
+              canAccessNv && (
+                <Button
+                  type="link"
+                  onClick={() => onNavigate('nhanvien')}
+                  style={{ color: tokens.primary, fontWeight: 600, padding: 0 }}
+                >
+                  {t('common.view')} <ArrowRightOutlined />
+                </Button>
+              )
+            }
+          >
+            <List
+              itemLayout="horizontal"
+              dataSource={nhanVienList.slice(0, 5)}
+              renderItem={(item) => (
+                <List.Item style={{ padding: '10px 0', borderBottom: `1px solid ${tokens.borderSubtle}` }}>
+                  <List.Item.Meta
+                    avatar={
+                      <div
+                        style={{
+                          width: 36,
+                          height: 36,
+                          borderRadius: '50%',
+                          background: 'linear-gradient(135deg, #6D4AFF 0%, #4B24DE 100%)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#fff',
+                          fontWeight: 700,
+                          fontSize: 14,
+                        }}
+                      >
+                        {item.HOTEN?.[0] || 'NV'}
+                      </div>
+                    }
+                    title={
+                      <Text
+                        strong
+                        style={{
+                          color: tokens.textPrimary,
+                          cursor: canAccessNv ? 'pointer' : 'default',
+                        }}
+                        onClick={() => canAccessNv && onNavigate('nhanvien')}
+                      >
+                        {item.HOTEN}
+                      </Text>
+                    }
+                    description={
+                      <span style={{ color: tokens.textSecondary, fontSize: 12 }}>
+                        #{item.MANV} &bull; {item.TENPB || '-'} &bull; {item.TENCV || '-'}
+                      </span>
+                    }
+                  />
+                  <Tag
+                    color={item.DATHOIVIEC === 1 ? 'default' : 'success'}
+                    style={{ borderRadius: 6, fontWeight: 500 }}
+                  >
+                    {item.DATHOIVIEC === 1 ? t('status.resigned') : t('status.active')}
+                  </Tag>
+                </List.Item>
+              )}
+            />
+          </SectionCard>
+        </Col>
+      </Row>
+    </div>
   );
 };
 

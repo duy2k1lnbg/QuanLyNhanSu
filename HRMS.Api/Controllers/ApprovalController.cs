@@ -66,13 +66,18 @@ namespace HRMS_API.Controllers
                         "SELECT COUNT(*) FROM HR.TB_YEUCAU_TANGCA WHERE TRANGTHAI = 'PENDING'"
                     ).FirstOrDefault();
 
+                    int insuranceCount = (int)db.Database.SqlQuery<decimal>(
+                        "SELECT COUNT(*) FROM HR.TB_BAOHIEM_BIENDONG WHERE TRANG_THAI = 'DRAFT' OR TRANG_THAI = 'PENDING'"
+                    ).FirstOrDefault();
+
                     return Ok(new
                     {
                         success = true,
-                        totalPending = leaveCount + attendanceCount + overtimeCount,
+                        totalPending = leaveCount + attendanceCount + overtimeCount + insuranceCount,
                         leavePending = leaveCount,
                         attendancePending = attendanceCount,
-                        overtimePending = overtimeCount
+                        overtimePending = overtimeCount,
+                        insurancePending = insuranceCount
                     });
                 }
             }
@@ -173,6 +178,17 @@ namespace HRMS_API.Controllers
                 using (var db = new MyEntities())
                 {
                     decimal userId = GetCurrentUserId(db);
+
+                    var leaveReq = db.Database.SqlQuery<LeaveReqInfoRow>(
+                        "SELECT ID, MANV, TUNGAY, SONGAY, GIAY_NGHI, LYDO, LOAIPHEP, TRANGTHAI FROM HR.TB_YEUCAU_NGHIPHEP WHERE ID = :p0",
+                        new OracleParameter("p0", id)
+                    ).FirstOrDefault();
+
+                    if (leaveReq == null || leaveReq.TRANGTHAI != "PENDING")
+                    {
+                        return BadRequest("Yêu cầu không tồn tại hoặc đã được xử lý trước đó.");
+                    }
+
                     int affected = db.Database.ExecuteSqlCommand(
                         "UPDATE HR.TB_YEUCAU_NGHIPHEP SET TRANGTHAI = 'APPROVED', NGUOIDUYET = :p0, NGAYDUYET = SYSDATE WHERE ID = :p1 AND TRANGTHAI = 'PENDING'",
                         new OracleParameter("p0", userId),
@@ -182,6 +198,28 @@ namespace HRMS_API.Controllers
                     if (affected == 0)
                     {
                         return BadRequest("Yêu cầu không tồn tại hoặc đã được xử lý trước đó.");
+                    }
+
+                    // Đồng bộ trừ vào sổ phát sinh phép TB_PHEP_SOPHATSINH
+                    try
+                    {
+                        long seconds = leaveReq.GIAY_NGHI.HasValue && leaveReq.GIAY_NGHI.Value > 0
+                            ? leaveReq.GIAY_NGHI.Value
+                            : (long)((leaveReq.SONGAY ?? 1) * 28800);
+
+                        db.Database.ExecuteSqlCommand(
+                            @"INSERT INTO HR.TB_PHEP_SOPHATSINH (MANV, NGAY, LOAI, GIAY_PHEP, IDDON, LY_DO)
+                              VALUES (:p0, :p1, 'SU_DUNG', :p2, :p3, :p4)",
+                            new OracleParameter("p0", leaveReq.MANV),
+                            new OracleParameter("p1", leaveReq.TUNGAY ?? DateTime.Today),
+                            new OracleParameter("p2", -Math.Abs(seconds)),
+                            new OracleParameter("p3", id),
+                            new OracleParameter("p4", "Phê duyệt nghỉ phép - " + (leaveReq.LYDO ?? leaveReq.LOAIPHEP ?? "Nghỉ phép"))
+                        );
+                    }
+                    catch (Exception phepEx)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[ApproveLeave TB_PHEP_SOPHATSINH Warning]: " + phepEx.Message);
                     }
 
                     return Ok(new { success = true, message = "Phê duyệt đơn xin nghỉ phép thành công!" });
@@ -208,8 +246,13 @@ namespace HRMS_API.Controllers
                     decimal userId = GetCurrentUserId(db);
                     string reason = req?.Reason ?? "Từ chối bởi cấp quản lý";
 
+                    var leaveReq = db.Database.SqlQuery<LeaveReqInfoRow>(
+                        "SELECT ID, MANV, TUNGAY, SONGAY, GIAY_NGHI, LYDO, LOAIPHEP, TRANGTHAI FROM HR.TB_YEUCAU_NGHIPHEP WHERE ID = :p0",
+                        new OracleParameter("p0", id)
+                    ).FirstOrDefault();
+
                     int affected = db.Database.ExecuteSqlCommand(
-                        "UPDATE HR.TB_YEUCAU_NGHIPHEP SET TRANGTHAI = 'REJECTED', NGUOIDUYET = :p0, NGAYDUYET = SYSDATE, GHICHUDUYET = :p1 WHERE ID = :p2 AND TRANGTHAI = 'PENDING'",
+                        "UPDATE HR.TB_YEUCAU_NGHIPHEP SET TRANGTHAI = 'REJECTED', NGUOIDUYET = :p0, NGAYDUYET = SYSDATE, GHICHUDUYET = :p1 WHERE ID = :p2 AND TRANGTHAI IN ('PENDING', 'APPROVED')",
                         new OracleParameter("p0", userId),
                         new OracleParameter("p1", reason),
                         new OracleParameter("p2", id)
@@ -218,6 +261,38 @@ namespace HRMS_API.Controllers
                     if (affected == 0)
                     {
                         return BadRequest("Yêu cầu không tồn tại hoặc đã được xử lý trước đó.");
+                    }
+
+                    // Nếu đơn này từng được duyệt (có trừ trong TB_PHEP_SOPHATSINH), thực hiện hoàn phép
+                    try
+                    {
+                        if (leaveReq != null)
+                        {
+                            var existingDeduction = db.Database.SqlQuery<decimal>(
+                                "SELECT COUNT(*) FROM HR.TB_PHEP_SOPHATSINH WHERE IDDON = :p0 AND LOAI = 'SU_DUNG'",
+                                new OracleParameter("p0", id)
+                            ).FirstOrDefault();
+
+                            if (existingDeduction > 0)
+                            {
+                                long seconds = leaveReq.GIAY_NGHI.HasValue && leaveReq.GIAY_NGHI.Value > 0
+                                    ? leaveReq.GIAY_NGHI.Value
+                                    : (long)((leaveReq.SONGAY ?? 1) * 28800);
+
+                                db.Database.ExecuteSqlCommand(
+                                    @"INSERT INTO HR.TB_PHEP_SOPHATSINH (MANV, NGAY, LOAI, GIAY_PHEP, IDDON, LY_DO)
+                                      VALUES (:p0, SYSDATE, 'HOAN', :p1, :p2, :p3)",
+                                    new OracleParameter("p0", leaveReq.MANV),
+                                    new OracleParameter("p1", Math.Abs(seconds)),
+                                    new OracleParameter("p2", id),
+                                    new OracleParameter("p3", "Hoàn phép do từ chối/hủy đơn: " + reason)
+                                );
+                            }
+                        }
+                    }
+                    catch (Exception hoanEx)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[RejectLeave TB_PHEP_SOPHATSINH Refund Warning]: " + hoanEx.Message);
                     }
 
                     return Ok(new { success = true, message = "Đã từ chối đơn xin nghỉ phép." });
@@ -652,6 +727,189 @@ namespace HRMS_API.Controllers
         }
 
         #endregion
+
+        #region Biến động bảo hiểm (Insurance Movement Approvals)
+
+        /// <summary>
+        /// GET: api/approvals/insurance-movements?status=PENDING&search=
+        /// </summary>
+        [HttpGet]
+        [Route("insurance-movements")]
+        public IHttpActionResult GetInsuranceMovements(string status = "ALL", string search = null)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    string sql = @"
+                        SELECT 
+                            B.ID,
+                            B.MANV,
+                            NV.MANV AS EMPLOYEE_CODE,
+                            NV.HOTEN AS EMPLOYEE_NAME,
+                            NVL(PB.TENPB, 'Chưa phân bổ') AS DEPARTMENT_NAME,
+                            B.MAKYCONG,
+                            B.LOAI,
+                            B.NGAY_HIEULUC,
+                            B.LY_DO,
+                            B.TRANG_THAI,
+                            B.NGUOI_DUYET,
+                            NVL(U.FULLNAME, U.USERNAME) AS TEN_NGUOI_DUYET
+                        FROM HR.TB_BAOHIEM_BIENDONG B
+                        JOIN HR.TB_NHANVIEN NV ON B.MANV = NV.MANV
+                        LEFT JOIN HR.TB_PHONGBAN PB ON NV.IDPB = PB.IDPB
+                        LEFT JOIN HR.TB_SYS_USER U ON B.NGUOI_DUYET = U.IDUSER
+                        WHERE 1=1";
+
+                    var parameters = new List<OracleParameter>();
+
+                    if (!string.IsNullOrWhiteSpace(status) && !status.Equals("ALL", StringComparison.OrdinalIgnoreCase))
+                    {
+                        if (status.Equals("PENDING", StringComparison.OrdinalIgnoreCase))
+                        {
+                            sql += " AND (B.TRANG_THAI = 'PENDING' OR B.TRANG_THAI = 'DRAFT')";
+                        }
+                        else
+                        {
+                            sql += " AND B.TRANG_THAI = :pStatus";
+                            parameters.Add(new OracleParameter("pStatus", status.ToUpper()));
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(search))
+                    {
+                        sql += " AND (LOWER(NV.HOTEN) LIKE :pSearch OR LOWER(B.LY_DO) LIKE :pSearch)";
+                        parameters.Add(new OracleParameter("pSearch", "%" + search.ToLower().Trim() + "%"));
+                    }
+
+                    sql += " ORDER BY B.NGAY_HIEULUC DESC, B.ID DESC";
+
+                    var rows = db.Database.SqlQuery<InsuranceMovementRow>(sql, parameters.ToArray()).ToList();
+
+                    var data = rows.Select(r => new
+                    {
+                        id = r.ID,
+                        manv = r.MANV,
+                        employeeCode = "NV" + r.EMPLOYEE_CODE.ToString().PadLeft(3, '0'),
+                        employeeName = r.EMPLOYEE_NAME,
+                        departmentName = r.DEPARTMENT_NAME,
+                        maKyCong = r.MAKYCONG,
+                        loai = r.LOAI,
+                        ngayHieuLuc = r.NGAY_HIEULUC.ToString("dd/MM/yyyy"),
+                        lyDo = r.LY_DO,
+                        trangThai = r.TRANG_THAI,
+                        nguoiDuyet = r.TEN_NGUOI_DUYET,
+                        idNguoiDuyet = r.NGUOI_DUYET
+                    }).ToList();
+
+                    return Ok(new { success = true, data });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/approvals/insurance-movements Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi khi tải danh sách biến động bảo hiểm." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/approvals/insurance-movements/{id}/approve
+        /// </summary>
+        [HttpPost]
+        [Route("insurance-movements/{id:decimal}/approve")]
+        public IHttpActionResult ApproveInsuranceMovement(decimal id)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    decimal userId = GetCurrentUserId(db);
+                    int affected = db.Database.ExecuteSqlCommand(
+                        "UPDATE HR.TB_BAOHIEM_BIENDONG SET TRANG_THAI = 'APPROVED', NGUOI_DUYET = :p0 WHERE ID = :p1 AND (TRANG_THAI = 'DRAFT' OR TRANG_THAI = 'PENDING')",
+                        new OracleParameter("p0", userId),
+                        new OracleParameter("p1", id)
+                    );
+
+                    if (affected == 0)
+                    {
+                        return BadRequest("Biến động bảo hiểm không tồn tại hoặc đã được xử lý trước đó.");
+                    }
+
+                    return Ok(new { success = true, message = "Phê duyệt biến động bảo hiểm thành công!" });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[ApproveInsuranceMovement Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi phê duyệt." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/approvals/insurance-movements/{id}/reject
+        /// </summary>
+        [HttpPost]
+        [Route("insurance-movements/{id:decimal}/reject")]
+        public IHttpActionResult RejectInsuranceMovement(decimal id, [FromBody] RejectActionRequest req)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    decimal userId = GetCurrentUserId(db);
+                    string reason = req?.Reason ?? "Từ chối bởi cấp quản lý";
+
+                    int affected = db.Database.ExecuteSqlCommand(
+                        "UPDATE HR.TB_BAOHIEM_BIENDONG SET TRANG_THAI = 'REJECTED', NGUOI_DUYET = :p0, LY_DO = SUBSTR(LY_DO || ' [Từ chối: ' || :p1 || ']', 1, 500) WHERE ID = :p2 AND (TRANG_THAI = 'DRAFT' OR TRANG_THAI = 'PENDING')",
+                        new OracleParameter("p0", userId),
+                        new OracleParameter("p1", reason),
+                        new OracleParameter("p2", id)
+                    );
+
+                    if (affected == 0)
+                    {
+                        return BadRequest("Biến động bảo hiểm không tồn tại hoặc đã được xử lý trước đó.");
+                    }
+
+                    return Ok(new { success = true, message = "Đã từ chối biến động bảo hiểm." });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[RejectInsuranceMovement Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi từ chối." });
+            }
+        }
+
+        #endregion
+    }
+
+    public class LeaveReqInfoRow
+    {
+        public decimal ID { get; set; }
+        public decimal MANV { get; set; }
+        public DateTime? TUNGAY { get; set; }
+        public decimal? SONGAY { get; set; }
+        public long? GIAY_NGHI { get; set; }
+        public string LYDO { get; set; }
+        public string LOAIPHEP { get; set; }
+        public string TRANGTHAI { get; set; }
+    }
+
+    public class InsuranceMovementRow
+    {
+        public decimal ID { get; set; }
+        public decimal MANV { get; set; }
+        public decimal EMPLOYEE_CODE { get; set; }
+        public string EMPLOYEE_NAME { get; set; }
+        public string DEPARTMENT_NAME { get; set; }
+        public decimal MAKYCONG { get; set; }
+        public string LOAI { get; set; }
+        public DateTime NGAY_HIEULUC { get; set; }
+        public string LY_DO { get; set; }
+        public string TRANG_THAI { get; set; }
+        public decimal? NGUOI_DUYET { get; set; }
+        public string TEN_NGUOI_DUYET { get; set; }
     }
 
     public class RejectActionRequest

@@ -191,6 +191,8 @@ namespace Bu.CLASS_PAYROLL
         public decimal MANV { get; set; }
         public string SOURCE_TYPE { get; set; }
         public decimal? SOURCE_BCCT_ID { get; set; }
+        public decimal? SOURCE_CONG_LANTINH_ID { get; set; }
+        public decimal? POLICY_OT_ID { get; set; }
         public decimal? SOURCE_TC_ID { get; set; }
         public decimal? SOURCE_NVPC_ID { get; set; }
         public string SOURCE_KTKL_SOQD { get; set; }

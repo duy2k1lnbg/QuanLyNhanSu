@@ -16,6 +16,7 @@ import { LeaveRequestScreen } from '../screens/Requests/LeaveRequestScreen';
 import { AttendanceCorrectionScreen } from '../screens/Requests/AttendanceCorrectionScreen';
 import { MyOvertimeScreen } from '../screens/Requests/MyOvertimeScreen';
 import { MyRequestsScreen } from '../screens/Requests/MyRequestsScreen';
+import { ManagerApprovalsScreen } from '../screens/Approvals/ManagerApprovalsScreen';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -43,6 +44,7 @@ export const RootNavigator: React.FC = () => {
       <Stack.Screen name="AttendanceCorrection" component={AttendanceCorrectionScreen} />
       <Stack.Screen name="MyOvertime" component={MyOvertimeScreen} />
       <Stack.Screen name="MyRequests" component={MyRequestsScreen} />
+      <Stack.Screen name="ManagerApprovals" component={ManagerApprovalsScreen} />
     </Stack.Navigator>
   );
 };

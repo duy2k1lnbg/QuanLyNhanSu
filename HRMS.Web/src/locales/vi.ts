@@ -557,6 +557,15 @@ export const vi = {
     noNotifications: 'Bạn không có thông báo nào mới.',
     viewAll: 'Xem tất cả thông báo',
   },
+
+  intro: {
+    welcome: 'WELCOME',
+    toHrms: 'TO HRMS ENTERPRISE',
+    subtitle: 'Quản trị nhân sự · Chấm công · Tiền lương',
+    hint: 'Nhấn phím bất kỳ hoặc chạm để tiếp tục',
+    skip: 'Bỏ qua',
+    skipShortcut: 'Esc / Phím bất kỳ',
+  },
 };
 
 export type LocaleType = typeof vi;

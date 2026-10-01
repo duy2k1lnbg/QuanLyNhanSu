@@ -26,7 +26,7 @@ namespace Bu
         public List<NHANVIEN_DTO> getListFll_DTO(string langCode = "vi") 
         { 
             var rawList = (from nv in db.TB_NHANVIEN
-                    where nv.MANV != 3207
+                    where nv.DELETED_DATE == null
                     join td in db.TB_TRINHDO on nv.IDTD equals td.IDTD into tdGroup
                     from td in tdGroup.DefaultIfEmpty()
                     join bp in db.TB_BOPHAN on nv.IDBP equals bp.IDBP into bpGroup
@@ -312,13 +312,13 @@ namespace Bu
 
         public int GetTongNhanVien()
         {
-            return db.TB_NHANVIEN.Count(x => x.MANV != 3207);
+            return db.TB_NHANVIEN.Count(x => x.DELETED_DATE == null);
         }
 
         public List<DashboardPhongBanDTO> GetPhongBanStats()
         {
             var rawList = db.TB_NHANVIEN
-                            .Where(nv => nv.MANV != 3207)
+                            .Where(nv => nv.DELETED_DATE == null)
                             .Select(nv => new {
                                 TenPB = nv.TB_PHONGBAN.TENPB
                             })
@@ -357,10 +357,68 @@ namespace Bu
         }
 
         /// <summary>
-        /// Kiểm tra tất cả nhân viên đối chiếu với kỳ công (tháng/năm).
+        /// Xác định danh sách nhân viên đủ điều kiện tính công / tính lương trong một kỳ cụ thể (tháng/năm).
+        /// TUÂN THỦ NGUYÊN TẮC:
+        /// 1. PURE QUERY: Hoàn toàn không ghi/sửa dữ liệu (không tự thay đổi DATHOIVIEC, không SaveChanges).
+        /// 2. HIỆU LỰC LỊCH SỬ: Nhân viên có hợp đồng còn hiệu lực trong kỳ (bắt đầu trước/trong kỳ và kết thúc sau đầu kỳ).
+        /// 3. Không loại nhân viên khỏi kỳ lịch sử chỉ vì hiện tại đã nghỉ việc (nếu nghỉ việc sau thời điểm bắt đầu kỳ).
+        /// 4. Không hardcode MANV cụ thể.
+        /// </summary>
+        public List<TB_NHANVIEN> GetEligibleEmployeesForPeriod(int nam, int thang, int? macty = null)
+        {
+            DateTime periodStart = new DateTime(nam, thang, 1);
+            DateTime periodEnd = new DateTime(nam, thang, DateTime.DaysInMonth(nam, thang));
+
+            // Lấy danh sách hợp đồng có hiệu lực trong kỳ (bắt đầu <= periodEnd và chưa kết thúc trước periodStart)
+            var activeContracts = db.TB_HOPDONG
+                .Where(x => x.DEL_DATE == null && x.NGAYBATDAU <= periodEnd && (x.NGAYKETTHUC == null || x.NGAYKETTHUC >= periodStart))
+                .OrderByDescending(x => x.NGAYBATDAU)
+                .ThenByDescending(x => x.SOHD)
+                .ToList()
+                .GroupBy(x => x.MANV)
+                .ToDictionary(g => g.Key, g => g.FirstOrDefault());
+
+            var query = db.TB_NHANVIEN.AsQueryable();
+            if (macty.HasValue && macty.Value > 0)
+            {
+                query = query.Where(x => x.IDCTY == macty.Value);
+            }
+
+            var allNhanVien = query.ToList();
+            var danhSachHopLe = new List<TB_NHANVIEN>();
+
+            foreach (var nv in allNhanVien)
+            {
+                // Kiểm tra hợp đồng còn hiệu lực trong kỳ
+                if (!activeContracts.TryGetValue(nv.MANV, out var latestHd) || latestHd == null)
+                {
+                    continue;
+                }
+
+                // Không đưa vào danh sách nếu đã xóa tài khoản trước khi kỳ bắt đầu
+                if (nv.DELETED_DATE.HasValue && nv.DELETED_DATE.Value < periodStart)
+                {
+                    continue;
+                }
+
+                // Nếu hợp đồng đã kết thúc trước thời điểm bắt đầu kỳ
+                if (latestHd.NGAYKETTHUC.HasValue && latestHd.NGAYKETTHUC.Value < periodStart)
+                {
+                    continue;
+                }
+
+                // Nhân viên hợp lệ trong kỳ
+                danhSachHopLe.Add(nv);
+            }
+
+            return danhSachHopLe;
+        }
+
+        /// <summary>
+        /// Hàm quản trị nhân sự định kỳ: Kiểm tra tất cả nhân viên đối chiếu với kỳ công (tháng/năm).
         /// Nếu hợp đồng lao động đã hết hạn trước đầu kỳ công (NGAYKETTHUC < periodStart),
-        /// tự động cập nhật DATHOIVIEC = 1 trong CSDL.
-        /// Trả về danh sách nhân viên có hợp đồng còn thời hạn và chưa thôi việc.
+        /// cập nhật DATHOIVIEC = 1 trong CSDL.
+        /// CHÚ Ý: KHÔNG ĐƯỢC GỌI TRONG LUỒNG TÍNH TOÁN CÔNG/LƯƠNG ĐỂ TRÁNH TÁC DỤNG PHỤ.
         /// </summary>
         public List<TB_NHANVIEN> KiemTraVaCapNhatTrangThaiHopDong(int nam, int thang, int? macty = null)
         {
@@ -369,6 +427,7 @@ namespace Bu
 
             // Lấy danh sách hợp đồng mới nhất cho từng nhân viên
             var allHopDong = db.TB_HOPDONG
+                .Where(x => x.DEL_DATE == null)
                 .OrderByDescending(x => x.NGAYBATDAU)
                 .ThenByDescending(x => x.SOHD)
                 .ToList()
@@ -381,7 +440,6 @@ namespace Bu
 
             foreach (var nv in allNhanVien)
             {
-                if (nv.MANV == 3207) continue; // Bỏ qua tài khoản test
                 if (macty.HasValue && macty.Value > 0 && nv.IDCTY != macty.Value) continue;
 
                 allHopDong.TryGetValue(nv.MANV, out var latestHd);
@@ -428,7 +486,7 @@ namespace Bu
 
         public List<TB_NHANVIEN> GetListNhanVienConHopDong(int nam, int thang, int? macty = null)
         {
-            return KiemTraVaCapNhatTrangThaiHopDong(nam, thang, macty);
+            return GetEligibleEmployeesForPeriod(nam, thang, macty);
         }
     }
 }

@@ -208,6 +208,91 @@ export interface KyCongChiTietDTO {
   TONGNGAYCONG?: number;
 }
 
+export interface KhungGioDTO {
+  idKhungGio: number;
+  stt: number;
+  batDauPhut: number;
+  ketThucPhut: number;
+  gioBatDau: string;
+  gioKetThuc: string;
+  loaiKhungGio: string;
+  batBuocQuetThe: boolean;
+}
+
+export interface CaPhienBanDTO {
+  idCaPhienBan: number;
+  idLoaiCa: number;
+  tenLoaiCa: string;
+  soPhienBan: number;
+  tenPhienBan: string;
+  tuNgay: string;
+  denNgay?: string;
+  tongGiayChuan: number;
+  gioChuan: number;
+  congQuyDoi: number;
+  trangThai: string;
+  taoLuc: string;
+  khungGio?: KhungGioDTO[];
+}
+
+export interface LichLamViecDTO {
+  idLich: number;
+  manv: number;
+  employeeCode?: string;
+  hoten: string;
+  ngay: string;
+  maPhanCong: string;
+  soPhienBan: number;
+  idCaPhienBan: number;
+  tenPhienBan: string;
+  loaiNgay: string;
+  trangThaiPhanCong: string;
+  trangThai: string;
+  lyDo?: string;
+}
+
+export interface BatThuongDTO {
+  idBatThuong: number;
+  manv: number;
+  employeeCode?: string;
+  hoten: string;
+  ngay: string;
+  maLoi: string;
+  mucDo: string;
+  chanChot: boolean;
+  trangThai: string;
+  moTa: string;
+  taoLuc: string;
+}
+
+export interface PeriodReadinessDTO {
+  success: boolean;
+  makycong: number;
+  isLocked: boolean;
+  isReadyToLock: boolean;
+  inputRev: number;
+  publishRev: number;
+  unverifiedCount: number;
+  unverifiedAnomalies: any[];
+  blockingReasons: string[];
+}
+
+export interface LanTinhDTO {
+  idLanTinh: number;
+  maYeuCau: string;
+  maKyCong: number;
+  tuNgay: string;
+  denNgay: string;
+  inputRev: number;
+  expectedPublishRev: number;
+  inputDataHash: string;
+  trangThai: string;
+  batDauTinh: string;
+  ketThucTinh?: string;
+  congBoLuc?: string;
+  ghiChu?: string;
+}
+
 export interface HopDongDTO {
   SOHD: string;
   NGAYBATDAU?: string;

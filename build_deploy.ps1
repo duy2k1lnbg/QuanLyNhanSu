@@ -149,6 +149,26 @@ if (Test-Path $dbSrc) {
     Write-Host "  -> [OK] Da copy database migrations vao deploy_vps\database!" -ForegroundColor Green
 }
 
+# Copy Mobile APK
+$apkSrc = Join-Path $root "HRMS.Mobile\HRMS_Mobile.apk"
+$deployMobile = Join-Path $deployRoot "mobile"
+if (Test-Path $apkSrc) {
+    if (-not (Test-Path $deployMobile)) {
+        New-Item -ItemType Directory -Path $deployMobile -Force | Out-Null
+    }
+    Copy-Item -Force $apkSrc (Join-Path $deployMobile "HRMS_Mobile.apk")
+    $apkSize = (Get-Item (Join-Path $deployMobile "HRMS_Mobile.apk")).Length
+    Write-Host "  -> [OK] Da copy HRMS_Mobile.apk vao deploy_vps\mobile! ($([Math]::Round($apkSize / 1MB, 2)) MB)" -ForegroundColor Green
+}
+
+# Copy HR_BACKUP.DMP
+$dmpSrc = Join-Path $root "HR_BACKUP.DMP"
+if (Test-Path $dmpSrc) {
+    Copy-Item -Force $dmpSrc (Join-Path $deployRoot "HR_BACKUP.DMP")
+    $dmpSize = (Get-Item (Join-Path $deployRoot "HR_BACKUP.DMP")).Length
+    Write-Host "  -> [OK] Da copy HR_BACKUP.DMP vao deploy_vps! ($([Math]::Round($dmpSize / 1MB, 2)) MB)" -ForegroundColor Green
+}
+
 # ------------------------------------------------------------------------------
 # 4. TAO CAC FILE CHAY TU DONG TRONG D:\QL_NS\deploy_vps
 # ------------------------------------------------------------------------------
@@ -386,9 +406,18 @@ $guide = @'
      Mo file: C:\HRMS\backend\Web.config
      Tim dong "localhost:1521/xe" va thay doi thanh ten Service cua ban.
      Sau do mo CMD/PowerShell chay "iisreset" de ap dung.
-   - CHAY MIGRATION BẢO MẬT MỚI (V1_15):
-     Neu database tren VPS chua chay migration V1_15, hay ket noi schema HR tren VPS (bang SQL Developer / DBeaver / SQL*Plus) va chay file:
-     C:\deploy_vps\database\migrations\V1_15__auth_security_sessions_and_audit.sql
+   - CHAY MIGRATION BẢO MẬT & LUONG MOI (V1_15 -> V1_20):
+     Thu muc database/migrations chua day du cac script cap nhat he thong.
+
+5. RESTORE ORACLE DATABASE TU FILE HR_BACKUP.DMP:
+   - File dump: deploy_vps\HR_BACKUP.DMP (chua day du toan bo schema HR moi nhat)
+   - Cach restore bang Data Pump impdp tren VPS:
+     impdp HR/hr@localhost:1521/xe directory=DATA_PUMP_DIR dumpfile=HR_BACKUP.DMP logfile=HR_RESTORE.LOG table_exists_action=replace
+
+6. UNG DUNG MOBILE (ANDROID APK):
+   - File APK: deploy_vps\mobile\HRMS_Mobile.apk
+   - Da duoc build san sang va cau hinh ket noi API he thong.
+   - Chi can copy vao thiet bi Android hoac gia lap de cai dat truc tiep.
 
 ================================================================================
 '@
@@ -428,10 +457,26 @@ if (Test-Path $finalPrompts) {
     Write-Host "  -> [LOI]: Khong thay ai_prompts.json trong backend!" -ForegroundColor Red
 }
 
+$finalDmp = Join-Path $deployRoot "HR_BACKUP.DMP"
+if (Test-Path $finalDmp) {
+    Write-Host "  -> [HR_BACKUP.DMP]: HOAN TAT ($([Math]::Round((Get-Item $finalDmp).Length / 1MB, 2)) MB)" -ForegroundColor Green
+} else {
+    Write-Host "  -> [LOI]: Khong thay HR_BACKUP.DMP trong deploy root!" -ForegroundColor Red
+}
+
+$finalApk = Join-Path $deployMobile "HRMS_Mobile.apk"
+if (Test-Path $finalApk) {
+    Write-Host "  -> [HRMS_MOBILE.APK]: HOAN TAT ($([Math]::Round((Get-Item $finalApk).Length / 1MB, 2)) MB)" -ForegroundColor Green
+} else {
+    Write-Host "  -> [LOI]: Khong thay HRMS_Mobile.apk trong mobile/!" -ForegroundColor Red
+}
+
 Write-Host "`n==========================================================" -ForegroundColor Green
 Write-Host "  BUILD VA DONG GOI HOAN TAT!" -ForegroundColor Green
 Write-Host "  1. Thu muc deploy : D:\QL_NS\deploy_vps" -ForegroundColor Cyan
 Write-Host "  2. File ZIP copy  : D:\QL_NS\deploy_vps.zip" -ForegroundColor Cyan
 Write-Host "  3. Anh avatar     : myavt.png da duoc bao toan!" -ForegroundColor Cyan
-Write-Host "  4. File chay tu dong: Setup-VPS-IIS.bat" -ForegroundColor Cyan
+Write-Host "  4. Database dump  : HR_BACKUP.DMP da duoc dong goi!" -ForegroundColor Cyan
+Write-Host "  5. Mobile APK     : HRMS_Mobile.apk da duoc dong goi!" -ForegroundColor Cyan
+Write-Host "  6. File chay tu dong: Setup-VPS-IIS.bat" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Green

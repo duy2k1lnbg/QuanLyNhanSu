@@ -2,6 +2,7 @@ using Bu;
 using Bu.DTO;
 using DA;
 using HRMS_API.Filters;
+using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -153,7 +154,8 @@ namespace HRMS_API.Controllers
 
                     foreach (var item in rawPayrolls)
                     {
-                        var isPaid = item.kc != null && item.kc.KHOA == 1;
+                        bool isLocked = item.kc != null && item.kc.KHOA == 1;
+                        string trangThai = isLocked ? "Đã chốt sổ (Chờ chi trả)" : "Bản tính nháp";
                         result.LichSuLuong.Add(new Profile360PayrollItemDTO
                         {
                             Key = item.bl.IDBL.ToString(),
@@ -164,19 +166,19 @@ namespace HRMS_API.Controllers
                             Net = item.bl.THUC_LINH ?? 0,
                             CongThucTe = item.bl.CONG_THUCTE ?? 0,
                             CongChuan = item.bl.CONG_CHUAN ?? 26,
-                            TrangThai = isPaid ? "Đã chi trả" : "Chờ chi trả"
+                            TrangThai = trangThai
                         });
                     }
 
                     var latestBl = rawPayrolls.FirstOrDefault();
                     if (latestBl != null)
                     {
-                        bool isLatestPaid = latestBl.kc != null && latestBl.kc.KHOA == 1;
+                        bool isLatestLocked = latestBl.kc != null && latestBl.kc.KHOA == 1;
                         result.Summary.ThuNhapNetKyGanNhat = latestBl.bl.THUC_LINH;
-                        result.Summary.KyLuongNetLabel = isLatestPaid 
-                            ? $"Đã chuyển khoản T{latestBl.bl.THANG:00}/{latestBl.bl.NAM}"
+                        result.Summary.KyLuongNetLabel = isLatestLocked 
+                            ? $"Đã chốt sổ T{latestBl.bl.THANG:00}/{latestBl.bl.NAM}"
                             : $"Dự kiến chi trả T{latestBl.bl.THANG:00}/{latestBl.bl.NAM}";
-                        result.Summary.TrangThaiChiTra = isLatestPaid ? "Đã chi trả" : "Chờ chi trả";
+                        result.Summary.TrangThaiChiTra = isLatestLocked ? "Đã chốt sổ (Chờ chi trả)" : "Chờ chi trả";
                     }
                     else
                     {
@@ -221,7 +223,22 @@ namespace HRMS_API.Controllers
                     decimal nghiPhep = kcctList.Sum(x => x.NGAYPHEP ?? 0);
                     result.Summary.SoNgayNghiPhep = nghiPhep;
                     result.Summary.TongQuyPhep = 12;
-                    result.Summary.PhepConLai = Math.Max(0, 12 - nghiPhep);
+
+                    try
+                    {
+                        var phepLedgerConLai = db.Database.SqlQuery<decimal?>(
+                            "SELECT NVL(SUM(GIAY_PHEP), 0) / 28800 FROM HR.TB_PHEP_SOPHATSINH WHERE MANV = :p0",
+                            new OracleParameter("p0", id)
+                        ).FirstOrDefault();
+
+                        result.Summary.PhepConLai = phepLedgerConLai.HasValue
+                            ? Math.Round(phepLedgerConLai.Value, 2)
+                            : Math.Max(0, 12 - nghiPhep);
+                    }
+                    catch
+                    {
+                        result.Summary.PhepConLai = Math.Max(0, 12 - nghiPhep);
+                    }
 
                     // 4. TIMELINE SỰ NGHIỆP THỰC TẾ
                     var timelineList = new List<Profile360TimelineItemDTO>();

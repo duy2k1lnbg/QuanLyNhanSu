@@ -24,6 +24,13 @@ namespace DA
         public Nullable<decimal> PHUTRA { get; set; }
         public Nullable<decimal> MANV { get; set; }
         public Nullable<decimal> IDLOAICONG { get; set; }
+        public Nullable<System.DateTime> THOIDIEM_VAO { get; set; }
+        public Nullable<System.DateTime> THOIDIEM_RA { get; set; }
+        public string NGUON_CHAM { get; set; }
+        public string MA_SU_KIEN_NGUON { get; set; }
+        public string MA_THIET_BI { get; set; }
+        public Nullable<System.DateTime> TIEPNHAN_LUC { get; set; }
+        public Nullable<long> NGUON_REV { get; set; }
     
         public virtual TB_LOAICONG TB_LOAICONG { get; set; }
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }

@@ -12,6 +12,8 @@ import {
   Descriptions,
   Typography,
   Tooltip,
+  Row,
+  Col,
 } from 'antd';
 import {
   AuditOutlined,
@@ -19,10 +21,15 @@ import {
   ReloadOutlined,
   EyeOutlined,
   LaptopOutlined,
+  HistoryOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
 import api from '../services/api';
 import dayjs from 'dayjs';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
+import { MetricCard } from '../theme/components/MetricCard';
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -51,6 +58,7 @@ interface AuditLogDetail extends AuditLogItem {
 
 export function AuditLogPage() {
   const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [total, setTotal] = useState(0);
@@ -186,7 +194,7 @@ export function AuditLogPage() {
       key: 'action',
       width: 110,
       render: (val: string) => (
-        <Tag color={getActionColor(val)} style={{ fontWeight: 600 }}>
+        <Tag color={getActionColor(val)} style={{ fontWeight: 600, borderRadius: 4 }}>
           {val || 'UNKNOWN'}
         </Tag>
       ),
@@ -197,7 +205,7 @@ export function AuditLogPage() {
       width: 160,
       render: (_: any, record: AuditLogItem) => (
         <Space direction="vertical" size={0}>
-          <Tag color="geekblue" style={{ margin: 0, fontSize: 11 }}>{record.module || '-'}</Tag>
+          <Tag color="geekblue" style={{ margin: 0, fontSize: 11, borderRadius: 4 }}>{record.module || '-'}</Tag>
           <Text type="secondary" style={{ fontSize: 12, fontFamily: 'monospace' }}>{record.tableName}</Text>
         </Space>
       ),
@@ -247,16 +255,76 @@ export function AuditLogPage() {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <Card
-        title={
-          <Space>
-            <AuditOutlined style={{ color: '#1890ff', fontSize: 20 }} />
-            <span>{t('audit.pageTitle')}</span>
-          </Space>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* PAGE HEADER */}
+      <PageHeader
+        title={t('audit.pageTitle') || 'Nhật Ký Hệ Thống'}
+        subtitle="Ghi nhận chi tiết lịch sử truy cập, các thao tác thêm sửa xóa và thay đổi dữ liệu của người dùng"
+        breadcrumbs={[
+          { title: 'Hệ thống' },
+          { title: 'Nhật ký kiểm toán' },
+        ]}
+        extra={
+          <Button
+            icon={<ReloadOutlined spin={loading} />}
+            onClick={() => {
+              setSearch('');
+              setAction('ALL');
+              setModuleFilter('ALL');
+              setDateRange(null);
+              fetchLogs(1, pageSize);
+            }}
+            style={{ borderRadius: 8 }}
+          >
+            {t('common.refresh')}
+          </Button>
         }
+      />
+
+      {/* KPI METRIC CARDS */}
+      <Row gutter={[16, 16]}>
+        <Col xs={12} sm={6}>
+          <MetricCard
+            title="Tổng số nhật ký"
+            value={total}
+            icon={<HistoryOutlined />}
+            accent="blue"
+          />
+        </Col>
+        <Col xs={12} sm={6}>
+          <MetricCard
+            title="Bản ghi trang hiện tại"
+            value={logs.length}
+            icon={<EyeOutlined />}
+            accent="purple"
+          />
+        </Col>
+        <Col xs={12} sm={6}>
+          <MetricCard
+            title="Module đang giám sát"
+            value={moduleOptions.length || 'Hệ thống'}
+            icon={<AppstoreOutlined />}
+            accent="cyan"
+          />
+        </Col>
+        <Col xs={12} sm={6}>
+          <MetricCard
+            title="Loại thao tác"
+            value={actionOptions.length || 5}
+            icon={<AuditOutlined />}
+            accent="green"
+          />
+        </Col>
+      </Row>
+
+      <Card
         bordered={false}
-        style={{ borderRadius: 8 }}
+        style={{
+          borderRadius: 12,
+          background: tokens.cardBg,
+          border: `1px solid ${tokens.borderSubtle}`,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}
       >
         {/* Filters */}
         <div
@@ -270,18 +338,18 @@ export function AuditLogPage() {
         >
           <Input
             placeholder={t('common.searchPlaceholder')}
-            prefix={<SearchOutlined />}
+            prefix={<SearchOutlined style={{ color: tokens.textMuted }} />}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             onPressEnter={handleSearch}
-            style={{ width: 220 }}
+            style={{ width: 220, borderRadius: 8 }}
             allowClear
           />
 
           <Select
             value={action}
             onChange={(val) => setAction(val)}
-            style={{ width: 140 }}
+            style={{ width: 140, borderRadius: 8 }}
             options={[
               { value: 'ALL', label: t('audit.filterAction') },
               ...actionOptions.map((act) => ({ value: act, label: act })),
@@ -291,7 +359,7 @@ export function AuditLogPage() {
           <Select
             value={moduleFilter}
             onChange={(val) => setModuleFilter(val)}
-            style={{ width: 150 }}
+            style={{ width: 150, borderRadius: 8 }}
             options={[
               { value: 'ALL', label: t('common.all') },
               ...moduleOptions.map((mod) => ({ value: mod, label: mod })),
@@ -302,10 +370,20 @@ export function AuditLogPage() {
             value={dateRange}
             onChange={(val) => setDateRange(val)}
             format="YYYY-MM-DD"
-            style={{ minWidth: 230 }}
+            style={{ minWidth: 230, borderRadius: 8 }}
           />
 
-          <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
+          <Button
+            type="primary"
+            icon={<SearchOutlined />}
+            onClick={handleSearch}
+            style={{
+              borderRadius: 8,
+              background: tokens.btnPrimaryBg,
+              borderColor: tokens.btnPrimaryBg,
+              fontWeight: 600,
+            }}
+          >
             {t('common.search')}
           </Button>
 
@@ -318,6 +396,7 @@ export function AuditLogPage() {
               setDateRange(null);
               fetchLogs(1, pageSize);
             }}
+            style={{ borderRadius: 8 }}
           >
             {t('common.reset')}
           </Button>
@@ -350,14 +429,23 @@ export function AuditLogPage() {
       <Modal
         title={
           <Space>
-            <AuditOutlined style={{ color: '#1890ff' }} />
+            <AuditOutlined style={{ color: tokens.primary }} />
             <span>{t('audit.colDetails')} #{selectedLog?.id}</span>
           </Space>
         }
         open={detailModalVisible}
         onCancel={() => setDetailModalVisible(false)}
         footer={[
-          <Button key="close" type="primary" onClick={() => setDetailModalVisible(false)}>
+          <Button
+            key="close"
+            type="primary"
+            onClick={() => setDetailModalVisible(false)}
+            style={{
+              borderRadius: 8,
+              background: tokens.btnPrimaryBg,
+              borderColor: tokens.btnPrimaryBg,
+            }}
+          >
             {t('common.close')}
           </Button>,
         ]}
@@ -394,13 +482,14 @@ export function AuditLogPage() {
             {/* Old vs New data */}
             {selectedLog.oldData && (
               <div>
-                <Text strong style={{ color: '#d46b08' }}>Old Data:</Text>
+                <Text strong style={{ color: '#fa8c16' }}>Dữ liệu cũ (Old Data):</Text>
                 <pre
                   style={{
-                    backgroundColor: '#fffbe6',
+                    backgroundColor: tokens.cardSecondaryBg,
                     padding: 12,
-                    borderRadius: 6,
-                    border: '1px solid #ffe58f',
+                    borderRadius: 8,
+                    border: `1px solid ${tokens.borderSubtle}`,
+                    color: tokens.textPrimary,
                     maxHeight: 200,
                     overflow: 'auto',
                     fontSize: 12,
@@ -414,13 +503,14 @@ export function AuditLogPage() {
 
             {selectedLog.newData && (
               <div>
-                <Text strong style={{ color: '#389e0d' }}>New Data:</Text>
+                <Text strong style={{ color: '#52c41a' }}>Dữ liệu mới (New Data):</Text>
                 <pre
                   style={{
-                    backgroundColor: '#f6ffed',
+                    backgroundColor: tokens.cardSecondaryBg,
                     padding: 12,
-                    borderRadius: 6,
-                    border: '1px solid #b7eb8f',
+                    borderRadius: 8,
+                    border: `1px solid ${tokens.borderSubtle}`,
+                    color: tokens.textPrimary,
                     maxHeight: 200,
                     overflow: 'auto',
                     fontSize: 12,

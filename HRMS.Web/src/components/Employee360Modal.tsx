@@ -280,28 +280,14 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
       title={null}
     >
       {/* GRAND HERO HEADER */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%)',
-          color: '#ffffff',
-          padding: '24px 32px',
-          position: 'relative',
-        }}
-      >
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: 20,
-            paddingRight: 36, // Chừa khoảng trống riêng cho nút X đóng modal, tránh bị che
-          }}
-        >
+      <div className="employee-360-header">
+        <div className="employee-360-header-inner">
           {/* LEFT: AVATAR & EMPLOYEE INFO */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: 1, minWidth: 0 }}>
+          <div className="employee-360-profile-main">
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <Avatar
                 size={84}
+                className="employee-360-avatar"
                 icon={uploadingAvatar ? <LoadingOutlined /> : <UserOutlined />}
                 src={formatAvatarUrl(currentAvatar, employee.MANV)}
                 style={{
@@ -352,9 +338,9 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
               )}
             </div>
 
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 6 }}>
-                <Title level={3} style={{ color: '#fff', margin: 0, fontWeight: 700 }}>
+            <div className="employee-360-info-col">
+              <div className="employee-360-name-row">
+                <Title level={3} className="employee-360-name-title">
                   {employee.HOTEN}
                 </Title>
                 <Tag color={employee.DATHOIVIEC === 1 ? 'error' : 'success'} style={{ fontWeight: 600 }}>
@@ -363,17 +349,17 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                 <Tag color="cyan">Mã NV: #{employee.MANV}</Tag>
               </div>
 
-              <div style={{ color: '#94a3b8', display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 13 }}>
-                <span>🏢 <strong>Phòng ban:</strong> {employee.TENPB || 'Chưa phân bổ'}</span>
-                <span>💼 <strong>Vị trí:</strong> {employee.TENCV || 'Nhân viên'}</span>
-                <span>📅 <strong>Ngày vào công ty:</strong> {summary?.NgayVaoCongTy || 'Chưa ghi nhận'}</span>
-                <span>🎓 <strong>Trình độ:</strong> {employee.TENTD || 'Đại học'}</span>
+              <div className="employee-360-meta-row">
+                <span className="employee-360-meta-item">🏢 <strong>Phòng ban:</strong> {employee.TENPB || 'Chưa phân bổ'}</span>
+                <span className="employee-360-meta-item">💼 <strong>Vị trí:</strong> {employee.TENCV || 'Nhân viên'}</span>
+                <span className="employee-360-meta-item">📅 <strong>Ngày vào công ty:</strong> {summary?.NgayVaoCongTy || 'Chưa ghi nhận'}</span>
+                <span className="employee-360-meta-item">🎓 <strong>Trình độ:</strong> {employee.TENTD || 'Đại học'}</span>
               </div>
             </div>
           </div>
 
-          {/* RIGHT: ACTION BUTTONS (ALWAYS PINNED TO RIGHT, NEVER WRAPS UNDER AVATAR) */}
-          <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'flex-end' }}>
+          {/* RIGHT: ACTION BUTTONS (DESKTOP PINNED RIGHT, MOBILE FULL-WIDTH ROW) */}
+          <div className="employee-360-actions">
             {canEdit(currentUser, 'F_DM_NHANVIEN') && (
               <Button
                 type="primary"
@@ -402,7 +388,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
       </div>
 
       {/* BODY CONTENT WITH TABS */}
-      <div style={{ padding: '20px 32px' }}>
+      <div className="employee-360-body">
         <Spin spinning={loadingProfile} tip="Đang tải dữ liệu thực tế từ hệ thống...">
           <Tabs
             activeKey={activeTab}
@@ -414,7 +400,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                 children: (
                   <Space direction="vertical" size="large" style={{ width: '100%' }}>
                     {/* METRIC STRIP */}
-                    <Row gutter={16}>
+                    <Row gutter={[12, 12]}>
                       <Col xs={24} md={8}>
                         <Card size="small" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -528,6 +514,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                         pagination={false}
                         size="small"
                         rowKey="Key"
+                        scroll={{ x: 'max-content' }}
                         locale={{
                           emptyText: (
                             <Empty
@@ -572,9 +559,10 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                             align: 'center',
                             render: (t) => {
                               const isPaid = t === 'Đã chi trả' || t === 'Đã thanh toán';
+                              const isLocked = t === 'Đã chốt sổ (Chờ chi trả)';
                               return (
-                                <Tag color={isPaid ? 'success' : 'warning'}>
-                                  {isPaid ? 'Đã chi trả' : 'Chờ chi trả'}
+                                <Tag color={isPaid ? 'success' : isLocked ? 'processing' : 'warning'}>
+                                  {t || 'Chờ chi trả'}
                                 </Tag>
                               );
                             },
@@ -719,6 +707,8 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                               background: '#fff',
                               borderRadius: 6,
                               border: '1px solid #f1f5f9',
+                              gap: 8,
+                              flexWrap: 'wrap',
                             }}
                           >
                             <Checkbox checked={item.Done} disabled style={{ fontWeight: item.Done ? 500 : 400 }}>
@@ -731,7 +721,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                                 {item.Title}
                               </span>
                             </Checkbox>
-                            <Space>
+                            <Space wrap>
                               <Text type="secondary" style={{ fontSize: 12 }}>
                                 {item.Detail}
                               </Text>
@@ -801,7 +791,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
 
                         <Descriptions.Item label="Quyền truy cập Mobile (Mobile Access)" span={2}>
                           {linkedAccount ? (
-                            <Space size="middle">
+                            <Space size="middle" wrap>
                               <Switch
                                 checked={
                                   linkedAccount.IsMobileEnabled !== undefined

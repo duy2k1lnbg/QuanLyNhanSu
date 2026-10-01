@@ -559,4 +559,13 @@ export const ja: LocaleType = {
     noNotifications: '新しい通知はありません。',
     viewAll: 'すべての通知を確認',
   },
+
+  intro: {
+    welcome: 'WELCOME',
+    toHrms: 'TO HRMS ENTERPRISE',
+    subtitle: '人事管理・勤怠管理・給与計算',
+    hint: '任意のキーを押すかタップして続行',
+    skip: 'スキップ',
+    skipShortcut: 'Esc / 任意のキー',
+  },
 };

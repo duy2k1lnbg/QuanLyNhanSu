@@ -142,6 +142,21 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>QLNhanSu.edmx</DependentUpon>
     </Compile>
+    <Compile Include="SCHEMA_VERSION.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_AUTH_AUDIT.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_AUTH_LOGIN_ATTEMPT.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_AUTH_POLICY.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_AUTH_SESSION.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_BANGCONG.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
@@ -151,10 +166,58 @@
     <Compile Include="TB_BANGLUONG.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_BANGLUONG_BAOHIEM.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_BANGLUONG_CONG_DOAN.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_BANGLUONG_CT.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_BANGLUONG_CT_SOURCE.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_BANGLUONG_OT_COMPLIANCE.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_BANGLUONG_THUE_CT.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_BAOHIEM.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_BOPHAN.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CA_KHUNGGIO.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CA_PHIENBAN.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CHAMCONG_BATTHUONG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CHAMCONG_BT_LICHSU.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CHAMCONG_KQ_NGAY.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CHAMCONG_LANTINH.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CHINH_SACH_BHXH.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CHINH_SACH_BHXH_VUNG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CHINH_SACH_CONG_DOAN.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CHINH_SACH_LUONG.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_CHUCVU.cs">
@@ -164,6 +227,12 @@
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_CONGTY.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CONG_PD_NGUON.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_CONG_PHANDOAN.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_DANTOC.cs">
@@ -190,6 +259,9 @@
     <Compile Include="TB_LANGUAGES.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_LICH_LAMVIEC.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_LOAICA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
@@ -199,13 +271,28 @@
     <Compile Include="TB_NANGLUONG_NHANVIEN.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_NGUOI_PHU_THUOC.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_NHANVIEN.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_NHANVIEN_BAOHIEM_THAM_GIA.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_NHANVIEN_CONG_DOAN_THAM_GIA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_NHANVIEN_PHUCAP.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_NHANVIEN_THOIVIEC.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_NHANVIEN_THUE.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_PAYROLL_CALCULATION_RUN.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_PHONGBAN.cs">
@@ -215,6 +302,15 @@
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_QUOCTICH.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_QUYDINH_CHAMCONG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_QUYET_TOAN_THUE_NAM.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_QUYET_TOAN_THUE_NAM_CT.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_SYS_FUNCTION.cs">
@@ -235,6 +331,9 @@
     <Compile Include="TB_SYS_RIGHT.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_SYS_RIGHT_BACKUP.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_SYS_RIGHT_REPORT.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
@@ -247,9 +346,21 @@
     <Compile Include="TB_TANGCA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
-    <Compile Include="TB_HESO_TANGCA.cs" />
-    <Compile Include="TB_LOAIHOPDONG.cs" />
-    <Compile Include="TB_NGAYLE.cs" />
+    <Compile Include="TB_HESO_TANGCA.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_LOAIHOPDONG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_NGAYLE.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_THUE_TNCN_BAC.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_THUE_TNCN_CHINH_SACH.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
     <Compile Include="TB_TONGIAO.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
@@ -260,6 +371,18 @@
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="TB_UNGLUONG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_USER_EMPLOYEE_MAPPING.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_YEUCAU_DIEUCHINHCONG.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_YEUCAU_NGHIPHEP.cs">
+      <DependentUpon>QLNhanSu.tt</DependentUpon>
+    </Compile>
+    <Compile Include="TB_YEUCAU_TANGCA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
     <Compile Include="V_AI_ADVANCE.cs">

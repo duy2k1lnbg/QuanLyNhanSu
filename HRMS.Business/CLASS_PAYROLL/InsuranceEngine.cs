@@ -39,8 +39,8 @@ namespace Bu.CLASS_PAYROLL
             decimal capBhxh = policy.AP_DUNG_TRAN_BHXH_BHYT == 1 ? 20.0m * policy.MUC_THAM_CHIEU : decimal.MaxValue;
             decimal capBhtn = policy.AP_DUNG_TRAN_BHTN == 1 ? 20.0m * region.LUONG_TOI_THIEU_THANG : decimal.MaxValue;
 
-            decimal appliedBaseBhxh = Math.Min(Math.Max(rawBase, floor), capBhxh);
-            decimal appliedBaseBhtn = Math.Min(Math.Max(rawBase, floor), capBhtn);
+            decimal appliedBaseBhxh = (profile.THAM_GIA_BHXH == 1) ? Math.Min(Math.Max(rawBase, floor), capBhxh) : 0m;
+            decimal appliedBaseBhtn = (profile.THAM_GIA_BHTN == 1) ? Math.Min(Math.Max(rawBase, floor), capBhtn) : 0m;
 
             // Employee Deductions
             decimal tienBhxhNld = profile.THAM_GIA_BHXH == 1 ? Math.Round(appliedBaseBhxh * policy.TY_LE_BHXH_NLD, 2) : 0m;

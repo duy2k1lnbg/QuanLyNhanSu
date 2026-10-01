@@ -559,4 +559,13 @@ export const en: LocaleType = {
     noNotifications: 'You have no new notifications.',
     viewAll: 'View All Notifications',
   },
+
+  intro: {
+    welcome: 'WELCOME',
+    toHrms: 'TO HRMS ENTERPRISE',
+    subtitle: 'Human Resources · Attendance · Payroll Management',
+    hint: 'Press any key or tap to continue',
+    skip: 'Skip',
+    skipShortcut: 'Esc / Any key',
+  },
 };

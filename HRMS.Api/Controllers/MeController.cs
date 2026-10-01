@@ -525,6 +525,9 @@ namespace HRMS_API.Controllers
                             diMuonCount++;
                         }
 
+                        bool coBatThuong = (row.DU_DIEUKIEN_CHOT == false) ||
+                                            (!string.IsNullOrEmpty(row.TRANGTHAI_CONG) && (row.TRANGTHAI_CONG.Contains("BAT_THUONG") || row.TRANGTHAI_CONG.Contains("ANOMALY") || row.TRANGTHAI_CONG.Contains("UNVERIFIED")));
+
                         result.DailyList.Add(new MobileAttendanceDailyDto
                         {
                             Ngay = row.NGAY.HasValue ? row.NGAY.Value.ToString("dd/MM") : "N/A",
@@ -534,7 +537,19 @@ namespace HRMS_API.Controllers
                             NgayCong = nc,
                             KyHieu = row.KYHIEU ?? "X",
                             TrangThai = trangThai,
-                            GhiChu = row.GHICHU
+                            GhiChu = row.GHICHU,
+                            NgayPhep = row.NGAYPHEP,
+                            CongNgayLe = row.CONGNGAYLE,
+                            CongChuNhat = row.CONGCHUNHAT,
+                            TrangThaiCong = row.TRANGTHAI_CONG,
+                            DuDieuKienChot = row.DU_DIEUKIEN_CHOT,
+                            GioThucTe = row.GIAY_THUC_TE.HasValue ? Math.Round(row.GIAY_THUC_TE.Value / 3600.0, 2) : (double?)null,
+                            GioHuongCong = row.GIAY_HUONG_CONG_THUONG.HasValue ? Math.Round(row.GIAY_HUONG_CONG_THUONG.Value / 3600.0, 2) : (double?)null,
+                            GioOtXacNhan = row.GIAY_OT_XAC_NHAN.HasValue ? Math.Round(row.GIAY_OT_XAC_NHAN.Value / 3600.0, 2) : (double?)null,
+                            GioDem = ((row.GIAY_DEM_TRONG_GIO_THUONG ?? 0) + (row.GIAY_DEM_OT ?? 0)) > 0 ? Math.Round(((row.GIAY_DEM_TRONG_GIO_THUONG ?? 0) + (row.GIAY_DEM_OT ?? 0)) / 3600.0, 2) : (double?)null,
+                            PhutDiMuonViPham = row.GIAY_DI_MUON_VIPHAM.HasValue ? (int?)(row.GIAY_DI_MUON_VIPHAM.Value / 60) : null,
+                            PhutVeSomViPham = row.GIAY_VE_SOM_VIPHAM.HasValue ? (int?)(row.GIAY_VE_SOM_VIPHAM.Value / 60) : null,
+                            CoBatThuongChuaXacMinh = coBatThuong
                         });
                     }
 
@@ -805,6 +820,91 @@ namespace HRMS_API.Controllers
                         LuongBhxh = bh.LUONG_BHXH
                     };
 
+                    try
+                    {
+                        var movements = db.Database.SqlQuery<InsuranceMovementRow>(
+                            @"SELECT B.ID, B.MANV, NV.MANV AS EMPLOYEE_CODE, NV.HOTEN AS EMPLOYEE_NAME,
+                                     NVL(PB.TENPB, 'Chưa phân bổ') AS DEPARTMENT_NAME,
+                                     B.MAKYCONG, B.LOAI, B.NGAY_HIEULUC, B.LY_DO, B.TRANG_THAI,
+                                     B.NGUOI_DUYET, NVL(U.FULLNAME, U.USERNAME) AS TEN_NGUOI_DUYET
+                              FROM HR.TB_BAOHIEM_BIENDONG B
+                              JOIN HR.TB_NHANVIEN NV ON B.MANV = NV.MANV
+                              LEFT JOIN HR.TB_PHONGBAN PB ON NV.IDPB = PB.IDPB
+                              LEFT JOIN HR.TB_SYS_USER U ON B.NGUOI_DUYET = U.IDUSER
+                              WHERE B.MANV = :p0
+                              ORDER BY B.NGAY_HIEULUC DESC",
+                            new OracleParameter("p0", manv)
+                        ).ToList();
+
+                        result.Movements = movements.Select(m => new MobileInsuranceMovementDto
+                        {
+                            Id = m.ID,
+                            Manv = m.MANV,
+                            MaKyCong = m.MAKYCONG,
+                            Loai = m.LOAI,
+                            NgayHieuLuc = m.NGAY_HIEULUC.ToString("dd/MM/yyyy"),
+                            LyDo = m.LY_DO,
+                            TrangThai = m.TRANG_THAI,
+                            NguoiDuyet = m.NGUOI_DUYET,
+                            TenNguoiDuyet = m.TEN_NGUOI_DUYET
+                        }).ToList();
+                    }
+                    catch (Exception mEx)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[GetInsurance Movements Warning]: " + mEx.Message);
+                    }
+
+                    try
+                    {
+                        var parts = db.TB_NHANVIEN_BAOHIEM_THAM_GIA
+                            .Where(p => p.MANV == manv)
+                            .OrderByDescending(p => p.NGAY_BAT_DAU)
+                            .ToList();
+
+                        result.Participations = parts.Select(p => new MobileInsuranceParticipationDto
+                        {
+                            Id = p.ID,
+                            VungLuong = p.VUNG_LUONG,
+                            ThamGiaBhxh = p.THAM_GIA_BHXH,
+                            ThamGiaBhyt = p.THAM_GIA_BHYT,
+                            ThamGiaBhtn = p.THAM_GIA_BHTN,
+                            ThamGiaTnldBnn = p.THAM_GIA_TNLD_BNN,
+                            HuongTyLeTnldUuDai = p.HUONG_TY_LE_TNLD_UU_DAI,
+                            LuongDongBhxhRieng = p.LUONG_DONG_BHXH_RIENG,
+                            NgayBatDau = p.NGAY_BAT_DAU.ToString("dd/MM/yyyy"),
+                            NgayKetThuc = p.NGAY_KET_THUC.HasValue ? p.NGAY_KET_THUC.Value.ToString("dd/MM/yyyy") : null,
+                            TrangThai = p.TRANG_THAI
+                        }).ToList();
+                    }
+                    catch (Exception pEx)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[GetInsurance Participations Warning]: " + pEx.Message);
+                    }
+
+                    try
+                    {
+                        var union = db.TB_NHANVIEN_CONG_DOAN_THAM_GIA
+                            .Where(u => u.MANV == manv)
+                            .OrderByDescending(u => u.NGAY_GIA_NHAP)
+                            .FirstOrDefault();
+
+                        if (union != null)
+                        {
+                            result.UnionParticipation = new MobileUnionParticipationDto
+                            {
+                                Id = union.ID,
+                                LaDoanVien = union.LA_DOAN_VIEN,
+                                NgayGiaNhap = union.NGAY_GIA_NHAP.ToString("dd/MM/yyyy"),
+                                NgayKetThuc = union.NGAY_KET_THUC.HasValue ? union.NGAY_KET_THUC.Value.ToString("dd/MM/yyyy") : null,
+                                TrangThai = union.TRANG_THAI
+                            };
+                        }
+                    }
+                    catch (Exception uEx)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[GetInsurance Union Warning]: " + uEx.Message);
+                    }
+
                     return Ok(new { success = true, data = result });
                 }
             }
@@ -920,6 +1020,72 @@ namespace HRMS_API.Controllers
             {
                 System.Diagnostics.Trace.TraceError("[GET /api/me/notifications/{id} Error]: " + ex);
                 return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Hệ thống đang gặp sự cố khi tải chi tiết thông báo." });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/me/leave-balance
+        /// Lấy số dư phép tồn và lịch sử phát sinh phép từ sổ TB_PHEP_SOPHATSINH
+        /// </summary>
+        [HttpGet]
+        [Route("leave-balance")]
+        public IHttpActionResult GetLeaveBalance()
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    {
+                        return error;
+                    }
+
+                    decimal manv = nv.MANV;
+                    var txRows = db.Database.SqlQuery<LeaveTransactionRow>(
+                        @"SELECT ID, MANV, NGAY, LOAI, GIAY_PHEP, IDDON, LY_DO
+                          FROM HR.TB_PHEP_SOPHATSINH
+                          WHERE MANV = :p0
+                          ORDER BY NGAY DESC, ID DESC",
+                        new OracleParameter("p0", manv)
+                    ).ToList();
+
+                    decimal tongCapSeconds = txRows.Where(x => x.LOAI == "CAP").Sum(x => x.GIAY_PHEP);
+                    decimal daDungSeconds = txRows.Where(x => x.LOAI == "SU_DUNG").Sum(x => Math.Abs(x.GIAY_PHEP));
+                    decimal hoanSeconds = txRows.Where(x => x.LOAI == "HOAN").Sum(x => x.GIAY_PHEP);
+                    decimal conLaiSeconds = txRows.Sum(x => x.GIAY_PHEP);
+
+                    // Nếu chưa có dòng sổ nào, fallback sang mặc định 12 ngày
+                    if (!txRows.Any())
+                    {
+                        tongCapSeconds = 12 * 28800;
+                        conLaiSeconds = 12 * 28800;
+                    }
+
+                    var result = new MobileLeaveBalanceDto
+                    {
+                        Manv = manv,
+                        TongCapNgay = Math.Round(tongCapSeconds / 28800m, 2),
+                        DaDungNgay = Math.Round(daDungSeconds / 28800m, 2),
+                        ConLaiNgay = Math.Round(conLaiSeconds / 28800m, 2),
+                        Transactions = txRows.Select(r => new MobileLeaveTransactionDto
+                        {
+                            Id = r.ID,
+                            Ngay = r.NGAY.ToString("dd/MM/yyyy"),
+                            Loai = r.LOAI,
+                            GiayPhep = r.GIAY_PHEP,
+                            SoNgay = Math.Round(Math.Abs(r.GIAY_PHEP) / 28800m, 2),
+                            IdDon = r.IDDON,
+                            LyDo = r.LY_DO
+                        }).ToList()
+                    };
+
+                    return Ok(new { success = true, data = result });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/me/leave-balance Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải số dư phép." });
             }
         }
 
@@ -1626,6 +1792,17 @@ namespace HRMS_API.Controllers
         public string NGUOI_DUYET { get; set; }
         public DateTime? NGAY_DUYET { get; set; }
         public string LYDO_TUCHOI { get; set; }
+    }
+
+    public class LeaveTransactionRow
+    {
+        public decimal ID { get; set; }
+        public decimal MANV { get; set; }
+        public DateTime NGAY { get; set; }
+        public string LOAI { get; set; }
+        public decimal GIAY_PHEP { get; set; }
+        public decimal? IDDON { get; set; }
+        public string LY_DO { get; set; }
     }
 }
 

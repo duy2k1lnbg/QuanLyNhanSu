@@ -47,6 +47,18 @@ namespace HRMS_API.Models
         public string KyHieu { get; set; }
         public string TrangThai { get; set; }
         public string GhiChu { get; set; }
+        public decimal? NgayPhep { get; set; }
+        public decimal? CongNgayLe { get; set; }
+        public decimal? CongChuNhat { get; set; }
+        public string TrangThaiCong { get; set; }
+        public bool? DuDieuKienChot { get; set; }
+        public double? GioThucTe { get; set; }
+        public double? GioHuongCong { get; set; }
+        public double? GioOtXacNhan { get; set; }
+        public double? GioDem { get; set; }
+        public int? PhutDiMuonViPham { get; set; }
+        public int? PhutVeSomViPham { get; set; }
+        public bool CoBatThuongChuaXacMinh { get; set; }
     }
 
     public class MobileAttendanceSummaryDto
@@ -137,6 +149,63 @@ namespace HRMS_API.Models
         public bool IsExpiringSoon { get; set; }
     }
 
+    public class MobileLeaveTransactionDto
+    {
+        public decimal Id { get; set; }
+        public string Ngay { get; set; }
+        public string Loai { get; set; }
+        public decimal GiayPhep { get; set; }
+        public decimal SoNgay { get; set; }
+        public decimal? IdDon { get; set; }
+        public string LyDo { get; set; }
+    }
+
+    public class MobileLeaveBalanceDto
+    {
+        public decimal Manv { get; set; }
+        public decimal TongCapNgay { get; set; }
+        public decimal DaDungNgay { get; set; }
+        public decimal ConLaiNgay { get; set; }
+        public List<MobileLeaveTransactionDto> Transactions { get; set; } = new List<MobileLeaveTransactionDto>();
+    }
+
+    public class MobileInsuranceMovementDto
+    {
+        public decimal Id { get; set; }
+        public decimal Manv { get; set; }
+        public decimal MaKyCong { get; set; }
+        public string Loai { get; set; }
+        public string NgayHieuLuc { get; set; }
+        public string LyDo { get; set; }
+        public string TrangThai { get; set; }
+        public decimal? NguoiDuyet { get; set; }
+        public string TenNguoiDuyet { get; set; }
+    }
+
+    public class MobileInsuranceParticipationDto
+    {
+        public decimal Id { get; set; }
+        public short VungLuong { get; set; }
+        public bool ThamGiaBhxh { get; set; }
+        public bool ThamGiaBhyt { get; set; }
+        public bool ThamGiaBhtn { get; set; }
+        public bool ThamGiaTnldBnn { get; set; }
+        public bool HuongTyLeTnldUuDai { get; set; }
+        public decimal? LuongDongBhxhRieng { get; set; }
+        public string NgayBatDau { get; set; }
+        public string NgayKetThuc { get; set; }
+        public string TrangThai { get; set; }
+    }
+
+    public class MobileUnionParticipationDto
+    {
+        public decimal Id { get; set; }
+        public bool LaDoanVien { get; set; }
+        public string NgayGiaNhap { get; set; }
+        public string NgayKetThuc { get; set; }
+        public string TrangThai { get; set; }
+    }
+
     public class MobileInsuranceDto
     {
         public decimal Idbh { get; set; }
@@ -145,6 +214,9 @@ namespace HRMS_API.Models
         public string Noicap { get; set; }
         public string Noikhambenh { get; set; }
         public decimal? LuongBhxh { get; set; }
+        public List<MobileInsuranceMovementDto> Movements { get; set; } = new List<MobileInsuranceMovementDto>();
+        public List<MobileInsuranceParticipationDto> Participations { get; set; } = new List<MobileInsuranceParticipationDto>();
+        public MobileUnionParticipationDto UnionParticipation { get; set; }
     }
 
     public class MobileNotificationDto

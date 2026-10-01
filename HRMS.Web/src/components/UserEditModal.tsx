@@ -55,7 +55,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
   return (
     <Modal
       title={
-        <Space>
+        <Space wrap>
           <EditOutlined style={{ color: '#1677ff' }} />
           <span>
             {isGroup ? 'Chỉnh sửa nhóm quyền' : 'Chỉnh sửa thông tin người dùng'}: <b>{user?.Username}</b>

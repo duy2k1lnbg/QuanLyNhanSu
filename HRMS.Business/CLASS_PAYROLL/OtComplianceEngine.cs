@@ -65,6 +65,10 @@ namespace Bu.CLASS_PAYROLL
             {
                 status = "UNAPPROVED_EXTENSION";
             }
+            else if (actualHoursYtdTotal > ANNUAL_STANDARD_LIMIT && (notificationFiled == 0 || !notificationFiled.HasValue))
+            {
+                status = "UNNOTIFIED_EXTENSION";
+            }
             else
             {
                 status = "COMPLIANT";

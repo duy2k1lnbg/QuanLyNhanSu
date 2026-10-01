@@ -58,7 +58,7 @@ namespace Bu
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Dự phòng nếu lỗi kết nối / DB chưa có bảng dịch: trả về dữ liệu thô tiếng Việt
                 var rawList = getList();
@@ -135,7 +135,7 @@ namespace Bu
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var rawItem = getItem(id);
                 if (rawItem != null)

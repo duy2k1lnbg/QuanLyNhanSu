@@ -10,7 +10,6 @@ import {
   Select,
   Row,
   Col,
-  Statistic,
   Modal,
   notification,
   Typography,
@@ -25,9 +24,13 @@ import {
   ScheduleOutlined,
   CalendarOutlined,
   FieldTimeOutlined,
+  SafetyCertificateOutlined,
 } from '@ant-design/icons';
 import api from '../services/api';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
+import { MetricCard } from '../theme/components/MetricCard';
 
 const { Text } = Typography;
 
@@ -83,15 +86,31 @@ interface OvertimeItem {
   lyDoTuChoi?: string;
 }
 
+interface InsuranceMovementItem {
+  id: number;
+  manv: number;
+  employeeCode: string;
+  employeeName: string;
+  departmentName: string;
+  maKyCong: number;
+  loai: string;
+  ngayHieuLuc: string;
+  lyDo: string;
+  trangThai: string;
+  nguoiDuyet?: string;
+}
+
 interface SummaryData {
   totalPending: number;
   leavePending: number;
   attendancePending: number;
   overtimePending: number;
+  insurancePending?: number;
 }
 
 export function ApprovalCenterPage() {
   const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [activeTab, setActiveTab] = useState<string>('leave');
   const [statusFilter, setStatusFilter] = useState<string>('PENDING');
   const [searchKeyword, setSearchKeyword] = useState<string>('');
@@ -100,27 +119,21 @@ export function ApprovalCenterPage() {
     leavePending: 0,
     attendancePending: 0,
     overtimePending: 0,
+    insurancePending: 0,
   });
 
   // Lists
   const [leaveList, setLeaveList] = useState<LeaveItem[]>([]);
   const [attendanceList, setAttendanceList] = useState<AttendanceCorrectionItem[]>([]);
   const [overtimeList, setOvertimeList] = useState<OvertimeItem[]>([]);
+  const [insuranceList, setInsuranceList] = useState<InsuranceMovementItem[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   // Reject Modal
   const [rejectModalVisible, setRejectModalVisible] = useState<boolean>(false);
-  const [rejectTarget, setRejectTarget] = useState<{ type: 'leave' | 'attendance' | 'overtime'; id: number; name?: string } | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<{ type: 'leave' | 'attendance' | 'overtime' | 'insurance'; id: number; name?: string } | null>(null);
   const [rejectReason, setRejectReason] = useState<string>('');
   const [submittingReject, setSubmittingReject] = useState<boolean>(false);
-
-  useEffect(() => {
-    fetchSummary();
-  }, []);
-
-  useEffect(() => {
-    fetchData();
-  }, [activeTab, statusFilter, searchKeyword]);
 
   const fetchSummary = async () => {
     try {
@@ -151,6 +164,9 @@ export function ApprovalCenterPage() {
       } else if (activeTab === 'overtime') {
         const res = await api.get('/approvals/overtime', { params });
         setOvertimeList(res.data?.data || []);
+      } else if (activeTab === 'insurance') {
+        const res = await api.get('/approvals/insurance-movements', { params });
+        setInsuranceList(res.data?.data || []);
       }
     } catch {
       notification.error({ message: t('common.error'), description: t('common.loading') });
@@ -159,12 +175,21 @@ export function ApprovalCenterPage() {
     }
   };
 
-  const handleApprove = async (type: 'leave' | 'attendance' | 'overtime', id: number) => {
+  useEffect(() => {
+    fetchSummary();
+  }, []);
+
+  useEffect(() => {
+    fetchData();
+  }, [activeTab, statusFilter, searchKeyword]);
+
+  const handleApprove = async (type: 'leave' | 'attendance' | 'overtime' | 'insurance', id: number) => {
     try {
       let endpoint = '';
       if (type === 'leave') endpoint = `/approvals/leave/${id}/approve`;
       else if (type === 'attendance') endpoint = `/approvals/attendance-corrections/${id}/approve`;
       else if (type === 'overtime') endpoint = `/approvals/overtime/${id}/approve`;
+      else if (type === 'insurance') endpoint = `/approvals/insurance-movements/${id}/approve`;
 
       const res = await api.post(endpoint);
       notification.success({
@@ -182,7 +207,7 @@ export function ApprovalCenterPage() {
     }
   };
 
-  const openRejectModal = (type: 'leave' | 'attendance' | 'overtime', id: number, name?: string) => {
+  const openRejectModal = (type: 'leave' | 'attendance' | 'overtime' | 'insurance', id: number, name?: string) => {
     setRejectTarget({ type, id, name });
     setRejectReason('');
     setRejectModalVisible(true);
@@ -196,6 +221,7 @@ export function ApprovalCenterPage() {
       if (rejectTarget.type === 'leave') endpoint = `/approvals/leave/${rejectTarget.id}/reject`;
       else if (rejectTarget.type === 'attendance') endpoint = `/approvals/attendance-corrections/${rejectTarget.id}/reject`;
       else if (rejectTarget.type === 'overtime') endpoint = `/approvals/overtime/${rejectTarget.id}/reject`;
+      else if (rejectTarget.type === 'insurance') endpoint = `/approvals/insurance-movements/${rejectTarget.id}/reject`;
 
       const res = await api.post(endpoint, { reason: rejectReason.trim() || 'Rejected' });
       notification.success({
@@ -478,54 +504,186 @@ export function ApprovalCenterPage() {
     },
   ];
 
+  const insuranceColumns: ColumnsType<InsuranceMovementItem> = [
+    {
+      title: t('employee.colEmpCode'),
+      dataIndex: 'employeeCode',
+      key: 'employeeCode',
+      width: 90,
+      render: (c, r) => <Tag color="blue">{c || `#${r.manv}`}</Tag>,
+    },
+    {
+      title: t('approval.colApplicant'),
+      dataIndex: 'employeeName',
+      key: 'employeeName',
+      width: 170,
+      render: (text) => <Text strong>{text}</Text>,
+    },
+    {
+      title: t('employee.labelDepartment'),
+      dataIndex: 'departmentName',
+      key: 'departmentName',
+      width: 140,
+    },
+    {
+      title: 'Kỳ công',
+      dataIndex: 'maKyCong',
+      key: 'maKyCong',
+      width: 100,
+      render: (val) => <Tag color="geekblue">{val}</Tag>,
+    },
+    {
+      title: 'Loại biến động',
+      dataIndex: 'loai',
+      key: 'loai',
+      width: 140,
+      render: (loai) => {
+        let color = 'default';
+        let label = loai;
+        if (loai === 'TANG') { color = 'green'; label = 'Tăng mới'; }
+        else if (loai === 'GIAM') { color = 'orange'; label = 'Giảm lao động'; }
+        else if (loai === 'DIEU_CHINH') { color = 'blue'; label = 'Điều chỉnh'; }
+        else if (loai === 'TAM_DUNG') { color = 'purple'; label = 'Tạm dừng'; }
+        return <Tag color={color}>{label}</Tag>;
+      },
+    },
+    {
+      title: 'Ngày hiệu lực',
+      dataIndex: 'ngayHieuLuc',
+      key: 'ngayHieuLuc',
+      width: 120,
+    },
+    {
+      title: t('approval.colReason'),
+      dataIndex: 'lyDo',
+      key: 'lyDo',
+      ellipsis: true,
+    },
+    {
+      title: t('approval.colStatus'),
+      dataIndex: 'trangThai',
+      key: 'trangThai',
+      width: 120,
+      render: (st) => renderStatusTag(st),
+    },
+    {
+      title: 'Người duyệt',
+      dataIndex: 'nguoiDuyet',
+      key: 'nguoiDuyet',
+      width: 140,
+      render: (text) => text || '-',
+    },
+    {
+      title: t('common.actions'),
+      key: 'actions',
+      width: 150,
+      fixed: 'right',
+      render: (_, r) => {
+        const isPending = r.trangThai === 'PENDING' || r.trangThai === 'DRAFT';
+        if (!isPending) {
+          return <Text type="secondary">{t('approval.processed')}</Text>;
+        }
+        return (
+          <Space>
+            <Button
+              type="primary"
+              size="small"
+              icon={<CheckCircleOutlined />}
+              onClick={() => handleApprove('insurance', r.id)}
+            >
+              {t('approval.btnApprove')}
+            </Button>
+            <Button
+              danger
+              size="small"
+              onClick={() => openRejectModal('insurance', r.id, r.employeeName)}
+            >
+              {t('approval.btnReject')}
+            </Button>
+          </Space>
+        );
+      },
+    },
+  ];
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      {/* 4 THẺ THỐNG KÊ NHANH */}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* PAGE HEADER */}
+      <PageHeader
+        title={t('approval.pageTitle') || 'Trung Tâm Phê Duyệt'}
+        subtitle="Xét duyệt nhanh các đơn xin nghỉ phép, giải trình chấm công, làm thêm giờ và biến động BHXH"
+        breadcrumbs={[
+          { title: 'Quản trị nhân sự' },
+          { title: 'Trung tâm phê duyệt' },
+        ]}
+        extra={
+          <Button
+            icon={<ReloadOutlined spin={loading} />}
+            onClick={() => {
+              fetchSummary();
+              fetchData();
+            }}
+            style={{ borderRadius: 8 }}
+          >
+            {t('common.refresh')}
+          </Button>
+        }
+      />
+
+      {/* 5 THẺ THỐNG KÊ NHANH */}
       <Row gutter={[16, 16]}>
-        <Col xs={12} sm={6}>
-          <Card bordered={false} style={{ borderRadius: 8 }}>
-            <Statistic
-              title={t('status.pending')}
-              value={summary.totalPending}
-              valueStyle={{ color: '#1677ff', fontWeight: 700 }}
-              prefix={<ClockCircleOutlined />}
-            />
-          </Card>
+        <Col xs={12} sm={8} md={4} style={{ flexGrow: 1 }}>
+          <MetricCard
+            title={t('status.pending')}
+            value={summary.totalPending}
+            icon={<ClockCircleOutlined />}
+            accent="blue"
+          />
         </Col>
-        <Col xs={12} sm={6}>
-          <Card bordered={false} style={{ borderRadius: 8 }}>
-            <Statistic
-              title={t('approval.tabLeaves', { count: '' })}
-              value={summary.leavePending}
-              valueStyle={{ color: '#10b981', fontWeight: 700 }}
-              prefix={<CalendarOutlined />}
-            />
-          </Card>
+        <Col xs={12} sm={8} md={4} style={{ flexGrow: 1 }}>
+          <MetricCard
+            title={t('approval.tabLeaves', { count: '' })}
+            value={summary.leavePending}
+            icon={<CalendarOutlined />}
+            accent="green"
+          />
         </Col>
-        <Col xs={12} sm={6}>
-          <Card bordered={false} style={{ borderRadius: 8 }}>
-            <Statistic
-              title={t('approval.tabCorrections', { count: '' })}
-              value={summary.attendancePending}
-              valueStyle={{ color: '#8b5cf6', fontWeight: 700 }}
-              prefix={<ScheduleOutlined />}
-            />
-          </Card>
+        <Col xs={12} sm={8} md={4} style={{ flexGrow: 1 }}>
+          <MetricCard
+            title={t('approval.tabCorrections', { count: '' })}
+            value={summary.attendancePending}
+            icon={<ScheduleOutlined />}
+            accent="purple"
+          />
         </Col>
-        <Col xs={12} sm={6}>
-          <Card bordered={false} style={{ borderRadius: 8 }}>
-            <Statistic
-              title={t('approval.tabOvertimes', { count: '' })}
-              value={summary.overtimePending}
-              valueStyle={{ color: '#ec4899', fontWeight: 700 }}
-              prefix={<FieldTimeOutlined />}
-            />
-          </Card>
+        <Col xs={12} sm={8} md={4} style={{ flexGrow: 1 }}>
+          <MetricCard
+            title={t('approval.tabOvertimes', { count: '' })}
+            value={summary.overtimePending}
+            icon={<FieldTimeOutlined />}
+            accent="amber"
+          />
+        </Col>
+        <Col xs={12} sm={8} md={4} style={{ flexGrow: 1 }}>
+          <MetricCard
+            title="Biến động BHXH"
+            value={summary.insurancePending ?? 0}
+            icon={<SafetyCertificateOutlined />}
+            accent="cyan"
+          />
         </Col>
       </Row>
 
       {/* FILTER & TABS */}
-      <Card bordered={false} style={{ borderRadius: 8 }}>
+      <Card
+        bordered={false}
+        style={{
+          borderRadius: 12,
+          background: tokens.cardBg,
+          border: `1px solid ${tokens.borderSubtle}`,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}
+      >
         <div
           style={{
             display: 'flex',
@@ -538,17 +696,17 @@ export function ApprovalCenterPage() {
         >
           <Space wrap>
             <Input
-              prefix={<SearchOutlined style={{ color: '#94a3b8' }} />}
+              prefix={<SearchOutlined style={{ color: tokens.textMuted }} />}
               placeholder={t('common.searchPlaceholder')}
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
-              style={{ minWidth: 200 }}
+              style={{ minWidth: 220, borderRadius: 8 }}
               allowClear
             />
             <Select
               value={statusFilter}
               onChange={setStatusFilter}
-              style={{ minWidth: 140 }}
+              style={{ minWidth: 150, borderRadius: 8 }}
               options={[
                 { value: 'PENDING', label: t('status.pending') },
                 { value: 'APPROVED', label: t('status.approved') },
@@ -557,10 +715,6 @@ export function ApprovalCenterPage() {
               ]}
             />
           </Space>
-
-          <Button icon={<ReloadOutlined />} onClick={() => { fetchSummary(); fetchData(); }}>
-            {t('common.refresh')}
-          </Button>
         </div>
 
         <Tabs
@@ -620,6 +774,26 @@ export function ApprovalCenterPage() {
                 <Table
                   columns={overtimeColumns}
                   dataSource={overtimeList}
+                  rowKey="id"
+                  loading={loading}
+                  scroll={{ x: 'max-content' }}
+                  pagination={{ pageSize: 15, showTotal: (tVal) => t('common.totalRecords', { total: tVal }) }}
+                />
+              ),
+            },
+            {
+              key: 'insurance',
+              label: (
+                <Space>
+                  <SafetyCertificateOutlined />
+                  <span>Biến động BHXH</span>
+                  {(summary.insurancePending ?? 0) > 0 && <Tag color="cyan">{summary.insurancePending}</Tag>}
+                </Space>
+              ),
+              children: (
+                <Table
+                  columns={insuranceColumns}
+                  dataSource={insuranceList}
                   rowKey="id"
                   loading={loading}
                   scroll={{ x: 'max-content' }}

@@ -108,7 +108,7 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
   return (
     <Modal
       title={
-        <Space>
+        <Space wrap>
           <LinkOutlined style={{ color: '#1677ff' }} />
           <span>Liên kết Tài khoản ↔ Hồ sơ Nhân sự (Quy tắc 9 & 21)</span>
         </Space>

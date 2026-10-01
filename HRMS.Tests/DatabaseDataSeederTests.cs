@@ -9,6 +9,7 @@ using System.Linq;
 namespace Bu.Tests
 {
     [TestFixture]
+    [Explicit("Manual database maintenance; never part of the ordinary test suite.")]
     public class DatabaseDataSeederTests
     {
         [Test]

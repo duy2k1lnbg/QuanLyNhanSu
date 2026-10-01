@@ -14,6 +14,21 @@ namespace DA
     
     public partial class TB_SYS_USER
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public TB_SYS_USER()
+        {
+            this.TB_AUTH_SESSION = new HashSet<TB_AUTH_SESSION>();
+            this.TB_CA_PHIENBAN = new HashSet<TB_CA_PHIENBAN>();
+            this.TB_CHAMCONG_BT_LICHSU = new HashSet<TB_CHAMCONG_BT_LICHSU>();
+            this.TB_CHAMCONG_LANTINH = new HashSet<TB_CHAMCONG_LANTINH>();
+            this.TB_LICH_LAMVIEC = new HashSet<TB_LICH_LAMVIEC>();
+            this.TB_QUYDINH_CHAMCONG = new HashSet<TB_QUYDINH_CHAMCONG>();
+            this.TB_USER_EMPLOYEE_MAPPING = new HashSet<TB_USER_EMPLOYEE_MAPPING>();
+            this.TB_YEUCAU_DIEUCHINHCONG = new HashSet<TB_YEUCAU_DIEUCHINHCONG>();
+            this.TB_YEUCAU_NGHIPHEP = new HashSet<TB_YEUCAU_NGHIPHEP>();
+            this.TB_YEUCAU_TANGCA = new HashSet<TB_YEUCAU_TANGCA>();
+        }
+    
         public decimal IDUSER { get; set; }
         public string USERNAME { get; set; }
         public string PASSWORD { get; set; }
@@ -28,5 +43,31 @@ namespace DA
         public Nullable<System.DateTime> LOCKOUT_END { get; set; }
         public Nullable<decimal> MANV { get; set; }
         public string CLIENT_TYPE { get; set; }
+        public int TOKEN_VERSION { get; set; }
+        public Nullable<System.DateTime> FIRST_FAILED_LOGIN_AT { get; set; }
+        public Nullable<System.DateTime> LAST_FAILED_LOGIN_AT { get; set; }
+        public Nullable<System.DateTime> LAST_SUCCESS_LOGIN_AT { get; set; }
+        public string LOCK_REASON { get; set; }
+    
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_AUTH_SESSION> TB_AUTH_SESSION { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_CA_PHIENBAN> TB_CA_PHIENBAN { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_CHAMCONG_BT_LICHSU> TB_CHAMCONG_BT_LICHSU { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_CHAMCONG_LANTINH> TB_CHAMCONG_LANTINH { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_LICH_LAMVIEC> TB_LICH_LAMVIEC { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_QUYDINH_CHAMCONG> TB_QUYDINH_CHAMCONG { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_USER_EMPLOYEE_MAPPING> TB_USER_EMPLOYEE_MAPPING { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_YEUCAU_DIEUCHINHCONG> TB_YEUCAU_DIEUCHINHCONG { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_YEUCAU_NGHIPHEP> TB_YEUCAU_NGHIPHEP { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_YEUCAU_TANGCA> TB_YEUCAU_TANGCA { get; set; }
     }
 }

@@ -198,8 +198,8 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
           </Space>
         }
       >
-        <Row gutter={12} align="middle">
-          <Col flex="auto">
+        <Row gutter={[8, 8]} align="middle">
+          <Col xs={24} sm={15} md="auto" flex="auto">
             <Select
               placeholder="Chọn người dùng để thêm vào nhóm..."
               value={selectedUserToAdd}
@@ -215,20 +215,20 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
               }))}
             />
           </Col>
-          <Col>
+          <Col xs={18} sm="auto">
             <Button
               type="primary"
               icon={<UserAddOutlined />}
               onClick={handleAddMember}
               loading={adding}
               disabled={!selectedUserToAdd}
-              style={{ background: '#52c41a' }}
+              style={{ background: '#52c41a', width: '100%' }}
             >
               Thêm vào nhóm
             </Button>
           </Col>
-          <Col>
-            <Button icon={<ReloadOutlined />} onClick={loadMembers} />
+          <Col xs={6} sm="auto">
+            <Button icon={<ReloadOutlined />} onClick={loadMembers} style={{ width: '100%' }} />
           </Col>
         </Row>
       </Card>

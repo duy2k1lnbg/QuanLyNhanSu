@@ -372,3 +372,11 @@ deploy_vps/
 *.apk
 *.APK
 /HRMS.Web/public/downloads
+scratch/
+
+# Local prompts and dataset backup files
+/prompts/
+/database/realistic200/backup_metadata/
+
+# Legacy backup copies awaiting Windows file cleanup
+/docs/backup_metadata/

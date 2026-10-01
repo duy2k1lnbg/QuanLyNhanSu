@@ -8,6 +8,7 @@ import {
   CloudDownloadOutlined,
   MobileOutlined,
 } from '@ant-design/icons';
+import { useAppTheme } from '../../../theme/ThemeContext';
 
 interface DownloadModalProps {
   visible: boolean;
@@ -26,6 +27,7 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
   onDownloadMobile,
   tLanding,
 }) => {
+  const { tokens } = useAppTheme();
   return (
     <Modal
       title={
@@ -78,20 +80,20 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
               gap: 14,
               padding: '16px',
               borderRadius: 12,
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: tokens.cardSecondaryBg,
+              border: `1px solid ${tokens.borderSubtle}`,
               alignItems: 'flex-start',
             }}
           >
             <WindowsOutlined style={{ fontSize: 32, color: '#2563eb', marginTop: 2 }} />
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>
+                <span style={{ fontWeight: 700, fontSize: 15, color: tokens.textPrimary }}>
                   {tLanding.downloadWinSectionTitle}
                 </span>
                 <Tag color="success" style={{ fontWeight: 600 }}>{tLanding.winTagReady}</Tag>
               </div>
-              <div style={{ fontSize: 13, color: '#475569', marginTop: 6, lineHeight: 1.5 }}>
+              <div style={{ fontSize: 13, color: tokens.textSecondary, marginTop: 6, lineHeight: 1.5 }}>
                 {tLanding.downloadWinSectionDesc}
               </div>
               <div style={{ marginTop: 12 }}>
@@ -118,20 +120,20 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({
               gap: 14,
               padding: '16px',
               borderRadius: 12,
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: tokens.cardSecondaryBg,
+              border: `1px solid ${tokens.borderSubtle}`,
               alignItems: 'flex-start',
             }}
           >
             <MobileOutlined style={{ fontSize: 32, color: '#a855f7', marginTop: 2 }} />
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' }}>
-                <span style={{ fontWeight: 700, fontSize: 15, color: '#1e293b' }}>
+                <span style={{ fontWeight: 700, fontSize: 15, color: tokens.textPrimary }}>
                   {tLanding.downloadMobileSectionTitle}
                 </span>
                 <Tag color="success" style={{ fontWeight: 600 }}>{tLanding.mobileTagComing || 'APK Ready'}</Tag>
               </div>
-              <div style={{ fontSize: 13, color: '#475569', marginTop: 6, lineHeight: 1.5 }}>
+              <div style={{ fontSize: 13, color: tokens.textSecondary, marginTop: 6, lineHeight: 1.5 }}>
                 {tLanding.downloadMobileSectionDesc}
               </div>
               <div style={{ marginTop: 12 }}>

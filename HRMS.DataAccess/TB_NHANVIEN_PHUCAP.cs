@@ -14,6 +14,12 @@ namespace DA
     
     public partial class TB_NHANVIEN_PHUCAP
     {
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
+        public TB_NHANVIEN_PHUCAP()
+        {
+            this.TB_BANGLUONG_CT_SOURCE = new HashSet<TB_BANGLUONG_CT_SOURCE>();
+        }
+    
         public decimal MANV { get; set; }
         public decimal IDPC { get; set; }
         public string GHICHU { get; set; }
@@ -27,5 +33,7 @@ namespace DA
     
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
         public virtual TB_PHUCAP TB_PHUCAP { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_BANGLUONG_CT_SOURCE> TB_BANGLUONG_CT_SOURCE { get; set; }
     }
 }

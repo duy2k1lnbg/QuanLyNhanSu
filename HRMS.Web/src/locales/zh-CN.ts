@@ -559,4 +559,13 @@ export const zhCN: LocaleType = {
     noNotifications: '暂无未读消息通知。',
     viewAll: '查看所有历史公告',
   },
+
+  intro: {
+    welcome: 'WELCOME',
+    toHrms: 'TO HRMS ENTERPRISE',
+    subtitle: '人力资源 · 考勤管理 · 薪资核算',
+    hint: '按任意键或点击继续',
+    skip: '跳过',
+    skipShortcut: 'Esc / 任意键',
+  },
 };

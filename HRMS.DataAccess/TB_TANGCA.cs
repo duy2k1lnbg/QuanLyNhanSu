@@ -36,8 +36,11 @@ namespace DA
         public Nullable<decimal> DONGIATC { get; set; }
         public Nullable<decimal> IS_THUVIEC { get; set; }
         public Nullable<decimal> IDLOAITANGCA { get; set; }
+        public Nullable<decimal> OT_REQUEST_ID { get; set; }
     
         public virtual TB_LOAICA TB_LOAICA { get; set; }
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
+        public virtual TB_HESO_TANGCA TB_HESO_TANGCA { get; set; }
+        public virtual TB_YEUCAU_TANGCA TB_YEUCAU_TANGCA { get; set; }
     }
 }

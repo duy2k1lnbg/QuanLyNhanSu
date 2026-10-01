@@ -12,10 +12,8 @@ import {
   Popconfirm,
   notification,
   Typography,
-  theme,
   Row,
   Col,
-  Statistic,
   Select,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -46,6 +44,9 @@ import BulkProvisioningModal from '../components/BulkProvisioningModal';
 import UserDetailDrawer from '../components/UserDetailDrawer';
 import type { SysUserDTO, CurrentUserDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
+import { MetricCard } from '../theme/components/MetricCard';
 
 const { Text } = Typography;
 
@@ -69,6 +70,7 @@ export function UserManagementPage({
   canDelete,
 }: UserManagementPageProps) {
   const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [userTab, setUserTab] = useState<'users' | 'groups'>('users');
   const [userSearchText, setUserSearchText] = useState('');
   const [selectedUserForPerms, setSelectedUserForPerms] = useState<SysUserDTO | null>(null);
@@ -104,10 +106,6 @@ export function UserManagementPage({
     SystemAccounts: 0,
   });
   const [statsLoading, setStatsLoading] = useState(false);
-
-  const {
-    token: { borderRadiusLG },
-  } = theme.useToken();
 
   const fetchStats = async () => {
     try {
@@ -552,79 +550,21 @@ export function UserManagementPage({
   ];
 
   return (
-    <>
-      {/* Dashboard KPI Summary Cards */}
-      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
-        <Col xs={12} sm={8} md={6} lg={4}>
-          <Card size="small" style={{ borderRadius: 8, background: '#fafafa' }} loading={statsLoading}>
-            <Statistic
-              title={t('dashboard.statTotalEmployees')}
-              value={stats.TotalEmployees}
-              valueStyle={{ fontWeight: 700 }}
-              prefix={<UserOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={6} lg={4}>
-          <Card size="small" style={{ borderRadius: 8, background: '#f6ffed' }} loading={statsLoading}>
-            <Statistic
-              title={t('user.tabUsers', { count: '' })}
-              value={stats.AccountsCreated}
-              valueStyle={{ color: '#52c41a', fontWeight: 700 }}
-              prefix={<CheckCircleOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={6} lg={4}>
-          <Card size="small" style={{ borderRadius: 8, background: '#fff2e8' }} loading={statsLoading}>
-            <Statistic
-              title={t('common.noData')}
-              value={stats.EmployeesWithoutAccount}
-              valueStyle={{ color: '#fa541c', fontWeight: 700 }}
-              prefix={<ThunderboltOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={6} lg={4}>
-          <Card size="small" style={{ borderRadius: 8, background: '#e6f7ff' }} loading={statsLoading}>
-            <Statistic
-              title="Mobile Enabled"
-              value={stats.MobileEnabled}
-              valueStyle={{ color: '#1890ff', fontWeight: 700 }}
-              prefix={<MobileOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={6} lg={4}>
-          <Card size="small" style={{ borderRadius: 8, background: '#fff1f0' }} loading={statsLoading}>
-            <Statistic
-              title={t('status.locked')}
-              value={stats.LockedAccounts}
-              valueStyle={{ color: '#f5222d', fontWeight: 700 }}
-              prefix={<LockOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} sm={8} md={6} lg={4}>
-          <Card size="small" style={{ borderRadius: 8, background: '#fffbe6' }} loading={statsLoading}>
-            <Statistic
-              title="Super Admin"
-              value={stats.SystemAccounts}
-              valueStyle={{ color: '#faad14', fontWeight: 700 }}
-              prefix={<SafetyCertificateOutlined />}
-            />
-          </Card>
-        </Col>
-      </Row>
-
-      <Card
-        title={t('user.pageTitle')}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* PAGE HEADER */}
+      <PageHeader
+        title={t('user.pageTitle') || 'Quản Trị Người Dùng & Phân Quyền'}
+        subtitle="Quản lý tài khoản hệ thống, phân quyền vai trò phòng ban và cấu hình bảo mật di động"
+        breadcrumbs={[
+          { title: 'Hệ thống' },
+          { title: 'Người dùng & phân quyền' },
+        ]}
         extra={
           <Space wrap>
             {userTab === 'users' && (!canAdd || canAdd('F_SYSTEM_USER')) && (
               <Button
                 type="primary"
-                style={{ background: '#722ed1', borderColor: '#722ed1' }}
+                style={{ background: tokens.btnPrimaryBg, borderColor: tokens.btnPrimaryBg, borderRadius: 8, fontWeight: 600 }}
                 icon={<ThunderboltOutlined />}
                 onClick={() => setBulkModalVisible(true)}
               >
@@ -633,8 +573,9 @@ export function UserManagementPage({
             )}
             {(!canAdd || (userTab === 'users' ? canAdd('F_SYSTEM_USER') : canAdd('F_SYSTEM_GROUP'))) && (
               <Button
-                type="primary"
+                type="default"
                 icon={<PlusOutlined />}
+                style={{ borderRadius: 8 }}
                 onClick={() => {
                   setIsCreatingGroup(userTab === 'groups');
                   formCreateUser.resetFields();
@@ -644,13 +585,73 @@ export function UserManagementPage({
                 {userTab === 'users' ? t('user.btnAddUser') : t('common.add')}
               </Button>
             )}
-            <Button icon={<ReloadOutlined />} onClick={handleRefreshAll}>
+            <Button icon={<ReloadOutlined spin={userLoading || statsLoading} />} onClick={handleRefreshAll} style={{ borderRadius: 8 }}>
               {t('common.refresh')}
             </Button>
           </Space>
         }
+      />
+
+      {/* KPI METRIC CARDS */}
+      <Row gutter={[12, 12]}>
+        <Col xs={12} sm={8} md={6} lg={4}>
+          <MetricCard
+            title={t('dashboard.statTotalEmployees')}
+            value={stats.TotalEmployees}
+            icon={<UserOutlined />}
+            accent="blue"
+          />
+        </Col>
+        <Col xs={12} sm={8} md={6} lg={4}>
+          <MetricCard
+            title={t('user.tabUsers', { count: '' })}
+            value={stats.AccountsCreated}
+            icon={<CheckCircleOutlined />}
+            accent="green"
+          />
+        </Col>
+        <Col xs={12} sm={8} md={6} lg={4}>
+          <MetricCard
+            title={t('common.noData')}
+            value={stats.EmployeesWithoutAccount}
+            icon={<ThunderboltOutlined />}
+            accent="amber"
+          />
+        </Col>
+        <Col xs={12} sm={8} md={6} lg={4}>
+          <MetricCard
+            title="Mobile Enabled"
+            value={stats.MobileEnabled}
+            icon={<MobileOutlined />}
+            accent="cyan"
+          />
+        </Col>
+        <Col xs={12} sm={8} md={6} lg={4}>
+          <MetricCard
+            title={t('status.locked')}
+            value={stats.LockedAccounts}
+            icon={<LockOutlined />}
+            accent="orange"
+          />
+        </Col>
+        <Col xs={12} sm={8} md={6} lg={4}>
+          <MetricCard
+            title="Super Admin"
+            value={stats.SystemAccounts}
+            icon={<SafetyCertificateOutlined />}
+            accent="purple"
+          />
+        </Col>
+      </Row>
+
+      <Card
         bordered={false}
-        style={{ borderRadius: borderRadiusLG }}
+        style={{
+          borderRadius: 12,
+          background: tokens.cardBg,
+          border: `1px solid ${tokens.borderSubtle}`,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}
       >
         <Tabs
           activeKey={userTab}
@@ -852,7 +853,7 @@ export function UserManagementPage({
         onRefresh={handleRefreshAll}
         canEdit={canEdit}
       />
-    </>
+    </div>
   );
 }
 

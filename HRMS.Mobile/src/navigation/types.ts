@@ -25,4 +25,5 @@ export type RootStackParamList = {
   AttendanceCorrection: undefined;
   MyOvertime: undefined;
   MyRequests: undefined;
+  ManagerApprovals: undefined;
 };

@@ -9,6 +9,7 @@ import {
   LoginOutlined,
 } from '@ant-design/icons';
 import type { AppLanguage } from '../../../services/i18n';
+import { ThemeToggle } from '../../../theme/components/ThemeToggle';
 
 interface LandingHeaderProps {
   currentLang: AppLanguage;
@@ -172,6 +173,15 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
             <DownOutlined style={{ fontSize: 9, color: '#94a3b8' }} />
           </Button>
         </Dropdown>
+
+        {/* BẬT/TẮT GIAO DIỆN SÁNG / TỐI */}
+        <ThemeToggle
+          style={{
+            background: 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.18)',
+            color: '#fff',
+          }}
+        />
 
         {/* NÚT ĐĂNG NHẬP NỔI BẬT */}
         <Button

@@ -27,6 +27,8 @@ import dayjs from 'dayjs';
 import api from '../services/api';
 import type { NangLuongDTO, DieuChuyenDTO, DanhMucAllDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
 
 const { Text } = Typography;
 
@@ -54,6 +56,7 @@ export function NangLuongDieuChuyenPage({
   canDelete,
 }: NangLuongDieuChuyenPageProps) {
   const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [nlModalVisible, setNlModalVisible] = useState(false);
   const [dcModalVisible, setDcModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -136,9 +139,15 @@ export function NangLuongDieuChuyenPage({
   };
 
   return (
-    <>
-      <Card
-        title={`📈 ${t('promotion.pageTitle')}`}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* PAGE HEADER */}
+      <PageHeader
+        title={t('promotion.pageTitle') || 'Nâng Lương & Điều Chuyển'}
+        subtitle="Theo dõi lộ trình nâng hệ số lương và các quyết định điều động công tác nhân sự"
+        breadcrumbs={[
+          { title: 'Quản trị nhân sự' },
+          { title: 'Nâng lương & điều chuyển' },
+        ]}
         extra={
           <Space>
             {(canAdd ? canAdd('NANGLUONG', 'DIEUCHUYEN', 'F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN') : hasRight('NANGLUONG', 'DIEUCHUYEN', 'F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN')) && (
@@ -146,6 +155,7 @@ export function NangLuongDieuChuyenPage({
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
+                  style={{ borderRadius: 8, background: tokens.btnPrimaryBg, borderColor: tokens.btnPrimaryBg, fontWeight: 600 }}
                   onClick={() => {
                     formNl.resetFields();
                     setNlModalVisible(true);
@@ -156,6 +166,7 @@ export function NangLuongDieuChuyenPage({
                 <Button
                   type="default"
                   icon={<SwapOutlined />}
+                  style={{ borderRadius: 8 }}
                   onClick={() => {
                     formDc.resetFields();
                     setDcModalVisible(true);
@@ -165,13 +176,16 @@ export function NangLuongDieuChuyenPage({
                 </Button>
               </>
             )}
-            <Button icon={<ReloadOutlined />} onClick={onRefresh}>
+            <Button icon={<ReloadOutlined />} onClick={onRefresh} style={{ borderRadius: 8 }}>
               {t('common.refresh')}
             </Button>
           </Space>
         }
+      />
+
+      <Card
         bordered={false}
-        style={{ borderRadius: borderRadiusLG }}
+        style={{ borderRadius: borderRadiusLG, background: tokens.cardBg, border: `1px solid ${tokens.borderSubtle}` }}
       >
         <Tabs
           defaultActiveKey="nangluong"
@@ -355,7 +369,7 @@ export function NangLuongDieuChuyenPage({
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 }
 

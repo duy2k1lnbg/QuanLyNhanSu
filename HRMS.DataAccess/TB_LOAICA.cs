@@ -18,6 +18,8 @@ namespace DA
         public TB_LOAICA()
         {
             this.TB_TANGCA = new HashSet<TB_TANGCA>();
+            this.TB_CA_PHIENBAN = new HashSet<TB_CA_PHIENBAN>();
+            this.TB_YEUCAU_TANGCA = new HashSet<TB_YEUCAU_TANGCA>();
         }
     
         public decimal IDLOAICA { get; set; }
@@ -32,5 +34,9 @@ namespace DA
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_TANGCA> TB_TANGCA { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_CA_PHIENBAN> TB_CA_PHIENBAN { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_YEUCAU_TANGCA> TB_YEUCAU_TANGCA { get; set; }
     }
 }

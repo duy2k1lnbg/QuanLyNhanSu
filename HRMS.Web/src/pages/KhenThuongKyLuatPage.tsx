@@ -26,6 +26,8 @@ import dayjs from 'dayjs';
 import api from '../services/api';
 import type { KhenThuongDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
 
 const { Text } = Typography;
 
@@ -51,6 +53,7 @@ export function KhenThuongKyLuatPage({
   canDelete,
 }: KhenThuongKyLuatPageProps) {
   const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [ktModalVisible, setKtModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formKt] = Form.useForm();
@@ -94,15 +97,22 @@ export function KhenThuongKyLuatPage({
   };
 
   return (
-    <>
-      <Card
-        title={`🏆 ${t('reward.pageTitle')}`}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* PAGE HEADER */}
+      <PageHeader
+        title={t('reward.pageTitle') || 'Khen Thưởng & Kỷ Luật'}
+        subtitle="Quản lý các quyết định khen thưởng, vinh danh và quyết định xử lý kỷ luật lao động"
+        breadcrumbs={[
+          { title: 'Quản trị nhân sự' },
+          { title: 'Khen thưởng & kỷ luật' },
+        ]}
         extra={
           <Space>
             {(canAdd ? canAdd('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT') : hasRight('KHENTHUONG', 'KYLUAT', 'F_NV_KHENTHUONG', 'F_NV_KYLUAT')) && (
               <Button
                 type="primary"
                 icon={<PlusOutlined />}
+                style={{ borderRadius: 8, background: tokens.btnPrimaryBg, borderColor: tokens.btnPrimaryBg, fontWeight: 600 }}
                 onClick={() => {
                   formKt.resetFields();
                   setKtModalVisible(true);
@@ -111,13 +121,16 @@ export function KhenThuongKyLuatPage({
                 {t('reward.btnAddReward')}
               </Button>
             )}
-            <Button icon={<ReloadOutlined />} onClick={onRefresh}>
+            <Button icon={<ReloadOutlined />} onClick={onRefresh} style={{ borderRadius: 8 }}>
               {t('common.refresh')}
             </Button>
           </Space>
         }
+      />
+
+      <Card
         bordered={false}
-        style={{ borderRadius: borderRadiusLG }}
+        style={{ borderRadius: borderRadiusLG, background: tokens.cardBg, border: `1px solid ${tokens.borderSubtle}` }}
       >
         <Tabs
           defaultActiveKey="khenthuong"
@@ -241,7 +254,7 @@ export function KhenThuongKyLuatPage({
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 }
 

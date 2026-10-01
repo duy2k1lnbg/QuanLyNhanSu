@@ -408,7 +408,7 @@ namespace QLyNSu
             await _formManager.OpenFormWithSplashScreen(typeof(FrmNangLuong_NhanVien));
         }
 
-        public void ActivateMdiChild(Form frm)
+        public new void ActivateMdiChild(Form frm)
         {
             if (frm == null) return;
             if (this.InvokeRequired)

@@ -11,7 +11,6 @@ import {
   Select,
   Row,
   Col,
-  Statistic,
   Drawer,
   Descriptions,
   Divider,
@@ -30,6 +29,9 @@ import {
 import dayjs from 'dayjs';
 import type { HopDongDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
+import { MetricCard } from '../theme/components/MetricCard';
 
 const { Text } = Typography;
 
@@ -73,8 +75,9 @@ export function HopDongPage({
   canPrint,
 }: HopDongPageProps) {
   const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const {
-    token: { borderRadiusLG, colorPrimary },
+    token: { borderRadiusLG },
   } = theme.useToken();
 
   const [searchText, setSearchText] = useState<string>('');
@@ -230,53 +233,70 @@ export function HopDongPage({
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* PAGE HEADER */}
+      <PageHeader
+        title={t('contract.pageTitle') || 'Hợp Đồng Lao Động'}
+        subtitle="Quản lý chi tiết điều khoản hợp đồng, thời hạn và trạng thái hiệu lực pháp lý"
+        breadcrumbs={[
+          { title: 'Quản trị nhân sự' },
+          { title: 'Hợp đồng lao động' },
+        ]}
+        extra={
+          <Button icon={<ReloadOutlined spin={hopDongLoading} />} onClick={onRefresh} loading={hopDongLoading} style={{ borderRadius: 8 }}>
+            {t('common.refresh')}
+          </Button>
+        }
+      />
+
       {/* 4 Thẻ chỉ số tổng quan */}
       <Row gutter={[16, 16]}>
         <Col xs={12} sm={6}>
-          <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
-            <Statistic
-              title={t('dashboard.statContracts')}
-              value={stats.total}
-              prefix={<FileTextOutlined style={{ color: colorPrimary }} />}
-            />
-          </Card>
+          <MetricCard
+            title={t('dashboard.statContracts')}
+            value={stats.total}
+            icon={<FileTextOutlined />}
+            accent="blue"
+          />
         </Col>
         <Col xs={12} sm={6}>
-          <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
-            <Statistic
-              title={t('contract.statusActive')}
-              value={stats.active}
-              valueStyle={{ color: '#52c41a' }}
-              prefix={<CheckCircleOutlined />}
-            />
-          </Card>
+          <MetricCard
+            title={t('contract.statusActive')}
+            value={stats.active}
+            icon={<CheckCircleOutlined />}
+            accent="green"
+          />
         </Col>
         <Col xs={12} sm={6}>
-          <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
-            <Statistic
-              title={t('contract.statusExpired')}
-              value={stats.expired}
-              valueStyle={{ color: stats.expired > 0 ? '#ff4d4f' : '#8c8c8c' }}
-              prefix={<CloseCircleOutlined />}
-            />
-          </Card>
+          <MetricCard
+            title={t('contract.statusExpired')}
+            value={stats.expired}
+            icon={<CloseCircleOutlined />}
+            accent="orange"
+          />
         </Col>
         <Col xs={12} sm={6}>
-          <Card bordered={false} style={{ borderRadius: borderRadiusLG }}>
-            <Statistic
-              title={t('contract.statusActive')}
-              value={stats.indefinite}
-              valueStyle={{ color: '#1677ff' }}
-              prefix={<ClockCircleOutlined />}
-            />
-          </Card>
+          <MetricCard
+            title="Không thời hạn"
+            value={stats.indefinite}
+            icon={<ClockCircleOutlined />}
+            accent="purple"
+          />
         </Col>
       </Row>
 
       {/* Bảng danh sách hợp đồng */}
       <Card
-        title={`${t('contract.pageTitle')} (${filteredList.length}/${hopDongList.length})`}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>{t('contract.pageTitle')}</span>
+            <Tag color="purple" style={{ borderRadius: 6, margin: 0 }}>
+              {filteredList.length}/{hopDongList.length} hợp đồng
+            </Tag>
+          </div>
+        }
+        bordered={false}
+        style={{ borderRadius: borderRadiusLG, background: tokens.cardBg, border: `1px solid ${tokens.borderSubtle}` }}
         extra={
           <Space wrap>
             <Input
@@ -303,8 +323,6 @@ export function HopDongPage({
             </Button>
           </Space>
         }
-        bordered={false}
-        style={{ borderRadius: borderRadiusLG }}
       >
         <Table
           columns={hopDongColumns}

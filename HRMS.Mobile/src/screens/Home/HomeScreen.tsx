@@ -17,6 +17,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useLanguage } from '../../hooks/useLanguage';
 import { meApi } from '../../api/meApi';
+import { approvalsApi } from '../../api/approvalsApi';
 import { DashboardDto, NotificationDto } from '../../types/me';
 import { AppAvatar } from '../../components/AppAvatar';
 import { AppCard } from '../../components/AppCard';
@@ -43,6 +44,7 @@ export const HomeScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
+  const [managerPendingCount, setManagerPendingCount] = useState<number>(0);
 
   const fetchDashboard = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -50,9 +52,10 @@ export const HomeScreen: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      const [dashData, reqData] = await Promise.allSettled([
+      const [dashData, reqData, apprvData] = await Promise.allSettled([
         meApi.getDashboard(),
         meApi.getAllRequests(),
+        approvalsApi.getSummary(),
       ]);
 
       if (dashData.status === 'fulfilled') {
@@ -63,6 +66,9 @@ export const HomeScreen: React.FC = () => {
         const corrPending = (reqData.value.corrections || []).filter((c) => c.status === 'PENDING').length;
         const otPending = (reqData.value.overtimes || []).filter((o) => o.status === 'PENDING').length;
         setPendingRequestsCount(leavesPending + corrPending + otPending);
+      }
+      if (apprvData.status === 'fulfilled' && apprvData.value) {
+        setManagerPendingCount(apprvData.value.totalPending || 0);
       }
     } catch (error: any) {
       setErrorMessage(mapApiError(error));
@@ -239,6 +245,33 @@ export const HomeScreen: React.FC = () => {
         <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
       </TouchableOpacity>
 
+      {/* 4b. Manager Approvals Banner (For Managers/HR) */}
+      {managerPendingCount > 0 && (
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => navigation.navigate('ManagerApprovals')}
+          style={[
+            styles.alertCard,
+            {
+              backgroundColor: 'rgba(239, 68, 68, 0.08)',
+              borderColor: colors.danger,
+              marginTop: spacing.sm,
+            },
+          ]}
+        >
+          <Ionicons name="checkbox-outline" size={24} color={colors.danger} />
+          <View style={styles.alertTextWrapper}>
+            <Text style={[typography.bodyBold, { color: colors.danger }]}>
+              Duyệt yêu cầu ({managerPendingCount} đang chờ)
+            </Text>
+            <Text style={[typography.caption, { color: colors.text }]}>
+              Có {managerPendingCount} yêu cầu nghỉ phép, sửa công, tăng ca đang chờ bạn xử lý.
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={20} color={colors.danger} />
+        </TouchableOpacity>
+      )}
+
       {/* 5. Quick Actions Grid (Rule 24 & 25: Chấm công, Xin nghỉ, Xem lương, Điều chỉnh công, Tăng ca, Yêu cầu) */}
       <View style={styles.sectionHeaderRow}>
         <Text style={[typography.h3, { color: colors.text }]}>
@@ -330,6 +363,19 @@ export const HomeScreen: React.FC = () => {
           </View>
           <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
             {t('nav.myRequests')}
+          </Text>
+        </TouchableOpacity>
+
+        {/* [ Duyệt yêu cầu ] */}
+        <TouchableOpacity
+          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
+          onPress={() => navigation.navigate('ManagerApprovals')}
+        >
+          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
+            <Ionicons name="checkbox-outline" size={22} color="#EF4444" />
+          </View>
+          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
+            Duyệt yêu cầu
           </Text>
         </TouchableOpacity>
       </View>

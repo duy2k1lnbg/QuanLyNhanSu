@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { notification, Result, Button, ConfigProvider } from 'antd';
+import { notification, Result, Button } from 'antd';
 import { useAppLanguage } from './services/i18n';
+import { AppThemeProvider } from './theme/ThemeContext';
 import api from './services/api';
 import Login from './pages/Login';
 import MainLayout from './components/MainLayout';
@@ -12,6 +13,7 @@ import type { NotificationItem } from './components/NotificationPopoverContent';
 
 // Modular Page Components
 import DashboardPage from './pages/DashboardPage';
+import { WelcomeIntro } from './components/WelcomeIntro';
 import NhanVienPage from './pages/NhanVienPage';
 import ChamCongPage from './pages/ChamCongPage';
 import BangLuongPage from './pages/BangLuongPage';
@@ -162,12 +164,13 @@ export function App() {
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const [dashRes, nvRes, dmRes, kcRes, notifRes] = await Promise.allSettled([
+      const [dashRes, nvRes, dmRes, kcRes, notifRes, hdRes] = await Promise.allSettled([
         api.get('/dashboard/stats'),
         api.get<NhanVienDTO[]>('/nhanvien'),
         api.get<DanhMucAllDTO>('/danhmuc/all'),
         api.get<KyCongDTO[]>('/bangluong/kycong'),
         api.get('/dashboard/notifications'),
+        api.get<HopDongDTO[]>('/hopdong'),
       ]);
 
       if (dashRes.status === 'fulfilled' && dashRes.value.data) {
@@ -192,6 +195,10 @@ export function App() {
 
       if (nvRes.status === 'fulfilled' && nvRes.value.data) {
         setNhanVienList(nvRes.value.data);
+      }
+
+      if (hdRes.status === 'fulfilled' && hdRes.value.data) {
+        setHopDongList(hdRes.value.data);
       }
 
       if (dmRes.status === 'fulfilled' && dmRes.value.data) {
@@ -533,14 +540,16 @@ export function App() {
   // Chưa đăng nhập -> hiển thị màn hình Login
   if (!currentUser) {
     return (
-      <ConfigProvider locale={antdLocale}>
+      <AppThemeProvider locale={antdLocale}>
+        <WelcomeIntro />
         <Login onLoginSuccess={handleLoginSuccess} />
-      </ConfigProvider>
+      </AppThemeProvider>
     );
   }
 
   return (
-    <ConfigProvider locale={antdLocale}>
+    <AppThemeProvider locale={antdLocale}>
+      <WelcomeIntro />
       <MainLayout
         currentUser={currentUser}
         currentMenu={currentMenu}
@@ -590,12 +599,18 @@ export function App() {
                 phongBanStats={phongBanStats}
                 nhanVienList={nhanVienList}
                 bangLuongList={bangLuongList}
+                hopDongList={hopDongList}
                 onNavigate={(key) => handleNavigate(key)}
                 presentToday={presentToday}
                 absentToday={absentToday}
                 lateToday={lateToday}
                 actionItems={actionItems}
                 anomalies={anomalies}
+                selectedKyCongName={
+                  kyCongList.find((k) => k.MAKYCONG === selectedKyCong)
+                    ? `${kyCongList.find((k) => k.MAKYCONG === selectedKyCong)!.THANG}/${kyCongList.find((k) => k.MAKYCONG === selectedKyCong)!.NAM}`
+                    : undefined
+                }
               />
             )}
 
@@ -763,7 +778,7 @@ export function App() {
         employee={globalEmployee360}
         currentUser={currentUser}
       />
-    </ConfigProvider>
+    </AppThemeProvider>
   );
 }
 

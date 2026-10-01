@@ -58,7 +58,7 @@ namespace Bu
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var rawList = getList();
                 list.Clear();
@@ -134,7 +134,7 @@ namespace Bu
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var rawItem = getItem(id);
                 if (rawItem != null)

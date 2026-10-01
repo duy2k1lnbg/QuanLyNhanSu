@@ -23,13 +23,11 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private PHUCAP _phucap;
         private NHANVIEN _nhanvien;
-        private bool _them;
 
         private void FrmPhuCap_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_CC_PHUCAP")) return;
 
-            _them = false;
             showHide(true);
             _nhanvien = new NHANVIEN();
             _phucap = new PHUCAP();
@@ -51,7 +49,6 @@ namespace QLyNSu.FORM_CHAMCONG
                 MessageBox.Show("Vui lòng chọn một nhân viên từ danh sách!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            _them = false;
             showHide(false);
             splitContainer1.Panel1Collapsed = false;
         }
@@ -102,7 +99,6 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnHuy_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            _them = false;
             showHide(true);
             splitContainer1.Panel1Collapsed = true;
         }
@@ -170,7 +166,6 @@ namespace QLyNSu.FORM_CHAMCONG
                 CalculateTotal(null, null);
 
                 splitContainer1.Panel1Collapsed = false;
-                _them = false;
                 showHide(false);
             }
         }

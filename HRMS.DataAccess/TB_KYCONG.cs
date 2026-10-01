@@ -18,6 +18,8 @@ namespace DA
         public TB_KYCONG()
         {
             this.TB_BANGLUONG = new HashSet<TB_BANGLUONG>();
+            this.TB_CHAMCONG_LANTINH = new HashSet<TB_CHAMCONG_LANTINH>();
+            this.TB_PAYROLL_CALCULATION_RUN = new HashSet<TB_PAYROLL_CALCULATION_RUN>();
         }
     
         public decimal MAKYCONG { get; set; }
@@ -34,8 +36,14 @@ namespace DA
         public Nullable<System.DateTime> UPDATED_DATE { get; set; }
         public Nullable<decimal> DELETED_BY { get; set; }
         public Nullable<System.DateTime> DELETED_DATE { get; set; }
+        public long CONG_INPUT_REV { get; set; }
+        public long CONG_PUBLISH_REV { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_BANGLUONG> TB_BANGLUONG { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_CHAMCONG_LANTINH> TB_CHAMCONG_LANTINH { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_PAYROLL_CALCULATION_RUN> TB_PAYROLL_CALCULATION_RUN { get; set; }
     }
 }

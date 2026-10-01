@@ -43,6 +43,8 @@ import { Popover } from 'antd';
 import NotificationPopoverContent, { type NotificationItem } from './NotificationPopoverContent';
 import type { CurrentUserDTO } from '../types/hrms';
 import { useAppLanguage, type AppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { ThemeToggle } from '../theme/components/ThemeToggle';
 import {
   canView,
   canAdd,
@@ -96,6 +98,9 @@ export function MainLayout({
 }: MainLayoutProps) {
   const [isMobile, setIsMobile] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 768);
   const [collapsed, setCollapsed] = useState<boolean>(() => typeof window !== 'undefined' && window.innerWidth < 992);
+
+  // Design system theme state
+  const { mode, toggleTheme, tokens } = useAppTheme();
 
   // Hook đa ngôn ngữ toàn hệ thống (Anh, Việt, Nhật)
   const { lang: currentLang, setLang: handleLanguageChange, tApp, allConfigs } = useAppLanguage();
@@ -242,10 +247,12 @@ export function MainLayout({
         }}
         collapsed={collapsed}
         onCollapse={(val) => setCollapsed(val)}
-        width={250}
-        theme="dark"
+        width={256}
+        theme={mode === 'dark' ? 'dark' : 'light'}
         style={{
-          boxShadow: '2px 0 8px 0 rgba(29,35,41,.05)',
+          boxShadow: mode === 'light' ? '2px 0 8px 0 rgba(29,35,41,.03)' : 'none',
+          borderRight: `1px solid ${tokens.borderSubtle}`,
+          background: tokens.sidebarBg,
           zIndex: 100,
           position: isMobile ? 'fixed' : 'relative',
           height: isMobile ? '100vh' : 'auto',
@@ -258,30 +265,59 @@ export function MainLayout({
           onClick={() => onMenuChange('dashboard')}
           title="Về bảng điều khiển chính (Dashboard / Home)"
           style={{
-            height: 48,
-            margin: '12px 16px',
-            background: 'linear-gradient(135deg, #1677ff 0%, #0958d9 100%)',
-            borderRadius: 8,
+            height: 52,
+            margin: '14px 16px 18px',
+            padding: '0 8px',
+            borderRadius: 10,
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: collapsed ? '14px' : '17px',
-            letterSpacing: '0.5px',
+            gap: 12,
             cursor: 'pointer',
             userSelect: 'none',
             transition: 'all 0.2s ease',
           }}
         >
-          {collapsed ? 'HR' : '⚡ HRMS PORTAL'}
+          <div
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'linear-gradient(135deg, #6D4AFF 0%, #4B24DE 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#ffffff',
+              fontWeight: 800,
+              fontSize: 16,
+              boxShadow: '0 4px 12px rgba(109, 74, 255, 0.35)',
+              flexShrink: 0,
+            }}
+          >
+            H
+          </div>
+          {!collapsed && (
+            <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1.2, minWidth: 0, overflow: 'hidden' }}>
+              <span style={{ fontSize: 16, fontWeight: 700, letterSpacing: '-0.3px', color: tokens.textPrimary, whiteSpace: 'nowrap' }}>
+                HRMS Portal
+              </span>
+              <span style={{ fontSize: 11, fontWeight: 500, color: tokens.textMuted, whiteSpace: 'nowrap' }}>
+                Enterprise Edition
+              </span>
+            </div>
+          )}
         </div>
 
         <Menu
-          theme="dark"
+          className="hrms-sider-menu"
+          theme={mode === 'dark' ? 'dark' : 'light'}
           selectedKeys={[currentMenu]}
           mode="inline"
           items={menuItems}
+          style={{
+            background: 'transparent',
+            borderRight: 'none',
+            padding: '0 8px',
+          }}
           onClick={(info) => {
             if (info.key === 'ai-drawer') {
               onOpenAiDrawer();
@@ -293,17 +329,18 @@ export function MainLayout({
         />
       </Sider>
 
-      <Layout style={{ minWidth: 0 }}>
+      <Layout style={{ minWidth: 0, background: tokens.appBg }}>
         <Header
           style={{
-            padding: isMobile ? '0 10px' : '0 20px',
-            background: '#fff',
+            padding: isMobile ? '0 12px' : '0 24px',
+            background: tokens.headerBg,
+            borderBottom: `1px solid ${tokens.borderSubtle}`,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            boxShadow: '0 1px 4px rgba(0,21,41,.08)',
+            boxShadow: mode === 'light' ? '0 1px 4px rgba(0,21,41,.03)' : 'none',
             zIndex: 10,
-            height: 60,
+            height: 64,
             lineHeight: 'normal',
             overflow: 'hidden',
           }}
@@ -382,18 +419,18 @@ export function MainLayout({
               <div className="header-hide-1200">
                 <Tooltip title={tApp.searchTooltip}>
                   <Button
-                    icon={<SearchOutlined style={{ color: '#94a3b8' }} />}
+                    icon={<SearchOutlined style={{ color: tokens.textMuted }} />}
                     onClick={onOpenCommandPalette}
                     style={{
-                      background: '#f8fafc',
-                      borderColor: '#e2e8f0',
-                      color: '#64748b',
+                      background: tokens.cardBg,
+                      borderColor: tokens.borderSubtle,
+                      color: tokens.textSecondary,
                       borderRadius: 8,
                       padding: '4px 12px',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 8,
-                      minWidth: 165,
+                      minWidth: 175,
                       justifyContent: 'space-between',
                       cursor: 'pointer',
                     }}
@@ -403,11 +440,11 @@ export function MainLayout({
                       style={{
                         fontSize: 11,
                         fontWeight: 600,
-                        background: '#e2e8f0',
-                        color: '#475569',
+                        background: mode === 'dark' ? '#1A2235' : '#F1F3F9',
+                        color: tokens.textMuted,
                         padding: '2px 6px',
                         borderRadius: 4,
-                        border: '1px solid #cbd5e1',
+                        border: `1px solid ${tokens.borderSubtle}`,
                         lineHeight: '1',
                         fontFamily: 'monospace',
                       }}
@@ -431,10 +468,11 @@ export function MainLayout({
                     type="primary"
                     icon={<PlusOutlined />}
                     style={{
-                      background: '#0f172a',
-                      borderColor: '#0f172a',
+                      background: tokens.btnPrimaryBg,
+                      borderColor: tokens.btnPrimaryBg,
                       fontWeight: 600,
                       borderRadius: 8,
+                      boxShadow: '0 2px 8px rgba(109, 74, 255, 0.25)',
                     }}
                   >
                     {tApp.quickAdd}
@@ -452,7 +490,7 @@ export function MainLayout({
                 icon={<RobotOutlined />}
                 onClick={onOpenAiDrawer}
                 style={{
-                  background: 'linear-gradient(135deg, #722ed1 0%, #1677ff 100%)',
+                  background: 'linear-gradient(135deg, #6D4AFF 0%, #9A79FF 100%)',
                   border: 'none',
                   borderRadius: 8,
                   height: 36,
@@ -461,6 +499,7 @@ export function MainLayout({
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  boxShadow: '0 2px 8px rgba(109, 74, 255, 0.25)',
                 }}
               >
                 {!isMobile && <span className="header-hide-1200" style={{ marginLeft: 4 }}>{tApp.askAiCopilot}</span>}
@@ -500,6 +539,9 @@ export function MainLayout({
               </Tooltip>
             </div>
 
+            {/* BỘ CHUYỂN ĐỔI CHẾ ĐỘ SÁNG / TỐI (LIGHT / DARK THEME) */}
+            <ThemeToggle mode={mode} onToggle={toggleTheme} />
+
             {/* BỘ CHUYỂN ĐỔI NGÔN NGỮ (VI, EN, ZH, KO, JA) */}
             <Dropdown
               menu={{
@@ -509,11 +551,11 @@ export function MainLayout({
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
                       <Space size={8}>
                         <span style={{ fontSize: 16 }}>{allConfigs[lKey]?.flag}</span>
-                        <span style={{ fontWeight: currentLang === lKey ? 700 : 600, color: currentLang === lKey ? '#1677ff' : '#0f172a', fontSize: 13 }}>
+                        <span style={{ fontWeight: currentLang === lKey ? 700 : 600, color: currentLang === lKey ? tokens.primary : tokens.textPrimary, fontSize: 13 }}>
                           {allConfigs[lKey]?.name}
                         </span>
                       </Space>
-                      {currentLang === lKey && <CheckOutlined style={{ color: '#1677ff', fontWeight: 700, fontSize: 13 }} />}
+                      {currentLang === lKey && <CheckOutlined style={{ color: tokens.primary, fontWeight: 700, fontSize: 13 }} />}
                     </div>
                   ),
                 })),
@@ -530,18 +572,18 @@ export function MainLayout({
                     alignItems: 'center',
                     gap: 4,
                     borderRadius: 8,
-                    borderColor: '#e2e8f0',
-                    background: '#f8fafc',
+                    borderColor: tokens.borderSubtle,
+                    background: tokens.cardBg,
                     fontWeight: 600,
                     padding: isMobile ? '0 6px' : '0 8px',
                     height: 36,
                   }}
                   size="middle"
                 >
-                  <GlobalOutlined style={{ color: '#1677ff', fontSize: 13 }} />
+                  <GlobalOutlined style={{ color: tokens.primary, fontSize: 13 }} />
                   <span style={{ fontSize: 13 }}>{allConfigs[currentLang].flag}</span>
                   <span className="header-hide-mobile" style={{ fontSize: 12 }}>{allConfigs[currentLang].short}</span>
-                  <DownOutlined style={{ fontSize: 8, color: '#94a3b8' }} />
+                  <DownOutlined style={{ fontSize: 8, color: tokens.textMuted }} />
                 </Button>
               </Tooltip>
             </Dropdown>
@@ -599,7 +641,7 @@ export function MainLayout({
           </div>
         </Header>
 
-        <Content style={{ margin: isMobile ? '12px 8px' : '20px 24px', minHeight: 400 }}>
+        <Content style={{ margin: isMobile ? '12px 8px' : '20px 24px', minHeight: 400, background: tokens.appBg }}>
           {children}
         </Content>
       </Layout>

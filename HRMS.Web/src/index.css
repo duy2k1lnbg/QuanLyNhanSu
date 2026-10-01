@@ -12,8 +12,10 @@ html, body, #root {
   margin: 0;
   padding: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  background-color: #f5f7fa;
+  background-color: var(--color-app-bg, #f5f7fa);
+  color: var(--color-text-primary, #202332);
   overflow-x: hidden;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom Scrollbar */
@@ -22,13 +24,17 @@ html, body, #root {
   height: 6px;
 }
 
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--color-border-subtle, #c1c1c1);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--color-text-muted, #a8a8a8);
 }
 
 /* Mobile Responsive Overrides */
@@ -157,6 +163,148 @@ html, body, #root {
   line-height: 1 !important;
 }
 
+/* Employee 360 Header & Content Structure */
+.employee-360-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #1e3a8a 100%);
+  color: #ffffff;
+  padding: 24px 32px;
+  position: relative;
+}
+
+.employee-360-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding-right: 36px;
+}
+
+.employee-360-profile-main {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.employee-360-info-col {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.employee-360-name-title {
+  color: #fff !important;
+  margin: 0 !important;
+  font-weight: 700 !important;
+  font-size: 22px !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+}
+
+.employee-360-meta-row {
+  color: #94a3b8;
+  display: flex;
+  gap: 12px 18px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.employee-360-actions {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.employee-360-body {
+  padding: 20px 32px;
+}
+
+/* Mobile Overrides for Employee 360 & Global Modals */
+@media (max-width: 768px) {
+  .employee-360-modal .ant-modal-close,
+  .employee-360-modal.ant-modal .ant-modal-close {
+    top: 12px !important;
+    right: 12px !important;
+    width: 30px !important;
+    height: 30px !important;
+  }
+
+  .employee-360-header {
+    padding: 16px 14px 14px 14px !important;
+  }
+
+  .employee-360-header-inner {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+    padding-right: 0 !important;
+  }
+
+  .employee-360-profile-main {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 14px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-right: 36px !important; /* Tránh đè lên nút X ở góc phải trên */
+  }
+
+  .employee-360-info-col {
+    min-width: 0 !important;
+    flex: 1 1 auto !important;
+    width: 100% !important;
+  }
+
+  .employee-360-name-title {
+    font-size: 19px !important;
+    line-height: 1.35 !important;
+  }
+
+  .employee-360-meta-row {
+    font-size: 12px !important;
+    gap: 6px 12px !important;
+  }
+
+  .employee-360-actions {
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+    align-items: stretch !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    margin-top: 4px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.12) !important;
+  }
+
+  .employee-360-actions .ant-btn {
+    flex: 1 1 calc(50% - 6px) !important;
+    min-width: 130px !important;
+    text-align: center !important;
+    justify-content: center !important;
+  }
+
+  .employee-360-body {
+    padding: 12px 10px !important;
+  }
+
+  /* Tránh vỡ chữ tiêu đề Modal trên điện thoại */
+  .ant-modal-title {
+    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+  }
+
+  /* Đảm bảo Tabs header có thể cuộn ngang mượt mà trên mobile */
+  .ant-tabs-nav {
+    max-width: 100% !important;
+  }
+}
+
 /* Printable Payslip A4 Optimization (rptBaoCaoLuongNV) */
 @media print {
   @page {
@@ -233,11 +381,11 @@ html, body, #root {
 .ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left-last,
 .ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-right,
 .ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-right-first {
-  background-color: #e0f2fe !important; /* Clear Sky-100 Blue */
+  background-color: var(--color-hover-bg, #F3F0FF) !important;
   transition: background-color 0.12s ease-in-out !important;
 }
 
-/* Dấu thanh chỉ báo màu xanh bên trái hàng đang được hover */
+/* Dấu thanh chỉ báo màu tím/primary bên trái hàng đang được hover */
 .ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td:first-child,
 .ant-table-wrapper .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left:first-child {
   position: relative !important;
@@ -251,7 +399,7 @@ html, body, #root {
   top: 0 !important;
   bottom: 0 !important;
   width: 4px !important;
-  background-color: #2563eb !important;
+  background-color: var(--color-primary, #6D4AFF) !important;
   border-radius: 0 3px 3px 0 !important;
   z-index: 10 !important;
 }
@@ -275,42 +423,42 @@ html, body, #root {
 .cham-cong-matrix-table .ant-table-tbody > tr > td.matrix-col-hovered,
 .cham-cong-matrix-table .ant-table-tbody > tr > td.matrix-col-hovered.ant-table-cell-fix-left,
 .cham-cong-matrix-table .ant-table-tbody > tr > td.matrix-col-hovered.ant-table-cell-fix-left-last {
-  background-color: #e0f2fe !important;
+  background-color: var(--color-hover-bg, #F3F0FF) !important;
 }
 
 /* Tiêu đề cột đang được rà chuột (Column Header Highlight) */
 .cham-cong-matrix-table th.matrix-header-col-hovered,
 .cham-cong-matrix-table th.matrix-header-col-hovered.ant-table-cell-fix-left {
-  background-color: #bfdbfe !important;
-  color: #1d4ed8 !important;
+  background-color: var(--color-active-bg, #EEE9FF) !important;
+  color: var(--color-primary, #6D4AFF) !important;
   font-weight: 800 !important;
-  border-bottom: 3px solid #2563eb !important;
-  box-shadow: inset 0 2px 0 #2563eb, 0 2px 6px rgba(37, 99, 235, 0.25) !important;
+  border-bottom: 3px solid var(--color-primary, #6D4AFF) !important;
+  box-shadow: inset 0 2px 0 var(--color-primary, #6D4AFF), 0 2px 6px rgba(109, 74, 255, 0.2) !important;
 }
 
 /* Toàn bộ hàng đang được rà chuột trong bảng chấm công */
 .cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td,
 .cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left,
 .cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td.ant-table-cell-fix-left-last {
-  background-color: #e0f2fe !important;
+  background-color: var(--color-hover-bg, #F3F0FF) !important;
 }
 
-/* FOCUS TRỰC TIẾP VÀO Ô ĐANG CHỎ CHUỘT (CELL HOVER FOCUS - KHÔNG DÙNG SCALE, KHÔNG NHÁY) */
+/* FOCUS TRỰC TIẾP VÀO Ô ĐANG CHỎ CHUỘT (CELL HOVER FOCUS) */
 .cham-cong-matrix-table .ant-table-tbody > tr > td:hover,
 .cham-cong-matrix-table .ant-table-tbody > tr > td.ant-table-cell-fix-left:hover,
 .cham-cong-matrix-table .ant-table-tbody > tr > td.ant-table-cell-fix-left-last:hover,
 .cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td:hover {
-  background-color: #bfdbfe !important; /* Xanh dịu đậm hơn màu hàng */
-  box-shadow: inset 0 0 0 2px #2563eb !important; /* Viền focus sắc nét nằm trọn trong ô, không làm giật layout */
+  background-color: var(--color-active-bg, #EEE9FF) !important;
+  box-shadow: inset 0 0 0 2px var(--color-primary, #6D4AFF) !important;
   cursor: pointer;
   z-index: 5 !important;
 }
 
 /* Ô giao điểm chính xác khi đang hover cột ngày (Crosshair Intersection Cell) */
 .cham-cong-matrix-table .ant-table-tbody > tr.ant-table-row:hover > td.matrix-col-hovered:hover {
-  background-color: #93c5fd !important; /* Xanh đậm active */
-  box-shadow: inset 0 0 0 2.5px #1d4ed8 !important;
-  color: #0f172a !important;
+  background-color: var(--color-active-bg, #EEE9FF) !important;
+  box-shadow: inset 0 0 0 2.5px var(--color-primary, #6D4AFF) !important;
+  color: var(--color-primary, #6D4AFF) !important;
   font-weight: 800 !important;
   z-index: 8 !important;
 }
@@ -350,3 +498,64 @@ html, body, #root {
 .ant-layout-header {
   line-height: normal !important;
 }
+
+/* ========================================================
+   4. THEME-AWARE SIDER & MENU STYLING
+   ======================================================== */
+.hrms-sider-menu .ant-menu-item-selected {
+  font-weight: 600 !important;
+}
+
+[data-theme="light"] .hrms-sider-menu .ant-menu-item-selected {
+  background-color: var(--color-active-bg, #EEE9FF) !important;
+  color: var(--color-primary, #6D4AFF) !important;
+}
+
+[data-theme="dark"] .hrms-sider-menu .ant-menu-item-selected {
+  background-color: var(--color-active-bg, #281D49) !important;
+  color: var(--color-primary, #9A79FF) !important;
+}
+
+/* ========================================================
+   5. GENERAL PRINT OVERRIDES (Clean paper printing)
+   ======================================================== */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .ant-layout-sider,
+  .ant-layout-header,
+  .no-print,
+  .header-hide-mobile,
+  .ant-btn:not(.printable-btn) {
+    display: none !important;
+  }
+
+  .ant-layout {
+    background: #ffffff !important;
+  }
+
+  .ant-card {
+    border: 1px solid #d9d9d9 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .ant-table {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .ant-table-thead > tr > th {
+    background: #f0f0f0 !important;
+    color: #000000 !important;
+  }
+
+  .ant-table-tbody > tr > td {
+    color: #000000 !important;
+  }
+}
+

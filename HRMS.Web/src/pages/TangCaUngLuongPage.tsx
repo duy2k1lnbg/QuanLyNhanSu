@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Card,
   Table,
@@ -15,17 +15,25 @@ import {
   Popconfirm,
   notification,
   Typography,
-  theme,
+  Row,
+  Col,
 } from 'antd';
 import {
   PlusOutlined,
   ReloadOutlined,
   DeleteOutlined,
+  DollarCircleOutlined,
+  ClockCircleOutlined,
+  ThunderboltOutlined,
+  WalletOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import api from '../services/api';
 import type { UngLuongDTO, TangCaDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
+import { MetricCard } from '../theme/components/MetricCard';
 
 const { Text } = Typography;
 
@@ -51,15 +59,23 @@ export function TangCaUngLuongPage({
   canDelete,
 }: TangCaUngLuongPageProps) {
   const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [ulModalVisible, setUlModalVisible] = useState(false);
   const [tcModalVisible, setTcModalVisible] = useState(false);
   const [saving, setSaving] = useState(false);
   const [formUl] = Form.useForm();
   const [formTc] = Form.useForm();
 
-  const {
-    token: { borderRadiusLG },
-  } = theme.useToken();
+  const stats = useMemo(() => {
+    const totalAdvance = ungLuongList.reduce((acc, item) => acc + (Number(item.SOTIEN) || 0), 0);
+    const totalOtHours = tangCaList.reduce((acc, item) => acc + (Number(item.SOGIO) || 0), 0);
+    return {
+      advanceCount: ungLuongList.length,
+      advanceAmount: totalAdvance,
+      otCount: tangCaList.length,
+      otHours: Math.round(totalOtHours * 10) / 10,
+    };
+  }, [ungLuongList, tangCaList]);
 
   const handleSaveUl = async () => {
     try {
@@ -131,9 +147,15 @@ export function TangCaUngLuongPage({
   };
 
   return (
-    <>
-      <Card
-        title={`💸 ${t('overtime.pageTitle')}`}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* PAGE HEADER */}
+      <PageHeader
+        title={t('overtime.pageTitle') || 'Tăng Ca & Tạm Ứng Lương'}
+        subtitle="Quản lý các khoản chi tạm ứng lương trong tháng và theo dõi khối lượng giờ làm thêm ngoài giờ"
+        breadcrumbs={[
+          { title: 'Chấm công & Tiền lương' },
+          { title: 'Tăng ca & Tạm ứng' },
+        ]}
         extra={
           <Space>
             {(canAdd ? canAdd('UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA') : hasRight('UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA')) && (
@@ -141,6 +163,12 @@ export function TangCaUngLuongPage({
                 <Button
                   type="primary"
                   icon={<PlusOutlined />}
+                  style={{
+                    borderRadius: 8,
+                    background: tokens.btnPrimaryBg,
+                    borderColor: tokens.btnPrimaryBg,
+                    fontWeight: 600,
+                  }}
                   onClick={() => {
                     formUl.resetFields();
                     setUlModalVisible(true);
@@ -151,6 +179,7 @@ export function TangCaUngLuongPage({
                 <Button
                   type="default"
                   icon={<PlusOutlined />}
+                  style={{ borderRadius: 8 }}
                   onClick={() => {
                     formTc.resetFields();
                     setTcModalVisible(true);
@@ -160,27 +189,88 @@ export function TangCaUngLuongPage({
                 </Button>
               </>
             )}
-            <Button icon={<ReloadOutlined />} onClick={onRefresh}>
+            <Button icon={<ReloadOutlined spin={tcUlLoading} />} onClick={onRefresh} style={{ borderRadius: 8 }}>
               {t('common.refresh')}
             </Button>
           </Space>
         }
+      />
+
+      {/* KPI METRICS */}
+      <Row gutter={[16, 16]}>
+        <Col xs={12} sm={6}>
+          <MetricCard
+            title={t('overtime.tabAdvance')}
+            value={stats.advanceCount}
+            icon={<WalletOutlined />}
+            accent="purple"
+          />
+        </Col>
+        <Col xs={12} sm={6}>
+          <MetricCard
+            title={t('overtime.colAmount')}
+            value={`${stats.advanceAmount.toLocaleString('vi-VN')} đ`}
+            icon={<DollarCircleOutlined />}
+            accent="orange"
+          />
+        </Col>
+        <Col xs={12} sm={6}>
+          <MetricCard
+            title={t('overtime.tabOvertime')}
+            value={stats.otCount}
+            icon={<ClockCircleOutlined />}
+            accent="blue"
+          />
+        </Col>
+        <Col xs={12} sm={6}>
+          <MetricCard
+            title={t('overtime.colHours')}
+            value={`${stats.otHours} h`}
+            icon={<ThunderboltOutlined />}
+            accent="green"
+          />
+        </Col>
+      </Row>
+
+      {/* TABS & TABLES CARD */}
+      <Card
         bordered={false}
-        style={{ borderRadius: borderRadiusLG }}
+        style={{
+          borderRadius: 12,
+          background: tokens.cardBg,
+          border: `1px solid ${tokens.borderSubtle}`,
+          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+        }}
       >
         <Tabs
           defaultActiveKey="ungluong"
           items={[
             {
               key: 'ungluong',
-              label: `${t('overtime.tabAdvance')} (${ungLuongList.length})`,
+              label: (
+                <Space orientation="horizontal" size={6}>
+                  <span>{t('overtime.tabAdvance')}</span>
+                  <Tag color="purple" style={{ marginInlineEnd: 0, borderRadius: 10 }}>{ungLuongList.length}</Tag>
+                </Space>
+              ),
               children: (
                 <Table
                   scroll={{ x: 'max-content' }}
                   columns={[
                     { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70 },
-                    { title: t('employee.colEmpCode'), dataIndex: 'MANV', key: 'MANV', width: 80, render: (tVal) => <Tag color="blue">#{tVal}</Tag> },
-                    { title: t('overtime.colEmployee'), dataIndex: 'HOTEN', key: 'HOTEN', render: (tVal) => <Text strong>{tVal}</Text> },
+                    {
+                      title: t('employee.colEmpCode'),
+                      dataIndex: 'MANV',
+                      key: 'MANV',
+                      width: 90,
+                      render: (tVal) => <Tag color="blue" style={{ borderRadius: 4 }}>#{tVal}</Tag>,
+                    },
+                    {
+                      title: t('overtime.colEmployee'),
+                      dataIndex: 'HOTEN',
+                      key: 'HOTEN',
+                      render: (tVal) => <Text strong style={{ color: tokens.textPrimary }}>{tVal}</Text>,
+                    },
                     {
                       title: t('overtime.colDate'),
                       key: 'date',
@@ -225,14 +315,30 @@ export function TangCaUngLuongPage({
             },
             {
               key: 'tangca',
-              label: `${t('overtime.tabOvertime')} (${tangCaList.length})`,
+              label: (
+                <Space orientation="horizontal" size={6}>
+                  <span>{t('overtime.tabOvertime')}</span>
+                  <Tag color="blue" style={{ marginInlineEnd: 0, borderRadius: 10 }}>{tangCaList.length}</Tag>
+                </Space>
+              ),
               children: (
                 <Table
                   scroll={{ x: 'max-content' }}
                   columns={[
                     { title: 'ID', dataIndex: 'ID', key: 'ID', width: 70 },
-                    { title: t('employee.colEmpCode'), dataIndex: 'MANV', key: 'MANV', width: 80, render: (tVal) => <Tag color="blue">#{tVal}</Tag> },
-                    { title: t('overtime.colEmployee'), dataIndex: 'HOTEN', key: 'HOTEN', render: (tVal) => <Text strong>{tVal}</Text> },
+                    {
+                      title: t('employee.colEmpCode'),
+                      dataIndex: 'MANV',
+                      key: 'MANV',
+                      width: 90,
+                      render: (tVal) => <Tag color="blue" style={{ borderRadius: 4 }}>#{tVal}</Tag>,
+                    },
+                    {
+                      title: t('overtime.colEmployee'),
+                      dataIndex: 'HOTEN',
+                      key: 'HOTEN',
+                      render: (tVal) => <Text strong style={{ color: tokens.textPrimary }}>{tVal}</Text>,
+                    },
                     {
                       title: t('overtime.colDate'),
                       key: 'date',
@@ -242,19 +348,19 @@ export function TangCaUngLuongPage({
                       title: t('overtime.colHours'),
                       dataIndex: 'SOGIO',
                       key: 'SOGIO',
-                      render: (g: number) => <Tag color="green">{g}h</Tag>,
+                      render: (g: number) => <Tag color="green" style={{ borderRadius: 4 }}>{g}h</Tag>,
                     },
                     {
                       title: t('attendance.tabShifts'),
                       dataIndex: 'TENLOAICA',
                       key: 'TENLOAICA',
-                      render: (tVal) => <Tag color="geekblue">{tVal || '-'}</Tag>,
+                      render: (tVal) => <Tag color="geekblue" style={{ borderRadius: 4 }}>{tVal || '-'}</Tag>,
                     },
                     {
                       title: t('overtime.colCoefficient'),
                       dataIndex: 'HESO',
                       key: 'HESO',
-                      render: (h: number) => <Tag color="orange">{h ?? 1.5}x</Tag>,
+                      render: (h: number) => <Tag color="orange" style={{ borderRadius: 4 }}>{h ?? 1.5}x</Tag>,
                     },
                     { title: t('common.note'), dataIndex: 'GHICHU', key: 'GHICHU' },
                     {
@@ -354,7 +460,7 @@ export function TangCaUngLuongPage({
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 }
 

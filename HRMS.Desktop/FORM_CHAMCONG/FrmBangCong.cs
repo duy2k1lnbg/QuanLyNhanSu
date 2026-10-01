@@ -35,22 +35,26 @@ namespace QLyNSu.FORM_CHAMCONG
             cboThang.Text = DateTime.Now.Month.ToString();
         }
 
+        private void SyncFocusedRow()
+        {
+            if (gvDanhSach.RowCount > 0 && gvDanhSach.FocusedRowHandle >= 0)
+            {
+                var valMkc = gvDanhSach.GetFocusedRowCellValue("MAKYCONG");
+                if (valMkc != null && int.TryParse(valMkc.ToString(), out int mkc))
+                {
+                    _MAKYCONG = mkc;
+                }
+                cboNam.Text = gvDanhSach.GetFocusedRowCellValue("NAM")?.ToString() ?? "";
+                cboThang.Text = gvDanhSach.GetFocusedRowCellValue("THANG")?.ToString() ?? "";
+
+                chkKhoa.Checked = gvDanhSach.GetFocusedRowCellValue("KHOA")?.ToString() == "1";
+                chkTrangThai.Checked = gvDanhSach.GetFocusedRowCellValue("TRANGTHAI")?.ToString() == "1";
+            }
+        }
+
         private void gvDanhSach_Click(object sender, EventArgs e)
         {
-            if (gvDanhSach.RowCount > 0)
-            {
-                _MAKYCONG = int.Parse(gvDanhSach.GetFocusedRowCellValue("MAKYCONG").ToString());
-                cboNam.Text = gvDanhSach.GetFocusedRowCellValue("NAM").ToString();
-                cboThang.Text = gvDanhSach.GetFocusedRowCellValue("THANG").ToString();
-                //chkKhoa.Checked = bool.Parse(gvDanhSach.GetFocusedRowCellValue("KHOA").ToString());
-                //chkTrangThai.Checked = bool.Parse(gvDanhSach.GetFocusedRowCellValue("TRANGTHAI").ToString());
-
-                // Kiểm tra giá trị của cột KHOA (1 = true, 0 = false)
-                chkKhoa.Checked = gvDanhSach.GetFocusedRowCellValue("KHOA").ToString() == "1";
-
-                // Kiểm tra giá trị của cột TRANGTHAI (1 = true, 0 = false)
-                chkTrangThai.Checked = gvDanhSach.GetFocusedRowCellValue("TRANGTHAI").ToString() == "1";
-            }
+            SyncFocusedRow();
         }
 
         private void gvDanhSach_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
@@ -86,12 +90,25 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            var kc = _kycong.getItem(_MAKYCONG);
+            if (kc != null && (kc.KHOA ?? 0) == 1)
+            {
+                XtraMessageBox.Show($"Kỳ công {_MAKYCONG} đã bị khoá. Khi đã khoá thì không được xoá sửa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             _them = false;
             showHide(false);
         }
 
         private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            var kc = _kycong.getItem(_MAKYCONG);
+            if (kc != null && (kc.KHOA ?? 0) == 1)
+            {
+                XtraMessageBox.Show($"Kỳ công {_MAKYCONG} đã bị khoá. Khi đã khoá thì không được xoá sửa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             // Hiển thị hộp thoại xác nhận
             if (MessageBox.Show("Bạn có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
@@ -151,6 +168,7 @@ namespace QLyNSu.FORM_CHAMCONG
             _kycong = new KYCONG();
             gcDanhSach.DataSource = _kycong.getList();
             FormManager_Functions.CustomView_Colums(gvDanhSach);
+            SyncFocusedRow();
         }
 
         private void SaveData()
@@ -159,8 +177,15 @@ namespace QLyNSu.FORM_CHAMCONG
             {
                 if (_them)
                 {
+                    int makycong = int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text);
+                    if (_kycong.KiemTraMaKyCong(makycong) != 0)
+                    {
+                        XtraMessageBox.Show($"Kỳ công {makycong} đã tồn tại trong hệ thống. Bảng công chỉ được tạo 1 lần!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
                     TB_KYCONG kc = new TB_KYCONG();
-                    kc.MAKYCONG = int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text);
+                    kc.MAKYCONG = makycong;
                     kc.NAM = int.Parse(cboNam.Text);
                     kc.THANG = int.Parse(cboThang.Text);
                     kc.KHOA = chkKhoa.Checked ? 1 : 0;
@@ -176,6 +201,12 @@ namespace QLyNSu.FORM_CHAMCONG
                     var kc = _kycong.getItem(_MAKYCONG);
                     if (kc != null)
                     {
+                        if ((kc.KHOA ?? 0) == 1 && chkKhoa.Checked)
+                        {
+                            XtraMessageBox.Show($"Kỳ công {_MAKYCONG} đã bị khoá. Khi đã khoá thì không được xoá sửa!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            return;
+                        }
+
                         kc.MAKYCONG = int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text);
                         kc.NAM = int.Parse(cboNam.Text);
                         kc.THANG = int.Parse(cboThang.Text);
@@ -205,24 +236,24 @@ namespace QLyNSu.FORM_CHAMCONG
             // Kiểm tra cột có tên "Trạng thái"
             if (e.Column.FieldName == "KHOA")
             {
-                if (e.Value.ToString() == "0")
-                {
-                    e.DisplayText = "Chưa khoá";
-                }
-                else if (e.Value.ToString() == "1")
+                if (e.Value != null && e.Value.ToString() == "1")
                 {
                     e.DisplayText = "Đã khoá";
+                }
+                else
+                {
+                    e.DisplayText = "Chưa khoá";
                 }
             }
             if (e.Column.FieldName == "TRANGTHAI")
             {
-                if (e.Value.ToString() == "0")
-                {
-                    e.DisplayText = "Chưa Tạo";
-                }
-                else if (e.Value.ToString() == "1")
+                if (e.Value != null && e.Value.ToString() == "1")
                 {
                     e.DisplayText = "Đã Tạo";
+                }
+                else
+                {
+                    e.DisplayText = "Chưa Tạo";
                 }
             }
         }
@@ -249,6 +280,7 @@ namespace QLyNSu.FORM_CHAMCONG
             frm._macty = 1;
             frm.ShowInTaskbar = false;
             frm.ShowDialog();
+            LoadData();
         }
 
         private void btnRefresh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

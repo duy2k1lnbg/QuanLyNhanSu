@@ -35,5 +35,17 @@ namespace DA
         public Nullable<decimal> DELETED_BY { get; set; }
         public Nullable<System.DateTime> DELETED_DATE { get; set; }
         public Nullable<decimal> NGAYCONG { get; set; }
+        public string TRANGTHAI_CONG { get; set; }
+        public Nullable<bool> DU_DIEUKIEN_CHOT { get; set; }
+        public Nullable<long> LANTINH_ID_HIENHANH { get; set; }
+        public Nullable<long> GIAY_THUC_TE { get; set; }
+        public Nullable<long> GIAY_HUONG_CONG_THUONG { get; set; }
+        public Nullable<long> GIAY_OT_XAC_NHAN { get; set; }
+        public Nullable<long> GIAY_DEM_TRONG_GIO_THUONG { get; set; }
+        public Nullable<long> GIAY_DEM_OT { get; set; }
+        public Nullable<long> GIAY_DI_MUON_THUC_TE { get; set; }
+        public Nullable<long> GIAY_VE_SOM_THUC_TE { get; set; }
+        public Nullable<long> GIAY_DI_MUON_VIPHAM { get; set; }
+        public Nullable<long> GIAY_VE_SOM_VIPHAM { get; set; }
     }
 }

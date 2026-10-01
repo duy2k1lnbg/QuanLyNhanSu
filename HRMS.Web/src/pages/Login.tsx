@@ -11,6 +11,7 @@ import { LandingArchitecture } from './login/components/LandingArchitecture';
 import { LoginModal } from './login/components/LoginModal';
 import { DownloadModal } from './login/components/DownloadModal';
 import { WINDOWS_PACKAGE_URL, MOBILE_APK_URL } from './login/types';
+import { ScrollReveal } from '../components/ScrollReveal';
 
 interface LoginProps {
   onLoginSuccess: (user: CurrentUserDTO, token: string) => void;
@@ -137,21 +138,23 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       </main>
 
       {/* FOOTER */}
-      <footer
-        style={{
-          padding: '24px',
-          textAlign: 'center',
-          fontSize: 13,
-          color: '#64748b',
-          borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-          background: 'rgba(15, 23, 42, 0.95)',
-        }}
-      >
-        <div>{tLanding.footerLine1}</div>
-        <div style={{ fontSize: 11.5, color: '#475569', marginTop: 4 }}>
-          {tLanding.footerLine2}
+      <ScrollReveal direction="fade" duration={600} as="footer">
+        <div
+          style={{
+            padding: '24px',
+            textAlign: 'center',
+            fontSize: 13,
+            color: '#64748b',
+            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+            background: 'rgba(15, 23, 42, 0.95)',
+          }}
+        >
+          <div>{tLanding.footerLine1}</div>
+          <div style={{ fontSize: 11.5, color: '#475569', marginTop: 4 }}>
+            {tLanding.footerLine2}
+          </div>
         </div>
-      </footer>
+      </ScrollReveal>
 
       {/* MODAL ĐĂNG NHẬP */}
       <LoginModal

@@ -8,6 +8,7 @@
     "build": "tsc -b && vite build",
     "build:vps": "powershell -ExecutionPolicy Bypass -File ../build_deploy.ps1",
     "lint": "oxlint",
+    "test": "node --experimental-strip-types tests/kpiAndAttendance.test.ts && node --experimental-strip-types tests/welcomeAndScrollReveal.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

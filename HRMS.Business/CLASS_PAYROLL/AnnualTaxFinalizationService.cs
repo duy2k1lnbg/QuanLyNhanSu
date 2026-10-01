@@ -51,8 +51,31 @@ namespace Bu.CLASS_PAYROLL
 
                 // Personal and dependent deductions for the full year
                 decimal personalDeduction = policy.GIAM_TRU_BAN_THAN_NAM;
-                int maxDependents = monthlyPayrolls.Count > 0 ? (int)monthlyPayrolls.Max(p => p.SO_NGUOI_PHU_THUOC ?? 0) : 0;
-                decimal dependentDeduction = maxDependents * policy.GIAM_TRU_PHU_THUOC_NAM;
+                
+                // Exact calculation of dependent months: Sum of SO_NGUOI_PHU_THUOC across all monthly payrolls in the tax year
+                decimal dependentDeduction;
+                if (monthlyPayrolls.Count > 0)
+                {
+                    decimal totalDependentMonths = monthlyPayrolls.Sum(p => p.SO_NGUOI_PHU_THUOC ?? 0);
+                    dependentDeduction = totalDependentMonths * policy.GIAM_TRU_PHU_THUOC_THANG;
+                }
+                else
+                {
+                    var depMonths = db.Database.SqlQuery<decimal?>(@"
+                        SELECT COUNT(*)
+                        FROM TB_NGUOI_PHU_THUOC n
+                        JOIN (
+                            SELECT LEVEL AS THANG_SO FROM DUAL CONNECT BY LEVEL <= 12
+                        ) m ON 1 = 1
+                        WHERE n.MANV = :p0
+                          AND (n.TRANG_THAI IS NULL OR n.TRANG_THAI = 'ACTIVE' OR n.TRANG_THAI = '1')
+                          AND n.THANG_BAT_DAU_GIAM_TRU <= (:p1 * 100 + m.THANG_SO)
+                          AND (n.THANG_KET_THUC_GIAM_TRU IS NULL OR n.THANG_KET_THUC_GIAM_TRU >= (:p1 * 100 + m.THANG_SO))",
+                        new OracleParameter("p0", manv),
+                        new OracleParameter("p1", taxYear)
+                    ).FirstOrDefault() ?? 0m;
+                    dependentDeduction = depMonths * policy.GIAM_TRU_PHU_THUOC_THANG;
+                }
 
                 decimal totalDeductions = personalDeduction + dependentDeduction + totalInsuranceDeduction;
                 decimal taxableAssessableIncome = Math.Max(0m, totalGrossTaxable - totalDeductions);
@@ -126,79 +149,101 @@ namespace Bu.CLASS_PAYROLL
             if (finalization == null) throw new ArgumentNullException(nameof(finalization));
 
             using (var db = new MyEntities())
+            using (var tx = db.Database.BeginTransaction())
             {
-                // Delete previous draft for this employee and tax year if exists
-                db.Database.ExecuteSqlCommand(@"
-                    DELETE FROM TB_QUYET_TOAN_THUE_NAM_CT WHERE MANV = :p0 AND TAX_YEAR = :p1",
-                    new OracleParameter("p0", finalization.MANV),
-                    new OracleParameter("p1", finalization.TAX_YEAR)
-                );
-
-                db.Database.ExecuteSqlCommand(@"
-                    DELETE FROM TB_QUYET_TOAN_THUE_NAM WHERE MANV = :p0 AND TAX_YEAR = :p1",
-                    new OracleParameter("p0", finalization.MANV),
-                    new OracleParameter("p1", finalization.TAX_YEAR)
-                );
-
-                decimal newId = db.Database.SqlQuery<decimal>("SELECT SEQ_QUYET_TOAN_THUE_NAM.NEXTVAL FROM DUAL").First();
-                finalization.ID = newId;
-
-                db.Database.ExecuteSqlCommand(@"
-                    INSERT INTO TB_QUYET_TOAN_THUE_NAM (
-                        ID, MANV, TAX_YEAR, POLICY_THUE_ID, PROFILE_THUE_ID, SO_THANG_LAM_VIEC,
-                        TONG_THU_NHAP_CHIU_THUE, GIAM_TRU_BAN_THAN, GIAM_TRU_PHU_THUOC, GIAM_TRU_BAO_HIEM,
-                        GIAM_TRU_KHAC, TONG_GIAM_TRU, THU_NHAP_TINH_THUE, TONG_THUE_PHAI_NOP,
-                        THUE_DA_KHAU_TRU, THUE_CON_PHAI_NOP, THUE_NOP_THUA, TRANG_THAI, CREATED_AT
-                    ) VALUES (
-                        :p0, :p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8, :p9, :p10, :p11, :p12, :p13, :p14, :p15, :p16, :p17, SYSTIMESTAMP
-                    )",
-                    new OracleParameter("p0", finalization.ID),
-                    new OracleParameter("p1", finalization.MANV),
-                    new OracleParameter("p2", finalization.TAX_YEAR),
-                    new OracleParameter("p3", finalization.POLICY_THUE_ID),
-                    new OracleParameter("p4", finalization.PROFILE_THUE_ID),
-                    new OracleParameter("p5", finalization.SO_THANG_LAM_VIEC),
-                    new OracleParameter("p6", finalization.TONG_THU_NHAP_CHIU_THUE),
-                    new OracleParameter("p7", finalization.GIAM_TRU_BAN_THAN),
-                    new OracleParameter("p8", finalization.GIAM_TRU_PHU_THUOC),
-                    new OracleParameter("p9", finalization.GIAM_TRU_BAO_HIEM),
-                    new OracleParameter("p10", finalization.GIAM_TRU_KHAC),
-                    new OracleParameter("p11", finalization.TONG_GIAM_TRU),
-                    new OracleParameter("p12", finalization.THU_NHAP_TINH_THUE),
-                    new OracleParameter("p13", finalization.TONG_THUE_PHAI_NOP),
-                    new OracleParameter("p14", finalization.THUE_DA_KHAU_TRU),
-                    new OracleParameter("p15", finalization.THUE_CON_PHAI_NOP),
-                    new OracleParameter("p16", finalization.THUE_NOP_THUA),
-                    new OracleParameter("p17", finalization.TRANG_THAI)
-                );
-
-                foreach (var b in finalization.Brackets)
+                try
                 {
-                    decimal bracketId = db.Database.SqlQuery<decimal>("SELECT SEQ_QUYET_TOAN_THUE_NAM_CT.NEXTVAL FROM DUAL").First();
-                    b.ID = bracketId;
-                    b.QUYET_TOAN_ID = newId;
+                    // Check if existing record is submitted/approved (VN-P11 protection)
+                    var existingStatus = db.Database.SqlQuery<string>(@"
+                        SELECT TRANG_THAI FROM TB_QUYET_TOAN_THUE_NAM WHERE MANV = :p0 AND TAX_YEAR = :p1",
+                        new OracleParameter("p0", finalization.MANV),
+                        new OracleParameter("p1", finalization.TAX_YEAR)
+                    ).FirstOrDefault();
+
+                    if (existingStatus == "SUBMITTED" || existingStatus == "APPROVED")
+                    {
+                        throw new InvalidOperationException($"Hồ sơ quyết toán thuế năm {finalization.TAX_YEAR} của nhân viên {finalization.MANV} đã ở trạng thái {existingStatus}. Không được xóa ghi đè trực tiếp; vui lòng tạo hồ sơ điều chỉnh.");
+                    }
+
+                    // Delete previous draft for this employee and tax year if exists
+                    db.Database.ExecuteSqlCommand(@"
+                        DELETE FROM TB_QUYET_TOAN_THUE_NAM_CT WHERE MANV = :p0 AND TAX_YEAR = :p1",
+                        new OracleParameter("p0", finalization.MANV),
+                        new OracleParameter("p1", finalization.TAX_YEAR)
+                    );
 
                     db.Database.ExecuteSqlCommand(@"
-                        INSERT INTO TB_QUYET_TOAN_THUE_NAM_CT (
-                            ID, QUYET_TOAN_ID, MANV, TAX_YEAR, BAC_THUE, CAN_DUOI, CAN_TREN,
-                            THU_NHAP_CHIU_THUE_BAC, THUE_SUAT, TIEN_THUE_BAC, CREATED_AT
-                        ) VALUES (
-                            :p0, :p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8, :p9, SYSTIMESTAMP
-                        )",
-                        new OracleParameter("p0", b.ID),
-                        new OracleParameter("p1", b.QUYET_TOAN_ID),
-                        new OracleParameter("p2", b.MANV),
-                        new OracleParameter("p3", b.TAX_YEAR),
-                        new OracleParameter("p4", b.BAC_THUE),
-                        new OracleParameter("p5", b.CAN_DUOI),
-                        new OracleParameter("p6", (object)b.CAN_TREN ?? DBNull.Value),
-                        new OracleParameter("p7", b.THU_NHAP_CHIU_THUE_BAC),
-                        new OracleParameter("p8", b.THUE_SUAT),
-                        new OracleParameter("p9", b.TIEN_THUE_BAC)
+                        DELETE FROM TB_QUYET_TOAN_THUE_NAM WHERE MANV = :p0 AND TAX_YEAR = :p1",
+                        new OracleParameter("p0", finalization.MANV),
+                        new OracleParameter("p1", finalization.TAX_YEAR)
                     );
-                }
 
-                return finalization;
+                    decimal newId = db.Database.SqlQuery<decimal>("SELECT SEQ_QUYET_TOAN_THUE_NAM.NEXTVAL FROM DUAL").First();
+                    finalization.ID = newId;
+
+                    db.Database.ExecuteSqlCommand(@"
+                        INSERT INTO TB_QUYET_TOAN_THUE_NAM (
+                            ID, MANV, TAX_YEAR, POLICY_THUE_ID, PROFILE_THUE_ID, SO_THANG_LAM_VIEC,
+                            TONG_THU_NHAP_CHIU_THUE, GIAM_TRU_BAN_THAN, GIAM_TRU_PHU_THUOC, GIAM_TRU_BAO_HIEM,
+                            GIAM_TRU_KHAC, TONG_GIAM_TRU, THU_NHAP_TINH_THUE, TONG_THUE_PHAI_NOP,
+                            THUE_DA_KHAU_TRU, THUE_CON_PHAI_NOP, THUE_NOP_THUA, TRANG_THAI, CREATED_AT
+                        ) VALUES (
+                            :p0, :p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8, :p9, :p10, :p11, :p12, :p13, :p14, :p15, :p16, :p17, SYSTIMESTAMP
+                        )",
+                        new OracleParameter("p0", finalization.ID),
+                        new OracleParameter("p1", finalization.MANV),
+                        new OracleParameter("p2", finalization.TAX_YEAR),
+                        new OracleParameter("p3", finalization.POLICY_THUE_ID),
+                        new OracleParameter("p4", finalization.PROFILE_THUE_ID),
+                        new OracleParameter("p5", finalization.SO_THANG_LAM_VIEC),
+                        new OracleParameter("p6", finalization.TONG_THU_NHAP_CHIU_THUE),
+                        new OracleParameter("p7", finalization.GIAM_TRU_BAN_THAN),
+                        new OracleParameter("p8", finalization.GIAM_TRU_PHU_THUOC),
+                        new OracleParameter("p9", finalization.GIAM_TRU_BAO_HIEM),
+                        new OracleParameter("p10", finalization.GIAM_TRU_KHAC),
+                        new OracleParameter("p11", finalization.TONG_GIAM_TRU),
+                        new OracleParameter("p12", finalization.THU_NHAP_TINH_THUE),
+                        new OracleParameter("p13", finalization.TONG_THUE_PHAI_NOP),
+                        new OracleParameter("p14", finalization.THUE_DA_KHAU_TRU),
+                        new OracleParameter("p15", finalization.THUE_CON_PHAI_NOP),
+                        new OracleParameter("p16", finalization.THUE_NOP_THUA),
+                        new OracleParameter("p17", finalization.TRANG_THAI)
+                    );
+
+                    foreach (var b in finalization.Brackets)
+                    {
+                        decimal bracketId = db.Database.SqlQuery<decimal>("SELECT SEQ_QUYET_TOAN_THUE_NAM_CT.NEXTVAL FROM DUAL").First();
+                        b.ID = bracketId;
+                        b.QUYET_TOAN_ID = newId;
+
+                        db.Database.ExecuteSqlCommand(@"
+                            INSERT INTO TB_QUYET_TOAN_THUE_NAM_CT (
+                                ID, QUYET_TOAN_ID, MANV, TAX_YEAR, BAC_THUE, CAN_DUOI, CAN_TREN,
+                                THU_NHAP_CHIU_THUE_BAC, THUE_SUAT, TIEN_THUE_BAC, CREATED_AT
+                            ) VALUES (
+                                :p0, :p1, :p2, :p3, :p4, :p5, :p6, :p7, :p8, :p9, SYSTIMESTAMP
+                            )",
+                            new OracleParameter("p0", b.ID),
+                            new OracleParameter("p1", b.QUYET_TOAN_ID),
+                            new OracleParameter("p2", b.MANV),
+                            new OracleParameter("p3", b.TAX_YEAR),
+                            new OracleParameter("p4", b.BAC_THUE),
+                            new OracleParameter("p5", b.CAN_DUOI),
+                            new OracleParameter("p6", (object)b.CAN_TREN ?? DBNull.Value),
+                            new OracleParameter("p7", b.THU_NHAP_CHIU_THUE_BAC),
+                            new OracleParameter("p8", b.THUE_SUAT),
+                            new OracleParameter("p9", b.TIEN_THUE_BAC)
+                        );
+                    }
+
+                    tx.Commit();
+                    return finalization;
+                }
+                catch
+                {
+                    try { tx.Rollback(); } catch { }
+                    throw;
+                }
             }
         }
 

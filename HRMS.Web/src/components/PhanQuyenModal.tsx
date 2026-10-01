@@ -469,7 +469,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
   return (
     <Modal
       title={
-        <Space>
+        <Space wrap>
           <KeyOutlined style={{ color: '#fa8c16', fontSize: 20 }} />
           <span>
             Ma trận phân quyền 5 thao tác cho {isGroup ? 'nhóm' : 'tài khoản'}:{' '}
@@ -501,7 +501,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
           onClick={handleSave}
           style={{ background: '#1677ff' }}
         >
-          Lưu phân quyền ({totalActionsGranted} / {rights.length * 5} hành động được cấp)
+          Lưu phân quyền ({totalActionsGranted} / {rights.length * 5} hành động)
         </Button>,
       ]}
     >
@@ -524,7 +524,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
         style={{ marginBottom: 14, marginTop: 4 }}
       />
 
-      <div style={{ marginBottom: 14 }}>
+      <div style={{ marginBottom: 14, overflowX: 'auto', paddingBottom: 4, maxWidth: '100%' }}>
         <Segmented
           options={[
             { label: 'Tất cả', value: 'ALL' },

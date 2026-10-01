@@ -169,12 +169,12 @@ export const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
         {/* Account Summary Header */}
         <div style={{ marginBottom: 20, padding: 16, background: '#f5f5f5', borderRadius: 8 }}>
           <Space direction="vertical" style={{ width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
               <Title level={4} style={{ margin: 0, color: '#1677ff' }}>
                 <UserOutlined style={{ marginRight: 8 }} />
                 {user.Username}
               </Title>
-              <Space>
+              <Space wrap>
                 {isRootAdmin ? (
                   <Tag color="gold" icon={<SafetyCertificateOutlined />}>Super Admin</Tag>
                 ) : user.IsGroup ? (
@@ -256,22 +256,22 @@ export const UserDetailDrawer: React.FC<UserDetailDrawerProps> = ({
 
         {/* 3. Access Channels */}
         <Card title="3. Kênh truy cập hệ thống (Access Channels)" size="small" style={{ marginBottom: 16 }}>
-          <Row gutter={12}>
-            <Col span={8}>
+          <Row gutter={[10, 10]}>
+            <Col xs={24} sm={8}>
               <Card size="small" style={{ textAlign: 'center', background: '#fafafa' }}>
                 <DesktopOutlined style={{ fontSize: 20, color: '#1677ff', marginBottom: 4 }} />
                 <div>Desktop Power User</div>
                 <Tag color="green" style={{ marginTop: 4 }}>Cho phép</Tag>
               </Card>
             </Col>
-            <Col span={8}>
+            <Col xs={24} sm={8}>
               <Card size="small" style={{ textAlign: 'center', background: '#fafafa' }}>
                 <GlobalOutlined style={{ fontSize: 20, color: '#722ed1', marginBottom: 4 }} />
                 <div>Web Portal</div>
                 <Tag color="green" style={{ marginTop: 4 }}>Cho phép</Tag>
               </Card>
             </Col>
-            <Col span={8}>
+            <Col xs={24} sm={8}>
               <Card size="small" style={{ textAlign: 'center', background: '#fafafa' }}>
                 <MobileOutlined style={{ fontSize: 20, color: isRootAdmin ? '#d9d9d9' : isMobileEnabled ? '#52c41a' : '#fa8c16', marginBottom: 4 }} />
                 <div>Mobile ESS</div>

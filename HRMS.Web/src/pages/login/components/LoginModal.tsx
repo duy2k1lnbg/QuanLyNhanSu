@@ -9,6 +9,7 @@ import {
 import api from '../../../services/api';
 import type { CurrentUserDTO } from '../../../types/hrms';
 import { useAppLanguage } from '../../../services/i18n';
+import { useAppTheme } from '../../../theme/ThemeContext';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -28,6 +29,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   tAuth: propTAuth,
 }) => {
   const { dict, tLanding: hookTLanding, tAuth: hookTAuth } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -147,10 +149,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         >
           <SafetyCertificateOutlined style={{ fontSize: 28, color: '#fff' }} />
         </div>
-        <Title level={3} style={{ margin: 0, fontWeight: 800, color: '#0f172a' }}>
+        <Title level={3} style={{ margin: 0, fontWeight: 800, color: tokens.textPrimary }}>
           {title}
         </Title>
-        <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 0, fontSize: 13 }}>
+        <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 0, fontSize: 13, color: tokens.textSecondary }}>
           {subtitle}
         </Paragraph>
         <Tag color="processing" style={{ marginTop: 8, borderRadius: 10, fontWeight: 500 }}>
@@ -172,12 +174,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
       <Form form={form} layout="vertical" onFinish={handleLogin}>
         <Form.Item
           name="username"
-          label={<Text strong style={{ color: '#334155' }}>{usernameLabel}</Text>}
+          label={<Text strong style={{ color: tokens.textPrimary }}>{usernameLabel}</Text>}
           rules={[{ required: true, message: usernameRequired }]}
         >
           <Input
             size="large"
-            prefix={<UserOutlined style={{ color: '#94a3b8' }} />}
+            prefix={<UserOutlined style={{ color: tokens.textMuted }} />}
             placeholder={usernamePlaceholder}
             autoFocus
             style={{ borderRadius: 8 }}
@@ -186,12 +188,12 @@ export const LoginModal: React.FC<LoginModalProps> = ({
 
         <Form.Item
           name="password"
-          label={<Text strong style={{ color: '#334155' }}>{passwordLabel}</Text>}
+          label={<Text strong style={{ color: tokens.textPrimary }}>{passwordLabel}</Text>}
           rules={[{ required: true, message: passwordRequired }]}
         >
           <Input.Password
             size="large"
-            prefix={<LockOutlined style={{ color: '#94a3b8' }} />}
+            prefix={<LockOutlined style={{ color: tokens.textMuted }} />}
             placeholder={passwordPlaceholder}
             style={{ borderRadius: 8 }}
           />
@@ -224,10 +226,10 @@ export const LoginModal: React.FC<LoginModalProps> = ({
         style={{
           marginTop: 20,
           paddingTop: 14,
-          borderTop: '1px solid #f1f5f9',
+          borderTop: `1px solid ${tokens.borderSubtle}`,
           textAlign: 'center',
           fontSize: 12,
-          color: '#64748b',
+          color: tokens.textMuted,
         }}
       >
         {securityFooter}

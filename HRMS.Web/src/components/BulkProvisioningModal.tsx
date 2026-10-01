@@ -425,8 +425,8 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
           />
 
           <Form layout="vertical">
-            <Row gutter={16}>
-              <Col span={12}>
+            <Row gutter={[16, 12]}>
+              <Col xs={24} sm={12}>
                 <Form.Item label="Phòng ban trực thuộc">
                   <Select
                     placeholder="Tất cả phòng ban"
@@ -437,7 +437,7 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
                   />
                 </Form.Item>
               </Col>
-              <Col span={12}>
+              <Col xs={24} sm={12}>
                 <Form.Item label="Mật khẩu khởi tạo mặc định">
                   <Input.Password
                     value={defaultPassword}
@@ -489,44 +489,44 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
       {/* STEP 2: PREVIEW & SELECTION */}
       {currentStep === 1 && (
         <div>
-          <Row gutter={12} style={{ marginBottom: 16 }}>
-            <Col span={4}>
+          <Row gutter={[10, 10]} style={{ marginBottom: 16 }}>
+            <Col xs={12} sm={8} md={4}>
               <Card size="small" style={{ textAlign: 'center', background: '#f6ffed', borderColor: '#b7eb8f' }}>
                 <Statistic title="Đủ điều kiện" value={previewMetrics.totalEligible} valueStyle={{ color: '#389e0d' }} />
               </Card>
             </Col>
-            <Col span={4}>
+            <Col xs={12} sm={8} md={4}>
               <Card size="small" style={{ textAlign: 'center', background: '#e6f4ff', borderColor: '#91caff' }}>
                 <Statistic title="Sẵn sàng tạo" value={previewMetrics.readyToCreate} valueStyle={{ color: '#1677ff' }} />
               </Card>
             </Col>
-            <Col span={4}>
+            <Col xs={12} sm={8} md={4}>
               <Card size="small" style={{ textAlign: 'center', background: '#fafafa' }}>
                 <Statistic title="Đã có TK" value={previewMetrics.alreadyHaveAccount} />
               </Card>
             </Col>
-            <Col span={4}>
+            <Col xs={12} sm={8} md={4}>
               <Card size="small" style={{ textAlign: 'center', background: '#fafafa' }}>
                 <Statistic title="Đã bật Mobile" value={previewMetrics.alreadyEnabled} />
               </Card>
             </Col>
-            <Col span={4}>
+            <Col xs={12} sm={8} md={4}>
               <Card size="small" style={{ textAlign: 'center', background: '#fff2e8', borderColor: '#ffbb96' }}>
                 <Statistic title="Admin/System" value={previewMetrics.systemAdmin} valueStyle={{ color: '#fa541c' }} />
               </Card>
             </Col>
-            <Col span={4}>
+            <Col xs={12} sm={8} md={4}>
               <Card size="small" style={{ textAlign: 'center', background: '#fff1f0', borderColor: '#ffa39e' }}>
                 <Statistic title="Thôi việc" value={previewMetrics.inactive} valueStyle={{ color: '#cf1322' }} />
               </Card>
             </Col>
           </Row>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
             <Text strong>
               Đã chọn: <Text style={{ color: '#1677ff' }}>{selectedRowKeys.length}</Text> / {candidates.length} nhân sự
             </Text>
-            <Space>
+            <Space wrap>
               <Button
                 size="small"
                 onClick={() => {
@@ -555,7 +555,7 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
               }),
             }}
             pagination={{ pageSize: 8, showSizeChanger: false }}
-            scroll={{ y: 320 }}
+            scroll={{ y: 320, x: 'max-content' }}
           />
 
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 20 }}>
@@ -586,35 +586,35 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
             style={{ marginBottom: 16 }}
           />
 
-          <Row gutter={12} style={{ marginBottom: 16 }}>
-            <Col span={6}>
+          <Row gutter={[10, 10]} style={{ marginBottom: 16 }}>
+            <Col xs={12} sm={6}>
               <Card size="small" style={{ textAlign: 'center', background: '#f6ffed', borderColor: '#b7eb8f' }}>
                 <Statistic title="Thành công" value={resultSummary.success} valueStyle={{ color: '#389e0d' }} />
               </Card>
             </Col>
-            <Col span={6}>
+            <Col xs={12} sm={6}>
               <Card size="small" style={{ textAlign: 'center', background: '#e6f4ff', borderColor: '#91caff' }}>
                 <Statistic title="Đã có sẵn" value={resultSummary.alreadyExists} valueStyle={{ color: '#1677ff' }} />
               </Card>
             </Col>
-            <Col span={6}>
+            <Col xs={12} sm={6}>
               <Card size="small" style={{ textAlign: 'center', background: '#fffbe6', borderColor: '#ffe58f' }}>
                 <Statistic title="Bỏ qua" value={resultSummary.skipped} valueStyle={{ color: '#d48806' }} />
               </Card>
             </Col>
-            <Col span={6}>
+            <Col xs={12} sm={6}>
               <Card size="small" style={{ textAlign: 'center', background: '#fff1f0', borderColor: '#ffa39e' }}>
                 <Statistic title="Thất bại" value={resultSummary.failed} valueStyle={{ color: '#cf1322' }} />
               </Card>
             </Col>
           </Row>
 
-          <Space style={{ marginBottom: 12, width: '100%', justifyContent: 'space-between' }}>
-            <Space>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, flexWrap: 'wrap', gap: 8 }}>
+            <Space wrap>
               <Select
                 value={resultFilter}
                 onChange={(val) => setResultFilter(val)}
-                style={{ width: 160 }}
+                style={{ width: 150 }}
                 options={[
                   { value: 'ALL', label: 'Tất cả kết quả' },
                   { value: 'SUCCESS', label: 'Chỉ thành công' },
@@ -626,7 +626,7 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
                 placeholder="Tìm mã NV, tên, login..."
                 value={resultSearch}
                 onChange={(e) => setResultSearch(e.target.value)}
-                style={{ width: 220 }}
+                style={{ width: 180 }}
               />
             </Space>
 
@@ -642,7 +642,7 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
             >
               Sao chép kết quả
             </Button>
-          </Space>
+          </div>
 
           <Table
             size="small"
@@ -650,7 +650,7 @@ export const BulkProvisioningModal: React.FC<BulkProvisioningModalProps> = ({
             columns={resultColumns}
             dataSource={filteredResults}
             pagination={{ pageSize: 8, showSizeChanger: false }}
-            scroll={{ y: 280 }}
+            scroll={{ y: 280, x: 'max-content' }}
           />
 
           <div style={{ textAlign: 'right', marginTop: 20 }}>

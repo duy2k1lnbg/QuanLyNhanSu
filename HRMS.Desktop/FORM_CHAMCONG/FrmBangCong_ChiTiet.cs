@@ -35,9 +35,25 @@ namespace QLyNSu.FORM_CHAMCONG
             ToolStripMenuItem mnCapNhatNgayCong = new ToolStripMenuItem("Cập nhật ngày công");
             mnCapNhatNgayCong.Click += new EventHandler(this.mnCapNhatNgayCong_Click);
             contextMenu.Items.Add(mnCapNhatNgayCong);
+            contextMenu.Opening += (s, ev) =>
+            {
+                bool isKhoa = IsKyCongBiKhoa();
+                mnCapNhatNgayCong.Text = isKhoa ? "Xem chi tiết ngày công [Chỉ xem - Kỳ công đã khóa]" : "Cập nhật ngày công";
+            };
             gcBangCongChiTiet.ContextMenuStrip = contextMenu;
             gvBangCongChiTiet.PopupMenuShowing += gvBangCongChiTiet_PopupMenuShowing;
             gvBangCongChiTiet.CellValueChanged += gvBangCongChiTiet_CellValueChanged;
+            gvBangCongChiTiet.ShowingEditor += gvBangCongChiTiet_ShowingEditor;
+            gvBangCongChiTiet.DoubleClick += gvBangCongChiTiet_DoubleClick;
+        }
+
+        private void gvBangCongChiTiet_DoubleClick(object sender, EventArgs e)
+        {
+            DevExpress.XtraGrid.Views.Grid.ViewInfo.GridHitInfo hi = gvBangCongChiTiet.CalcHitInfo(gcBangCongChiTiet.PointToClient(Control.MousePosition));
+            if (hi.InRowCell && hi.Column != null && hi.Column.FieldName.StartsWith("D", StringComparison.OrdinalIgnoreCase))
+            {
+                mnCapNhatNgayCong_Click(sender, e);
+            }
         }
 
         private KYCONGCHITIET _kcct;
@@ -53,6 +69,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private void FrmBangCong_ChiTiet_Load(object sender, EventArgs e)
         {
             chkTrangThai.Enabled = false;
+            chkKhoa.Enabled = false;
             cboNam.Enabled = false;
             cboThang.Enabled = false;
             _kcct = new KYCONGCHITIET();
@@ -88,9 +105,9 @@ namespace QLyNSu.FORM_CHAMCONG
             }
 
             gcBangCongChiTiet.DataSource = _kcct.getList(_MAKYCONG);
-            gvBangCongChiTiet.OptionsBehavior.Editable = true;
             CustomView(_thang, _nam);
             LockInfoColumns();
+            UpdateLockUI();
         }
 
         public void loadBangCong()
@@ -107,28 +124,75 @@ namespace QLyNSu.FORM_CHAMCONG
 
             gcBangCongChiTiet.DataSource = _kcct.getList(_MAKYCONG);
             CustomView(_thang, _nam);
-            gvBangCongChiTiet.OptionsBehavior.Editable = true;
             LockInfoColumns();
+            UpdateLockUI();
         }
+
+        private void UpdateLockUI()
+        {
+            if (_kycong == null) _kycong = new KYCONG();
+            var kc = _kycong.getItem(_MAKYCONG);
+            bool isKhoa = kc != null && (kc.KHOA ?? 0) == 1;
+            bool isTrangThai = kc != null && (kc.TRANGTHAI ?? 0) == 1;
+
+            chkKhoa.Checked = isKhoa;
+            chkTrangThai.Checked = isTrangThai;
+
+            if (isKhoa)
+            {
+                gvBangCongChiTiet.OptionsBehavior.Editable = false;
+                btnPhatSinhKyCong.Enabled = false;
+                foreach (DevExpress.XtraGrid.Columns.GridColumn col in gvBangCongChiTiet.Columns)
+                {
+                    col.OptionsColumn.AllowEdit = false;
+                    col.OptionsColumn.ReadOnly = true;
+                }
+            }
+            else
+            {
+                gvBangCongChiTiet.OptionsBehavior.Editable = true;
+                btnPhatSinhKyCong.Enabled = true;
+            }
+        }
+
+        private bool IsKyCongBiKhoa()
+        {
+            if (_kycong == null) _kycong = new KYCONG();
+            var kc = _kycong.getItem(_MAKYCONG);
+            return kc != null && (kc.KHOA ?? 0) == 1;
+        }
+
+        private void gvBangCongChiTiet_ShowingEditor(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (IsKyCongBiKhoa())
+            {
+                e.Cancel = true;
+            }
+        }
+
         private async void btnPhatSinhKyCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             #region Check_Key
             SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
-            if (_kycong.KiemTraMaKyCong(int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text)) == 0)
+            int makycongCheck = int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text);
+            if (_kycong.KiemTraMaKyCong(makycongCheck) == 0)
             {
-                MessageBox.Show("Kỳ công này chưa được tạo vui lòng vào bảng công và thêm.", "Thông báo");
                 SplashScreenManager.CloseForm();
+                MessageBox.Show("Kỳ công này chưa được tạo vui lòng vào bảng công và thêm.", "Thông báo");
                 return;
             }
-            int makycongCheck = int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text);
+            var kcCheck = _kycong.getItem(makycongCheck);
+            if (kcCheck != null && (kcCheck.KHOA ?? 0) == 1)
+            {
+                SplashScreenManager.CloseForm();
+                XtraMessageBox.Show($"Kỳ công {makycongCheck} đã bị khóa (KHOA = 1), không thể phát sinh lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
             if (_kycong.KiemTraPhatSinhKyCong(makycongCheck) == 1)
             {
                 SplashScreenManager.CloseForm();
-                if (XtraMessageBox.Show($"Kỳ công tháng {cboThang.Text}/{cboNam.Text} đã được phát sinh trước đó. Bạn có muốn phát sinh lại toàn bộ (bao gồm Bảng công gốc, Bảng công chi tiết và Kỳ công)?", "Xác nhận phát sinh lại", MessageBoxButtons.YesNo, MessageBoxIcon.Question) != DialogResult.Yes)
-                {
-                    return;
-                }
-                SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
+                XtraMessageBox.Show($"Kỳ công tháng {cboThang.Text}/{cboNam.Text} đã được phát sinh trước đó. Bảng công chỉ được tạo 1 lần!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
             }
             #endregion
 
@@ -334,6 +398,15 @@ namespace QLyNSu.FORM_CHAMCONG
                 i++;
             }
 
+            if (IsKyCongBiKhoa())
+            {
+                foreach (DevExpress.XtraGrid.Columns.GridColumn col in gvBangCongChiTiet.Columns)
+                {
+                    col.OptionsColumn.AllowEdit = false;
+                    col.OptionsColumn.ReadOnly = true;
+                }
+                gvBangCongChiTiet.OptionsBehavior.Editable = false;
+            }
         }
 
         private int GetDayNumber(int thang, int nam)
@@ -417,6 +490,7 @@ namespace QLyNSu.FORM_CHAMCONG
             frm.nam_f_bcct1 = int.TryParse(cboNam.Text, out int n) ? n : (_MAKYCONG / 100);
             frm.thang_f1_bcct = int.TryParse(cboThang.Text, out int t) ? t : (_MAKYCONG % 100);
             frm.ShowDialog();
+            loadBangCong();
         }
 
         private void gvBangCongChiTiet_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
@@ -499,6 +573,15 @@ namespace QLyNSu.FORM_CHAMCONG
         {
             try
             {
+                if (_kycong == null) _kycong = new KYCONG();
+                var kc = _kycong.getItem(_MAKYCONG);
+                if (kc != null && (kc.KHOA ?? 0) == 1)
+                {
+                    XtraMessageBox.Show($"Kỳ công {_MAKYCONG} đã bị khóa (KHOA = 1), không thể chỉnh sửa dữ liệu.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    loadBangCong();
+                    return;
+                }
+
                 string fieldName = e.Column.FieldName;
                 if (!fieldName.StartsWith("D", StringComparison.OrdinalIgnoreCase) || !int.TryParse(fieldName.Substring(1), out int dayNum) || dayNum < 1 || dayNum > 31)
                 {

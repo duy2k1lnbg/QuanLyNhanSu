@@ -7,6 +7,7 @@ import {
   CloudDownloadOutlined,
   ArrowRightOutlined,
 } from '@ant-design/icons';
+import { ScrollReveal } from '../../../components/ScrollReveal';
 
 const { Title, Paragraph } = Typography;
 
@@ -27,21 +28,24 @@ export const LandingEcosystem: React.FC<LandingEcosystemProps> = ({
 }) => {
   return (
     <div style={{ marginBottom: 70 }}>
-      <div style={{ textAlign: 'center', marginBottom: 36 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
-          {tLanding.ecoBadge}
+      <ScrollReveal direction="up" duration={550}>
+        <div style={{ textAlign: 'center', marginBottom: 36 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: '#60a5fa', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: 8 }}>
+            {tLanding.ecoBadge}
+          </div>
+          <Title level={2} style={{ color: '#fff', margin: 0, fontWeight: 800 }}>
+            {tLanding.ecoTitle}
+          </Title>
+          <Paragraph style={{ color: '#94a3b8', marginTop: 8, fontSize: 15 }}>
+            {tLanding.ecoSubtitle}
+          </Paragraph>
         </div>
-        <Title level={2} style={{ color: '#fff', margin: 0, fontWeight: 800 }}>
-          {tLanding.ecoTitle}
-        </Title>
-        <Paragraph style={{ color: '#94a3b8', marginTop: 8, fontSize: 15 }}>
-          {tLanding.ecoSubtitle}
-        </Paragraph>
-      </div>
+      </ScrollReveal>
 
       <Row gutter={[24, 24]}>
         {/* 1. BẢN WINDOWS DESKTOP */}
         <Col xs={24} md={8}>
+          <ScrollReveal direction="left" duration={650} fullHeight>
           <Card
             hoverable
             style={{
@@ -103,10 +107,12 @@ export const LandingEcosystem: React.FC<LandingEcosystemProps> = ({
               {tLanding.winCardBtn}
             </Button>
           </Card>
+          </ScrollReveal>
         </Col>
 
         {/* 2. CỔNG THÔNG TIN WEB */}
         <Col xs={24} md={8}>
+          <ScrollReveal direction="up" delay={80} duration={650} fullHeight>
           <Card
             hoverable
             style={{
@@ -168,10 +174,12 @@ export const LandingEcosystem: React.FC<LandingEcosystemProps> = ({
               {tLanding.webCardBtn}
             </Button>
           </Card>
+          </ScrollReveal>
         </Col>
 
         {/* 3. BẢN MOBILE APP */}
         <Col xs={24} md={8}>
+          <ScrollReveal direction="right" delay={160} duration={650} fullHeight>
           <Card
             hoverable
             style={{
@@ -234,6 +242,7 @@ export const LandingEcosystem: React.FC<LandingEcosystemProps> = ({
               {tLanding.mobileCardBtn}
             </Button>
           </Card>
+          </ScrollReveal>
         </Col>
       </Row>
     </div>

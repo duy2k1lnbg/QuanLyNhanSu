@@ -39,6 +39,8 @@ import api from '../services/api';
 import Employee360Modal from '../components/Employee360Modal';
 import type { NhanVienDTO, DanhMucAllDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
 
 const { Text } = Typography;
 
@@ -74,6 +76,7 @@ export function NhanVienPage({
   onRefresh,
 }: NhanVienPageProps) {
   const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'resigned'>('all');
   const [departmentFilter, setDepartmentFilter] = useState<number | 'all'>('all');
@@ -354,7 +357,7 @@ export function NhanVienPage({
               <Tooltip title={t('employee.editTooltip')}>
                 <Button
                   type="text"
-                  icon={<EditOutlined style={{ color: '#1677ff', fontSize: 16 }} />}
+                  icon={<EditOutlined style={{ color: tokens.primary, fontSize: 16 }} />}
                   onClick={() => handleOpenNvModal(r)}
                   size="small"
                 />
@@ -407,12 +410,43 @@ export function NhanVienPage({
   ];
 
   return (
-    <>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* PAGE HEADER */}
+      <PageHeader
+        title={t('employee.pageTitle') || 'Hồ Sơ Nhân Sự'}
+        subtitle={`Quản lý danh sách, hồ sơ 360°, thông tin liên hệ và trạng thái công tác • Tổng số ${safeList.length} nhân sự`}
+        breadcrumbs={[
+          { title: 'Quản trị nhân sự' },
+          { title: 'Hồ sơ nhân viên' },
+        ]}
+        extra={
+          (canAdd ? canAdd('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') : hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN')) && (
+            <Button
+              type="primary"
+              icon={<PlusOutlined />}
+              onClick={() => handleOpenNvModal()}
+              style={{
+                borderRadius: 8,
+                background: tokens.btnPrimaryBg,
+                borderColor: tokens.btnPrimaryBg,
+                fontWeight: 600,
+              }}
+            >
+              {t('employee.btnAddEmployee')}
+            </Button>
+          )
+        }
+      />
+
       {/* THANH CÔNG CỤ TÌM KIẾM, LỌC VÀ THÊM MỚI */}
       <Card
         bordered={false}
-        style={{ marginBottom: 16, borderRadius: borderRadiusLG }}
-        bodyStyle={{ padding: '16px 24px' }}
+        style={{
+          borderRadius: borderRadiusLG,
+          background: tokens.cardBg,
+          border: `1px solid ${tokens.borderSubtle}`,
+        }}
+        bodyStyle={{ padding: '16px 20px' }}
       >
         <div
           style={{
@@ -458,26 +492,32 @@ export function NhanVienPage({
           <Space wrap size="middle">
             <Input
               placeholder={t('employee.searchPlaceholder')}
-              prefix={<SearchOutlined />}
+              prefix={<SearchOutlined style={{ color: tokens.textMuted }} />}
               value={searchKeyword}
               onChange={(e) => setSearchKeyword(e.target.value)}
               allowClear
-              style={{ minWidth: 240, maxWidth: 320 }}
+              style={{ minWidth: 240, maxWidth: 320, borderRadius: 8 }}
             />
-            {(canAdd ? canAdd('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN') : hasRight('NV', 'F_DM_NHANVIEN', 'F_NV_NHANVIEN')) && (
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => handleOpenNvModal()}>
-                {t('employee.btnAddEmployee')}
-              </Button>
-            )}
           </Space>
         </div>
       </Card>
 
       {/* BẢNG DANH SÁCH NHÂN VIÊN */}
       <Card
-        title={t('employee.listTitle', { count: filteredEmployees.length })}
+        title={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span>{t('employee.listTitle', { count: filteredEmployees.length })}</span>
+            <Tag color="purple" style={{ borderRadius: 6, margin: 0 }}>
+              {filteredEmployees.length} nhân sự
+            </Tag>
+          </div>
+        }
         bordered={false}
-        style={{ borderRadius: borderRadiusLG }}
+        style={{
+          borderRadius: borderRadiusLG,
+          background: tokens.cardBg,
+          border: `1px solid ${tokens.borderSubtle}`,
+        }}
       >
         <Table
           columns={employeeColumns}
@@ -515,9 +555,9 @@ export function NhanVienPage({
               flexWrap: 'wrap',
               gap: 16,
               padding: '16px 20px',
-              backgroundColor: '#f8fafc',
+              backgroundColor: tokens.cardSecondaryBg,
               borderRadius: 8,
-              border: '1px dashed #cbd5e1',
+              border: `1px dashed ${tokens.borderSubtle}`,
               marginBottom: 20,
             }}
           >
@@ -657,7 +697,7 @@ export function NhanVienPage({
         onEdit={(emp) => handleOpenNvModal(emp)}
         onAvatarUpdated={() => onRefresh()}
       />
-    </>
+    </div>
   );
 }
 

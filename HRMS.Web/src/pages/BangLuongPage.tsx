@@ -31,8 +31,10 @@ import PhieuLuongModal from '../components/PhieuLuongModal';
 import PayrollDetailDrawer from '../components/PayrollDetailDrawer';
 import type { KyCongDTO, BangLuongDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
+import { PageHeader } from '../theme/components/PageHeader';
 
-const { Text, Title } = Typography;
+const { Text } = Typography;
 
 interface BangLuongPageProps {
   kyCongList: KyCongDTO[];
@@ -69,6 +71,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   onRefreshKyCong,
 }) => {
   const { t } = useAppLanguage();
+  const { tokens, isDark } = useAppTheme();
   const [selectedBangLuong, setSelectedBangLuong] = useState<BangLuongDTO | null>(null);
   const [phieuLuongModalVisible, setPhieuLuongModalVisible] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -151,12 +154,12 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
       const itemStatus = item.TRANGTHAI_CHITRA
         ? item.TRANGTHAI_CHITRA
-        : (isPeriodLocked ? 'Đã chi trả' : 'Chờ chi trả');
+        : (isPeriodLocked ? 'Đã chốt sổ (Chờ chi trả)' : 'Chờ chi trả');
 
       const matchStatus =
         selectedStatus === 'all' ||
-        (selectedStatus === 'paid' && (itemStatus === 'Đã chi trả' || isPeriodLocked)) ||
-        (selectedStatus === 'pending' && (itemStatus === 'Chờ chi trả' && !isPeriodLocked));
+        (selectedStatus === 'paid' && itemStatus === 'Đã chi trả') ||
+        (selectedStatus === 'pending' && itemStatus !== 'Đã chi trả');
 
       return matchSearch && matchDept && matchStatus;
     });
@@ -351,18 +354,19 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       align: 'center',
       width: 130,
       render: (_, record) => {
+        if (record.TRANGTHAI_CHITRA === 'Đã chi trả') {
+          return <Tag color="success">Đã chi trả</Tag>;
+        }
         if (record.TRANG_THAI === 'APPROVED') {
-          return <Tag color="success">Đã duyệt</Tag>;
+          return <Tag color="blue">Đã duyệt</Tag>;
         }
         if (record.TRANG_THAI === 'LEGACY_READONLY') {
           return <Tag color="default">Legacy</Tag>;
         }
-        const isPaid = record.TRANGTHAI_CHITRA === 'Đã chi trả' || isPeriodLocked;
-        return isPaid ? (
-          <Tag color="success">{t('status.paid')}</Tag>
-        ) : (
-          <Tag color="warning">{t('status.unpaid')}</Tag>
-        );
+        if (isPeriodLocked) {
+          return <Tag color="processing">Đã chốt sổ (Chờ chi trả)</Tag>;
+        }
+        return <Tag color="warning">{t('status.unpaid')}</Tag>;
       },
     },
     {
@@ -395,110 +399,142 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   ];
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      {/* 1. EXECUTIVE PAYROLL TOTALS STRIP */}
-      <div
-        style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-          borderRadius: 12,
-          padding: '24px 28px',
-          color: '#fff',
-        }}
-      >
-        <Row align="middle" justify="space-between" gutter={[16, 16]} style={{ marginBottom: 20 }}>
-          <Col xs={24} sm={12}>
-            <Title level={4} style={{ color: '#fff', margin: 0 }}>
-              {t('payroll.pageTitle')}
-            </Title>
-            <Text style={{ color: '#94a3b8', fontSize: 13 }}>
-              {currentKyCong
-                ? t('payroll.payslipPeriodHeader', { month: currentKyCong.THANG ?? 0, year: currentKyCong.NAM ?? 0 })
-                : ''}
-            </Text>
-          </Col>
-
-          <Col xs={24} sm={12} style={{ textAlign: 'right' }}>
-            <Space wrap>
-              <Text style={{ color: '#e2e8f0' }}>{t('common.period')}:</Text>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
+      {/* 1. EXECUTIVE PAGE HEADER */}
+      <PageHeader
+        title={t('payroll.pageTitle') || 'Bảng Lương & Chi Trả Thu Nhập'}
+        subtitle={
+          currentKyCong
+            ? t('payroll.payslipPeriodHeader', { month: currentKyCong.THANG ?? 0, year: currentKyCong.NAM ?? 0 })
+            : 'Tổng hợp thu nhập, phụ cấp, tăng ca, bảo hiểm, thuế TNCN và thực lĩnh theo kỳ công'
+        }
+        breadcrumbs={[
+          { title: 'Công & lương' },
+          { title: 'Bảng lương' },
+        ]}
+        extra={
+          <Space wrap size="middle">
+            <Space>
+              <Text strong>{t('common.period')}:</Text>
               <Select
                 value={selectedKyCong}
                 onChange={onSelectKyCong}
-                style={{ width: 150 }}
+                style={{ width: 140 }}
                 options={kyCongList.map((kc) => ({
                   value: kc.MAKYCONG,
                   label: `${kc.THANG}/${kc.NAM}`,
                 }))}
               />
-              {((canEdit ? canEdit('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
-                (canAdd ? canAdd('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
-                (!canEdit && !canAdd && hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG'))) && (
-                <Button
-                  type="primary"
-                  icon={<CalculatorOutlined />}
-                  onClick={onTinhLuong}
-                  loading={tinhLuongLoading}
-                  style={{ background: '#10b981', borderColor: '#10b981', fontWeight: 600 }}
-                >
-                  {t('payroll.btnCalculatePayroll')}
-                </Button>
-              )}
             </Space>
-          </Col>
-        </Row>
+            {((canEdit ? canEdit('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
+              (canAdd ? canAdd('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
+              (!canEdit && !canAdd && hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG'))) && (
+              <Button
+                type="primary"
+                icon={<CalculatorOutlined />}
+                onClick={onTinhLuong}
+                loading={tinhLuongLoading}
+                style={{ background: tokens.btnPrimaryBg, borderColor: tokens.btnPrimaryBg, fontWeight: 600, borderRadius: 8 }}
+              >
+                {t('payroll.btnCalculatePayroll')}
+              </Button>
+            )}
+          </Space>
+        }
+      />
 
-        {/* 5 KPI METRICS */}
-        <Row gutter={[16, 16]}>
-          <Col xs={12} sm={8} lg={4}>
-            <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('dashboard.statTotalEmployees')}</div>
-              <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', marginTop: 4 }}>
-                {totals.count}
-              </div>
+      {/* 2. 5 KPI METRICS */}
+      <Row gutter={[14, 14]}>
+        <Col xs={12} sm={8} lg={4}>
+          <div
+            style={{
+              background: tokens.cardBg,
+              border: `1px solid ${tokens.borderSubtle}`,
+              padding: '14px 16px',
+              borderRadius: 10,
+              boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+            }}
+          >
+            <div style={{ color: tokens.textSecondary, fontSize: 12, fontWeight: 500 }}>{t('dashboard.statTotalEmployees')}</div>
+            <div style={{ fontSize: 22, fontWeight: 700, color: tokens.textPrimary, marginTop: 4 }}>
+              {totals.count}
             </div>
-          </Col>
+          </div>
+        </Col>
 
-          <Col xs={12} sm={8} lg={5}>
-            <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('payroll.colTotalIncome')}</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#60a5fa', marginTop: 4 }}>
-                {totals.totalGross.toLocaleString('vi-VN')} đ
-              </div>
+        <Col xs={12} sm={8} lg={5}>
+          <div
+            style={{
+              background: tokens.cardBg,
+              border: `1px solid ${tokens.borderSubtle}`,
+              padding: '14px 16px',
+              borderRadius: 10,
+              boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+            }}
+          >
+            <div style={{ color: tokens.textSecondary, fontSize: 12, fontWeight: 500 }}>{t('payroll.colTotalIncome')}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: tokens.chartBlue, marginTop: 4 }}>
+              {totals.totalGross.toLocaleString('vi-VN')} đ
             </div>
-          </Col>
+          </div>
+        </Col>
 
-          <Col xs={12} sm={8} lg={5}>
-            <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('payroll.colInsurance')}</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#f87171', marginTop: 4 }}>
-                -{totals.totalBhxh.toLocaleString('vi-VN')} đ
-              </div>
+        <Col xs={12} sm={8} lg={5}>
+          <div
+            style={{
+              background: tokens.cardBg,
+              border: `1px solid ${tokens.borderSubtle}`,
+              padding: '14px 16px',
+              borderRadius: 10,
+              boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+            }}
+          >
+            <div style={{ color: tokens.textSecondary, fontSize: 12, fontWeight: 500 }}>{t('payroll.colInsurance')}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: tokens.dangerText, marginTop: 4 }}>
+              -{totals.totalBhxh.toLocaleString('vi-VN')} đ
             </div>
-          </Col>
+          </div>
+        </Col>
 
-          <Col xs={12} sm={8} lg={4}>
-            <div style={{ background: 'rgba(255,255,255,0.08)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#94a3b8', fontSize: 12 }}>{t('payroll.colTax')}</div>
-              <div style={{ fontSize: 20, fontWeight: 700, color: '#f87171', marginTop: 4 }}>
-                -{totals.totalTax.toLocaleString('vi-VN')} đ
-              </div>
+        <Col xs={12} sm={8} lg={4}>
+          <div
+            style={{
+              background: tokens.cardBg,
+              border: `1px solid ${tokens.borderSubtle}`,
+              padding: '14px 16px',
+              borderRadius: 10,
+              boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+            }}
+          >
+            <div style={{ color: tokens.textSecondary, fontSize: 12, fontWeight: 500 }}>{t('payroll.colTax')}</div>
+            <div style={{ fontSize: 20, fontWeight: 700, color: tokens.warningText, marginTop: 4 }}>
+              -{totals.totalTax.toLocaleString('vi-VN')} đ
             </div>
-          </Col>
+          </div>
+        </Col>
 
-          <Col xs={24} sm={8} lg={6}>
-            <div style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.3)', padding: '12px 14px', borderRadius: 8 }}>
-              <div style={{ color: '#a7f3d0', fontSize: 12 }}>{t('payroll.colNetSalary')}</div>
-              <div style={{ fontSize: 22, fontWeight: 800, color: '#34d399', marginTop: 4 }}>
-                {totals.totalNet.toLocaleString('vi-VN')} đ
-              </div>
+        <Col xs={24} sm={8} lg={6}>
+          <div
+            style={{
+              background: tokens.successBg,
+              border: `1px solid ${tokens.borderSubtle}`,
+              padding: '14px 16px',
+              borderRadius: 10,
+              boxShadow: isDark ? 'none' : '0 1px 3px rgba(0,0,0,0.02)',
+            }}
+          >
+            <div style={{ color: tokens.successText, fontSize: 12, fontWeight: 600 }}>{t('payroll.colNetSalary')}</div>
+            <div style={{ fontSize: 22, fontWeight: 800, color: tokens.successText, marginTop: 4 }}>
+              {totals.totalNet.toLocaleString('vi-VN')} đ
             </div>
-          </Col>
-        </Row>
-      </div>
+          </div>
+        </Col>
+      </Row>
 
-      {/* 2. FILTER & TOOLBAR */}
+      {/* 3. FILTER & TOOLBAR */}
       <Card
         bordered={false}
-        style={{ borderRadius: borderRadiusLG, border: '1px solid #e2e8f0' }}
+        style={{ borderRadius: borderRadiusLG, background: tokens.cardBg, border: `1px solid ${tokens.borderSubtle}` }}
       >
         <div
           style={{
@@ -597,7 +633,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
             : undefined
         }
       />
-    </Space>
+    </div>
   );
 };
 

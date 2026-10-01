@@ -262,13 +262,13 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       open={visible}
       onCancel={onClose}
       footer={
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#94a3b8' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#94a3b8', flexWrap: 'wrap', gap: 6 }}>
           <span>
             Dùng phím <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>↑</kbd>{' '}
             <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>↓</kbd> để di chuyển,{' '}
             <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>Enter</kbd> để chọn
           </span>
-          <span>Phím tắt toàn cục: <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>Ctrl + K</kbd></span>
+          <span>Phím tắt: <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>Ctrl + K</kbd></span>
         </div>
       }
       closable={false}

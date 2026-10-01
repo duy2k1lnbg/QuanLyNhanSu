@@ -17,6 +17,7 @@ namespace DA
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public TB_NHANVIEN()
         {
+            this.TB_BANGCONG = new HashSet<TB_BANGCONG>();
             this.TB_BAOHIEM = new HashSet<TB_BAOHIEM>();
             this.TB_DIEUCHUYEN_NHANVIEN = new HashSet<TB_DIEUCHUYEN_NHANVIEN>();
             this.TB_HOPDONG = new HashSet<TB_HOPDONG>();
@@ -27,6 +28,17 @@ namespace DA
             this.TB_TANGCA = new HashSet<TB_TANGCA>();
             this.TB_UNGLUONG = new HashSet<TB_UNGLUONG>();
             this.TB_BANGLUONG = new HashSet<TB_BANGLUONG>();
+            this.TB_CHAMCONG_KQ_NGAY = new HashSet<TB_CHAMCONG_KQ_NGAY>();
+            this.TB_LICH_LAMVIEC = new HashSet<TB_LICH_LAMVIEC>();
+            this.TB_NGUOI_PHU_THUOC = new HashSet<TB_NGUOI_PHU_THUOC>();
+            this.TB_USER_EMPLOYEE_MAPPING = new HashSet<TB_USER_EMPLOYEE_MAPPING>();
+            this.TB_NHANVIEN_BAOHIEM_THAM_GIA = new HashSet<TB_NHANVIEN_BAOHIEM_THAM_GIA>();
+            this.TB_NHANVIEN_CONG_DOAN_THAM_GIA = new HashSet<TB_NHANVIEN_CONG_DOAN_THAM_GIA>();
+            this.TB_NHANVIEN_THUE = new HashSet<TB_NHANVIEN_THUE>();
+            this.TB_QUYET_TOAN_THUE_NAM = new HashSet<TB_QUYET_TOAN_THUE_NAM>();
+            this.TB_YEUCAU_DIEUCHINHCONG = new HashSet<TB_YEUCAU_DIEUCHINHCONG>();
+            this.TB_YEUCAU_NGHIPHEP = new HashSet<TB_YEUCAU_NGHIPHEP>();
+            this.TB_YEUCAU_TANGCA = new HashSet<TB_YEUCAU_TANGCA>();
         }
     
         public decimal MANV { get; set; }
@@ -53,8 +65,10 @@ namespace DA
         public Nullable<decimal> DELETED_BY { get; set; }
         public Nullable<System.DateTime> DELETED_DATE { get; set; }
         public Nullable<int> LOAI_NV { get; set; }
+        public string EMPLOYEE_CODE { get; set; }
     
-        public virtual TB_BANGCONG TB_BANGCONG { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_BANGCONG> TB_BANGCONG { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_BAOHIEM> TB_BAOHIEM { get; set; }
         public virtual TB_BOPHAN TB_BOPHAN { get; set; }
@@ -84,5 +98,27 @@ namespace DA
         public virtual ICollection<TB_UNGLUONG> TB_UNGLUONG { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TB_BANGLUONG> TB_BANGLUONG { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_CHAMCONG_KQ_NGAY> TB_CHAMCONG_KQ_NGAY { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_LICH_LAMVIEC> TB_LICH_LAMVIEC { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_NGUOI_PHU_THUOC> TB_NGUOI_PHU_THUOC { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_USER_EMPLOYEE_MAPPING> TB_USER_EMPLOYEE_MAPPING { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_NHANVIEN_BAOHIEM_THAM_GIA> TB_NHANVIEN_BAOHIEM_THAM_GIA { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_NHANVIEN_CONG_DOAN_THAM_GIA> TB_NHANVIEN_CONG_DOAN_THAM_GIA { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_NHANVIEN_THUE> TB_NHANVIEN_THUE { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_QUYET_TOAN_THUE_NAM> TB_QUYET_TOAN_THUE_NAM { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_YEUCAU_DIEUCHINHCONG> TB_YEUCAU_DIEUCHINHCONG { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_YEUCAU_NGHIPHEP> TB_YEUCAU_NGHIPHEP { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<TB_YEUCAU_TANGCA> TB_YEUCAU_TANGCA { get; set; }
     }
 }

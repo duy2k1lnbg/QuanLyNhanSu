@@ -195,7 +195,7 @@ namespace Bu.CLASS_CHAMCONG
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var rawList = db.TB_PHUCAP.ToList();
                 list.Clear();
@@ -261,7 +261,7 @@ namespace Bu.CLASS_CHAMCONG
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 var rawItem = getItemPC(id);
                 if (rawItem != null)
