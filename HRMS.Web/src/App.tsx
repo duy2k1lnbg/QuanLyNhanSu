@@ -119,7 +119,6 @@ export function App() {
   // Bảng lương & Chấm công
   const [bangLuongList, setBangLuongList] = useState<BangLuongDTO[]>([]);
   const [bangLuongLoading, setBangLuongLoading] = useState<boolean>(false);
-  const [tinhLuongLoading, setTinhLuongLoading] = useState<boolean>(false);
   const [chamCongList, setChamCongList] = useState<KyCongChiTietDTO[]>([]);
   const [loaiCaList, setLoaiCaList] = useState<LoaiCaDTO[]>([]);
   const [chamCongLoading, setChamCongLoading] = useState<boolean>(false);
@@ -219,17 +218,6 @@ export function App() {
     }
   };
 
-  const fetchKyCongList = async () => {
-    try {
-      const res = await api.get<KyCongDTO[]>('/bangluong/kycong');
-      if (res.data && Array.isArray(res.data)) {
-        setKyCongList(res.data);
-      }
-    } catch {
-      // ignore
-    }
-  };
-
   const fetchBangLuong = async (makycong: number) => {
     if (!makycong) return;
     setBangLuongLoading(true);
@@ -243,20 +231,6 @@ export function App() {
       // ignore
     } finally {
       setBangLuongLoading(false);
-    }
-  };
-
-  const handleTinhLuong = async () => {
-    if (!selectedKyCong) return;
-    setTinhLuongLoading(true);
-    try {
-      await api.post(`/bangluong/tinhluong?makycong=${selectedKyCong}`);
-      notification.success({ message: 'Thành công', description: 'Đã tính toán bảng lương tự động cho toàn bộ nhân sự!' });
-      fetchBangLuong(selectedKyCong);
-    } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể tính lương lúc này.' });
-    } finally {
-      setTinhLuongLoading(false);
     }
   };
 
@@ -537,7 +511,7 @@ export function App() {
     handleNavigate(route);
   };
 
-  // Chưa đăng nhập -> hiển thị màn hình Login
+  // Landing page giữ Welcome Intro theo tab trước khi hiển thị gallery.
   if (!currentUser) {
     return (
       <AppThemeProvider locale={antdLocale}>
@@ -653,16 +627,9 @@ export function App() {
                 }}
                 bangLuongList={bangLuongList}
                 bangLuongLoading={bangLuongLoading}
-                tinhLuongLoading={tinhLuongLoading}
-                onTinhLuong={handleTinhLuong}
                 onRefresh={() => fetchBangLuong(selectedKyCong)}
-                hasRight={hasRight}
-                canAdd={checkCanAdd}
-                canEdit={checkCanEdit}
-                canDelete={checkCanDelete}
                 canPrint={checkCanPrint}
                 danhMuc={danhMuc}
-                onRefreshKyCong={fetchKyCongList}
               />
             )}
 

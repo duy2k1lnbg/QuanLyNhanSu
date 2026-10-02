@@ -1,551 +1,502 @@
 /* =============================================================================
-   CINEMATIC 9-IMAGE HERO GALLERY (V6)
-   - Chữ ở góc trên bên trái, phông chữ điện ảnh cao cấp (Lora Serif Italic + Cinzel)
-   - 3D Coverflow CHO RA GÓC DƯỚI BÊN TRÁI & HƠI NHỎ LẠI (Bottom-Left Compact Coverflow)
-   - Kích thước thẻ và cụm điều hướng nhỏ gọn, tinh tế, vừa vặn
-   - Nâng cao vị trí để không bao giờ bị mép dưới che khuất
-   - Cụm điều khiển ở dưới hẳn các thẻ ảnh (dạng Ảnh 3: < ● ● ═════ ● ● ● ● ● ● >), không đè lấp chữ hay khung viền
-   - Hiệu ứng chữ gõ Typewriter streaming mượt mà
-   - Tự động chuyển frame sau đúng 3s kể từ khi gõ xong chữ
-   - ZERO MARQUEE
+   TRYHARDAGAIN CINEMATIC HERO GALLERY - FOREST GREEN THEME
+   - Serif Cream Typography (Lora 500-600)
+   - Warm Sunlight & Forest Backdrop
+   - 5 Flat Horizontal Thumbnails with Active Border
+   - Calm, Slow, Serene Animations ("các hiệu ứng chậm 1 chút")
    ============================================================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Lora:ital,wght@0,500;0,600;0,700;1,400;1,500;1,600;1,700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Lora:ital,wght@0,500;0,600;0,700;1,400;1,500;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
-.cinematic-hero-root-v2 {
+.tryhard-hero-root {
   position: relative;
   width: 100%;
-  height: calc(100vh - 72px);
-  min-height: 620px;
-  max-height: 980px;
-  background-color: #06080e;
+  min-height: clamp(520px, 50vw, 680px);
+  background-color: #121F17;
   overflow: hidden;
   user-select: none;
   outline: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding-top: clamp(64px, 8vw, 84px);
 }
 
-/* 1. BACKGROUND CONTAINER & CROSSFADE AMBIENT */
-.v2-bg-container {
+/* 1. BACKGROUND VIEWPORT & SLIDES */
+.hero-background-viewport {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   z-index: 1;
+  overflow: hidden;
 }
 
-.v2-bg-item {
+.hero-bg-slide {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   background-size: cover;
-  background-position: center;
   background-repeat: no-repeat;
   opacity: 0;
-  transform: scale(1.05);
-  transition: opacity 0.85s cubic-bezier(0.4, 0, 0.2, 1), transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(1.025);
+  transition: opacity 1.45s cubic-bezier(0.2, 0.8, 0.2, 1), transform 2.4s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
-.v2-bg-item.is-active {
+.hero-bg-slide.is-active {
   opacity: 1;
   transform: scale(1);
   z-index: 2;
 }
 
-/* 2. CINEMATIC DARK VIGNETTE OVERLAY */
-.v2-vignette-overlay {
+/* 2. GRADIENT SCRIM (ENSURES CREAM TEXT LEGIBILITY AGAINST FOREST) */
+.hero-gradient-scrim {
   position: absolute;
   inset: 0;
   z-index: 3;
   pointer-events: none;
-  background: 
-    radial-gradient(circle at 25% 65%, rgba(6, 8, 14, 0.25) 0%, rgba(6, 8, 14, 0.88) 100%),
-    linear-gradient(to right, rgba(6, 8, 14, 0.94) 0%, rgba(6, 8, 14, 0.6) 45%, rgba(6, 8, 14, 0.82) 100%),
-    linear-gradient(to bottom, rgba(6, 8, 14, 0.85) 0%, transparent 35%, rgba(6, 8, 14, 0.94) 100%);
+  background:
+    radial-gradient(ellipse at 78% 40%, rgba(18, 31, 23, 0.08) 0%, rgba(18, 31, 23, 0.50) 100%),
+    linear-gradient(to right, rgba(18, 31, 23, 0.86) 0%, rgba(18, 31, 23, 0.66) 42%, rgba(18, 31, 23, 0.15) 78%, rgba(18, 31, 23, 0.42) 100%),
+    linear-gradient(to bottom, rgba(18, 31, 23, 0.8) 0%, transparent 22%, transparent 72%, rgba(18, 31, 23, 0.98) 100%);
 }
 
-/* 3. CHỮ Ở GÓC TRÊN BÊN TRÁI (Top-Left Editorial Quote Header) */
-.v2-quote-top-left {
-  position: absolute;
-  top: clamp(32px, 5vh, 58px);
-  left: clamp(24px, 4vw, 65px);
-  max-width: clamp(350px, 48vw, 700px);
-  z-index: 15;
+/* 3. HERO CONTENT CONTAINER */
+.hero-content-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 5vw, 64px) clamp(36px, 5vw, 56px) clamp(20px, 5vw, 64px);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: clamp(24px, 4vw, 38px);
+}
+
+/* 4. QUOTE BLOCK */
+.hero-quote-block {
+  max-width: clamp(480px, 60vw, 760px);
   text-align: left;
-  pointer-events: auto;
-  animation: quoteTopLeftEnter 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-@keyframes quoteTopLeftEnter {
-  0% {
-    opacity: 0;
-    transform: translateY(-16px);
-    filter: blur(4px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-  }
-}
-
-/* Tag Pill: Font Cinzel phong cách điện ảnh cao cấp */
-.v2-tag-pill {
+.hero-tag-row {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 5px 14px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
+  gap: 14px;
   margin-bottom: 14px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 
-.v2-tag-pill .tag-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #38bdf8;
-  box-shadow: 0 0 10px #38bdf8;
-}
-
-.v2-tag-pill .tag-text {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 2.2px;
-  color: #f8fafc;
-  text-transform: uppercase;
-  font-family: 'Cinzel', 'Plus Jakarta Sans', -apple-system, sans-serif;
-}
-
-.v2-quote-body {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  min-height: 105px;
-}
-
-/* PHÔNG CHỮ ĐIỆN ẢNH NGHỆ THUẬT: LORA SERIF ITALIC */
-.v2-main-quote {
-  margin: 0;
-  padding: 0;
-  font-family: 'Lora', 'Playfair Display', Georgia, serif;
-  font-style: italic;
-  font-size: clamp(20px, 2.2vw, 34px);
+.hero-tag-text {
+  font-family: 'Cinzel', 'Lora', serif;
+  font-size: 13px;
   font-weight: 600;
-  line-height: 1.54;
-  color: #ffffff;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.95), 0 2px 8px rgba(0, 0, 0, 0.85);
-  letter-spacing: 0.01em;
-  text-rendering: optimizeLegibility;
-  font-feature-settings: "liga" 1, "kern" 1;
-}
-
-.v2-main-quote.is-japanese {
-  font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
-  font-style: normal;
-  font-size: clamp(16px, 1.75vw, 25px);
-  font-weight: 600;
-  line-height: 1.68;
-  letter-spacing: 0.5px;
-}
-
-/* TYPEWRITER CURSOR */
-.typewriter-cursor {
-  display: inline-block;
-  color: #38bdf8;
-  font-weight: 300;
-  font-style: normal;
-  margin-left: 4px;
-  animation: cursorBlink 0.75s infinite;
-  text-shadow: 0 0 8px #38bdf8;
-}
-
-@keyframes cursorBlink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-.v2-sub-quote {
-  margin: 0;
-  padding: 0;
-  font-family: 'Lora', Georgia, serif;
-  font-style: italic;
-  font-size: clamp(13.5px, 1.2vw, 16.5px);
-  color: #cbd5e1;
-  line-height: 1.6;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
-  opacity: 0;
-  transform: translateY(6px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-.v2-sub-quote.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.v2-why-not-you-highlight {
-  display: inline-block;
-  font-family: 'Cinzel', 'Plus Jakarta Sans', -apple-system, sans-serif;
-  font-size: clamp(26px, 3.2vw, 44px);
-  font-weight: 900;
   letter-spacing: 3px;
+  color: var(--slide-accent, #DCC58E);
   text-transform: uppercase;
-  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fef08a 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  filter: drop-shadow(0 4px 18px rgba(245, 158, 11, 0.55));
-  margin-top: 4px;
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
-.v2-why-not-you-highlight.is-revealed {
-  opacity: 1;
-  transform: translateY(0);
+.hero-tag-line {
+  width: 44px;
+  height: 1px;
+  background-color: var(--slide-accent, #DCC58E);
+  opacity: 0.6;
 }
 
-/* 4. CHO RA GÓC DƯỚI BÊN TRÁI & HƠI NHỎ LẠI (Bottom-Left Compact 3D Coverflow) */
-.v2-coverflow-bottom-left,
-.v2-coverflow-bottom-center,
-.v2-coverflow-bottom-right {
-  position: absolute;
-  bottom: clamp(28px, 4.5vh, 48px);
-  left: clamp(24px, 4vw, 65px);
-  right: auto;
-  transform: none;
-  width: clamp(370px, 38vw, 520px);
-  z-index: 20;
+.hero-quote-text {
+  font-family: 'Lora', 'Playfair Display', Georgia, serif;
+  font-size: clamp(28px, 4.2vw, 48px);
+  font-weight: 500;
+  color: #F4EEDC;
+  line-height: 1.28;
+  margin: 0 0 14px 0;
+  padding: 0;
+  border: none;
+  animation: quoteGentleFade 1.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+.hero-quote-text.is-japanese {
+  font-size: clamp(20px, 2.6vw, 30px);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+.hero-quote-sub {
+  font-size: clamp(14px, 1.6vw, 16px);
+  line-height: 1.6;
+  color: #C5CCBF;
+  margin: 0 0 10px 0;
+  max-width: 640px;
+}
+
+.hero-quote-author {
+  font-size: 13px;
+  color: #DCC58E;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.hero-brand-subline {
+  font-size: 14px;
+  color: #C5CCBF;
+  font-style: italic;
+  opacity: 0.85;
+}
+
+/* 5. CONTROLS & THUMBNAILS BLOCK */
+.hero-controls-block {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  pointer-events: auto;
+  gap: 14px;
+  max-width: 580px;
 }
 
-/* 3D Stage: Nhỏ gọn, vừa vặn, không chiếm quá nhiều diện tích */
-.v2-stage-3d {
-  position: relative;
-  width: 100%;
-  height: clamp(190px, 16.5vw, 230px);
-  perspective: 950px;
+.hero-thumbnails-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.carousel-arrow-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(20, 33, 27, 0.65);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(244, 238, 220, 0.25);
+  color: #F4EEDC;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: visible;
-}
-
-.v2-cards-track {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Thẻ 3D nhỏ lại: width ~118px - 145px, height ~160px - 200px */
-.v2-coverflow-card {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: clamp(118px, 9.8vw, 145px);
-  height: clamp(160px, 13.5vw, 200px);
-  border-radius: 12px;
-  overflow: hidden;
-  background-color: #111827;
   cursor: pointer;
-  outline: none;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  transform-style: preserve-3d;
-  transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1), 
-              opacity 0.65s cubic-bezier(0.22, 1, 0.36, 1), 
-              box-shadow 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform, opacity;
+  padding: 0;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
 }
 
-/* 3D Offset Transforms: Thu gọn khoảng cách sải thẻ clamp(82px, 7.8vw, 108px) */
-.v2-coverflow-card {
-  transform: 
-    translateX(calc(-50% + (var(--offset) * clamp(82px, 7.8vw, 108px)))) 
-    translateY(-50%)
-    translateZ(calc(var(--offset) * var(--offset) * -22px - 12px)) 
-    scale(calc(1 - (var(--offset) * var(--offset) * 0.055))) 
-    rotateY(calc(var(--offset) * -18deg));
-  opacity: calc(1 - (var(--offset) * var(--offset) * 0.22));
-  z-index: calc(15 - (var(--offset) * var(--offset)));
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.85);
+.carousel-arrow-btn:hover {
+  background: rgba(220, 197, 142, 0.2);
+  border-color: var(--slide-accent, #DCC58E);
+  color: #FFFFFF;
+  transform: scale(1.06);
 }
 
-/* Center Active Card: Vươn cao vừa tầm, hào quang thanh mảnh */
-.v2-coverflow-card.is-center {
-  transform: translateX(-50%) translateY(-50%) translateZ(36px) scale(1.08) rotateY(0deg);
-  opacity: 1;
-  z-index: 22;
-  border: 1.5px solid rgba(255, 255, 255, 0.45);
-  box-shadow: 
-    0 18px 42px rgba(0, 0, 0, 0.92),
-    0 8px 28px rgba(37, 99, 235, 0.45),
-    0 0 20px rgba(56, 189, 248, 0.35);
-  cursor: default;
+.thumbnails-track {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
 }
 
-.v2-coverflow-card.is-hidden {
-  opacity: 0;
-  pointer-events: none;
-  transform: translateX(-50%) translateY(-50%) scale(0.3);
+.thumbnail-card {
+  width: clamp(68px, 7.5vw, 86px);
+  height: clamp(46px, 5.2vw, 58px);
+  border-radius: 5px;
+  overflow: hidden;
+  padding: 0;
+  background-color: #1A2720;
+  border: 1px solid rgba(244, 238, 220, 0.15);
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  flex-shrink: 0;
 }
 
-.v2-coverflow-card:not(.is-center):hover {
-  opacity: 0.95 !important;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.9), 0 0 14px rgba(56, 189, 248, 0.4);
+.thumbnail-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(244, 238, 220, 0.5);
 }
 
-.v2-card-img {
+.thumbnail-card.is-active {
+  border: 1.8px solid var(--slide-accent, #DCC58E);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+  transform: scale(1.04);
+}
+
+.thumbnail-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
-  transition: transform 0.6s ease;
 }
 
-.v2-coverflow-card:hover .v2-card-img {
-  transform: scale(1.06);
-}
-
-.v2-card-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(6, 8, 14, 0.9) 0%, rgba(6, 8, 14, 0.2) 55%, transparent 100%);
-  pointer-events: none;
-}
-
-/* Frosted Glass Pill Tag trên mỗi thẻ ảnh: Gọn gàng bên trong thẻ */
-.v2-card-pill {
-  position: absolute;
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 5;
-  padding: 3px 9px;
-  border-radius: 6px;
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.6);
-  white-space: nowrap;
-  pointer-events: none;
-  max-width: 90%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.v2-coverflow-card.is-center .v2-card-pill {
-  background: rgba(30, 41, 59, 0.94);
-  border-color: rgba(56, 189, 248, 0.5);
-  box-shadow: 0 3px 14px rgba(37, 99, 235, 0.45);
-}
-
-.v2-card-pill span {
-  font-family: 'Cinzel', 'Plus Jakarta Sans', sans-serif;
-  font-size: 8.5px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  color: #ffffff;
-  text-transform: uppercase;
-}
-
-/* 5. CỤM ĐIỀU KHIỂN Ở DƯỚI HẲN THẺ ẢNH (NHỎ GỌN, TINH TẾ) */
-.v2-bottom-nav-bar {
+/* 6. META ROW: DOTS + COUNTER + PLAY/PAUSE */
+.hero-meta-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: clamp(6px, 1vw, 12px);
-  margin-top: clamp(14px, 1.8vh, 20px);
-  z-index: 25;
+  gap: 16px;
+}
+
+.hero-dots-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.hero-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: rgba(244, 238, 220, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.hero-dot:hover {
+  background-color: rgba(244, 238, 220, 0.7);
+}
+
+.hero-dot.is-active {
+  width: 14px;
+  border-radius: 4px;
+  background-color: var(--slide-accent, #DCC58E);
+}
+
+.hero-counter-label {
+  font-size: 12.5px;
+  font-family: 'Plus Jakarta Sans', monospace;
+  color: #C5CCBF;
+  letter-spacing: 1px;
+}
+
+.hero-play-pause-btn {
+  background: none;
+  border: none;
+  color: rgba(244, 238, 220, 0.7);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.25s ease;
+  margin-left: auto;
+}
+
+.hero-play-pause-btn:hover {
+  color: #F4EEDC;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* 7. PROGRESS TIMELINE BAR */
+.hero-progress-track {
+  width: 100%;
+  height: 2px;
+  background-color: rgba(244, 238, 220, 0.12);
+  border-radius: 1px;
+  overflow: hidden;
   position: relative;
 }
 
-/* Nút mũi tên < và > nhỏ gọn */
-.v2-nav-arrow-btn {
-  width: clamp(30px, 2.6vw, 34px);
-  height: clamp(30px, 2.6vw, 34px);
-  border-radius: 8px;
-  background: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 11px;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.25, 1, 0.5, 1);
-  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+.hero-progress-fill {
+  height: 100%;
+  width: 100%;
+  background-color: var(--slide-accent, #DCC58E);
+  transform-origin: left center;
+  transform: scaleX(0);
+  will-change: transform;
 }
 
-.v2-nav-arrow-btn:hover {
-  background: #ffffff;
-  color: #0f172a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 255, 255, 0.3);
-}
-
-.v2-nav-arrow-btn:active {
-  transform: translateY(0);
-}
-
-/* Dãy 9 Pagination Dots nhỏ gọn thanh mảnh */
-.v2-dots-track {
-  display: flex;
-  align-items: center;
-  gap: clamp(4px, 0.5vw, 6px);
-  padding: 5px 12px;
-  background: rgba(15, 23, 42, 0.78);
-  backdrop-filter: blur(14px);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  box-shadow: 0 3px 14px rgba(0, 0, 0, 0.45);
-}
-
-.v2-dot-item {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.28);
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
-  outline: none;
-}
-
-.v2-dot-item:hover {
-  background: rgba(255, 255, 255, 0.8);
-  transform: scale(1.3);
-}
-
-/* Active dot: viên thuốc dài thanh mảnh */
-.v2-dot-item.is-active {
-  width: clamp(22px, 2.4vw, 30px);
-  height: 6px;
-  border-radius: 4px;
-  background: #2563eb;
-  box-shadow: 0 0 12px #3b82f6;
-}
-
-/* Slide Counter (04 / 09) nhỏ gọn */
-.v2-slide-counter {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #94a3b8;
-  font-family: 'Plus Jakarta Sans', monospace;
-  padding: 4px 8px;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(12px);
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-}
-
-.v2-slide-counter .current {
-  color: #ffffff;
-  font-size: 11.5px;
-}
-
-.v2-slide-counter .sep {
-  opacity: 0.5;
-}
-
-.v2-slide-counter .total {
-  color: #64748b;
-}
-
-/* =============================================================================
-   RESPONSIVE DESIGN (TABLET & MOBILE)
-   ============================================================================= */
-
-@media (max-width: 1024px) {
-  .v2-quote-top-left {
-    max-width: 58vw;
+/* 8. ATMOSPHERE ANIMATION KEYFRAMES ("chậm 1 chút") */
+@keyframes quoteGentleFade {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
   }
-  .v2-coverflow-bottom-left,
-  .v2-coverflow-bottom-center,
-  .v2-coverflow-bottom-right {
-    width: clamp(340px, 45vw, 480px);
+  100% {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
+@keyframes dustFloat {
+  0% {
+    transform: translate(0, 0) scale(0.9);
+  }
+  50% {
+    transform: translate(14px, -18px) scale(1.15);
+  }
+  100% {
+    transform: translate(-10px, -34px) scale(0.95);
+  }
+}
+
+@keyframes atmosphereBreathe {
+  0% {
+    opacity: 0.65;
+  }
+  100% {
+    opacity: 0.95;
+  }
+}
+
+@keyframes atmosphereWarmGlow {
+  0% {
+    opacity: 0.7;
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes mistDriftSlow {
+  0% {
+    transform: translateX(-40px);
+  }
+  100% {
+    transform: translateX(40px);
+  }
+}
+
+@keyframes mistDriftSlow2 {
+  0% {
+    transform: translateX(35px);
+  }
+  100% {
+    transform: translateX(-35px);
+  }
+}
+
+@keyframes cloudsFloat {
+  0% {
+    transform: translateX(-30px);
+  }
+  100% {
+    transform: translateX(30px);
+  }
+}
+
+@keyframes rainFall {
+  0% {
+    transform: translateY(-20px) rotate(12deg);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.22;
+  }
+  80% {
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(600px) rotate(12deg);
+    opacity: 0;
+  }
+}
+
+@keyframes atmosphereHorizonGlow {
+  0% {
+    opacity: 0.7;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes leafSwaySlow {
+  0% {
+    transform: rotate(-1.2deg) translateY(0);
+  }
+  100% {
+    transform: rotate(1.2deg) translateY(4px);
+  }
+}
+
+/* 9. RESPONSIVE BREAKPOINTS */
 @media (max-width: 768px) {
-  .cinematic-hero-root-v2 {
-    height: auto;
-    min-height: 600px;
-    padding-bottom: 24px;
-  }
-
-  .v2-quote-top-left {
-    position: relative;
-    top: auto;
-    left: auto;
+  .hero-quote-block {
     max-width: 100%;
-    padding: 24px 20px 0 20px;
   }
 
-  .v2-coverflow-bottom-left,
-  .v2-coverflow-bottom-center,
-  .v2-coverflow-bottom-right {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    transform: none;
-    width: 100%;
-    margin-top: 20px;
-    padding: 0 16px;
+  .hero-controls-block {
+    max-width: 100%;
   }
 
-  .v2-stage-3d {
-    height: 180px;
+  .thumbnails-track {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
   }
 
-  .v2-coverflow-card {
-    width: 105px;
-    height: 148px;
-    border-radius: 10px;
-    transform: 
-      translateX(calc(-50% + (var(--offset) * 58px))) 
-      translateY(-50%)
-      translateZ(calc(var(--offset) * var(--offset) * -16px - 8px)) 
-      scale(calc(1 - (var(--offset) * var(--offset) * 0.05))) 
-      rotateY(calc(var(--offset) * -16deg));
+  .thumbnails-track::-webkit-scrollbar {
+    display: none;
   }
 
-  .v2-coverflow-card.is-center {
-    transform: translateX(-50%) translateY(-50%) translateZ(26px) scale(1.06) rotateY(0deg);
+  .hero-dots-wrap {
+    display: none; /* Hide dots on mobile to favor larger counter & controls */
   }
 
-  .v2-bottom-nav-bar {
-    margin-top: 14px;
-    gap: 8px;
+  .hero-tag-text {
+    font-size: 11.5px;
+    letter-spacing: 2px;
   }
 }
 
-/* ACCESSIBILITY: REDUCED MOTION */
+/* 10. ACCESSIBILITY: REDUCED MOTION */
 @media (prefers-reduced-motion: reduce) {
-  .v2-bg-item {
-    transition: opacity 0.3s ease !important;
+  .hero-bg-slide,
+  .hero-quote-text,
+  .atmosphere-dawn,
+  .atmosphere-lamp,
+  .dust-particle,
+  .mist-band-1,
+  .mist-band-2,
+  .rain-streak,
+  .fern-shadow-left,
+  .fern-shadow-right {
+    animation: none !important;
+    transition: none !important;
     transform: none !important;
   }
-  .v2-coverflow-card {
-    transition: transform 0.2s ease, opacity 0.2s ease !important;
-  }
-  .v2-quote-top-left {
-    animation: none !important;
-  }
+}
+
+/* Reserve the final text layout while graphemes are revealed. */
+.hero-quote-text,
+.hero-typewriter-sub { position: relative; }
+.hero-text-reserve { display: block; visibility: hidden; }
+.hero-text-typed { position: absolute; inset: 0; }
+.hero-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+.hero-typewriter-cursor {
+  display: inline-block;
+  width: 2px;
+  height: .85em;
+  margin-left: 5px;
+  vertical-align: -.02em;
+  background: var(--slide-accent);
+  animation: heroCursorBreathe 1.1s ease-in-out infinite alternate;
+}
+.hero-quote-author { opacity: 0; transition: opacity 1s ease; }
+.hero-quote-author.is-revealed { opacity: 1; }
+.tryhard-hero-root { user-select: auto; }
+.hero-background-viewport, .thumbnails-track { user-select: none; }
+.hero-tag-text { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; letter-spacing: 2.6px; }
+.hero-brand-subline, .hero-quote-sub, .hero-play-pause-btn { font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif; }
+.hero-dot { display: block; border: 0; padding: 0; position: relative; }
+.hero-dot::after { content: ''; position: absolute; inset: -7px -3px; }
+.hero-play-pause-btn { min-height: 44px; }
+.hero-counter-label { font-variant-numeric: tabular-nums; }
+.carousel-arrow-btn { width: 40px; height: 40px; }
+.tryhard-hero-root[data-intro-pending='true'] .hero-content-container { opacity: 0; }
+.tryhard-hero-root[data-intro-pending='false'] .hero-tag-row { animation: quoteGentleFade 1.25s ease 150ms both; }
+.tryhard-hero-root[data-intro-pending='false'] .hero-controls-block { animation: quoteGentleFade 1.4s ease 450ms both; }
+.tryhard-hero-root[data-atmosphere-paused='true'] .slide-atmosphere-container * { animation-play-state: paused !important; }
+.slide-atmosphere-container .dust-particle { animation-duration: 28s !important; }
+.slide-atmosphere-container .mist-band-1 { animation-duration: 46s !important; }
+.slide-atmosphere-container .mist-band-2 { animation-duration: 56s !important; }
+.slide-atmosphere-container .rain-streak { animation-duration: 4.8s !important; }
+@keyframes heroCursorBreathe { from { opacity: .25; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .tryhard-hero-root[data-intro-pending='false'] .hero-tag-row,
+  .tryhard-hero-root[data-intro-pending='false'] .hero-controls-block,
+  .hero-typewriter-cursor { animation: none !important; }
+  .hero-quote-author { transition: none; }
+  .hero-typewriter-cursor { display: none; }
 }

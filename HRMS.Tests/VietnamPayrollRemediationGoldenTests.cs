@@ -266,6 +266,87 @@ namespace Bu.Tests
         }
 
         [Test]
+        public void SAL_06_Occurrence_Deduction_100k_Reduces_NetPay_Exactly_100k_And_Sets_KhoanTruKhac()
+        {
+            var input = BaseInput();
+            input.RewardsAndDisciplines.Add(new RewardDisciplineInput
+            {
+                SOQUYETDINH = "QD-KL-100K",
+                LOAI = 2,
+                SOTIEN = 100000m,
+                LYDO = "Khấu trừ phát sinh"
+            });
+
+            var res = Calculate(input);
+
+            // 1. KhoanTruKhac must equal 100,000
+            Assert.AreEqual(100000m, res.KhoanTruKhac);
+
+            // 2. NetPay must be reduced by exactly 100,000 (22,751,500 - 100,000 = 22,651,500)
+            Assert.AreEqual(22751500m - 100000m, res.NetPay);
+
+            // 3. DetailItems must contain the deduction under KHAU_TRU
+            var item = res.DetailItems.FirstOrDefault(x => x.NHOM_KHOAN_MUC == "KHAU_TRU" && x.MA_KHOAN_MUC == "KHAU_TRU_PHAT_SINH");
+            Assert.IsNotNull(item, "Detail item for deduction occurrence must exist");
+            Assert.AreEqual(100000m, item.THANH_TIEN);
+            Assert.AreEqual(0, item.TINH_VAO_DONG_BHXH);
+            Assert.AreEqual(0, item.TINH_THUE_TNCN);
+        }
+
+        [Test]
+        public void SAL_07_Occurrence_Income_100k_Increases_Gross_And_KhoanCongKhac()
+        {
+            var input = BaseInput();
+            input.RewardsAndDisciplines.Add(new RewardDisciplineInput
+            {
+                SOQUYETDINH = "QD-KT-100K",
+                LOAI = 1,
+                SOTIEN = 100000m,
+                LYDO = "Thưởng thành tích phát sinh"
+            });
+
+            var res = Calculate(input);
+
+            // 1. Gross earnings must increase by 100,000 (26,000,000 + 100,000 = 26,100,000)
+            Assert.AreEqual(26100000m, res.GrossEarnings);
+
+            // 2. KhoanCongKhac must include 100,000
+            Assert.AreEqual(100000m, res.KhoanCongKhac);
+
+            // 3. DetailItems must contain reward under KHEN_THUONG
+            var item = res.DetailItems.FirstOrDefault(x => x.NHOM_KHOAN_MUC == "KHEN_THUONG" && x.MA_KHOAN_MUC == "TIEN_KHEN_THUONG");
+            Assert.IsNotNull(item, "Detail item for reward occurrence must exist");
+            Assert.AreEqual(100000m, item.THANH_TIEN);
+        }
+
+        [Test]
+        public void SAL_08_Occurrence_Both_Income_And_Deduction_Calculated_Without_Double_Counting()
+        {
+            var input = BaseInput();
+            input.RewardsAndDisciplines.Add(new RewardDisciplineInput
+            {
+                SOQUYETDINH = "QD-KT-100K",
+                LOAI = 1,
+                SOTIEN = 100000m,
+                LYDO = "Thưởng"
+            });
+            input.RewardsAndDisciplines.Add(new RewardDisciplineInput
+            {
+                SOQUYETDINH = "QD-KL-100K",
+                LOAI = 2,
+                SOTIEN = 100000m,
+                LYDO = "Khấu trừ"
+            });
+
+            var res = Calculate(input);
+
+            Assert.AreEqual(100000m, res.KhoanCongKhac);
+            Assert.AreEqual(100000m, res.KhoanTruKhac);
+            Assert.AreEqual(1, res.DetailItems.Count(x => x.MA_KHOAN_MUC == "TIEN_KHEN_THUONG"));
+            Assert.AreEqual(1, res.DetailItems.Count(x => x.MA_KHOAN_MUC == "KHAU_TRU_PHAT_SINH"));
+        }
+
+        [Test]
         public void OT_07_Extension_Without_Notification_Marked_Unnotified()
         {
             // OT beyond 200 hours without notification filed -> UNNOTIFIED_EXTENSION
@@ -297,6 +378,118 @@ namespace Bu.Tests
         }
 
         [Test]
+        public void Phase1_24HoursPaidLeave_OnlyIncreasesPaidDaysOnce()
+        {
+            // Base: 26 standard days, 26,000,000 VND -> 1,000,000 VND / day
+            // Case A: 20 actual work days, 0 leave days
+            var inputA = BaseInput();
+            inputA.ActualDaysWorked = 20m;
+            inputA.LeaveDaysWithPay = 0m;
+            var resA = Calculate(inputA);
+            Assert.AreEqual(20000000m, resA.GrossEarnings);
+
+            // Case B: 20 actual work days, 3 days paid leave (24 hours) => Total days = 23
+            var inputB = BaseInput();
+            inputB.ActualDaysWorked = 23m; // 20 worked + 3 leave
+            inputB.LeaveDaysWithPay = 3m; // 3 days * 8h = 24h
+            var resB = Calculate(inputB);
+
+            // Paid days must be exactly 20 + 3 = 23 days (1,000,000 * 23 = 23,000,000 VND)
+            // It must NOT double-count to 20 + 3 + 3 = 26 days
+            Assert.AreEqual(23000000m, resB.GrossEarnings);
+
+            // Standard wage should be 20,000,000 and Leave wage should be 3,000,000
+            var stdWageItem = resB.DetailItems.FirstOrDefault(d => d.MA_KHOAN_MUC == "LUONG_CONG_THUCTE");
+            var leaveWageItem = resB.DetailItems.FirstOrDefault(d => d.MA_KHOAN_MUC == "LUONG_NGAY_PHEP");
+            Assert.IsNotNull(stdWageItem);
+            Assert.IsNotNull(leaveWageItem);
+            Assert.AreEqual(20000000m, stdWageItem.THANH_TIEN);
+            Assert.AreEqual(3000000m, leaveWageItem.THANH_TIEN);
+            Assert.AreEqual(20m, stdWageItem.SO_LUONG);
+            Assert.AreEqual(3m, leaveWageItem.SO_LUONG);
+        }
+
+        [Test]
+        public void Phase1_1HourUnpaidLeave_OnlyReducesSalaryOnce()
+        {
+            // 25 full work days + 1 day with 7h worked and 1h unpaid leave (7/8 = 0.875 công)
+            // Total actual work days = 25.875 công
+            var input = BaseInput();
+            input.ActualDaysWorked = 25.875m;
+            input.LeaveDaysWithPay = 0m;
+            var res = Calculate(input);
+
+            // Base salary = 26,000,000. Daily rate = 1,000,000. Hourly rate = 125,000.
+            // 25.875 days * 1,000,000 = 25,875,000 (reduced by exactly 125,000 for 1h unpaid leave)
+            Assert.AreEqual(25875000m, res.GrossEarnings);
+            var stdWageItem = res.DetailItems.FirstOrDefault(d => d.MA_KHOAN_MUC == "LUONG_CONG_THUCTE");
+            Assert.IsNotNull(stdWageItem);
+            Assert.AreEqual(25875000m, stdWageItem.THANH_TIEN);
+            Assert.AreEqual(25.875m, stdWageItem.SO_LUONG);
+        }
+
+        [Test]
+        public void Phase1_DetailItems_SumEqualsGrossEarnings()
+        {
+            var input = BaseInput();
+            input.ActualDaysWorked = 22m;
+            input.LeaveDaysWithPay = 2m;
+            input.NightShiftDays = 3m;
+            input.Allowances.Add(new AllowanceItemInput
+            {
+                IDPC = 1,
+                TENPC = "Phụ cấp chức vụ",
+                SOTIEN = 1500000m,
+                TINH_BHXH = 1,
+                TINH_THUE = 1
+            });
+            input.Allowances.Add(new AllowanceItemInput
+            {
+                IDPC = 2,
+                TENPC = "Phụ cấp ăn ca",
+                SOTIEN = 730000m,
+                TINH_BHXH = 0,
+                TINH_THUE = 0,
+                SO_TIEN_MIEN_THUE = 730000m
+            });
+
+            var res = Calculate(input);
+            // Sum of earning detail items must match GrossEarnings exactly
+            var earningItems = res.DetailItems.Where(d => d.NHOM_KHOAN_MUC == "LUONG_CHINH" || d.NHOM_KHOAN_MUC == "PHU_CAP" || d.NHOM_KHOAN_MUC == "TANG_CA" || d.NHOM_KHOAN_MUC == "KHEN_THUONG");
+            decimal detailSum = earningItems.Sum(d => d.THANH_TIEN);
+            Assert.AreEqual(res.GrossEarnings, detailSum);
+        }
+
+        [Test]
+        public void Phase2_SalaryIncrease_HistoricalPeriodUnchanged()
+        {
+            // Period 2026-01: Base salary = 20,000,000
+            var janInput = BaseInput();
+            janInput.NAM = 2026;
+            janInput.THANG = 1;
+            janInput.MAKYCONG = 202601;
+            janInput.BaseSalary = 20000000m;
+            janInput.ActualDaysWorked = 26m;
+            janInput.LeaveDaysWithPay = 0m;
+            var janResult = Calculate(janInput);
+
+            // Salary increase happens in February 2026 to 25,000,000
+            // Period 2026-03: Base salary = 25,000,000
+            var marInput = BaseInput();
+            marInput.NAM = 2026;
+            marInput.THANG = 3;
+            marInput.MAKYCONG = 202603;
+            marInput.BaseSalary = 25000000m;
+            marInput.ActualDaysWorked = 26m;
+            marInput.LeaveDaysWithPay = 0m;
+            var marResult = Calculate(marInput);
+
+            Assert.AreEqual(20000000m, janResult.GrossEarnings, "January GrossEarnings must remain 20M regardless of later increase");
+            Assert.AreEqual(25000000m, marResult.GrossEarnings, "March GrossEarnings must reflect new 25M base salary");
+        }
+
+        [Test]
+        [Explicit("Requires Phase 2A schema migration applied to Oracle DB")]
         public void INT_01_ExecuteFullPayrollRecalculation_Period202602_SucceedsForAllEmployees()
         {
             var engine = new PayrollEngine();
@@ -308,6 +501,7 @@ namespace Bu.Tests
         }
 
         [Test]
+        [Explicit("Requires Phase 2A schema migration applied to Oracle DB")]
         public void INT_02_ExecuteFullPayrollRecalculation_Period202601_SucceedsForAllEmployees()
         {
             var engine = new PayrollEngine();

@@ -87,6 +87,33 @@ namespace Bu.CLASS_CHAMCONG
     public static class AttendanceCalculationHelper
     {
         /// <summary>
+        /// Trích xuất ConnectionString từ DbContext giữ nguyên mật khẩu cho kết nối trực tiếp ODP.NET Oracle
+        /// </summary>
+        public static string GetStoreConnectionString(MyEntities db = null)
+        {
+            bool disposeDb = false;
+            if (db == null)
+            {
+                db = new MyEntities();
+                disposeDb = true;
+            }
+            try
+            {
+                var objContext = ((System.Data.Entity.Infrastructure.IObjectContextAdapter)db).ObjectContext;
+                var entityConn = objContext.Connection as System.Data.Entity.Core.EntityClient.EntityConnection;
+                if (entityConn != null && entityConn.StoreConnection != null)
+                {
+                    return entityConn.StoreConnection.ConnectionString;
+                }
+                return db.Database.Connection.ConnectionString;
+            }
+            finally
+            {
+                if (disposeDb) db.Dispose();
+            }
+        }
+
+        /// <summary>
         /// Tải danh sách tất cả các phiên bản ca đang hoạt động
         /// </summary>
         public static List<ShiftInfo> LoadAllShifts()
@@ -94,47 +121,63 @@ namespace Bu.CLASS_CHAMCONG
             var result = new List<ShiftInfo>();
             try
             {
-                using (var db = new MyEntities())
+                string connStr = GetStoreConnectionString();
+                using (var conn = new Oracle.ManagedDataAccess.Client.OracleConnection(connStr))
                 {
-                    var pbs = (from pb in db.TB_CA_PHIENBAN
-                               join ca in db.TB_LOAICA on pb.IDLOAICA equals ca.IDLOAICA into caGroup
-                               from ca in caGroup.DefaultIfEmpty()
-                               where pb.TRANG_THAI == "ACTIVE" || pb.TRANG_THAI == null
-                               orderby pb.IDLOAICA, pb.IDCAPHIENBAN
-                               select new
-                               {
-                                   pb.IDCAPHIENBAN,
-                                   pb.IDLOAICA,
-                                   pb.TEN_PHIENBAN,
-                                   TenLoaiCa = ca != null ? ca.TENLOAICA : "",
-                                   pb.TONG_GIAY_CHUAN,
-                                   pb.CONG_QUY_DOI,
-                                   pb.TRANG_THAI
-                               }).ToList();
-
-                    var allKhungGio = db.TB_CA_KHUNGGIO.OrderBy(k => k.IDCAPHIENBAN).ThenBy(k => k.STT).ToList();
-
-                    foreach (var pb in pbs)
+                    conn.Open();
+                    using (var cmd = conn.CreateCommand())
                     {
-                        var shift = new ShiftInfo
+                        cmd.CommandText = @"
+                            SELECT pb.IDCAPHIENBAN, pb.IDLOAICA, pb.TEN_PHIENBAN, 
+                                   NVL(ca.TENLOAICA, ''), pb.TONG_GIAY_CHUAN, pb.CONG_QUY_DOI, pb.TRANG_THAI
+                            FROM HR.TB_CA_PHIENBAN pb
+                            LEFT JOIN HR.TB_LOAICA ca ON pb.IDLOAICA = ca.IDLOAICA
+                            WHERE pb.TRANG_THAI = 'ACTIVE' OR pb.TRANG_THAI IS NULL
+                            ORDER BY pb.IDLOAICA, pb.IDCAPHIENBAN";
+                        using (var r = cmd.ExecuteReader())
                         {
-                            IdCaPhienBan = pb.IDCAPHIENBAN,
-                            IdLoaiCa = pb.IDLOAICA,
-                            TenPhienBan = pb.TEN_PHIENBAN,
-                            TenLoaiCa = pb.TenLoaiCa,
-                            TongGiayChuan = pb.TONG_GIAY_CHUAN,
-                            CongQuyDoi = pb.CONG_QUY_DOI,
-                            TrangThai = pb.TRANG_THAI,
-                            Frames = allKhungGio.Where(k => k.IDCAPHIENBAN == pb.IDCAPHIENBAN).Select(k => new ShiftFrameInfo
+                            while (r.Read())
                             {
-                                Stt = k.STT,
-                                BatDauPhut = k.BATDAU_PHUT,
-                                KetThucPhut = k.KETTHUC_PHUT,
-                                LoaiKhungGio = k.LOAI_KHUNGGIO,
-                                BatBuocQuetThe = k.BAT_BUOC_QUET_THE
-                            }).ToList()
-                        };
-                        result.Add(shift);
+                                result.Add(new ShiftInfo
+                                {
+                                    IdCaPhienBan = Convert.ToInt64(r[0]),
+                                    IdLoaiCa = Convert.ToInt32(r[1]),
+                                    TenPhienBan = r[2]?.ToString() ?? "",
+                                    TenLoaiCa = r[3]?.ToString() ?? "",
+                                    TongGiayChuan = r[4] != DBNull.Value ? Convert.ToInt32(r[4]) : 28800,
+                                    CongQuyDoi = r[5] != DBNull.Value ? Convert.ToDecimal(r[5]) : 1.0m,
+                                    TrangThai = r[6]?.ToString() ?? "ACTIVE",
+                                    Frames = new List<ShiftFrameInfo>()
+                                });
+                            }
+                        }
+
+                        if (result.Count > 0)
+                        {
+                            cmd.CommandText = @"
+                                SELECT IDCAPHIENBAN, STT, BATDAU_PHUT, KETTHUC_PHUT, LOAI_KHUNGGIO, BAT_BUOC_QUET_THE
+                                FROM HR.TB_CA_KHUNGGIO
+                                ORDER BY IDCAPHIENBAN, STT";
+                            using (var r = cmd.ExecuteReader())
+                            {
+                                while (r.Read())
+                                {
+                                    long idCa = Convert.ToInt64(r[0]);
+                                    var shift = result.FirstOrDefault(s => s.IdCaPhienBan == idCa);
+                                    if (shift != null)
+                                    {
+                                        shift.Frames.Add(new ShiftFrameInfo
+                                        {
+                                            Stt = Convert.ToInt32(r[1]),
+                                            BatDauPhut = Convert.ToInt32(r[2]),
+                                            KetThucPhut = Convert.ToInt32(r[3]),
+                                            LoaiKhungGio = r[4]?.ToString(),
+                                            BatBuocQuetThe = r[5] != DBNull.Value && Convert.ToInt32(r[5]) == 1
+                                        });
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -228,18 +271,27 @@ namespace Bu.CLASS_CHAMCONG
 
             try
             {
-                using (var db = new MyEntities())
+                string connStr = GetStoreConnectionString();
+                using (var conn = new Oracle.ManagedDataAccess.Client.OracleConnection(connStr))
                 {
-                    DateTime dateOnly = date.Date;
-                    var lich = db.TB_LICH_LAMVIEC
-                        .Where(l => l.MANV == manv && DbFunctions.TruncateTime(l.NGAY) == dateOnly)
-                        .OrderByDescending(l => l.IDLICH)
-                        .FirstOrDefault();
-
-                    if (lich != null && lich.IDCAPHIENBAN.HasValue)
+                    conn.Open();
+                    using (var cmd = conn.CreateCommand())
                     {
-                        var found = allShifts.FirstOrDefault(s => s.IdCaPhienBan == lich.IDCAPHIENBAN.Value);
-                        if (found != null) return found;
+                        cmd.CommandText = @"
+                            SELECT IDCAPHIENBAN 
+                            FROM HR.TB_LICH_LAMVIEC 
+                            WHERE MANV = :p_manv AND TRUNC(NGAY) = :p_ngay 
+                            ORDER BY IDLICH DESC";
+                        cmd.Parameters.Add("p_manv", (decimal)manv);
+                        cmd.Parameters.Add("p_ngay", date.Date);
+
+                        var val = cmd.ExecuteScalar();
+                        if (val != null && val != DBNull.Value)
+                        {
+                            long caId = Convert.ToInt64(val);
+                            var found = allShifts.FirstOrDefault(s => s.IdCaPhienBan == caId);
+                            if (found != null) return found;
+                        }
                     }
                 }
             }

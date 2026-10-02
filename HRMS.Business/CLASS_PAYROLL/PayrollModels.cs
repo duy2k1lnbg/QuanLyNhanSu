@@ -72,6 +72,7 @@ namespace Bu.CLASS_PAYROLL
         public decimal GIAM_TRU_PHU_THUOC_THANG { get; set; }
         public decimal GIAM_TRU_BAN_THAN_NAM { get; set; }
         public decimal GIAM_TRU_PHU_THUOC_NAM { get; set; }
+        public decimal MUC_MIEN_THUE_AN_CA { get; set; } = 730000m;
         public string TRANG_THAI { get; set; }
     }
 
@@ -319,4 +320,32 @@ namespace Bu.CLASS_PAYROLL
         public DateTime? FINISHED_AT { get; set; }
         public string EXECUTED_BY { get; set; }
     }
+
+    public enum PolicyGroupStatus
+    {
+        Ready,             // Bảng tồn tại và có chính sách hiệu lực
+        NoPolicyRecord,    // Bảng tồn tại nhưng rỗng
+        NoEffectivePolicy, // Bảng có dữ liệu nhưng không có bản ghi nào còn hiệu lực
+        ObjectNotFound,    // Bảng/View không tồn tại hoặc không có quyền (ORA-00942)
+        ColumnMismatch,    // Bảng thiếu cột hoặc sai kiểu dữ liệu (ORA-00904)
+        ConnectionFailed,  // Không thể kết nối cơ sở dữ liệu
+        QueryFailed        // Lỗi truy vấn khác
+    }
+
+    public class PolicyGroupInspectionResult
+    {
+        public string GroupKey { get; set; }
+        public string GroupName { get; set; }
+        public string PrimaryTable { get; set; }
+        public List<string> DependentTables { get; set; } = new List<string>();
+        public PolicyGroupStatus Status { get; set; }
+        public string StatusDisplay { get; set; }
+        public string LegalReference { get; set; }
+        public string ValueSummary { get; set; }
+        public string EffectivePeriod { get; set; }
+        public string CorrelationId { get; set; }
+        public string TechnicalError { get; set; }
+        public string ActionRequired { get; set; }
+    }
 }
+

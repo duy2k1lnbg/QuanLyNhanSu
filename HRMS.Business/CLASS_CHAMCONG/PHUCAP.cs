@@ -10,6 +10,9 @@ using System.Runtime.Remoting.Contexts;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Bu.CLASS_SYSTEM;
+using Bu.CLASS_PAYROLL;
+using Oracle.ManagedDataAccess.Client;
 
 namespace Bu.CLASS_CHAMCONG
 {
@@ -314,7 +317,7 @@ namespace Bu.CLASS_CHAMCONG
             return dict;
         }
 
-        public void SavePhuCapHopDong(int manv, Dictionary<int, decimal> allowances, int iduser = 1)
+        public void SavePhuCapHopDong(int manv, Dictionary<int, decimal> allowances, int iduser = 1, DateTime? tuNgay = null, DateTime? denNgay = null)
         {
             if (allowances == null) return;
 
@@ -329,6 +332,8 @@ namespace Bu.CLASS_CHAMCONG
                     existing.SOTIEN = sotien;
                     existing.UPDATED_BY = iduser;
                     existing.UPDATED_DATE = DateTime.Now;
+                    if (tuNgay.HasValue) existing.TU_NGAY = tuNgay.Value;
+                    if (denNgay.HasValue) existing.DEN_NGAY = denNgay;
                 }
                 else
                 {
@@ -339,7 +344,10 @@ namespace Bu.CLASS_CHAMCONG
                         SOTIEN = sotien,
                         GHICHU = "Phụ cấp theo hợp đồng",
                         CREATED_BY = iduser,
-                        CREATED_DATE = DateTime.Now
+                        CREATED_DATE = DateTime.Now,
+                        TU_NGAY = tuNgay,
+                        DEN_NGAY = denNgay,
+                        CACH_TINH = "CO_DINH_THANG"
                     });
                 }
             }
@@ -367,6 +375,60 @@ namespace Bu.CLASS_CHAMCONG
                 });
             }
             db.SaveChanges();
+        }
+
+        public void UpdateCatalogItem(int idpc, string newTenPc, int userId)
+        {
+            if (UserSession.CurrentUser == null || UserSession.CurrentUser.IDUSER <= 0)
+                throw new BusinessException("UNAUTHENTICATED", "Người dùng chưa đăng nhập hoặc phiên làm việc đã hết hạn.");
+
+            if (!UserSession.IsAdmin && !UserSession.CanEdit("F_CC_BANGLUONG"))
+                throw new BusinessException("PERMISSION_DENIED", "Bạn không có quyền chỉnh sửa danh mục phụ cấp lương.");
+
+            if (string.IsNullOrWhiteSpace(newTenPc))
+                throw new BusinessException("VALIDATION_ERROR", "Tên phụ cấp không được để trống.", "TENPC");
+
+            using (var dbLocal = new MyEntities())
+            using (var tx = dbLocal.Database.BeginTransaction())
+            {
+                try
+                {
+                    var pc = dbLocal.TB_PHUCAP.FirstOrDefault(x => x.IDPC == idpc);
+                    if (pc == null)
+                        throw new BusinessException("NOT_FOUND", $"Không tìm thấy phụ cấp mã [{idpc}].");
+
+                    string oldName = pc.TENPC;
+                    pc.TENPC = newTenPc.Trim();
+                    dbLocal.SaveChanges();
+
+                    string auditUser = UserSession.CurrentUser.FULLNAME ?? ("User " + userId);
+                    dbLocal.Database.ExecuteSqlCommand(@"
+                        INSERT INTO TB_SYS_LOG (
+                            MANV_THUCHIEN, TEN_THUCHIEN, HANHDONG, TEN_BANG, ID_BAN_GHI,
+                            DU_LIEU_CU, DU_LIEU_MOI, THOIGIAN, MODULE_NAME, CHANGED_FIELDS
+                        ) VALUES (
+                            :p0, :p1, :p2, :p3, :p4,
+                            :p5, :p6, CURRENT_TIMESTAMP, :p7, :p8
+                        )",
+                        new OracleParameter("p0", userId),
+                        new OracleParameter("p1", auditUser),
+                        new OracleParameter("p2", "CAP_NHAT_PHUCAP"),
+                        new OracleParameter("p3", "TB_PHUCAP"),
+                        new OracleParameter("p4", idpc.ToString()),
+                        new OracleParameter("p5", oldName ?? ""),
+                        new OracleParameter("p6", pc.TENPC),
+                        new OracleParameter("p7", "CAUHINH_LUONG"),
+                        new OracleParameter("p8", $"TENPC: {oldName} -> {pc.TENPC}")
+                    );
+
+                    tx.Commit();
+                }
+                catch
+                {
+                    tx.Rollback();
+                    throw;
+                }
+            }
         }
     }
 }

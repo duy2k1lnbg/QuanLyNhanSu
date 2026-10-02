@@ -35,6 +35,8 @@ namespace QLyNSu.FORM_CHAMCONG
             this.btnTinhLuong = new DevExpress.XtraBars.BarButtonItem();
             this.btnIn = new DevExpress.XtraBars.BarButtonItem();
             this.btnDong = new DevExpress.XtraBars.BarButtonItem();
+            this.btnChiTiet = new DevExpress.XtraBars.BarButtonItem();
+            this.btnPhatSinh = new DevExpress.XtraBars.BarButtonItem();
             this.barDockControlTop = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlLeft = new DevExpress.XtraBars.BarDockControl();
@@ -96,8 +98,10 @@ namespace QLyNSu.FORM_CHAMCONG
             this.barManager1.Items.AddRange(new DevExpress.XtraBars.BarItem[] {
             this.btnTinhLuong,
             this.btnIn,
-            this.btnDong});
-            this.barManager1.MaxItemId = 3;
+            this.btnDong,
+            this.btnChiTiet,
+            this.btnPhatSinh});
+            this.barManager1.MaxItemId = 5;
             // 
             // bar1
             // 
@@ -109,9 +113,27 @@ namespace QLyNSu.FORM_CHAMCONG
             this.bar1.DockStyle = DevExpress.XtraBars.BarDockStyle.Top;
             this.bar1.LinksPersistInfo.AddRange(new DevExpress.XtraBars.LinkPersistInfo[] {
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnTinhLuong, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
+            new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnChiTiet, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
+            new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnPhatSinh, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnIn, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnDong, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph)});
             this.bar1.Text = "Tools";
+            // 
+            // btnPhatSinh
+            // 
+            this.btnPhatSinh.Caption = "Phát Sinh Lương";
+            this.btnPhatSinh.Id = 4;
+            this.btnPhatSinh.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnTinhLuong.ImageOptions.SvgImage")));
+            this.btnPhatSinh.Name = "btnPhatSinh";
+            this.btnPhatSinh.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnPhatSinh_ItemClick);
+            // 
+            // btnChiTiet
+            // 
+            this.btnChiTiet.Caption = "Chi Tiết Lương";
+            this.btnChiTiet.Id = 3;
+            this.btnChiTiet.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnIn.ImageOptions.SvgImage")));
+            this.btnChiTiet.Name = "btnChiTiet";
+            this.btnChiTiet.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnChiTiet_ItemClick);
             // 
             // btnTinhLuong
             // 
@@ -669,6 +691,8 @@ namespace QLyNSu.FORM_CHAMCONG
         private DevExpress.XtraBars.BarButtonItem btnTinhLuong;
         private DevExpress.XtraBars.BarButtonItem btnIn;
         private DevExpress.XtraBars.BarButtonItem btnDong;
+        private DevExpress.XtraBars.BarButtonItem btnChiTiet;
+        private DevExpress.XtraBars.BarButtonItem btnPhatSinh;
         private DevExpress.XtraBars.BarDockControl barDockControlTop;
         private DevExpress.XtraBars.BarDockControl barDockControlBottom;
         private DevExpress.XtraBars.BarDockControl barDockControlLeft;

@@ -48,6 +48,8 @@ namespace Bu.CLASS_CHAMCONG
         private readonly TimeSegmentationEngine _engine;
         private readonly string _connectionString;
 
+        public string ConnectionString => _connectionString;
+
         public AttendancePublishingService(string connectionString = null)
         {
             _engine = new TimeSegmentationEngine();

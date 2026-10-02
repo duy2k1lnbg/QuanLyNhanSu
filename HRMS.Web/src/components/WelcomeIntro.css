@@ -1,0 +1,132 @@
+/* Preserve the original fly-in letters, with a slower forest/photo presentation. */
+.welcome-intro-overlay.welcome-forest.theme-dark,
+.welcome-intro-overlay.welcome-forest.theme-light {
+  background: #14211b;
+  color: #f4eedc;
+  transition: opacity 1000ms ease, transform 1000ms ease;
+}
+.welcome-forest-background {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+  animation: welcomeForestArrival 5.4s ease-out both;
+}
+.welcome-forest-scrim {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(14, 28, 20, .57), rgba(10, 21, 15, .90));
+}
+.welcome-forest .welcome-cyber-grid,
+.welcome-forest .welcome-aurora-mesh { display: none; }
+.welcome-forest .welcome-content-container { gap: 0; }
+.welcome-author-portrait {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 30px;
+  animation: welcomeElementReveal 1400ms ease-out 800ms both;
+}
+.welcome-author-portrait img {
+  width: clamp(82px, 12vw, 116px);
+  aspect-ratio: 1;
+  object-fit: cover;
+  object-position: center 42%;
+  border: 1px solid rgba(232, 213, 162, .72);
+  border-radius: 50%;
+  box-shadow: 0 12px 38px rgba(0, 0, 0, .32);
+}
+.welcome-author-portrait span {
+  color: #e3dfce;
+  font: 500 13px/1.5 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  letter-spacing: .8px;
+}
+.welcome-forest .welcome-letter {
+  font-family: 'Lora', Georgia, serif;
+  font-size: clamp(34px, 9vw, 94px);
+  font-weight: 600;
+  background: linear-gradient(120deg, #f7f0dd, #dec68a 55%, #eff1de);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 3px 18px rgba(0, 0, 0, .25));
+  text-shadow: none;
+  animation-duration: 1600ms;
+}
+.welcome-forest .welcome-letter-0 { animation-name: welcomeFlyFromLeft; animation-delay: 0ms; }
+.welcome-forest .welcome-letter-1 { animation-name: welcomeFlyFromTopLeft; animation-delay: 180ms; }
+.welcome-forest .welcome-letter-2 { animation-name: welcomeFlyFromBottom; animation-delay: 360ms; }
+.welcome-forest .welcome-letter-3 { animation-name: welcomeFlyFromTop; animation-delay: 540ms; }
+.welcome-forest .welcome-letter-4 { animation-name: welcomeFlyFromBottom; animation-delay: 720ms; }
+.welcome-forest .welcome-letter-5 { animation-name: welcomeFlyFromTopRight; animation-delay: 900ms; }
+.welcome-forest .welcome-letter-6 { animation-name: welcomeFlyFromRight; animation-delay: 1080ms; }
+.welcome-forest .welcome-shimmer-sweep { animation-duration: 1400ms; animation-delay: 2800ms; }
+.welcome-forest .welcome-laser-line {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d9c48c, #f4eedc, #d9c48c, transparent);
+  box-shadow: 0 0 16px rgba(220, 197, 142, .20);
+  animation-duration: 1200ms;
+  animation-delay: 2800ms;
+}
+.welcome-forest .welcome-brand-badge {
+  background: rgba(27, 45, 34, .75);
+  border: 1px solid rgba(220, 197, 142, .30);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, .20);
+  animation-duration: 1100ms;
+  animation-delay: 3400ms;
+}
+.welcome-forest .welcome-logo-icon {
+  background: #45634d;
+  box-shadow: none;
+  animation-duration: 4s;
+}
+.welcome-forest .welcome-brand-text {
+  background: none;
+  -webkit-text-fill-color: #f4eedc;
+  color: #f4eedc;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  font-weight: 600;
+}
+.welcome-forest .welcome-brand-tag {
+  background: rgba(220, 197, 142, .10);
+  border-color: rgba(220, 197, 142, .25);
+  color: #e6d4a5;
+}
+.welcome-forest .welcome-subtitle {
+  color: #d5dfcf;
+  text-shadow: none;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+  animation-duration: 1100ms;
+  animation-delay: 4000ms;
+}
+.welcome-forest .welcome-bottom-hint {
+  color: #d5dfcf;
+  width: calc(100% - 40px);
+  justify-content: center;
+  text-align: center;
+  animation-duration: 800ms;
+  animation-delay: 4500ms;
+}
+.welcome-forest .welcome-skip-btn {
+  color: #f4eedc !important;
+  background: rgba(27, 45, 34, .65) !important;
+  border-color: rgba(220, 197, 142, .35) !important;
+}
+.welcome-forest .welcome-hint-dot { background: #dcc58e; box-shadow: none; }
+.welcome-forest .welcome-hint-ping { border-color: #dcc58e; animation-duration: 3.5s; }
+@keyframes welcomeForestArrival {
+  from { opacity: .2; transform: scale(1.04); }
+  to { opacity: .85; transform: scale(1); }
+}
+@media (max-width: 640px) {
+  .welcome-author-portrait { margin-bottom: 24px; }
+  .welcome-forest .welcome-brand-badge { gap: 8px; padding: 8px 14px; }
+  .welcome-forest .welcome-brand-tag { display: none; }
+  .welcome-forest .welcome-subtitle { max-width: 320px; padding: 0 14px; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .welcome-forest * { animation: none !important; transition: none !important; }
+}

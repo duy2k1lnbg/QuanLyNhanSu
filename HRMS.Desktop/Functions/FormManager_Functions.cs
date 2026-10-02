@@ -33,11 +33,24 @@ namespace QLyNSu
                 }
             }
 
-            Form f = (Form)Activator.CreateInstance(typeForm);
-            TranslationManager.Translate(f);
-            f.MdiParent = _parentForm;
-            f.Show();
-            ActivateForm(f);
+            Form f = null;
+            try
+            {
+                f = (Form)Activator.CreateInstance(typeForm);
+                TranslationManager.Translate(f);
+                f.MdiParent = _parentForm;
+                f.Show();
+                ActivateForm(f);
+            }
+            catch (Exception ex)
+            {
+                if (f != null)
+                {
+                    try { f.Dispose(); } catch { }
+                }
+                string msg = Bu.CLASS_SYSTEM.ErrorHelper.ResolveUserFriendlyMessage(ex, "mở chức năng");
+                DevExpress.XtraEditors.XtraMessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         public async Task OpenFormWithSplashScreen(Type typeForm)
@@ -61,7 +74,8 @@ namespace QLyNSu
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}");
+                string msg = Bu.CLASS_SYSTEM.ErrorHelper.ResolveUserFriendlyMessage(ex, "mở chức năng");
+                DevExpress.XtraEditors.XtraMessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {
@@ -121,7 +135,8 @@ namespace QLyNSu
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Có lỗi xảy ra: {ex.Message}");
+                string msg = Bu.CLASS_SYSTEM.ErrorHelper.ResolveUserFriendlyMessage(ex, "mở chức năng");
+                DevExpress.XtraEditors.XtraMessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             finally
             {
@@ -151,14 +166,26 @@ namespace QLyNSu
                 }
             }
 
-            Form f = (Form)Activator.CreateInstance(typeForm);
-            TranslationManager.Translate(f);
-            f.MdiParent = _parentForm;
-            await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => 
+            Form f = null;
+            try
             {
-                f.Show();
-            })));
-            return f;
+                f = (Form)Activator.CreateInstance(typeForm);
+                TranslationManager.Translate(f);
+                f.MdiParent = _parentForm;
+                await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => 
+                {
+                    f.Show();
+                })));
+                return f;
+            }
+            catch
+            {
+                if (f != null)
+                {
+                    try { f.Dispose(); } catch { }
+                }
+                throw;
+            }
         }
 
         private void ActivateForm(Form frm)

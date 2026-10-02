@@ -5,6 +5,7 @@ export interface UseScrollRevealOptions {
   threshold?: number;
   rootMargin?: string;
   triggerOnce?: boolean;
+  waitForIntro?: boolean;
 }
 
 /**
@@ -13,7 +14,12 @@ export interface UseScrollRevealOptions {
  * will wait until the intro is finished/skipped before triggering their reveal.
  */
 export function useScrollReveal(options: UseScrollRevealOptions = {}) {
-  const { threshold = 0.15, rootMargin = '0px 0px -20px 0px', triggerOnce = true } = options;
+  const {
+    threshold = 0.15,
+    rootMargin = '0px 0px -20px 0px',
+    triggerOnce = true,
+    waitForIntro = true,
+  } = options;
 
   const [isRevealed, setIsRevealed] = useState<boolean>(() => {
     if (typeof window === 'undefined') return true;
@@ -69,8 +75,8 @@ export function useScrollReveal(options: UseScrollRevealOptions = {}) {
         isIntersectingRef.current = entry.isIntersecting;
 
         if (entry.isIntersecting) {
-          // If intro is still active, wait for it to complete
-          if (isIntroActiveGlobal()) {
+          // If intro is still active, wait for it to complete (only if waitForIntro is true)
+          if (waitForIntro && isIntroActiveGlobal()) {
             return;
           }
 
@@ -100,13 +106,17 @@ export function useScrollReveal(options: UseScrollRevealOptions = {}) {
       }
     };
 
-    window.addEventListener(HRMS_INTRO_EVENT, handleIntroFinished);
+    if (waitForIntro) {
+      window.addEventListener(HRMS_INTRO_EVENT, handleIntroFinished);
+    }
 
     return () => {
       observer.disconnect();
-      window.removeEventListener(HRMS_INTRO_EVENT, handleIntroFinished);
+      if (waitForIntro) {
+        window.removeEventListener(HRMS_INTRO_EVENT, handleIntroFinished);
+      }
     };
-  }, [isRevealed, threshold, rootMargin, triggerOnce]);
+  }, [isRevealed, threshold, rootMargin, triggerOnce, waitForIntro]);
 
   return {
     ref: elementRef,

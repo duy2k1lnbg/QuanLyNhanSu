@@ -179,15 +179,28 @@ export function HopDongPage({
       render: (th: string) => th || '-',
     },
     {
-      title: t('contract.colSalary'),
+      title: t('contract.colBaseSalary') || 'Lương thỏa thuận',
+      dataIndex: 'LUONG_THOA_THUAN',
+      key: 'LUONG_THOA_THUAN',
+      align: 'right',
+      render: (val?: number) => {
+        if (val !== undefined && val !== null && val > 0) {
+          return <Text strong style={{ color: '#0d9488' }}>{val.toLocaleString('vi-VN')} đ</Text>;
+        }
+        return <Text type="secondary">-</Text>;
+      },
+    },
+    {
+      title: t('contract.colSalaryCoeff') || 'Hệ số',
       dataIndex: 'HESOLUONG',
       key: 'HESOLUONG',
-      render: (h: number) => {
-        if (!h) return '-';
-        if (h > 1000) {
-          return <Tag color="geekblue">{h.toLocaleString('vi-VN')} đ</Tag>;
+      width: 80,
+      align: 'center',
+      render: (h?: number) => {
+        if (h !== undefined && h !== null && h > 0) {
+          return <Tag color="geekblue">{h}x</Tag>;
         }
-        return <Tag color="geekblue">{h}x</Tag>;
+        return <Text type="secondary">-</Text>;
       },
     },
     {
@@ -394,11 +407,14 @@ export function HopDongPage({
                   <Tag color="processing">{t('contract.statusActive')}</Tag>
                 )}
               </Descriptions.Item>
-              <Descriptions.Item label={t('contract.colSalary')}>
-                {selectedHopDong.HESOLUONG
-                  ? selectedHopDong.HESOLUONG > 1000
-                    ? `${selectedHopDong.HESOLUONG.toLocaleString('vi-VN')} đ`
-                    : `${selectedHopDong.HESOLUONG}x`
+              <Descriptions.Item label={t('contract.colBaseSalary') || 'Lương thỏa thuận'}>
+                {selectedHopDong.LUONG_THOA_THUAN && selectedHopDong.LUONG_THOA_THUAN > 0
+                  ? `${selectedHopDong.LUONG_THOA_THUAN.toLocaleString('vi-VN')} đ`
+                  : '-'}
+              </Descriptions.Item>
+              <Descriptions.Item label={t('contract.colSalaryCoeff') || 'Hệ số lương'}>
+                {selectedHopDong.HESOLUONG && selectedHopDong.HESOLUONG > 0
+                  ? `${selectedHopDong.HESOLUONG}x`
                   : '-'}
               </Descriptions.Item>
               {selectedHopDong.NOIDUNG && (

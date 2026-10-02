@@ -673,7 +673,7 @@ END;";
             int iduser, string ghiChu = null, long? idCaPhienBan = null)
         {
             var kcLock = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
-            if (kcLock != null && ((kcLock.KHOA ?? 0) == 1 || (kcLock.TRANGTHAI ?? 0) == 1))
+            if (kcLock != null && (kcLock.KHOA ?? 0) == 1)
             {
                 throw new InvalidOperationException($"Kỳ công {makycong} đã bị khóa (KHOA = 1). Bảng công chi tiết chỉ có thể xem, không thể chỉnh sửa.");
             }
@@ -685,16 +685,87 @@ END;";
                 {
                     var bcct = db.TB_BANGCONG_CHITIET.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv && x.NGAY == ngayDate);
 
-                    bool isNghiNguyenNgay = (loaiNghi == "NN");
-                    bool hasPunch = (gioVao.HasValue && gioRa.HasValue && !isNghiNguyenNgay);
+                    bool giuNguyenCong = (kyhieu == "KHONG_DOI" || string.IsNullOrEmpty(kyhieu));
+                    if (giuNguyenCong)
+                    {
+                        if (bcct != null && !string.IsNullOrEmpty(bcct.KYHIEU))
+                        {
+                            kyhieu = bcct.KYHIEU;
+                            ngayCong = bcct.NGAYCONG ?? 1m;
+                            ngayPhep = bcct.NGAYPHEP ?? 0m;
+                        }
+                        else
+                        {
+                            kyhieu = "X";
+                        }
+                    }
+
+                    bool isNghi = (kyhieu == "P" || kyhieu == "V" || kyhieu == "VR");
+                    bool isNghiNguyenNgay = (isNghi && loaiNghi == "NN");
+                    bool hasPunch = (gioVao.HasValue && gioRa.HasValue && (!isNghiNguyenNgay || giuNguyenCong));
 
                     // 0. Cập nhật phân ca nếu có chỉ định idCaPhienBan
                     if (idCaPhienBan.HasValue)
                     {
-                        var lich = db.TB_LICH_LAMVIEC.FirstOrDefault(l => l.MANV == manv && DbFunctions.TruncateTime(l.NGAY) == ngayDate);
-                        if (lich != null)
+                        try
                         {
-                            lich.IDCAPHIENBAN = idCaPhienBan.Value;
+                            var allShifts = AttendanceCalculationHelper.LoadAllShifts();
+                            var shiftObj = allShifts.FirstOrDefault(s => s.IdCaPhienBan == idCaPhienBan.Value);
+                            DateTime batDauKeHoach = ngayDate.Date.AddHours(8);
+                            DateTime ketThucKeHoach = ngayDate.Date.AddHours(17);
+                            if (shiftObj != null && shiftObj.WorkFrames.Count > 0)
+                            {
+                                var firstFrame = shiftObj.WorkFrames.First();
+                                var lastFrame = shiftObj.WorkFrames.Last();
+                                batDauKeHoach = ngayDate.Date.AddMinutes(firstFrame.BatDauPhut);
+                                ketThucKeHoach = ngayDate.Date.AddMinutes(lastFrame.KetThucPhut);
+                            }
+
+                            int updated = db.Database.ExecuteSqlCommand(@"
+                                UPDATE HR.TB_LICH_LAMVIEC 
+                                SET IDCAPHIENBAN = :p_idca,
+                                    TRANG_THAI_PHAN_CONG = 'LAM_VIEC',
+                                    BATDAU_KEHOACH = :p_start,
+                                    KETTHUC_KEHOACH = :p_end,
+                                    IDQUYDINH = NVL(IDQUYDINH, 1),
+                                    TRANG_THAI = 'PUBLISHED',
+                                    NGUON_PHAN_CONG = 'DIEU_CHINH',
+                                    TAO_BOI = :p_user
+                                WHERE MANV = :p_manv AND TRUNC(NGAY) = :p_ngay",
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p_idca", idCaPhienBan.Value),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p_start", batDauKeHoach),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p_end", ketThucKeHoach),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p_user", iduser > 0 ? (decimal)iduser : 1m),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p_manv", (decimal)manv),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p_ngay", ngayDate)
+                            );
+
+                            if (updated == 0)
+                            {
+                                string maPhanCong = $"STD_{manv}_{ngayDate:yyyyMMdd}";
+                                db.Database.ExecuteSqlCommand(@"
+                                    INSERT INTO HR.TB_LICH_LAMVIEC (
+                                        MANV, NGAY, MA_PHANCONG, SO_PHIENBAN, IDCAPHIENBAN, IDQUYDINH,
+                                        BATDAU_KEHOACH, KETTHUC_KEHOACH, TRANG_THAI_PHAN_CONG, LOAI_NGAY,
+                                        TRANG_THAI, NGUON_PHAN_CONG, TAO_BOI, LY_DO
+                                    ) VALUES (
+                                        :p_manv, :p_ngay, :p_mapc, 1, :p_idca, 1,
+                                        :p_start, :p_end,
+                                        'LAM_VIEC', 'THUONG', 'PUBLISHED', 'DIEU_CHINH', :p_user, 'Cập nhật phân ca từ chấm công'
+                                    )",
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_manv", (decimal)manv),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_ngay", ngayDate),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_mapc", maPhanCong),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_idca", idCaPhienBan.Value),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_start", batDauKeHoach),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_end", ketThucKeHoach),
+                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p_user", iduser > 0 ? (decimal)iduser : 1m)
+                                );
+                            }
+                        }
+                        catch (Exception exLich)
+                        {
+                            System.Diagnostics.Debug.WriteLine("Cập nhật TB_LICH_LAMVIEC không thành công: " + exLich.Message);
                         }
                     }
 
@@ -750,7 +821,7 @@ END;";
                     }
 
                     // Nghỉ nguyên ngày: không lưu đồng thời giờ làm được xác nhận (GIOVAO, GIORA phải NULL)
-                    if (isNghiNguyenNgay || !hasPunch)
+                    if ((isNghiNguyenNgay && !giuNguyenCong) || !hasPunch)
                     {
                         bcct.GIOVAO = null;
                         bcct.GIORA = null;
@@ -761,12 +832,18 @@ END;";
                         bcct.GIORA = $"{gioRa.Value:D2}:{phutRa.GetValueOrDefault():D2}";
                     }
 
-                    bcct.KYHIEU = kyhieu;
-                    bcct.NGAYCONG = ngayCong;
-                    bcct.NGAYPHEP = ngayPhep;
+                    if (!giuNguyenCong)
+                    {
+                        bcct.KYHIEU = kyhieu;
+                        bcct.NGAYCONG = ngayCong;
+                        bcct.NGAYPHEP = ngayPhep;
+                    }
                     bcct.UPDATED_BY = iduser;
                     bcct.UPDATED_DATE = DateTime.Now;
-                    bcct.GHICHU = ghiChu;
+                    if (!string.IsNullOrEmpty(ghiChu))
+                    {
+                        bcct.GHICHU = ghiChu;
+                    }
 
                     db.SaveChanges();
 
@@ -810,23 +887,62 @@ END;";
 
             // 5. Tự động tính toán lại phân đoạn thời gian và công bố lại cho ngày vừa cập nhật
             // Thực hiện hoàn toàn ngoài transaction của EF để nhả hết lock trước đó
-            try
+            // Chỉ công bố khi kỳ công tồn tại và nhân viên thực tế có trong TB_NHANVIEN (thỏa mãn FK18_KQ_NV)
+            if (kcLock != null && db.TB_NHANVIEN.Any(x => x.MANV == manv))
             {
-                var pubService = new AttendancePublishingService(db.Database.Connection.ConnectionString);
-                var published = pubService.PublishAttendance(new AttendancePublishRequest
+                try
                 {
-                    MaKyCong = makycong,
-                    TuNgay = ngayDate,
-                    DenNgay = ngayDate.AddDays(1),
-                    ManvList = new List<long> { manv },
-                    NguoiThucHien = iduser,
-                    GhiChu = $"Cập nhật công ngày {ngayDate:dd/MM/yyyy} từ Desktop UI"
-                });
-                if (!published.Success) throw new InvalidOperationException(published.ErrorMessage);
-            }
-            catch (Exception exPub)
-            {
-                throw new InvalidOperationException("Dữ liệu nhập đã lưu nhưng công bố lại chưa thành công. Cần xử lý trước khi chốt kỳ: " + exPub.Message, exPub);
+                    var pubService = new AttendancePublishingService();
+                    var published = pubService.PublishAttendance(new AttendancePublishRequest
+                    {
+                        MaKyCong = makycong,
+                        TuNgay = ngayDate,
+                        DenNgay = ngayDate.AddDays(1),
+                        ManvList = new List<long> { manv },
+                        NguoiThucHien = iduser,
+                        GhiChu = $"Cập nhật công ngày {ngayDate:dd/MM/yyyy} từ Desktop UI"
+                    });
+                    if (!published.Success) throw new InvalidOperationException(published.ErrorMessage);
+
+                    // Đảm bảo trạng thái công/phép thủ công do người dùng xác nhận không bị engine tự động ghi đè
+                    using (var syncConn = new Oracle.ManagedDataAccess.Client.OracleConnection(pubService.ConnectionString))
+                    {
+                        syncConn.Open();
+                        using (var cmd = new Oracle.ManagedDataAccess.Client.OracleCommand(@"
+                            UPDATE TB_BANGCONG_CHITIET 
+                            SET KYHIEU = :p_kh, NGAYCONG = :p_nc, NGAYPHEP = :p_np 
+                            WHERE MAKYCONG = :p_mkc AND MANV = :p_manv AND TRUNC(NGAY) = :p_ngay", syncConn))
+                        {
+                            cmd.BindByName = true;
+                            cmd.Parameters.Add("p_kh", kyhieu);
+                            cmd.Parameters.Add("p_nc", ngayCong);
+                            cmd.Parameters.Add("p_np", ngayPhep);
+                            cmd.Parameters.Add("p_mkc", makycong);
+                            cmd.Parameters.Add("p_manv", manv);
+                            cmd.Parameters.Add("p_ngay", ngayDate);
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        string colD = $"D{ngay}";
+                        using (var cmdKcct = new Oracle.ManagedDataAccess.Client.OracleCommand($@"
+                            UPDATE TB_KYCONGCHITIET 
+                            SET {colD} = :p_kh,
+                                TONGNGAYCONG = (SELECT NVL(SUM(NGAYCONG),0) FROM TB_BANGCONG_CHITIET WHERE MAKYCONG = :p_mkc AND MANV = :p_manv),
+                                NGAYPHEP = (SELECT NVL(SUM(NGAYPHEP),0) FROM TB_BANGCONG_CHITIET WHERE MAKYCONG = :p_mkc AND MANV = :p_manv)
+                            WHERE MAKYCONG = :p_mkc AND MANV = :p_manv", syncConn))
+                        {
+                            cmdKcct.BindByName = true;
+                            cmdKcct.Parameters.Add("p_kh", kyhieu);
+                            cmdKcct.Parameters.Add("p_mkc", makycong);
+                            cmdKcct.Parameters.Add("p_manv", manv);
+                            cmdKcct.ExecuteNonQuery();
+                        }
+                    }
+                }
+                catch (Exception exPub)
+                {
+                    throw new InvalidOperationException("Dữ liệu nhập đã lưu nhưng công bố lại chưa thành công. Cần xử lý trước khi chốt kỳ: " + exPub.Message, exPub);
+                }
             }
         }
 
@@ -839,7 +955,8 @@ END;";
             int thang = makycong % 100;
             DateTime date = new DateTime(nam, thang, ngay);
 
-            using (var conn = new Oracle.ManagedDataAccess.Client.OracleConnection(db.Database.Connection.ConnectionString))
+            string connStr = AttendanceCalculationHelper.GetStoreConnectionString(db);
+            using (var conn = new Oracle.ManagedDataAccess.Client.OracleConnection(connStr))
             {
                 conn.Open();
                 BangCongChiTietV118Dto dto = null;

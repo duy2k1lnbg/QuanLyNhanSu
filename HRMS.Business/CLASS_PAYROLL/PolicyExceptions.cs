@@ -57,4 +57,33 @@ namespace Bu.CLASS_PAYROLL
             RuleName = ruleName;
         }
     }
+
+    public class PolicySchemaMissingException : Exception
+    {
+        public string MissingTableName { get; }
+        public string MigrationScript { get; }
+
+        public PolicySchemaMissingException(string missingTableName, string migrationScript = "apply_payroll_v1_16_objects.sql", Exception innerException = null)
+            : base($"Cơ sở dữ liệu chưa được khởi tạo bảng chính sách tính lương '{missingTableName}'. Cần thực thi script migration '{migrationScript}' trước khi tiếp tục.", innerException)
+        {
+            MissingTableName = missingTableName;
+            MigrationScript = migrationScript;
+        }
+    }
+
+    public class PolicySchemaColumnMismatchException : Exception
+    {
+        public string TableName { get; }
+        public string ReferenceId { get; }
+        public string MigrationScript { get; }
+
+        public PolicySchemaColumnMismatchException(string tableName, string referenceId, string migrationScript = "apply_payroll_v1_16_objects.sql", Exception innerException = null)
+            : base($"Bảng '{tableName}' thiếu cột hoặc không tương thích phiên bản (Mã đối chiếu: {referenceId}). Cần đối chiếu migration script '{migrationScript}'.", innerException)
+        {
+            TableName = tableName;
+            ReferenceId = referenceId;
+            MigrationScript = migrationScript;
+        }
+    }
 }
+

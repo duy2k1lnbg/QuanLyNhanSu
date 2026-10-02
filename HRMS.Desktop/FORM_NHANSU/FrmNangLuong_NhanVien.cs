@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using DA;
 using DevExpress.XtraEditors;
 using System;
@@ -225,8 +225,32 @@ namespace QLyNSu
                     _nlnv.Update(nl);
                 }
                 var hd = _hopdong.getItem(searchHopDong.EditValue.ToString());
-                hd.HESOLUONG = decimal.Parse(spHSL_new.EditValue.ToString()); ;
+                decimal oldHsl = hd.HESOLUONG ?? 1m;
+                decimal newHsl = decimal.Parse(spHSL_new.EditValue.ToString());
+                hd.HESOLUONG = newHsl;
+                if (hd.LUONG_THOA_THUAN.HasValue && oldHsl > 0 && oldHsl != newHsl)
+                {
+                    decimal newSalary = Math.Round(hd.LUONG_THOA_THUAN.Value * (newHsl / oldHsl), 0);
+                    hd.LUONG_THOA_THUAN = newSalary;
+                }
                 _hopdong.Update(hd);
+
+                // Ghi nhận lịch sử mức lương hiệu lực
+                if (hd.MANV.HasValue)
+                {
+                    try
+                    {
+                        var luongHieuLuc = new LUONG_HIEULUC();
+                        luongHieuLuc.RecordNangLuong(
+                            hd.MANV.Value,
+                            hd.SOHD,
+                            dtNgayLenLuong.Value,
+                            hd.LUONG_THOA_THUAN ?? (newHsl * 1800000m),
+                            nl.SOQDNL
+                        );
+                    }
+                    catch { }
+                }
             }
             catch (Exception ex)
             {

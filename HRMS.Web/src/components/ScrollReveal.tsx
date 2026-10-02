@@ -23,6 +23,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
   threshold = 0.15,
   rootMargin,
   triggerOnce = true,
+  waitForIntro = true,
   className = '',
   style = {},
   as: Component = 'div',
@@ -33,6 +34,7 @@ export const ScrollReveal: React.FC<ScrollRevealProps> = ({
     threshold,
     rootMargin,
     triggerOnce,
+    waitForIntro,
   });
 
   const combinedStyle: React.CSSProperties = {

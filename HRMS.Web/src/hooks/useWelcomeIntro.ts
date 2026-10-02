@@ -127,20 +127,19 @@ export function useWelcomeIntro() {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     motionQuery?.addEventListener?.('change', handleMotionChange);
 
-    // Stately, cinematic timing (~4.5s total):
-    // entering (0 -> 3800ms): CSS orchestrates gradual letter fly-in (~0-1600ms),
-    // shimmer sweep (~1700-2600ms), brand & subtitle reveal (~1800-2400ms),
-    // and majestic hold (~2400-3800ms).
-    // exiting (3800ms -> 4500ms): CSS animates smooth scale-up & dissolve of overlay (~700ms)
-    // done (4500ms): unmount & restore full interaction
+    // Forest welcome timing (~6.4s total): letters, portrait, shimmer, brand and hold.
+    // entering (0 -> 5400ms): staggered letters and portrait, then shimmer at
+    // 2800ms, brand at 3400ms, subtitle at 4000ms and a brief hold.
+    // exiting (5400ms -> 6400ms): a 1000ms dissolve restores the landing page.
+    // done (6400ms): unmount & restore full interaction
     if (state === 'entering') {
       timerRef.current = setTimeout(() => {
         setState('exiting');
-      }, 3800);
+      }, 5400);
     } else if (state === 'exiting') {
       timerRef.current = setTimeout(() => {
         finishIntro();
-      }, 700);
+      }, 1000);
     }
 
     return () => {

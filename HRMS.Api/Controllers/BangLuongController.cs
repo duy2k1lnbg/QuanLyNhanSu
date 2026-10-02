@@ -13,7 +13,6 @@ namespace HRMS_API.Controllers
     [RoutePrefix("api/bangluong")]
     public class BangLuongController : ApiController
     {
-        private readonly BANGLUONG _bangLuongBus = new BANGLUONG();
 
         /// <summary>
         /// GET: api/bangluong?makycong={makycong}
@@ -25,6 +24,18 @@ namespace HRMS_API.Controllers
         [Route("")]
         public IHttpActionResult GetBangLuong(int makycong = 0, string dept = null, string status = null)
         {
+            var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+            if (jwtUser == null)
+            {
+                return Content(System.Net.HttpStatusCode.Unauthorized, new { success = false, message = "Yêu cầu cần có mã xác thực." });
+            }
+
+            bool hasPayrollRight = jwtUser.IsAdmin || (jwtUser.Rights != null && (jwtUser.Rights.Contains("*") || jwtUser.Rights.Contains("F_CC_BANGLUONG")));
+            if (!hasPayrollRight)
+            {
+                return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bạn không có quyền quản lý bảng lương (F_CC_BANGLUONG)." });
+            }
+
             try
             {
                 using (var db = new MyEntities())
@@ -42,8 +53,7 @@ namespace HRMS_API.Controllers
                     }
 
                     var currentKc = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
-                    bool isPeriodLocked = currentKc != null && (currentKc.KHOA == 1);
-                    string defaultStatus = isPeriodLocked ? "Đã chốt" : "Chờ chi trả";
+                    string defaultStatus = "Chưa chi trả";
 
                     var raw = (from bl in db.TB_BANGLUONG
                                where makycong <= 0 || bl.MAKYCONG == makycong
@@ -136,14 +146,18 @@ namespace HRMS_API.Controllers
 
                                     if (!string.IsNullOrEmpty(snap.TRANG_THAI))
                                     {
-                                        if (snap.TRANG_THAI == "APPROVED")
+                                        if (snap.TRANG_THAI == "APPROVED" || snap.TRANG_THAI == "PUBLISHED" || snap.TRANG_THAI == "DA_DUYET")
                                             item.TRANGTHAI_CHITRA = "Đã duyệt";
+                                        else if (snap.TRANG_THAI == "PAID" || snap.TRANG_THAI == "DA_CHI_TRA")
+                                            item.TRANGTHAI_CHITRA = "Đã chi trả";
                                         else if (snap.TRANG_THAI == "CALCULATED")
-                                            item.TRANGTHAI_CHITRA = isPeriodLocked ? "Đã chốt" : "Chờ chi trả";
+                                            item.TRANGTHAI_CHITRA = "Đã tính (Chưa công bố)";
                                         else if (snap.TRANG_THAI == "LEGACY_READONLY")
                                             item.TRANGTHAI_CHITRA = "Dữ liệu lịch sử";
                                         else if (snap.TRANG_THAI == "DRAFT")
-                                            item.TRANGTHAI_CHITRA = "Chờ chi trả";
+                                            item.TRANGTHAI_CHITRA = "Bản nháp";
+                                        else
+                                            item.TRANGTHAI_CHITRA = "Chưa chi trả";
                                     }
                                 }
                                 else
@@ -200,6 +214,14 @@ namespace HRMS_API.Controllers
         [Route("chitiet")]
         public IHttpActionResult GetChiTietLuongNV(int makycong, int manv)
         {
+            var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+            if (jwtUser == null)
+            {
+                return Content(System.Net.HttpStatusCode.Unauthorized, new { success = false, message = "Yêu cầu cần có mã xác thực." });
+            }
+
+            bool hasPayrollRight = jwtUser.IsAdmin || (jwtUser.Rights != null && (jwtUser.Rights.Contains("*") || jwtUser.Rights.Contains("F_CC_BANGLUONG")));
+
             try
             {
                 using (var db = new MyEntities())
@@ -211,6 +233,25 @@ namespace HRMS_API.Controllers
                     if (bl == null)
                     {
                         return NotFound();
+                    }
+
+                    // Kiểm tra phạm vi truy cập: Nhân viên thường chỉ được xem bảng lương của chính mình đã công bố
+                    if (!hasPayrollRight)
+                    {
+                        if (!int.TryParse(jwtUser.Manv, out int callerManv) || callerManv != manv)
+                        {
+                            return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bạn chỉ được phép xem bảng lương của chính mình." });
+                        }
+
+                        var pubResult = Bu.CLASS_PAYROLL.PayrollPublicationHelper.EvaluatePublication(db, bl);
+                        if (pubResult.StatusQueryFailed)
+                        {
+                            return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = pubResult.Message });
+                        }
+                        if (!pubResult.IsPublished)
+                        {
+                            return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Bảng lương kỳ này chưa được công bố." });
+                        }
                     }
 
                     var nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == manv);
@@ -481,132 +522,5 @@ namespace HRMS_API.Controllers
                 return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi tải danh sách kỳ công." });
             }
         }
-
-        /// <summary>
-        /// POST: api/bangluong/tinhluong
-        /// Kích hoạt tính lương cho kỳ công (Yêu cầu quyền F_BANGLUONG_CALC)
-        /// </summary>
-        [HttpPost]
-        [Route("tinhluong")]
-        [JwtAuthorize(Right = "F_BANGLUONG_CALC")]
-        public IHttpActionResult TinhLuong([FromBody] TinhLuongParam param)
-        {
-            try
-            {
-                if (param == null || param.Makycong <= 0)
-                {
-                    return BadRequest("Vui lòng cung cấp mã kỳ công hợp lệ.");
-                }
-
-                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
-                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
-
-                var run = _bangLuongBus.TinhLuongKyCong(param.Makycong, currentUserId);
-                bool isSuccess = run != null && run.STATUS == "SUCCESS";
-                if (!isSuccess)
-                {
-                    return Content(System.Net.HttpStatusCode.BadRequest, new
-                    {
-                        success = false,
-                        runId = run?.RUN_ID,
-                        status = run?.STATUS,
-                        totalEmployees = run?.TOTAL_EMPLOYEES ?? 0,
-                        successCount = run?.SUCCESS_COUNT ?? 0,
-                        errorCount = run?.ERROR_COUNT ?? 0,
-                        executionType = run?.EXECUTION_TYPE,
-                        message = run?.ERROR_SUMMARY ?? "Tính toán bảng lương không thành công."
-                    });
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    runId = run.RUN_ID,
-                    status = run.STATUS,
-                    totalEmployees = run.TOTAL_EMPLOYEES,
-                    successCount = run.SUCCESS_COUNT,
-                    errorCount = run.ERROR_COUNT,
-                    executionType = run.EXECUTION_TYPE,
-                    message = $"Đã tính toán bảng lương thành công theo chính sách cho kỳ công {param.Makycong} ({run.SUCCESS_COUNT}/{run.TOTAL_EMPLOYEES} nhân sự)."
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Content(System.Net.HttpStatusCode.Conflict, new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.TraceError("Lỗi khi tính lương kỳ công: " + ex.ToString());
-                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi trong quá trình tính toán lương: " + ex.Message });
-            }
-        }
-
-        /// <summary>
-        /// POST: api/bangluong/khoa
-        /// Khóa hoặc mở khóa kỳ lương (chi trả / chờ chi trả)
-        /// </summary>
-        [HttpPost]
-        [Route("khoa")]
-        public IHttpActionResult ToggleKhoa([FromBody] KhoaKyCongParam param)
-        {
-            try
-            {
-                if (param == null || param.Makycong <= 0)
-                {
-                    return BadRequest("Vui lòng cung cấp mã kỳ công hợp lệ.");
-                }
-
-                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
-                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
-
-                var kyCongBus = new Bu.CLASS_CHAMCONG.KYCONG();
-                if (param.Khoa)
-                {
-                    kyCongBus.LockKyCong(param.Makycong, currentUserId);
-                }
-                else
-                {
-                    kyCongBus.UnlockKyCong(param.Makycong, currentUserId, "Mở khóa kỳ lương qua API");
-                }
-
-                return Ok(new
-                {
-                    success = true,
-                    makycong = param.Makycong,
-                    khoa = param.Khoa,
-                    trangthai = param.Khoa ? "Đã chốt" : "Chờ chi trả",
-                    message = param.Khoa ? $"Đã khóa sổ bảng lương kỳ {param.Makycong} thành công." : $"Đã mở khóa kỳ {param.Makycong} về trạng thái chờ chi trả."
-                });
-            }
-            catch (InvalidOperationException ex)
-            {
-                return Content(System.Net.HttpStatusCode.Conflict, new
-                {
-                    success = false,
-                    message = ex.Message
-                });
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Trace.TraceError("Lỗi khi khóa/mở khóa kỳ công: " + ex.ToString());
-                return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi khi cập nhật trạng thái kỳ công: " + ex.Message });
-            }
-        }
-    }
-
-    public class TinhLuongParam
-    {
-        public int Makycong { get; set; }
-        public int? IdUser { get; set; }
-    }
-
-    public class KhoaKyCongParam
-    {
-        public int Makycong { get; set; }
-        public bool Khoa { get; set; }
     }
 }

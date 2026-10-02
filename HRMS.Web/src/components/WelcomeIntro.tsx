@@ -2,12 +2,16 @@ import React from 'react';
 import { Button } from 'antd';
 import { CloseOutlined, ThunderboltFilled } from '@ant-design/icons';
 import { useAppTheme } from '../theme/ThemeContext';
+import { useAppLanguage } from '../services/i18n';
 import { useWelcomeIntro } from '../hooks/useWelcomeIntro';
+import { AUTHOR_INFO } from '../pages/login/types';
+import './WelcomeIntro.css';
 
 const LETTERS = ['W', 'E', 'L', 'C', 'O', 'M', 'E'];
 
 export const WelcomeIntro: React.FC = () => {
   const { isDark } = useAppTheme();
+  const { dict } = useAppLanguage();
   const { introState, isIntroActive, skipIntro } = useWelcomeIntro();
 
   if (!isIntroActive) {
@@ -28,15 +32,17 @@ export const WelcomeIntro: React.FC = () => {
 
   return (
     <div
-      className={`welcome-intro-overlay ${isDark ? 'theme-dark' : 'theme-light'} ${
+      className={`welcome-intro-overlay welcome-forest ${isDark ? 'theme-dark' : 'theme-light'} ${
         isExiting ? 'exiting' : 'entering'
       }`}
       role="dialog"
-      aria-label="Welcome to HRMS Enterprise"
+      aria-label={dict.intro.toHrms}
       aria-modal="true"
       onPointerDown={handleContainerPointerDown}
     >
-      {/* Background Cyber Starfield Texture */}
+      <img className="welcome-forest-background" src="/images/landing/project-forest.jpg" alt="" aria-hidden="true" />
+      <div className="welcome-forest-scrim" aria-hidden="true" />
+      {/* Existing letter/particle animation retained over the forest photograph. */}
       <div className="welcome-cyber-grid" aria-hidden="true" />
 
       {/* Aurora Animated Mesh Gradient Orbs */}
@@ -56,7 +62,7 @@ export const WelcomeIntro: React.FC = () => {
 
       {/* Screen Reader Only Announcement (English) */}
       <h1 className="welcome-sr-only">
-        WELCOME TO HRMS ENTERPRISE - Smart Workforce Management, Biometric Attendance, and Enterprise Payroll
+        {dict.intro.toHrms} — {dict.intro.subtitle}
       </h1>
 
       {/* Top-Right Modern Glassmorphism Skip Button */}
@@ -68,14 +74,18 @@ export const WelcomeIntro: React.FC = () => {
           skipIntro();
         }}
         icon={<CloseOutlined style={{ fontSize: 13 }} />}
-        aria-label="Skip Intro"
+        aria-label={dict.intro.skip}
       >
-        <span style={{ fontWeight: 600 }}>Skip</span>
-        <span className="welcome-skip-shortcut">Esc / Any key</span>
+        <span style={{ fontWeight: 600 }}>{dict.intro.skip}</span>
+        <span className="welcome-skip-shortcut">{dict.intro.skipShortcut}</span>
       </Button>
 
       {/* Center Cinematic Container */}
       <div className="welcome-content-container">
+        <div className="welcome-author-portrait">
+          <img src={AUTHOR_INFO.avatarUrl} alt={dict.landing.aboutAuthorName} />
+          <span>{dict.landing.aboutAuthorName} · TryHardAgain</span>
+        </div>
         {/* Animated Holographic WELCOME Letters */}
         <div className="welcome-word-row" aria-hidden="true">
           {LETTERS.map((char, index) => (
@@ -99,13 +109,13 @@ export const WelcomeIntro: React.FC = () => {
           <div className="welcome-logo-icon">
             <ThunderboltFilled style={{ fontSize: 20, color: '#ffffff' }} />
           </div>
-          <span className="welcome-brand-text">TO HRMS ENTERPRISE</span>
+          <span className="welcome-brand-text">{dict.intro.toHrms}</span>
           <span className="welcome-brand-tag">NEXT-GEN HCM</span>
         </div>
 
         {/* Enterprise English Subtitle */}
         <div className="welcome-subtitle">
-          Smart Workforce Management · Biometric Attendance · Enterprise Payroll
+          {dict.intro.subtitle}
         </div>
       </div>
 
@@ -115,7 +125,7 @@ export const WelcomeIntro: React.FC = () => {
           <span className="welcome-hint-ping" />
         </span>
         <span className="welcome-hint-text">
-          Press any key or click anywhere to continue
+          {dict.intro.hint}
         </span>
       </div>
     </div>

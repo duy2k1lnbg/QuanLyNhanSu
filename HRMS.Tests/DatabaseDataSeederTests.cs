@@ -315,5 +315,98 @@ namespace Bu.Tests
                 }
             }
         }
+
+        [Test]
+        public void Provision_All_Employees_To_Sys_User()
+        {
+            using (var db = new MyEntities())
+            {
+                // Ensure ADMIN password is "admin"
+                var admin = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "ADMIN");
+                if (admin != null)
+                {
+                    admin.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("admin");
+                    admin.DISABLED = 0;
+                    admin.CLIENT_TYPE = "ALL";
+                    admin.FAILED_LOGIN_COUNT = 0;
+                    admin.LOCKOUT_END = null;
+                }
+
+                // Also update staff users
+                var staffUsers = new[] { "nhansu", "chamcong", "baocao", "it_user" };
+                foreach (var uname in staffUsers)
+                {
+                    var u = db.TB_SYS_USER.FirstOrDefault(x => x.USERNAME == uname);
+                    if (u != null)
+                    {
+                        u.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("123456");
+                        u.DISABLED = 0;
+                    }
+                }
+                db.SaveChanges();
+
+                // Get all active employees
+                var employees = db.TB_NHANVIEN
+                    .Where(x => x.DELETED_DATE == null && (x.DATHOIVIEC == null || x.DATHOIVIEC == 0))
+                    .OrderBy(x => x.MANV)
+                    .ToList();
+
+                string defaultHash = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("123456");
+                int addedCount = 0;
+
+                foreach (var emp in employees)
+                {
+                    string username = !string.IsNullOrWhiteSpace(emp.EMPLOYEE_CODE)
+                        ? emp.EMPLOYEE_CODE.Trim()
+                        : $"NV{((long)emp.MANV):D6}";
+
+                    var existingUser = db.TB_SYS_USER.FirstOrDefault(u => u.MANV == emp.MANV || u.USERNAME == username);
+                    decimal userId;
+                    if (existingUser == null)
+                    {
+                        decimal nextId = 100000 + (long)emp.MANV;
+
+                        db.Database.ExecuteSqlCommand(@"
+                            INSERT INTO HR.TB_SYS_USER (IDUSER, USERNAME, FULLNAME, PASSWORD, MANV, DISABLED, ISGROUP, CLIENT_TYPE, MACTY, MADVI)
+                            VALUES (:p0, :p1, :p2, :p3, :p4, 0, 0, 'ALL', '1', '1')",
+                            nextId, username, emp.HOTEN ?? username, defaultHash, emp.MANV
+                        );
+                        userId = nextId;
+                        addedCount++;
+                    }
+                    else
+                    {
+                        userId = existingUser.IDUSER;
+                        if (existingUser.MANV == null)
+                        {
+                            existingUser.MANV = emp.MANV;
+                            db.SaveChanges();
+                        }
+                    }
+
+                    // Map in TB_USER_EMPLOYEE_MAPPING
+                    try
+                    {
+                        db.Database.ExecuteSqlCommand(@"
+                            MERGE INTO HR.TB_USER_EMPLOYEE_MAPPING M
+                            USING (SELECT :p0 AS USER_ID, :p1 AS EMPLOYEE_ID, 1 AS IS_MOBILE_ENABLED FROM DUAL) S
+                            ON (M.USER_ID = S.USER_ID)
+                            WHEN MATCHED THEN
+                                UPDATE SET M.EMPLOYEE_ID = S.EMPLOYEE_ID, M.IS_MOBILE_ENABLED = 1, M.UPDATED_AT = SYSDATE
+                            WHEN NOT MATCHED THEN
+                                INSERT (USER_ID, EMPLOYEE_ID, IS_MOBILE_ENABLED, CREATED_AT, UPDATED_AT)
+                                VALUES (S.USER_ID, S.EMPLOYEE_ID, 1, SYSDATE, SYSDATE)",
+                            userId, emp.MANV
+                        );
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"Mapping error for user {userId}: {ex.Message}");
+                    }
+                }
+
+                Console.WriteLine($"[OK] Provisioned {addedCount} new user accounts for employees. Total employees: {employees.Count}");
+            }
+        }
     }
 }

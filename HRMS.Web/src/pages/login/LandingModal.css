@@ -1,0 +1,149 @@
+/* Portal-safe palette shared by the login and download dialogs. */
+.landing-modal {
+  --modal-surface: #1c2d23;
+  --modal-card: #22372a;
+  --modal-text: #f4eedc;
+  --modal-muted: #c8d3c2;
+  --modal-border: #526658;
+  --modal-primary: #456650;
+  color: var(--modal-text);
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+}
+.landing-modal-light {
+  --modal-surface: #f8f5eb;
+  --modal-card: #edf0e4;
+  --modal-text: #26382c;
+  --modal-muted: #55664f;
+  --modal-border: #c3ccbb;
+}
+.landing-modal .ant-modal-content {
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--modal-border);
+  border-radius: 18px;
+  background: var(--modal-surface);
+  box-shadow: 0 24px 80px rgba(5, 20, 11, .35);
+}
+.landing-modal .ant-modal-header { margin: 0; padding: 0; }
+.landing-modal .ant-modal-body { padding: 26px 30px 30px; color: var(--modal-text); }
+.landing-modal .ant-modal-close {
+  top: 14px;
+  right: 14px;
+  color: #f4eedc;
+  background: rgba(19, 35, 25, .45);
+  border: 1px solid rgba(244, 238, 220, .20);
+  border-radius: 50%;
+}
+.landing-modal .ant-modal-close:hover { color: #fff; background: rgba(19, 35, 25, .8); }
+.landing-modal-visual {
+  position: relative;
+  padding: 30px 30px 26px;
+  background: linear-gradient(100deg, rgba(17, 35, 23, .88), rgba(17, 35, 23, .42)),
+    url('/images/landing/project-forest.jpg') center 40% / cover;
+  color: #f4eedc;
+}
+.landing-modal-kicker {
+  display: block;
+  color: #dfcb96;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 2.6px;
+  margin-bottom: 14px;
+}
+.landing-modal-visual h2 {
+  font-family: 'Lora', Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(25px, 3vw, 31px);
+  line-height: 1.3;
+  margin: 0 0 8px;
+  color: #f4eedc;
+}
+.landing-modal-visual p { color: #dbe4d2; font-size: 13px; line-height: 1.7; margin: 0; max-width: 540px; }
+.landing-modal .ant-form-item-label > label { color: var(--modal-text); font-weight: 500; }
+.landing-modal .ant-input,
+.landing-modal .ant-input-affix-wrapper { font-family: inherit; }
+.landing-modal .ant-input-prefix { color: var(--modal-muted); margin-inline-end: 10px; }
+.landing-modal .ant-input-affix-wrapper { min-height: 48px; border-color: var(--modal-border); }
+.landing-modal .ant-input-password-icon { color: var(--modal-muted); }
+.landing-modal .ant-btn-primary {
+  color: #fffaf0;
+  background: var(--modal-primary);
+  border-color: var(--modal-primary);
+  box-shadow: none;
+  font-weight: 600;
+}
+.landing-modal .ant-btn-primary:not(:disabled):hover {
+  color: #fffaf0;
+  background: #36523f;
+  border-color: #36523f;
+}
+.landing-login-submit { min-height: 50px; margin-top: 6px; }
+.landing-modal-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--modal-border);
+  color: var(--modal-muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.landing-modal-note .anticon { padding-top: 3px; color: var(--modal-muted); }
+.landing-modal .ant-alert { margin-bottom: 20px; }
+.landing-download-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.landing-download-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 22px;
+  border-radius: 12px;
+  border: 1px solid var(--modal-border);
+  background: var(--modal-card);
+  min-width: 0;
+}
+.landing-download-card.is-selected { border-color: #94a57e; }
+.landing-download-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.landing-download-icon { font-size: 28px; color: var(--modal-text); }
+.landing-download-status {
+  display: inline-block;
+  color: var(--modal-text);
+  border: 1px solid var(--modal-border);
+  border-radius: 20px;
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 4px 8px;
+}
+.landing-download-card h3 { font-size: 18px; font-weight: 600; color: var(--modal-text); margin: 0; }
+.landing-download-card p { font-size: 13px; color: var(--modal-muted); line-height: 1.75; margin: 0; }
+.landing-download-file {
+  color: var(--modal-muted);
+  font-size: 11px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  padding-top: 12px;
+  border-top: 1px solid var(--modal-border);
+  margin-top: auto;
+}
+.landing-download-card .ant-btn { width: 100%; min-height: 44px; height: auto; padding: 10px 12px; white-space: normal; }
+.landing-download-footer { display: flex; justify-content: flex-end; margin-top: 22px; }
+.landing-download-footer .ant-btn { border-color: var(--modal-border); color: var(--modal-text); background: transparent; }
+.landing-modal-note a { color: var(--modal-text); text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .landing-modal .ant-modal-body { padding: 22px 20px; }
+  .landing-modal-visual { padding: 28px 22px 24px; }
+  .landing-modal-kicker { padding-right: 34px; }
+  .landing-download-grid { grid-template-columns: minmax(0, 1fr); }
+  .landing-download-card { padding: 18px; gap: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .landing-modal * { animation: none !important; transition: none !important; }
+}
+
+/* Keep the forest input palette above the application's shared dark form rules. */
+.landing-modal { --modal-field: #16251c; }
+.landing-modal-light { --modal-field: #fffdf6; }
+.landing-modal .ant-input-affix-wrapper { background: var(--modal-field) !important; color: var(--modal-text) !important; }
+.landing-modal .ant-input-affix-wrapper .ant-input { background: transparent !important; color: var(--modal-text) !important; }
+.landing-modal .ant-input::placeholder { color: var(--modal-muted) !important; }
+.landing-modal .ant-input-affix-wrapper-focused { box-shadow: 0 0 0 3px rgba(112, 143, 119, .18) !important; }

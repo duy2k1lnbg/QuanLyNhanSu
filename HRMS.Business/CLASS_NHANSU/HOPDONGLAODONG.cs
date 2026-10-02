@@ -155,6 +155,22 @@ namespace Bu
             {
                 db.TB_HOPDONG.Add(hd);
                 db.SaveChanges();
+                if (hd.MANV.HasValue && hd.LUONG_THOA_THUAN.HasValue && hd.LUONG_THOA_THUAN.Value > 0)
+                {
+                    try
+                    {
+                        var luongHieuLuc = new LUONG_HIEULUC(db);
+                        luongHieuLuc.UpsertLuongHieuLucHopDong(
+                            hd.MANV.Value,
+                            hd.SOHD,
+                            hd.NGAYBATDAU ?? hd.NGAYKY ?? DateTime.Today,
+                            hd.NGAYKETTHUC,
+                            hd.LUONG_THOA_THUAN.Value,
+                            "Hợp đồng lao động " + hd.SOHD
+                        );
+                    }
+                    catch { }
+                }
                 return hd;
             }
             catch (DbEntityValidationException ex)
@@ -193,6 +209,24 @@ namespace Bu
                 _hd.UPDATE_BY = hd.UPDATE_BY;
                 _hd.UPDATE_DATE = hd.UPDATE_DATE;
                 db.SaveChanges();
+
+                if (_hd.MANV.HasValue && _hd.LUONG_THOA_THUAN.HasValue && _hd.LUONG_THOA_THUAN.Value > 0)
+                {
+                    try
+                    {
+                        var luongHieuLuc = new LUONG_HIEULUC(db);
+                        luongHieuLuc.UpsertLuongHieuLucHopDong(
+                            _hd.MANV.Value,
+                            _hd.SOHD,
+                            _hd.NGAYBATDAU ?? _hd.NGAYKY ?? DateTime.Today,
+                            _hd.NGAYKETTHUC,
+                            _hd.LUONG_THOA_THUAN.Value,
+                            "Hợp đồng lao động " + _hd.SOHD
+                        );
+                    }
+                    catch { }
+                }
+
                 return hd;
             }
             catch (Exception ex)

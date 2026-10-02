@@ -11,13 +11,11 @@ import {
   Row,
   Col,
   Input,
-  Modal,
   message,
   theme,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import {
-  CalculatorOutlined,
   ReloadOutlined,
   PrinterOutlined,
   FileExcelOutlined,
@@ -42,16 +40,9 @@ interface BangLuongPageProps {
   onSelectKyCong: (makycong: number) => void;
   bangLuongList: BangLuongDTO[];
   bangLuongLoading: boolean;
-  tinhLuongLoading: boolean;
-  onTinhLuong: () => void;
   onRefresh: () => void;
-  hasRight: (...codes: string[]) => boolean;
-  canAdd?: (...codes: string[]) => boolean;
-  canEdit?: (...codes: string[]) => boolean;
-  canDelete?: (...codes: string[]) => boolean;
   canPrint?: (...codes: string[]) => boolean;
   danhMuc?: any;
-  onRefreshKyCong?: () => void;
 }
 
 export const BangLuongPage: React.FC<BangLuongPageProps> = ({
@@ -60,22 +51,15 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   onSelectKyCong,
   bangLuongList,
   bangLuongLoading,
-  tinhLuongLoading,
-  onTinhLuong,
   onRefresh,
-  hasRight,
-  canAdd,
-  canEdit,
   canPrint,
   danhMuc,
-  onRefreshKyCong,
 }) => {
   const { t } = useAppLanguage();
   const { tokens, isDark } = useAppTheme();
   const [selectedBangLuong, setSelectedBangLuong] = useState<BangLuongDTO | null>(null);
   const [phieuLuongModalVisible, setPhieuLuongModalVisible] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [locking, setLocking] = useState(false);
 
   // Filters
   const [searchKeyword, setSearchKeyword] = useState('');
@@ -203,38 +187,6 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
   const handleExportExcel = () => {
     message.success(t('common.success'));
-  };
-
-  const handleToggleLock = () => {
-    if (!selectedKyCong) return;
-    const targetAction = isPeriodLocked ? t('attendance.btnUnlockPeriod') : t('attendance.btnLockPeriod');
-    Modal.confirm({
-      title: `${targetAction}: #${selectedKyCong}?`,
-      content: t('common.confirmDeleteMsg'),
-      okText: t('common.confirm'),
-      cancelText: t('common.cancel'),
-      okButtonProps: { type: isPeriodLocked ? 'default' : 'primary', danger: isPeriodLocked },
-      onOk: async () => {
-        try {
-          setLocking(true);
-          const res = await api.post<{ success: boolean; message: string; khoa: boolean }>('/bangluong/khoa', {
-            makycong: selectedKyCong,
-            khoa: !isPeriodLocked,
-          });
-          if (res.data?.success) {
-            message.success(res.data.message || t('common.updateSuccess'));
-            onRefreshKyCong?.();
-            onRefresh();
-          } else {
-            message.error(res.data?.message || t('common.error'));
-          }
-        } catch (err: any) {
-          message.error(err.response?.data?.message || t('common.error'));
-        } finally {
-          setLocking(false);
-        }
-      },
-    });
   };
 
   const bangLuongColumns: ColumnsType<BangLuongDTO> = [
@@ -426,19 +378,6 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
                 }))}
               />
             </Space>
-            {((canEdit ? canEdit('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
-              (canAdd ? canAdd('BANGLUONG', 'F_CC_BANGLUONG') : false) ||
-              (!canEdit && !canAdd && hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG'))) && (
-              <Button
-                type="primary"
-                icon={<CalculatorOutlined />}
-                onClick={onTinhLuong}
-                loading={tinhLuongLoading}
-                style={{ background: tokens.btnPrimaryBg, borderColor: tokens.btnPrimaryBg, fontWeight: 600, borderRadius: 8 }}
-              >
-                {t('payroll.btnCalculatePayroll')}
-              </Button>
-            )}
           </Space>
         }
       />
@@ -584,16 +523,13 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
                 {t('payroll.btnExportPayroll')}
               </Button>
             )}
-            {((canEdit ? canEdit('BANGLUONG', 'F_CC_BANGLUONG') : hasRight('BANGLUONG', 'F_CC_BANGLUONG', 'LUONG'))) && (
-              <Button
-                type={isPeriodLocked ? 'default' : 'primary'}
-                icon={isPeriodLocked ? <UnlockOutlined /> : <LockOutlined />}
-                loading={locking}
-                onClick={handleToggleLock}
-              >
-                {isPeriodLocked ? t('attendance.btnUnlockPeriod') : t('payroll.btnLockPayroll')}
-              </Button>
-            )}
+            <Tag
+              icon={isPeriodLocked ? <LockOutlined /> : <UnlockOutlined />}
+              color={isPeriodLocked ? 'error' : 'processing'}
+              style={{ padding: '4px 10px', fontSize: 13, borderRadius: 6, display: 'inline-flex', alignItems: 'center' }}
+            >
+              {isPeriodLocked ? (t('payroll.statusLocked') || 'Đã khóa sổ') : (t('payroll.statusOpen') || 'Đang mở')}
+            </Tag>
             <Button icon={<ReloadOutlined />} onClick={onRefresh}>
               {t('common.refresh')}
             </Button>

@@ -21,6 +21,20 @@ namespace HRMS_API.Controllers
     [RoutePrefix("api/me")]
     public class MeController : ApiController
     {
+        private class PayrollStatusRow
+        {
+            public string TRANG_THAI { get; set; }
+            public string TRANGTHAI_CHITRA { get; set; }
+        }
+
+        private static bool IsPayrollPublished(MyEntities db, TB_BANGLUONG bl, out string blStatus, out string trangThaiChiTra)
+        {
+            var pub = Bu.CLASS_PAYROLL.PayrollPublicationHelper.EvaluatePublication(db, bl);
+            blStatus = pub.Status;
+            trangThaiChiTra = pub.PaymentStatusText;
+            return pub.IsPublished;
+        }
+
         private bool TryGetAuthenticatedEmployee(MyEntities db, out TB_SYS_USER user, out TB_NHANVIEN nv, out IHttpActionResult errorResult)
         {
             user = null;
@@ -212,28 +226,42 @@ namespace HRMS_API.Controllers
                         };
                     }
 
-                    // 3. Bảng lương kỳ gần nhất
-                    var latestBl = db.TB_BANGLUONG
+                    // 3. Bảng lương kỳ gần nhất đã được phép công bố
+                    var allBls = db.TB_BANGLUONG
                         .Where(b => b.MANV == manv)
                         .OrderByDescending(b => b.MAKYCONG)
-                        .FirstOrDefault();
+                        .ToList();
 
-                    if (latestBl != null)
+                    TB_BANGLUONG publishedBl = null;
+                    string blStatus = null;
+                    string trangThaiChiTra = null;
+
+                    foreach (var candidate in allBls)
                     {
-                        var kcForBl = db.TB_KYCONG.FirstOrDefault(k => k.MAKYCONG == latestBl.MAKYCONG);
-                        bool isPaid = kcForBl != null && kcForBl.KHOA == 1;
+                        if (IsPayrollPublished(db, candidate, out blStatus, out trangThaiChiTra))
+                        {
+                            publishedBl = candidate;
+                            break;
+                        }
+                    }
 
+                    if (publishedBl != null)
+                    {
                         dashboard.PayrollSummary = new MobilePayrollDto
                         {
-                            Idbl = latestBl.IDBL,
-                            Makycong = (int)latestBl.MAKYCONG,
-                            Thang = latestBl.THANG,
-                            Nam = latestBl.NAM,
-                            LuongCoBan = latestBl.LUONG_CONG_THUCTE ?? 0,
-                            CongThucTe = latestBl.CONG_THUCTE ?? 0,
-                            ThucLinh = latestBl.THUC_LINH ?? 0,
-                            TrangThaiChiTra = isPaid ? "Đã chi trả" : "Dự kiến chi trả"
+                            Idbl = publishedBl.IDBL,
+                            Makycong = (int)publishedBl.MAKYCONG,
+                            Thang = publishedBl.THANG,
+                            Nam = publishedBl.NAM,
+                            LuongCoBan = publishedBl.LUONG_CONG_THUCTE ?? 0,
+                            CongThucTe = publishedBl.CONG_THUCTE ?? 0,
+                            ThucLinh = publishedBl.THUC_LINH ?? 0,
+                            TrangThaiChiTra = trangThaiChiTra
                         };
+                    }
+                    else
+                    {
+                        dashboard.PayrollSummary = null;
                     }
 
                     // 4. Cảnh báo hợp đồng sắp hết hạn (trong vòng 30 ngày)
@@ -595,24 +623,54 @@ namespace HRMS_API.Controllers
 
                     decimal manv = nv.MANV;
                     TB_BANGLUONG bl = null;
+                    string blStatus = null;
+                    string trangThaiChiTra = null;
 
                     if (year.HasValue && month.HasValue)
                     {
                         int targetMakycong = year.Value * 100 + month.Value;
-                        bl = db.TB_BANGLUONG.FirstOrDefault(b => b.MANV == manv && b.MAKYCONG == targetMakycong);
+                        var candidates = db.TB_BANGLUONG
+                            .Where(b => b.MANV == manv && b.MAKYCONG == targetMakycong)
+                            .ToList();
+
+                        foreach (var c in candidates)
+                        {
+                            if (IsPayrollPublished(db, c, out blStatus, out trangThaiChiTra))
+                            {
+                                bl = c;
+                                break;
+                            }
+                        }
+
+                        if (bl == null)
+                        {
+                            return Ok(new { success = true, data = (MobilePayrollDto)null, message = "Bảng lương kỳ này chưa được công bố hoặc chưa phát sinh dữ liệu." });
+                        }
                     }
                     else
                     {
-                        bl = db.TB_BANGLUONG.Where(b => b.MANV == manv).OrderByDescending(b => b.MAKYCONG).FirstOrDefault();
-                    }
+                        var allBls = db.TB_BANGLUONG
+                            .Where(b => b.MANV == manv)
+                            .OrderByDescending(b => b.MAKYCONG)
+                            .ToList();
 
-                    if (bl == null)
-                    {
-                        return Ok(new { success = true, data = (MobilePayrollDto)null, message = "Chưa phát sinh dữ liệu bảng lương cho kỳ này." });
+                        foreach (var c in allBls)
+                        {
+                            if (IsPayrollPublished(db, c, out blStatus, out trangThaiChiTra))
+                            {
+                                bl = c;
+                                break;
+                            }
+                        }
+
+                        if (bl == null)
+                        {
+                            return Ok(new { success = true, data = (MobilePayrollDto)null, message = "Chưa có bảng lương nào được công bố cho bạn." });
+                        }
                     }
 
                     var kc = db.TB_KYCONG.FirstOrDefault(k => k.MAKYCONG == bl.MAKYCONG);
-                    bool isPaid = kc != null && kc.KHOA == 1;
+                    bool isPeriodLocked = kc != null && kc.KHOA == 1;
 
                     Bu.DTO.ModernPayrollSnapshotDto snap = null;
                     if (bl.MAKYCONG >= 202601)
@@ -631,6 +689,28 @@ namespace HRMS_API.Controllers
                             ).FirstOrDefault();
                         }
                         catch { }
+                    }
+
+                    // Trạng thái chi trả đã được xác định chính xác từ dữ liệu thanh toán thực tế trong IsPayrollPublished
+                    if (string.IsNullOrEmpty(trangThaiChiTra))
+                    {
+                        bool isPaid = snap != null && (snap.TRANG_THAI == "PAID" || snap.TRANG_THAI == "DA_CHI_TRA");
+                        if (isPaid)
+                        {
+                            trangThaiChiTra = "Đã chi trả";
+                        }
+                        else if (snap != null && (snap.TRANG_THAI == "APPROVED" || snap.TRANG_THAI == "DA_DUYET"))
+                        {
+                            trangThaiChiTra = "Đã duyệt chi";
+                        }
+                        else if (isPeriodLocked)
+                        {
+                            trangThaiChiTra = "Đã chốt sổ";
+                        }
+                        else
+                        {
+                            trangThaiChiTra = "Dự kiến chi trả";
+                        }
                     }
 
                     decimal tongThuNhap = bl.TONG_CONG ?? ((bl.LUONG_CONG_THUCTE ?? 0) + (bl.PHUCAP_CONG_THUCTE ?? 0) + (bl.TIEN_TANGCA ?? 0) + (bl.TIEN_CHUYENCAN ?? 0) + (bl.TIEN_AN_CA ?? 0) + (bl.KHOAN_CONG_KHAC ?? 0));
@@ -679,7 +759,7 @@ namespace HRMS_API.Controllers
                         KhoanTruKhac = bl.KHOAN_TRU_KHAC ?? 0,
                         TongKhauTru = tongKhauTru,
                         ThucLinh = bl.THUC_LINH ?? 0,
-                        TrangThaiChiTra = isPaid ? "Đã chi trả" : (snap != null && snap.TRANG_THAI == "APPROVED" ? "Đã duyệt chi" : "Dự kiến chi trả"),
+                        TrangThaiChiTra = trangThaiChiTra,
 
                         // Tax breakdown
                         ThuNhapChiuThue = snap?.TONG_THU_NHAP_CHIU_THUE ?? (bl.TONG_CONG ?? 0),

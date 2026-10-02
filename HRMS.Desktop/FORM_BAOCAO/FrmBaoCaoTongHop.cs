@@ -217,7 +217,7 @@ namespace QLyNSu.FORM_BAOCAO
                                   from nv in nvGroup.DefaultIfEmpty()
                                   select new {
                                       b.MANV,
-                                      HOTEN = nv != null ? nv.HOTEN : "",
+                                      HOTEN = nv.HOTEN,
                                       b.CONG_CHUAN,
                                       b.CONG_THUCTE,
                                       b.LUONG_CONG_THUCTE,

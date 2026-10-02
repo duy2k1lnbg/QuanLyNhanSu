@@ -39,7 +39,6 @@ namespace QLyNSu.FORM_CHAMCONG
         // Tracking trạng thái giờ tự điền vs đã sửa tay
         private bool _isGioTuDien = true;
         private bool _isManualEdited = false;
-        private bool _hasSavedHoursInDb = false;
         private bool _hasDevicePunchLog = false;
         private DateTime? _draftGioVao = null;
         private DateTime? _draftGioRa = null;
@@ -48,18 +47,26 @@ namespace QLyNSu.FORM_CHAMCONG
         {
             if (_kycong == null) _kycong = new KYCONG();
             var kc = _kycong.getItem(_MAKYCONG);
-            return kc != null && ((kc.KHOA ?? 0) == 1 || (kc.TRANGTHAI ?? 0) == 1);
+            return kc != null && (kc.KHOA ?? 0) == 1;
         }
 
         private void FrmCapNhatNgayCong_Load(object sender, EventArgs e)
         {
             this.AutoScaleMode = AutoScaleMode.None;
-            this.ClientSize = new Size(830, 575);
-            this.MinimumSize = new Size(846, 614);
-            this.MaximumSize = new Size(846, 614);
+            this.ClientSize = new Size(840, 605);
+            this.MinimumSize = new Size(856, 644);
+            this.MaximumSize = new Size(856, 644);
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
+
+            // Đảm bảo thông tin nhân sự luôn nằm dưới lịch mà không bị đè/chồng chéo chữ
+            groupControl1.Top = cldNgayCong.Bottom + 10;
+            groupControl1.Width = Math.Max(260, cldNgayCong.Width);
+            lblHoTen.AutoEllipsis = true;
+            lblHoTen.Width = groupControl1.Width - lblHoTen.Left - 12;
+            lblTrangThaiKhoa.AutoEllipsis = true;
+            lblTrangThaiKhoa.Width = groupControl1.Width - 24;
 
             _kcct = new KYCONGCHITIET();
             _bcct_nv = new BANGCONG_NV_CHITIET();
@@ -212,7 +219,6 @@ namespace QLyNSu.FORM_CHAMCONG
                 var raw = _bcct_nv.GetBangCongRaw(_manv, nam, thang, ngay);
 
                 _hasDevicePunchLog = false;
-                _hasSavedHoursInDb = false;
                 _draftGioVao = null;
                 _draftGioRa = null;
 
@@ -225,7 +231,6 @@ namespace QLyNSu.FORM_CHAMCONG
                     int pr = (int)(raw.PHUTRA ?? 0);
                     timeEditGioVao.Time = new DateTime(nam, thang, ngay, Math.Min(Math.Max(gv, 0), 23), Math.Min(Math.Max(pv, 0), 59), 0);
                     timeEditGioRa.Time = new DateTime(nam, thang, ngay, Math.Min(Math.Max(gr, 0), 23), Math.Min(Math.Max(pr, 0), 59), 0);
-                    _hasSavedHoursInDb = true;
                     _hasDevicePunchLog = true;
                     _isGioTuDien = false;
                     _isManualEdited = false;
@@ -242,7 +247,6 @@ namespace QLyNSu.FORM_CHAMCONG
                     {
                         timeEditGioRa.Time = new DateTime(nam, thang, ngay, tr.Hours, tr.Minutes, 0);
                     }
-                    _hasSavedHoursInDb = true;
                     _isGioTuDien = false;
                     _isManualEdited = false;
                     lblNguonDuLieu.Text = "Nguồn: Nhập tay đã lưu";
@@ -251,7 +255,6 @@ namespace QLyNSu.FORM_CHAMCONG
                 else
                 {
                     // Chưa có giờ: tự điền theo ca làm việc
-                    _hasSavedHoursInDb = false;
                     _isGioTuDien = true;
                     _isManualEdited = false;
                     ApplyDefaultShiftHoursSilent();
@@ -302,7 +305,7 @@ namespace QLyNSu.FORM_CHAMCONG
                 {
                     // Bản ghi chưa có dữ liệu: Hiển thị nhãn Chưa xác nhận
                     lblBadgeChuaXacNhan.Visible = true;
-                    lblBadgeChuaXacNhan.Text = "● Chưa có dữ liệu chấm công";
+                    lblBadgeChuaXacNhan.Text = "● Chưa có dữ liệu công";
                     radDiLam.Checked = true;
                     chkCongTac.Checked = false;
                     cboLoaiNghi.SelectedIndex = 0;
@@ -436,7 +439,7 @@ namespace QLyNSu.FORM_CHAMCONG
                     btnApDungGioCa.Visible = true;
 
                     grGioGhiNhan.Top = grThongTinNghi.Bottom + 6;
-                    grGioGhiNhan.Height = 85;
+                    grGioGhiNhan.Height = 88;
                     grKetQuaDuKien.Top = grGioGhiNhan.Bottom + 6;
                 }
             }
@@ -449,7 +452,7 @@ namespace QLyNSu.FORM_CHAMCONG
                 btnApDungGioCa.Visible = true;
 
                 grGioGhiNhan.Top = grTrangThai.Bottom + 6;
-                grGioGhiNhan.Height = 85;
+                grGioGhiNhan.Height = 88;
                 grKetQuaDuKien.Top = grGioGhiNhan.Bottom + 6;
             }
 

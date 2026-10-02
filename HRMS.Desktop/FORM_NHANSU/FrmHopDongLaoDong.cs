@@ -4,6 +4,7 @@ using Bu.DTO;
 using DA;
 using DevExpress.XtraEditors;
 using DevExpress.XtraReports.UI;
+using QLyNSu.FORM_NHANSU;
 using QLyNSu.Reports;
 using System;
 using System.Collections.Generic;
@@ -421,7 +422,7 @@ namespace QLyNSu
                         _hdld.Update(hd);
                     }
 
-                    _phucap.SavePhuCapHopDong(manv, allowances);
+                    _phucap.SavePhuCapHopDong(manv, allowances, 1, ngayBatDau, ngayKetThuc);
                 });
 
                 MessageBox.Show("Lưu hợp đồng và 13 loại phụ cấp thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -550,6 +551,31 @@ namespace QLyNSu
                 Rectangle rect = new Rectangle(e.Bounds.X, e.Bounds.Y, e.Bounds.Width, e.Bounds.Height);
                 e.Graphics.DrawImage(img, rect);
                 e.Handled = true;
+            }
+        }
+
+        private async void btnPhuLuc_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            if (string.IsNullOrEmpty(_SOHD))
+            {
+                DevExpress.XtraEditors.XtraMessageBox.Show("Vui lòng chọn một hợp đồng lao động để lập phụ lục!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            }
+
+            var hd = await Task.Run(() => _hdld.getItem(_SOHD));
+            if (hd == null)
+            {
+                DevExpress.XtraEditors.XtraMessageBox.Show("Không tìm thấy thông tin hợp đồng đã chọn!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            string tenNhanVien = searchMANV.Text;
+            using (var frm = new FrmPhuLucHopDong(hd, tenNhanVien))
+            {
+                if (frm.ShowDialog(this) == DialogResult.OK)
+                {
+                    await LoadDataAsync();
+                }
             }
         }
     }

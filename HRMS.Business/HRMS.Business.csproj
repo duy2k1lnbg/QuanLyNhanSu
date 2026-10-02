@@ -157,6 +157,9 @@
     <Compile Include="CLASS_PAYROLL\TaxEngine.cs" />
     <Compile Include="CLASS_PAYROLL\AnnualTaxFinalizationService.cs" />
     <Compile Include="CLASS_PAYROLL\PayrollEngine.cs" />
+    <Compile Include="CLASS_PAYROLL\SalaryAdjustmentService.cs" />
+    <Compile Include="CLASS_PAYROLL\PayrollOccurrenceService.cs" />
+    <Compile Include="CLASS_PAYROLL\PayrollPublicationHelper.cs" />
     <Compile Include="CLASS_CHAMCONG\HESO_TANGCA.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONG.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONGCHITIET.cs" />
@@ -180,6 +183,9 @@
     <Compile Include="CLASS_SYSTEM\THONGBAO.cs" />
     <Compile Include="CLASS_SYSTEM\UserSession.cs" />
     <Compile Include="CLASS_SYSTEM\PasswordHasher.cs" />
+    <Compile Include="CLASS_SYSTEM\BusinessException.cs" />
+    <Compile Include="CLASS_SYSTEM\RecycleBinService.cs" />
+    <Compile Include="DTO\RecycleBinItemDTO.cs" />
     <Compile Include="DTO\DIEUCHUYEN_NHANVIEN_DTO.cs" />
     <Compile Include="DTO\DTO_AI_VIEWS\AdvanceDto.cs" />
     <Compile Include="DTO\DTO_AI_VIEWS\BaseAiDto.cs" />
@@ -195,6 +201,8 @@
     <Compile Include="CLASS_NHANSU\GIOITINH.cs" />
     <Compile Include="CLASS_NHANSU\HOPDONGLAODONG.cs" />
     <Compile Include="CLASS_NHANSU\KHENTHUONG_KYLUAT.cs" />
+    <Compile Include="CLASS_NHANSU\LUONG_HIEULUC.cs" />
+    <Compile Include="DTO\LuongHieuLucDTO.cs" />
     <Compile Include="CLASS_NHANSU\NANGLUONG_NHANVIEN.cs" />
     <Compile Include="CLASS_NHANSU\NHANVIEN.cs" />
     <Compile Include="CLASS_NHANSU\NHANVIEN_THOIVIEC.cs" />

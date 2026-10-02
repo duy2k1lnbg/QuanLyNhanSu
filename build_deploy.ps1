@@ -120,9 +120,9 @@ if (-not (Test-Path $deployBin)) {
 Copy-Item -Recurse -Force (Join-Path $root "HRMS.Api\bin\*") $deployBin
 $deployWebConfig = Join-Path $deployBackend "Web.config"
 Copy-Item -Force (Join-Path $root "HRMS.Api\Web.config") $deployWebConfig
-# Tu dong cau hinh cho Oracle XE tren VPS (localhost:1521/xe)
-(Get-Content $deployWebConfig -Raw) -replace '1521/orcl', '1521/xe' | Set-Content $deployWebConfig -Encoding UTF8
-Write-Host "  -> [OK] Da tu dong cau hinh connectionString = 1521/xe cho VPS!" -ForegroundColor Green
+# Tu dong cau hinh cho Oracle 21c XE tren VPS (localhost:1521/XEPDB1)
+(Get-Content $deployWebConfig -Raw) -replace '1521/orcl', '1521/XEPDB1' | Set-Content $deployWebConfig -Encoding UTF8
+Write-Host "  -> [OK] Da tu dong cau hinh connectionString = 1521/XEPDB1 cho VPS!" -ForegroundColor Green
 Copy-Item -Force (Join-Path $root "HRMS.Api\Global.asax") (Join-Path $deployBackend "Global.asax")
 
 # Copy ai_prompts.json vao ca root va bin cua backend
@@ -400,19 +400,18 @@ $guide = @'
    - Giao dien Web : http://localhost (hoac http://<IP_VPS>)
    - Backend API   : http://localhost/api (hoac http://localhost:5000)
 
-4. LUU Y VE KET NOI & MIGRATION ORACLE DATABASE
-   - Mac dinh ket noi Database tro toi: localhost:1521/xe (Oracle XE).
-   - Neu VPS cua ban dung ten Service khac (vi du: 'orcl' hoac 'ORCLPDB'):
+4. LUU Y VE KET NOI ORACLE DATABASE
+   - Mac dinh ket noi Database tro toi: localhost:1521/XEPDB1 (Oracle 21c XE).
+   - Neu VPS cua ban dung ten Service khac (vi du: 'orcl' hoac 'xe'):
      Mo file: C:\HRMS\backend\Web.config
-     Tim dong "localhost:1521/xe" va thay doi thanh ten Service cua ban.
+     Tim dong "localhost:1521/XEPDB1" va thay doi thanh ten Service cua ban.
      Sau do mo CMD/PowerShell chay "iisreset" de ap dung.
-   - CHAY MIGRATION BẢO MẬT & LUONG MOI (V1_15 -> V1_20):
-     Thu muc database/migrations chua day du cac script cap nhat he thong.
 
 5. RESTORE ORACLE DATABASE TU FILE HR_BACKUP.DMP:
-   - File dump: deploy_vps\HR_BACKUP.DMP (chua day du toan bo schema HR moi nhat)
-   - Cach restore bang Data Pump impdp tren VPS:
-     impdp HR/hr@localhost:1521/xe directory=DATA_PUMP_DIR dumpfile=HR_BACKUP.DMP logfile=HR_RESTORE.LOG table_exists_action=replace
+   - File dump: deploy_vps\HR_BACKUP.DMP (chua day du toan bo schema HR moi nhat gom 215 tai khoan nguoi dung va 197 lien ket)
+   - Cach 1: Chay file tu dong: deploy_vps\database\import_database.bat
+   - Cach 2: Chay lenh Data Pump impdp tren VPS:
+     impdp HR/hr@localhost:1521/XEPDB1 schemas=HR directory=HRMS_RESTORE_DIR dumpfile=HR_BACKUP.DMP logfile=HR_RESTORE.LOG table_exists_action=replace access_method=conventional
 
 6. UNG DUNG MOBILE (ANDROID APK):
    - File APK: deploy_vps\mobile\HRMS_Mobile.apk

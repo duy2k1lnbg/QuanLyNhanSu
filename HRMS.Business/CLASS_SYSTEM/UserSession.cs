@@ -18,6 +18,15 @@ namespace Bu.CLASS_SYSTEM
             CurrentUser.USERNAME != null &&
             CurrentUser.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase);
 
+        public static string NormalizeFunctionCode(string code)
+        {
+            if (string.IsNullOrEmpty(code)) return code;
+            if (code.Equals("F_TIENLUONG", StringComparison.OrdinalIgnoreCase)) return "F_CC_BANGLUONG";
+            if (code.Equals("F_BANGCONG", StringComparison.OrdinalIgnoreCase)) return "F_CC_BANGCONG";
+            if (code.Equals("F_SYSTEM_PURGE", StringComparison.OrdinalIgnoreCase)) return "F_SYSTEM_PHUCHOI";
+            return code;
+        }
+
         /// <summary>
         /// Tương thích ngược: HasRight tương đương với CanView.
         /// </summary>
@@ -34,12 +43,13 @@ namespace Bu.CLASS_SYSTEM
             if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
             if (IsAdmin) return true;
 
-            if (DetailedRights.TryGetValue(functionCode, out var detail))
+            string normalized = NormalizeFunctionCode(functionCode);
+            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
             {
                 return detail.CAN_VIEW;
             }
 
-            return UserRights.Contains(functionCode);
+            return UserRights.Contains(functionCode) || UserRights.Contains(normalized);
         }
 
         /// <summary>
@@ -50,7 +60,8 @@ namespace Bu.CLASS_SYSTEM
             if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
             if (IsAdmin) return true;
 
-            if (DetailedRights.TryGetValue(functionCode, out var detail))
+            string normalized = NormalizeFunctionCode(functionCode);
+            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
             {
                 return detail.CAN_ADD;
             }
@@ -66,7 +77,8 @@ namespace Bu.CLASS_SYSTEM
             if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
             if (IsAdmin) return true;
 
-            if (DetailedRights.TryGetValue(functionCode, out var detail))
+            string normalized = NormalizeFunctionCode(functionCode);
+            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
             {
                 return detail.CAN_EDIT;
             }
@@ -82,7 +94,8 @@ namespace Bu.CLASS_SYSTEM
             if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
             if (IsAdmin) return true;
 
-            if (DetailedRights.TryGetValue(functionCode, out var detail))
+            string normalized = NormalizeFunctionCode(functionCode);
+            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
             {
                 return detail.CAN_DELETE;
             }
@@ -98,7 +111,8 @@ namespace Bu.CLASS_SYSTEM
             if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
             if (IsAdmin) return true;
 
-            if (DetailedRights.TryGetValue(functionCode, out var detail))
+            string normalized = NormalizeFunctionCode(functionCode);
+            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
             {
                 return detail.CAN_PRINT;
             }

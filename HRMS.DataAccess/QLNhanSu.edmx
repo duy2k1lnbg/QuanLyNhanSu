@@ -373,6 +373,9 @@
           <Property Name="CREATED_DATE" Type="date" />
           <Property Name="DELETED_BY" Type="number" Precision="38" Scale="0" />
           <Property Name="DELETED_DATE" Type="date" />
+          <Property Name="TU_NGAY" Type="date" />
+          <Property Name="DEN_NGAY" Type="date" />
+          <Property Name="CACH_TINH" Type="varchar2" MaxLength="30" />
         </EntityType>
         <EntityType Name="TB_NHANVIEN_THOIVIEC">
           <Key>
@@ -1651,6 +1654,9 @@
           <Property Name="CREATED_DATE" Type="DateTime" />
           <Property Name="DELETED_BY" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="DELETED_DATE" Type="DateTime" />
+          <Property Name="TU_NGAY" Type="DateTime" />
+          <Property Name="DEN_NGAY" Type="DateTime" />
+          <Property Name="CACH_TINH" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <NavigationProperty Name="TB_NHANVIEN" Relationship="Model.TB_NHANVIEN_PHUCAP_NV_FK1" FromRole="TB_NHANVIEN_PHUCAP" ToRole="TB_NHANVIEN" />
           <NavigationProperty Name="TB_PHUCAP" Relationship="Model.TB_NHANVIEN_PHUCAP_PC_FK2" FromRole="TB_NHANVIEN_PHUCAP" ToRole="TB_PHUCAP" />
         </EntityType>
@@ -2659,6 +2665,9 @@
               <MappingFragment StoreEntitySet="TB_NHANVIEN_PHUCAP">
                 <ScalarProperty Name="DELETED_DATE" ColumnName="DELETED_DATE" />
                 <ScalarProperty Name="DELETED_BY" ColumnName="DELETED_BY" />
+                <ScalarProperty Name="TU_NGAY" ColumnName="TU_NGAY" />
+                <ScalarProperty Name="DEN_NGAY" ColumnName="DEN_NGAY" />
+                <ScalarProperty Name="CACH_TINH" ColumnName="CACH_TINH" />
                 <ScalarProperty Name="CREATED_DATE" ColumnName="CREATED_DATE" />
                 <ScalarProperty Name="CREATED_BY" ColumnName="CREATED_BY" />
                 <ScalarProperty Name="UPDATED_DATE" ColumnName="UPDATED_DATE" />

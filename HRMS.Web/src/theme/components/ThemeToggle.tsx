@@ -9,6 +9,7 @@ interface ThemeToggleProps {
   style?: React.CSSProperties;
   className?: string;
   size?: 'small' | 'middle' | 'large';
+  labels?: { light: string; dark: string };
 }
 
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({
@@ -17,14 +18,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   style,
   className,
   size = 'middle',
+  labels,
 }) => {
   const { mode: contextMode, toggleTheme: contextToggleTheme } = useAppTheme();
   const currentMode = propMode || contextMode;
   const isDark = currentMode === 'dark';
   const handleToggle = propOnToggle || contextToggleTheme;
 
-  const tooltipTitle = isDark ? 'Chuyển sang chế độ Sáng' : 'Chuyển sang chế độ Tối';
-  const ariaLabel = isDark ? 'Kích hoạt giao diện sáng' : 'Kích hoạt giao diện tối';
+  const localizedLabel = isDark ? labels?.light : labels?.dark;
+  const tooltipTitle = localizedLabel || (isDark ? 'Chuyển sang chế độ Sáng' : 'Chuyển sang chế độ Tối');
+  const ariaLabel = localizedLabel || (isDark ? 'Kích hoạt giao diện sáng' : 'Kích hoạt giao diện tối');
 
   return (
     <Tooltip title={tooltipTitle} placement="bottom">

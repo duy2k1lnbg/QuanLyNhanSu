@@ -235,6 +235,36 @@
     <Compile Include="FORM_CHAMCONG\FrmBangLuong.Designer.cs">
       <DependentUpon>FrmBangLuong.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmChiTietLuong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmChiTietLuong.Designer.cs">
+      <DependentUpon>FrmChiTietLuong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmCauHinhLuong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmCauHinhLuong.Designer.cs">
+      <DependentUpon>FrmCauHinhLuong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmPhatSinhLuong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmPhatSinhLuong.Designer.cs">
+      <DependentUpon>FrmPhatSinhLuong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmChiTietPhatSinh.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmChiTietPhatSinh.Designer.cs">
+      <DependentUpon>FrmChiTietPhatSinh.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmDieuChinhLuong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmDieuChinhLuong.Designer.cs">
+      <DependentUpon>FrmDieuChinhLuong.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_CHAMCONG\FrmCapNhatNgayCong.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -352,6 +382,12 @@
     <Compile Include="FORM_SYSTEM\FrmPhanQuyenBaoCao.Designer.cs">
       <DependentUpon>FrmPhanQuyenBaoCao.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_SYSTEM\FrmThungRacNghiepVu.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmThungRacNghiepVu.Designer.cs">
+      <DependentUpon>FrmThungRacNghiepVu.cs</DependentUpon>
+    </Compile>
     <Compile Include="FrmStartup.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -428,6 +464,12 @@
     </Compile>
     <Compile Include="FORM_NHANSU\FrmHopDongLaoDong.Designer.cs">
       <DependentUpon>FrmHopDongLaoDong.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_NHANSU\FrmPhuLucHopDong.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_NHANSU\FrmPhuLucHopDong.Designer.cs">
+      <DependentUpon>FrmPhuLucHopDong.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_NHANSU\FrmLoaiHopDong.cs">
       <SubType>Form</SubType>
@@ -582,6 +624,21 @@
     <EmbeddedResource Include="FORM_CHAMCONG\FrmBangLuong.resx">
       <DependentUpon>FrmBangLuong.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmChiTietLuong.resx">
+      <DependentUpon>FrmChiTietLuong.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmCauHinhLuong.resx">
+      <DependentUpon>FrmCauHinhLuong.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmPhatSinhLuong.resx">
+      <DependentUpon>FrmPhatSinhLuong.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmChiTietPhatSinh.resx">
+      <DependentUpon>FrmChiTietPhatSinh.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_CHAMCONG\FrmDieuChinhLuong.resx">
+      <DependentUpon>FrmDieuChinhLuong.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FORM_CHAMCONG\FrmCapNhatNgayCong.resx">
       <DependentUpon>FrmCapNhatNgayCong.cs</DependentUpon>
     </EmbeddedResource>
@@ -620,6 +677,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmHopDongLaoDong.resx">
       <DependentUpon>FrmHopDongLaoDong.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_NHANSU\FrmPhuLucHopDong.resx">
+      <DependentUpon>FrmPhuLucHopDong.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmLoaiHopDong.resx">
       <DependentUpon>FrmLoaiHopDong.cs</DependentUpon>
@@ -698,6 +758,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmLanguages.resx">
       <DependentUpon>FrmLanguages.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmThungRacNghiepVu.resx">
+      <DependentUpon>FrmThungRacNghiepVu.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmPhanQuyenChucNang.resx">
       <DependentUpon>FrmPhanQuyenChucNang.cs</DependentUpon>

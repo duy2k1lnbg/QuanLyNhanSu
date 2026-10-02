@@ -39,6 +39,7 @@ namespace QLyNSu
             this.btnHuy = new DevExpress.XtraBars.BarButtonItem();
             this.btnIn = new DevExpress.XtraBars.BarButtonItem();
             this.btnDong = new DevExpress.XtraBars.BarButtonItem();
+            this.btnPhuLuc = new DevExpress.XtraBars.BarButtonItem();
             this.bar3 = new DevExpress.XtraBars.Bar();
             this.barDockControlTop = new DevExpress.XtraBars.BarDockControl();
             this.barDockControlBottom = new DevExpress.XtraBars.BarDockControl();
@@ -166,8 +167,9 @@ namespace QLyNSu
             this.btnLuu,
             this.btnHuy,
             this.btnDong,
-            this.btnIn});
-            this.barManager1.MaxItemId = 8;
+            this.btnIn,
+            this.btnPhuLuc});
+            this.barManager1.MaxItemId = 9;
             this.barManager1.StatusBar = this.bar3;
             // 
             // bar1
@@ -188,6 +190,7 @@ namespace QLyNSu
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnXoa, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnLuu, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnHuy, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
+            new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnPhuLuc, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnIn, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph),
             new DevExpress.XtraBars.LinkPersistInfo(DevExpress.XtraBars.BarLinkUserDefines.PaintStyle, this.btnDong, "", true, true, true, 0, null, DevExpress.XtraBars.BarItemPaintStyle.CaptionGlyph)});
             this.bar1.Text = "Tools";
@@ -254,6 +257,15 @@ namespace QLyNSu
             this.btnDong.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnDong.ImageOptions.LargeImage")));
             this.btnDong.Name = "btnDong";
             this.btnDong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnDong_ItemClick);
+            // 
+            // btnPhuLuc
+            // 
+            this.btnPhuLuc.Caption = "Phụ Lục HĐ";
+            this.btnPhuLuc.Id = 7;
+            this.btnPhuLuc.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("btnThem.ImageOptions.Image")));
+            this.btnPhuLuc.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnThem.ImageOptions.LargeImage")));
+            this.btnPhuLuc.Name = "btnPhuLuc";
+            this.btnPhuLuc.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnPhuLuc_ItemClick);
             // 
             // bar3
             // 
@@ -1296,6 +1308,7 @@ namespace QLyNSu
         private DevExpress.XtraBars.BarButtonItem btnHuy;
         private DevExpress.XtraBars.BarButtonItem btnDong;
         private DevExpress.XtraBars.BarButtonItem btnIn;
+        private DevExpress.XtraBars.BarButtonItem btnPhuLuc;
         private DevExpress.XtraBars.Bar bar3;
         private DevExpress.XtraBars.BarDockControl barDockControlTop;
         private DevExpress.XtraBars.BarDockControl barDockControlBottom;

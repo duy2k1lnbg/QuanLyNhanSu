@@ -32,6 +32,7 @@ namespace QLyNSu
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.ribbonControl1 = new DevExpress.XtraBars.Ribbon.RibbonControl();
             this.btnPass = new DevExpress.XtraBars.BarButtonItem();
+            this.btnThungRac = new DevExpress.XtraBars.BarButtonItem();
             this.btnSaoLuu_DB = new DevExpress.XtraBars.BarButtonItem();
             this.btnPhucHoi_DB = new DevExpress.XtraBars.BarButtonItem();
             this.btnDanToc = new DevExpress.XtraBars.BarButtonItem();
@@ -50,6 +51,8 @@ namespace QLyNSu
             this.btnUngLuong = new DevExpress.XtraBars.BarButtonItem();
             this.btnBangCong = new DevExpress.XtraBars.BarButtonItem();
             this.btnBangLuong = new DevExpress.XtraBars.BarButtonItem();
+            this.btnCauHinhLuong = new DevExpress.XtraBars.BarButtonItem();
+            this.btnPhatSinhLuong = new DevExpress.XtraBars.BarButtonItem();
             this.btnExit1 = new DevExpress.XtraBars.BarButtonItem();
             this.btnCongTy = new DevExpress.XtraBars.BarButtonItem();
             this.btnBoPhan = new DevExpress.XtraBars.BarButtonItem();
@@ -118,6 +121,7 @@ namespace QLyNSu
             this.ribbonControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] {
             this.ribbonControl1.ExpandCollapseItem,
             this.btnPass,
+            this.btnThungRac,
             this.btnSaoLuu_DB,
             this.btnPhucHoi_DB,
             this.btnDanToc,
@@ -136,6 +140,8 @@ namespace QLyNSu
             this.btnUngLuong,
             this.btnBangCong,
             this.btnBangLuong,
+            this.btnCauHinhLuong,
+            this.btnPhatSinhLuong,
             this.btnExit1,
             this.btnCongTy,
             this.btnBoPhan,
@@ -189,6 +195,14 @@ namespace QLyNSu
             this.btnPass.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPass.ImageOptions.SvgImage")));
             this.btnPass.Name = "btnPass";
             this.btnPass.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnPass_ItemClick);
+            // 
+            // btnThungRac
+            // 
+            this.btnThungRac.Caption = "Thùng Rác";
+            this.btnThungRac.Id = 70;
+            this.btnThungRac.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnSaoLuu_DB.ImageOptions.SvgImage")));
+            this.btnThungRac.Name = "btnThungRac";
+            this.btnThungRac.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnThungRac_ItemClick);
             // 
             // btnSaoLuu_DB
             // 
@@ -346,6 +360,22 @@ namespace QLyNSu
             this.btnBangLuong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnBangLuong.ImageOptions.SvgImage")));
             this.btnBangLuong.Name = "btnBangLuong";
             this.btnBangLuong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnBangLuong_ItemClick);
+            // 
+            // btnCauHinhLuong
+            // 
+            this.btnCauHinhLuong.Caption = "Cấu Hình Lương";
+            this.btnCauHinhLuong.Id = 71;
+            this.btnCauHinhLuong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnBangLuong.ImageOptions.SvgImage")));
+            this.btnCauHinhLuong.Name = "btnCauHinhLuong";
+            this.btnCauHinhLuong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnCauHinhLuong_ItemClick);
+            // 
+            // btnPhatSinhLuong
+            // 
+            this.btnPhatSinhLuong.Caption = "Phát Sinh Lương";
+            this.btnPhatSinhLuong.Id = 72;
+            this.btnPhatSinhLuong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnPhuCap.ImageOptions.SvgImage")));
+            this.btnPhatSinhLuong.Name = "btnPhatSinhLuong";
+            this.btnPhatSinhLuong.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.btnPhatSinhLuong_ItemClick);
             // 
             // btnExit1
             // 
@@ -614,6 +644,7 @@ namespace QLyNSu
             this.ribbonPageGroup1.ItemLinks.Add(this.btnPhucHoi_DB, true);
             this.ribbonPageGroup1.ItemLinks.Add(this.BtnAI, true);
             this.ribbonPageGroup1.ItemLinks.Add(this.btnSetting, true);
+            this.ribbonPageGroup1.ItemLinks.Add(this.btnThungRac, true);
             this.ribbonPageGroup1.ItemLinks.Add(this.btnThongBao, true);
             this.ribbonPageGroup1.ItemLinks.Add(this.btnGiamSat, true);
             this.ribbonPageGroup1.ItemLinks.Add(this.BtnExit, true);
@@ -690,6 +721,8 @@ namespace QLyNSu
             this.ribbonPageGroup5.ItemLinks.Add(this.btnBangCong, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnBCCT_NV, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnBangLuong, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnCauHinhLuong, true);
+            this.ribbonPageGroup5.ItemLinks.Add(this.btnPhatSinhLuong, true);
             this.ribbonPageGroup5.ItemLinks.Add(this.btnThoat2, true);
             this.ribbonPageGroup5.Name = "ribbonPageGroup5";
             this.ribbonPageGroup5.State = DevExpress.XtraBars.Ribbon.RibbonPageGroupState.Expanded;
@@ -855,6 +888,8 @@ namespace QLyNSu
         private DevExpress.XtraBars.BarButtonItem btnUngLuong;
         private DevExpress.XtraBars.BarButtonItem btnBangCong;
         private DevExpress.XtraBars.BarButtonItem btnBangLuong;
+        private DevExpress.XtraBars.BarButtonItem btnCauHinhLuong;
+        private DevExpress.XtraBars.BarButtonItem btnPhatSinhLuong;
         private DevExpress.XtraBars.BarButtonItem btnExit1;
         private DevExpress.XtraBars.Docking2010.DocumentManager documentManager1;
         private DevExpress.XtraBars.Docking2010.Views.Tabbed.TabbedView tabbedView1;
@@ -878,6 +913,7 @@ namespace QLyNSu
         private DevExpress.XtraBars.BarButtonItem btnExit3;
         private DevExpress.XtraBars.Ribbon.RibbonMiniToolbar ribbonMiniToolbar1;
         private DevExpress.XtraBars.BarButtonItem btnGroup;
+        private DevExpress.XtraBars.BarButtonItem btnThungRac;
         private DevExpress.XtraBars.BarButtonItem btnUser;
         private DevExpress.XtraBars.BarButtonItem btnCapTaiKhoanHangLoat;
         private DevExpress.XtraBars.BarButtonItem btnUser_Update;

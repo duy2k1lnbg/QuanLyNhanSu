@@ -2,16 +2,20 @@ import React, { useState } from 'react';
 import { message } from 'antd';
 import type { CurrentUserDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
 import { CinematicHeroGallery } from '../components/CinematicHeroGallery';
 import { LandingHeader } from './login/components/LandingHeader';
-import { LandingHero } from './login/components/LandingHero';
-import { LandingEcosystem } from './login/components/LandingEcosystem';
-import { LandingFeatures } from './login/components/LandingFeatures';
-import { LandingArchitecture } from './login/components/LandingArchitecture';
+import { LandingAbout } from './login/components/LandingAbout';
+import { LandingFocus } from './login/components/LandingFocus';
+import { LandingPlatforms } from './login/components/LandingPlatforms';
+import { LandingProject } from './login/components/LandingProject';
+import { LandingContact } from './login/components/LandingContact';
+import { LandingJourneyLine } from './login/components/LandingJourneyLine';
 import { LoginModal } from './login/components/LoginModal';
 import { DownloadModal } from './login/components/DownloadModal';
 import { WINDOWS_PACKAGE_URL, MOBILE_APK_URL } from './login/types';
-import { ScrollReveal } from '../components/ScrollReveal';
+import { useAmbientAudio } from './login/hooks/useAmbientAudio';
+import './login/LandingPage.css';
 
 interface LoginProps {
   onLoginSuccess: (user: CurrentUserDTO, token: string) => void;
@@ -22,8 +26,11 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [downloadModalVisible, setDownloadModalVisible] = useState<boolean>(false);
   const [downloadType, setDownloadType] = useState<'windows' | 'mobile' | 'general'>('windows');
 
-  // Hook đa ngôn ngữ toàn hệ thống (Việt, Anh, Nhật, Hàn, Trung)
+  // Multilingual hook across system
   const { lang: currentLang, setLang: handleLanguageChange, tLanding, tAuth, allConfigs } = useAppLanguage();
+
+  // Natural calm ambient audio hook (woodland atmosphere)
+  const { isPlaying: isAudioPlaying, toggleAudio } = useAmbientAudio();
 
   const handleDownloadWindows = () => {
     message.loading({ content: 'Đang bắt đầu tải xuống HRMS_Setup_v3.5.0.zip...', key: 'dl_win', duration: 2 });
@@ -54,47 +61,12 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
     setLoginModalVisible(true);
   };
 
-  return (
-    <div
-      style={{
-        minHeight: '100vh',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        background: 'radial-gradient(ellipse at top, #0f172a 0%, #020617 100%)',
-        position: 'relative',
-        overflowX: 'hidden',
-        color: '#f8fafc',
-        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
-      }}
-    >
-      {/* Background ambient glowing circles */}
-      <div
-        style={{
-          position: 'absolute',
-          width: 700,
-          height: 700,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(37,99,235,0.18) 0%, rgba(0,0,0,0) 70%)',
-          top: '-15%',
-          left: '10%',
-          pointerEvents: 'none',
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          width: 600,
-          height: 600,
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(168,85,247,0.16) 0%, rgba(0,0,0,0) 70%)',
-          top: '30%',
-          right: '5%',
-          pointerEvents: 'none',
-        }}
-      />
+  const { theme } = useAppTheme();
+  const isAnyModalOpen = loginModalVisible || downloadModalVisible;
 
-      {/* TOP NAVIGATION BAR */}
+  return (
+    <div className="tryhard-landing" data-landing-theme={theme}>
+      {/* 1. TOP STICKY NAVIGATION HEADER */}
       <LandingHeader
         currentLang={currentLang}
         onLanguageChange={handleLanguageChange}
@@ -102,61 +74,35 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         tLanding={tLanding}
         onOpenDownload={handleOpenDownload}
         onOpenLogin={handleOpenLogin}
+        isAudioPlaying={isAudioPlaying}
+        onToggleAudio={toggleAudio}
       />
 
-      {/* 1. CINEMATIC 9-IMAGE HERO HORIZONTAL GALLERY (9 CÂU GIỮ NGUYÊN 100%) */}
-      <div id="cinematic-hero-gallery">
-        <CinematicHeroGallery />
-      </div>
+      {/* 2. CINEMATIC 10-SLIDE HERO GALLERY (STARTS AT HERO-05 PATIENCE) */}
+      <CinematicHeroGallery isModalOpen={isAnyModalOpen} />
 
-      {/* MAIN CONTENT BODY */}
-      <main style={{ flex: 1, maxWidth: 1280, width: '100%', margin: '0 auto', padding: 'clamp(30px, 5vw, 60px) 24px' }}>
-        {/* HERO BANNER & 4 CAPABILITIES */}
-        <LandingHero
-          tLanding={tLanding}
-          onOpenLogin={handleOpenLogin}
-          onOpenDownload={handleOpenDownload}
-        />
+      {/* 3. VERTICAL JOURNEY MILESTONE CONNECTOR */}
+      <LandingJourneyLine />
 
-        {/* SECTION 2: HỆ SINH THÁI TẢI VỀ */}
-        <LandingEcosystem
-          tLanding={tLanding}
-          onDownloadWindows={handleDownloadWindows}
-          onDownloadMobile={handleDownloadMobile}
-          onOpenLogin={handleOpenLogin}
-          onOpenDownload={handleOpenDownload}
-        />
+      {/* 4. SECTION: VỀ MÌNH (BIO, SKILLS, MONOGRAM ND) */}
+      <LandingAbout tLanding={tLanding} />
 
-        {/* SECTION 3: TÍNH NĂNG NỔI BẬT */}
-        <LandingFeatures tLanding={tLanding} />
+      {/* 5. SECTION: NHỮNG ĐIỀU MÌNH ĐANG TẬP TRUNG (3 COLUMNS) */}
+      <LandingFocus tLanding={tLanding} />
 
-        {/* SECTION 4 & 5: THÔNG TIN KIẾN TRÚC & NHÀ PHÁT TRIỂN NGUYỄN THỌ DUY */}
-        <LandingArchitecture
-          tLanding={tLanding}
-          onOpenLogin={handleOpenLogin}
-        />
-      </main>
+      <LandingPlatforms tLanding={tLanding} onOpenLogin={handleOpenLogin} onOpenDownload={handleOpenDownload} />
 
-      {/* FOOTER */}
-      <ScrollReveal direction="fade" duration={600} as="footer">
-        <div
-          style={{
-            padding: '24px',
-            textAlign: 'center',
-            fontSize: 13,
-            color: '#64748b',
-            borderTop: '1px solid rgba(255, 255, 255, 0.08)',
-            background: 'rgba(15, 23, 42, 0.95)',
-          }}
-        >
-          <div>{tLanding.footerLine1}</div>
-          <div style={{ fontSize: 11.5, color: '#475569', marginTop: 4 }}>
-            {tLanding.footerLine2}
-          </div>
-        </div>
-      </ScrollReveal>
+      {/* 6. SECTION: DỰ ÁN ĐANG PHÁT TRIỂN (HRMS, CTAs, MOCKUP) */}
+      <LandingProject
+        tLanding={tLanding}
+        onOpenLogin={handleOpenLogin}
+        onOpenDownload={handleOpenDownload}
+      />
 
-      {/* MODAL ĐĂNG NHẬP */}
+      {/* 7. SECTION: KẾT NỐI & TRAO ĐỔI + FOOTER */}
+      <LandingContact tLanding={tLanding} />
+
+      {/* 8. MODAL ĐĂNG NHẬP (PRESERVED) */}
       <LoginModal
         visible={loginModalVisible}
         onClose={() => setLoginModalVisible(false)}
@@ -165,7 +111,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
         tAuth={tAuth}
       />
 
-      {/* MODAL TẢI BỘ CÀI ĐẶT */}
+      {/* 9. MODAL TẢI BỘ CÀI ĐẶT (PRESERVED) */}
       <DownloadModal
         visible={downloadModalVisible}
         onClose={() => setDownloadModalVisible(false)}

@@ -23,29 +23,76 @@ namespace Bu.Tests
                 var hd3 = db.TB_LOAIHOPDONG.FirstOrDefault(x => x.LOAIHD == 3);
                 if (hd3 != null) hd3.TENLOAIHD = "Hợp đồng lao động không xác định thời hạn";
 
-                var nl1 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 1);
-                if (nl1 != null) nl1.TENLE = "Tết Dương lịch";
-                var nl2 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 2);
-                if (nl2 != null) nl2.TENLE = "Tết Âm lịch (29 Tết)";
-                var nl3 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 3);
-                if (nl3 != null) nl3.TENLE = "Tết Âm lịch (Mùng 1)";
-                var nl4 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 4);
-                if (nl4 != null) nl4.TENLE = "Tết Âm lịch (Mùng 2)";
-                var nl5 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 5);
-                if (nl5 != null) nl5.TENLE = "Tết Âm lịch (Mùng 3)";
-                var nl6 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 6);
-                if (nl6 != null) nl6.TENLE = "Tết Âm lịch (Mùng 4)";
-                var nl7 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 7);
-                if (nl7 != null) nl7.TENLE = "Giỗ tổ Hùng Vương";
-                var nl8 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 8);
-                if (nl8 != null) nl8.TENLE = "Ngày Chiến thắng (30/4)";
-                var nl9 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 9);
-                if (nl9 != null) nl9.TENLE = "Ngày Quốc tế Lao động (01/5)";
-                var nl10 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 10);
-                if (nl10 != null) nl10.TENLE = "Quốc khánh (02/9)";
-                var nl11 = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == 11);
-                if (nl11 != null) nl11.TENLE = "Nghỉ liền kề Quốc khánh";
+                Action<int, string, DateTime> ensureNgayLe = (id, ten, ngay) =>
+                {
+                    var item = db.TB_NGAYLE.FirstOrDefault(x => x.IDLE == id);
+                    if (item == null)
+                    {
+                        item = new TB_NGAYLE
+                        {
+                            IDLE = id,
+                            TENLE = ten,
+                            NGAY = ngay,
+                            NAM = ngay.Year,
+                            CREATED_DATE = DateTime.Now
+                        };
+                        db.TB_NGAYLE.Add(item);
+                    }
+                    else
+                    {
+                        item.TENLE = ten;
+                        item.NGAY = ngay;
+                        item.NAM = ngay.Year;
+                        item.DELETED_BY = null;
+                        item.DELETED_DATE = null;
+                    }
+                };
 
+                ensureNgayLe(1, "Tết Dương lịch", new DateTime(2026, 1, 1));
+                ensureNgayLe(2, "Tết Âm lịch (29 Tết)", new DateTime(2026, 2, 16));
+                ensureNgayLe(3, "Tết Âm lịch (Mùng 1)", new DateTime(2026, 2, 17));
+                ensureNgayLe(4, "Tết Âm lịch (Mùng 2)", new DateTime(2026, 2, 18));
+                ensureNgayLe(5, "Tết Âm lịch (Mùng 3)", new DateTime(2026, 2, 19));
+                ensureNgayLe(6, "Tết Âm lịch (Mùng 4)", new DateTime(2026, 2, 20));
+                ensureNgayLe(7, "Giỗ tổ Hùng Vương", new DateTime(2026, 4, 26));
+                ensureNgayLe(8, "Ngày Chiến thắng (30/4)", new DateTime(2026, 4, 30));
+                ensureNgayLe(9, "Ngày Quốc tế Lao động (01/5)", new DateTime(2026, 5, 1));
+                ensureNgayLe(10, "Quốc khánh (02/9)", new DateTime(2026, 9, 2));
+                ensureNgayLe(11, "Nghỉ liền kề Quốc khánh", new DateTime(2026, 9, 3));
+
+                var kc = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == 202609);
+                if (kc == null)
+                {
+                    kc = new TB_KYCONG
+                    {
+                        MAKYCONG = 202609,
+                        THANG = 9,
+                        NAM = 2026,
+                        KHOA = 0,
+                        NGAYCONGTRONGTHANG = 26,
+                        TRANGTHAI = 0,
+                        CREATED_DATE = DateTime.Now
+                    };
+                    db.TB_KYCONG.Add(kc);
+                }
+                else
+                {
+                    kc.KHOA = 0;
+                }
+
+                db.Database.ExecuteSqlCommand(@"
+MERGE INTO TB_NHANVIEN target 
+USING (SELECT 2201 AS MANV, 'Nhân viên test 2201' AS HOTEN, 1 AS IDCTY, 0 AS DATHOIVIEC FROM DUAL) src 
+ON (target.MANV = src.MANV) 
+WHEN NOT MATCHED THEN INSERT (MANV, HOTEN, IDCTY, DATHOIVIEC) VALUES (src.MANV, src.HOTEN, src.IDCTY, src.DATHOIVIEC)
+");
+
+                db.Database.ExecuteSqlCommand(@"
+MERGE INTO TB_HOPDONG target 
+USING (SELECT 'HDTEST2201' AS SOHD, 2201 AS MANV, TO_DATE('2026-01-01', 'YYYY-MM-DD') AS NGAYBATDAU, 1 AS LOAIHD FROM DUAL) src 
+ON (target.SOHD = src.SOHD) 
+WHEN NOT MATCHED THEN INSERT (SOHD, MANV, NGAYBATDAU, LOAIHD, CREATED_DATE) VALUES (src.SOHD, src.MANV, src.NGAYBATDAU, src.LOAIHD, SYSDATE)
+");
                 db.SaveChanges();
             }
         }
@@ -227,7 +274,7 @@ namespace Bu.Tests
 
             Assert.DoesNotThrow(() =>
             {
-                bcctBus.PhatSinhBangCongChiTiet(makycong, 2026, 9, 1, null);
+                bcctBus.PhatSinhBangCongChiTiet(makycong, 2026, 9, 1, null, tuPhatSinhBangCong: true);
             });
         }
 
@@ -273,6 +320,23 @@ namespace Bu.Tests
             int manv = 2201; // Nhân viên mẫu trong kỳ công
             int ngay = 15;
 
+            using (var db = new MyEntities())
+            {
+                var kc = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
+                if (kc != null) kc.KHOA = 0;
+                var kcctExist = db.TB_KYCONGCHITIET.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv);
+                if (kcctExist == null)
+                {
+                    db.TB_KYCONGCHITIET.Add(new TB_KYCONGCHITIET
+                    {
+                        MAKYCONG = makycong,
+                        MANV = manv,
+                        HOTEN = "Nhân viên test 2201"
+                    });
+                }
+                db.SaveChanges();
+            }
+
             // Giả lập người dùng sửa Giờ Vào: 08:30, Giờ Ra: 17:45 từ UI
             int gioVao = 8;
             int phutVao = 30;
@@ -316,6 +380,23 @@ namespace Bu.Tests
             int makycong = 202609;
             int manv = 2201;
             int ngay = 16;
+
+            using (var db = new MyEntities())
+            {
+                var kc = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
+                if (kc != null) kc.KHOA = 0;
+                var kcctExist = db.TB_KYCONGCHITIET.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv);
+                if (kcctExist == null)
+                {
+                    db.TB_KYCONGCHITIET.Add(new TB_KYCONGCHITIET
+                    {
+                        MAKYCONG = makycong,
+                        MANV = manv,
+                        HOTEN = "Nhân viên test 2201"
+                    });
+                }
+                db.SaveChanges();
+            }
 
             // Bước 1: Thiết lập trạng thái ban đầu là "P" (Nghỉ phép)
             bcctBus.CapNhatNgayCongVaBangCongRaw(manv, makycong, 2026, 9, ngay, 8, 0, 17, 0, "P", "NN", 1);

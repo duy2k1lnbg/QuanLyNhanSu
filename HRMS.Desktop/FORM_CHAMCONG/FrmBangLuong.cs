@@ -31,6 +31,7 @@ namespace QLyNSu.FORM_CHAMCONG
             ConfigureGrid();
             LoadCombo();
             LoadData();
+            gvBangLuong.DoubleClick += gvBangLuong_DoubleClick;
         }
 
         private void ConfigureGrid()
@@ -99,7 +100,7 @@ namespace QLyNSu.FORM_CHAMCONG
             if (cboKyCong.SelectedValue != null && int.TryParse(cboKyCong.SelectedValue.ToString(), out int makycong))
             {
                 var kc = _kycong.getItem(makycong);
-                bool isKhoa = kc != null && ((kc.KHOA ?? 0) == 1 || (kc.TRANGTHAI ?? 0) == 1);
+                bool isKhoa = kc != null && (kc.KHOA ?? 0) == 1;
                 btnTinhLuong.Enabled = !isKhoa;
                 btnTinhLuongCong.Enabled = !isKhoa;
 
@@ -150,9 +151,27 @@ namespace QLyNSu.FORM_CHAMCONG
             if (cboKyCong.SelectedValue != null && int.TryParse(cboKyCong.SelectedValue.ToString(), out int makycong))
             {
                 var kc = _kycong.getItem(makycong);
-                if (kc != null && ((kc.KHOA ?? 0) == 1 || (kc.TRANGTHAI ?? 0) == 1))
+                if (kc != null && (kc.KHOA ?? 0) == 1)
                 {
                     XtraMessageBox.Show($"Kỳ công {makycong} đã bị khoá sổ. Khi đã khoá bảng công thì không cho phép tính lại lương!", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
+                // Kiểm tra trước tính sẵn sàng của schema bảng chính sách tính lương (TB_CHINH_SACH_LUONG, ...)
+                if (!Bu.CLASS_PAYROLL.PolicyResolver.IsPolicySchemaAvailable(out string missingDetails))
+                {
+                    XtraMessageBox.Show(
+                        $"Không thể thực hiện tính lương do cơ sở dữ liệu chưa được khởi tạo bảng chính sách ({missingDetails ?? "TB_CHINH_SACH_LUONG"}).\n\n" +
+                        "BẠN CẦN LÀM GÌ TRƯỚC:\n" +
+                        "1. Quản trị viên (DBA) cần chạy script migration V1_16:\n" +
+                        "   'database/migrations/V1_16__payroll_production_policies_and_itemized_details.sql'\n" +
+                        "   (hoặc file 'apply_payroll_v1_16_objects.sql') để tạo các bảng chính sách và nạp cấu hình mặc định.\n" +
+                        "2. Kiểm tra quyền truy cập (SELECT, INSERT, UPDATE) của tài khoản kết nối trên schema Oracle.\n" +
+                        "3. Mở chức năng 'Cấu hình lương' để kiểm tra lại các tham số lương, BHXH và thuế TNCN trước khi tính lương.",
+                        "Cơ sở dữ liệu chưa sẵn sàng",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning
+                    );
                     return;
                 }
 
@@ -188,7 +207,8 @@ namespace QLyNSu.FORM_CHAMCONG
                 catch (Exception ex)
                 {
                     SplashScreenManager.CloseForm();
-                    XtraMessageBox.Show("Lỗi khi tính lương: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    string friendlyMsg = Bu.CLASS_SYSTEM.ErrorHelper.ResolveUserFriendlyMessage(ex, "tính lương", out string correlationId);
+                    XtraMessageBox.Show(friendlyMsg, "Lỗi tính lương", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             else
@@ -219,6 +239,40 @@ namespace QLyNSu.FORM_CHAMCONG
             if (cboKyCong.SelectedValue != null && int.TryParse(cboKyCong.SelectedValue.ToString(), out int makycong))
             {
                 LoadData();
+            }
+        }
+
+        private void btnChiTiet_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            OpenChiTietLuong();
+        }
+
+        private void btnPhatSinh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            using (var frm = new FrmPhatSinhLuong())
+            {
+                frm.ShowDialog(this);
+            }
+        }
+
+        private void gvBangLuong_DoubleClick(object sender, EventArgs e)
+        {
+            OpenChiTietLuong();
+        }
+
+        private void OpenChiTietLuong()
+        {
+            var item = gvBangLuong.GetFocusedRow() as Bu.DTO.BANGLUONG_DTO;
+            if (item != null)
+            {
+                using (var frm = new FrmChiTietLuong(item))
+                {
+                    frm.ShowDialog(this);
+                }
+            }
+            else
+            {
+                XtraMessageBox.Show("Vui lòng chọn một nhân viên trong bảng lương để xem chi tiết!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
     }

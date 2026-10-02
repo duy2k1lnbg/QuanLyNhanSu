@@ -242,6 +242,7 @@ namespace QLyNSu
                 
                 // Disable all controls except login and exit
                 btnPass.Enabled = false;
+                btnThungRac.Enabled = false;
                 btnSaoLuu_DB.Enabled = false;
                 btnPhucHoi_DB.Enabled = false;
                 btnDanToc.Enabled = false;
@@ -262,6 +263,8 @@ namespace QLyNSu
                 btnUngLuong.Enabled = false;
                 btnBangCong.Enabled = false;
                 btnBangLuong.Enabled = false;
+                btnCauHinhLuong.Enabled = false;
+                btnPhatSinhLuong.Enabled = false;
                 btnCongTy.Enabled = false;
                 btnBoPhan.Enabled = false;
                 btnChucVu.Enabled = false;
@@ -334,6 +337,8 @@ namespace QLyNSu
                 btnBangCong.Enabled = UserSession.HasRight("F_CC_BANGCONG");
                 btnBCCT_NV.Enabled = UserSession.HasRight("F_CC_BCCT") || UserSession.HasRight("F_CC_BCCT_IN");
                 btnBangLuong.Enabled = UserSession.HasRight("F_CC_BANGLUONG");
+                btnCauHinhLuong.Enabled = UserSession.HasRight("F_CC_BANGLUONG") || UserSession.IsAdmin;
+                btnPhatSinhLuong.Enabled = UserSession.HasRight("F_CC_BANGLUONG") || UserSession.IsAdmin;
                 btnLoaiHopDong.Enabled = UserSession.HasRight("F_NV_LOAIHOPDONG");
                 btnNgayLe.Enabled = UserSession.HasRight("F_CC_NGAYLE");
                 
@@ -556,6 +561,16 @@ namespace QLyNSu
             await _formManager.OpenFormWithSplashScreen(typeof(FrmBangLuong));
         }
 
+        private async void btnCauHinhLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FORM_CHAMCONG.FrmCauHinhLuong));
+        }
+
+        private async void btnPhatSinhLuong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FORM_CHAMCONG.FrmPhatSinhLuong));
+        }
+
         private async void btnBaoCao_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmBaoCaoTongHop));
@@ -574,6 +589,11 @@ namespace QLyNSu
         private async void btnThongBao_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             await _formManager.OpenFormWithSplashScreen(typeof(FrmThongBao));
+        }
+
+        private async void btnThungRac_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        {
+            await _formManager.OpenFormWithSplashScreen(typeof(FORM_SYSTEM.FrmThungRacNghiepVu));
         }
 
         private void btnExit3_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

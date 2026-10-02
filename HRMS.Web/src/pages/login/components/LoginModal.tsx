@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Button, Typography, Tag, Alert, message } from 'antd';
+import { Form, Input, Button, Alert, message } from 'antd';
 import {
   SafetyCertificateOutlined,
   UserOutlined,
@@ -9,9 +9,9 @@ import {
 import api from '../../../services/api';
 import type { CurrentUserDTO } from '../../../types/hrms';
 import { useAppLanguage } from '../../../services/i18n';
-import { useAppTheme } from '../../../theme/ThemeContext';
+import { LandingModal } from './LandingModal';
 
-const { Title, Text, Paragraph } = Typography;
+
 
 interface LoginModalProps {
   visible: boolean;
@@ -29,7 +29,7 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   tAuth: propTAuth,
 }) => {
   const { dict, tLanding: hookTLanding, tAuth: hookTAuth } = useAppLanguage();
-  const { tokens } = useAppTheme();
+
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -40,7 +40,6 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   // Comprehensive fallbacks so labels and placeholders are NEVER empty
   const title = auth.loginModalTitle || landing.loginModalTitle || 'ĐĂNG NHẬP HỆ THỐNG';
   const subtitle = auth.loginModalSubtitle || landing.loginModalSubtitle || 'Cổng Quản Trị Nhân Sự Trực Tuyến';
-  const sslTag = auth.loginModalSSLTag || landing.loginModalSSLTag || 'Cổng Xác Thực Bảo Mật SSL';
   const usernameLabel = auth.usernameLabel || landing.usernameLabel || 'Tên đăng nhập';
   const usernamePlaceholder = auth.usernamePlaceholder || landing.usernamePlaceholder || 'Nhập tên đăng nhập...';
   const usernameRequired = auth.usernameRequired || landing.usernameRequired || 'Vui lòng nhập tên tài khoản!';
@@ -119,121 +118,46 @@ export const LoginModal: React.FC<LoginModalProps> = ({
   };
 
   return (
-    <Modal
+    <LandingModal
       open={visible}
-      onCancel={() => {
-        setErrorMessage(null);
-        onClose();
-      }}
+      onCancel={() => { setErrorMessage(null); onClose(); }}
       footer={null}
-      width={440}
-      centered
-      destroyOnClose
-      bodyStyle={{ padding: '32px 28px' }}
-      style={{ borderRadius: 18, overflow: 'hidden' }}
-    >
-      {/* Header Modal */}
-      <div style={{ textAlign: 'center', marginBottom: 24 }}>
-        <div
-          style={{
-            width: 54,
-            height: 54,
-            margin: '0 auto 12px',
-            borderRadius: 14,
-            background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 8px 18px rgba(37,99,235,0.35)',
-          }}
-        >
-          <SafetyCertificateOutlined style={{ fontSize: 28, color: '#fff' }} />
+      width={500}
+      className="landing-login-modal"
+      title={
+        <div className="landing-modal-visual">
+          <span className="landing-modal-kicker">TRYHARDAGAIN · HRMS ENTERPRISE</span>
+          <h2>{title}</h2>
+          <p>{subtitle}</p>
         </div>
-        <Title level={3} style={{ margin: 0, fontWeight: 800, color: tokens.textPrimary }}>
-          {title}
-        </Title>
-        <Paragraph type="secondary" style={{ marginTop: 4, marginBottom: 0, fontSize: 13, color: tokens.textSecondary }}>
-          {subtitle}
-        </Paragraph>
-        <Tag color="processing" style={{ marginTop: 8, borderRadius: 10, fontWeight: 500 }}>
-          <SafetyCertificateOutlined style={{ marginRight: 4 }} /> {sslTag}
-        </Tag>
-      </div>
-
+      }
+    >
       {errorMessage && (
-        <Alert
-          message={errorMessage}
-          type="error"
-          showIcon
-          closable
-          onClose={() => setErrorMessage(null)}
-          style={{ marginBottom: 18, borderRadius: 8 }}
-        />
+        <Alert message={errorMessage} type="error" showIcon closable
+          onClose={() => setErrorMessage(null)} />
       )}
-
-      <Form form={form} layout="vertical" onFinish={handleLogin}>
-        <Form.Item
-          name="username"
-          label={<Text strong style={{ color: tokens.textPrimary }}>{usernameLabel}</Text>}
-          rules={[{ required: true, message: usernameRequired }]}
-        >
-          <Input
-            size="large"
-            prefix={<UserOutlined style={{ color: tokens.textMuted }} />}
-            placeholder={usernamePlaceholder}
-            autoFocus
-            style={{ borderRadius: 8 }}
-          />
+      <Form form={form} layout="vertical" onFinish={handleLogin} preserve={false}>
+        <Form.Item name="username" label={usernameLabel}
+          rules={[{ required: true, message: usernameRequired }]}>
+          <Input size="large" prefix={<UserOutlined />} placeholder={usernamePlaceholder}
+            autoComplete="username" autoFocus />
         </Form.Item>
-
-        <Form.Item
-          name="password"
-          label={<Text strong style={{ color: tokens.textPrimary }}>{passwordLabel}</Text>}
-          rules={[{ required: true, message: passwordRequired }]}
-        >
-          <Input.Password
-            size="large"
-            prefix={<LockOutlined style={{ color: tokens.textMuted }} />}
-            placeholder={passwordPlaceholder}
-            style={{ borderRadius: 8 }}
-          />
+        <Form.Item name="password" label={passwordLabel}
+          rules={[{ required: true, message: passwordRequired }]}>
+          <Input.Password size="large" prefix={<LockOutlined />}
+            placeholder={passwordPlaceholder} autoComplete="current-password" />
         </Form.Item>
-
-        <Form.Item style={{ marginTop: 24, marginBottom: 0 }}>
-          <Button
-            type="primary"
-            htmlType="submit"
-            size="large"
-            block
-            loading={loading}
-            icon={<LoginOutlined />}
-            style={{
-              height: 46,
-              borderRadius: 10,
-              fontWeight: 700,
-              fontSize: 15,
-              background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-              border: 'none',
-              boxShadow: '0 6px 16px rgba(37,99,235,0.4)',
-            }}
-          >
+        <Form.Item style={{ marginBottom: 0 }}>
+          <Button type="primary" htmlType="submit" size="large" block loading={loading}
+            icon={<LoginOutlined />} className="landing-login-submit">
             {loading ? loggingInText : btnSubmitText}
           </Button>
         </Form.Item>
       </Form>
-
-      <div
-        style={{
-          marginTop: 20,
-          paddingTop: 14,
-          borderTop: `1px solid ${tokens.borderSubtle}`,
-          textAlign: 'center',
-          fontSize: 12,
-          color: tokens.textMuted,
-        }}
-      >
-        {securityFooter}
+      <div className="landing-modal-note">
+        <SafetyCertificateOutlined />
+        <span>{securityFooter}</span>
       </div>
-    </Modal>
+    </LandingModal>
   );
 };

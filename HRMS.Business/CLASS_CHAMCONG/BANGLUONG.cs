@@ -119,7 +119,7 @@ namespace Bu.CLASS_CHAMCONG
             using (var dbCheck = new MyEntities())
             {
                 var kc = dbCheck.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == (decimal)makycong);
-                if (kc != null && ((kc.KHOA ?? 0) == 1 || (kc.TRANGTHAI ?? 0) == 1))
+                if (kc != null && (kc.KHOA ?? 0) == 1)
                 {
                     throw new InvalidOperationException($"Kỳ công {makycong} đã bị khóa sổ. Khi đã khóa bảng công thì không cho phép tính lại lương.");
                 }

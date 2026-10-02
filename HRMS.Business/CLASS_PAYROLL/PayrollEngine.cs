@@ -220,13 +220,22 @@ namespace Bu.CLASS_PAYROLL
                     new OracleParameter("p4", executedBy ?? "SYSTEM")
                 );
 
-                // Load all eligible employees in period (pure query based on active contract in period)
+                // Load all eligible employees in period (prioritizing TB_LUONG_HIEULUC with fallback to TB_HOPDONG)
                 var employees = db.Database.SqlQuery<EmployeeAttendanceRow>(@"
                     SELECT MANV, HOTEN, BASE_SALARY, IDPB, IDCV, CONTRACT_COUNT, CONTRACT_START, CONTRACT_END FROM (
-                        SELECT nv.MANV, nv.HOTEN, hd.LUONG_THOA_THUAN BASE_SALARY, nv.IDPB, nv.IDCV, hd.NGAYBATDAU CONTRACT_START, hd.NGAYKETTHUC CONTRACT_END,
-                            COUNT(*) OVER(PARTITION BY nv.MANV) CONTRACT_COUNT,
-                            ROW_NUMBER() OVER(PARTITION BY nv.MANV ORDER BY hd.NGAYBATDAU DESC, hd.SOHD DESC) RN
-                        FROM TB_NHANVIEN nv JOIN TB_HOPDONG hd ON hd.MANV = nv.MANV
+                        SELECT nv.MANV, nv.HOTEN, 
+                               NVL(lh.LUONG_THANG, hd.LUONG_THOA_THUAN) AS BASE_SALARY, 
+                               nv.IDPB, nv.IDCV, hd.NGAYBATDAU AS CONTRACT_START, hd.NGAYKETTHUC AS CONTRACT_END,
+                               COUNT(*) OVER(PARTITION BY nv.MANV) AS CONTRACT_COUNT,
+                               ROW_NUMBER() OVER(PARTITION BY nv.MANV ORDER BY hd.NGAYBATDAU DESC, hd.SOHD DESC) AS RN
+                        FROM TB_NHANVIEN nv 
+                        JOIN TB_HOPDONG hd ON hd.MANV = nv.MANV
+                        LEFT JOIN (
+                            SELECT MANV, LUONG_THANG,
+                                   ROW_NUMBER() OVER(PARTITION BY MANV ORDER BY TU_NGAY DESC, ID DESC) AS RN_LH
+                            FROM TB_LUONG_HIEULUC
+                            WHERE TU_NGAY <= :p_end AND (DEN_NGAY IS NULL OR DEN_NGAY >= :p_start)
+                        ) lh ON lh.MANV = nv.MANV AND lh.RN_LH = 1
                         WHERE (nv.DELETED_DATE IS NULL OR nv.DELETED_DATE >= :p_start)
                           AND hd.DEL_DATE IS NULL
                           AND hd.NGAYBATDAU <= :p_end
@@ -462,8 +471,10 @@ namespace Bu.CLASS_PAYROLL
 
             // 1. Standard Working Days & Daily Rates
             decimal dailyRate = Math.Round(input.BaseSalary / salaryPolicy.SO_CONG_CHUAN_THANG, 2);
-            // Total effective paid days: worked days + paid leave days, capped at standard monthly days for monthly wage
-            decimal totalPaidDays = Math.Min(salaryPolicy.SO_CONG_CHUAN_THANG, input.ActualDaysWorked + (input.ActualDaysWorked >= salaryPolicy.SO_CONG_CHUAN_THANG ? 0m : input.LeaveDaysWithPay));
+            // In the attendance model, ActualDaysWorked (TONGNGAYCONG) includes both worked days and paid leave days.
+            // Pure worked days = ActualDaysWorked - LeaveDaysWithPay.
+            decimal workDays = Math.Max(0m, input.ActualDaysWorked - input.LeaveDaysWithPay);
+            decimal totalPaidDays = Math.Min(salaryPolicy.SO_CONG_CHUAN_THANG, workDays + input.LeaveDaysWithPay);
             decimal totalRegularWage = totalPaidDays >= salaryPolicy.SO_CONG_CHUAN_THANG
                 ? input.BaseSalary
                 : Math.Round(input.BaseSalary * (totalPaidDays / salaryPolicy.SO_CONG_CHUAN_THANG), 2);
@@ -474,7 +485,6 @@ namespace Bu.CLASS_PAYROLL
             decimal nightWageAllowance = Math.Round(input.NightShiftDays * dailyRate * salaryPolicy.HE_SO_LAM_DEM, 2);
 
             // Item: Standard Wage
-            decimal workDays = Math.Max(0m, input.ActualDaysWorked - input.LeaveDaysWithPay);
             res.DetailItems.Add(new PayrollDetailItemDto
             {
                 MANV = input.MANV,
@@ -658,9 +668,13 @@ namespace Bu.CLASS_PAYROLL
                 res.DetailItems.Add(otItem);
             }
 
-            // 4. Rewards and Penalties
-            decimal totalRewards = input.RewardsAndDisciplines.Where(r => r.LOAI == 1).Sum(r => r.SOTIEN);
-            decimal totalDisciplines = input.RewardsAndDisciplines.Where(r => r.LOAI == 2).Sum(r => r.SOTIEN);
+            // 4. Rewards and Penalties / Khấu trừ phát sinh
+            // Phân biệt khoản khấu trừ lương với dữ liệu kỷ luật (Điều 127 BLLĐ 2019 cấm phạt tiền, trừ lương do kỷ luật)
+            var validRewards = input.RewardsAndDisciplines.Where(r => r.LOAI == 1).ToList();
+            var validDeductions = input.RewardsAndDisciplines.Where(r => r.LOAI == 2 && !IsDisciplinaryFine(r)).ToList();
+
+            decimal totalRewards = validRewards.Sum(r => r.SOTIEN);
+            decimal totalDeductions = validDeductions.Sum(r => r.SOTIEN);
 
             if (totalRewards > 0)
             {
@@ -679,9 +693,9 @@ namespace Bu.CLASS_PAYROLL
                     TINH_THUE_TNCN = 1,
                     SO_TIEN_MIEN_THUE = 0m,
                     SO_TIEN_CHIU_THUE = totalRewards,
-                    CONG_THUC_DIEN_GIAI = "Khen thưởng theo quyết định"
+                    CONG_THUC_DIEN_GIAI = "Khen thưởng theo quyết định đã duyệt"
                 };
-                foreach (var r in input.RewardsAndDisciplines.Where(x => x.LOAI == 1))
+                foreach (var r in validRewards)
                 {
                     rewardItem.Sources.Add(new PayrollDetailSourceDto
                     {
@@ -693,6 +707,39 @@ namespace Bu.CLASS_PAYROLL
                     });
                 }
                 res.DetailItems.Add(rewardItem);
+            }
+
+            if (totalDeductions > 0)
+            {
+                var disciplineItem = new PayrollDetailItemDto
+                {
+                    MANV = input.MANV,
+                    MAKYCONG = input.MAKYCONG,
+                    NHOM_KHOAN_MUC = "KHAU_TRU",
+                    MA_KHOAN_MUC = "KHAU_TRU_PHAT_SINH",
+                    TEN_KHOAN_MUC = "Khấu trừ phát sinh khác",
+                    SO_LUONG = 1.0m,
+                    DON_GIA = totalDeductions,
+                    HE_SO = 1.0m,
+                    THANH_TIEN = totalDeductions,
+                    TINH_VAO_DONG_BHXH = 0,
+                    TINH_THUE_TNCN = 0,
+                    SO_TIEN_MIEN_THUE = 0m,
+                    SO_TIEN_CHIU_THUE = 0m,
+                    CONG_THUC_DIEN_GIAI = "Khấu trừ phát sinh theo quyết định/chứng từ đã duyệt"
+                };
+                foreach (var r in validDeductions)
+                {
+                    disciplineItem.Sources.Add(new PayrollDetailSourceDto
+                    {
+                        MANV = input.MANV,
+                        SOURCE_TYPE = "KHENTHUONG_KYLUAT",
+                        SOURCE_KTKL_SOQD = r.SOQUYETDINH,
+                        WEIGHT_QUANTITY = 1.0m,
+                        AMOUNT_CONTRIBUTED = r.SOTIEN
+                    });
+                }
+                res.DetailItems.Add(disciplineItem);
             }
 
             // 5. Total Gross Earnings
@@ -724,8 +771,8 @@ namespace Bu.CLASS_PAYROLL
             // 9. Advances & Deductions
             decimal totalAdvances = input.Advances.Sum(a => a.SOTIENUNG);
 
-            // 10. Net Pay (Under Art. 127 Labor Code 2019, disciplinary penalties cannot be deducted from salary)
-            res.NetPay = res.GrossEarnings - res.InsuranceEmployee - res.UnionEmployee - res.TaxWithheld - totalAdvances;
+            // 10. Net Pay (Gross Earnings minus employee insurance, union fee, PIT, advances, and approved deduction occurrences)
+            res.NetPay = res.GrossEarnings - res.InsuranceEmployee - res.UnionEmployee - res.TaxWithheld - totalAdvances - totalDeductions;
 
             // 11. Total Employer Cost
             res.TotalEmployerCost = res.GrossEarnings + res.InsuranceEmployer + res.UnionEmployer;
@@ -742,12 +789,40 @@ namespace Bu.CLASS_PAYROLL
             res.PhuCapCongThucTe = totalAllowances;
             res.TienTangCa = totalOtPayment;
             res.TienChuyenCan = input.Allowances.Where(a => a.TENPC != null && a.TENPC.ToLower().Contains("chuyên cần")).Sum(a => a.SOTIEN);
-            res.TienAnCa = input.Allowances.Where(a => a.IDPC == 2 || (a.TENPC != null && a.TENPC.ToLower().Contains("ăn ca"))).Sum(a => a.SOTIEN);
+            res.TienAnCa = input.Allowances.Where(a => a.TENPC != null && (a.TENPC.ToLower().Contains("ăn ca") || a.TENPC.ToLower().Contains("tiền ăn") || a.TENPC.ToLower().Contains("cơm trưa"))).Sum(a => a.SOTIEN);
             res.KhoanCongKhac = nightWageAllowance + totalRewards;
             res.TienTamUng = totalAdvances;
-            res.KhoanTruKhac = 0m; // Do not deduct disciplinary fines from salary
+            res.KhoanTruKhac = totalDeductions;
 
             return res;
+        }
+
+        private static bool IsDisciplinaryFine(RewardDisciplineInput r)
+        {
+            if (r == null) return false;
+            // Theo Điều 127 Bộ luật Lao động 2019: nghiêm cấm phạt tiền, cắt lương thay việc xử lý kỷ luật lao động.
+            // Do đó quyết định xử lý kỷ luật vi phạm nội quy/kỷ luật lao động không được tự động khấu trừ vào lương.
+            string text = ((r.LYDO ?? "") + " " + (r.SOQUYETDINH ?? "")).ToLowerInvariant();
+            return text.Contains("kỷ luật") || text.Contains("vi phạm nội quy") || text.Contains("phạt vi phạm");
+        }
+
+        private static bool? _hasTrangThaiInKtkl = null;
+        internal static bool CheckTrangThaiColumnInKtkl(MyEntities db)
+        {
+            if (_hasTrangThaiInKtkl.HasValue) return _hasTrangThaiInKtkl.Value;
+            try
+            {
+                int cnt = db.Database.SqlQuery<int>(@"
+                    SELECT COUNT(*) FROM USER_TAB_COLS 
+                    WHERE TABLE_NAME = 'TB_KHENTHUONG_KYLUAT' AND COLUMN_NAME = 'TRANG_THAI'
+                ").FirstOrDefault();
+                _hasTrangThaiInKtkl = cnt > 0;
+            }
+            catch
+            {
+                _hasTrangThaiInKtkl = false;
+            }
+            return _hasTrangThaiInKtkl.Value;
         }
 
         private static EmployeePayrollInput LoadEmployeePayrollInput(MyEntities db, decimal manv, decimal makycong, int nam, int thang, decimal baseSalary, decimal standardDays)
@@ -809,12 +884,12 @@ namespace Bu.CLASS_PAYROLL
                 new OracleParameter("p1", makycong)
             ).FirstOrDefault();
 
-            decimal actualDays = 0m;
+            decimal totalPaidDays = 0m;
             decimal leaveDays = 0m;
 
             if (kcct != null && kcct.TONGNGAYCONG.HasValue)
             {
-                actualDays = kcct.TONGNGAYCONG.Value;
+                totalPaidDays = kcct.TONGNGAYCONG.Value;
                 leaveDays = kcct.NGAYPHEP ?? 0.0m;
             }
             else
@@ -832,10 +907,13 @@ namespace Bu.CLASS_PAYROLL
 
                 if (bcctSummary != null)
                 {
-                    actualDays = bcctSummary.TONGNGAYCONG ?? 0m;
+                    totalPaidDays = bcctSummary.TONGNGAYCONG ?? 0m;
                     leaveDays = bcctSummary.NGAYPHEP ?? 0m;
                 }
             }
+
+            input.LeaveDaysWithPay = leaveDays;
+            input.ActualDaysWorked = totalPaidDays;
 
             // Count night shifts: Ưu tiên dữ liệu đã công bố V1.18 từ GIAY_DEM_TRONG_GIO_THUONG + GIAY_DEM_OT
             if (publishCheck != null && (publishCheck.SO_NGAY_CO_CONGBO ?? 0) > 0 && publishCheck.TONG_GIAY_DEM.HasValue)
@@ -856,9 +934,6 @@ namespace Bu.CLASS_PAYROLL
 
                 input.NightShiftDays = bcctNight ?? 0.0m;
             }
-
-            input.ActualDaysWorked = actualDays;
-            input.LeaveDaysWithPay = leaveDays;
 
             // Allowances from TB_NHANVIEN_PHUCAP
             var endOfMonth = new DateTime(nam, thang, DateTime.DaysInMonth(nam, thang));
@@ -971,14 +1046,33 @@ namespace Bu.CLASS_PAYROLL
             }
 
             // Rewards and Disciplines from TB_KHENTHUONG_KYLUAT
-            var ktkls = db.Database.SqlQuery<RewardDisciplineQueryRow>(@"
-                SELECT SOQUYETDINH, LOAI, NVL(SOTIEN, 0) AS SOTIEN, LYDO
-                FROM TB_KHENTHUONG_KYLUAT
-                WHERE MANV = :p0 AND DELETED_DATE IS NULL
+            // Only APPROVED occurrences for this period are loaded into payroll.
+            // Drafts, revoked occurrences, or unapproved records are strictly excluded.
+            bool hasTrangThaiCol = CheckTrangThaiColumnInKtkl(db);
+            string approvalCondition = hasTrangThaiCol
+                ? @"AND k.TRANG_THAI = 'APPROVED'"
+                : @"AND EXISTS (
+                        SELECT 1 FROM (
+                            SELECT ID_BAN_GHI, HANHDONG, ROW_NUMBER() OVER (PARTITION BY ID_BAN_GHI ORDER BY THOIGIAN DESC, ID_LOG DESC) as rn
+                            FROM TB_SYS_LOG
+                            WHERE TEN_BANG = 'TB_KHENTHUONG_KYLUAT'
+                              AND HANHDONG IN ('DUYET_PHATSINH', 'THU_HOI_PHATSINH', 'THEM_PHATSINH_NHAP', 'SUA_PHATSINH_NHAP')
+                        ) sl
+                        WHERE sl.rn = 1 AND sl.HANHDONG = 'DUYET_PHATSINH' AND sl.ID_BAN_GHI = k.SOQUYETDINH
+                   )";
+
+            string sqlKtkl = $@"
+                SELECT k.SOQUYETDINH, k.LOAI, NVL(k.SOTIEN, 0) AS SOTIEN, k.LYDO
+                FROM TB_KHENTHUONG_KYLUAT k
+                WHERE k.MANV = :p0 AND k.DELETED_DATE IS NULL
+                  {approvalCondition}
                   AND (
-                      (NAM_APDUNG = :p1 AND THANG_APDUNG = :p2)
-                      OR (NAM_APDUNG IS NULL AND THANG_APDUNG IS NULL AND NGAY >= :p3 AND NGAY < :p4)
-                  )",
+                      (k.NAM_APDUNG = :p1 AND k.THANG_APDUNG = :p2)
+                      OR (k.NAM_APDUNG IS NULL AND k.THANG_APDUNG IS NULL AND k.NGAY >= :p3 AND k.NGAY < :p4)
+                  )";
+
+            var ktkls = db.Database.SqlQuery<RewardDisciplineQueryRow>(
+                sqlKtkl,
                 new OracleParameter("p0", manv),
                 new OracleParameter("p1", nam),
                 new OracleParameter("p2", thang),

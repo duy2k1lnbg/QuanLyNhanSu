@@ -133,12 +133,11 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             // lblTrangThaiKhoa
             // 
-            this.lblTrangThaiKhoa.AutoSize = true;
             this.lblTrangThaiKhoa.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTrangThaiKhoa.ForeColor = System.Drawing.Color.ForestGreen;
-            this.lblTrangThaiKhoa.Location = new System.Drawing.Point(12, 172);
+            this.lblTrangThaiKhoa.Location = new System.Drawing.Point(12, 170);
             this.lblTrangThaiKhoa.Name = "lblTrangThaiKhoa";
-            this.lblTrangThaiKhoa.Size = new System.Drawing.Size(125, 14);
+            this.lblTrangThaiKhoa.Size = new System.Drawing.Size(236, 22);
             this.lblTrangThaiKhoa.TabIndex = 15;
             this.lblTrangThaiKhoa.Text = "🔓 Kỳ công mở (sửa)";
             // 
@@ -186,12 +185,11 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             // lblHoTen
             // 
-            this.lblHoTen.AutoSize = true;
             this.lblHoTen.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblHoTen.ForeColor = System.Drawing.Color.DarkBlue;
             this.lblHoTen.Location = new System.Drawing.Point(78, 68);
             this.lblHoTen.Name = "lblHoTen";
-            this.lblHoTen.Size = new System.Drawing.Size(92, 14);
+            this.lblHoTen.Size = new System.Drawing.Size(170, 20);
             this.lblHoTen.TabIndex = 10;
             this.lblHoTen.Text = "Nguyễn Văn A";
             // 
@@ -237,32 +235,30 @@ namespace QLyNSu.FORM_CHAMCONG
             this.grCaLam.Controls.Add(this.lblChonCa);
             this.grCaLam.Location = new System.Drawing.Point(285, 12);
             this.grCaLam.Name = "grCaLam";
-            this.grCaLam.Size = new System.Drawing.Size(530, 80);
+            this.grCaLam.Size = new System.Drawing.Size(540, 90);
             this.grCaLam.TabIndex = 2;
             this.grCaLam.Text = "A. Ca Làm Việc";
             // 
             // lblChiTietCa
             // 
-            this.lblChiTietCa.AutoSize = true;
             this.lblChiTietCa.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblChiTietCa.ForeColor = System.Drawing.Color.MidnightBlue;
-            this.lblChiTietCa.Location = new System.Drawing.Point(12, 57);
+            this.lblChiTietCa.Location = new System.Drawing.Point(12, 56);
             this.lblChiTietCa.Name = "lblChiTietCa";
-            this.lblChiTietCa.Size = new System.Drawing.Size(437, 13);
+            this.lblChiTietCa.Size = new System.Drawing.Size(516, 28);
             this.lblChiTietCa.TabIndex = 2;
-            this.lblChiTietCa.Text = "08:00 - 12:00 | Nghỉ giữa ca: 12:00 - 13:00 | 13:00 - 17:00 (Chuẩn: 8.0 giờ / 1" +
-    ".0 công)";
+            this.lblChiTietCa.Text = "08:00 - 12:00 | Nghỉ giữa ca: 12:00 - 13:00 | 13:00 - 17:00 (Chuẩn: 8.0 giờ / 1.0 công)";
             // 
             // cboCaLam
             // 
-            this.cboCaLam.Location = new System.Drawing.Point(90, 28);
+            this.cboCaLam.Location = new System.Drawing.Point(90, 26);
             this.cboCaLam.Name = "cboCaLam";
             this.cboCaLam.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboCaLam.Properties.Appearance.Options.UseFont = true;
             this.cboCaLam.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboCaLam.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
-            this.cboCaLam.Size = new System.Drawing.Size(260, 22);
+            this.cboCaLam.Size = new System.Drawing.Size(270, 22);
             this.cboCaLam.TabIndex = 1;
             this.cboCaLam.SelectedIndexChanged += new System.EventHandler(this.cboCaLam_SelectedIndexChanged);
             // 
@@ -270,7 +266,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.lblChonCa.AutoSize = true;
             this.lblChonCa.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblChonCa.Location = new System.Drawing.Point(12, 31);
+            this.lblChonCa.Location = new System.Drawing.Point(12, 29);
             this.lblChonCa.Name = "lblChonCa";
             this.lblChonCa.Size = new System.Drawing.Size(73, 14);
             this.lblChonCa.TabIndex = 0;
@@ -286,31 +282,31 @@ namespace QLyNSu.FORM_CHAMCONG
             this.grTrangThai.Controls.Add(this.chkCongTac);
             this.grTrangThai.Controls.Add(this.radNghi);
             this.grTrangThai.Controls.Add(this.radDiLam);
-            this.grTrangThai.Location = new System.Drawing.Point(285, 98);
+            this.grTrangThai.Location = new System.Drawing.Point(285, 108);
             this.grTrangThai.Name = "grTrangThai";
-            this.grTrangThai.Size = new System.Drawing.Size(530, 58);
+            this.grTrangThai.Size = new System.Drawing.Size(540, 58);
             this.grTrangThai.TabIndex = 3;
             this.grTrangThai.Text = "B. Trạng Thái Chấm Công";
             // 
             // lblBadgeChuaXacNhan
             // 
-            this.lblBadgeChuaXacNhan.AutoSize = true;
             this.lblBadgeChuaXacNhan.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblBadgeChuaXacNhan.ForeColor = System.Drawing.Color.DarkOrange;
-            this.lblBadgeChuaXacNhan.Location = new System.Drawing.Point(340, 30);
+            this.lblBadgeChuaXacNhan.Location = new System.Drawing.Point(295, 27);
             this.lblBadgeChuaXacNhan.Name = "lblBadgeChuaXacNhan";
-            this.lblBadgeChuaXacNhan.Size = new System.Drawing.Size(147, 14);
+            this.lblBadgeChuaXacNhan.Size = new System.Drawing.Size(235, 18);
             this.lblBadgeChuaXacNhan.TabIndex = 3;
             this.lblBadgeChuaXacNhan.Text = "● Chưa có dữ liệu công";
+            this.lblBadgeChuaXacNhan.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // chkCongTac
             // 
-            this.chkCongTac.Location = new System.Drawing.Point(205, 27);
+            this.chkCongTac.Location = new System.Drawing.Point(180, 26);
             this.chkCongTac.Name = "chkCongTac";
             this.chkCongTac.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkCongTac.Properties.Appearance.Options.UseFont = true;
             this.chkCongTac.Properties.Caption = "Đi công tác";
-            this.chkCongTac.Size = new System.Drawing.Size(110, 20);
+            this.chkCongTac.Size = new System.Drawing.Size(105, 20);
             this.chkCongTac.TabIndex = 2;
             this.chkCongTac.CheckedChanged += new System.EventHandler(this.chkCongTac_CheckedChanged);
             // 
@@ -319,7 +315,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.radNghi.AutoSize = true;
             this.radNghi.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.radNghi.ForeColor = System.Drawing.Color.Brown;
-            this.radNghi.Location = new System.Drawing.Point(115, 27);
+            this.radNghi.Location = new System.Drawing.Point(105, 26);
             this.radNghi.Name = "radNghi";
             this.radNghi.Size = new System.Drawing.Size(53, 20);
             this.radNghi.TabIndex = 1;
@@ -333,7 +329,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.radDiLam.Checked = true;
             this.radDiLam.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.radDiLam.ForeColor = System.Drawing.Color.DarkGreen;
-            this.radDiLam.Location = new System.Drawing.Point(20, 27);
+            this.radDiLam.Location = new System.Drawing.Point(16, 26);
             this.radDiLam.Name = "radDiLam";
             this.radDiLam.Size = new System.Drawing.Size(65, 20);
             this.radDiLam.TabIndex = 0;
@@ -354,27 +350,27 @@ namespace QLyNSu.FORM_CHAMCONG
             this.grThongTinNghi.Controls.Add(this.lblLoaiNghi);
             this.grThongTinNghi.Controls.Add(this.cboPhanNghi);
             this.grThongTinNghi.Controls.Add(this.lblPhanNghi);
-            this.grThongTinNghi.Location = new System.Drawing.Point(285, 162);
+            this.grThongTinNghi.Location = new System.Drawing.Point(285, 172);
             this.grThongTinNghi.Name = "grThongTinNghi";
-            this.grThongTinNghi.Size = new System.Drawing.Size(530, 95);
+            this.grThongTinNghi.Size = new System.Drawing.Size(540, 95);
             this.grThongTinNghi.TabIndex = 4;
             this.grThongTinNghi.Text = "C. Thông Tin Nghỉ";
             this.grThongTinNghi.Visible = false;
             // 
             // txtLyDoNghi
             // 
-            this.txtLyDoNghi.Location = new System.Drawing.Point(105, 62);
+            this.txtLyDoNghi.Location = new System.Drawing.Point(105, 60);
             this.txtLyDoNghi.Name = "txtLyDoNghi";
             this.txtLyDoNghi.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.txtLyDoNghi.Properties.Appearance.Options.UseFont = true;
-            this.txtLyDoNghi.Size = new System.Drawing.Size(405, 20);
+            this.txtLyDoNghi.Size = new System.Drawing.Size(415, 20);
             this.txtLyDoNghi.TabIndex = 5;
             // 
             // lblLyDoNghi
             // 
             this.lblLyDoNghi.AutoSize = true;
             this.lblLyDoNghi.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLyDoNghi.Location = new System.Drawing.Point(12, 65);
+            this.lblLyDoNghi.Location = new System.Drawing.Point(12, 63);
             this.lblLyDoNghi.Name = "lblLyDoNghi";
             this.lblLyDoNghi.Size = new System.Drawing.Size(87, 14);
             this.lblLyDoNghi.TabIndex = 4;
@@ -382,7 +378,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             // cboLoaiNghi
             // 
-            this.cboLoaiNghi.Location = new System.Drawing.Point(345, 30);
+            this.cboLoaiNghi.Location = new System.Drawing.Point(345, 28);
             this.cboLoaiNghi.Name = "cboLoaiNghi";
             this.cboLoaiNghi.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboLoaiNghi.Properties.Appearance.Options.UseFont = true;
@@ -392,7 +388,7 @@ namespace QLyNSu.FORM_CHAMCONG
             "Nghỉ phép",
             "Nghỉ không phép"});
             this.cboLoaiNghi.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
-            this.cboLoaiNghi.Size = new System.Drawing.Size(165, 20);
+            this.cboLoaiNghi.Size = new System.Drawing.Size(175, 20);
             this.cboLoaiNghi.TabIndex = 3;
             this.cboLoaiNghi.SelectedIndexChanged += new System.EventHandler(this.cboLoaiNghi_SelectedIndexChanged);
             // 
@@ -400,7 +396,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.lblLoaiNghi.AutoSize = true;
             this.lblLoaiNghi.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoaiNghi.Location = new System.Drawing.Point(280, 33);
+            this.lblLoaiNghi.Location = new System.Drawing.Point(275, 31);
             this.lblLoaiNghi.Name = "lblLoaiNghi";
             this.lblLoaiNghi.Size = new System.Drawing.Size(59, 14);
             this.lblLoaiNghi.TabIndex = 2;
@@ -408,14 +404,14 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             // cboPhanNghi
             // 
-            this.cboPhanNghi.Location = new System.Drawing.Point(105, 30);
+            this.cboPhanNghi.Location = new System.Drawing.Point(105, 28);
             this.cboPhanNghi.Name = "cboPhanNghi";
             this.cboPhanNghi.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboPhanNghi.Properties.Appearance.Options.UseFont = true;
             this.cboPhanNghi.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] {
             new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo)});
             this.cboPhanNghi.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
-            this.cboPhanNghi.Size = new System.Drawing.Size(160, 20);
+            this.cboPhanNghi.Size = new System.Drawing.Size(155, 20);
             this.cboPhanNghi.TabIndex = 1;
             this.cboPhanNghi.SelectedIndexChanged += new System.EventHandler(this.cboPhanNghi_SelectedIndexChanged);
             // 
@@ -423,7 +419,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.lblPhanNghi.AutoSize = true;
             this.lblPhanNghi.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblPhanNghi.Location = new System.Drawing.Point(12, 33);
+            this.lblPhanNghi.Location = new System.Drawing.Point(12, 31);
             this.lblPhanNghi.Name = "lblPhanNghi";
             this.lblPhanNghi.Size = new System.Drawing.Size(89, 14);
             this.lblPhanNghi.TabIndex = 0;
@@ -437,9 +433,9 @@ namespace QLyNSu.FORM_CHAMCONG
             this.grGioGhiNhan.AppearanceCaption.Options.UseForeColor = true;
             this.grGioGhiNhan.Controls.Add(this.pnlGioInputs);
             this.grGioGhiNhan.Controls.Add(this.lblNghiNguyenNgayNotice);
-            this.grGioGhiNhan.Location = new System.Drawing.Point(285, 263);
+            this.grGioGhiNhan.Location = new System.Drawing.Point(285, 273);
             this.grGioGhiNhan.Name = "grGioGhiNhan";
-            this.grGioGhiNhan.Size = new System.Drawing.Size(530, 85);
+            this.grGioGhiNhan.Size = new System.Drawing.Size(540, 88);
             this.grGioGhiNhan.TabIndex = 5;
             this.grGioGhiNhan.Text = "D. Giờ Làm Được Ghi Nhận";
             // 
@@ -454,17 +450,16 @@ namespace QLyNSu.FORM_CHAMCONG
             this.pnlGioInputs.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlGioInputs.Location = new System.Drawing.Point(2, 23);
             this.pnlGioInputs.Name = "pnlGioInputs";
-            this.pnlGioInputs.Size = new System.Drawing.Size(526, 60);
+            this.pnlGioInputs.Size = new System.Drawing.Size(536, 63);
             this.pnlGioInputs.TabIndex = 0;
             // 
             // lblNguonDuLieu
             // 
-            this.lblNguonDuLieu.AutoSize = true;
             this.lblNguonDuLieu.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblNguonDuLieu.ForeColor = System.Drawing.Color.DarkSlateGray;
-            this.lblNguonDuLieu.Location = new System.Drawing.Point(10, 40);
+            this.lblNguonDuLieu.Location = new System.Drawing.Point(12, 40);
             this.lblNguonDuLieu.Name = "lblNguonDuLieu";
-            this.lblNguonDuLieu.Size = new System.Drawing.Size(127, 13);
+            this.lblNguonDuLieu.Size = new System.Drawing.Size(508, 18);
             this.lblNguonDuLieu.TabIndex = 5;
             this.lblNguonDuLieu.Text = "Nguồn: Nhập tay thủ công";
             // 
@@ -472,9 +467,9 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.btnApDungGioCa.Appearance.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnApDungGioCa.Appearance.Options.UseFont = true;
-            this.btnApDungGioCa.Location = new System.Drawing.Point(340, 10);
+            this.btnApDungGioCa.Location = new System.Drawing.Point(330, 9);
             this.btnApDungGioCa.Name = "btnApDungGioCa";
-            this.btnApDungGioCa.Size = new System.Drawing.Size(170, 26);
+            this.btnApDungGioCa.Size = new System.Drawing.Size(190, 26);
             this.btnApDungGioCa.TabIndex = 4;
             this.btnApDungGioCa.Text = "Áp dụng giờ theo ca";
             this.btnApDungGioCa.Click += new System.EventHandler(this.btnApDungGioCa_Click);
@@ -482,7 +477,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // timeEditGioRa
             // 
             this.timeEditGioRa.EditValue = new System.DateTime(2026, 1, 1, 17, 0, 0, 0);
-            this.timeEditGioRa.Location = new System.Drawing.Point(230, 12);
+            this.timeEditGioRa.Location = new System.Drawing.Point(225, 11);
             this.timeEditGioRa.Name = "timeEditGioRa";
             this.timeEditGioRa.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.timeEditGioRa.Properties.Appearance.Options.UseFont = true;
@@ -497,7 +492,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.lblGioRa.AutoSize = true;
             this.lblGioRa.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblGioRa.Location = new System.Drawing.Point(175, 15);
+            this.lblGioRa.Location = new System.Drawing.Point(170, 14);
             this.lblGioRa.Name = "lblGioRa";
             this.lblGioRa.Size = new System.Drawing.Size(49, 14);
             this.lblGioRa.TabIndex = 2;
@@ -506,7 +501,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // timeEditGioVao
             // 
             this.timeEditGioVao.EditValue = new System.DateTime(2026, 1, 1, 8, 0, 0, 0);
-            this.timeEditGioVao.Location = new System.Drawing.Point(70, 12);
+            this.timeEditGioVao.Location = new System.Drawing.Point(72, 11);
             this.timeEditGioVao.Name = "timeEditGioVao";
             this.timeEditGioVao.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.timeEditGioVao.Properties.Appearance.Options.UseFont = true;
@@ -521,7 +516,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.lblGioVao.AutoSize = true;
             this.lblGioVao.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblGioVao.Location = new System.Drawing.Point(10, 15);
+            this.lblGioVao.Location = new System.Drawing.Point(12, 14);
             this.lblGioVao.Name = "lblGioVao";
             this.lblGioVao.Size = new System.Drawing.Size(57, 14);
             this.lblGioVao.TabIndex = 0;
@@ -534,7 +529,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.lblNghiNguyenNgayNotice.ForeColor = System.Drawing.Color.Brown;
             this.lblNghiNguyenNgayNotice.Location = new System.Drawing.Point(2, 23);
             this.lblNghiNguyenNgayNotice.Name = "lblNghiNguyenNgayNotice";
-            this.lblNghiNguyenNgayNotice.Size = new System.Drawing.Size(526, 60);
+            this.lblNghiNguyenNgayNotice.Size = new System.Drawing.Size(536, 63);
             this.lblNghiNguyenNgayNotice.TabIndex = 1;
             this.lblNghiNguyenNgayNotice.Text = "Nghỉ nguyên ngày — không ghi nhận giờ làm việc.";
             this.lblNghiNguyenNgayNotice.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -557,9 +552,9 @@ namespace QLyNSu.FORM_CHAMCONG
             this.grKetQuaDuKien.Controls.Add(this.labelPhep);
             this.grKetQuaDuKien.Controls.Add(this.lblKetQuaCong);
             this.grKetQuaDuKien.Controls.Add(this.labelCong);
-            this.grKetQuaDuKien.Location = new System.Drawing.Point(285, 354);
+            this.grKetQuaDuKien.Location = new System.Drawing.Point(285, 367);
             this.grKetQuaDuKien.Name = "grKetQuaDuKien";
-            this.grKetQuaDuKien.Size = new System.Drawing.Size(530, 160);
+            this.grKetQuaDuKien.Size = new System.Drawing.Size(540, 170);
             this.grKetQuaDuKien.TabIndex = 6;
             this.grKetQuaDuKien.Text = "E. Kết Quả Dự Kiến (Xem trước)";
             // 
@@ -567,20 +562,19 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.lblCanhBaoXungDot.Font = new System.Drawing.Font("Tahoma", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCanhBaoXungDot.ForeColor = System.Drawing.Color.ForestGreen;
-            this.lblCanhBaoXungDot.Location = new System.Drawing.Point(12, 122);
+            this.lblCanhBaoXungDot.Location = new System.Drawing.Point(12, 118);
             this.lblCanhBaoXungDot.Name = "lblCanhBaoXungDot";
-            this.lblCanhBaoXungDot.Size = new System.Drawing.Size(505, 30);
+            this.lblCanhBaoXungDot.Size = new System.Drawing.Size(512, 44);
             this.lblCanhBaoXungDot.TabIndex = 10;
             this.lblCanhBaoXungDot.Text = "✓ Dữ liệu hợp lệ, đủ điều kiện xác nhận công.";
             // 
             // lblKetQuaTrangThai
             // 
-            this.lblKetQuaTrangThai.AutoSize = true;
             this.lblKetQuaTrangThai.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblKetQuaTrangThai.ForeColor = System.Drawing.Color.DarkSlateBlue;
-            this.lblKetQuaTrangThai.Location = new System.Drawing.Point(120, 95);
+            this.lblKetQuaTrangThai.Location = new System.Drawing.Point(105, 88);
             this.lblKetQuaTrangThai.Name = "lblKetQuaTrangThai";
-            this.lblKetQuaTrangThai.Size = new System.Drawing.Size(175, 14);
+            this.lblKetQuaTrangThai.Size = new System.Drawing.Size(420, 22);
             this.lblKetQuaTrangThai.TabIndex = 9;
             this.lblKetQuaTrangThai.Text = "Đi làm cả ngày (Ký hiệu: X)";
             // 
@@ -588,7 +582,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.labelTrangThai.AutoSize = true;
             this.labelTrangThai.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelTrangThai.Location = new System.Drawing.Point(12, 95);
+            this.labelTrangThai.Location = new System.Drawing.Point(12, 90);
             this.labelTrangThai.Name = "labelTrangThai";
             this.labelTrangThai.Size = new System.Drawing.Size(67, 14);
             this.labelTrangThai.TabIndex = 8;
@@ -596,12 +590,11 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             // lblKetQuaDiMuon
             // 
-            this.lblKetQuaDiMuon.AutoSize = true;
             this.lblKetQuaDiMuon.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblKetQuaDiMuon.ForeColor = System.Drawing.Color.ForestGreen;
-            this.lblKetQuaDiMuon.Location = new System.Drawing.Point(370, 65);
+            this.lblKetQuaDiMuon.Location = new System.Drawing.Point(380, 58);
             this.lblKetQuaDiMuon.Name = "lblKetQuaDiMuon";
-            this.lblKetQuaDiMuon.Size = new System.Drawing.Size(133, 14);
+            this.lblKetQuaDiMuon.Size = new System.Drawing.Size(145, 20);
             this.lblKetQuaDiMuon.TabIndex = 7;
             this.lblKetQuaDiMuon.Text = "Đúng giờ (không trễ)";
             // 
@@ -609,7 +602,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.labelDiMuon.AutoSize = true;
             this.labelDiMuon.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelDiMuon.Location = new System.Drawing.Point(260, 65);
+            this.labelDiMuon.Location = new System.Drawing.Point(265, 60);
             this.labelDiMuon.Name = "labelDiMuon";
             this.labelDiMuon.Size = new System.Drawing.Size(107, 14);
             this.labelDiMuon.TabIndex = 6;
@@ -620,7 +613,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.lblKetQuaGioHopLe.AutoSize = true;
             this.lblKetQuaGioHopLe.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblKetQuaGioHopLe.ForeColor = System.Drawing.Color.Black;
-            this.lblKetQuaGioHopLe.Location = new System.Drawing.Point(120, 65);
+            this.lblKetQuaGioHopLe.Location = new System.Drawing.Point(105, 60);
             this.lblKetQuaGioHopLe.Name = "lblKetQuaGioHopLe";
             this.lblKetQuaGioHopLe.Size = new System.Drawing.Size(95, 14);
             this.lblKetQuaGioHopLe.TabIndex = 5;
@@ -630,7 +623,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.labelGioHopLe.AutoSize = true;
             this.labelGioHopLe.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelGioHopLe.Location = new System.Drawing.Point(12, 65);
+            this.labelGioHopLe.Location = new System.Drawing.Point(12, 60);
             this.labelGioHopLe.Name = "labelGioHopLe";
             this.labelGioHopLe.Size = new System.Drawing.Size(95, 14);
             this.labelGioHopLe.TabIndex = 4;
@@ -641,7 +634,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.lblKetQuaPhep.AutoSize = true;
             this.lblKetQuaPhep.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblKetQuaPhep.ForeColor = System.Drawing.Color.DarkBlue;
-            this.lblKetQuaPhep.Location = new System.Drawing.Point(370, 32);
+            this.lblKetQuaPhep.Location = new System.Drawing.Point(380, 29);
             this.lblKetQuaPhep.Name = "lblKetQuaPhep";
             this.lblKetQuaPhep.Size = new System.Drawing.Size(65, 16);
             this.lblKetQuaPhep.TabIndex = 3;
@@ -651,7 +644,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.labelPhep.AutoSize = true;
             this.labelPhep.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelPhep.Location = new System.Drawing.Point(260, 33);
+            this.labelPhep.Location = new System.Drawing.Point(265, 30);
             this.labelPhep.Name = "labelPhep";
             this.labelPhep.Size = new System.Drawing.Size(107, 14);
             this.labelPhep.TabIndex = 2;
@@ -662,7 +655,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.lblKetQuaCong.AutoSize = true;
             this.lblKetQuaCong.Font = new System.Drawing.Font("Tahoma", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblKetQuaCong.ForeColor = System.Drawing.Color.DarkGreen;
-            this.lblKetQuaCong.Location = new System.Drawing.Point(120, 32);
+            this.lblKetQuaCong.Location = new System.Drawing.Point(105, 29);
             this.lblKetQuaCong.Name = "lblKetQuaCong";
             this.lblKetQuaCong.Size = new System.Drawing.Size(69, 16);
             this.lblKetQuaCong.TabIndex = 1;
@@ -672,7 +665,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.labelCong.AutoSize = true;
             this.labelCong.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.labelCong.Location = new System.Drawing.Point(12, 33);
+            this.labelCong.Location = new System.Drawing.Point(12, 30);
             this.labelCong.Name = "labelCong";
             this.labelCong.Size = new System.Drawing.Size(86, 14);
             this.labelCong.TabIndex = 0;
@@ -682,9 +675,9 @@ namespace QLyNSu.FORM_CHAMCONG
             // 
             this.lblTrangThaiBangCong.Font = new System.Drawing.Font("Tahoma", 9F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblTrangThaiBangCong.ForeColor = System.Drawing.Color.Green;
-            this.lblTrangThaiBangCong.Location = new System.Drawing.Point(15, 520);
+            this.lblTrangThaiBangCong.Location = new System.Drawing.Point(15, 547);
             this.lblTrangThaiBangCong.Name = "lblTrangThaiBangCong";
-            this.lblTrangThaiBangCong.Size = new System.Drawing.Size(460, 42);
+            this.lblTrangThaiBangCong.Size = new System.Drawing.Size(485, 42);
             this.lblTrangThaiBangCong.TabIndex = 7;
             this.lblTrangThaiBangCong.Text = "✓ Đã xác nhận — Đủ điều kiện chốt công.";
             // 
@@ -693,7 +686,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.btnCapNhat.Appearance.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCapNhat.Appearance.Options.UseFont = true;
             this.btnCapNhat.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnCapNhat.ImageOptions.SvgImage")));
-            this.btnCapNhat.Location = new System.Drawing.Point(490, 520);
+            this.btnCapNhat.Location = new System.Drawing.Point(510, 547);
             this.btnCapNhat.Name = "btnCapNhat";
             this.btnCapNhat.Size = new System.Drawing.Size(155, 42);
             this.btnCapNhat.TabIndex = 8;
@@ -705,9 +698,9 @@ namespace QLyNSu.FORM_CHAMCONG
             this.btnDong.Appearance.Font = new System.Drawing.Font("Tahoma", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnDong.Appearance.Options.UseFont = true;
             this.btnDong.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnDong.ImageOptions.SvgImage")));
-            this.btnDong.Location = new System.Drawing.Point(660, 520);
+            this.btnDong.Location = new System.Drawing.Point(675, 547);
             this.btnDong.Name = "btnDong";
-            this.btnDong.Size = new System.Drawing.Size(155, 42);
+            this.btnDong.Size = new System.Drawing.Size(150, 42);
             this.btnDong.TabIndex = 9;
             this.btnDong.Text = "Đóng";
             this.btnDong.Click += new System.EventHandler(this.btnDong_Click);
@@ -715,7 +708,7 @@ namespace QLyNSu.FORM_CHAMCONG
             // FrmCapNhatNgayCong
             // 
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.None;
-            this.ClientSize = new System.Drawing.Size(830, 575);
+            this.ClientSize = new System.Drawing.Size(840, 605);
             this.Controls.Add(this.btnDong);
             this.Controls.Add(this.btnCapNhat);
             this.Controls.Add(this.lblTrangThaiBangCong);

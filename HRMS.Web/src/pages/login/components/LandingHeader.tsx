@@ -1,23 +1,25 @@
-import React from 'react';
-import { Button, Tag, Dropdown, Space } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Dropdown, Drawer } from 'antd';
 import {
-  SafetyCertificateOutlined,
-  CloudDownloadOutlined,
-  GlobalOutlined,
   DownOutlined,
   CheckOutlined,
-  LoginOutlined,
+  MenuOutlined,
+  CloseOutlined,
 } from '@ant-design/icons';
+import type { LocaleType } from '../../../locales/vi';
 import type { AppLanguage } from '../../../services/i18n';
 import { ThemeToggle } from '../../../theme/components/ThemeToggle';
+import { AmbientAudioToggle } from './AmbientAudioToggle';
 
 interface LandingHeaderProps {
   currentLang: AppLanguage;
   onLanguageChange: (lang: AppLanguage) => void;
   allConfigs: Record<AppLanguage, { name: string; short: string; flag: string }>;
-  tLanding: any;
+  tLanding: LocaleType['landing'];
   onOpenDownload: (type?: 'windows' | 'mobile' | 'general') => void;
   onOpenLogin: () => void;
+  isAudioPlaying?: boolean;
+  onToggleAudio?: () => void;
 }
 
 export const LandingHeader: React.FC<LandingHeaderProps> = ({
@@ -27,182 +29,407 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
   tLanding,
   onOpenDownload,
   onOpenLogin,
+  isAudioPlaying = false,
+  onToggleAudio,
 }) => {
+  const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      // The app scrolls inside its content panel as well as the document.
+      const heroTop = document.getElementById('cinematic-hero-gallery')?.getBoundingClientRect().top ?? 0;
+      setIsScrolled(heroTop < -20);
+    };
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    document.body.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+      document.body.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
+
+  const scrollToSection = (id: string) => {
+    setMobileMenuOpen(false);
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
+  const languageMenuItems = Object.entries(allConfigs).map(([code, config]) => ({
+    key: code,
+    label: (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 12,
+          padding: '4px 6px',
+        }}
+      >
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ fontSize: 16 }}>{config.flag}</span>
+          <span style={{ fontWeight: currentLang === code ? 600 : 400 }}>{config.name}</span>
+        </span>
+        {currentLang === code && <CheckOutlined style={{ color: '#DCC58E', fontSize: 12 }} />}
+      </div>
+    ),
+    onClick: () => onLanguageChange(code as AppLanguage),
+  }));
+
   return (
     <header
+      className={`landing-header-bar ${isScrolled ? 'is-scrolled' : ''}`}
       style={{
-        height: 'clamp(58px, 8vw, 72px)',
-        padding: '0 clamp(12px, 3vw, 36px)',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: 'clamp(56px, 6vw, 66px)',
+        zIndex: 100,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-        background: 'rgba(15, 23, 42, 0.88)',
+        padding: '0 clamp(16px, 4vw, 44px)',
+        transition: 'background-color 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease',
+        backgroundColor: isScrolled ? 'rgba(20, 33, 27, 0.97)' : 'rgba(20, 33, 27, 0.88)',
         backdropFilter: 'blur(16px)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        gap: 12,
-        overflow: 'hidden',
+        borderBottom: '1px solid rgba(220, 197, 142, 0.22)',
+        boxShadow: '0 4px 24px rgba(10, 20, 14, 0.18)',
       }}
     >
-      {/* BRAND LOGO & TITLE */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0, flexShrink: 1 }}>
-        <div
+      {/* BRAND (LEFT) */}
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 12,
+          cursor: 'pointer',
+        }}
+        onClick={() => scrollToSection('cinematic-hero-gallery')}
+      >
+        <span
           style={{
-            width: 38,
-            height: 38,
-            borderRadius: 10,
-            background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            boxShadow: '0 4px 14px rgba(37,99,235,0.45)',
-            flexShrink: 0,
+            fontFamily: "'Lora', 'Playfair Display', Georgia, serif",
+            fontSize: 'clamp(19px, 2.2vw, 23px)',
+            fontWeight: 600,
+            color: '#F4EEDC',
+            letterSpacing: '0.4px',
           }}
         >
-          <SafetyCertificateOutlined style={{ fontSize: 20, color: '#fff' }} />
-        </div>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontWeight: 800, fontSize: 16, letterSpacing: '0.5px', color: '#fff', lineHeight: 1.2, whiteSpace: 'nowrap' }}>
-            HRMS ENTERPRISE
-          </div>
-          <div
-            className="header-hide-tablet"
+          HRMS Enterprise
+        </span>
+
+        {/* Small pulsing ready indicator dot */}
+        <div
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            fontSize: 12,
+            color: '#D5DFCF',
+            fontWeight: 400,
+          }}
+        >
+          <span
             style={{
-              fontSize: 11,
-              color: '#94a3b8',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: 280,
+              width: 7,
+              height: 7,
+              borderRadius: '50%',
+              backgroundColor: '#4ADE80',
+              boxShadow: '0 0 8px #4ADE80',
             }}
-          >
-            {tLanding.subHeader}
-          </div>
+          />
+          <span className="header-status-text" style={{ fontSize: 12 }}>
+            {tLanding?.systemReady || 'Hệ thống sẵn sàng'}
+          </span>
         </div>
       </div>
 
-      {/* RIGHT ACTION BUTTONS */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-        {/* System Ready Tag: Chỉ hiện trên màn hình rộng > 1200px */}
-        <Tag
-          className="header-hide-1200"
-          color="success"
+      {/* DESKTOP NAV & ACTIONS (RIGHT) */}
+      <div
+        className="header-desktop-nav"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'clamp(12px, 1.8vw, 22px)',
+        }}
+      >
+        {/* NAV LINKS */}
+        <button
+          type="button"
+          onClick={() => scrollToSection('cinematic-hero-gallery')}
+          className="header-nav-link"
           style={{
-            padding: '3px 10px',
-            borderRadius: 12,
+            background: 'none',
             border: 'none',
-            background: 'rgba(34,197,94,0.15)',
-            color: '#4ade80',
-            margin: 0,
-            fontWeight: 600,
+            color: '#F4EEDC',
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+            padding: '4px 6px',
+            transition: 'color 0.25s',
           }}
         >
-          ● {tLanding.systemReady}
-        </Tag>
+          {tLanding?.galleryFilm || 'Gallery Phim'}
+        </button>
 
-        {/* Gallery Phim: Ẩn trên máy tính bảng và điện thoại < 992px */}
-        <Button
-          className="header-hide-tablet"
-          type="text"
-          style={{ color: '#cbd5e1', fontWeight: 500 }}
-          onClick={() => {
-            const el = document.getElementById('cinematic-hero-gallery');
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
+        <button
+          type="button"
+          onClick={() => scrollToSection('about-me')}
+          className="header-nav-link"
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#F4EEDC',
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+            padding: '4px 6px',
+            transition: 'color 0.25s',
           }}
         >
-          {tLanding.galleryFilm}
-        </Button>
+          {tLanding?.navAbout || 'Về mình'}
+        </button>
 
-        {/* Tải Ứng Dụng: Ẩn trên điện thoại < 768px (người dùng đã có nút tải to ở Hero) */}
-        <Button
-          className="header-hide-mobile"
-          type="text"
-          icon={<CloudDownloadOutlined />}
+        <button
+          type="button"
           onClick={() => onOpenDownload('general')}
-          style={{ color: '#cbd5e1', fontWeight: 500 }}
-        >
-          {tLanding.downloadApp}
-        </Button>
-
-        {/* BỘ CHỌN ĐA NGÔN NGỮ: VI / EN / ZH / KO / JA (Co giãn tự thích ứng) */}
-        <Dropdown
-          menu={{
-            items: (Object.keys(allConfigs) as AppLanguage[]).map((lKey) => ({
-              key: lKey,
-              label: (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
-                  <Space size={8}>
-                    <span style={{ fontSize: 16 }}>{allConfigs[lKey]?.flag}</span>
-                    <span style={{ fontWeight: currentLang === lKey ? 700 : 600, color: currentLang === lKey ? '#0284c7' : '#0f172a', fontSize: 13 }}>
-                      {allConfigs[lKey]?.name}
-                    </span>
-                  </Space>
-                  {currentLang === lKey && <CheckOutlined style={{ color: '#0284c7', fontWeight: 700, fontSize: 13 }} />}
-                </div>
-              ),
-            })),
-            selectedKeys: [currentLang],
-            onClick: ({ key }) => onLanguageChange(key as AppLanguage),
+          className="header-nav-link"
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#F4EEDC',
+            fontSize: 14,
+            fontWeight: 500,
+            cursor: 'pointer',
+            padding: '4px 6px',
+            transition: 'color 0.25s',
           }}
-          placement="bottomRight"
-          trigger={['click']}
         >
-          <Button
-            type="text"
+          {tLanding?.downloadApp || 'Tải ứng dụng'}
+        </button>
+
+        {/* LANGUAGE SELECTOR */}
+        <Dropdown menu={{ items: languageMenuItems }} trigger={['click']} placement="bottomRight">
+          <button
+            type="button"
+            className="header-lang-btn"
             style={{
-              color: '#f8fafc',
+              background: 'none',
+              border: 'none',
+              color: '#F4EEDC',
+              fontSize: 13.5,
               fontWeight: 600,
-              fontSize: 13,
-              background: 'rgba(255, 255, 255, 0.08)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 255, 255, 0.18)',
-              borderRadius: 8,
-              padding: '0 8px',
-              height: 36,
+              cursor: 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
               gap: 4,
-              cursor: 'pointer',
+              padding: '4px 8px',
             }}
           >
-            <GlobalOutlined style={{ color: '#38bdf8', fontSize: 14 }} />
-            <span style={{ fontSize: 14 }}>{allConfigs[currentLang].flag}</span>
-            <span className="header-hide-compact" style={{ fontSize: 12 }}>{allConfigs[currentLang].short}</span>
-            <DownOutlined style={{ fontSize: 9, color: '#94a3b8' }} />
-          </Button>
+            <span>{allConfigs[currentLang]?.short || 'VI'}</span>
+            <DownOutlined style={{ fontSize: 10, opacity: 0.7 }} />
+          </button>
         </Dropdown>
 
-        {/* BẬT/TẮT GIAO DIỆN SÁNG / TỐI */}
-        <ThemeToggle
+        {/* VERTICAL DIVIDER */}
+        <span
           style={{
-            background: 'rgba(255, 255, 255, 0.08)',
-            border: '1px solid rgba(255, 255, 255, 0.18)',
-            color: '#fff',
+            width: 1,
+            height: 16,
+            backgroundColor: 'rgba(244, 238, 220, 0.25)',
           }}
         />
 
-        {/* NÚT ĐĂNG NHẬP NỔI BẬT */}
-        <Button
-          type="primary"
-          icon={<LoginOutlined />}
+        {/* THEME TOGGLE */}
+        <ThemeToggle className="landing-theme-toggle" labels={{ light: tLanding.themeLight, dark: tLanding.themeDark }} />
+
+        {/* AMBIENT AUDIO TOGGLE */}
+        {onToggleAudio && (
+          <AmbientAudioToggle
+            isPlaying={isAudioPlaying}
+            onToggle={onToggleAudio}
+            labelTooltip={tLanding?.ambientAudio || 'Âm thanh tự nhiên (Rừng xanh)'}
+          />
+        )}
+
+        {/* LOGIN BUTTON (OLIVE/SAGE PILL AS IN TARGET DESIGN) */}
+        <button
+          type="button"
           onClick={onOpenLogin}
+          className="btn-header-login"
           style={{
-            height: 38,
-            padding: '0 16px',
-            borderRadius: 8,
-            fontWeight: 700,
-            fontSize: 13,
-            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-            border: 'none',
-            boxShadow: '0 4px 14px rgba(37,99,235,0.4)',
-            whiteSpace: 'nowrap',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            padding: '7px 18px',
+            borderRadius: 20,
+            backgroundColor: 'rgba(56, 77, 63, 0.75)',
+            border: '1px solid rgba(135, 170, 145, 0.35)',
+            backdropFilter: 'blur(8px)',
+            color: '#F4EEDC',
+            fontWeight: 500,
+            fontSize: 13.5,
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
           }}
         >
-          {tLanding.signIn}
-        </Button>
+          <span>{tLanding?.signIn || 'Đăng nhập'}</span>
+        </button>
       </div>
+
+      {/* MOBILE HAMBURGER BUTTON */}
+      <div className="header-mobile-trigger" style={{ display: 'none' }}>
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label={tLanding.navMenu}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#F4EEDC',
+            fontSize: 20,
+            cursor: 'pointer',
+            padding: 6,
+          }}
+        >
+          {mobileMenuOpen ? <CloseOutlined /> : <MenuOutlined />}
+        </button>
+      </div>
+
+      {/* MOBILE DRAWER MENU */}
+      <Drawer
+        open={mobileMenuOpen}
+        onClose={() => setMobileMenuOpen(false)}
+        placement="right"
+        size={280}
+        styles={{
+          body: {
+            backgroundColor: '#14211B',
+            color: '#F4EEDC',
+            padding: '24px 20px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 20,
+          },
+          header: {
+            backgroundColor: '#14211B',
+            borderBottom: '1px solid rgba(239, 232, 212, 0.12)',
+            color: '#F4EEDC',
+          },
+        }}
+        title={<span style={{ color: '#F4EEDC', fontFamily: "'Lora', serif" }}>{tLanding.navMenu}</span>}
+      >
+        <button
+          type="button"
+          onClick={() => scrollToSection('cinematic-hero-gallery')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#F4EEDC',
+            fontSize: 16,
+            textAlign: 'left',
+            padding: '8px 0',
+            cursor: 'pointer',
+          }}
+        >
+          {tLanding?.galleryFilm || 'Gallery Phim'}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => scrollToSection('about-me')}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#F4EEDC',
+            fontSize: 16,
+            textAlign: 'left',
+            padding: '8px 0',
+            cursor: 'pointer',
+          }}
+        >
+          {tLanding?.navAbout || 'Về mình'}
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setMobileMenuOpen(false);
+            onOpenDownload('general');
+          }}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#F4EEDC',
+            fontSize: 16,
+            textAlign: 'left',
+            padding: '8px 0',
+            cursor: 'pointer',
+          }}
+        >
+          {tLanding?.downloadApp || 'Tải ứng dụng'}
+        </button>
+
+        <div style={{ height: 1, backgroundColor: 'rgba(239, 232, 212, 0.15)', margin: '8px 0' }} />
+
+        {/* Theme and Audio in Mobile */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>{tLanding.navAppearance}</span>
+          <ThemeToggle className="landing-theme-toggle" labels={{ light: tLanding.themeLight, dark: tLanding.themeDark }} />
+        </div>
+
+        {onToggleAudio && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <span>{tLanding.ambientAudio}</span>
+            <AmbientAudioToggle isPlaying={isAudioPlaying} onToggle={onToggleAudio} />
+          </div>
+        )}
+
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span>{tLanding.navLanguage}</span>
+          <Dropdown menu={{ items: languageMenuItems }} trigger={['click']}>
+            <button
+              type="button"
+              style={{
+                background: 'rgba(255, 255, 255, 0.08)',
+                border: '1px solid rgba(255, 255, 255, 0.15)',
+                borderRadius: 4,
+                color: '#F4EEDC',
+                padding: '4px 10px',
+                cursor: 'pointer',
+              }}
+            >
+              <span>{allConfigs[currentLang]?.name}</span> <DownOutlined style={{ fontSize: 10 }} />
+            </button>
+          </Dropdown>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setMobileMenuOpen(false);
+            onOpenLogin();
+          }}
+          style={{
+            marginTop: 20,
+            padding: '12px',
+            borderRadius: 20,
+            backgroundColor: '#384D3F',
+            border: '1px solid rgba(135, 170, 145, 0.4)',
+            color: '#F4EEDC',
+            fontWeight: 600,
+            fontSize: 15,
+            cursor: 'pointer',
+          }}
+        >
+          {tLanding?.signIn || 'Đăng nhập'}
+        </button>
+      </Drawer>
     </header>
   );
 };
