@@ -137,16 +137,19 @@ namespace QLyNSu.Functions
                 };
 
                 var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"{_baseUrl}/api/auth/desktop-token", content);
-                if (response.IsSuccessStatusCode)
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3)))
                 {
-                    var jsonStr = await response.Content.ReadAsStringAsync();
-                    dynamic obj = JsonConvert.DeserializeObject(jsonStr);
-                    string token = obj?.token?.ToString() ?? obj?.Token?.ToString();
-                    if (!string.IsNullOrEmpty(token))
+                    var response = await _httpClient.PostAsync($"{_baseUrl}/api/auth/desktop-token", content, cts.Token).ConfigureAwait(false);
+                    if (response.IsSuccessStatusCode)
                     {
-                        SetToken(token);
-                        return true;
+                        var jsonStr = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        dynamic obj = JsonConvert.DeserializeObject(jsonStr);
+                        string token = obj?.token?.ToString() ?? obj?.Token?.ToString();
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            SetToken(token);
+                            return true;
+                        }
                     }
                 }
             }
@@ -163,17 +166,20 @@ namespace QLyNSu.Functions
             {
                 var body = new { username = username, password = password, clientType = "DESKTOP" };
                 var content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json");
-                var response = await _httpClient.PostAsync($"{_baseUrl}/api/auth/desktop-login", content);
-
-                if (response.IsSuccessStatusCode)
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(3)))
                 {
-                    var jsonStr = await response.Content.ReadAsStringAsync();
-                    dynamic obj = JsonConvert.DeserializeObject(jsonStr);
-                    string token = obj?.token?.ToString() ?? obj?.Token?.ToString();
-                    if (!string.IsNullOrEmpty(token))
+                    var response = await _httpClient.PostAsync($"{_baseUrl}/api/auth/desktop-login", content, cts.Token).ConfigureAwait(false);
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        SetToken(token);
-                        return true;
+                        var jsonStr = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                        dynamic obj = JsonConvert.DeserializeObject(jsonStr);
+                        string token = obj?.token?.ToString() ?? obj?.Token?.ToString();
+                        if (!string.IsNullOrEmpty(token))
+                        {
+                            SetToken(token);
+                            return true;
+                        }
                     }
                 }
             }

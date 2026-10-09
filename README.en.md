@@ -1,6 +1,6 @@
-﻿# Human Resource Management System (HRMS)
+# Human Resource Management System (HRMS)
 
-[Tiáº¿ng Viá»‡t](README.md) | [English](README.en.md) | [æ—¥æœ¬èªž](README.ja.md)
+[Tiếng Việt](README.md) | [English](README.en.md) | [日本語](README.ja.md)
 
 A multi-platform Human Resource Management System comprising Desktop (Windows WinForms), Web (React), and Mobile (React Native Expo) clients. It uses Oracle Database as the centralized business storage, combined with Qdrant vector database and local Ollama large language models for internal AI-assisted information retrieval.
 
@@ -204,7 +204,7 @@ flowchart LR
     D --> D_Ops
     D_Ops --> BUS
     D_Ops --> DA
-
+    
     %% Desktop AI Flow
     D --> D_AI
     D_AI --> D_Client
@@ -267,82 +267,82 @@ flowchart LR
 
 ```text
 QuanLyNhanSu/
-â”œâ”€â”€ HRMS.sln                                # Primary .NET Solution
-â”œâ”€â”€ README.md                               # Primary documentation (Vietnamese)
-â”œâ”€â”€ README.en.md                            # English documentation
-â”œâ”€â”€ README.ja.md                            # Japanese documentation (æ—¥æœ¬èªž)
-â”‚
-â”œâ”€â”€ HRMS.Desktop/                           # Windows Forms application (.NET Framework 4.7.2)
-â”‚   â”œâ”€â”€ FORM_NHANSU/                        # Employee records, contracts, awards forms
-â”‚   â”œâ”€â”€ FORM_CHAMCONG/                      # Attendance, payroll (FrmBangLuong), allowances forms
-â”‚   â”œâ”€â”€ FORM_SYSTEM/                        # Users, RBAC, AI configuration (FrmOllamaConfig) forms
-â”‚   â”œâ”€â”€ FORM_BAOCAO/ & Reports/             # DevExpress print reports and payslip templates
-â”‚   â””â”€â”€ Functions/                          # AiApiClient, AiBootstrap, workstation helpers
-â”‚
-â”œâ”€â”€ HRMS.Api/                               # Backend REST API (ASP.NET Web API 2)
-â”‚   â”œâ”€â”€ Controllers/                        # AiChat, BangLuong, ChamCong, Me, User, ScopeAdmin...
-â”‚   â”œâ”€â”€ Filters/                            # JwtAuthorize, RateLimitAttribute...
-â”‚   â”œâ”€â”€ Services/                           # RateLimiterService, JwtService...
-â”‚   â””â”€â”€ App_Start/                          # WebApiConfig, RouteConfig, CorsHandler...
-â”‚
-â”œâ”€â”€ HRMS.Business/                          # Shared business library (Namespace: Bu)
-â”‚   â”œâ”€â”€ CLASS_NHANSU/                       # Employee, contract, department business logic
-â”‚   â”œâ”€â”€ CLASS_CHAMCONG/                     # BANGLUONG (payroll facade), TimeSegmentationEngine...
-â”‚   â”œâ”€â”€ CLASS_PAYROLL/                      # PayrollEngine, PolicyResolver, EmployeeProfileResolver...
-â”‚   â”œâ”€â”€ CLASS_SECURITY/                     # ChannelCapabilityRegistry, PlatformAccessGuard...
-â”‚   â”œâ”€â”€ CLASS_SYSTEM/                       # UserSession, SYS_USER, SYS_CONFIG...
-â”‚   â”œâ”€â”€ DTO/                                # Data Transfer Objects
-â”‚   â””â”€â”€ Services/AI_Services/               # 53 C# files organized across 14 functional directories:
-â”‚       â”œâ”€â”€ Bootstrap/                      # AiServiceLocator
-â”‚       â”œâ”€â”€ Configuration/                  # AiConfigurationCoordinator
-â”‚       â”œâ”€â”€ Chat/                           # AiExecutionService, ChatboxManager
-â”‚       â”œâ”€â”€ Understanding/                  # QueryUnderstandingService, EntityResolver, ClarificationPolicy...
-â”‚       â”œâ”€â”€ Planning/                       # QueryPlanner, ExecutionPlan
-â”‚       â”œâ”€â”€ Retrieval/                      # ScopedSqlExecutor, QdrantService, HybridRagService...
-â”‚       â”œâ”€â”€ Responses/                      # DeterministicResponseRenderer, RagSynthesizer, FastResponseService
-â”‚       â”œâ”€â”€ Providers/                      # OllamaService (LLM & Embedding HTTP client)
-â”‚       â”œâ”€â”€ Prompts/                        # JsonPromptManager (application prompt loader)
-â”‚       â”œâ”€â”€ Memory/                         # AiCacheCoordinator, ConversationStateManager...
-â”‚       â”œâ”€â”€ Security/                       # AiAuthorizationService, AiScopeEvaluator, ScopeGrantManagement...
-â”‚       â”œâ”€â”€ Indexing/                       # AiDataSyncHub, QdrantOutboxManager
-â”‚       â”œâ”€â”€ Interfaces/                     # IVectorService, ILlmService, IScopedSqlExecutor...
-â”‚       â””â”€â”€ Runtime/                        # SystemClockProvider, FakeClockProvider
-â”‚
-â”œâ”€â”€ HRMS.DataAccess/                        # Data access layer using EF 6 (Namespace: DA)
-â”‚   â”œâ”€â”€ QLNhanSu.edmx                       # Database-First Oracle Model
-â”‚   â”œâ”€â”€ MyEntities.cs                       # Primary business DbContext
-â”‚   â””â”€â”€ MyEntities.ChannelRights.cs         # 3-Channel RBAC and TB_SYS_RIGHT_CHANNEL mappings
-â”‚
-â”œâ”€â”€ HRMS.Web/                               # Web Administration Portal (React 19 + TypeScript + Vite)
-â”‚   â”œâ”€â”€ src/pages/                          # DashboardPage, NhanVienPage, BangLuongPage, ApprovalCenterPage...
-â”‚   â”œâ”€â”€ src/components/                     # PhanQuyenModal, AiChatDrawer, CommandPaletteModal...
-â”‚   â””â”€â”€ src/locales/                        # Locales: vi, en, ja, ko, zh-CN
-â”‚
-â”œâ”€â”€ HRMS.Mobile/                            # Mobile ESS Application (React Native Expo 57)
-â”‚   â””â”€â”€ src/                                # Screens (Profile, Attendance, Payroll), Navigation, Api...
-â”‚
-â”œâ”€â”€ HRMS.VectorDataSync/                    # Console CLI for vector index management
-â”‚   â””â”€â”€ Program.cs                          # CLI: preflight, verify, rebuild, activate, reconcile...
-â”‚
-â”œâ”€â”€ HRMS.Tests/                             # Automated testing suite using NUnit 3 (net472)
-â”‚   â”œâ”€â”€ PlatformAccessAndSessionEnforcementTests.cs # 32 Platform access test cases
-â”‚   â”œâ”€â”€ PostReviewRemediationVerificationTests.cs    # Qdrant v2 cutover & coordinator verification
-â”‚   â””â”€â”€ AntigravityUnifiedAiAndPermissionsVerificationTests.cs # AI & Scope integration tests
-â”‚
-â”œâ”€â”€ database/                               # Database migration and seed scripts
-â”‚   â”œâ”€â”€ migrations/                         # Migrations V1_0 through V1_33 (DDL, DML, Rollback, Verify)
-â”‚   â”œâ”€â”€ realistic200/                       # Realistic 200-employee test dataset
-â”‚   â””â”€â”€ backups/                            # Metadata and configuration backups
-â”‚
-â”œâ”€â”€ docs/                                   # Project documentation (13 active documents)
-â”‚   â”œâ”€â”€ README.md                           # Documentation directory index
-â”‚   â”œâ”€â”€ ai-services-guide.md                # 53 C# AI files guide across 14 directories
-â”‚   â”œâ”€â”€ ai-rag-and-account-permissions-guide.md # RAG & Platform RBAC guide
-â”‚   â””â”€â”€ archive/                            # Historical technical reports and design documents
-â”‚
-â”œâ”€â”€ docker-compose.yml                      # Infrastructure containers: Oracle, Qdrant, Ollama, Web
-â”œâ”€â”€ start_local_backend.bat                 # Script to launch IIS Express backend on port 55463
-â””â”€â”€ build_deploy.ps1                        # Local deployment and packaging script
+├── HRMS.sln                                # Primary .NET Solution
+├── README.md                               # Primary documentation (Vietnamese)
+├── README.en.md                            # English documentation
+├── README.ja.md                            # Japanese documentation (日本語)
+│
+├── HRMS.Desktop/                           # Windows Forms application (.NET Framework 4.7.2)
+│   ├── FORM_NHANSU/                        # Employee records, contracts, awards forms
+│   ├── FORM_CHAMCONG/                      # Attendance, payroll (FrmBangLuong), allowances forms
+│   ├── FORM_SYSTEM/                        # Users, RBAC, AI configuration (FrmOllamaConfig) forms
+│   ├── FORM_BAOCAO/ & Reports/             # DevExpress print reports and payslip templates
+│   └── Functions/                          # AiApiClient, AiBootstrap, workstation helpers
+│
+├── HRMS.Api/                               # Backend REST API (ASP.NET Web API 2)
+│   ├── Controllers/                        # AiChat, BangLuong, ChamCong, Me, User, ScopeAdmin...
+│   ├── Filters/                            # JwtAuthorize, RateLimitAttribute...
+│   ├── Services/                           # RateLimiterService, JwtService...
+│   └── App_Start/                          # WebApiConfig, RouteConfig, CorsHandler...
+│
+├── HRMS.Business/                          # Shared business library (Namespace: Bu)
+│   ├── CLASS_NHANSU/                       # Employee, contract, department business logic
+│   ├── CLASS_CHAMCONG/                     # BANGLUONG (payroll facade), TimeSegmentationEngine...
+│   ├── CLASS_PAYROLL/                      # PayrollEngine, PolicyResolver, EmployeeProfileResolver...
+│   ├── CLASS_SECURITY/                     # ChannelCapabilityRegistry, PlatformAccessGuard...
+│   ├── CLASS_SYSTEM/                       # UserSession, SYS_USER, SYS_CONFIG...
+│   ├── DTO/                                # Data Transfer Objects
+│   └── Services/AI_Services/               # 53 C# files organized across 14 functional directories:
+│       ├── Bootstrap/                      # AiServiceLocator
+│       ├── Configuration/                  # AiConfigurationCoordinator
+│       ├── Chat/                           # AiExecutionService, ChatboxManager
+│       ├── Understanding/                  # QueryUnderstandingService, EntityResolver, ClarificationPolicy...
+│       ├── Planning/                       # QueryPlanner, ExecutionPlan
+│       ├── Retrieval/                      # ScopedSqlExecutor, QdrantService, HybridRagService...
+│       ├── Responses/                      # DeterministicResponseRenderer, RagSynthesizer, FastResponseService
+│       ├── Providers/                      # OllamaService (LLM & Embedding HTTP client)
+│       ├── Prompts/                        # JsonPromptManager (application prompt loader)
+│       ├── Memory/                         # AiCacheCoordinator, ConversationStateManager...
+│       ├── Security/                       # AiAuthorizationService, AiScopeEvaluator, ScopeGrantManagement...
+│       ├── Indexing/                       # AiDataSyncHub, QdrantOutboxManager
+│       ├── Interfaces/                     # IVectorService, ILlmService, IScopedSqlExecutor...
+│       └── Runtime/                        # SystemClockProvider, FakeClockProvider
+│
+├── HRMS.DataAccess/                        # Data access layer using EF 6 (Namespace: DA)
+│   ├── QLNhanSu.edmx                       # Database-First Oracle Model
+│   ├── MyEntities.cs                       # Primary business DbContext
+│   └── MyEntities.ChannelRights.cs         # 3-Channel RBAC and TB_SYS_RIGHT_CHANNEL mappings
+│
+├── HRMS.Web/                               # Web Administration Portal (React 19 + TypeScript + Vite)
+│   ├── src/pages/                          # DashboardPage, NhanVienPage, BangLuongPage, ApprovalCenterPage...
+│   ├── src/components/                     # PhanQuyenModal, AiChatDrawer, CommandPaletteModal...
+│   └── src/locales/                        # Locales: vi, en, ja, ko, zh-CN
+│
+├── HRMS.Mobile/                            # Mobile ESS Application (React Native Expo 57)
+│   └── src/                                # Screens (Profile, Attendance, Payroll), Navigation, Api...
+│
+├── HRMS.VectorDataSync/                    # Console CLI for vector index management
+│   └── Program.cs                          # CLI: preflight, verify, rebuild, activate, reconcile...
+│
+├── HRMS.Tests/                             # Automated testing suite using NUnit 3 (net472)
+│   ├── PlatformAccessAndSessionEnforcementTests.cs # 32 Platform access test cases
+│   ├── PostReviewRemediationVerificationTests.cs    # Qdrant v2 cutover & coordinator verification
+│   └── AntigravityUnifiedAiAndPermissionsVerificationTests.cs # AI & Scope integration tests
+│
+├── database/                               # Database migration and seed scripts
+│   ├── migrations/                         # Migrations V1_0 through V1_33 (DDL, DML, Rollback, Verify)
+│   ├── realistic200/                       # Realistic 200-employee test dataset
+│   └── backups/                            # Metadata and configuration backups
+│
+├── docs/                                   # Project documentation (13 active documents)
+│   ├── README.md                           # Documentation directory index
+│   ├── ai-services-guide.md                # 53 C# AI files guide across 14 directories
+│   ├── ai-rag-and-account-permissions-guide.md # RAG & Platform RBAC guide
+│   └── archive/                            # Historical technical reports and design documents
+│
+├── docker-compose.yml                      # Infrastructure containers: Oracle, Qdrant, Ollama, Web
+├── start_local_backend.bat                 # Script to launch IIS Express backend on port 55463
+└── build_deploy.ps1                        # Local deployment and packaging script
 ```
 
 ---
@@ -363,7 +363,7 @@ flowchart TD
         Pub --> FrmBL["Desktop UI: FrmBangLuong\n(Specialist selects Period and clicks Calculate)"]
         FrmBL --> BL_Facade["BANGLUONG.TinhLuongKyCong"]
         BL_Facade --> Engine["PayrollEngine.CalculatePayroll"]
-
+        
         Profile["EmployeeProfileResolver\n(Profiles, Active Contracts)"] --> Engine
         Policy["PolicyResolver\n(TB_CHINH_SACH_LUONG: Rates, Tax Brackets)"] --> Engine
         Occur["PayrollOccurrenceService\n(Occurrences, Allowances, Advances)"] --> Engine
@@ -406,20 +406,20 @@ flowchart TD
     Login["Login Request\n(Username + Password + Channel)"] --> Auth["Validate Credentials & BCrypt Hash"]
     Auth --> ChkDisable{"Is Account\nDisabled (DISABLED=1)?"}
     ChkDisable -- Yes --> DenyLogin["Deny Login (401 / Account Disabled)"]
-
+    
     ChkDisable -- No --> ChkGate{"Check Platform Channel Gate:\nF_LOGIN_DESKTOP / F_LOGIN_WEB / F_LOGIN_MOBILE"}
     ChkGate -- Not Granted --> DenyPlatform["Deny Platform Access\n(PLATFORM_ACCESS_DENIED)"]
-
+    
     ChkGate -- Granted --> GenToken["Issue JWT Token (Web/Mobile)\nOr create UserSession (Desktop)\nIncluding SessionId, Jti, SecurityVersion"]
-
+    
     GenToken --> ReqAction["User triggers action on Function (F_*)"]
-
+    
     ReqAction --> ChkChannelSupport{"ChannelCapabilityRegistry:\nIs action supported on this channel?"}
     ChkChannelSupport -- Unsupported --> DenyCap["Disable / Deny Action on Channel"]
-
+    
     ChkChannelSupport -- Supported --> ChkActionRight{"Evaluate 5 Actions:\nVIEW, ADD, EDIT, DELETE, PRINT"}
     ChkActionRight -- Not Granted --> DenyAction["Deny Action (403 Forbidden)"]
-
+    
     ChkActionRight -- Granted --> EvalScope{"Evaluate Data Scope:\nSELF | DEPARTMENT | COMPANY | ALL"}
     EvalScope --> ExecSQL["Execute scoped database query"]
 ```
@@ -440,33 +440,33 @@ flowchart TD
 flowchart TD
     UserQuery["User submits prompt\n(Web Drawer or Desktop FrmAI_Chat)"] --> API_Chat["AiChatController: POST /api/ai/chat"]
     API_Chat --> RateGuard["RateLimiterService:\n- IP & User Rate Limiting\n- Concurrency Leaser (holds slot until completion)"]
-
+    
     RateGuard --> ExecService["AiExecutionService.ProcessChatAsync"]
     ExecService --> StateMgr["ConversationStateManager:\nMulti-turn conversation context inspection"]
     ExecService --> AuthCtx["AiPolicyProvider:\nBuild AiAuthorizationContext from JWT"]
-
+    
     ExecService --> NLP["QueryUnderstandingService:\n- QueryPreprocessor: Unicode normalization\n- EntityResolver: Resolve employee/dept names\n- ClarificationPolicy: Detect ambiguous names/periods"]
-
+    
     NLP --> NeedClarify{"Clarification needed\n(Ambiguous name, missing period)?"}
     NeedClarify -- Yes --> ReturnClarify["Return clarification choices\n(No database query executed)"]
-
+    
     NeedClarify -- No --> Planner["QueryPlanner.PlanQuery:\nSelect ExecutionStrategy"]
-
+    
     Planner --> StrategySwitch{"Execution Strategy?"}
-
+    
     StrategySwitch -- DeterministicDirect --> FastResp["FastResponseService:\nGreetings / Capability Overview"]
     StrategySwitch -- SqlTemplate --> SqlExec["ScopedSqlExecutor:\nExecute approved SQL Template via DB Package"]
     StrategySwitch -- VectorSearch --> VecExec["QdrantService.SearchScopedAsync:\nFilter vectors by Tag & Security Filter"]
     StrategySwitch -- Hybrid --> HybridExec["Hybrid Flow:\nExecute SqlTemplate + Scoped Vector in parallel"]
     StrategySwitch -- Forbidden / Unsupported --> DenyResp["Deny query / Unsupported capability"]
-
+    
     SqlExec --> EvalPerm{"Check SQL Authorization:\nAuthorizationDenied?"}
     EvalPerm -- Denied --> RespForbidden["Immediately return 403 Forbidden\n(NEVER overwritten as 200 answered)"]
-
+    
     EvalPerm -- Success --> Renderer["DeterministicResponseRenderer:\nFormat accurate tabular metrics"]
     VecExec --> Synthesizer["RagSynthesizer:\nSummarize citations via Ollama LLM"]
     HybridExec --> MergeResp["Merge Evidence:\nAccurate SQL metrics + Vector citations"]
-
+    
     Renderer --> FinalResp["Return response to UI"]
     Synthesizer --> FinalResp
     MergeResp --> FinalResp
@@ -661,9 +661,9 @@ Detailed technical documentation is maintained in the [docs/](docs/) folder:
 
 ### 18.1. Tri-Lingual Synchronization
 The root repository documentation is maintained in three synchronized language editions:
-- [Tiáº¿ng Viá»‡t (README.md)](README.md) - Canonical source document.
+- [Tiếng Việt (README.md)](README.md) - Canonical source document.
 - [English (README.en.md)](README.en.md) - English edition with identical 18 sections and matching tables.
-- [æ—¥æœ¬èªž (README.ja.md)](README.ja.md) - Japanese edition using natural business terminology while preserving Vietnamese labor and insurance context.
+- [日本語 (README.ja.md)](README.ja.md) - Japanese edition using natural business terminology while preserving Vietnamese labor and insurance context.
 
 Any significant change to architecture, features, or test outcomes must be updated simultaneously across all three editions.
 

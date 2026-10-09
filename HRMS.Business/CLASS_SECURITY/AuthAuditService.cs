@@ -87,7 +87,7 @@ namespace Bu.CLASS_SECURITY
                         new OracleParameter("p9", (object)userAgent ?? DBNull.Value),
                         new OracleParameter("p10", (object)correlationId ?? DBNull.Value),
                         new OracleParameter("p11", (object)metadataJson ?? DBNull.Value)
-                    );
+                    ).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)
@@ -129,7 +129,7 @@ namespace Bu.CLASS_SECURITY
                         new OracleParameter("p6", isSuccess ? 1 : 0),
                         new OracleParameter("p7", (object)failureReason ?? DBNull.Value),
                         new OracleParameter("p8", (object)correlationId ?? DBNull.Value)
-                    );
+                    ).ConfigureAwait(false);
                 }
             }
             catch (Exception ex)

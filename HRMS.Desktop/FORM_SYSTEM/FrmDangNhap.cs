@@ -10,6 +10,7 @@ using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace QLyNSu.FORM_SYSTEM
 {
@@ -55,17 +56,23 @@ namespace QLyNSu.FORM_SYSTEM
         {
             try
             {
-                var host = Dns.GetHostEntry(Dns.GetHostName());
-                foreach (var ip in host.AddressList)
+                foreach (NetworkInterface nic in NetworkInterface.GetAllNetworkInterfaces())
                 {
-                    if (ip.AddressFamily == AddressFamily.InterNetwork)
+                    if (nic.OperationalStatus == OperationalStatus.Up && 
+                        nic.NetworkInterfaceType != NetworkInterfaceType.Loopback &&
+                        nic.NetworkInterfaceType != NetworkInterfaceType.Tunnel)
                     {
-                        return ip.ToString();
+                        var props = nic.GetIPProperties();
+                        var ip = props.UnicastAddresses.FirstOrDefault(u => u.Address.AddressFamily == AddressFamily.InterNetwork);
+                        if (ip != null)
+                        {
+                            return ip.Address.ToString();
+                        }
                     }
                 }
             }
             catch { }
-            return "Unknown";
+            return "127.0.0.1";
         }
 
         private string GetMacAddress()
@@ -221,7 +228,7 @@ namespace QLyNSu.FORM_SYSTEM
         }
 
         // Action Buttons
-        private void btnDangNhap_Click(object sender, EventArgs e)
+        private async void btnDangNhap_Click(object sender, EventArgs e)
         {
             lblThongBao.Visible = false;
             lblThongBao.Text = string.Empty;
@@ -245,9 +252,9 @@ namespace QLyNSu.FORM_SYSTEM
                 string currentMac = GetMacAddress();
                 string pcName = Environment.MachineName;
 
-                // 1. Sử dụng AuthSecurityService dùng chung cho DESKTOP, tạo phiên DB thực trong TB_AUTH_SESSION
+                // 1. Sử dụng AuthSecurityService dùng chung cho DESKTOP qua Task.Run tránh deadlock UI Thread
                 var authService = new Bu.CLASS_SECURITY.AuthSecurityService();
-                var loginResult = authService.AuthenticateAsync(
+                var loginResult = await Task.Run(() => authService.AuthenticateAsync(
                     usernameOrEmpCode: username,
                     password: password,
                     clientType: Bu.CLASS_SECURITY.AppChannels.Desktop,
@@ -257,7 +264,7 @@ namespace QLyNSu.FORM_SYSTEM
                     clientIp: currentIp,
                     userAgent: "HRMS-Desktop/1.0",
                     correlationId: Guid.NewGuid().ToString("N")
-                ).GetAwaiter().GetResult();
+                ));
 
                 var user = loginResult?.User as DA.TB_SYS_USER;
                 if (loginResult != null && loginResult.Success && user != null)
@@ -306,20 +313,25 @@ namespace QLyNSu.FORM_SYSTEM
                     MyEntities.CurrentAuditUsername = user.FULLNAME;
                     MyEntities.CurrentSessionId = loginResult.SessionId;
 
-                    // 4. Trao đổi phiên Desktop lấy Bearer Token cho AiApiClient
-                    try
+                    // 4. Trao đổi phiên Desktop lấy Bearer Token cho AiApiClient (chạy nền không chặn luồng đăng nhập UI)
+                    string exchangeSessionId = loginResult.SessionId;
+                    string exchangeJti = loginResult.Jti;
+                    _ = Task.Run(async () =>
                     {
-                        AiApiClient.Instance.ExchangeDesktopTokenAsync(
-                            username: username,
-                            password: password,
-                            sessionId: loginResult.SessionId,
-                            jti: loginResult.Jti
-                        ).GetAwaiter().GetResult();
-                    }
-                    catch (Exception ex)
-                    {
-                        System.Diagnostics.Debug.WriteLine("[FrmDangNhap] Không lấy được Bearer Token cho AiApiClient: " + ex.Message);
-                    }
+                        try
+                        {
+                            await AiApiClient.Instance.ExchangeDesktopTokenAsync(
+                                username: username,
+                                password: password,
+                                sessionId: exchangeSessionId,
+                                jti: exchangeJti
+                            ).ConfigureAwait(false);
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine("[FrmDangNhap] Không lấy được Bearer Token cho AiApiClient: " + ex.Message);
+                        }
+                    });
 
                     // Ghi nhớ đăng nhập
                     try

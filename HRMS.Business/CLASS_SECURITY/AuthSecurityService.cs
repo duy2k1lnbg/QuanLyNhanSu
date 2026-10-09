@@ -153,7 +153,7 @@ namespace Bu.CLASS_SECURITY
                                 await _auditService.RecordLoginAttemptAsync(
                                     userBasic.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
                                     false, "GROUP_CANNOT_LOGIN", correlationId
-                                );
+                                ).ConfigureAwait(false);
                                 result.Success = false;
                                 result.ErrorMessage = "Nhóm người dùng không thể dùng để đăng nhập.";
                                 transaction.Commit();
@@ -202,12 +202,12 @@ namespace Bu.CLASS_SECURITY
                             await _auditService.RecordLoginAttemptAsync(
                                 null, input, clientType, deviceIdHash, clientIp, userAgent,
                                 false, "USER_NOT_FOUND", correlationId
-                            );
+                            ).ConfigureAwait(false);
                             await _auditService.LogEventAsync(
                                 null, null, null, AuthAuditEvents.LoginFailed, "FAILURE",
                                 "USER_NOT_FOUND", clientType, deviceIdHash, clientIp, userAgent, correlationId,
                                 new { identifier = input }
-                            );
+                            ).ConfigureAwait(false);
 
                             result.Success = false;
                             result.ErrorMessage = "Mã đăng nhập hoặc mật khẩu không chính xác.";
@@ -234,7 +234,7 @@ namespace Bu.CLASS_SECURITY
                         }
 
                         bool isRootAdmin = lockedUser.USERNAME != null && lockedUser.USERNAME.Trim().ToUpperInvariant() == "ADMIN";
-                        var policy = await _policyService.GetEffectivePolicyAsync(lockedUser.IDUSER, lockedUser.USERNAME, isRootAdmin);
+                        var policy = await _policyService.GetEffectivePolicyAsync(lockedUser.IDUSER, lockedUser.USERNAME, isRootAdmin).ConfigureAwait(false);
 
                         // 3. Kiểm tra tài khoản bị vô hiệu hóa
                         if (lockedUser.DISABLED.HasValue && lockedUser.DISABLED.Value == 1)
@@ -242,11 +242,11 @@ namespace Bu.CLASS_SECURITY
                             await _auditService.RecordLoginAttemptAsync(
                                 lockedUser.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
                                 false, "ACCOUNT_DISABLED", correlationId
-                            );
+                            ).ConfigureAwait(false);
                             await _auditService.LogEventAsync(
                                 lockedUser.IDUSER, null, null, AuthAuditEvents.LoginFailed, "DENIED",
                                 "ACCOUNT_DISABLED", clientType, deviceIdHash, clientIp, userAgent, correlationId
-                            );
+                            ).ConfigureAwait(false);
 
                             result.Success = false;
                             result.ErrorMessage = "Tài khoản này đang bị vô hiệu hóa. Vui lòng liên hệ Quản trị viên.";
@@ -262,7 +262,7 @@ namespace Bu.CLASS_SECURITY
                             await _auditService.RecordLoginAttemptAsync(
                                 lockedUser.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
                                 false, "ACCOUNT_LOCKED", correlationId
-                            );
+                            ).ConfigureAwait(false);
 
                             result.Success = false;
                             result.IsLocked = true;
@@ -307,7 +307,7 @@ namespace Bu.CLASS_SECURITY
                                     lockedUser.IDUSER, null, null, AuthAuditEvents.AccountLocked, "FAILURE",
                                     $"Locked for {policy.LOCKOUT_DURATION_MINUTES} mins after {newFailedCount} failed attempts",
                                     clientType, deviceIdHash, clientIp, userAgent, correlationId
-                                );
+                                ).ConfigureAwait(false);
                             }
 
                             db.Database.ExecuteSqlCommand(@"
@@ -327,12 +327,12 @@ namespace Bu.CLASS_SECURITY
                             await _auditService.RecordLoginAttemptAsync(
                                 lockedUser.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
                                 false, "INVALID_PASSWORD", correlationId
-                            );
+                            ).ConfigureAwait(false);
                             await _auditService.LogEventAsync(
                                 lockedUser.IDUSER, null, null, AuthAuditEvents.LoginFailed, "FAILURE",
                                 "INVALID_PASSWORD", clientType, deviceIdHash, clientIp, userAgent, correlationId,
                                 new { failedCount = newFailedCount }
-                            );
+                            ).ConfigureAwait(false);
 
                             result.Success = false;
                             if (newLockout.HasValue)
@@ -357,12 +357,12 @@ namespace Bu.CLASS_SECURITY
                             await _auditService.RecordLoginAttemptAsync(
                                 lockedUser.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
                                 false, platformErrCode, correlationId
-                            );
+                            ).ConfigureAwait(false);
                             await _auditService.LogEventAsync(
                                 lockedUser.IDUSER, null, null, AuthAuditEvents.LoginFailed, "DENIED",
                                 platformErrCode, clientType, deviceIdHash, clientIp, userAgent, correlationId,
                                 new { channel = clientType, reason = platformErrMsg }
-                            );
+                            ).ConfigureAwait(false);
 
                             result.Success = false;
                             result.FailureReason = platformErrCode;
@@ -385,7 +385,7 @@ namespace Bu.CLASS_SECURITY
                                 await _auditService.RecordLoginAttemptAsync(
                                     lockedUser.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
                                     false, "IP_NOT_ALLOWED", correlationId
-                                );
+                                ).ConfigureAwait(false);
                                 result.Success = false;
                                 result.FailureReason = "IP_NOT_ALLOWED";
                                 result.ErrorMessage = "Địa chỉ IP hiện tại không được phép đăng nhập vào tài khoản này.";
@@ -438,7 +438,7 @@ namespace Bu.CLASS_SECURITY
                                         AuthAuditEvents.SessionRevoked, "SUCCESS",
                                         $"Revoked due to session quota limit ({policy.MAX_ACTIVE_SESSIONS})",
                                         clientType, deviceIdHash, clientIp, userAgent, correlationId
-                                    );
+                                    ).ConfigureAwait(false);
                                 }
 
                                 await _auditService.LogEventAsync(
@@ -446,7 +446,7 @@ namespace Bu.CLASS_SECURITY
                                     AuthAuditEvents.SessionLimitReached, "SUCCESS",
                                     $"Session limit ({policy.MAX_ACTIVE_SESSIONS}) reached. Oldest session revoked.",
                                     clientType, deviceIdHash, clientIp, userAgent, correlationId
-                                );
+                                ).ConfigureAwait(false);
                             }
                             else
                             {
@@ -456,7 +456,7 @@ namespace Bu.CLASS_SECURITY
                                     AuthAuditEvents.SessionLimitReached, "DENIED",
                                     $"Session limit ({policy.MAX_ACTIVE_SESSIONS}) reached. New login rejected.",
                                     clientType, deviceIdHash, clientIp, userAgent, correlationId
-                                );
+                                ).ConfigureAwait(false);
 
                                 result.Success = false;
                                 result.ErrorMessage = $"Tài khoản đã đạt giới hạn tối đa {policy.MAX_ACTIVE_SESSIONS} phiên đăng nhập đồng thời. Vui lòng đăng xuất ở thiết bị khác trước.";
@@ -495,21 +495,21 @@ namespace Bu.CLASS_SECURITY
                         await _auditService.RecordLoginAttemptAsync(
                             lockedUser.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
                             true, null, correlationId
-                        );
+                        ).ConfigureAwait(false);
 
                         await _auditService.LogEventAsync(
                             lockedUser.IDUSER, lockedUser.IDUSER, sessionId,
                             AuthAuditEvents.SessionCreated, "SUCCESS",
                             $"Session created successfully (Expires: {sessionExpiresAt:yyyy-MM-dd HH:mm:ss})",
                             clientType, deviceIdHash, clientIp, userAgent, correlationId
-                        );
+                        ).ConfigureAwait(false);
 
                         await _auditService.LogEventAsync(
                             lockedUser.IDUSER, lockedUser.IDUSER, sessionId,
                             AuthAuditEvents.LoginSuccess, "SUCCESS",
                             "Login completed successfully",
                             clientType, deviceIdHash, clientIp, userAgent, correlationId
-                        );
+                        ).ConfigureAwait(false);
 
                         // Đồng bộ lịch sử đăng nhập truyền thống TB_SYS_LOGIN_HISTORY
                         try
@@ -688,7 +688,7 @@ namespace Bu.CLASS_SECURITY
 
         public async Task<bool> ValidateSessionAsync(string jti, long tokenVersion, decimal userId)
         {
-            return await ValidateSessionAsync(jti, tokenVersion, userId, null);
+            return await ValidateSessionAsync(jti, tokenVersion, userId, null).ConfigureAwait(false);
         }
 
         public async Task<bool> ValidateSessionAsync(string jti, long tokenVersion, decimal userId, string expectedChannel)
@@ -705,7 +705,7 @@ namespace Bu.CLASS_SECURITY
                         FROM HR.TB_SYS_USER
                         WHERE IDUSER = :p0",
                         new OracleParameter("p0", userId)
-                    ).FirstOrDefaultAsync();
+                    ).FirstOrDefaultAsync().ConfigureAwait(false);
 
                     if (userState == null) return false;
                     if (userState.DISABLED.HasValue && userState.DISABLED.Value == 1) return false;
@@ -719,7 +719,7 @@ namespace Bu.CLASS_SECURITY
                         WHERE JTI = :p0 AND USER_ID = :p1",
                         new OracleParameter("p0", jti.Trim()),
                         new OracleParameter("p1", userId)
-                    ).FirstOrDefaultAsync();
+                    ).FirstOrDefaultAsync().ConfigureAwait(false);
 
                     if (sessionState == null) return false;
                     if (sessionState.REVOKED_AT.HasValue) return false; // Immediate Targeted Revocation
@@ -746,7 +746,7 @@ namespace Bu.CLASS_SECURITY
                                 SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'IDLE_TIMEOUT'
                                 WHERE JTI = :p0",
                                 new OracleParameter("p0", jti.Trim())
-                            );
+                            ).ConfigureAwait(false);
                         }
                         catch { }
                         return false;
@@ -761,7 +761,7 @@ namespace Bu.CLASS_SECURITY
                                 SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'ABSOLUTE_TIMEOUT'
                                 WHERE JTI = :p0",
                                 new OracleParameter("p0", jti.Trim())
-                            );
+                            ).ConfigureAwait(false);
                         }
                         catch { }
                         return false;
@@ -777,7 +777,7 @@ namespace Bu.CLASS_SECURITY
                                 SET LAST_USED_AT = CURRENT_TIMESTAMP
                                 WHERE JTI = :p0",
                                 new OracleParameter("p0", jti.Trim())
-                            );
+                            ).ConfigureAwait(false);
                         }
                         catch { }
                     }
@@ -913,7 +913,7 @@ namespace Bu.CLASS_SECURITY
                         WHERE (SESSION_ID = :p0 OR JTI = :p1) AND REVOKED_AT IS NULL",
                         new OracleParameter("p0", trimmed),
                         new OracleParameter("p1", trimmed)
-                    ).FirstOrDefaultAsync();
+                    ).FirstOrDefaultAsync().ConfigureAwait(false);
 
                     if (session == null) return true; // Idempotent
 
@@ -924,14 +924,14 @@ namespace Bu.CLASS_SECURITY
                         WHERE SESSION_ID = :p1",
                         new OracleParameter("p0", reason ?? AuthRevokeReasons.Logout),
                         new OracleParameter("p1", session.SESSION_ID)
-                    );
+                    ).ConfigureAwait(false);
 
                     await _auditService.LogEventAsync(
                         session.USER_ID, actorUserId > 0 ? (decimal?)actorUserId : session.USER_ID,
                         session.SESSION_ID,
                         reason == AuthRevokeReasons.Logout ? AuthAuditEvents.Logout : AuthAuditEvents.SessionRevoked,
                         "SUCCESS", reason, null, null, null, null, correlationId
-                    );
+                    ).ConfigureAwait(false);
 
                     return true;
                 }
@@ -960,7 +960,7 @@ namespace Bu.CLASS_SECURITY
                             WHERE USER_ID = :p1 AND REVOKED_AT IS NULL",
                             new OracleParameter("p0", reason ?? AuthRevokeReasons.LogoutAll),
                             new OracleParameter("p1", userId)
-                        );
+                        ).ConfigureAwait(false);
 
                         if (incrementSecurityVersion)
                         {
@@ -969,14 +969,14 @@ namespace Bu.CLASS_SECURITY
                                 SET TOKEN_VERSION = NVL(TOKEN_VERSION, 1) + 1
                                 WHERE IDUSER = :p0",
                                 new OracleParameter("p0", userId)
-                            );
+                            ).ConfigureAwait(false);
 
                             await _auditService.LogEventAsync(
                                 userId, actorUserId > 0 ? (decimal?)actorUserId : userId,
                                 null, AuthAuditEvents.SecurityVersionChanged, "SUCCESS",
                                 "Token version incremented to invalidate all active JWTs",
                                 null, null, null, null, correlationId
-                            );
+                            ).ConfigureAwait(false);
                         }
 
                         await _auditService.LogEventAsync(
@@ -984,7 +984,7 @@ namespace Bu.CLASS_SECURITY
                             null, AuthAuditEvents.LogoutAll, "SUCCESS",
                             $"Revoked {revokedCount} active sessions ({reason})",
                             null, null, null, null, correlationId
-                        );
+                        ).ConfigureAwait(false);
 
                         tx.Commit();
                         return revokedCount;
@@ -1020,14 +1020,14 @@ namespace Bu.CLASS_SECURITY
                         new OracleParameter("p0", reason ?? AuthRevokeReasons.PlatformAccessRemoved),
                         new OracleParameter("p1", userId),
                         new OracleParameter("p2", normChannel)
-                    );
+                    ).ConfigureAwait(false);
 
                     await _auditService.LogEventAsync(
                         userId, actorUserId > 0 ? (decimal?)actorUserId : userId,
                         null, AuthAuditEvents.SessionRevoked, "SUCCESS",
                         $"Revoked {revokedCount} active sessions on channel {normChannel} ({reason})",
                         normChannel, null, null, null, correlationId
-                    );
+                    ).ConfigureAwait(false);
 
                     return revokedCount;
                 }
@@ -1116,7 +1116,7 @@ namespace Bu.CLASS_SECURITY
                             userId, userId, null, AuthAuditEvents.PasswordChanged, "SUCCESS",
                             $"Password updated. Token version bumped to {newTokenVersion}. Revoked {revokedCount} active sessions.",
                             null, null, clientIp, userAgent, correlationId
-                        );
+                        ).ConfigureAwait(false);
 
                         tx.Commit();
 
@@ -1153,7 +1153,7 @@ namespace Bu.CLASS_SECURITY
                         WHERE USER_ID = :p0 AND (REVOKED_AT IS NULL OR REVOKED_AT > CURRENT_TIMESTAMP - INTERVAL '7' DAY)
                         ORDER BY LAST_USED_AT DESC",
                         new OracleParameter("p0", userId)
-                    ).ToListAsync();
+                    ).ToListAsync().ConfigureAwait(false);
 
                     return rows.Select(r => new SessionInfoDto
                     {
@@ -1200,7 +1200,7 @@ namespace Bu.CLASS_SECURITY
                     await _auditService.LogEventAsync(
                         targetUserId, actorUserId, null, AuthAuditEvents.AccountUnlocked, "SUCCESS",
                         "User unlocked by admin", null, null, null, null, correlationId
-                    );
+                    ).ConfigureAwait(false);
 
                     return true;
                 }

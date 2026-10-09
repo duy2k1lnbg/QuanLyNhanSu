@@ -1,35 +1,33 @@
-﻿# TÃ i liá»‡u HRMS
+# Tài liệu HRMS
 
-Cáº­p nháº­t: 01/10/2026. TÃ i liá»‡u Ä‘Æ°á»£c gá»™p theo chá»§ Ä‘á» Ä‘á»ƒ giáº£m cÃ¡c báº£n trÃ¹ng vÃ  dá»… tra cá»©u.
+Cập nhật: 01/10/2026. Tài liệu được gộp theo chủ đề để giảm các bản trùng và dễ tra cứu.
 
-## Báº¯t Ä‘áº§u
+## Bắt đầu
 
-1. [README dá»± Ã¡n](../README.md) ([English](../README.en.md) / [æ—¥æœ¬èªž](../README.ja.md)): thÃ nh pháº§n, kiáº¿n trÃºc vÃ  cÃ¡ch báº¯t Ä‘áº§u.
-2. [CÃ i Ä‘áº·t](installation.md): mÃ´i trÆ°á»ng, cáº¥u hÃ¬nh vÃ  URL cá»¥c bá»™.
-3. [Kiáº¿n trÃºc](architecture.md): luá»“ng truy cáº­p vÃ  nguá»“n mÃ£ chÃ­nh.
-4. [Hiá»‡n tráº¡ng](current-status.md): káº¿t quáº£ Ä‘Ã£ quan sÃ¡t, giá»›i háº¡n vÃ  viá»‡c cÃ²n má»Ÿ.
+1. [README dự án](../README.md): thành phần và cách bắt đầu.
+2. [Cài đặt](installation.md): môi trường, cấu hình và URL cục bộ.
+3. [Kiến trúc](architecture.md): luồng truy cập và nguồn mã chính.
+4. [Hiện trạng](current-status.md): kết quả đã quan sát, giới hạn và việc còn mở.
 
-## HÆ°á»›ng dáº«n theo chá»§ Ä‘á»
+## Hướng dẫn theo chủ đề
 
-| TÃ i liá»‡u | Ná»™i dung |
+| Tài liệu | Nội dung |
 | --- | --- |
-| [Triá»ƒn khai](deployment.md) | IIS/API, Web, cáº¥u hÃ¬nh vÃ  cÃ¡c bÆ°á»›c cáº§n kiá»ƒm tra |
-| [Mobile](mobile.md) | Kiáº¿n trÃºc, API, cháº¡y/build, mapping vÃ  pháº¡m vi dá»¯ liá»‡u |
-| [CÃ´ngâ€“lÆ°Æ¡ng](payroll.md) | Luá»“ng tÃ­nh, dá»¯ liá»‡u, tráº¡ng thÃ¡i/quyá»n, chÃ­nh sÃ¡ch vÃ  Ä‘á»‘i soÃ¡t giao diá»‡n |
-| [Database](database.md) | Migration, kiá»ƒm tra dá»¯ liá»‡u vÃ  cÃ¡c bá»™ dá»¯ liá»‡u mÃ´ phá»ng |
-| [Web](web.md) | Theme/component, KPI, kÃ½ hiá»‡u cÃ´ng vÃ  intro |
-| [Kiá»ƒm thá»­](testing.md) | Nguá»“n test, ká»‹ch báº£n cáº§n cháº¡y vÃ  báº±ng chá»©ng cáº§n ghi |
-| [RAG vÃ  phÃ¢n quyá»n tÃ i khoáº£n](ai-rag-and-account-permissions-guide.md) | ÄÆ°á»ng gá»i AI tháº­t, quyá»n ná»n táº£ng/nghiá»‡p vá»¥/pháº¡m vi, cÃ¡ch cáº¥p quyá»n vÃ  cháº©n Ä‘oÃ¡n UI/ngÃ´n ngá»¯ |
-| [Thuá»™c tÃ­nh model](model-fields.md) | Danh má»¥c scalar C#; khÃ´ng thay metadata Oracle hoáº·c káº¿t quáº£ coverage UI |
-| [Kiáº¿n trÃºc & Váº­n hÃ nh AI Services](ai-services-guide.md) | Báº£n Ä‘á»“ 53 file AI, cÃ¡c nhÃ³m chá»©c nÄƒng (Bootstrap, Config, Chat, NLP, Planning, Retrieval, Security, Indexing) vÃ  hÆ°á»›ng dáº«n báº£o trÃ¬ |
+| [Triển khai](deployment.md) | IIS/API, Web, cấu hình và các bước cần kiểm tra |
+| [Mobile](mobile.md) | Kiến trúc, API, chạy/build, mapping và phạm vi dữ liệu |
+| [Công–lương](payroll.md) | Luồng tính, dữ liệu, trạng thái/quyền, chính sách và đối soát giao diện |
+| [Database](database.md) | Migration, kiểm tra dữ liệu và các bộ dữ liệu mô phỏng |
+| [Web](web.md) | Theme/component, KPI, ký hiệu công và intro |
+| [Kiểm thử](testing.md) | Nguồn test, kịch bản cần chạy và bằng chứng cần ghi |
+| [Thuộc tính model](model-fields.md) | Danh mục scalar C#; không thay metadata Oracle hoặc kết quả coverage UI |
 
-Script vÃ  snapshot dá»¯ liá»‡u náº±m trong `database/`. TÃ i liá»‡u ká»¹ thuáº­t lá»‹ch sá»­ vÃ  bÃ¡o cÃ¡o test trÆ°á»›c Ä‘Ã¢y Ä‘Æ°á»£c lÆ°u trá»¯ trong thÆ° má»¥c [archive/](archive/).
+Script và snapshot dữ liệu nằm trong `database/`.
 
-## Quy Æ°á»›c cáº­p nháº­t
+## Quy ước cập nhật
 
-- Sá»­a tÃ i liá»‡u chÃ­nh cá»§a chá»§ Ä‘á» thay vÃ¬ thÃªm bÃ¡o cÃ¡o tá»•ng káº¿t trÃ¹ng ná»™i dung.
-- Káº¿t quáº£ cháº¡y cáº§n ghi ngÃ y, source, lá»‡nh, mÃ´i trÆ°á»ng vÃ  giá»›i háº¡n; tÃªn test hoáº·c migration khÃ´ng chá»©ng minh Ä‘Ã£ cháº¡y.
-- PhÃ¢n biá»‡t mÃ´ táº£ theo source, káº¿t quáº£ Ä‘Ã£ quan sÃ¡t, káº¿ hoáº¡ch vÃ  dá»¯ liá»‡u lá»‹ch sá»­.
-- Chá»‰ thÃªm tÃ i liá»‡u khi cÃ³ má»™t chá»§ Ä‘á» má»›i cáº§n hÆ°á»›ng dáº«n riÃªng.
+- Sửa tài liệu chính của chủ đề thay vì thêm báo cáo tổng kết trùng nội dung.
+- Kết quả chạy cần ghi ngày, source, lệnh, môi trường và giới hạn; tên test hoặc migration không chứng minh đã chạy.
+- Phân biệt mô tả theo source, kết quả đã quan sát, kế hoạch và dữ liệu lịch sử.
+- Chỉ thêm tài liệu khi có một chủ đề mới cần hướng dẫn riêng.
 
-Prompt Ä‘Æ°á»£c lÆ°u cá»¥c bá»™ trong `prompts/` á»Ÿ gá»‘c repository vÃ  bá»‹ Git bá» qua. CÃ¡c tÃ i liá»‡u ká»¹ thuáº­t/bÃ¡o cÃ¡o cÅ© Ä‘Æ°á»£c lÆ°u trá»¯ trong `docs/archive/` vÃ  `artifacts/docs-maintenance/` Ä‘á»ƒ báº£o toÃ n lá»‹ch sá»­ mÃ  khÃ´ng lÃ m bá»«a bá»™n tÃ i liá»‡u chÃ­nh.
+Prompt được lưu cục bộ trong `prompts/` ở gốc repository và bị Git bỏ qua. Các báo cáo cũ được sao lưu trong `artifacts/docs-maintenance/before-compaction-*.zip` trước khi bỏ khỏi bộ tài liệu chính; bản sao này cũng bị Git bỏ qua.

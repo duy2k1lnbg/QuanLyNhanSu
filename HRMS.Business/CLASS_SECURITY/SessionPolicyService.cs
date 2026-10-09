@@ -29,7 +29,7 @@ namespace Bu.CLASS_SECURITY
                         FROM HR.TB_AUTH_POLICY
                         WHERE SCOPE_TYPE = 'USER' AND SCOPE_ID = :p0 AND ENABLED = 1 AND ROWNUM = 1",
                         new OracleParameter("p0", userScopeId)
-                    ).FirstOrDefaultAsync();
+                    ).FirstOrDefaultAsync().ConfigureAwait(false);
 
                     if (userPolicy != null) return userPolicy;
 
@@ -43,7 +43,7 @@ namespace Bu.CLASS_SECURITY
                         FROM HR.TB_AUTH_POLICY
                         WHERE SCOPE_TYPE = 'ROLE' AND LOWER(SCOPE_ID) = LOWER(:p0) AND ENABLED = 1 AND ROWNUM = 1",
                         new OracleParameter("p0", roleScopeId)
-                    ).FirstOrDefaultAsync();
+                    ).FirstOrDefaultAsync().ConfigureAwait(false);
 
                     if (rolePolicy != null) return rolePolicy;
 
@@ -55,7 +55,7 @@ namespace Bu.CLASS_SECURITY
                                ENABLED, CREATED_AT, UPDATED_AT
                         FROM HR.TB_AUTH_POLICY
                         WHERE SCOPE_TYPE = 'GLOBAL' AND SCOPE_ID = '*' AND ENABLED = 1 AND ROWNUM = 1"
-                    ).FirstOrDefaultAsync();
+                    ).FirstOrDefaultAsync().ConfigureAwait(false);
 
                     if (globalPolicy != null) return globalPolicy;
                 }
