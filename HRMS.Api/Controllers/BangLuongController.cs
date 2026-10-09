@@ -22,6 +22,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpGet]
         [Route("")]
+        [RateLimit(Policy = RateLimitPolicy.BusinessRead)]
         public IHttpActionResult GetBangLuong(int makycong = 0, string dept = null, string status = null)
         {
             var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
@@ -59,7 +60,13 @@ namespace HRMS_API.Controllers
                                where makycong <= 0 || bl.MAKYCONG == makycong
                                join nv in db.TB_NHANVIEN on bl.MANV equals nv.MANV into nvGroup
                                from nv in nvGroup.DefaultIfEmpty()
-                               select new { bl, nv.HOTEN, nv.IDPB, nv.DATHOIVIEC }).ToList();
+                               select new { bl, nv.HOTEN, nv.IDPB, nv.DATHOIVIEC, nv.IDCTY }).ToList();
+
+                    // Object-level authorization: Giới hạn theo công ty của người dùng nếu không phải Admin
+                    if (!jwtUser.IsAdmin && !string.IsNullOrWhiteSpace(jwtUser.MaCty) && int.TryParse(jwtUser.MaCty, out int userCtyId) && userCtyId > 0)
+                    {
+                        raw = raw.Where(x => x.IDCTY == userCtyId).ToList();
+                    }
 
                     var pbMap = db.TB_PHONGBAN.ToDictionary(p => p.IDPB, p => p.TENPB);
 
@@ -212,6 +219,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpGet]
         [Route("chitiet")]
+        [RateLimit(Policy = RateLimitPolicy.BusinessRead)]
         public IHttpActionResult GetChiTietLuongNV(int makycong, int manv)
         {
             var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
@@ -255,6 +263,15 @@ namespace HRMS_API.Controllers
                     }
 
                     var nv = db.TB_NHANVIEN.FirstOrDefault(x => x.MANV == manv);
+
+                    // Object-level authorization cho người quản trị lương non-admin: chỉ được xem nhân viên cùng công ty
+                    if (hasPayrollRight && !jwtUser.IsAdmin && !string.IsNullOrWhiteSpace(jwtUser.MaCty) && int.TryParse(jwtUser.MaCty, out int userCtyId) && userCtyId > 0)
+                    {
+                        if (nv != null && nv.IDCTY != userCtyId)
+                        {
+                            return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bảng lương của nhân viên này nằm ngoài phạm vi công ty của bạn." });
+                        }
+                    }
                     string hoten = nv != null ? nv.HOTEN : "";
                     string tenpb = "";
                     string tencv = "";

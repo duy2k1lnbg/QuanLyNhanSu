@@ -12,7 +12,47 @@ namespace Bu.CLASS_SYSTEM
         public static Dictionary<string, UserRightDetail> DetailedRights { get; set; } = new Dictionary<string, UserRightDetail>(StringComparer.OrdinalIgnoreCase);
         public static decimal CurrentLoginId { get; set; }
 
-        public static bool IsLoggedIn => CurrentUser != null;
+        public static string CurrentSessionId { get; set; }
+        public static string CurrentJti { get; set; }
+        public static long CurrentTokenVersion { get; set; }
+        public static string CurrentChannel { get; set; } = "DESKTOP";
+        public static string CurrentToken { get; set; }
+        public static event Action SessionCleared;
+
+        public static bool IsLoggedIn => CurrentUser != null && !string.IsNullOrWhiteSpace(CurrentSessionId) && !string.IsNullOrWhiteSpace(CurrentJti);
+
+        public static bool ParentDesktopOn
+        {
+            get
+            {
+                if (DetailedRights != null && DetailedRights.TryGetValue("F_LOGIN_DESKTOP", out var p))
+                {
+                    return p.CAN_VIEW;
+                }
+                return UserRights != null && UserRights.Contains("F_LOGIN_DESKTOP");
+            }
+            set
+            {
+                if (DetailedRights == null) DetailedRights = new Dictionary<string, UserRightDetail>(StringComparer.OrdinalIgnoreCase);
+                if (DetailedRights.ContainsKey("F_LOGIN_DESKTOP"))
+                {
+                    DetailedRights["F_LOGIN_DESKTOP"].CAN_VIEW = value;
+                }
+                else
+                {
+                    DetailedRights["F_LOGIN_DESKTOP"] = new UserRightDetail { CAN_VIEW = value };
+                }
+                if (value)
+                {
+                    if (UserRights == null) UserRights = new List<string>();
+                    if (!UserRights.Contains("F_LOGIN_DESKTOP")) UserRights.Add("F_LOGIN_DESKTOP");
+                }
+                else
+                {
+                    if (UserRights != null) UserRights.Remove("F_LOGIN_DESKTOP");
+                }
+            }
+        }
 
         public static bool IsAdmin => CurrentUser != null &&
             CurrentUser.USERNAME != null &&
@@ -28,6 +68,74 @@ namespace Bu.CLASS_SYSTEM
         }
 
         /// <summary>
+        /// Kiểm tra điều kiện tiên quyết của phiên làm việc Desktop:
+        /// - Tài khoản tồn tại và không bị disabled
+        /// - Phiên làm việc hợp lệ (có SessionId và JTI thực tế từ Server)
+        /// - Quyền cha của kênh đang bật (F_LOGIN_DESKTOP)
+        /// </summary>
+        private static bool CheckSessionAndParentChannel(string functionCode, Bu.CLASS_SECURITY.ChannelAction action, out string normalizedCode)
+        {
+            normalizedCode = NormalizeFunctionCode(functionCode);
+            if (CurrentUser == null || string.IsNullOrWhiteSpace(functionCode)) return false;
+
+            // 1. Phải có định danh phiên làm việc thực tế (Zero-Trust)
+            if (string.IsNullOrWhiteSpace(CurrentSessionId) || string.IsNullOrWhiteSpace(CurrentJti))
+            {
+                return false;
+            }
+
+            // 2. Tài khoản không bị vô hiệu hóa
+            if ((CurrentUser.DISABLED ?? 0) == 1)
+            {
+                return false;
+            }
+
+            string channel = string.IsNullOrWhiteSpace(CurrentChannel) ? "DESKTOP" : Bu.CLASS_SECURITY.AppChannels.Normalize(CurrentChannel);
+
+            // 3. Nếu là chính mã đăng nhập nền tảng (F_LOGIN_*)
+            if (Bu.CLASS_SECURITY.PlatformFunctionCodes.IsPlatformCode(functionCode))
+            {
+                if (action != Bu.CLASS_SECURITY.ChannelAction.View)
+                {
+                    return false; // Quyền nền tảng chỉ có action View/Grant
+                }
+
+                if (DetailedRights != null && DetailedRights.TryGetValue(functionCode, out var pDetail))
+                {
+                    return pDetail.CAN_VIEW;
+                }
+                return UserRights != null && UserRights.Contains(functionCode);
+            }
+
+            // 4. Kiểm tra quyền cha của kênh (F_LOGIN_DESKTOP / F_LOGIN_WEB / F_LOGIN_MOBILE)
+            string parentCode = Bu.CLASS_SECURITY.PlatformFunctionCodes.GetFunctionCodeForChannel(channel);
+            bool isParentGranted = false;
+            if (DetailedRights != null && DetailedRights.TryGetValue(parentCode, out var parentDetail))
+            {
+                isParentGranted = parentDetail.CAN_VIEW;
+            }
+            else if (UserRights != null)
+            {
+                isParentGranted = UserRights.Contains(parentCode);
+            }
+
+            if (!isParentGranted)
+            {
+                // Quyền cha TẮT -> Toàn bộ quyền con của kênh bị VÔ HIỆU HÓA (kể cả ADMIN!)
+                return false;
+            }
+
+            // 5. Kiểm tra khả năng hỗ trợ của kênh (Capability Registry Boundary)
+            // Kể cả ADMIN hoặc Wildcard cũng không được vượt qua giới hạn của kênh!
+            if (!Bu.CLASS_SECURITY.ChannelCapabilityRegistry.IsActionSupported(channel, normalizedCode, action))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Tương thích ngược: HasRight tương đương với CanView.
         /// </summary>
         public static bool HasRight(string functionCode)
@@ -40,16 +148,23 @@ namespace Bu.CLASS_SYSTEM
         /// </summary>
         public static bool CanView(string functionCode)
         {
-            if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
-            if (IsAdmin) return true;
+            if (!CheckSessionAndParentChannel(functionCode, Bu.CLASS_SECURITY.ChannelAction.View, out string normalized))
+            {
+                return false;
+            }
 
-            string normalized = NormalizeFunctionCode(functionCode);
-            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
+            if (DetailedRights != null && (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail)))
             {
                 return detail.CAN_VIEW;
             }
 
-            return UserRights.Contains(functionCode) || UserRights.Contains(normalized);
+            if (UserRights != null)
+            {
+                if (UserRights.Contains(functionCode) || UserRights.Contains(normalized)) return true;
+                if (!Bu.CLASS_SECURITY.PlatformFunctionCodes.IsPlatformCode(normalized) && UserRights.Contains("*")) return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -57,11 +172,12 @@ namespace Bu.CLASS_SYSTEM
         /// </summary>
         public static bool CanAdd(string functionCode)
         {
-            if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
-            if (IsAdmin) return true;
+            if (!CheckSessionAndParentChannel(functionCode, Bu.CLASS_SECURITY.ChannelAction.Add, out string normalized))
+            {
+                return false;
+            }
 
-            string normalized = NormalizeFunctionCode(functionCode);
-            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
+            if (DetailedRights != null && (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail)))
             {
                 return detail.CAN_ADD;
             }
@@ -74,11 +190,12 @@ namespace Bu.CLASS_SYSTEM
         /// </summary>
         public static bool CanEdit(string functionCode)
         {
-            if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
-            if (IsAdmin) return true;
+            if (!CheckSessionAndParentChannel(functionCode, Bu.CLASS_SECURITY.ChannelAction.Edit, out string normalized))
+            {
+                return false;
+            }
 
-            string normalized = NormalizeFunctionCode(functionCode);
-            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
+            if (DetailedRights != null && (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail)))
             {
                 return detail.CAN_EDIT;
             }
@@ -91,11 +208,12 @@ namespace Bu.CLASS_SYSTEM
         /// </summary>
         public static bool CanDelete(string functionCode)
         {
-            if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
-            if (IsAdmin) return true;
+            if (!CheckSessionAndParentChannel(functionCode, Bu.CLASS_SECURITY.ChannelAction.Delete, out string normalized))
+            {
+                return false;
+            }
 
-            string normalized = NormalizeFunctionCode(functionCode);
-            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
+            if (DetailedRights != null && (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail)))
             {
                 return detail.CAN_DELETE;
             }
@@ -108,11 +226,12 @@ namespace Bu.CLASS_SYSTEM
         /// </summary>
         public static bool CanPrint(string functionCode)
         {
-            if (CurrentUser == null || string.IsNullOrEmpty(functionCode)) return false;
-            if (IsAdmin) return true;
+            if (!CheckSessionAndParentChannel(functionCode, Bu.CLASS_SECURITY.ChannelAction.Print, out string normalized))
+            {
+                return false;
+            }
 
-            string normalized = NormalizeFunctionCode(functionCode);
-            if (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail))
+            if (DetailedRights != null && (DetailedRights.TryGetValue(functionCode, out var detail) || DetailedRights.TryGetValue(normalized, out detail)))
             {
                 return detail.CAN_PRINT;
             }
@@ -135,10 +254,17 @@ namespace Bu.CLASS_SYSTEM
 
         public static void Clear()
         {
-            CurrentUser = null;
-            UserRights?.Clear();
-            DetailedRights?.Clear();
+            if (UserRights == null) UserRights = new List<string>();
+            else UserRights.Clear();
+            if (DetailedRights == null) DetailedRights = new Dictionary<string, UserRightDetail>(StringComparer.OrdinalIgnoreCase);
+            else DetailedRights.Clear();
             CurrentLoginId = 0;
+            CurrentSessionId = null;
+            CurrentJti = null;
+            CurrentTokenVersion = 0;
+            CurrentChannel = "DESKTOP";
+            CurrentToken = null;
+            SessionCleared?.Invoke();
         }
     }
 }

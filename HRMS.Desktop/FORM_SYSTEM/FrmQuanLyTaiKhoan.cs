@@ -501,25 +501,31 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 using (var db = new MyEntities())
                 {
-                    int mapCount = db.Database.SqlQuery<int>(
-                        "SELECT COUNT(*) FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0",
-                        new Oracle.ManagedDataAccess.Client.OracleParameter("p0", userId)
-                    ).FirstOrDefault();
+                    // Cập nhật IS_MOBILE_ENABLED trong TB_USER_EMPLOYEE_MAPPING (sử dụng MERGE để hỗ trợ an toàn)
+                    db.Database.ExecuteSqlCommand(@"
+                        MERGE INTO HR.TB_USER_EMPLOYEE_MAPPING M
+                        USING (SELECT :p0 AS USER_ID, :p1 AS IS_MOBILE_ENABLED FROM DUAL) S
+                        ON (M.USER_ID = S.USER_ID)
+                        WHEN MATCHED THEN
+                            UPDATE SET M.IS_MOBILE_ENABLED = S.IS_MOBILE_ENABLED, M.UPDATED_AT = SYSDATE
+                        WHEN NOT MATCHED THEN
+                            INSERT (USER_ID, IS_MOBILE_ENABLED, CREATED_AT, UPDATED_AT)
+                            VALUES (S.USER_ID, S.IS_MOBILE_ENABLED, SYSDATE, SYSDATE)",
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("p0", userId),
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("p1", targetState)
+                    );
 
-                    if (mapCount > 0)
+                    // Khi tắt Mobile: Thu hồi toàn bộ các phiên Mobile đang hoạt động
+                    if (targetState == 0)
                     {
-                        db.Database.ExecuteSqlCommand(
-                            "UPDATE HR.TB_USER_EMPLOYEE_MAPPING SET IS_MOBILE_ENABLED = :p0, UPDATED_AT = SYSDATE WHERE USER_ID = :p1",
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p0", targetState),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p1", userId)
-                        );
-                    }
-                    else
-                    {
-                        db.Database.ExecuteSqlCommand(
-                            "UPDATE HR.TB_SYS_USER SET CLIENT_TYPE = :p0 WHERE IDUSER = :p1",
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p0", targetState == 1 ? "MOBILE" : "DESKTOP"),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p1", userId)
+                        db.Database.ExecuteSqlCommand(@"
+                            UPDATE HR.TB_AUTH_SESSION
+                            SET REVOKED_AT = CURRENT_TIMESTAMP,
+                                REVOKE_REASON = 'MOBILE_DISABLED'
+                            WHERE USER_ID = :p0 
+                              AND UPPER(TRIM(CLIENT_TYPE)) = 'MOBILE' 
+                              AND REVOKED_AT IS NULL",
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p0", userId)
                         );
                     }
 

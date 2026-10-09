@@ -35,7 +35,13 @@ namespace HRMS_API.Controllers
             return pub.IsPublished;
         }
 
-        private bool TryGetAuthenticatedEmployee(MyEntities db, out TB_SYS_USER user, out TB_NHANVIEN nv, out IHttpActionResult errorResult)
+        private bool TryGetAuthenticatedEmployee(
+            MyEntities db, 
+            out TB_SYS_USER user, 
+            out TB_NHANVIEN nv, 
+            out IHttpActionResult errorResult,
+            string requiredFunctionCode = null,
+            Bu.CLASS_SECURITY.ChannelAction requiredAction = Bu.CLASS_SECURITY.ChannelAction.View)
         {
             user = null;
             nv = null;
@@ -61,54 +67,104 @@ namespace HRMS_API.Controllers
                 return false;
             }
 
-            // Phân giải hồ sơ nhân viên và quyền Mobile từ TB_USER_EMPLOYEE_MAPPING nếu có
-            int isMobileEnabled = 1;
+            // Tài khoản Quản trị viên tối cao (ADMIN) không sử dụng cổng nhân viên tự phục vụ
+            if (user.USERNAME != null && user.USERNAME.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
+            {
+                errorResult = Content(HttpStatusCode.Forbidden, new { success = false, message = "Tài khoản Quản trị viên tối cao (ADMIN) không áp dụng cổng dịch vụ cá nhân nhân viên." });
+                return false;
+            }
+
+            // Phân giải hồ sơ nhân viên và quyền Mobile từ TB_USER_EMPLOYEE_MAPPING (Nguồn chính xác duy nhất)
+            MappingCheckRow mapRow = null;
             try
             {
-                var mapRow = db.Database.SqlQuery<MappingCheckRow>(
+                mapRow = db.Database.SqlQuery<MappingCheckRow>(
                     "SELECT EMPLOYEE_ID, IS_MOBILE_ENABLED FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0 AND ROWNUM = 1",
                     new OracleParameter("p0", user.IDUSER)
                 ).FirstOrDefault();
-
-                if (mapRow != null)
-                {
-                    if (mapRow.EMPLOYEE_ID.HasValue && mapRow.EMPLOYEE_ID.Value > 0)
-                    {
-                        user.MANV = mapRow.EMPLOYEE_ID.Value;
-                    }
-                    if (mapRow.IS_MOBILE_ENABLED.HasValue)
-                    {
-                        isMobileEnabled = (int)mapRow.IS_MOBILE_ENABLED.Value;
-                    }
-                }
             }
-            catch { }
-
-            string clientType = (jwtUser?.ClientType ?? user.CLIENT_TYPE ?? "ALL").Trim().ToUpperInvariant();
-            if (clientType == "MOBILE" && isMobileEnabled == 0)
+            catch (Exception ex)
             {
-                errorResult = Content(HttpStatusCode.Forbidden, new { success = false, message = "Tài khoản chưa được kích hoạt quyền truy cập ứng dụng di động (Mobile Access)." });
+                System.Diagnostics.Trace.TraceError("[MeController] Error reading TB_USER_EMPLOYEE_MAPPING: " + ex);
+                errorResult = Content(HttpStatusCode.ServiceUnavailable, new 
+                { 
+                    success = false, 
+                    code = Bu.CLASS_SECURITY.PlatformErrorCodes.AuthServiceUnavailable,
+                    message = Bu.CLASS_SECURITY.PlatformErrorCodes.GetFriendlyMessage(Bu.CLASS_SECURITY.PlatformErrorCodes.AuthServiceUnavailable) 
+                });
                 return false;
             }
 
-            if (!user.MANV.HasValue || user.MANV.Value <= 0)
+            if (mapRow == null || !mapRow.EMPLOYEE_ID.HasValue || mapRow.EMPLOYEE_ID.Value <= 0)
             {
-                errorResult = Content(HttpStatusCode.Forbidden, new { success = false, message = "Tài khoản chưa được liên kết với hồ sơ nhân viên. Vui lòng liên hệ bộ phận nhân sự." });
+                errorResult = Content(HttpStatusCode.Forbidden, new 
+                { 
+                    success = false, 
+                    code = Bu.CLASS_SECURITY.PlatformErrorCodes.EmployeeLinkRequired,
+                    message = Bu.CLASS_SECURITY.PlatformErrorCodes.GetFriendlyMessage(Bu.CLASS_SECURITY.PlatformErrorCodes.EmployeeLinkRequired) 
+                });
                 return false;
             }
 
-            decimal manv = user.MANV.Value;
-            nv = db.TB_NHANVIEN.FirstOrDefault(n => n.MANV == manv && (n.DELETED_BY == null));
+            // Kiểm tra xung đột MANV giữa TB_SYS_USER và TB_USER_EMPLOYEE_MAPPING
+            if (user.MANV.HasValue && user.MANV.Value > 0 && user.MANV.Value != mapRow.EMPLOYEE_ID.Value)
+            {
+                errorResult = Content(HttpStatusCode.Conflict, new 
+                { 
+                    success = false, 
+                    code = Bu.CLASS_SECURITY.PlatformErrorCodes.EmployeeLinkConflict,
+                    message = Bu.CLASS_SECURITY.PlatformErrorCodes.GetFriendlyMessage(Bu.CLASS_SECURITY.PlatformErrorCodes.EmployeeLinkConflict) 
+                });
+                return false;
+            }
+
+            decimal manv = mapRow.EMPLOYEE_ID.Value;
+            user.MANV = manv;
+
+            int isMobileEnabled = (int)(mapRow.IS_MOBILE_ENABLED ?? 1);
+            string clientType = (jwtUser?.ClientType ?? "ALL").Trim().ToUpperInvariant();
+            if (clientType == Bu.CLASS_SECURITY.AppChannels.Mobile && isMobileEnabled == 0)
+            {
+                errorResult = Content(HttpStatusCode.Forbidden, new 
+                { 
+                    success = false, 
+                    code = Bu.CLASS_SECURITY.PlatformErrorCodes.MobileDisabled,
+                    message = Bu.CLASS_SECURITY.PlatformErrorCodes.GetFriendlyMessage(Bu.CLASS_SECURITY.PlatformErrorCodes.MobileDisabled) 
+                });
+                return false;
+            }
+
+            nv = db.TB_NHANVIEN.FirstOrDefault(n => n.MANV == manv && n.DELETED_BY == null);
             if (nv == null)
             {
                 errorResult = Content(HttpStatusCode.NotFound, new { success = false, message = "Không tìm thấy hồ sơ nhân sự tương ứng với tài khoản này." });
                 return false;
             }
 
-            if ((nv.DATHOIVIEC ?? 0) == 1)
+            if (nv.DATHOIVIEC.HasValue && nv.DATHOIVIEC.Value == 1)
             {
-                errorResult = Content(HttpStatusCode.Forbidden, new { success = false, message = "Hồ sơ nhân viên liên kết đã thôi việc. Tài khoản tạm dừng hoạt động." });
+                errorResult = Content(HttpStatusCode.Forbidden, new { success = false, message = "Hồ sơ nhân sự đã thôi việc. Quyền tự phục vụ cá nhân đã bị ngừng kích hoạt." });
                 return false;
+            }
+
+            // Kiểm tra quyền con cụ thể qua PlatformAccessGuard (Zero-Trust theo đặc tả mục 13-14)
+            if (!string.IsNullOrWhiteSpace(requiredFunctionCode))
+            {
+                string normChannel = Bu.CLASS_SECURITY.AppChannels.Normalize(clientType) ?? Bu.CLASS_SECURITY.AppChannels.Mobile;
+                bool isActionAllowed = Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(
+                    db, user.IDUSER, normChannel, requiredFunctionCode, requiredAction, user.USERNAME
+                );
+
+                if (!isActionAllowed)
+                {
+                    errorResult = Content(HttpStatusCode.Forbidden, new
+                    {
+                        success = false,
+                        code = "PERMISSION_DENIED",
+                        message = $"Tài khoản không có quyền [{requiredAction}] đối với chức năng [{requiredFunctionCode}] trên kênh [{normChannel}]."
+                    });
+                    return false;
+                }
             }
 
             return true;
@@ -334,7 +390,7 @@ namespace HRMS_API.Controllers
                     db.Configuration.LazyLoadingEnabled = false;
                     db.Configuration.ProxyCreationEnabled = false;
 
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_PROFILE_VIEW", Bu.CLASS_SECURITY.ChannelAction.View))
                     {
                         return error;
                     }
@@ -406,7 +462,7 @@ namespace HRMS_API.Controllers
 
                 using (var db = new MyEntities())
                 {
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_PROFILE_VIEW", Bu.CLASS_SECURITY.ChannelAction.Edit))
                     {
                         return error;
                     }
@@ -471,7 +527,7 @@ namespace HRMS_API.Controllers
                     db.Configuration.LazyLoadingEnabled = false;
                     db.Configuration.ProxyCreationEnabled = false;
 
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_ATTENDANCE_VIEW", Bu.CLASS_SECURITY.ChannelAction.View))
                     {
                         return error;
                     }
@@ -616,7 +672,7 @@ namespace HRMS_API.Controllers
                     db.Configuration.LazyLoadingEnabled = false;
                     db.Configuration.ProxyCreationEnabled = false;
 
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_PAYROLL_VIEW", Bu.CLASS_SECURITY.ChannelAction.View))
                     {
                         return error;
                     }
@@ -803,7 +859,7 @@ namespace HRMS_API.Controllers
                     db.Configuration.LazyLoadingEnabled = false;
                     db.Configuration.ProxyCreationEnabled = false;
 
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_CONTRACT_VIEW", Bu.CLASS_SECURITY.ChannelAction.View))
                     {
                         return error;
                     }
@@ -877,7 +933,7 @@ namespace HRMS_API.Controllers
                     db.Configuration.LazyLoadingEnabled = false;
                     db.Configuration.ProxyCreationEnabled = false;
 
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_INSURANCE_VIEW", Bu.CLASS_SECURITY.ChannelAction.View))
                     {
                         return error;
                     }
@@ -1010,7 +1066,7 @@ namespace HRMS_API.Controllers
                     db.Configuration.LazyLoadingEnabled = false;
                     db.Configuration.ProxyCreationEnabled = false;
 
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_NOTIFICATION_VIEW", Bu.CLASS_SECURITY.ChannelAction.View))
                     {
                         return error;
                     }
@@ -1181,7 +1237,7 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_REQUEST_LEAVE", Bu.CLASS_SECURITY.ChannelAction.View))
                     {
                         return error;
                     }
@@ -1249,7 +1305,7 @@ namespace HRMS_API.Controllers
 
                 using (var db = new MyEntities())
                 {
-                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error))
+                    if (!TryGetAuthenticatedEmployee(db, out var user, out var nv, out var error, "MOBILE_REQUEST_LEAVE", Bu.CLASS_SECURITY.ChannelAction.Add))
                     {
                         return error;
                     }
@@ -1629,8 +1685,11 @@ namespace HRMS_API.Controllers
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.TraceError("[POST /api/me/overtime Error]: " + ex);
-                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi gửi đơn đăng ký tăng ca: " + ex.Message });
+                string correlationId = Request.Headers.Contains("X-Correlation-Id")
+                    ? Request.Headers.GetValues("X-Correlation-Id").FirstOrDefault()
+                    : Guid.NewGuid().ToString("N");
+                System.Diagnostics.Trace.TraceError($"[POST /api/me/overtime Error - CorrelationId: {correlationId}]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi gửi đơn đăng ký tăng ca. Vui lòng thử lại sau.", correlationId = correlationId });
             }
         }
 

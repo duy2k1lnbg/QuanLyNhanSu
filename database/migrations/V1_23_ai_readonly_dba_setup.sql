@@ -1,0 +1,21 @@
+-- DBA preparation, reviewed separately. Do not execute automatically from the application.
+WHENEVER SQLERROR EXIT FAILURE ROLLBACK
+-- This context is instance/database-wide; keep the exact trusted package name.
+CREATE OR REPLACE CONTEXT HRMS_AI_CTX USING HR.PKG_AI_READER;
+-- Inventory BEFORE and AFTER owner migration. Export results for rollback review.
+SELECT GRANTEE,OWNER,TABLE_NAME,PRIVILEGE FROM DBA_TAB_PRIVS WHERE GRANTEE='AI_READONLY' ORDER BY OWNER,TABLE_NAME,PRIVILEGE;
+SELECT * FROM DBA_ROLE_PRIVS WHERE GRANTEE='AI_READONLY';
+SELECT * FROM DBA_SYS_PRIVS WHERE GRANTEE='AI_READONLY';
+-- Remove previous direct raw HR table grants. Does not change business tables.
+BEGIN
+ FOR r IN (SELECT p.OWNER,p.TABLE_NAME,p.PRIVILEGE FROM DBA_TAB_PRIVS p JOIN DBA_TABLES t ON t.OWNER=p.OWNER AND t.TABLE_NAME=p.TABLE_NAME WHERE p.GRANTEE='AI_READONLY' AND p.OWNER='HR') LOOP
+  EXECUTE IMMEDIATE 'REVOKE '||DBMS_ASSERT.SIMPLE_SQL_NAME(r.PRIVILEGE)||' ON HR.'||DBMS_ASSERT.SIMPLE_SQL_NAME(r.TABLE_NAME)||' FROM AI_READONLY';
+ END LOOP;
+ FOR r IN (SELECT OWNER,TABLE_NAME,PRIVILEGE FROM DBA_TAB_PRIVS WHERE GRANTEE='AI_READONLY' AND OWNER='HR' AND TABLE_NAME IN ('V_AI_ATTENDANCE','V_AI_BANGCONG','V_AI_TANGCA','V_AI_PHUCAP','PKG_AI_TICKET')) LOOP
+  EXECUTE IMMEDIATE 'REVOKE '||r.PRIVILEGE||' ON HR.'||DBMS_ASSERT.SIMPLE_SQL_NAME(r.TABLE_NAME)||' FROM AI_READONLY';
+ END LOOP;
+END;
+/
+-- STOP if roles, system privileges or AI_READONLY-owned legacy views still provide a bypass.
+-- Do not grant EXECUTE on PKG_AI_TICKET to AI_READONLY, PUBLIC or application end users.
+-- The trusted HR application connection issues tickets; the reader can only consume them.

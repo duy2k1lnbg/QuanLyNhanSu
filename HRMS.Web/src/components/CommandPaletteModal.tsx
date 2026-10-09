@@ -338,10 +338,9 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
                       <div style={{ fontWeight: 600, color: '#0f172a', fontSize: 14 }}>
                         {item.title}
                       </div>
-                      <div
-                        style={{ color: '#64748b', fontSize: 12 }}
-                        dangerouslySetInnerHTML={{ __html: item.subtitle }}
-                      />
+                      <div style={{ color: '#64748b', fontSize: 12 }}>
+                        {item.subtitle}
+                      </div>
                     </div>
                   </div>
 

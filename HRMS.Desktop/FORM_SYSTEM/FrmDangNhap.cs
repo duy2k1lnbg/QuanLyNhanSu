@@ -241,61 +241,85 @@ namespace QLyNSu.FORM_SYSTEM
 
             try
             {
-                var sysUser = new SYS_USER();
-                var user = sysUser.Login(username, password);
-                
                 string currentIp = GetLocalIPAddress();
                 string currentMac = GetMacAddress();
                 string pcName = Environment.MachineName;
 
-                if (user != null)
+                // 1. Sử dụng AuthSecurityService dùng chung cho DESKTOP, tạo phiên DB thực trong TB_AUTH_SESSION
+                var authService = new Bu.CLASS_SECURITY.AuthSecurityService();
+                var loginResult = authService.AuthenticateAsync(
+                    usernameOrEmpCode: username,
+                    password: password,
+                    clientType: Bu.CLASS_SECURITY.AppChannels.Desktop,
+                    platform: "WinForms",
+                    deviceId: currentMac,
+                    deviceName: pcName,
+                    clientIp: currentIp,
+                    userAgent: "HRMS-Desktop/1.0",
+                    correlationId: Guid.NewGuid().ToString("N")
+                ).GetAwaiter().GetResult();
+
+                var user = loginResult?.User as DA.TB_SYS_USER;
+                if (loginResult != null && loginResult.Success && user != null)
                 {
-                    // Check IP Whitelist
-                    using (var db = new MyEntities())
+
+                    // 2. Ghi nhật ký đăng nhập truyền thống TB_SYS_LOGIN_HISTORY
+                    try
                     {
-                        var pId = new Oracle.ManagedDataAccess.Client.OracleParameter("id", user.IDUSER);
-                        string allowedIps = db.Database.SqlQuery<string>("SELECT ALLOWED_IPS FROM HR.TB_SYS_USER WHERE IDUSER = :id", pId).FirstOrDefault();
-                        
-                        if (!string.IsNullOrEmpty(allowedIps))
+                        using (var db = new MyEntities())
                         {
-                            var allowedList = allowedIps.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
-                            if (!allowedList.Contains(currentIp))
-                            {
-                                db.Database.ExecuteSqlCommand("INSERT INTO HR.TB_SYS_LOGIN_HISTORY (ID_USER, IP_ADDRESS, MAC_ADDRESS, TEN_MAY_TINH, TRANGTHAI, THOIGIAN) VALUES (:p1, :p2, :p3, :p4, :p5, CURRENT_TIMESTAMP)", 
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p1", user.IDUSER),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p2", currentIp ?? (object)DBNull.Value),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p3", currentMac ?? (object)DBNull.Value),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p4", pcName ?? (object)DBNull.Value),
-                                    new Oracle.ManagedDataAccess.Client.OracleParameter("p5", "Thất bại - Sai IP"));
-                                    
-                                lblThongBao.Text = TranslationManager.Translate("IP không được phép đăng nhập.");
-                                lblThongBao.Visible = true;
-                                return;
-                            }
+                            db.Database.ExecuteSqlCommand("INSERT INTO HR.TB_SYS_LOGIN_HISTORY (ID_USER, IP_ADDRESS, MAC_ADDRESS, TEN_MAY_TINH, TRANGTHAI, THOIGIAN) VALUES (:p1, :p2, :p3, :p4, :p5, CURRENT_TIMESTAMP)", 
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p1", user.IDUSER),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p2", currentIp ?? (object)DBNull.Value),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p3", currentMac ?? (object)DBNull.Value),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p4", pcName ?? (object)DBNull.Value),
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p5", "Thành công"));
+                                
+                            var insertedId = db.Database.SqlQuery<decimal>("SELECT ID_LOGIN FROM (SELECT ID_LOGIN FROM HR.TB_SYS_LOGIN_HISTORY WHERE ID_USER = :p1 ORDER BY THOIGIAN DESC) WHERE ROWNUM = 1", 
+                                new Oracle.ManagedDataAccess.Client.OracleParameter("p1", user.IDUSER)).FirstOrDefault();
+                            UserSession.CurrentLoginId = insertedId;
                         }
-
-                        // Success Login
-                        db.Database.ExecuteSqlCommand("INSERT INTO HR.TB_SYS_LOGIN_HISTORY (ID_USER, IP_ADDRESS, MAC_ADDRESS, TEN_MAY_TINH, TRANGTHAI, THOIGIAN) VALUES (:p1, :p2, :p3, :p4, :p5, CURRENT_TIMESTAMP)", 
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p1", user.IDUSER),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p2", currentIp ?? (object)DBNull.Value),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p3", currentMac ?? (object)DBNull.Value),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p4", pcName ?? (object)DBNull.Value),
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p5", "Thành công"));
-                            
-                        // Retrieve the inserted ID_LOGIN
-                        var insertedId = db.Database.SqlQuery<decimal>("SELECT ID_LOGIN FROM (SELECT ID_LOGIN FROM HR.TB_SYS_LOGIN_HISTORY WHERE ID_USER = :p1 ORDER BY THOIGIAN DESC) WHERE ROWNUM = 1", 
-                            new Oracle.ManagedDataAccess.Client.OracleParameter("p1", user.IDUSER)).FirstOrDefault();
-                        UserSession.CurrentLoginId = insertedId;
                     }
+                    catch { }
 
+                    // 3. Khởi tạo UserSession từ kết quả xác thực thực tế
                     UserSession.CurrentUser = user;
-                    UserSession.DetailedRights = sysUser.GetDetailedRights(user.IDUSER);
-                    UserSession.UserRights = sysUser.GetRights(user.IDUSER);
+                    UserSession.CurrentSessionId = loginResult.SessionId;
+                    UserSession.CurrentJti = loginResult.Jti;
+                    UserSession.CurrentTokenVersion = loginResult.TokenVersion;
+                    UserSession.CurrentChannel = Bu.CLASS_SECURITY.AppChannels.Desktop;
+
+                    if (loginResult.DetailedRights != null && loginResult.DetailedRights.Any())
+                    {
+                        UserSession.DetailedRights = loginResult.DetailedRights;
+                        UserSession.UserRights = loginResult.Rights ?? new System.Collections.Generic.List<string>();
+                    }
+                    else
+                    {
+                        var sysUser = new SYS_USER();
+                        UserSession.DetailedRights = sysUser.GetDetailedRights(user.IDUSER);
+                        UserSession.UserRights = sysUser.GetRights(user.IDUSER);
+                    }
                     
-                    // Set Global Audit properties
+                    // Set Global Audit & Session properties
                     MyEntities.CurrentAuditUserId = (int)user.IDUSER;
                     MyEntities.CurrentAuditUsername = user.FULLNAME;
-                    MyEntities.CurrentSessionId = Guid.NewGuid().ToString();
+                    MyEntities.CurrentSessionId = loginResult.SessionId;
+
+                    // 4. Trao đổi phiên Desktop lấy Bearer Token cho AiApiClient
+                    try
+                    {
+                        AiApiClient.Instance.ExchangeDesktopTokenAsync(
+                            username: username,
+                            password: password,
+                            sessionId: loginResult.SessionId,
+                            jti: loginResult.Jti
+                        ).GetAwaiter().GetResult();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine("[FrmDangNhap] Không lấy được Bearer Token cho AiApiClient: " + ex.Message);
+                    }
 
                     // Ghi nhớ đăng nhập
                     try
@@ -310,7 +334,6 @@ namespace QLyNSu.FORM_SYSTEM
                             {
                                 key.DeleteValue("SavedUsername", false);
                             }
-                            // Luôn xóa password cũ nếu có
                             key.DeleteValue("SavedPassword", false);
                         }
                     }
@@ -321,9 +344,8 @@ namespace QLyNSu.FORM_SYSTEM
                 }
                 else
                 {
-                    // Log fail (Optional, user is null so we don't know who tried, but maybe we could log username attempted)
-                    // For now just show error
-                    lblThongBao.Text = TranslationManager.Translate("Tên đăng nhập hoặc mật khẩu không đúng.");
+                    string err = loginResult?.ErrorMessage ?? "Tên đăng nhập hoặc mật khẩu không đúng.";
+                    lblThongBao.Text = TranslationManager.Translate(err);
                     lblThongBao.Visible = true;
                 }
             }
@@ -346,9 +368,9 @@ namespace QLyNSu.FORM_SYSTEM
                     string mins = appEx.Message.Split('|')[1];
                     lblThongBao.Text = TranslationManager.Translate($"Tài khoản đang bị khóa tạm thời. Vui lòng thử lại sau {mins} phút.");
                 }
-                else if (appEx.Message == "EMPLOYEE_MOBILE_ONLY")
+                else if (appEx.Message == "EMPLOYEE_MOBILE_ONLY" || appEx.Message == "FORBIDDEN_DESKTOP")
                 {
-                    lblThongBao.Text = TranslationManager.Translate("Tài khoản nhân viên chỉ dùng để đăng nhập Mobile, không được phép vào Desktop.");
+                    lblThongBao.Text = TranslationManager.Translate("Tài khoản không có quyền đăng nhập trên ứng dụng Desktop. Vui lòng liên hệ Quản trị viên.");
                 }
                 else
                 {

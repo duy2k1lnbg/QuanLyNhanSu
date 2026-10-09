@@ -12,6 +12,7 @@ using System.Web.Http;
 namespace HRMS_API.Controllers
 {
     [JwtAuthorize]
+    [RateLimit(Policy = RateLimitPolicy.BusinessRead)]
     [RoutePrefix("api/nhanvien")]
     public class NhanVienController : ApiController
     {
@@ -65,12 +66,26 @@ namespace HRMS_API.Controllers
                     return NotFound();
                 }
 
-                // Data Scope Check
-                if (jwtUser != null && !jwtUser.IsAdmin && !string.IsNullOrWhiteSpace(jwtUser.MaCty))
+                // Data Scope Check (Object-Level Authorization)
+                if (jwtUser != null && !jwtUser.IsAdmin)
                 {
-                    if (int.TryParse(jwtUser.MaCty, out int userCtyId) && userCtyId > 0 && nv.IDCTY != userCtyId)
+                    if (!string.IsNullOrWhiteSpace(jwtUser.MaCty) && int.TryParse(jwtUser.MaCty, out int userCtyId) && userCtyId > 0)
                     {
-                        return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bản ghi nhân viên nằm ngoài phạm vi dữ liệu của bạn." });
+                        if (nv.IDCTY != userCtyId)
+                        {
+                            return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bản ghi nhân viên nằm ngoài phạm vi công ty của bạn." });
+                        }
+                    }
+                    else if (!string.IsNullOrWhiteSpace(jwtUser.Manv) && int.TryParse(jwtUser.Manv, out int userManv) && userManv > 0)
+                    {
+                        if (nv.MANV != userManv)
+                        {
+                            return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Tài khoản không có phạm vi công ty và chỉ được xem hồ sơ của chính mình." });
+                        }
+                    }
+                    else
+                    {
+                        return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Không thể xác định phạm vi dữ liệu hợp lệ cho tài khoản." });
                     }
                 }
 
@@ -106,11 +121,25 @@ namespace HRMS_API.Controllers
                     return NotFound();
                 }
 
-                if (jwtUser != null && !jwtUser.IsAdmin && !string.IsNullOrWhiteSpace(jwtUser.MaCty))
+                if (jwtUser != null && !jwtUser.IsAdmin)
                 {
-                    if (int.TryParse(jwtUser.MaCty, out int userCtyId) && userCtyId > 0 && nv.IDCTY != userCtyId)
+                    if (!string.IsNullOrWhiteSpace(jwtUser.MaCty) && int.TryParse(jwtUser.MaCty, out int userCtyId) && userCtyId > 0)
                     {
-                        return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bản ghi nhân viên nằm ngoài phạm vi công ty của bạn." });
+                        if (nv.IDCTY != userCtyId)
+                        {
+                            return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bản ghi nhân viên nằm ngoài phạm vi công ty của bạn." });
+                        }
+                    }
+                    else if (!string.IsNullOrWhiteSpace(jwtUser.Manv) && int.TryParse(jwtUser.Manv, out int userManv) && userManv > 0)
+                    {
+                        if (nv.MANV != userManv)
+                        {
+                            return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Tài khoản không có phạm vi công ty và chỉ được xem hồ sơ 360 của chính mình." });
+                        }
+                    }
+                    else
+                    {
+                        return Content(System.Net.HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Không thể xác định phạm vi dữ liệu hợp lệ cho tài khoản." });
                     }
                 }
 

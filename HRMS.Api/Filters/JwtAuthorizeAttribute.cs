@@ -22,6 +22,16 @@ namespace HRMS_API.Filters
         /// </summary>
         public bool RequireAdmin { get; set; }
 
+        /// <summary>
+        /// Yêu cầu kênh truy cập cụ thể (ví dụ: WEB hoặc MOBILE)
+        /// </summary>
+        public string Channel { get; set; }
+
+        /// <summary>
+        /// Hành động yêu cầu đối với chức năng (View, Add, Edit, Delete, Print)
+        /// </summary>
+        public Bu.CLASS_SECURITY.ChannelAction Action { get; set; } = Bu.CLASS_SECURITY.ChannelAction.View;
+
         public override void OnAuthorization(HttpActionContext actionContext)
         {
             if (actionContext == null)
@@ -63,7 +73,7 @@ namespace HRMS_API.Filters
             if (decimal.TryParse(claims.UserId, out decimal userIdVal))
             {
                 var authSecurityService = new Bu.CLASS_SECURITY.AuthSecurityService();
-                bool isSessionValid = authSecurityService.ValidateSession(claims.Jti, claims.TokenVersion, userIdVal);
+                bool isSessionValid = authSecurityService.ValidateSession(claims.Jti, claims.TokenVersion, userIdVal, claims.ClientType);
                 if (!isSessionValid)
                 {
                     actionContext.Response = actionContext.Request.CreateResponse(
@@ -87,7 +97,41 @@ namespace HRMS_API.Filters
                 return;
             }
 
-            // 4. Kiểm tra quyền Quản trị viên (nếu có yêu cầu)
+            // 5. Kiểm tra ràng buộc Kênh (Channel)
+            string tokenChannel = Bu.CLASS_SECURITY.AppChannels.Normalize(claims.ClientType) ?? Bu.CLASS_SECURITY.AppChannels.Web;
+            if (!string.IsNullOrWhiteSpace(Channel))
+            {
+                string normChannel = Bu.CLASS_SECURITY.AppChannels.Normalize(Channel);
+                if (normChannel != null && tokenChannel != normChannel)
+                {
+                    actionContext.Response = actionContext.Request.CreateResponse(
+                        HttpStatusCode.Forbidden,
+                        new { success = false, code = "CHANNEL_MISMATCH", message = $"Yêu cầu này chỉ dành riêng cho kênh [{normChannel}]." }
+                    );
+                    return;
+                }
+            }
+
+            // 6. Kiểm tra quyền cha của Kênh qua PlatformAccessGuard (Zero-Trust)
+            string parentFunc = Bu.CLASS_SECURITY.PlatformFunctionCodes.GetFunctionCodeForChannel(tokenChannel);
+            bool isParentActive = Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(
+                userIdVal, tokenChannel, parentFunc, Bu.CLASS_SECURITY.ChannelAction.View, claims.Username
+            );
+            if (!isParentActive)
+            {
+                actionContext.Response = actionContext.Request.CreateResponse(
+                    HttpStatusCode.Forbidden,
+                    new 
+                    { 
+                        success = false, 
+                        code = "PLATFORM_ACCESS_DENIED", 
+                        message = $"Từ chối truy cập: Tài khoản chưa được cấp quyền hoặc quyền đăng nhập kênh [{tokenChannel}] đã bị tắt." 
+                    }
+                );
+                return;
+            }
+
+            // 7. Kiểm tra quyền Quản trị viên (nếu có yêu cầu)
             if (RequireAdmin && !claims.IsAdmin)
             {
                 actionContext.Response = actionContext.Request.CreateResponse(
@@ -97,17 +141,40 @@ namespace HRMS_API.Filters
                 return;
             }
 
-            // 5. Kiểm tra quyền chức năng cụ thể (nếu có yêu cầu)
-            if (!string.IsNullOrWhiteSpace(Right) && !claims.IsAdmin)
+            // 8. Kiểm tra quyền chức năng cụ thể qua PlatformAccessGuard
+            if (!string.IsNullOrWhiteSpace(Right))
             {
-                bool hasRight = claims.Rights != null &&
-                                (claims.Rights.Contains("*") || claims.Rights.Contains(Right.Trim()));
+                string reqRight = Right.Trim();
+                string targetFunc;
+                Bu.CLASS_SECURITY.ChannelAction targetAction = Action;
+
+                if (Bu.CLASS_SECURITY.PlatformAccessGuard.Current.ResolveEndpointAction(reqRight, out string mappedFunc, out var mappedAction))
+                {
+                    targetFunc = mappedFunc;
+                    if (Action == Bu.CLASS_SECURITY.ChannelAction.View && mappedAction != Bu.CLASS_SECURITY.ChannelAction.View)
+                    {
+                        targetAction = mappedAction;
+                    }
+                }
+                else
+                {
+                    targetFunc = reqRight;
+                }
+
+                bool hasRight = Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(
+                    userIdVal, tokenChannel, targetFunc, targetAction, claims.Username
+                );
 
                 if (!hasRight)
                 {
                     actionContext.Response = actionContext.Request.CreateResponse(
                         HttpStatusCode.Forbidden,
-                        new { success = false, message = $"Từ chối truy cập: Tài khoản không có mã quyền chức năng [{Right}]." }
+                        new 
+                        { 
+                            success = false, 
+                            code = "PERMISSION_DENIED", 
+                            message = $"Từ chối truy cập: Tài khoản không có quyền thực hiện thao tác [{targetAction}] trên chức năng [{targetFunc}] tại kênh [{tokenChannel}]." 
+                        }
                     );
                     return;
                 }

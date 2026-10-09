@@ -26,11 +26,14 @@ namespace Bu.CLASS_SECURITY
         );
 
         Task<bool> ValidateSessionAsync(string jti, long tokenVersion, decimal userId);
+        Task<bool> ValidateSessionAsync(string jti, long tokenVersion, decimal userId, string expectedChannel);
         bool ValidateSession(string jti, long tokenVersion, decimal userId);
+        bool ValidateSession(string jti, long tokenVersion, decimal userId, string expectedChannel);
 
         Task<bool> RevokeSessionAsync(string sessionIdOrJti, string reason, decimal actorUserId, string correlationId);
 
         Task<int> RevokeAllSessionsAsync(decimal userId, string reason, bool incrementSecurityVersion, decimal actorUserId, string correlationId);
+        Task<int> RevokePlatformSessionsAsync(decimal userId, string channel, string reason, decimal actorUserId, string correlationId);
 
         Task<ChangePasswordResultDto> ChangePasswordWithRevocationAsync(
             decimal userId,
@@ -50,11 +53,19 @@ namespace Bu.CLASS_SECURITY
     {
         private readonly ISessionPolicyService _policyService;
         private readonly IAuthAuditService _auditService;
+        private readonly IPlatformAccessResolver _platformResolver;
+        private readonly IChannelPermissionResolver _channelResolver;
 
-        public AuthSecurityService(ISessionPolicyService policyService = null, IAuthAuditService auditService = null)
+        public AuthSecurityService(
+            ISessionPolicyService policyService = null, 
+            IAuthAuditService auditService = null,
+            IPlatformAccessResolver platformResolver = null,
+            IChannelPermissionResolver channelResolver = null)
         {
             _policyService = policyService ?? new SessionPolicyService();
             _auditService = auditService ?? new AuthAuditService();
+            _platformResolver = platformResolver ?? new PlatformAccessResolver();
+            _channelResolver = channelResolver ?? new ChannelPermissionResolver(_platformResolver, _auditService);
         }
 
         private static string HashDeviceId(string rawDeviceId)
@@ -104,8 +115,16 @@ namespace Bu.CLASS_SECURITY
 
             string input = usernameOrEmpCode.Trim();
             string inputLower = input.ToLowerInvariant();
-            clientType = (clientType ?? "ALL").Trim().ToUpperInvariant();
-            platform = (platform ?? "WEB").Trim().ToUpperInvariant();
+            string normChannel = AppChannels.Normalize(clientType);
+            if (normChannel == null)
+            {
+                result.Success = false;
+                result.FailureReason = "INVALID_CHANNEL";
+                result.ErrorMessage = "Kênh đăng nhập không hợp lệ. Chỉ chấp nhận DESKTOP, WEB hoặc MOBILE.";
+                return result;
+            }
+            clientType = normChannel;
+            platform = (platform ?? (clientType == AppChannels.Desktop ? "WINDOWS" : "WEB")).Trim().ToUpperInvariant();
 
             using (var db = new MyEntities())
             {
@@ -128,6 +147,18 @@ namespace Bu.CLASS_SECURITY
 
                         if (userBasic != null)
                         {
+                            bool isRootAdminBasic = userBasic.USERNAME != null && userBasic.USERNAME.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase);
+                            if ((userBasic.ISGROUP ?? 0) == 1 && !isRootAdminBasic)
+                            {
+                                await _auditService.RecordLoginAttemptAsync(
+                                    userBasic.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
+                                    false, "GROUP_CANNOT_LOGIN", correlationId
+                                );
+                                result.Success = false;
+                                result.ErrorMessage = "Nhóm người dùng không thể dùng để đăng nhập.";
+                                transaction.Commit();
+                                return result;
+                            }
                             resolvedUserId = userBasic.IDUSER;
                         }
                         else
@@ -320,41 +351,44 @@ namespace Bu.CLASS_SECURITY
                             return result;
                         }
 
-                        // 6. Kiểm tra ràng buộc phân hệ ClientType
-                        if (clientType == "MOBILE")
+                        // 6. Kiểm tra quyền nền tảng qua PlatformAccessResolver (Zero-Trust)
+                        if (!_platformResolver.CanLoginChannel(db, lockedUser.IDUSER, clientType, out string platformErrCode, out string platformErrMsg, lockedUser.USERNAME))
                         {
-                            if (isRootAdmin)
-                            {
-                                result.Success = false;
-                                result.ErrorMessage = "Tài khoản Quản trị viên tối cao (ADMIN) dành riêng cho cổng quản lý (Web) và ứng dụng quản trị (Desktop), không áp dụng cho ứng dụng nhân viên tự phục vụ (Mobile).";
-                                transaction.Commit();
-                                return result;
-                            }
+                            await _auditService.RecordLoginAttemptAsync(
+                                lockedUser.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
+                                false, platformErrCode, correlationId
+                            );
+                            await _auditService.LogEventAsync(
+                                lockedUser.IDUSER, null, null, AuthAuditEvents.LoginFailed, "DENIED",
+                                platformErrCode, clientType, deviceIdHash, clientIp, userAgent, correlationId,
+                                new { channel = clientType, reason = platformErrMsg }
+                            );
 
-                            string userAllowed = (lockedUser.CLIENT_TYPE ?? "ALL").Trim().ToUpperInvariant();
-                            if (userAllowed == "DESKTOP" || userAllowed == "SYSTEM" || userAllowed == "WEB")
-                            {
-                                result.Success = false;
-                                result.ErrorMessage = "Tài khoản hệ thống chỉ dùng cho Desktop và Web, không được phép truy cập ứng dụng di động (Mobile).";
-                                transaction.Commit();
-                                return result;
-                            }
-
-                            if (!lockedUser.MANV.HasValue || lockedUser.MANV.Value <= 0)
-                            {
-                                result.Success = false;
-                                result.ErrorMessage = "Tài khoản chưa được liên kết với hồ sơ nhân viên để truy cập ứng dụng di động.";
-                                transaction.Commit();
-                                return result;
-                            }
+                            result.Success = false;
+                            result.FailureReason = platformErrCode;
+                            result.ErrorMessage = platformErrMsg;
+                            transaction.Commit();
+                            return result;
                         }
-                        else
+
+                        // Kiểm tra IP Whitelist nếu tài khoản có cấu hình
+                        var allowedIpsStr = db.Database.SqlQuery<string>(
+                            "SELECT ALLOWED_IPS FROM HR.TB_SYS_USER WHERE IDUSER = :id",
+                            new OracleParameter("id", lockedUser.IDUSER)
+                        ).FirstOrDefault();
+
+                        if (!string.IsNullOrWhiteSpace(allowedIpsStr))
                         {
-                            string userAllowed = (lockedUser.CLIENT_TYPE ?? "ALL").Trim().ToUpperInvariant();
-                            if (userAllowed == "MOBILE")
+                            var allowedList = allowedIpsStr.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries).Select(x => x.Trim());
+                            if (!allowedList.Contains(clientIp))
                             {
+                                await _auditService.RecordLoginAttemptAsync(
+                                    lockedUser.IDUSER, input, clientType, deviceIdHash, clientIp, userAgent,
+                                    false, "IP_NOT_ALLOWED", correlationId
+                                );
                                 result.Success = false;
-                                result.ErrorMessage = "Tài khoản nhân viên chỉ dùng để đăng nhập ứng dụng di động (Mobile), không có quyền truy cập cổng quản trị Web.";
+                                result.FailureReason = "IP_NOT_ALLOWED";
+                                result.ErrorMessage = "Địa chỉ IP hiện tại không được phép đăng nhập vào tài khoản này.";
                                 transaction.Commit();
                                 return result;
                             }
@@ -490,43 +524,68 @@ namespace Bu.CLASS_SECURITY
                         }
                         catch { }
 
+                        // Detailed Rights theo kênh và bảng phân quyền thực tế (Zero-Trust, loại bỏ giả lập quyền ảo cho ADMIN)
+                        Dictionary<string, Bu.DTO.UserRightDetail> detailedRights = null;
+                        List<string> projectedViewRights = null;
+                        if (!string.IsNullOrEmpty(normChannel))
+                        {
+                            try
+                            {
+                                var channelTree = _channelResolver.ResolveChannelTree(db, lockedUser.IDUSER, normChannel, lockedUser.USERNAME);
+                                if (channelTree != null)
+                                {
+                                    _channelResolver.ProjectEffectiveRights(channelTree, out detailedRights, out projectedViewRights);
+                                }
+                            }
+                            catch (Exception chEx)
+                            {
+                                System.Diagnostics.Trace.TraceWarning("[AuthSecurityService.LoginAsync] ResolveChannelTree error: " + chEx.Message);
+                                detailedRights = null;
+                                projectedViewRights = null;
+                            }
+                        }
+
+                        // Chỉ fallback sang legacy table khi không chỉ định kênh hoặc resolver gặp lỗi (chưa có schema channel)
+                        if (detailedRights == null)
+                        {
+                            var userBus = new SYS_USER();
+                            detailedRights = userBus.GetDetailedRights(lockedUser.IDUSER);
+                        }
+
                         // Load Rights
                         var freshRights = new List<string>();
                         if (isRootAdmin)
                         {
                             freshRights.Add("*");
-                            var funcCodes = db.TB_SYS_FUNCTION.Select(f => f.FUNCTION_CODE).ToList();
-                            freshRights.AddRange(funcCodes);
+                            if (detailedRights != null && detailedRights.Any())
+                            {
+                                freshRights.AddRange(detailedRights.Where(kv => kv.Value.CAN_VIEW).Select(kv => kv.Key));
+                            }
+                            else
+                            {
+                                var funcCodes = db.TB_SYS_FUNCTION.Select(f => f.FUNCTION_CODE).ToList();
+                                freshRights.AddRange(funcCodes);
+                            }
                         }
                         else
                         {
-                            var direct = db.TB_SYS_RIGHT.Where(r => r.IDUSER == lockedUser.IDUSER && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
-                            freshRights.AddRange(direct);
-                            var groupIds = db.TB_SYS_GROUP.Where(g => g.MEMBER == lockedUser.IDUSER).Select(g => g.ID_GROUP).ToList();
-                            if (groupIds.Any())
+                            if (detailedRights != null && detailedRights.Any())
                             {
-                                var groupRights = db.TB_SYS_RIGHT.Where(r => groupIds.Contains(r.IDUSER) && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
-                                freshRights.AddRange(groupRights);
+                                freshRights.AddRange(detailedRights.Where(kv => kv.Value.CAN_VIEW).Select(kv => kv.Key));
                             }
-                            if (!freshRights.Contains("F_DB_NHANSU")) freshRights.Add("F_DB_NHANSU");
-                            if (!freshRights.Contains("F_SYSTEM_AI")) freshRights.Add("F_SYSTEM_AI");
+                            else
+                            {
+                                var direct = db.TB_SYS_RIGHT.Where(r => r.IDUSER == lockedUser.IDUSER && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
+                                freshRights.AddRange(direct);
+                                var groupIds = db.TB_SYS_GROUP.Where(g => g.MEMBER == lockedUser.IDUSER).Select(g => g.ID_GROUP).ToList();
+                                if (groupIds.Any())
+                                {
+                                    var groupRights = db.TB_SYS_RIGHT.Where(r => groupIds.Contains(r.IDUSER) && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
+                                    freshRights.AddRange(groupRights);
+                                }
+                            }
                         }
                         var distinctRights = freshRights.Distinct().ToList();
-
-                        // Detailed Rights
-                        var userBus = new SYS_USER();
-                        var detailedRights = userBus.GetDetailedRights(lockedUser.IDUSER);
-                        if (isRootAdmin)
-                        {
-                            foreach (var key in detailedRights.Keys.ToList())
-                            {
-                                detailedRights[key].CAN_VIEW = true;
-                                detailedRights[key].CAN_ADD = true;
-                                detailedRights[key].CAN_EDIT = true;
-                                detailedRights[key].CAN_DELETE = true;
-                                detailedRights[key].CAN_PRINT = true;
-                            }
-                        }
 
                         // Employee mapping
                         decimal? freshManv = isRootAdmin ? null : lockedUser.MANV;
@@ -581,7 +640,7 @@ namespace Bu.CLASS_SECURITY
                         result.Manv = freshManv;
                         result.EmployeeCode = freshEmpCode;
                         result.IsMobileEnabled = freshMobileEnabled;
-                        result.ClientType = lockedUser.CLIENT_TYPE ?? "ALL";
+                        result.ClientType = clientType;
                         result.TokenVersion = (long)lockedUser.TOKEN_VERSION;
                         result.ExpiresAt = sessionExpiresAt;
 
@@ -606,8 +665,8 @@ namespace Bu.CLASS_SECURITY
                             EmployeeCode = freshEmpCode,
                             isMobileEnabled = freshMobileEnabled,
                             IsMobileEnabled = freshMobileEnabled,
-                            clientType = lockedUser.CLIENT_TYPE ?? "ALL",
-                            ClientType = lockedUser.CLIENT_TYPE ?? "ALL",
+                            clientType = clientType,
+                            ClientType = clientType,
                             MaCty = lockedUser.MACTY,
                             MaDvi = lockedUser.MADVI,
                             TokenVersion = (long)lockedUser.TOKEN_VERSION
@@ -629,7 +688,12 @@ namespace Bu.CLASS_SECURITY
 
         public async Task<bool> ValidateSessionAsync(string jti, long tokenVersion, decimal userId)
         {
-            if (string.IsNullOrWhiteSpace(jti) || userId <= 0) return false;
+            return await ValidateSessionAsync(jti, tokenVersion, userId, null);
+        }
+
+        public async Task<bool> ValidateSessionAsync(string jti, long tokenVersion, decimal userId, string expectedChannel)
+        {
+            if (string.IsNullOrWhiteSpace(jti) || userId <= 0 || tokenVersion <= 0) return false;
 
             try
             {
@@ -650,7 +714,7 @@ namespace Bu.CLASS_SECURITY
 
                     // 2. Kiểm tra Session State trong TB_AUTH_SESSION
                     var sessionState = await db.Database.SqlQuery<SessionStateRow>(@"
-                        SELECT SESSION_ID, USER_ID, JTI, EXPIRES_AT, REVOKED_AT, LAST_USED_AT
+                        SELECT SESSION_ID, USER_ID, JTI, CLIENT_TYPE, EXPIRES_AT, REVOKED_AT, LAST_USED_AT, CREATED_AT
                         FROM HR.TB_AUTH_SESSION
                         WHERE JTI = :p0 AND USER_ID = :p1",
                         new OracleParameter("p0", jti.Trim()),
@@ -661,12 +725,54 @@ namespace Bu.CLASS_SECURITY
                     if (sessionState.REVOKED_AT.HasValue) return false; // Immediate Targeted Revocation
                     if (sessionState.EXPIRES_AT <= DateTime.Now) return false; // Expired
 
-                    // 3. Cập nhật LAST_USED_AT có throttling (chỉ update nếu đã qua hơn 1 phút)
-                    if ((DateTime.Now - sessionState.LAST_USED_AT).TotalMinutes >= 1.0)
+                    // Kiểm tra kênh mong đợi nếu có
+                    if (!string.IsNullOrWhiteSpace(expectedChannel))
+                    {
+                        string normExpected = AppChannels.Normalize(expectedChannel);
+                        if (normExpected != null && !string.Equals(sessionState.CLIENT_TYPE?.Trim(), normExpected, StringComparison.OrdinalIgnoreCase))
+                        {
+                            return false; // Kênh của session không khớp với kênh request
+                        }
+                    }
+
+                    // 3. Kiểm tra Idle Timeout (480 phút) và Absolute Timeout (1440 phút)
+                    DateTime now = DateTime.Now;
+                    if ((now - sessionState.LAST_USED_AT).TotalMinutes > 480.0)
                     {
                         try
                         {
-                            db.Database.ExecuteSqlCommand(@"
+                            await db.Database.ExecuteSqlCommandAsync(@"
+                                UPDATE HR.TB_AUTH_SESSION
+                                SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'IDLE_TIMEOUT'
+                                WHERE JTI = :p0",
+                                new OracleParameter("p0", jti.Trim())
+                            );
+                        }
+                        catch { }
+                        return false;
+                    }
+
+                    if ((now - sessionState.CREATED_AT).TotalMinutes > 1440.0)
+                    {
+                        try
+                        {
+                            await db.Database.ExecuteSqlCommandAsync(@"
+                                UPDATE HR.TB_AUTH_SESSION
+                                SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'ABSOLUTE_TIMEOUT'
+                                WHERE JTI = :p0",
+                                new OracleParameter("p0", jti.Trim())
+                            );
+                        }
+                        catch { }
+                        return false;
+                    }
+
+                    // 4. Cập nhật LAST_USED_AT có throttling (chỉ update nếu đã qua hơn 1 phút)
+                    if ((now - sessionState.LAST_USED_AT).TotalMinutes >= 1.0)
+                    {
+                        try
+                        {
+                            await db.Database.ExecuteSqlCommandAsync(@"
                                 UPDATE HR.TB_AUTH_SESSION
                                 SET LAST_USED_AT = CURRENT_TIMESTAMP
                                 WHERE JTI = :p0",
@@ -688,7 +794,12 @@ namespace Bu.CLASS_SECURITY
 
         public bool ValidateSession(string jti, long tokenVersion, decimal userId)
         {
-            if (userId <= 0) return false;
+            return ValidateSession(jti, tokenVersion, userId, null);
+        }
+
+        public bool ValidateSession(string jti, long tokenVersion, decimal userId, string expectedChannel)
+        {
+            if (string.IsNullOrWhiteSpace(jti) || userId <= 0 || tokenVersion <= 0) return false;
 
             try
             {
@@ -705,39 +816,76 @@ namespace Bu.CLASS_SECURITY
                     if (userState == null) return false;
                     if (userState.DISABLED.HasValue && userState.DISABLED.Value == 1) return false;
                     if (userState.LOCKOUT_END.HasValue && userState.LOCKOUT_END.Value > DateTime.Now) return false;
+                    if (userState.TOKEN_VERSION != tokenVersion) return false;
 
-                    // Nếu có tokenVersion truyền vào (> 0), bắt buộc phải khớp
-                    if (tokenVersion > 0 && userState.TOKEN_VERSION != tokenVersion) return false;
+                    // 2. Kiểm tra Session State trong TB_AUTH_SESSION
+                    var sessionState = db.Database.SqlQuery<SessionStateRow>(@"
+                        SELECT SESSION_ID, USER_ID, JTI, CLIENT_TYPE, EXPIRES_AT, REVOKED_AT, LAST_USED_AT, CREATED_AT
+                        FROM HR.TB_AUTH_SESSION
+                        WHERE JTI = :p0 AND USER_ID = :p1",
+                        new OracleParameter("p0", jti.Trim()),
+                        new OracleParameter("p1", userId)
+                    ).FirstOrDefault();
 
-                    // 2. Kiểm tra Session State trong TB_AUTH_SESSION nếu có JTI
-                    if (!string.IsNullOrWhiteSpace(jti))
+                    if (sessionState == null) return false;
+                    if (sessionState.REVOKED_AT.HasValue) return false; // Immediate Targeted Revocation
+                    if (sessionState.EXPIRES_AT <= DateTime.Now) return false; // Expired
+
+                    // Kiểm tra kênh mong đợi nếu có
+                    if (!string.IsNullOrWhiteSpace(expectedChannel))
                     {
-                        var sessionState = db.Database.SqlQuery<SessionStateRow>(@"
-                            SELECT SESSION_ID, USER_ID, JTI, EXPIRES_AT, REVOKED_AT, LAST_USED_AT
-                            FROM HR.TB_AUTH_SESSION
-                            WHERE JTI = :p0 AND USER_ID = :p1",
-                            new OracleParameter("p0", jti.Trim()),
-                            new OracleParameter("p1", userId)
-                        ).FirstOrDefault();
-
-                        if (sessionState == null) return false;
-                        if (sessionState.REVOKED_AT.HasValue) return false; // Immediate Targeted Revocation
-                        if (sessionState.EXPIRES_AT <= DateTime.Now) return false; // Expired
-
-                        // 3. Cập nhật LAST_USED_AT có throttling
-                        if ((DateTime.Now - sessionState.LAST_USED_AT).TotalMinutes >= 1.0)
+                        string normExpected = AppChannels.Normalize(expectedChannel);
+                        if (normExpected != null && !string.Equals(sessionState.CLIENT_TYPE?.Trim(), normExpected, StringComparison.OrdinalIgnoreCase))
                         {
-                            try
-                            {
-                                db.Database.ExecuteSqlCommand(@"
-                                    UPDATE HR.TB_AUTH_SESSION
-                                    SET LAST_USED_AT = CURRENT_TIMESTAMP
-                                    WHERE JTI = :p0",
-                                    new OracleParameter("p0", jti.Trim())
-                                );
-                            }
-                            catch { }
+                            return false;
                         }
+                    }
+
+                    // 3. Kiểm tra Idle Timeout và Absolute Timeout
+                    DateTime now = DateTime.Now;
+                    if ((now - sessionState.LAST_USED_AT).TotalMinutes > 480.0)
+                    {
+                        try
+                        {
+                            db.Database.ExecuteSqlCommand(@"
+                                UPDATE HR.TB_AUTH_SESSION
+                                SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'IDLE_TIMEOUT'
+                                WHERE JTI = :p0",
+                                new OracleParameter("p0", jti.Trim())
+                            );
+                        }
+                        catch { }
+                        return false;
+                    }
+
+                    if ((now - sessionState.CREATED_AT).TotalMinutes > 1440.0)
+                    {
+                        try
+                        {
+                            db.Database.ExecuteSqlCommand(@"
+                                UPDATE HR.TB_AUTH_SESSION
+                                SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'ABSOLUTE_TIMEOUT'
+                                WHERE JTI = :p0",
+                                new OracleParameter("p0", jti.Trim())
+                            );
+                        }
+                        catch { }
+                        return false;
+                    }
+
+                    // 4. Cập nhật LAST_USED_AT có throttling
+                    if ((now - sessionState.LAST_USED_AT).TotalMinutes >= 1.0)
+                    {
+                        try
+                        {
+                            db.Database.ExecuteSqlCommand(@"
+                                UPDATE HR.TB_AUTH_SESSION
+                                SET LAST_USED_AT = CURRENT_TIMESTAMP
+                                WHERE JTI = :p0",
+                                new OracleParameter("p0", jti.Trim())
+                            );
+                        }
+                        catch { }
                     }
 
                     return true;
@@ -846,6 +994,47 @@ namespace Bu.CLASS_SECURITY
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[AuthSecurityService] RevokeAllSessionsAsync error: " + ex);
+                return 0;
+            }
+        }
+
+        public async Task<int> RevokePlatformSessionsAsync(decimal userId, string channel, string reason, decimal actorUserId, string correlationId)
+        {
+            if (userId <= 0 || string.IsNullOrWhiteSpace(channel)) return 0;
+
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    string normChannel = AppChannels.Normalize(channel);
+                    if (normChannel == null) return 0;
+
+                    int revokedCount = await db.Database.ExecuteSqlCommandAsync(@"
+                        UPDATE HR.TB_AUTH_SESSION
+                        SET REVOKED_AT = CURRENT_TIMESTAMP,
+                            REVOKE_REASON = :p0
+                        WHERE USER_ID = :p1 
+                          AND UPPER(TRIM(CLIENT_TYPE)) = :p2 
+                          AND REVOKED_AT IS NULL 
+                          AND EXPIRES_AT > CURRENT_TIMESTAMP",
+                        new OracleParameter("p0", reason ?? AuthRevokeReasons.PlatformAccessRemoved),
+                        new OracleParameter("p1", userId),
+                        new OracleParameter("p2", normChannel)
+                    );
+
+                    await _auditService.LogEventAsync(
+                        userId, actorUserId > 0 ? (decimal?)actorUserId : userId,
+                        null, AuthAuditEvents.SessionRevoked, "SUCCESS",
+                        $"Revoked {revokedCount} active sessions on channel {normChannel} ({reason})",
+                        normChannel, null, null, null, correlationId
+                    );
+
+                    return revokedCount;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[AuthSecurityService] RevokePlatformSessionsAsync error: " + ex);
                 return 0;
             }
         }
@@ -1086,9 +1275,11 @@ namespace Bu.CLASS_SECURITY
             public string SESSION_ID { get; set; }
             public decimal USER_ID { get; set; }
             public string JTI { get; set; }
+            public string CLIENT_TYPE { get; set; }
             public DateTime EXPIRES_AT { get; set; }
             public DateTime? REVOKED_AT { get; set; }
             public DateTime LAST_USED_AT { get; set; }
+            public DateTime CREATED_AT { get; set; }
         }
 
         private class UserPasswordRow

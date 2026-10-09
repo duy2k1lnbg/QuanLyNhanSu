@@ -116,6 +116,9 @@
     </Compile>
     <Compile Include="Class1.cs" />
     <Compile Include="MyEntities.Audit.cs" />
+    <Compile Include="MyEntities.ChannelRights.cs" />
+    <Compile Include="TB_SYS_FUNCTION.Partial.cs" />
+    <Compile Include="TB_SYS_RIGHT_CHANNEL.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

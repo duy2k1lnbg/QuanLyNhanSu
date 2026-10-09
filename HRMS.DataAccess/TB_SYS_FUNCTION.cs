@@ -21,5 +21,6 @@ namespace DA
         public string PARENT { get; set; }
         public Nullable<decimal> MENU { get; set; }
         public string TIPS { get; set; }
+        public string RIGHT_TYPE { get; set; }
     }
 }

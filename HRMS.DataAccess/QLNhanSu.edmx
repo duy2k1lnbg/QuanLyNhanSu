@@ -427,6 +427,7 @@
           <Property Name="PARENT" Type="nvarchar2" MaxLength="50" />
           <Property Name="MENU" Type="number" Precision="38" Scale="0" />
           <Property Name="TIPS" Type="nvarchar2" MaxLength="1000" />
+          <Property Name="RIGHT_TYPE" Type="nvarchar2" MaxLength="20" />
         </EntityType>
         <EntityType Name="TB_SYS_GROUP">
           <Key>
@@ -496,6 +497,23 @@
           <Property Name="CAN_EDIT" Type="number" Precision="38" Scale="0" />
           <Property Name="CAN_DELETE" Type="number" Precision="38" Scale="0" />
           <Property Name="CAN_PRINT" Type="number" Precision="38" Scale="0" />
+        </EntityType>
+        <EntityType Name="TB_SYS_RIGHT_CHANNEL">
+          <Key>
+            <PropertyRef Name="IDUSER" />
+            <PropertyRef Name="CLIENT_TYPE" />
+            <PropertyRef Name="FUNCTION_CODE" />
+          </Key>
+          <Property Name="IDUSER" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CLIENT_TYPE" Type="nvarchar2" MaxLength="20" Nullable="false" />
+          <Property Name="FUNCTION_CODE" Type="nvarchar2" MaxLength="100" Nullable="false" />
+          <Property Name="CAN_VIEW" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CAN_ADD" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CAN_EDIT" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CAN_DELETE" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CAN_PRINT" Type="number" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CREATED_AT" Type="date" />
+          <Property Name="UPDATED_AT" Type="date" />
         </EntityType>
         <EntityType Name="TB_SYS_RIGHT_REPORT">
           <Key>
@@ -1028,6 +1046,7 @@
           <EntitySet Name="TB_SYS_LOGIN_HISTORY" EntityType="Self.TB_SYS_LOGIN_HISTORY" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_REPORT" EntityType="Self.TB_SYS_REPORT" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_RIGHT" EntityType="Self.TB_SYS_RIGHT" Schema="HR" store:Type="Tables" />
+          <EntitySet Name="TB_SYS_RIGHT_CHANNEL" EntityType="Self.TB_SYS_RIGHT_CHANNEL" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_RIGHT_REPORT" EntityType="Self.TB_SYS_RIGHT_REPORT" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_SYS_USER" EntityType="Self.TB_SYS_USER" Schema="HR" store:Type="Tables" />
           <EntitySet Name="TB_TANGCA" EntityType="Self.TB_TANGCA" Schema="HR" store:Type="Tables" />
@@ -1171,6 +1190,7 @@
           <EntitySet Name="TB_SYS_GROUP" EntityType="Model.TB_SYS_GROUP" />
           <EntitySet Name="TB_SYS_REPORT" EntityType="Model.TB_SYS_REPORT" />
           <EntitySet Name="TB_SYS_RIGHT" EntityType="Model.TB_SYS_RIGHT" />
+          <EntitySet Name="TB_SYS_RIGHT_CHANNEL" EntityType="Model.TB_SYS_RIGHT_CHANNEL" />
           <EntitySet Name="TB_SYS_RIGHT_REPORT" EntityType="Model.TB_SYS_RIGHT_REPORT" />
           <EntitySet Name="TB_SYS_USER" EntityType="Model.TB_SYS_USER" />
           <EntitySet Name="TB_TANGCA" EntityType="Model.TB_TANGCA" />
@@ -1714,6 +1734,7 @@
           <Property Name="PARENT" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="MENU" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="TIPS" Type="String" MaxLength="1000" FixedLength="false" Unicode="true" />
+          <Property Name="RIGHT_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="TB_SYS_GROUP">
           <Key>
@@ -1749,6 +1770,23 @@
           <Property Name="CAN_EDIT" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="CAN_DELETE" Type="Decimal" Precision="38" Scale="0" />
           <Property Name="CAN_PRINT" Type="Decimal" Precision="38" Scale="0" />
+        </EntityType>
+        <EntityType Name="TB_SYS_RIGHT_CHANNEL">
+          <Key>
+            <PropertyRef Name="IDUSER" />
+            <PropertyRef Name="CLIENT_TYPE" />
+            <PropertyRef Name="FUNCTION_CODE" />
+          </Key>
+          <Property Name="IDUSER" Type="Decimal" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CLIENT_TYPE" Type="String" MaxLength="20" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="FUNCTION_CODE" Type="String" MaxLength="100" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CAN_VIEW" Type="Decimal" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CAN_ADD" Type="Decimal" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CAN_EDIT" Type="Decimal" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CAN_DELETE" Type="Decimal" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CAN_PRINT" Type="Decimal" Precision="38" Scale="0" Nullable="false" />
+          <Property Name="CREATED_AT" Type="DateTime" />
+          <Property Name="UPDATED_AT" Type="DateTime" />
         </EntityType>
         <EntityType Name="TB_SYS_RIGHT_REPORT">
           <Key>
@@ -2731,6 +2769,7 @@
                 <ScalarProperty Name="DESCRIPTION" ColumnName="DESCRIPTION" />
                 <ScalarProperty Name="SORT" ColumnName="SORT" />
                 <ScalarProperty Name="FUNCTION_CODE" ColumnName="FUNCTION_CODE" />
+                <ScalarProperty Name="RIGHT_TYPE" ColumnName="RIGHT_TYPE" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -2767,6 +2806,22 @@
                 <ScalarProperty Name="CAN_EDIT" ColumnName="CAN_EDIT" />
                 <ScalarProperty Name="CAN_DELETE" ColumnName="CAN_DELETE" />
                 <ScalarProperty Name="CAN_PRINT" ColumnName="CAN_PRINT" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TB_SYS_RIGHT_CHANNEL">
+            <EntityTypeMapping TypeName="Model.TB_SYS_RIGHT_CHANNEL">
+              <MappingFragment StoreEntitySet="TB_SYS_RIGHT_CHANNEL">
+                <ScalarProperty Name="UPDATED_AT" ColumnName="UPDATED_AT" />
+                <ScalarProperty Name="CREATED_AT" ColumnName="CREATED_AT" />
+                <ScalarProperty Name="CAN_PRINT" ColumnName="CAN_PRINT" />
+                <ScalarProperty Name="CAN_DELETE" ColumnName="CAN_DELETE" />
+                <ScalarProperty Name="CAN_EDIT" ColumnName="CAN_EDIT" />
+                <ScalarProperty Name="CAN_ADD" ColumnName="CAN_ADD" />
+                <ScalarProperty Name="CAN_VIEW" ColumnName="CAN_VIEW" />
+                <ScalarProperty Name="FUNCTION_CODE" ColumnName="FUNCTION_CODE" />
+                <ScalarProperty Name="CLIENT_TYPE" ColumnName="CLIENT_TYPE" />
+                <ScalarProperty Name="IDUSER" ColumnName="IDUSER" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

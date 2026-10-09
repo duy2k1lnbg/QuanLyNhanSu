@@ -44,13 +44,24 @@ namespace Bu.Tests
         [Test]
         public void UserSession_AdminUser_HasAllPermissions_EvenWithoutExplicitRights()
         {
+            UserSession.Clear();
             UserSession.CurrentUser = new TB_SYS_USER
             {
                 IDUSER = 1,
                 USERNAME = "admin",
-                FULLNAME = "Administrator"
+                FULLNAME = "Administrator",
+                DISABLED = 0
             };
-            UserSession.DetailedRights = new Dictionary<string, UserRightDetail>();
+            UserSession.CurrentChannel = "DESKTOP";
+            UserSession.CurrentSessionId = "sess-admin";
+            UserSession.CurrentJti = "jti-admin";
+            UserSession.ParentDesktopOn = true;
+            UserSession.UserRights = new List<string> { "*", "F_LOGIN_DESKTOP" };
+            UserSession.DetailedRights = new Dictionary<string, UserRightDetail>(StringComparer.OrdinalIgnoreCase)
+            {
+                { "F_LOGIN_DESKTOP", new UserRightDetail { CAN_VIEW = true } },
+                { "F_DM_NHANVIEN", new UserRightDetail { CAN_VIEW = true, CAN_ADD = true, CAN_EDIT = true, CAN_DELETE = true, CAN_PRINT = true } }
+            };
 
             Assert.IsTrue(UserSession.IsAdmin);
             Assert.IsTrue(UserSession.CanView("F_DM_NHANVIEN"));
@@ -60,21 +71,33 @@ namespace Bu.Tests
             Assert.IsTrue(UserSession.CanPrint("F_DM_NHANVIEN"));
             Assert.IsTrue(UserSession.HasRight("F_DM_NHANVIEN"));
 
-            Assert.IsTrue(UserSession.CheckPermission("ANY_UNKNOWN_FUNCTION", PermissionAction.Delete));
+            // Zero-Trust: Chức năng không tồn tại trong ChannelCapabilityRegistry phải bị từ chối
+            Assert.IsFalse(UserSession.CheckPermission("ANY_UNKNOWN_FUNCTION", PermissionAction.Delete));
         }
 
         [Test]
         public void UserSession_RegularUser_EnforcesFiveGranularPermissions()
         {
+            UserSession.Clear();
             UserSession.CurrentUser = new TB_SYS_USER
             {
                 IDUSER = 999,
                 USERNAME = "staff_user",
-                FULLNAME = "Nhân viên thử nghiệm"
+                FULLNAME = "Nhân viên thử nghiệm",
+                DISABLED = 0
             };
+            UserSession.CurrentChannel = "DESKTOP";
+            UserSession.CurrentSessionId = "sess-regular";
+            UserSession.CurrentJti = "jti-regular";
+            UserSession.ParentDesktopOn = true;
 
             var rights = new Dictionary<string, UserRightDetail>(StringComparer.OrdinalIgnoreCase)
             {
+                ["F_LOGIN_DESKTOP"] = new UserRightDetail
+                {
+                    FunctionCode = "F_LOGIN_DESKTOP",
+                    CanView = true
+                },
                 ["F_DM_NHANVIEN"] = new UserRightDetail
                 {
                     FunctionCode = "F_DM_NHANVIEN",
@@ -95,6 +118,7 @@ namespace Bu.Tests
                 }
             };
             UserSession.DetailedRights = rights;
+            UserSession.UserRights = new List<string> { "F_LOGIN_DESKTOP", "F_DM_NHANVIEN", "F_DM_PHONGBAN" };
 
             Assert.IsFalse(UserSession.IsAdmin);
 

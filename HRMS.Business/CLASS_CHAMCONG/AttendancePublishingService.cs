@@ -747,14 +747,17 @@ namespace Bu.CLASS_CHAMCONG
 
                 decimal totalCong = dayValues.Values.Sum();
 
-                // Tạo câu UPDATE động cho D1..D31
+                // Tạo câu UPDATE động cho D1..D31 với Parameter Binding
                 var setClauses = new List<string>();
+                var dayParams = new Dictionary<string, string>();
                 for (int d = 1; d <= 31; d++)
                 {
                     string col = $"D{d}";
                     if (d <= daysInMonth && daySymbols.TryGetValue(d, out var s) && !string.IsNullOrEmpty(s))
                     {
-                        setClauses.Add($"{col} = '{s.Replace("'", "''")}'");
+                        string paramName = $"p_d{d}";
+                        setClauses.Add($"{col} = :{paramName}");
+                        dayParams[paramName] = s;
                     }
                     else if (d > daysInMonth)
                     {
@@ -773,6 +776,10 @@ namespace Bu.CLASS_CHAMCONG
 
                 using (var updateCmd = CreateCmd(sql, conn))
                 {
+                    foreach (var dp in dayParams)
+                    {
+                        updateCmd.Parameters.Add(dp.Key, OracleDbType.Varchar2, dp.Value, System.Data.ParameterDirection.Input);
+                    }
                     updateCmd.Parameters.Add("p_total", totalCong);
                     updateCmd.Parameters.Add("p_mkc", makycong);
                     updateCmd.Parameters.Add("p_manv", manv);

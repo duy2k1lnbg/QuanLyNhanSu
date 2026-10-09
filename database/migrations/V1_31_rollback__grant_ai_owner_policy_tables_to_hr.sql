@@ -1,0 +1,29 @@
+-- ============================================================================
+-- SCRIPT: V1_31_rollback__grant_ai_owner_policy_tables_to_hr.sql
+-- Muc dich: Thu hoi quyen tren cac bang AI_OWNER da cap cho HR va xoa Synonyms.
+-- Nguoi chay: DBA (SYS AS SYSDBA hoac AI_OWNER)
+-- ============================================================================
+
+WHENEVER SQLERROR CONTINUE;
+SET SERVEROUTPUT ON SIZE UNLIMITED;
+
+PROMPT Thu hoi quyen va xoa synonyms...
+BEGIN
+    EXECUTE IMMEDIATE 'REVOKE SELECT, INSERT, UPDATE, DELETE ON AI_OWNER.TB_AI_SCOPE_GRANT FROM HR';
+    EXECUTE IMMEDIATE 'REVOKE SELECT, INSERT, UPDATE, DELETE ON AI_OWNER.TB_AI_REVISION FROM HR';
+    EXECUTE IMMEDIATE 'REVOKE SELECT, INSERT, UPDATE, DELETE ON AI_OWNER.TB_AI_CAPABILITY FROM HR';
+    EXECUTE IMMEDIATE 'REVOKE SELECT, INSERT, UPDATE, DELETE ON AI_OWNER.TB_AI_FIELD_POLICY FROM HR';
+
+    EXECUTE IMMEDIATE 'DROP SYNONYM HR.TB_AI_SCOPE_GRANT';
+    EXECUTE IMMEDIATE 'DROP SYNONYM HR.TB_AI_REVISION';
+    EXECUTE IMMEDIATE 'DROP SYNONYM HR.TB_AI_CAPABILITY';
+    EXECUTE IMMEDIATE 'DROP SYNONYM HR.TB_AI_FIELD_POLICY';
+
+    DBMS_OUTPUT.PUT_LINE('-> Rollback V1_31 hoan tat.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('-> Ghi chu rollback: ' || SQLERRM);
+END;
+/
+
+PROMPT Hoan tat Rollback V1_31.

@@ -183,7 +183,8 @@ namespace Bu.CLASS_PAYROLL
                     try
                     {
                         var regions = db.Database.SqlQuery<InsuranceRegionDto>(
-                            $"SELECT ID, POLICY_BHXH_ID, VUNG_LUONG, LUONG_TOI_THIEU_THANG, LUONG_TOI_THIEU_GIO, HE_SO_SAN_DOANH_NGHIEP FROM TB_CHINH_SACH_BHXH_VUNG WHERE POLICY_BHXH_ID = {ins.ID}"
+                            "SELECT ID, POLICY_BHXH_ID, VUNG_LUONG, LUONG_TOI_THIEU_THANG, LUONG_TOI_THIEU_GIO, HE_SO_SAN_DOANH_NGHIEP FROM TB_CHINH_SACH_BHXH_VUNG WHERE POLICY_BHXH_ID = :pPolicyId",
+                            new OracleParameter("pPolicyId", ins.ID)
                         ).ToList();
                         if (regions.Count == 0)
                         {
@@ -320,7 +321,8 @@ namespace Bu.CLASS_PAYROLL
                     try
                     {
                         var brackets = db.Database.SqlQuery<TaxBracketDto>(
-                            $"SELECT ID, POLICY_THUE_ID, TAX_YEAR, PERIOD_TYPE, BAC_THUE, CAN_DUOI, CAN_TREN, THUE_SUAT FROM TB_THUE_TNCN_BAC WHERE POLICY_THUE_ID = {tax.ID}"
+                            "SELECT ID, POLICY_THUE_ID, TAX_YEAR, PERIOD_TYPE, BAC_THUE, CAN_DUOI, CAN_TREN, THUE_SUAT FROM TB_THUE_TNCN_BAC WHERE POLICY_THUE_ID = :pPolicyId",
+                            new OracleParameter("pPolicyId", tax.ID)
                         ).ToList();
                         if (brackets.Count == 0)
                         {

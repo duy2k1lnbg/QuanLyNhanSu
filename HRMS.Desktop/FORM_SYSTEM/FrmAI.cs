@@ -21,8 +21,54 @@ namespace QLyNSu.FORM_SYSTEM
         public FrmAI()
         {
             InitializeComponent();
-            _manager = new ChatboxManager();
+            _manager = new ChatboxManager(
+                conversationId: null,
+                executionService: null,
+                remoteChatHandler: async (q, cid, opt, ver, clid, ct) =>
+                {
+                    var res = await AiApiClient.Instance.SendChatAsync(q, cid, opt, ver, clid, null, ct);
+                    return new Bu.Services.AI_Services.Core.AiChatExecutionResult
+                    {
+                        Status = res.Status,
+                        Answer = res.Answer,
+                        ErrorCode = res.ErrorCode,
+                        ConversationId = res.ConversationId,
+                        ConversationVersion = res.ConversationVersion,
+                        Clarification = res.Clarification,
+                        InterpretedRequest = res.InterpretedRequest,
+                        Data = res.Data,
+                        BypassedLlm = false
+                    };
+                },
+                remoteResetHandler: async (cid, ct) =>
+                {
+                    return await AiApiClient.Instance.ResetConversationAsync(cid, ct);
+                }
+            );
+            Bu.CLASS_SYSTEM.UserSession.SessionCleared += OnSessionCleared;
+            FormClosed += (s,e) => 
+            { 
+                Bu.CLASS_SYSTEM.UserSession.SessionCleared -= OnSessionCleared;
+                _manager.Reset(); 
+            };
         }
+
+        private void OnSessionCleared()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(OnSessionCleared));
+                return;
+            }
+            if (!IsDisposed)
+            {
+                _manager.Reset();
+                gcData.DataSource = null;
+                chartControl1.Series.Clear();
+                lblKpiVal1.Text = "—";
+            }
+        }
+
 
         private void FrmAI_Load(object sender, EventArgs e)
         {
@@ -33,76 +79,46 @@ namespace QLyNSu.FORM_SYSTEM
             LoadDashboardStats();
         }
 
-        private void LoadDashboardStats()
+        private async void LoadDashboardStats()
         {
+            lblKpiVal1.Text="—"; lblKpiVal2.Text="—"; lblKpiVal3.Text="—"; lblKpiVal4.Text="—";
+            gcData.DataSource=null; chartControl1.Series.Clear();
+            if (!Bu.CLASS_SYSTEM.UserSession.IsLoggedIn) return;
+            int actor=(int)Bu.CLASS_SYSTEM.UserSession.CurrentUser.IDUSER;
             try
             {
-                using (var db = new MyEntities())
+                var dashboard = await AiApiClient.Instance.GetDashboardAsync();
+                if (IsDisposed || !Bu.CLASS_SYSTEM.UserSession.IsLoggedIn || Bu.CLASS_SYSTEM.UserSession.CurrentUser.IDUSER != actor) return;
+                if (dashboard != null)
                 {
-                    // 1. Load KPIs
-                    int totalEmp = db.TB_NHANVIEN.Count();
-                    int totalDept = db.TB_PHONGBAN.Count();
-                    int activeContracts = db.TB_HOPDONG.Count();
-                    
-                    // Tính trung bình ở memory để tránh lỗi "Specified cast is not valid" do Oracle AVG() trả về float nhưng entity lại ánh xạ là decimal
-                    var heSoList = db.TB_HOPDONG.Where(h => h.HESOLUONG != null).Select(h => h.HESOLUONG).ToList();
-                    double avgSalaryCoeff = heSoList.Any() ? (double)heSoList.Average(h => h.Value) : 2.5;
-
-                    lblKpiVal1.Text = totalEmp.ToString();
-                    lblKpiVal2.Text = totalDept.ToString();
-                    lblKpiVal3.Text = activeContracts.ToString();
-                    lblKpiVal4.Text = avgSalaryCoeff.ToString("N2");
-
-                    // 2. Load Department Chart Data (grouping in DB, mapping default values in memory)
-                    var deptStatsRaw = db.TB_NHANVIEN
-                        .GroupBy(n => n.TB_PHONGBAN.TENPB)
-                        .Select(g => new 
-                        { 
-                            Department = g.Key, 
-                            Count = g.Count() 
-                        })
-                        .ToList();
-
-                    var deptStats = deptStatsRaw.Select(x => new 
+                    if (dashboard.CountStatus == "ok" && dashboard.HasCountData)
                     {
-                        Department = x.Department ?? "Chưa phân phòng",
-                        Count = x.Count
-                    }).ToList();
-
-                    var series = new DevExpress.XtraCharts.Series("Nhân viên theo phòng ban", DevExpress.XtraCharts.ViewType.Bar);
-                    series.DataSource = deptStats;
-                    series.ArgumentDataMember = "Department";
-                    series.ValueDataMembers.AddRange(new string[] { "Count" });
-                    
-                    chartControl1.Series.Clear();
-                    chartControl1.Series.Add(series);
-
-                    // 3. Load Grid with Employee list
-                    var empList = db.TB_NHANVIEN.Select(n => new 
-                    { 
-                        MANV = n.MANV, 
-                        HOTEN = n.HOTEN, 
-                        PHONGBAN = n.TB_PHONGBAN.TENPB, 
-                        CHUCVU = n.TB_CHUCVU.TENCV, 
-                        DIENTHOAI = n.DIENTHOAI, 
-                        CCCD = n.CCCD 
-                    }).ToList();
-
-                    gcData.DataSource = empList;
-                    gvData.BestFitColumns();
+                        lblKpiVal1.Text = dashboard.TotalEmployees.ToString("N0");
+                    }
+                    else if (dashboard.CountStatus == "forbidden")
+                    {
+                        lblKpiVal1.Text = "Không có quyền";
+                    }
+                    else
+                    {
+                        lblKpiVal1.Text = "—";
+                    }
+                    if (dashboard.Data != null && dashboard.Data.Rows.Count > 0)
+                    {
+                        gcData.DataSource = dashboard.Data;
+                        gvData.BestFitColumns();
+                        UpdateChartFromDataTable(dashboard.Data);
+                    }
                 }
             }
-            catch (Exception ex)
-            {
-                XtraMessageBox.Show("Lỗi tải số liệu Dashboard: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+            catch { /* Backend unavailability leaves dashboard empty */ }
         }
-
         private async void btnSearch_Click(object sender, EventArgs e)
         {
             string query = txtSearch.Text.Trim();
             if (string.IsNullOrEmpty(query)) return;
 
+            gcData.DataSource = null; chartControl1.Series.Clear();
             txtSearch.Enabled = false;
             btnSearch.Enabled = false;
             
@@ -112,7 +128,20 @@ namespace QLyNSu.FORM_SYSTEM
             try
             {
                 var result = await _manager.ProcessQuery(query);
+                if (IsDisposed || Disposing) return;
 
+                while (result.Status=="needs_clarification" && result.Clarification!=null)
+                {
+                    using (var dialog=new XtraForm { Text=result.Clarification.Question,Width=540,Height=240,StartPosition=FormStartPosition.CenterParent })
+                    {
+                        var panel=new FlowLayoutPanel { Dock=DockStyle.Fill,AutoScroll=true,FlowDirection=FlowDirection.TopDown };
+                        dialog.Controls.Add(panel); string selected=null;
+                        foreach (var option in result.Clarification.Options) { var value=option.Token; var button=new SimpleButton { Text=option.Label,AutoSize=true }; button.Click+=(s,args)=>{selected=value;dialog.DialogResult=DialogResult.OK;dialog.Close();}; panel.Controls.Add(button); }
+                        if (result.Clarification.Options.Count==0) { var input=new TextBox { Width=460 }; var send=new SimpleButton { Text="Gửi bổ sung" }; send.Click+=(s,args)=>{selected=input.Text;dialog.DialogResult=DialogResult.OK;dialog.Close();}; panel.Controls.Add(input);panel.Controls.Add(send); }
+                        if (dialog.ShowDialog(this)!=DialogResult.OK || string.IsNullOrWhiteSpace(selected)) break;
+                        result=result.Clarification.Options.Count>0 ? await _manager.ProcessClarificationAsync(selected) : await _manager.ProcessQuery(selected);
+                    }
+                }
                 // Show AI explanation dialog
                 XtraMessageBox.Show(result.Answer, "Câu trả lời từ AI Copilot", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
@@ -126,15 +155,17 @@ namespace QLyNSu.FORM_SYSTEM
                     UpdateChartFromDataTable(result.Data);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                XtraMessageBox.Show("Có lỗi xảy ra: " + ex.Message, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (!IsDisposed && !Disposing) XtraMessageBox.Show("Không thể hoàn tất yêu cầu. Vui lòng thử lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {
+                if (!IsDisposed && !Disposing) {
                 txtSearch.Enabled = true;
                 btnSearch.Enabled = true;
                 this.Cursor = Cursors.Default;
+                }
             }
         }
 

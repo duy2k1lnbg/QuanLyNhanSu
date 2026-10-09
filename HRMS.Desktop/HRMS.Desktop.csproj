@@ -340,6 +340,12 @@
     <Compile Include="FORM_SYSTEM\FrmUser.Designer.cs">
       <DependentUpon>FrmUser.cs</DependentUpon>
     </Compile>
+    <Compile Include="FORM_SYSTEM\FrmAiScopeGrantDetail.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmAiScopeGrantDetail.Designer.cs">
+      <DependentUpon>FrmAiScopeGrantDetail.cs</DependentUpon>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmChangePassword.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -395,6 +401,7 @@
       <DependentUpon>FrmStartup.cs</DependentUpon>
     </Compile>
     <Compile Include="Functions\AiBootstrap.cs" />
+    <Compile Include="Functions\AiApiClient.cs" />
     <Compile Include="Functions\FormManager_Functions.cs" />
     <Compile Include="Functions\FormSecurity.cs" />
     <Compile Include="Functions\TranslationManager.cs" />

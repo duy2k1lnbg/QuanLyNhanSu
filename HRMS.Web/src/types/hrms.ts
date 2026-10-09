@@ -82,6 +82,30 @@ export interface UserLoginInfoDTO {
   TOKEN?: string;
 }
 
+export interface AiClarificationOption {
+  optionToken: string;
+  label: string;
+  value?: string;
+}
+
+export interface AiClarification {
+  clarificationId: string;
+  targetField: string;
+  question: string;
+  options: AiClarificationOption[];
+}
+
+export interface InterpretedRequestSummary {
+  domain?: string;
+  operation?: string;
+  metric?: string;
+  selectedEntityDisplay?: string;
+  requestedScope?: string;
+  effectiveScope?: string;
+  resolvedPeriod?: string;
+  assumptions?: string[];
+}
+
 export interface AIChatMessage {
   id: string;
   sender: 'user' | 'assistant';
@@ -89,6 +113,15 @@ export interface AIChatMessage {
   timestamp: string;
   source?: string;
   sqlQuery?: string;
+  status?: 'answered' | 'needs_clarification' | 'forbidden' | 'unsupported' | 'no_data' | 'error';
+  clarification?: AiClarification;
+  interpretedRequest?: InterpretedRequestSummary;
+  resultMetadata?: {
+    total?: number;
+    hasMore?: boolean;
+    asOf?: string;
+    sourcePublicLabel?: string;
+  };
 }
 
 export interface KyCongDTO {
@@ -499,4 +532,51 @@ export interface TangCaDTO {
   HESOLOAICA?: number;
   SOTIEN?: number;
   GHICHU?: string;
+}
+
+export interface FunctionActionGrantDTO {
+  CanView: boolean;
+  CanAdd: boolean;
+  CanEdit: boolean;
+  CanDelete: boolean;
+  CanPrint: boolean;
+}
+
+export interface ChannelFunctionRightItemDTO {
+  FunctionCode: string;
+  FunctionName: string;
+  ParentCode?: string;
+  RightType: string;
+  Sort: number;
+  SupportedCapabilities: FunctionActionGrantDTO;
+  RestrictionNote?: string;
+  DirectGrant: FunctionActionGrantDTO;
+  InheritedGrant: FunctionActionGrantDTO;
+  InheritedFromGroupNames?: string[];
+  EffectiveGrant: FunctionActionGrantDTO;
+  IsDisabledByParent: boolean;
+}
+
+export interface PlatformChannelTreeDTO {
+  Channel: 'DESKTOP' | 'WEB' | 'MOBILE';
+  ChannelLabel: string;
+  ParentFunctionCode: string;
+  ParentIsEffective: boolean;
+  ParentDirectGrant: boolean;
+  ParentInheritedGrant: boolean;
+  ParentInheritedGroupNames?: string[];
+  ReadinessCode: string;
+  ReadinessMessage: string;
+  Functions: ChannelFunctionRightItemDTO[];
+}
+
+export interface UserFullChannelPermissionsDTO {
+  UserId: number;
+  Username: string;
+  FullName: string;
+  IsGroup: boolean;
+  IsAdmin: boolean;
+  IsDisabled: boolean;
+  SecurityVersion?: number;
+  Channels: PlatformChannelTreeDTO[];
 }

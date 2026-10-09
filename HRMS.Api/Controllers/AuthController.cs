@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -19,6 +20,7 @@ namespace HRMS_API.Controllers
     {
         private readonly SYS_USER _userBus = new SYS_USER();
         private readonly IAuthSecurityService _authSecurityService = new AuthSecurityService();
+        private readonly Bu.CLASS_SECURITY.IChannelPermissionResolver _channelResolver = new Bu.CLASS_SECURITY.ChannelPermissionResolver();
 
         private string GetClientIpAddress()
         {
@@ -58,6 +60,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("login")]
         [AllowAnonymous]
+        [RateLimit(Policy = RateLimitPolicy.Login)]
         public async Task<IHttpActionResult> Login([FromBody] LoginRequest req)
         {
             if (req == null || string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password))
@@ -65,13 +68,41 @@ namespace HRMS_API.Controllers
                 return BadRequest("Vui lòng nhập tên đăng nhập và mật khẩu.");
             }
 
+            string correlationId = GetHeaderValue("X-Correlation-Id") ?? Guid.NewGuid().ToString();
+
+            // Kiểm tra rate limit theo username chuẩn hóa (5 yêu cầu/phút)
+            if (!RateLimiterService.Instance.CheckLoginUsernameRate(req.Username, 5, TimeSpan.FromMinutes(1), out int retryUserSec))
+            {
+                var resp = Request.CreateResponse((HttpStatusCode)429, new
+                {
+                    success = false,
+                    code = "RATE_LIMITED",
+                    message = $"Tài khoản '{req.Username}' đã nhận quá nhiều lần thử đăng nhập. Vui lòng thử lại sau {retryUserSec} giây.",
+                    retryAfterSeconds = retryUserSec,
+                    correlationId = correlationId
+                });
+                resp.Headers.Add("Retry-After", retryUserSec.ToString());
+                resp.Headers.Add("X-Correlation-Id", correlationId);
+                return ResponseMessage(resp);
+            }
+
             string clientIp = GetClientIpAddress();
             string userAgent = Request.Headers.UserAgent?.ToString() ?? "Unknown";
-            string correlationId = GetHeaderValue("X-Correlation-Id") ?? Guid.NewGuid().ToString("N");
-            string platform = !string.IsNullOrWhiteSpace(req.Platform) ? req.Platform : (GetHeaderValue("X-Platform") ?? "WEB");
+            string rawChannel = !string.IsNullOrWhiteSpace(req.ClientType) ? req.ClientType.Trim().ToUpperInvariant() : (GetHeaderValue("X-Client-Type")?.Trim().ToUpperInvariant());
+            if (rawChannel != Bu.CLASS_SECURITY.AppChannels.Web && rawChannel != Bu.CLASS_SECURITY.AppChannels.Mobile)
+            {
+                return Content(HttpStatusCode.BadRequest, new
+                {
+                    success = false,
+                    code = "INVALID_CHANNEL",
+                    message = "Kênh đăng nhập API không hợp lệ. Cổng dịch vụ trực tuyến chỉ chấp nhận kênh WEB hoặc MOBILE."
+                });
+            }
+
+            string clientType = rawChannel;
+            string platform = !string.IsNullOrWhiteSpace(req.Platform) ? req.Platform : (GetHeaderValue("X-Platform") ?? (clientType == Bu.CLASS_SECURITY.AppChannels.Mobile ? "MOBILE_APP" : "BROWSER"));
             string deviceId = !string.IsNullOrWhiteSpace(req.DeviceId) ? req.DeviceId : GetHeaderValue("X-Device-Id");
             string deviceName = !string.IsNullOrWhiteSpace(req.DeviceName) ? req.DeviceName : GetHeaderValue("X-Device-Name");
-            string clientType = !string.IsNullOrWhiteSpace(req.ClientType) ? req.ClientType : "ALL";
 
             try
             {
@@ -92,6 +123,7 @@ namespace HRMS_API.Controllers
                     return Content(HttpStatusCode.BadRequest, new
                     {
                         success = false,
+                        code = loginResult.FailureReason,
                         message = loginResult.ErrorMessage,
                         isLockedOut = loginResult.IsLockedOut,
                         lockoutMinutes = loginResult.LockoutRemainingMinutes
@@ -159,6 +191,280 @@ namespace HRMS_API.Controllers
         }
 
         /// <summary>
+        /// POST: api/auth/desktop-token
+        /// Trao đổi phiên Desktop đã xác thực thành công qua DB lấy JWT Bearer Token để sử dụng các dịch vụ AI / API.
+        /// Yêu cầu cung cấp thông tin xác thực và phiên Desktop còn hiệu lực trong TB_AUTH_SESSION.
+        /// Đảm bảo không tạo 2 phiên trùng lặp và không cấp token cho client nếu thiếu quyền F_LOGIN_DESKTOP.
+        /// </summary>
+        [HttpPost]
+        [Route("desktop-token")]
+        [AllowAnonymous]
+        [RateLimit(Policy = RateLimitPolicy.DesktopToken)]
+        public async Task<IHttpActionResult> ExchangeDesktopToken([FromBody] DesktopTokenExchangeRequest req)
+        {
+            await Task.Yield();
+            if (req == null || string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password)
+                || string.IsNullOrWhiteSpace(req.SessionId) || string.IsNullOrWhiteSpace(req.Jti))
+            {
+                return BadRequest("Vui lòng cung cấp đầy đủ thông tin xác thực và định danh phiên Desktop.");
+            }
+
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    // 1. Phân giải người dùng theo username hoặc mã nhân viên
+                    string input = req.Username.Trim().ToLowerInvariant();
+                    var user = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME.ToLower() == input && u.ISGROUP != 1);
+                    if (user == null)
+                    {
+                        var emp = db.TB_NHANVIEN.FirstOrDefault(e => e.EMPLOYEE_CODE.ToLower() == input);
+                        if (emp != null)
+                        {
+                            user = db.TB_SYS_USER.FirstOrDefault(u => u.MANV == emp.MANV && u.ISGROUP != 1);
+                        }
+                    }
+
+                    if (user == null || !PasswordHasher.VerifyPassword(req.Password, user.PASSWORD))
+                    {
+                        return Content(HttpStatusCode.Unauthorized, new
+                        {
+                            success = false,
+                            code = "INVALID_CREDENTIALS",
+                            message = "Tên đăng nhập hoặc mật khẩu không chính xác."
+                        });
+                    }
+
+                    if (user.DISABLED == 1)
+                    {
+                        return Content(HttpStatusCode.Forbidden, new
+                        {
+                            success = false,
+                            code = "ACCOUNT_DISABLED",
+                            message = "Tài khoản của bạn đã bị khóa hoặc vô hiệu hóa."
+                        });
+                    }
+
+                    // 2. Xác thực phiên Desktop trong TB_AUTH_SESSION
+                    var sessionRow = db.Database.SqlQuery<SessionStateRow>(@"
+                        SELECT SESSION_ID, USER_ID, JTI, CLIENT_TYPE, EXPIRES_AT, REVOKED_AT
+                        FROM HR.TB_AUTH_SESSION
+                        WHERE SESSION_ID = :p0 AND JTI = :p1 AND USER_ID = :p2",
+                        new OracleParameter("p0", req.SessionId.Trim()),
+                        new OracleParameter("p1", req.Jti.Trim()),
+                        new OracleParameter("p2", user.IDUSER)
+                    ).FirstOrDefault();
+
+                    if (sessionRow == null || sessionRow.REVOKED_AT.HasValue || sessionRow.EXPIRES_AT <= DateTime.UtcNow)
+                    {
+                        return Content(HttpStatusCode.Unauthorized, new
+                        {
+                            success = false,
+                            code = "SESSION_INVALID_OR_EXPIRED",
+                            message = "Phiên làm việc Desktop không tồn tại, đã bị thu hồi hoặc đã hết hạn."
+                        });
+                    }
+
+                    string sessionChannel = Bu.CLASS_SECURITY.AppChannels.Normalize(sessionRow.CLIENT_TYPE);
+                    if (sessionChannel != Bu.CLASS_SECURITY.AppChannels.Desktop)
+                    {
+                        return Content(HttpStatusCode.Forbidden, new
+                        {
+                            success = false,
+                            code = "CHANNEL_MISMATCH",
+                            message = "Phiên đăng nhập này không thuộc kênh DESKTOP."
+                        });
+                    }
+
+                    // 3. Kiểm tra quyền F_LOGIN_DESKTOP qua PlatformAccessGuard (Zero-Trust)
+                    bool canDesktop = Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(
+                        user.IDUSER, Bu.CLASS_SECURITY.AppChannels.Desktop, Bu.CLASS_SECURITY.PlatformFunctionCodes.LoginDesktop, Bu.CLASS_SECURITY.ChannelAction.View, user.USERNAME
+                    );
+                    if (!canDesktop)
+                    {
+                        return Content(HttpStatusCode.Forbidden, new
+                        {
+                            success = false,
+                            code = "PLATFORM_ACCESS_DENIED",
+                            message = "Từ chối truy cập: Quyền sử dụng kênh DESKTOP đã bị tắt hoặc chưa được cấp."
+                        });
+                    }
+
+                    // 4. Lấy danh sách quyền và phát hành JWT Token với kênh DESKTOP
+                    bool isRootAdmin = user.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase);
+                    var rights = new List<string>();
+                    if (isRootAdmin)
+                    {
+                        rights.Add("*");
+                        var allFuncs = db.TB_SYS_FUNCTION.Select(f => f.FUNCTION_CODE).ToList();
+                        rights.AddRange(allFuncs);
+                    }
+                    else
+                    {
+                        var direct = db.TB_SYS_RIGHT.Where(r => r.IDUSER == user.IDUSER && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
+                        rights.AddRange(direct);
+                        var groupIds = db.TB_SYS_GROUP.Where(g => g.MEMBER == user.IDUSER).Select(g => g.ID_GROUP).ToList();
+                        if (groupIds.Any())
+                        {
+                            var grpRights = db.TB_SYS_RIGHT.Where(r => groupIds.Contains(r.IDUSER) && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
+                            rights.AddRange(grpRights);
+                        }
+                    }
+
+                    long tokenVer = Convert.ToInt64(user.TOKEN_VERSION);
+                    string token = JwtService.GenerateToken(
+                        (int)user.IDUSER,
+                        user.USERNAME,
+                        user.FULLNAME ?? user.USERNAME,
+                        isRootAdmin,
+                        rights.Distinct().ToList(),
+                        user.MACTY,
+                        user.MADVI,
+                        user.MANV.HasValue ? user.MANV.Value.ToString() : null,
+                        Bu.CLASS_SECURITY.AppChannels.Desktop,
+                        sessionRow.JTI,
+                        tokenVer
+                    );
+
+                    return Ok(new
+                    {
+                        success = true,
+                        token = token,
+                        Token = token,
+                        sessionId = sessionRow.SESSION_ID,
+                        jti = sessionRow.JTI,
+                        clientType = Bu.CLASS_SECURITY.AppChannels.Desktop,
+                        expiresAt = sessionRow.EXPIRES_AT
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi trong ExchangeDesktopToken: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    success = false,
+                    message = "Đã xảy ra sự cố nội bộ trong quá trình trao đổi phiên Desktop."
+                });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/auth/desktop-login
+        /// Đăng nhập trực tiếp kênh Desktop tạo phiên TB_AUTH_SESSION và cấp JWT Bearer Token.
+        /// </summary>
+        [HttpPost]
+        [Route("desktop-login")]
+        [AllowAnonymous]
+        [RateLimit(Policy = RateLimitPolicy.Login)]
+        public async Task<IHttpActionResult> DesktopLogin([FromBody] LoginRequest req)
+        {
+            if (req == null || string.IsNullOrWhiteSpace(req.Username) || string.IsNullOrWhiteSpace(req.Password))
+            {
+                return BadRequest("Vui lòng nhập tên đăng nhập và mật khẩu.");
+            }
+
+            string correlationId = GetHeaderValue("X-Correlation-Id") ?? Guid.NewGuid().ToString();
+
+            // Kiểm tra rate limit theo username chuẩn hóa (5 yêu cầu/phút)
+            if (!RateLimiterService.Instance.CheckLoginUsernameRate(req.Username, 5, TimeSpan.FromMinutes(1), out int retryUserSec))
+            {
+                var resp = Request.CreateResponse((HttpStatusCode)429, new
+                {
+                    success = false,
+                    code = "RATE_LIMITED",
+                    message = $"Tài khoản '{req.Username}' đã nhận quá nhiều lần thử đăng nhập. Vui lòng thử lại sau {retryUserSec} giây.",
+                    retryAfterSeconds = retryUserSec,
+                    correlationId = correlationId
+                });
+                resp.Headers.Add("Retry-After", retryUserSec.ToString());
+                resp.Headers.Add("X-Correlation-Id", correlationId);
+                return ResponseMessage(resp);
+            }
+
+            string clientIp = GetClientIpAddress();
+            string userAgent = Request.Headers.UserAgent?.ToString() ?? "HRMS-Desktop/1.0";
+            string deviceId = !string.IsNullOrWhiteSpace(req.DeviceId) ? req.DeviceId : GetHeaderValue("X-Device-Id");
+            string deviceName = !string.IsNullOrWhiteSpace(req.DeviceName) ? req.DeviceName : (GetHeaderValue("X-Device-Name") ?? "Desktop-Client");
+
+            try
+            {
+                var loginResult = await _authSecurityService.AuthenticateAsync(
+                    req.Username,
+                    req.Password,
+                    Bu.CLASS_SECURITY.AppChannels.Desktop,
+                    "WINDOWS",
+                    deviceId,
+                    deviceName,
+                    clientIp,
+                    userAgent,
+                    correlationId
+                );
+
+                if (!loginResult.Success)
+                {
+                    return Content(HttpStatusCode.BadRequest, new
+                    {
+                        success = false,
+                        code = loginResult.FailureReason,
+                        message = loginResult.ErrorMessage,
+                        isLockedOut = loginResult.IsLockedOut,
+                        lockoutMinutes = loginResult.LockoutRemainingMinutes
+                    });
+                }
+
+                string token = JwtService.GenerateToken(
+                    (int)loginResult.UserId,
+                    loginResult.Username,
+                    loginResult.FullName,
+                    loginResult.IsAdmin,
+                    loginResult.Rights,
+                    loginResult.MaCty,
+                    loginResult.MaDvi,
+                    loginResult.Manv.HasValue ? loginResult.Manv.Value.ToString() : null,
+                    Bu.CLASS_SECURITY.AppChannels.Desktop,
+                    loginResult.Jti,
+                    loginResult.TokenVersion
+                );
+
+                return Ok(new
+                {
+                    success = true,
+                    Success = true,
+                    token = token,
+                    Token = token,
+                    sessionId = loginResult.SessionId,
+                    jti = loginResult.Jti,
+                    clientType = Bu.CLASS_SECURITY.AppChannels.Desktop,
+                    user = new
+                    {
+                        IdUser = (int)loginResult.UserId,
+                        id = (int)loginResult.UserId,
+                        Username = loginResult.Username,
+                        username = loginResult.Username,
+                        FullName = loginResult.FullName,
+                        fullName = loginResult.FullName,
+                        IsAdmin = loginResult.IsAdmin,
+                        isAdmin = loginResult.IsAdmin,
+                        Rights = loginResult.Rights,
+                        rights = loginResult.Rights,
+                        ClientType = Bu.CLASS_SECURITY.AppChannels.Desktop,
+                        clientType = Bu.CLASS_SECURITY.AppChannels.Desktop
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi trong DesktopLogin: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    success = false,
+                    message = "Đã xảy ra sự cố nội bộ trong quá trình đăng nhập Desktop."
+                });
+            }
+        }
+
+        /// <summary>
         /// GET: api/auth/me
         /// Kiểm tra tính hợp lệ của phiên đăng nhập và làm mới thông tin quyền hạn trực tiếp từ CSDL
         /// </summary>
@@ -208,44 +514,69 @@ namespace HRMS_API.Controllers
                     bool isAdmin = user.USERNAME.Trim().ToUpper() == "ADMIN";
                     List<string> freshRights = new List<string>();
 
+                    // Lấy chi tiết 5 quyền theo kênh và bảng phân quyền thực tế (Zero-Trust, loại bỏ giả lập quyền ảo cho ADMIN)
+                    Dictionary<string, Bu.DTO.UserRightDetail> freshDetailedRights = null;
+                    List<string> projectedRefreshViewRights = null;
+                    string refreshChannel = jwtClaims != null ? Bu.CLASS_SECURITY.AppChannels.Normalize(jwtClaims.ClientType) : null;
+                    if (!string.IsNullOrEmpty(refreshChannel))
+                    {
+                        try
+                        {
+                            var channelTree = _channelResolver.ResolveChannelTree(db, user.IDUSER, refreshChannel, user.USERNAME);
+                            if (channelTree != null)
+                            {
+                                _channelResolver.ProjectEffectiveRights(channelTree, out freshDetailedRights, out projectedRefreshViewRights);
+                            }
+                        }
+                        catch (Exception chEx)
+                        {
+                            System.Diagnostics.Trace.TraceWarning("[AuthController.RefreshSession] ResolveChannelTree error: " + chEx.Message);
+                            freshDetailedRights = null;
+                            projectedRefreshViewRights = null;
+                        }
+                    }
+
+                    // Chỉ fallback sang legacy table khi không có kênh hoặc resolver lỗi (chưa có schema channel)
+                    if (freshDetailedRights == null)
+                    {
+                        freshDetailedRights = _userBus.GetDetailedRights(user.IDUSER);
+                    }
+
                     if (isAdmin)
                     {
                         freshRights.Add("*");
-                        freshRights.AddRange(db.TB_SYS_FUNCTION.Select(f => f.FUNCTION_CODE).ToList());
+                        if (freshDetailedRights != null && freshDetailedRights.Any())
+                        {
+                            freshRights.AddRange(freshDetailedRights.Where(kv => kv.Value.CAN_VIEW).Select(kv => kv.Key));
+                        }
+                        else
+                        {
+                            freshRights.AddRange(db.TB_SYS_FUNCTION.Select(f => f.FUNCTION_CODE).ToList());
+                        }
                     }
                     else
                     {
-                        // 1. Direct rights
-                        var direct = db.TB_SYS_RIGHT.Where(r => r.IDUSER == user.IDUSER && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
-                        freshRights.AddRange(direct);
-
-                        // 2. Group rights
-                        var groupIds = db.TB_SYS_GROUP.Where(g => g.MEMBER == user.IDUSER).Select(g => g.ID_GROUP).ToList();
-                        if (groupIds.Any())
+                        if (freshDetailedRights != null && freshDetailedRights.Any())
                         {
-                            var groupRights = db.TB_SYS_RIGHT.Where(r => groupIds.Contains(r.IDUSER) && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
-                            freshRights.AddRange(groupRights);
+                            freshRights.AddRange(freshDetailedRights.Where(kv => kv.Value.CAN_VIEW).Select(kv => kv.Key));
                         }
+                        else
+                        {
+                            // 1. Direct rights
+                            var direct = db.TB_SYS_RIGHT.Where(r => r.IDUSER == user.IDUSER && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
+                            freshRights.AddRange(direct);
 
-                        if (!freshRights.Contains("F_DB_NHANSU")) freshRights.Add("F_DB_NHANSU");
-                        if (!freshRights.Contains("F_SYSTEM_AI")) freshRights.Add("F_SYSTEM_AI");
+                            // 2. Group rights
+                            var groupIds = db.TB_SYS_GROUP.Where(g => g.MEMBER == user.IDUSER).Select(g => g.ID_GROUP).ToList();
+                            if (groupIds.Any())
+                            {
+                                var groupRights = db.TB_SYS_RIGHT.Where(r => groupIds.Contains(r.IDUSER) && (r.CAN_VIEW == 1 || r.USER_RIGHT == 1)).Select(r => r.FUNCTION_CODE).ToList();
+                                freshRights.AddRange(groupRights);
+                            }
+                        }
                     }
 
                     freshRights = freshRights.Distinct().ToList();
-
-                    // Lấy chi tiết 5 quyền (Xem, Thêm, Sửa, Xóa, In)
-                    var freshDetailedRights = _userBus.GetDetailedRights(user.IDUSER);
-                    if (isAdmin)
-                    {
-                        foreach (var key in freshDetailedRights.Keys.ToList())
-                        {
-                            freshDetailedRights[key].CAN_VIEW = true;
-                            freshDetailedRights[key].CAN_ADD = true;
-                            freshDetailedRights[key].CAN_EDIT = true;
-                            freshDetailedRights[key].CAN_DELETE = true;
-                            freshDetailedRights[key].CAN_PRINT = true;
-                        }
-                    }
 
                     bool isRootAdmin = user.USERNAME != null && user.USERNAME.Trim().ToUpper() == "ADMIN";
                     decimal? freshManv = isRootAdmin ? null : user.MANV;
@@ -579,5 +910,23 @@ namespace HRMS_API.Controllers
         public string EMPLOYEE_CODE { get; set; }
         public decimal? DATHOIVIEC { get; set; }
         public string HOTEN { get; set; }
+    }
+
+    public class DesktopTokenExchangeRequest
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+        public string SessionId { get; set; }
+        public string Jti { get; set; }
+    }
+
+    public class SessionStateRow
+    {
+        public string SESSION_ID { get; set; }
+        public decimal USER_ID { get; set; }
+        public string JTI { get; set; }
+        public string CLIENT_TYPE { get; set; }
+        public DateTime EXPIRES_AT { get; set; }
+        public DateTime? REVOKED_AT { get; set; }
     }
 }

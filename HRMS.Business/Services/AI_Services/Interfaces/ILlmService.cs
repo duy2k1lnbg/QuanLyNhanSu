@@ -9,5 +9,7 @@ namespace Bu.Services.AI_Services.Interfaces
         Task<string> AskIntent(string prompt);
         Task<string> AskChat(string context, string question, string history, Action<string> onTokenReceived = null);
         Task<float[]> GetEmbedding(string text, System.Threading.CancellationToken cancellationToken = default);
+        Task<string> AskStructuredJsonAsync(string prompt, string system, System.Threading.CancellationToken cancellationToken = default);
+        Task<string> GenerateGroundedAnswerAsync(string question, string factsEvidence, string history = null, System.Threading.CancellationToken cancellationToken = default);
     }
 }

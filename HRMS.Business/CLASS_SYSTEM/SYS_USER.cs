@@ -1,3 +1,4 @@
+using Bu.CLASS_SECURITY;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -205,10 +206,11 @@ namespace Bu.CLASS_SYSTEM
                     throw new ApplicationException("ACCOUNT_LOCKED");
                 }
 
-                // 2. Quy tắc phân định 2 loại tài khoản:
-                // Tài khoản nhân viên (người dùng) chỉ dùng để đăng nhập Mobile, không được phép vào Desktop WinForms
-                string clientType = (user.CLIENT_TYPE ?? "ALL").Trim().ToUpperInvariant();
-                if (clientType == "MOBILE")
+                // 2. Kiểm tra quyền truy cập ứng dụng Desktop qua PlatformAccessResolver (Áp dụng cho mọi tài khoản kể cả Admin)
+                var platformResolver = new PlatformAccessResolver();
+                string platformErrCode, platformErrMsg;
+                bool canDesktop = platformResolver.CanLoginChannel(db, user.IDUSER, AppChannels.Desktop, out platformErrCode, out platformErrMsg, user.USERNAME);
+                if (!canDesktop)
                 {
                     throw new ApplicationException("EMPLOYEE_MOBILE_ONLY");
                 }

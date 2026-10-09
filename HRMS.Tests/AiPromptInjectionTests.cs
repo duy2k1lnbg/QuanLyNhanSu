@@ -55,7 +55,7 @@ namespace Bu.Tests
         {
             var result = OracleSqlAstValidator.Validate(sql);
             Assert.IsFalse(result.IsValid, $"Queries on non-whitelisted tables must be blocked: {sql}");
-            Assert.That(result.RejectionReason, Does.Contain("không nằm trong danh sách View AI"));
+            Assert.That(result.RejectionReason, Does.Contain("không nằm trong danh sách View AI").Or.Contain("Chỉ cho phép view trong schema AI_OWNER"));
         }
 
         [Test]

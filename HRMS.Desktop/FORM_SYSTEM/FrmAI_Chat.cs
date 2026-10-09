@@ -16,12 +16,70 @@ namespace QLyNSu.FORM_SYSTEM
     public partial class FrmAI_Chat : DevExpress.XtraEditors.XtraForm
     {
         private readonly ChatboxManager _manager;
+        private int _requestGeneration;
+        private readonly List<SimpleButton> _activeOptionButtons = new List<SimpleButton>();
 
         public FrmAI_Chat()
         {
             InitializeComponent();
-            _manager = new ChatboxManager();
+            _manager = new ChatboxManager(
+                conversationId: null,
+                executionService: null,
+                remoteChatHandler: async (q, cid, opt, ver, clid, ct) =>
+                {
+                    var res = await AiApiClient.Instance.SendChatAsync(q, cid, opt, ver, clid, null, ct);
+                    return new Bu.Services.AI_Services.Core.AiChatExecutionResult
+                    {
+                        Status = res.Status,
+                        Answer = res.Answer,
+                        ErrorCode = res.ErrorCode,
+                        ConversationId = res.ConversationId,
+                        ConversationVersion = res.ConversationVersion,
+                        Clarification = res.Clarification,
+                        InterpretedRequest = res.InterpretedRequest,
+                        Data = res.Data,
+                        BypassedLlm = false
+                    };
+                },
+                remoteResetHandler: async (cid, ct) =>
+                {
+                    return await AiApiClient.Instance.ResetConversationAsync(cid, ct);
+                }
+            );
+            Bu.CLASS_SYSTEM.UserSession.SessionCleared += OnSessionCleared;
+            FormClosed += (s,e) => 
+            { 
+                Bu.CLASS_SYSTEM.UserSession.SessionCleared -= OnSessionCleared;
+                _requestGeneration++; 
+                _manager.Reset(); 
+            };
         }
+
+        private void OnSessionCleared()
+        {
+            if (InvokeRequired)
+            {
+                BeginInvoke(new Action(OnSessionCleared));
+                return;
+            }
+            if (!IsDisposed)
+            {
+                ResetChatUI();
+            }
+            }
+
+        private void DisableActiveClarificationButtons()
+        {
+            foreach (var btn in _activeOptionButtons)
+            {
+                if (btn != null && !btn.IsDisposed)
+                {
+                    btn.Enabled = false;
+                }
+            }
+            _activeOptionButtons.Clear();
+        }
+
 
         private void FrmAI_Chat_Load(object sender, EventArgs e)
         {
@@ -49,75 +107,58 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void ResetChatUI()
         {
+            _requestGeneration++;
+            DisableActiveClarificationButtons();
             flpChat.Controls.Clear();
             _manager.Reset();
+            txtChatInput.Enabled = true; btnChatSend.Enabled = true;
 
             AddMessageBubble("AI", "Xin chào! Tôi là Trợ lý AI Quản trị Nhân sự. Tôi có thể giúp gì cho bạn hôm nay?\n\nBạn có thể hỏi bất kỳ câu hỏi nghiệp vụ nào bằng tiếng Việt tự nhiên (ví dụ: 'Danh sách nhân viên sinh nhật tháng này', 'Ai chuẩn bị lên lương', 'Thống kê nhân sự theo phòng ban').");
         }
 
         private async void btnChatSend_Click(object sender, EventArgs e)
         {
-            string query = txtChatInput.Text.Trim();
-            if (string.IsNullOrEmpty(query)) return;
-
-            // Display user message bubble
-            AddMessageBubble("You", query);
-            txtChatInput.Text = string.Empty;
-
-            // Lock UI during AI execution
-            txtChatInput.Enabled = false;
-            btnChatSend.Enabled = false;
-            btnClearChat.Enabled = false;
-            
-            // Create the streaming AI response bubble with initial loading state
-            Panel aiBubbleContainer;
-            var aiLabelMsg = AddStreamingAiBubble(out aiBubbleContainer);
-            string accumMessage = "";
-
-            var sw = System.Diagnostics.Stopwatch.StartNew();
-            long lastUpdateMs = 0;
-
+            string query=txtChatInput.Text.Trim();
+            if (string.IsNullOrEmpty(query) || !btnChatSend.Enabled) return;
+            txtChatInput.Text="";
+            await SendChatAsync(query);
+        }
+        private async Task SendChatAsync(string query, string token=null)
+        {
+            int generation=++_requestGeneration;
+            DisableActiveClarificationButtons();
+            txtChatInput.Enabled=false; btnChatSend.Enabled=false; btnClearChat.Enabled=true;
+            AddMessageBubble("You",string.IsNullOrEmpty(query) ? "Đã chọn phương án làm rõ" : query);
+            Panel bubble; var label=AddStreamingAiBubble(out bubble);
             try
             {
-                // Process query via BLL, streaming tokens via callback
-                var result = await _manager.ProcessQuery(query, token =>
+                var result=await _manager.ProcessQueryAsync(query,token);
+                if (IsDisposed || generation!=_requestGeneration) return;
+                UpdateStreamingAiBubble(bubble,label,result.Answer);
+                if (result.Clarification != null && result.Clarification.Options != null && result.Clarification.Options.Count > 0)
                 {
-                    accumMessage += token;
-                    long elapsed = sw.ElapsedMilliseconds;
-                    // Throttle UI update: update at most every 80ms, or when token is empty (end of stream)
-                    if (elapsed - lastUpdateMs >= 80 || string.IsNullOrEmpty(token))
+                    var groupButtons = new List<SimpleButton>();
+                    foreach (var option in result.Clarification.Options)
                     {
-                        lastUpdateMs = elapsed;
-                        string msgToDisplay = accumMessage;
-                        UpdateStreamingAiBubble(aiBubbleContainer, aiLabelMsg, msgToDisplay);
+                        string selectedToken = option.Token;
+                        var button = new SimpleButton { Text = option.Label, AutoSize = true };
+                        groupButtons.Add(button);
+                        button.Click += async (s, e) =>
+                        {
+                            if (btnChatSend.Enabled && generation == _requestGeneration)
+                            {
+                                DisableActiveClarificationButtons();
+                                await SendChatAsync("", selectedToken);
+                            }
+                        };
+                        flpChat.Controls.Add(button);
                     }
-                });
-
-                // Final UI update to ensure all buffered tokens or fast responses are rendered
-                UpdateStreamingAiBubble(aiBubbleContainer, aiLabelMsg, result.Answer);
-            }
-            catch (Exception ex)
-            {
-                if (string.IsNullOrEmpty(accumMessage))
-                {
-                    accumMessage = "Rất tiếc! Đã xảy ra lỗi khi kết nối và xử lý yêu cầu của bạn: " + ex.Message;
-                    UpdateStreamingAiBubble(aiBubbleContainer, aiLabelMsg, accumMessage);
-                }
-                else
-                {
-                    accumMessage += $"\n[Lỗi dòng dữ liệu: {ex.Message}]";
-                    UpdateStreamingAiBubble(aiBubbleContainer, aiLabelMsg, accumMessage);
+                    _activeOptionButtons.AddRange(groupButtons);
                 }
             }
-            finally
-            {
-                txtChatInput.Enabled = true;
-                btnChatSend.Enabled = true;
-                btnClearChat.Enabled = true;
-                txtChatInput.Focus();
-            }
+            catch { if (!IsDisposed && generation==_requestGeneration) UpdateStreamingAiBubble(bubble,label,"Không thể xử lý yêu cầu. Vui lòng thử lại."); }
+            finally { if (!IsDisposed && generation==_requestGeneration) { txtChatInput.Enabled=true; btnChatSend.Enabled=true; txtChatInput.Focus(); } }
         }
-
         private void txtChatInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
@@ -137,14 +178,39 @@ namespace QLyNSu.FORM_SYSTEM
             await formManager.OpenFormWithSplashScreen(typeof(FrmAI));
         }
 
+        private string GetQuickActionPrompt(SimpleButton btn)
+        {
+            if (btn == null) return string.Empty;
+            string text = btn.Text ?? "";
+            if (text.IndexOf("HĐ", StringComparison.OrdinalIgnoreCase) >= 0 || text.IndexOf("hợp đồng", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Danh sách nhân viên sắp hết hạn hợp đồng?";
+            if (text.IndexOf("lương", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Danh sách nhân viên chuẩn bị tăng lương?";
+            if (text.IndexOf("sinh nhật", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Danh sách nhân viên sinh nhật tháng này?";
+            if (text.IndexOf("phòng ban", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Thống kê số lượng nhân viên theo từng phòng ban?";
+            if (text.IndexOf("nhân viên", StringComparison.OrdinalIgnoreCase) >= 0)
+                return "Danh sách tất cả nhân viên trong công ty?";
+
+            switch (btn.Name)
+            {
+                case "btnActionBirthday": return "Danh sách nhân viên sinh nhật tháng này?";
+                case "btnActionSalary": return "Danh sách nhân viên chuẩn bị tăng lương?";
+                case "btnActionEmployee": return "Danh sách tất cả nhân viên trong công ty?";
+                case "btnActionDepartment": return "Thống kê số lượng nhân viên theo từng phòng ban?";
+                default: return string.Empty;
+            }
+        }
+
         private void QuickAction_Click(object sender, EventArgs e)
         {
             if (!btnChatSend.Enabled) return; // Prevent clicking while AI is running!
 
             if (sender is SimpleButton btn)
             {
-                string prompt = "";
-                switch (btn.Name)
+                string prompt = GetQuickActionPrompt(btn);
+                if (string.IsNullOrEmpty(prompt)) switch (btn.Name)
                 {
                     case "btnActionBirthday":
                         prompt = "Danh sách nhân viên sắp hết hạn hợp đồng?";
@@ -226,7 +292,7 @@ namespace QLyNSu.FORM_SYSTEM
             };
 
             // Format message content
-            string htmlContent = $"<b>{(isUser ? "BẠN" : "TRỢ LÝ AI")}</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{message.Replace("\n", "<br/>")}";
+            string htmlContent = $"<b>{(isUser ? "BẠN" : "TRỢ LÝ AI")}</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{System.Net.WebUtility.HtmlEncode(message).Replace("\n", "<br/>")}";
 
             var lblMsg = new LabelControl
             {
@@ -357,7 +423,7 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 lblMsg.BeginInvoke(new Action(() =>
                 {
-                    string htmlContent = $"<b>TRỢ LÝ AI</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{messageToDisplay.Replace("\n", "<br/>")}";
+                    string htmlContent = $"<b>TRỢ LÝ AI</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{System.Net.WebUtility.HtmlEncode(messageToDisplay).Replace("\n", "<br/>")}";
                     lblMsg.Text = htmlContent;
 
                     flpChat.SuspendLayout();
@@ -369,7 +435,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
             else
             {
-                string htmlContent = $"<b>TRỢ LÝ AI</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{messageToDisplay.Replace("\n", "<br/>")}";
+                string htmlContent = $"<b>TRỢ LÝ AI</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{System.Net.WebUtility.HtmlEncode(messageToDisplay).Replace("\n", "<br/>")}";
                 lblMsg.Text = htmlContent;
 
                 flpChat.SuspendLayout();

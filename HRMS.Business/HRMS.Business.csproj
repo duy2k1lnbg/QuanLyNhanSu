@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -56,6 +56,7 @@
       <HintPath>..\packages\Oracle.ManagedDataAccess.EntityFramework.23.7.0\lib\net472\Oracle.ManagedDataAccess.EntityFramework.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
     </Reference>
@@ -216,35 +217,67 @@
     <Compile Include="CLASS_NHANSU\QUOCTICH.cs" />
     <Compile Include="CLASS_NHANSU\TONGIAO.cs" />
     <Compile Include="CLASS_NHANSU\TRINHDO.cs" />
-    <Compile Include="Services\AI_Services\Core\AiRouterService.cs" />
-    <Compile Include="Services\AI_Services\Core\FastResponseService.cs" />
-    <Compile Include="Services\AI_Services\Core\SqlGeneratorService.cs" />
-    <Compile Include="Services\AI_Services\Core\OracleSqlAstValidator.cs" />
-    <Compile Include="Services\AI_Services\Core\QueryPreprocessor.cs" />
-    <Compile Include="Services\AI_Services\ChatboxManager.cs" />
-    <Compile Include="Services\AI_Services\Core\HybridRagService.cs" />
-    <Compile Include="Services\AI_Services\LLM\OllamaService.cs" />
-    <Compile Include="Services\AI_Services\Memory\AiCacheService.cs" />
-    <Compile Include="Services\AI_Services\Memory\AiChatHistory.cs" />
-    <Compile Include="Services\AI_Services\Vector\QdrantService.cs" />
-    <Compile Include="Services\AI_Services\Vector\QdrantOutboxManager.cs" />
+    <Compile Include="Services\AI_Services\Bootstrap\AiServiceLocator.cs" />
+    <Compile Include="Services\AI_Services\Configuration\AiConfigurationCoordinator.cs" />
+    <Compile Include="Services\AI_Services\Chat\ChatboxManager.cs" />
+    <Compile Include="Services\AI_Services\Chat\AiExecutionService.cs" />
+    <Compile Include="Services\AI_Services\Understanding\AiRouterService.cs" />
+    <Compile Include="Services\AI_Services\Understanding\ClarificationPolicy.cs" />
+    <Compile Include="Services\AI_Services\Understanding\EntityResolver.cs" />
+    <Compile Include="Services\AI_Services\Understanding\QueryPreprocessor.cs" />
+    <Compile Include="Services\AI_Services\Understanding\QueryUnderstandingModels.cs" />
+    <Compile Include="Services\AI_Services\Understanding\QueryUnderstandingService.cs" />
+    <Compile Include="Services\AI_Services\Planning\ExecutionPlan.cs" />
+    <Compile Include="Services\AI_Services\Planning\QueryPlanner.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Sql\OracleSqlAstValidator.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Sql\SafeSqlExecutor.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Sql\ScopedSqlExecutor.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Sql\SqlGeneratorService.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Vector\QdrantService.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Vector\VectorSearchModels.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Hybrid\HybridRagService.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Hybrid\RagContextRetriever.cs" />
+    <Compile Include="Services\AI_Services\Responses\DeterministicResponseRenderer.cs" />
+    <Compile Include="Services\AI_Services\Responses\FastResponseService.cs" />
+    <Compile Include="Services\AI_Services\Responses\RagSynthesizer.cs" />
+    <Compile Include="Services\AI_Services\Providers\Ollama\OllamaService.cs" />
+    <Compile Include="Services\AI_Services\Prompts\JsonPromptManager.cs" />
+    <Compile Include="Services\AI_Services\Memory\Cache\AiCacheCoordinator.cs" />
+    <Compile Include="Services\AI_Services\Memory\Cache\AiCacheService.cs" />
+    <Compile Include="Services\AI_Services\Memory\Conversations\AiChatHistory.cs" />
+    <Compile Include="Services\AI_Services\Memory\Conversations\ConversationStateManager.cs" />
+    <Compile Include="Services\AI_Services\Security\Authorization\AiAuthorizationContext.cs" />
+    <Compile Include="Services\AI_Services\Security\Authorization\AiAuthorizationService.cs" />
+    <Compile Include="Services\AI_Services\Security\Authorization\AiCapabilityCatalog.cs" />
+    <Compile Include="Services\AI_Services\Security\Authorization\AiPolicyProvider.cs" />
+    <Compile Include="Services\AI_Services\Security\Scopes\AiScopeEvaluator.cs" />
+    <Compile Include="Services\AI_Services\Security\Scopes\AiScopeGrantManagementService.cs" />
+    <Compile Include="Services\AI_Services\Security\Scopes\AiScopeGrantModels.cs" />
+    <Compile Include="Services\AI_Services\Security\Scopes\AiScopePolicyResolver.cs" />
+    <Compile Include="Services\AI_Services\Security\Repositories\IAiScopeGrantRepository.cs" />
+    <Compile Include="Services\AI_Services\Security\Repositories\InMemoryAiScopeGrantRepository.cs" />
+    <Compile Include="Services\AI_Services\Security\Repositories\OracleAiScopeGrantRepository.cs" />
+    <Compile Include="Services\AI_Services\Security\Proofs\AiHmacProofService.cs" />
+    <Compile Include="Services\AI_Services\Indexing\AiDataSyncHub.cs" />
+    <Compile Include="Services\AI_Services\Indexing\QdrantOutboxManager.cs" />
     <Compile Include="Services\AI_Services\Interfaces\ILlmService.cs" />
-    <Compile Include="Services\AI_Services\Interfaces\IVectorService.cs" />
-    <Compile Include="Services\AI_Services\Interfaces\ISqlGenerator.cs" />
     <Compile Include="Services\AI_Services\Interfaces\IPromptManager.cs" />
-    <Compile Include="Services\AI_Services\Interfaces\ISafeSqlExecutor.cs" />
     <Compile Include="Services\AI_Services\Interfaces\IRagContextRetriever.cs" />
     <Compile Include="Services\AI_Services\Interfaces\IRagSynthesizer.cs" />
-    <Compile Include="Services\AI_Services\Core\SafeSqlExecutor.cs" />
-    <Compile Include="Services\AI_Services\Core\RagContextRetriever.cs" />
-    <Compile Include="Services\AI_Services\Core\RagSynthesizer.cs" />
-    <Compile Include="Services\AI_Services\Core\JsonPromptManager.cs" />
-    <Compile Include="Services\AI_Services\AiServiceLocator.cs" />
-    <Compile Include="Services\AI_Services\Vector\AiDataSyncHub.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\ISafeSqlExecutor.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\IScopedSqlExecutor.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\ISqlGenerator.cs" />
+    <Compile Include="Services\AI_Services\Interfaces\IVectorService.cs" />
+    <Compile Include="Services\AI_Services\Runtime\Time\IClockProvider.cs" />
     <Compile Include="CLASS_SECURITY\AuthModels.cs" />
     <Compile Include="CLASS_SECURITY\AuthAuditService.cs" />
     <Compile Include="CLASS_SECURITY\SessionPolicyService.cs" />
     <Compile Include="CLASS_SECURITY\AuthSecurityService.cs" />
+    <Compile Include="CLASS_SECURITY\PlatformAccessResolver.cs" />
+    <Compile Include="CLASS_SECURITY\PlatformAccessService.cs" />
+    <Compile Include="CLASS_SECURITY\ChannelCapabilityRegistry.cs" />
+    <Compile Include="CLASS_SECURITY\ChannelPermissionResolver.cs" />
+    <Compile Include="CLASS_SECURITY\PlatformAccessGuard.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

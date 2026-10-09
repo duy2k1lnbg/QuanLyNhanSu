@@ -56,6 +56,7 @@ namespace DA
         public virtual DbSet<TB_SYS_GROUP> TB_SYS_GROUP { get; set; }
         public virtual DbSet<TB_SYS_REPORT> TB_SYS_REPORT { get; set; }
         public virtual DbSet<TB_SYS_RIGHT> TB_SYS_RIGHT { get; set; }
+        public virtual DbSet<TB_SYS_RIGHT_CHANNEL> TB_SYS_RIGHT_CHANNEL { get; set; }
         public virtual DbSet<TB_SYS_RIGHT_REPORT> TB_SYS_RIGHT_REPORT { get; set; }
         public virtual DbSet<TB_SYS_USER> TB_SYS_USER { get; set; }
         public virtual DbSet<TB_TANGCA> TB_TANGCA { get; set; }

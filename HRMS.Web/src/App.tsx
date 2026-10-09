@@ -708,6 +708,8 @@ export function App() {
 
       {/* Drawer AI Copilot */}
       <AiChatDrawer
+        key={currentUser.IdUser}
+        userId={currentUser.IdUser}
         open={aiDrawerVisible}
         onClose={() => setAiDrawerVisible(false)}
         isMobile={typeof window !== 'undefined' && window.innerWidth < 768}

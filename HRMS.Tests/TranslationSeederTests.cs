@@ -61,7 +61,9 @@ namespace HRMS.Tests
             using (var db = new MyEntities())
             {
                 var functions = db.TB_SYS_FUNCTION.ToList();
-                Assert.AreEqual(58, functions.Count, "System should have exactly 58 seeded functions");
+                var businessFunctions = functions.Where(f => !Bu.CLASS_SECURITY.PlatformFunctionCodes.IsPlatformFunction(f.FUNCTION_CODE)).ToList();
+                Assert.AreEqual(58, businessFunctions.Count, "System should have exactly 58 seeded business functions");
+                Assert.AreEqual(61, functions.Count, "System should have 61 total functions including 3 platform login codes");
 
                 foreach (var f in functions)
                 {

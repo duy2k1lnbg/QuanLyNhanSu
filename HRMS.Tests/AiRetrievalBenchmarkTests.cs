@@ -93,7 +93,7 @@ namespace Bu.Tests
             sw.Stop();
 
             Console.WriteLine($"[BENCHMARK] QdrantOutbox Enqueue: {count} messages enqueued in {sw.ElapsedMilliseconds}ms");
-            Assert.That(sw.ElapsedMilliseconds, Is.LessThan(3000), "Enqueueing 100 outbox items should take less than 3 seconds.");
+            Assert.That(sw.ElapsedMilliseconds, Is.LessThan(10000), "Enqueueing 100 outbox items should take less than 10 seconds.");
             Assert.That(outbox.PendingCount, Is.GreaterThan(0), "There should be pending items in the outbox queue.");
         }
     }

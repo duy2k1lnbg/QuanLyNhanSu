@@ -21,6 +21,7 @@ namespace QLyNSu.FORM_SYSTEM
         private TB_SYS_USER _user;
         private bool _them;
         private bool _dataSaved; // Track if database was modified to notify parent on Close
+        private SimpleButton btnQuyenAi;
 
 
 
@@ -60,6 +61,7 @@ namespace QLyNSu.FORM_SYSTEM
                     txtMoTa.Text = _user.FULLNAME;
                     tapThanhVien.PageEnabled = true;
                     if (btnXoaNhom != null) btnXoaNhom.Enabled = true;
+                    if (btnQuyenAi != null) btnQuyenAi.Enabled = true;
                     loadMembers();
                 }
             }
@@ -75,6 +77,7 @@ namespace QLyNSu.FORM_SYSTEM
             txtMoTa.Text = string.Empty;
             tapThanhVien.PageEnabled = false;
             if (btnXoaNhom != null) btnXoaNhom.Enabled = false;
+            if (btnQuyenAi != null) btnQuyenAi.Enabled = false;
             txtTenNhom.Focus();
         }
 
@@ -118,6 +121,34 @@ namespace QLyNSu.FORM_SYSTEM
             // Register button click handlers for members management
             simpleButton3.Click += btnThemThanhVien_Click; // Add member
             simpleButton4.Click += btnXoaThanhVien_Click; // Remove member
+
+            // Thêm nút Quyền tra cứu AI cho nhóm (Chỉ hiển thị và bật khi là Admin)
+            btnQuyenAi = new SimpleButton
+            {
+                Text = "Quyền tra cứu AI...",
+                Size = new Size(160, 40),
+                Location = new Point(btnLuu.Location.X - 170, btnLuu.Location.Y),
+                Visible = UserSession.IsAdmin,
+                Enabled = !_them && _user != null && UserSession.IsAdmin
+            };
+            btnQuyenAi.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+            btnQuyenAi.Appearance.Options.UseFont = true;
+            btnQuyenAi.Click += (s, ev) =>
+            {
+                if (!UserSession.IsAdmin)
+                {
+                    MessageBox.Show("Chỉ Quản trị viên hệ thống (Admin) mới có quyền quản trị quyền tra cứu AI.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
+                if (_user != null)
+                {
+                    using (var frm = new FrmAiScopeGrantDetail((int)_user.IDUSER, _user.USERNAME, _user.FULLNAME, isGroup: true))
+                    {
+                        frm.ShowDialog(this);
+                    }
+                }
+            };
+            this.Controls.Add(btnQuyenAi);
 
             loadGroups();
 

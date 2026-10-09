@@ -257,6 +257,7 @@ namespace HRMS.Tests
                 decimal oldAnCa = bl.TIEN_AN_CA ?? 730000m;
                 decimal oldCongKhac = bl.KHOAN_CONG_KHAC ?? 200000m;
                 decimal oldTruKhac = bl.KHOAN_TRU_KHAC ?? 100000m;
+                decimal oldPhuCap = bl.PHUCAP_CONG_THUCTE ?? 300000m;
 
                 var items = new List<Bu.CLASS_PAYROLL.SalaryAdjustmentItemDto>
                 {
@@ -269,10 +270,10 @@ namespace HRMS.Tests
                     },
                     new Bu.CLASS_PAYROLL.SalaryAdjustmentItemDto
                     {
-                        KhoanMuc = "Tiền làm thêm giờ (OT)",
+                        KhoanMuc = "Phụ cấp công thực tế",
                         IsDeduction = false,
-                        GiaTriCu = oldTangCa,
-                        GiaTriMoi = oldTangCa + 200000m
+                        GiaTriCu = oldPhuCap,
+                        GiaTriMoi = oldPhuCap + 200000m
                     },
                     new Bu.CLASS_PAYROLL.SalaryAdjustmentItemDto
                     {
@@ -422,11 +423,24 @@ namespace HRMS.Tests
         [Test]
         public void Test_UserSession_DetailedRights_Checked_Correctly()
         {
-            UserSession.CurrentUser = new TB_SYS_USER { IDUSER = 100, USERNAME = "test_staff" };
+            UserSession.Clear();
+            UserSession.CurrentUser = new TB_SYS_USER { IDUSER = 100, USERNAME = "test_staff", DISABLED = 0 };
+            UserSession.CurrentChannel = "DESKTOP";
+            UserSession.CurrentSessionId = "sess-100";
+            UserSession.CurrentJti = "jti-100";
+            UserSession.ParentDesktopOn = true;
             if (UserSession.UserRights != null) UserSession.UserRights.Clear();
             else UserSession.UserRights = new List<string>();
             if (UserSession.DetailedRights != null) UserSession.DetailedRights.Clear();
             else UserSession.DetailedRights = new Dictionary<string, Bu.DTO.UserRightDetail>(StringComparer.OrdinalIgnoreCase);
+
+            // Nạp quyền cha F_LOGIN_DESKTOP và quyền con F_CC_BANGLUONG
+            UserSession.DetailedRights["F_LOGIN_DESKTOP"] = new Bu.DTO.UserRightDetail
+            {
+                FUNCTION_CODE = "F_LOGIN_DESKTOP",
+                CAN_VIEW = true
+            };
+            UserSession.UserRights.Add("F_LOGIN_DESKTOP");
 
             // Grant view only to F_CC_BANGLUONG
             UserSession.DetailedRights["F_CC_BANGLUONG"] = new Bu.DTO.UserRightDetail

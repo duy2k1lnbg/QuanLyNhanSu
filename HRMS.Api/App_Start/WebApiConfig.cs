@@ -10,7 +10,7 @@ namespace HRMS_API
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
-            config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+            config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Never;
             config.MessageHandlers.Add(new CorsHandler());
 
             // Luôn trả về JSON thay vì XML khi mở trên trình duyệt web

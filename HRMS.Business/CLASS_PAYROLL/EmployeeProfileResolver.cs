@@ -172,18 +172,26 @@ namespace Bu.CLASS_PAYROLL
 
         public List<DependentDto> GetActiveDependents(decimal manv, int kyCong)
         {
-            using (var db = new MyEntities())
+            try
             {
-                return db.Database.SqlQuery<DependentDto>(@"
-                    SELECT ID, MANV, HO_TEN, MOI_QUAN_HE, CCCD, MA_SO_THUE_NPT, NGAY_SINH,
-                           THANG_BAT_DAU_GIAM_TRU, THANG_KET_THUC_GIAM_TRU, TRANG_THAI
-                    FROM TB_NGUOI_PHU_THUOC
-                    WHERE MANV = :p0 AND TRANG_THAI = 'ACTIVE'
-                      AND THANG_BAT_DAU_GIAM_TRU <= :p1
-                      AND (THANG_KET_THUC_GIAM_TRU IS NULL OR THANG_KET_THUC_GIAM_TRU >= :p1)",
-                    new OracleParameter("p0", manv),
-                    new OracleParameter("p1", kyCong)
-                ).ToList();
+                using (var db = new MyEntities())
+                {
+                    return db.Database.SqlQuery<DependentDto>(@"
+                        SELECT ID, MANV, HO_TEN, MOI_QUAN_HE, CCCD, MA_SO_THUE_NPT, NGAY_SINH,
+                               THANG_BAT_DAU_GIAM_TRU, THANG_KET_THUC_GIAM_TRU, TRANG_THAI
+                        FROM TB_NGUOI_PHU_THUOC
+                        WHERE MANV = :p0 AND TRANG_THAI = 'ACTIVE'
+                          AND THANG_BAT_DAU_GIAM_TRU <= :p1
+                          AND (THANG_KET_THUC_GIAM_TRU IS NULL OR THANG_KET_THUC_GIAM_TRU >= :p1)",
+                        new OracleParameter("p0", manv),
+                        new OracleParameter("p1", kyCong)
+                    ).ToList();
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceWarning($"GetActiveDependents fallback to empty: {ex.Message}");
+                return new List<DependentDto>();
             }
         }
     }

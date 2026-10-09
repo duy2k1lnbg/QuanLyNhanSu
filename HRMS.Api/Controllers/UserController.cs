@@ -1,3 +1,4 @@
+using Bu.CLASS_SECURITY;
 using Bu.CLASS_SYSTEM;
 using DA;
 using HRMS_API.Filters;
@@ -6,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace HRMS_API.Controllers
@@ -15,6 +17,8 @@ namespace HRMS_API.Controllers
     public class UserController : ApiController
     {
         private readonly SYS_USER _userBus = new SYS_USER();
+        private readonly IPlatformAccessService _platformService = new PlatformAccessService();
+        private readonly IChannelPermissionResolver _channelResolver = new ChannelPermissionResolver();
 
         /// <summary>
         /// GET: api/users
@@ -548,11 +552,12 @@ namespace HRMS_API.Controllers
         /// <summary>
         /// POST: api/users/{id}/toggle-mobile
         /// Bật/tắt quyền truy cập ứng dụng di động (Mobile Access)
+        /// Không ghi nhận trường legacy CLIENT_TYPE trên TB_SYS_USER. Cập nhật IS_MOBILE_ENABLED và thu hồi phiên MOBILE.
         /// </summary>
         [HttpPost]
         [Route("{id:int}/toggle-mobile")]
         [Route("~/api/user/{id:int}/toggle-mobile")]
-        public IHttpActionResult ToggleMobile(int id, [FromBody] ToggleMobileRequest req)
+        public async Task<IHttpActionResult> ToggleMobile(int id, [FromBody] ToggleMobileRequest req)
         {
             try
             {
@@ -567,35 +572,229 @@ namespace HRMS_API.Controllers
                     {
                         return BadRequest("Tài khoản Quản trị viên tối cao (ADMIN) là tài khoản quản trị hệ thống, không áp dụng quyền truy cập ứng dụng di động.");
                     }
-
-                    int flagVal = targetState ? 1 : 0;
-
-                    // Cập nhật TB_USER_EMPLOYEE_MAPPING nếu đã có bản ghi
-                    db.Database.ExecuteSqlCommand(
-                        "UPDATE HR.TB_USER_EMPLOYEE_MAPPING SET IS_MOBILE_ENABLED = :p0, UPDATED_AT = SYSDATE WHERE USER_ID = :p1",
-                        new OracleParameter("p0", flagVal),
-                        new OracleParameter("p1", id)
-                    );
-
-                    // Cập nhật CLIENT_TYPE trên TB_SYS_USER
-                    user.CLIENT_TYPE = targetState ? "ALL" : "DESKTOP";
-                    db.SaveChanges();
-
-                    WriteAuditLog(db, targetState ? "ENABLE_MOBILE" : "DISABLE_MOBILE", user.IDUSER.ToString(),
-                        targetState ? $"Đã kích hoạt Mobile Access cho tài khoản [{user.USERNAME}]." : $"Đã vô hiệu hóa Mobile Access cho tài khoản [{user.USERNAME}].");
-
-                    return Ok(new
-                    {
-                        success = true,
-                        isMobileEnabled = targetState,
-                        message = targetState ? $"Đã kích hoạt Mobile Access cho tài khoản [{user.USERNAME}]." : $"Đã vô hiệu hóa Mobile Access cho tài khoản [{user.USERNAME}]."
-                    });
                 }
+
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                if (jwtUser == null || !decimal.TryParse(jwtUser.UserId, out decimal uid) || uid <= 0)
+                {
+                    return Unauthorized();
+                }
+                decimal actorUserId = uid;
+
+                string correlationId = Request.Headers.Contains("X-Correlation-Id")
+                    ? Request.Headers.GetValues("X-Correlation-Id").FirstOrDefault()
+                    : Guid.NewGuid().ToString();
+
+                bool ok = await _platformService.ToggleMobileAccessAsync(id, targetState, actorUserId, correlationId);
+                if (!ok)
+                {
+                    return Content(HttpStatusCode.BadRequest, new { success = false, message = "Không thể cập nhật quyền Mobile cho tài khoản." });
+                }
+
+                using (var db = new MyEntities())
+                {
+                    WriteAuditLog(db, targetState ? "ENABLE_MOBILE" : "DISABLE_MOBILE", id.ToString(),
+                        targetState ? $"Đã kích hoạt Mobile Access cho tài khoản #{id}." : $"Đã vô hiệu hóa Mobile Access và thu hồi các phiên Mobile cho tài khoản #{id}.");
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    isMobileEnabled = targetState,
+                    message = targetState ? "Đã kích hoạt Mobile Access cho tài khoản." : "Đã vô hiệu hóa Mobile Access và thu hồi các phiên Mobile cho tài khoản."
+                });
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi chuyển đổi quyền Mobile: " + ex.ToString());
                 return Content(System.Net.HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi cập nhật quyền Mobile." });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/users/{id}/platform-access
+        /// Lấy bảng tổng hợp quyền truy cập 3 nền tảng (Desktop, Web, Mobile) với Direct, Inherited, Effective, Readiness
+        /// </summary>
+        [HttpGet]
+        [Route("{id:int}/platform-access")]
+        [Route("~/api/user/{id:int}/platform-access")]
+        public async Task<IHttpActionResult> GetPlatformAccess(int id)
+        {
+            try
+            {
+                var summary = await _platformService.GetUserPlatformSummaryAsync(id);
+                if (summary == null) return NotFound();
+                return Ok(summary);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi khi lấy thông tin quyền nền tảng: " + ex.ToString());
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi lấy quyền nền tảng." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/users/{id}/platform-access
+        /// Cập nhật quyền truy cập 3 nền tảng (Desktop, Web, Mobile)
+        /// </summary>
+        [HttpPost]
+        [Route("{id:int}/platform-access")]
+        [Route("~/api/user/{id:int}/platform-access")]
+        public async Task<IHttpActionResult> SavePlatformAccess(int id, [FromBody] SavePlatformRightsRequest req)
+        {
+            try
+            {
+                if (req == null) return BadRequest("Dữ liệu yêu cầu không hợp lệ.");
+
+                req.TargetUserId = id;
+
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                if (jwtUser == null || !decimal.TryParse(jwtUser.UserId, out decimal uid) || uid <= 0)
+                {
+                    return Unauthorized();
+                }
+                req.ActorUserId = uid;
+
+                if (string.IsNullOrEmpty(req.CorrelationId))
+                {
+                    req.CorrelationId = Request.Headers.Contains("X-Correlation-Id")
+                        ? Request.Headers.GetValues("X-Correlation-Id").FirstOrDefault()
+                        : Guid.NewGuid().ToString();
+                }
+
+                var result = await _platformService.SavePlatformAccessAsync(req);
+                if (!result.Success)
+                {
+                    return Content(HttpStatusCode.BadRequest, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi khi lưu quyền nền tảng: " + ex.ToString());
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi lưu quyền nền tảng." });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/users/{id}/channel-permissions
+        /// Lấy bảng phân quyền chi tiết theo kênh (Desktop, Web, Mobile) có cây cha - con và khả năng hỗ trợ
+        /// </summary>
+        [HttpGet]
+        [Route("{id:int}/channel-permissions")]
+        [Route("~/api/user/{id:int}/channel-permissions")]
+        public IHttpActionResult GetChannelPermissions(int id)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    var result = _channelResolver.ResolveUserFullPermissions(db, id);
+                    if (result == null) return NotFound();
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi khi lấy thông tin quyền theo kênh: " + ex.ToString());
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi lấy quyền theo kênh." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/users/{id}/channel-permissions
+        /// Cập nhật quyền cha - con cho một kênh (Desktop, Web, Mobile)
+        /// </summary>
+        [HttpPost]
+        [Route("{id:int}/channel-permissions")]
+        [Route("~/api/user/{id:int}/channel-permissions")]
+        public async Task<IHttpActionResult> SaveChannelPermissions(int id, [FromBody] SaveChannelRightsRequest req)
+        {
+            try
+            {
+                if (req == null) return BadRequest("Dữ liệu yêu cầu không hợp lệ.");
+
+                req.TargetUserId = id;
+
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                if (jwtUser == null || !decimal.TryParse(jwtUser.UserId, out decimal uid) || uid <= 0)
+                {
+                    return Unauthorized();
+                }
+                req.ActorUserId = uid;
+
+                if (string.IsNullOrEmpty(req.CorrelationId))
+                {
+                    req.CorrelationId = Request.Headers.Contains("X-Correlation-Id")
+                        ? Request.Headers.GetValues("X-Correlation-Id").FirstOrDefault()
+                        : Guid.NewGuid().ToString();
+                }
+
+                var result = await _channelResolver.SaveChannelRightsAsync(req);
+                if (!result.Success)
+                {
+                    if (result.IsConflict)
+                    {
+                        return Content(HttpStatusCode.Conflict, result);
+                    }
+                    return Content(HttpStatusCode.BadRequest, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi khi lưu quyền theo kênh: " + ex.ToString());
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi lưu quyền theo kênh." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/users/{id}/channel-permissions/batch
+        /// Cập nhật quyền cha - con cho nhiều kênh (Desktop, Web, Mobile) trong cùng 1 transaction nguyên tử
+        /// </summary>
+        [HttpPost]
+        [Route("{id:int}/channel-permissions/batch")]
+        [Route("~/api/user/{id:int}/channel-permissions/batch")]
+        public async Task<IHttpActionResult> SaveBatchChannelPermissions(int id, [FromBody] BatchSaveChannelRightsRequest req)
+        {
+            try
+            {
+                if (req == null) return BadRequest("Dữ liệu yêu cầu không hợp lệ.");
+
+                req.TargetUserId = id;
+
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                if (jwtUser == null || !decimal.TryParse(jwtUser.UserId, out decimal uid) || uid <= 0)
+                {
+                    return Unauthorized();
+                }
+                req.ActorUserId = uid;
+
+                if (string.IsNullOrEmpty(req.CorrelationId))
+                {
+                    req.CorrelationId = Request.Headers.Contains("X-Correlation-Id")
+                        ? Request.Headers.GetValues("X-Correlation-Id").FirstOrDefault()
+                        : Guid.NewGuid().ToString();
+                }
+
+                var result = await _channelResolver.SaveBatchChannelRightsAsync(req);
+                if (!result.Success)
+                {
+                    if (result.IsConflict)
+                    {
+                        return Content(HttpStatusCode.Conflict, result);
+                    }
+                    return Content(HttpStatusCode.BadRequest, result);
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("Lỗi khi lưu quyền theo kênh (batch): " + ex.ToString());
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Đã xảy ra lỗi khi lưu quyền theo kênh." });
             }
         }
 
@@ -742,12 +941,14 @@ namespace HRMS_API.Controllers
                         LEFT JOIN HR.TB_SYS_USER U ON (M.USER_ID = U.IDUSER OR (NV.MANV = U.MANV AND (U.ISGROUP IS NULL OR U.ISGROUP = 0)))
                         WHERE NV.DELETED_BY IS NULL";
 
+                    var sqlParams = new List<object>();
                     if (req.DepartmentId.HasValue && req.DepartmentId.Value > 0)
                     {
-                        sql += $" AND NV.IDPB = {req.DepartmentId.Value}";
+                        sql += " AND NV.IDPB = :pDeptId";
+                        sqlParams.Add(new OracleParameter("pDeptId", req.DepartmentId.Value));
                     }
 
-                    var rawList = db.Database.SqlQuery<UserDirectoryRow>(sql).ToList();
+                    var rawList = db.Database.SqlQuery<UserDirectoryRow>(sql, sqlParams.ToArray()).ToList();
 
                     int totalEligible = 0;
                     int alreadyHaveAccount = 0;
@@ -1279,9 +1480,16 @@ namespace HRMS_API.Controllers
 
                 using (var db = new MyEntities())
                 {
-                    // Lấy tất cả các quyền hiện có của user
-                    var existing = db.TB_SYS_RIGHT.Where(r => r.IDUSER == id).ToList();
-                    db.TB_SYS_RIGHT.RemoveRange(existing);
+                    var platformCodes = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                    {
+                        PlatformFunctionCodes.LoginDesktop,
+                        PlatformFunctionCodes.LoginWeb,
+                        PlatformFunctionCodes.LoginMobile
+                    };
+
+                    // Chỉ xóa các quyền nghiệp vụ thông thường, BẢO TOÀN các quyền nền tảng đã cấp
+                    var existingNonPlatform = db.TB_SYS_RIGHT.Where(r => r.IDUSER == id && !platformCodes.Contains(r.FUNCTION_CODE)).ToList();
+                    db.TB_SYS_RIGHT.RemoveRange(existingNonPlatform);
                     db.SaveChanges();
 
                     if (req != null && req.Details != null && req.Details.Count > 0)
@@ -1289,6 +1497,8 @@ namespace HRMS_API.Controllers
                         foreach (var d in req.Details)
                         {
                             if (string.IsNullOrEmpty(d.FunctionCode)) continue;
+                            if (platformCodes.Contains(d.FunctionCode)) continue; // Quyền nền tảng chỉ được cấu hình qua endpoint platform-access
+
                             bool canView = d.CanView ?? false;
                             bool canAdd = d.CanAdd ?? false;
                             bool canEdit = d.CanEdit ?? false;
@@ -1313,6 +1523,8 @@ namespace HRMS_API.Controllers
                         // Thêm các quyền mới (backward compatible: codes được cấp đủ 5 quyền)
                         foreach (var code in codes.Distinct())
                         {
+                            if (platformCodes.Contains(code)) continue;
+
                             db.TB_SYS_RIGHT.Add(new TB_SYS_RIGHT
                             {
                                 IDUSER = id,
@@ -1327,6 +1539,23 @@ namespace HRMS_API.Controllers
                         }
                     }
                     db.SaveChanges();
+
+                    // Cập nhật TOKEN_VERSION và thu hồi session để token mới nhận lại claims quyền nghiệp vụ
+                    var targetUser = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == id);
+                    if (targetUser != null && (targetUser.ISGROUP ?? 0) == 1)
+                    {
+                        var memberIds = db.TB_SYS_GROUP.Where(g => g.ID_GROUP == id).Select(g => g.MEMBER).ToList();
+                        foreach (var mId in memberIds)
+                        {
+                            db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_USER SET TOKEN_VERSION = NVL(TOKEN_VERSION, 1) + 1 WHERE IDUSER = :p0", new OracleParameter("p0", mId));
+                            db.Database.ExecuteSqlCommand("UPDATE HR.TB_AUTH_SESSION SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'PERMISSIONS_CHANGED' WHERE USER_ID = :p0 AND REVOKED_AT IS NULL", new OracleParameter("p0", mId));
+                        }
+                    }
+                    else
+                    {
+                        db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_USER SET TOKEN_VERSION = NVL(TOKEN_VERSION, 1) + 1 WHERE IDUSER = :p0", new OracleParameter("p0", id));
+                        db.Database.ExecuteSqlCommand("UPDATE HR.TB_AUTH_SESSION SET REVOKED_AT = CURRENT_TIMESTAMP, REVOKE_REASON = 'PERMISSIONS_CHANGED' WHERE USER_ID = :p0 AND REVOKED_AT IS NULL", new OracleParameter("p0", id));
+                    }
 
                     int count = (req != null && req.Details != null && req.Details.Count > 0) ? req.Details.Count : codes.Count;
                     return Ok(new { success = true, message = $"Đã cập nhật phân quyền thành công cho tài khoản/nhóm #{id} ({count} quyền)." });

@@ -59,6 +59,31 @@ namespace QLyNSu.FORM_SYSTEM
                     btnDong.Location = new Point(btnDong.Location.X, btnDong.Location.Y - 50);
                     this.Height -= 50;
                 }
+
+                // Nút cấu hình Quyền tra cứu AI cho tài khoản (Chỉ hiển thị và cho phép khi là Admin)
+                var btnQuyenAi = new SimpleButton
+                {
+                    Text = "Quyền tra cứu AI...",
+                    Size = new Size(155, 40),
+                    Location = new Point(35, btnLuu.Location.Y),
+                    Visible = UserSession.IsAdmin,
+                    Enabled = UserSession.IsAdmin
+                };
+                btnQuyenAi.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
+                btnQuyenAi.Appearance.Options.UseFont = true;
+                btnQuyenAi.Click += (s, ev) =>
+                {
+                    if (!UserSession.IsAdmin)
+                    {
+                        MessageBox.Show("Chỉ Quản trị viên hệ thống (Admin) mới có quyền quản trị quyền tra cứu AI.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        return;
+                    }
+                    using (var frmAi = new FrmAiScopeGrantDetail((int)_selectedUser.IDUSER, _selectedUser.USERNAME, _selectedUser.FULLNAME, isGroup: false))
+                    {
+                        frmAi.ShowDialog(this);
+                    }
+                };
+                this.Controls.Add(btnQuyenAi);
             }
             else
             {
