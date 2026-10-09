@@ -1,6 +1,7 @@
 using Bu.CLASS_CHAMCONG;
 using Bu.CLASS_NHANSU;
 using DA;
+using HRMS.Tests;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace Bu.Tests
         [Test]
         public void Fix_All_Mojibake_In_Database()
         {
+            TestTargetGuard.EnsureSafeToMutate("Fix_All_Mojibake_In_Database requires explicit target authorization");
+
             using (var db = new MyEntities())
             {
                 // 1. Chuẩn hóa TB_LOAICONG
@@ -83,6 +86,8 @@ namespace Bu.Tests
         [Test]
         public void Seed_Realistic_TestData_For_Objective_Testing()
         {
+            TestTargetGuard.EnsureSafeToMutate("Seed_Realistic_TestData_For_Objective_Testing requires authorized test schema target");
+
             using (var db = new MyEntities())
             {
                 // Lấy danh sách nhân viên đang làm việc để chèn dữ liệu test
@@ -259,6 +264,8 @@ namespace Bu.Tests
         [Test]
         public void Apply_Migration_V1_12_Mobile_User_Employee_Link()
         {
+            TestTargetGuard.EnsureSafeToMutate("Apply_Migration_V1_12_Mobile_User_Employee_Link requires authorized test schema target");
+
             using (var db = new MyEntities())
             {
                 // 1. Add MANV column to TB_SYS_USER if missing
@@ -319,31 +326,52 @@ namespace Bu.Tests
         [Test]
         public void Provision_All_Employees_To_Sys_User()
         {
+            TestTargetGuard.EnsureSafeToMutate("Provision_All_Employees_To_Sys_User requires explicit authorization and isolated target");
+
             using (var db = new MyEntities())
             {
-                // Ensure ADMIN password is "admin"
+                // Ensure ADMIN exists without overwriting existing credentials
                 var admin = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "ADMIN");
-                if (admin != null)
+                if (admin == null)
                 {
-                    admin.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("admin");
-                    admin.DISABLED = 0;
-                    admin.CLIENT_TYPE = "ALL";
-                    admin.FAILED_LOGIN_COUNT = 0;
-                    admin.LOCKOUT_END = null;
+                    admin = new TB_SYS_USER
+                    {
+                        IDUSER = 1,
+                        USERNAME = "ADMIN",
+                        FULLNAME = "System Administrator",
+                        PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("admin"),
+                        DISABLED = 0,
+                        CLIENT_TYPE = "ALL",
+                        ISGROUP = 0,
+                        MACTY = "1",
+                        MADVI = "1"
+                    };
+                    db.TB_SYS_USER.Add(admin);
+                    db.SaveChanges();
                 }
 
-                // Also update staff users
+                // Ensure staff users exist without overwriting existing credentials
                 var staffUsers = new[] { "nhansu", "chamcong", "baocao", "it_user" };
                 foreach (var uname in staffUsers)
                 {
                     var u = db.TB_SYS_USER.FirstOrDefault(x => x.USERNAME == uname);
-                    if (u != null)
+                    if (u == null)
                     {
-                        u.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("123456");
-                        u.DISABLED = 0;
+                        var staff = new TB_SYS_USER
+                        {
+                            USERNAME = uname,
+                            FULLNAME = uname,
+                            PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("123456"),
+                            DISABLED = 0,
+                            CLIENT_TYPE = "ALL",
+                            ISGROUP = 0,
+                            MACTY = "1",
+                            MADVI = "1"
+                        };
+                        db.TB_SYS_USER.Add(staff);
+                        db.SaveChanges();
                     }
                 }
-                db.SaveChanges();
 
                 // Get all active employees
                 var employees = db.TB_NHANVIEN

@@ -2,6 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using DA;
+using HRMS.Tests;
 
 namespace Bu.Tests
 {
@@ -114,13 +115,16 @@ namespace Bu.Tests
                 Assert.IsNotNull(admin, "Tài khoản ADMIN phải tồn tại.");
 
                 // Quy tắc: Tài khoản Quản trị viên tối cao (ADMIN) là tài khoản hệ thống, không được phép liên kết với hồ sơ nhân viên
-                if (admin.MANV.HasValue)
+                if (TestTargetGuard.IsSafeForDatabaseMutation)
                 {
-                    admin.MANV = null;
-                    db.SaveChanges();
+                    if (admin.MANV.HasValue)
+                    {
+                        admin.MANV = null;
+                        db.SaveChanges();
+                    }
+                    db.Database.ExecuteSqlCommand("DELETE FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0",
+                        new Oracle.ManagedDataAccess.Client.OracleParameter("p0", admin.IDUSER));
                 }
-                db.Database.ExecuteSqlCommand("DELETE FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0",
-                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", admin.IDUSER));
 
                 Assert.IsNull(admin.MANV, "Tài khoản ADMIN không được liên kết với hồ sơ nhân viên.");
 
@@ -129,7 +133,7 @@ namespace Bu.Tests
                 Assert.AreEqual(141, nhansu.MANV, "Tài khoản nhansu phải liên kết MANV 141.");
 
                 var nv2327 = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "nv2327" || u.MANV == 2327);
-                if (nv2327 == null)
+                if (nv2327 == null && TestTargetGuard.IsSafeForDatabaseMutation)
                 {
                     var emp = db.TB_NHANVIEN.FirstOrDefault(e => e.MANV == 2327);
                     if (emp != null)
@@ -150,9 +154,8 @@ namespace Bu.Tests
                         db.SaveChanges();
                     }
                 }
-                else
+                else if (nv2327 != null && TestTargetGuard.IsSafeForDatabaseMutation)
                 {
-                    nv2327.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("123");
                     nv2327.DISABLED = 0;
                     nv2327.CLIENT_TYPE = "ALL";
                     db.SaveChanges();
@@ -162,8 +165,11 @@ namespace Bu.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void TestDisabledUserLoginThrowsAccountLocked()
         {
+            TestTargetGuard.EnsureSafeToMutate("TestDisabledUserLoginThrowsAccountLocked requires isolated test schema to alter user state");
+
             using (var db = new MyEntities())
             {
                 // Find a non-admin user to test with
@@ -436,26 +442,20 @@ namespace Bu.Tests
         {
             using (var db = new MyEntities())
             {
-                var admin = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "ADMIN");
-                if (admin != null)
-                {
-                    admin.PASSWORD = Bu.CLASS_SYSTEM.PasswordHasher.HashPassword("admin");
-                    admin.DISABLED = 0;
-                    admin.CLIENT_TYPE = "ALL";
-                    admin.MANV = null;
-                    db.SaveChanges();
-                    db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_USER SET FAILED_LOGIN_COUNT = 0, LOCKOUT_END = NULL WHERE IDUSER = :id",
-                        new Oracle.ManagedDataAccess.Client.OracleParameter("id", admin.IDUSER));
-                }
+                var admin = db.TB_SYS_USER.AsNoTracking().FirstOrDefault(u => u.USERNAME == "ADMIN");
+                Assert.IsNotNull(admin, "Tài khoản ADMIN phải tồn tại.");
 
-                var users = db.Database.SqlQuery<UserCheckRow>("SELECT IDUSER, USERNAME, PASSWORD, ISGROUP, DISABLED, CLIENT_TYPE, MANV, FAILED_LOGIN_COUNT, LOCKOUT_END FROM HR.TB_SYS_USER WHERE UPPER(TRIM(USERNAME)) = 'ADMIN' OR UPPER(TRIM(USERNAME)) = 'NHANSU'").ToList();
+                var users = db.Database.SqlQuery<UserCheckRow>(@"
+                    SELECT IDUSER, USERNAME, PASSWORD, ISGROUP, DISABLED, CLIENT_TYPE, MANV, FAILED_LOGIN_COUNT, LOCKOUT_END 
+                    FROM HR.TB_SYS_USER 
+                    WHERE UPPER(TRIM(USERNAME)) = 'ADMIN' OR UPPER(TRIM(USERNAME)) = 'NHANSU'").ToList();
+
                 foreach (var u in users)
                 {
-                    bool matchAdmin = Bu.CLASS_SYSTEM.PasswordHasher.VerifyPassword("ADMIN", u.PASSWORD);
-                    bool matchAdminLower = Bu.CLASS_SYSTEM.PasswordHasher.VerifyPassword("admin", u.PASSWORD);
-                    bool match123 = Bu.CLASS_SYSTEM.PasswordHasher.VerifyPassword("123", u.PASSWORD);
-                    bool match123456 = Bu.CLASS_SYSTEM.PasswordHasher.VerifyPassword("123456", u.PASSWORD);
-                    Console.WriteLine($"USER: ID={u.IDUSER}, NAME='{u.USERNAME}', ISGROUP={u.ISGROUP}, DISABLED={u.DISABLED}, CLIENT_TYPE='{u.CLIENT_TYPE}', MANV={u.MANV}, FAILED={u.FAILED_LOGIN_COUNT}, LOCKOUT={u.LOCKOUT_END}, MatchADMIN={matchAdmin}, Matchadmin={matchAdminLower}, Match123={match123}, Match123456={match123456}");
+                    bool hasPassword = !string.IsNullOrEmpty(u.PASSWORD);
+                    int pwLen = u.PASSWORD?.Length ?? 0;
+                    bool isBcrypt = hasPassword && (u.PASSWORD.StartsWith("$2a$") || u.PASSWORD.StartsWith("$2b$") || u.PASSWORD.StartsWith("$2y$"));
+                    Console.WriteLine($"USER: ID={u.IDUSER}, NAME='{u.USERNAME}', ISGROUP={u.ISGROUP}, DISABLED={u.DISABLED}, CLIENT_TYPE='{u.CLIENT_TYPE}', MANV={u.MANV}, FAILED={u.FAILED_LOGIN_COUNT}, LOCKOUT={u.LOCKOUT_END}, HasPassword={hasPassword}, PwLength={pwLen}, IsBCrypt={isBcrypt}");
                 }
             }
         }

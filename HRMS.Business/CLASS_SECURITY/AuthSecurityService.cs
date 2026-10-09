@@ -109,6 +109,7 @@ namespace Bu.CLASS_SECURITY
             if (string.IsNullOrWhiteSpace(usernameOrEmpCode) || string.IsNullOrWhiteSpace(password))
             {
                 result.Success = false;
+                result.FailureReason = "MISSING_CREDENTIALS";
                 result.ErrorMessage = "Vui lòng nhập tên đăng nhập và mật khẩu.";
                 return result;
             }
@@ -155,6 +156,7 @@ namespace Bu.CLASS_SECURITY
                                     false, "GROUP_CANNOT_LOGIN", correlationId
                                 ).ConfigureAwait(false);
                                 result.Success = false;
+                                result.FailureReason = "GROUP_CANNOT_LOGIN";
                                 result.ErrorMessage = "Nhóm người dùng không thể dùng để đăng nhập.";
                                 transaction.Commit();
                                 return result;
@@ -210,6 +212,7 @@ namespace Bu.CLASS_SECURITY
                             ).ConfigureAwait(false);
 
                             result.Success = false;
+                            result.FailureReason = "INVALID_CREDENTIALS";
                             result.ErrorMessage = "Mã đăng nhập hoặc mật khẩu không chính xác.";
                             transaction.Commit();
                             return result;
@@ -228,6 +231,7 @@ namespace Bu.CLASS_SECURITY
                         if (lockedUser == null)
                         {
                             result.Success = false;
+                            result.FailureReason = "INVALID_CREDENTIALS";
                             result.ErrorMessage = "Mã đăng nhập hoặc mật khẩu không chính xác.";
                             transaction.Commit();
                             return result;
@@ -249,6 +253,7 @@ namespace Bu.CLASS_SECURITY
                             ).ConfigureAwait(false);
 
                             result.Success = false;
+                            result.FailureReason = "ACCOUNT_DISABLED";
                             result.ErrorMessage = "Tài khoản này đang bị vô hiệu hóa. Vui lòng liên hệ Quản trị viên.";
                             transaction.Commit();
                             return result;
@@ -265,6 +270,7 @@ namespace Bu.CLASS_SECURITY
                             ).ConfigureAwait(false);
 
                             result.Success = false;
+                            result.FailureReason = "ACCOUNT_LOCKED";
                             result.IsLocked = true;
                             result.IsLockedOut = true;
                             result.LockoutMinutes = remainingMinutes;
@@ -337,6 +343,7 @@ namespace Bu.CLASS_SECURITY
                             result.Success = false;
                             if (newLockout.HasValue)
                             {
+                                result.FailureReason = "ACCOUNT_LOCKED_NOW";
                                 result.IsLocked = true;
                                 result.IsLockedOut = true;
                                 result.LockoutMinutes = policy.LOCKOUT_DURATION_MINUTES;
@@ -345,7 +352,8 @@ namespace Bu.CLASS_SECURITY
                             }
                             else
                             {
-                                result.ErrorMessage = "Mã đăng nhập hoặc mật khẩu không chính xác.";
+                                result.FailureReason = "WRONG_PASSWORD";
+                                result.ErrorMessage = "Tên đăng nhập hoặc mật khẩu không chính xác.";
                             }
                             transaction.Commit();
                             return result;
@@ -459,6 +467,7 @@ namespace Bu.CLASS_SECURITY
                                 ).ConfigureAwait(false);
 
                                 result.Success = false;
+                                result.FailureReason = "SESSION_LIMIT_EXCEEDED";
                                 result.ErrorMessage = $"Tài khoản đã đạt giới hạn tối đa {policy.MAX_ACTIVE_SESSIONS} phiên đăng nhập đồng thời. Vui lòng đăng xuất ở thiết bị khác trước.";
                                 transaction.Commit();
                                 return result;
@@ -644,33 +653,20 @@ namespace Bu.CLASS_SECURITY
                         result.TokenVersion = (long)lockedUser.TOKEN_VERSION;
                         result.ExpiresAt = sessionExpiresAt;
 
-                        // Chuẩn bị thông tin trả về
-                        result.User = new
+                        // Chuẩn bị thực thể người dùng cho Desktop
+                        var sysUserEntity = new DA.TB_SYS_USER
                         {
-                            IdUser = (int)lockedUser.IDUSER,
-                            id = (int)lockedUser.IDUSER,
-                            Username = lockedUser.USERNAME,
-                            username = lockedUser.USERNAME,
-                            FullName = lockedUser.FULLNAME ?? lockedUser.USERNAME,
-                            fullName = lockedUser.FULLNAME ?? lockedUser.USERNAME,
-                            IsAdmin = isRootAdmin,
-                            isAdmin = isRootAdmin,
-                            Rights = distinctRights,
-                            rights = distinctRights,
-                            DetailedRights = detailedRights,
-                            detailedRights = detailedRights,
-                            manv = freshManv,
-                            Manv = freshManv,
-                            employeeCode = freshEmpCode,
-                            EmployeeCode = freshEmpCode,
-                            isMobileEnabled = freshMobileEnabled,
-                            IsMobileEnabled = freshMobileEnabled,
-                            clientType = clientType,
-                            ClientType = clientType,
-                            MaCty = lockedUser.MACTY,
-                            MaDvi = lockedUser.MADVI,
-                            TokenVersion = (long)lockedUser.TOKEN_VERSION
+                            IDUSER = lockedUser.IDUSER,
+                            USERNAME = lockedUser.USERNAME,
+                            FULLNAME = lockedUser.FULLNAME ?? lockedUser.USERNAME,
+                            MACTY = lockedUser.MACTY,
+                            MADVI = lockedUser.MADVI,
+                            MANV = freshManv,
+                            DISABLED = lockedUser.DISABLED,
+                            ISGROUP = lockedUser.ISGROUP,
+                            CLIENT_TYPE = clientType
                         };
+                        result.User = sysUserEntity;
 
                         return result;
                     }
@@ -679,7 +675,8 @@ namespace Bu.CLASS_SECURITY
                         transaction.Rollback();
                         System.Diagnostics.Trace.TraceError("[AuthSecurityService] AuthenticateAsync error: " + ex);
                         result.Success = false;
-                        result.ErrorMessage = "Lỗi hệ thống khi xác thực đăng nhập: " + ex.Message;
+                        result.FailureReason = "DATABASE_ERROR";
+                        result.ErrorMessage = "Không thể kết nối hoặc xảy ra lỗi dịch vụ xác thực. Vui lòng thử lại sau.";
                         return result;
                     }
                 }

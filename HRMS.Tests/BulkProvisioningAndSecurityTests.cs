@@ -7,6 +7,7 @@ using System.Text;
 using System.Web.Script.Serialization;
 using Bu.CLASS_SYSTEM;
 using DA;
+using HRMS.Tests;
 using HRMS_API.Services;
 using NUnit.Framework;
 
@@ -23,25 +24,12 @@ namespace Bu.Tests
         public void Setup()
         {
             Environment.SetEnvironmentVariable("HRMS_JWT_SECRET", "c74b9f5e18a2d36f9014b2e8ca95173f4e6d2081a95b3c7e1f4082d6e9a3b7c1");
+            
+            // Resolve actual admin ID dynamically; do NOT mutate live database or hardcode ID=1
+            decimal adminId = TestTargetGuard.ResolveAdminUserId();
             _adminJwt = JwtService.GenerateToken(
-                1, "ADMIN", "Administrator", true, new List<string> { "*" }, "CTY01", "DVI01", "1", "WEB"
+                (int)adminId, "ADMIN", "Administrator", true, new List<string> { "*" }, "CTY01", "DVI01", "1", "WEB"
             );
-
-            // Ensure ADMIN user has known password "123456" for automated login security tests
-            using (var db = new MyEntities())
-            {
-                var admin = db.TB_SYS_USER.FirstOrDefault(u => u.USERNAME == "ADMIN");
-                if (admin != null)
-                {
-                    admin.PASSWORD = PasswordHasher.HashPassword("admin");
-                    admin.MANV = null; // System admin must never link to employee
-                    admin.FAILED_LOGIN_COUNT = 0;
-                    admin.LOCKOUT_END = null;
-                    admin.DISABLED = 0;
-                    admin.CLIENT_TYPE = "ALL";
-                    db.SaveChanges();
-                }
-            }
         }
 
         private T GetValueCaseInsensitive<T>(Dictionary<string, object> dict, string key)
@@ -55,8 +43,10 @@ namespace Bu.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void UsersStats_LiveHttpTest_ReturnsAllSevenMetrics()
         {
+            TestTargetGuard.EnsureLiveTestApiAvailable(BaseUrl);
             using (var client = new WebClient())
             {
                 client.Encoding = Encoding.UTF8;
@@ -86,8 +76,10 @@ namespace Bu.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void BulkProvisionPreview_LiveHttpTest_ReturnsValidCandidateMetrics()
         {
+            TestTargetGuard.EnsureLiveTestApiAvailable(BaseUrl);
             using (var client = new WebClient())
             {
                 client.Encoding = Encoding.UTF8;
@@ -115,8 +107,11 @@ namespace Bu.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void BulkProvision_IdempotencyTest_ReRunningOnSameEmployeeDoesNotDuplicate()
         {
+            TestTargetGuard.EnsureSafeToMutate("BulkProvision_IdempotencyTest");
+            TestTargetGuard.EnsureLiveTestApiAvailable(BaseUrl);
             using (var client = new WebClient())
             {
                 client.Encoding = Encoding.UTF8;
@@ -154,8 +149,10 @@ namespace Bu.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void Security_SystemAdminAccount_IsBlockedFromMobileLogin()
         {
+            TestTargetGuard.EnsureLiveTestApiAvailable(BaseUrl);
             using (var client = new WebClient())
             {
                 client.Encoding = Encoding.UTF8;
@@ -316,8 +313,12 @@ namespace Bu.Tests
         }
 
         [Test]
+        [Category("Integration")]
         public void Security_TwoAccountTypes_DesktopAndWebLoginRules()
         {
+            TestTargetGuard.EnsureSafeToMutate("Security_TwoAccountTypes_DesktopAndWebLoginRules");
+            TestTargetGuard.EnsureLiveTestApiAvailable(BaseUrl);
+
             var sysUserBus = new SYS_USER();
 
             // 1. Quản trị viên hệ thống (ADMIN): đăng nhập thành công trên Desktop bằng 'admin'

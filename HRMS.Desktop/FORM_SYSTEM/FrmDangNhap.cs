@@ -266,7 +266,19 @@ namespace QLyNSu.FORM_SYSTEM
                     correlationId: Guid.NewGuid().ToString("N")
                 ));
 
-                var user = loginResult?.User as DA.TB_SYS_USER;
+                var user = (loginResult?.User as DA.TB_SYS_USER) ?? (loginResult != null && loginResult.Success ? new DA.TB_SYS_USER
+                {
+                    IDUSER = loginResult.UserId,
+                    USERNAME = loginResult.Username,
+                    FULLNAME = loginResult.FullName,
+                    MACTY = loginResult.MaCty,
+                    MADVI = loginResult.MaDvi,
+                    MANV = loginResult.Manv,
+                    DISABLED = 0,
+                    ISGROUP = 0,
+                    CLIENT_TYPE = loginResult.ClientType
+                } : null);
+
                 if (loginResult != null && loginResult.Success && user != null)
                 {
 
@@ -356,7 +368,31 @@ namespace QLyNSu.FORM_SYSTEM
                 }
                 else
                 {
-                    string err = loginResult?.ErrorMessage ?? "Tên đăng nhập hoặc mật khẩu không đúng.";
+                    string err = loginResult?.ErrorMessage;
+                    if (string.IsNullOrWhiteSpace(err))
+                    {
+                        if (loginResult?.FailureReason == "ACCOUNT_LOCKED" || loginResult?.IsLockedOut == true)
+                        {
+                            int mins = loginResult.LockoutRemainingMinutes > 0 ? loginResult.LockoutRemainingMinutes : 15;
+                            err = $"Tài khoản đang bị khóa tạm thời. Vui lòng thử lại sau {mins} phút.";
+                        }
+                        else if (loginResult?.FailureReason == "ACCOUNT_LOCKED_NOW")
+                        {
+                            err = "Nhập sai quá số lần quy định. Tài khoản bị khóa tạm thời 15 phút.";
+                        }
+                        else if (loginResult?.FailureReason == "ACCOUNT_DISABLED")
+                        {
+                            err = "Tài khoản này đang bị vô hiệu hóa. Vui lòng liên hệ Quản trị viên.";
+                        }
+                        else if (loginResult?.FailureReason == "FORBIDDEN_DESKTOP" || loginResult?.FailureReason == "EMPLOYEE_MOBILE_ONLY")
+                        {
+                            err = "Tài khoản không có quyền đăng nhập trên ứng dụng Desktop. Vui lòng liên hệ Quản trị viên.";
+                        }
+                        else
+                        {
+                            err = "Tên đăng nhập hoặc mật khẩu không đúng.";
+                        }
+                    }
                     lblThongBao.Text = TranslationManager.Translate(err);
                     lblThongBao.Visible = true;
                 }
