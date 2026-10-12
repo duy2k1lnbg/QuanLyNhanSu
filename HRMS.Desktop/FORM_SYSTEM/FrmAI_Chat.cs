@@ -1,4 +1,4 @@
-using DevExpress.XtraEditors;
+﻿using DevExpress.XtraEditors;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Bu.Services.AI_Services;
@@ -17,6 +18,13 @@ namespace QLyNSu.FORM_SYSTEM
     {
         private readonly ChatboxManager _manager;
         private int _requestGeneration;
+        private bool _resizingBubbles;
+        private sealed class BubbleState
+        {
+            public bool IsUser;
+            public string Time = DateTime.Now.ToString("HH:mm");
+            public readonly List<Panel> Panels = new List<Panel>();
+        }
         private readonly List<SimpleButton> _activeOptionButtons = new List<SimpleButton>();
 
         public FrmAI_Chat()
@@ -88,7 +96,7 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void LoadHistoryOrInit()
         {
-            flpChat.Controls.Clear();
+            ClearChatControls();
             var history = _manager.GetMessages();
 
             if (history == null || history.Count == 0)
@@ -109,7 +117,7 @@ namespace QLyNSu.FORM_SYSTEM
         {
             _requestGeneration++;
             DisableActiveClarificationButtons();
-            flpChat.Controls.Clear();
+            ClearChatControls();
             _manager.Reset();
             txtChatInput.Enabled = true; btnChatSend.Enabled = true;
 
@@ -130,11 +138,13 @@ namespace QLyNSu.FORM_SYSTEM
             txtChatInput.Enabled=false; btnChatSend.Enabled=false; btnClearChat.Enabled=true;
             AddMessageBubble("You",string.IsNullOrEmpty(query) ? "Đã chọn phương án làm rõ" : query);
             Panel bubble; var label=AddStreamingAiBubble(out bubble);
+            AiLogger.Info("CHAT_UI", $"Người dùng gửi câu hỏi: '{(string.IsNullOrEmpty(query) ? $"Làm rõ option [{token}]" : query)}'");
             try
             {
                 var result=await _manager.ProcessQueryAsync(query,token);
-                if (IsDisposed || generation!=_requestGeneration) return;
-                UpdateStreamingAiBubble(bubble,label,result.Answer);
+                if (IsDisposed || Disposing || generation!=_requestGeneration) return;
+                AiLogger.Info("CHAT_UI", $"Nhận phản hồi AI: Status={result.Status}, Trả lời={result.Answer?.Length ?? 0} ký tự");
+                if (!await StreamTypingEffectAsync(bubble, label, result.Answer, generation)) return;
                 if (result.Clarification != null && result.Clarification.Options != null && result.Clarification.Options.Count > 0)
                 {
                     var groupButtons = new List<SimpleButton>();
@@ -154,9 +164,14 @@ namespace QLyNSu.FORM_SYSTEM
                         flpChat.Controls.Add(button);
                     }
                     _activeOptionButtons.AddRange(groupButtons);
+                    ScrollChatToBottom();
                 }
             }
-            catch { if (!IsDisposed && generation==_requestGeneration) UpdateStreamingAiBubble(bubble,label,"Không thể xử lý yêu cầu. Vui lòng thử lại."); }
+            catch (Exception ex)
+            {
+                AiLogger.Error("CHAT_UI", "Lỗi xử lý yêu cầu chat trên giao diện: " + ex.Message, ex);
+                if (!IsDisposed && generation==_requestGeneration) UpdateStreamingAiBubble(bubble,label,"Không thể xử lý yêu cầu. Vui lòng bấm 'Nhật ký AI' ở góc trên để xem chi tiết lỗi kết nối."); 
+            }
             finally { if (!IsDisposed && generation==_requestGeneration) { txtChatInput.Enabled=true; btnChatSend.Enabled=true; txtChatInput.Focus(); } }
         }
         private void txtChatInput_KeyDown(object sender, KeyEventArgs e)
@@ -170,6 +185,11 @@ namespace QLyNSu.FORM_SYSTEM
         private void btnClearChat_Click(object sender, EventArgs e)
         {
             ResetChatUI();
+        }
+
+        private void btnViewLog_Click(object sender, EventArgs e)
+        {
+            FrmAI_LogViewer.ShowViewer(this);
         }
 
         private async void btnOpenDashboard_Click(object sender, EventArgs e)
@@ -236,214 +256,173 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void flpChat_SizeChanged(object sender, EventArgs e)
         {
-            flpChat.SuspendLayout();
-            int width = flpChat.ClientSize.Width - 30;
-            foreach (Control ctrl in flpChat.Controls)
+            if (_resizingBubbles) return;
+            _resizingBubbles = true;
+            bool wasAtBottom = flpChat.VerticalScroll.Value >= flpChat.VerticalScroll.Maximum - flpChat.VerticalScroll.LargeChange - 4;
+            try
             {
-                if (ctrl is Panel container)
-                {
-                    container.Width = width;
-                    ResizeBubble(container);
-                }
+                flpChat.SuspendLayout();
+                foreach (var panel in flpChat.Controls.OfType<Panel>()) ResizeBubble(panel);
             }
-            flpChat.ResumeLayout(true);
+            finally
+            {
+                flpChat.ResumeLayout(true);
+                _resizingBubbles = false;
+            }
+            if (!btnChatSend.Enabled || wasAtBottom) ScrollChatToBottom();
         }
 
-        // ================= HELPER METHODS FOR CHAT BUBBLES =================
+        private void ClearChatControls()
+        {
+            // Clear() detaches controls without disposing their fonts and native handles.
+            foreach (Control control in flpChat.Controls.Cast<Control>().ToArray()) control.Dispose();
+            flpChat.AutoScrollMinSize = Size.Empty;
+            flpChat.AutoScrollPosition = Point.Empty;
+        }
+
+        private void ScrollChatToBottom()
+        {
+            if (IsDisposed || Disposing || !flpChat.IsHandleCreated) return;
+            flpChat.PerformLayout();
+            // FlowLayoutPanel can cache a shorter extent after labels grow or wrap.
+            // Include the actual last control and its margins in the virtual scroll area.
+            int contentBottom = flpChat.Controls.Cast<Control>()
+                .Select(control => control.Bottom + control.Margin.Bottom - flpChat.AutoScrollPosition.Y)
+                .DefaultIfEmpty(0).Max() + flpChat.Padding.Bottom;
+            flpChat.AutoScrollMinSize = new Size(0, contentBottom);
+            flpChat.PerformLayout();
+            // Scrollbar range includes padding, including at non-default DPI.
+            int bottom = Math.Max(0, flpChat.VerticalScroll.Maximum - flpChat.VerticalScroll.LargeChange + 1);
+            flpChat.AutoScrollPosition = new Point(0, bottom);
+        }
 
         private void ResizeBubble(Panel container)
         {
             if (container == null || container.Controls.Count == 0) return;
-            var lblMsg = container.Controls[0] as LabelControl;
-            if (lblMsg == null) return;
+            var label = container.Controls[0] as LabelControl;
+            if (label == null) return;
+            // Reserve the scrollbar width even before it appears, avoiding width/height oscillation.
+            container.Width = Math.Max(140, flpChat.Width - flpChat.Padding.Horizontal - SystemInformation.VerticalScrollBarWidth - 8);
+            int targetWidth = Math.Max(100, (int)(container.Width * 0.82));
+            label.Width = targetWidth;
+            label.Height = label.GetPreferredSize(new Size(targetWidth, 0)).Height;
+            bool isUser = "User".Equals(label.Tag as string);
+            label.Location = new Point(isUser ? container.Width - label.Width - 10 : 10, 5);
+            container.Height = label.Height + 10;
+        }
 
-            bool isUser = "User".Equals(lblMsg.Tag as string);
+        private static string FormatDevExpressHtml(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return string.Empty;
+            return text
+                .Replace("&", "&amp;")
+                .Replace("<", "&lt;")
+                .Replace(">", "&gt;")
+                .Replace("\"", "&quot;")
+                .Replace("\n", "<br/>");
+        }
 
-            // Calculate label width (82% of container width)
-            int targetWidth = (int)(container.Width * 0.82);
-            if (targetWidth < 100) targetWidth = 100;
-            lblMsg.Width = targetWidth;
 
-            // Recalculate preferred height based on the new width
-            int preferredHeight = lblMsg.GetPreferredSize(new Size(targetWidth, 10000)).Height + 24;
-            lblMsg.Height = preferredHeight;
-
-            if (isUser)
+        private Panel CreateBubblePanel(BubbleState state)
+        {
+            var panel = new Panel { Height = 50, Padding = new Padding(5), Tag = state };
+            var label = new LabelControl
             {
-                lblMsg.Location = new Point(container.Width - lblMsg.Width - 10, 5);
-            }
-            else
-            {
-                lblMsg.Location = new Point(10, 5);
-            }
+                AllowHtmlString = true,
+                AutoSizeMode = LabelAutoSizeMode.Vertical,
+                Tag = state.IsUser ? "User" : "AI",
+                Padding = new Padding(12)
+            };
+            label.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
+            label.Appearance.Font = new Font("Segoe UI", 10F);
+            label.Appearance.BackColor = state.IsUser ? Color.FromArgb(220, 235, 252) : Color.FromArgb(241, 245, 249);
+            label.Appearance.ForeColor = Color.FromArgb(15, 23, 42);
+            panel.Controls.Add(label);
+            state.Panels.Add(panel);
+            flpChat.Controls.Add(panel);
+            return panel;
+        }
 
-            container.Height = lblMsg.Height + 10;
+        private void RenderBubble(BubbleState state, string text)
+        {
+            var chunks = AiTypingTimeline.SplitForDisplay(text);
+            flpChat.SuspendLayout();
+            try
+            {
+                while (state.Panels.Count < chunks.Count) CreateBubblePanel(state);
+                while (state.Panels.Count > chunks.Count)
+                {
+                    var last = state.Panels[state.Panels.Count - 1];
+                    state.Panels.RemoveAt(state.Panels.Count - 1);
+                    last.Dispose();
+                }
+                for (int i = 0; i < chunks.Count; i++)
+                {
+                    var panel = state.Panels[i];
+                    var label = (LabelControl)panel.Controls[0];
+                    string header = i == 0
+                        ? $"<b>{(state.IsUser ? "BẠN" : "TRỢ LÝ AI")}</b> <font color='gray' size='-1'>{state.Time}</font><br/>"
+                        : string.Empty;
+                    string html = header + FormatDevExpressHtml(chunks[i]);
+                    if (label.Text != html)
+                    {
+                        label.Text = html;
+                        ResizeBubble(panel);
+                    }
+                }
+            }
+            finally { flpChat.ResumeLayout(true); }
+            ScrollChatToBottom();
         }
 
         private void AddMessageBubble(string sender, string message)
         {
-            bool isUser = sender.Equals("You", StringComparison.OrdinalIgnoreCase);
-
-            var container = new Panel
-            {
-                Width = flpChat.ClientSize.Width - 30,
-                Height = 50,
-                Padding = new Padding(5)
-            };
-
-            // Format message content
-            string htmlContent = $"<b>{(isUser ? "BẠN" : "TRỢ LÝ AI")}</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{System.Net.WebUtility.HtmlEncode(message).Replace("\n", "<br/>")}";
-
-            var lblMsg = new LabelControl
-            {
-                Text = htmlContent,
-                AllowHtmlString = true,
-                AutoSizeMode = LabelAutoSizeMode.Vertical,
-                Width = (int)(container.Width * 0.82),
-                Tag = isUser ? "User" : "AI"
-            };
-
-            lblMsg.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
-            lblMsg.Appearance.Font = new Font("Segoe UI", 10F);
-            lblMsg.Padding = new Padding(12);
-
-            // Style and align bubble
-            if (isUser)
-            {
-                lblMsg.Appearance.BackColor = Color.FromArgb(220, 235, 252); // Soft blue
-                lblMsg.Appearance.ForeColor = Color.FromArgb(15, 23, 42);
-            }
-            else
-            {
-                lblMsg.Appearance.BackColor = Color.FromArgb(241, 245, 249); // Soft gray
-                lblMsg.Appearance.ForeColor = Color.FromArgb(15, 23, 42);
-            }
-
-            container.Controls.Add(lblMsg);
-
-            flpChat.SuspendLayout();
-            flpChat.Controls.Add(container);
-            ResizeBubble(container);
-            flpChat.ResumeLayout(true);
-
-            flpChat.ScrollControlIntoView(container);
+            RenderBubble(new BubbleState { IsUser = sender.Equals("You", StringComparison.OrdinalIgnoreCase) }, message);
         }
 
-        private Panel AddThinkingBubble()
+        private async Task<bool> StreamTypingEffectAsync(Panel container, LabelControl label, string fullText, int generation)
         {
-            var container = new Panel
+            fullText = fullText ?? string.Empty;
+            var timeline = new AiTypingTimeline(fullText);
+            var clock = Stopwatch.StartNew();
+            int previousLength = -1;
+            while (IsCurrentChatBubble(container, label, generation))
             {
-                Width = flpChat.ClientSize.Width - 30,
-                Height = 50,
-                Padding = new Padding(5)
-            };
-
-            var lblMsg = new LabelControl
-            {
-                Text = "<i>AI đang phân tích và truy vấn dữ liệu...</i>",
-                AllowHtmlString = true,
-                AutoSizeMode = LabelAutoSizeMode.Vertical,
-                Width = 250,
-                Tag = "AI"
-            };
-
-            lblMsg.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
-            lblMsg.Appearance.Font = new Font("Segoe UI", 9.5f);
-            lblMsg.Padding = new Padding(12);
-            lblMsg.Appearance.BackColor = Color.FromArgb(254, 243, 199); // Soft gold/yellow
-            lblMsg.Appearance.ForeColor = Color.FromArgb(146, 64, 14);
-
-            container.Controls.Add(lblMsg);
-
-            flpChat.SuspendLayout();
-            flpChat.Controls.Add(container);
-            ResizeBubble(container);
-            flpChat.ResumeLayout(true);
-
-            flpChat.ScrollControlIntoView(container);
-
-            return container;
+                int length = timeline.VisibleLength(clock.Elapsed.TotalMilliseconds);
+                if (length != previousLength)
+                {
+                    UpdateStreamingAiBubble(container, label, fullText.Substring(0, length));
+                    previousLength = length;
+                }
+                if (length == fullText.Length) return true;
+                await Task.Delay(30);
+            }
+            return false;
         }
 
-        private string FormatSql(string sql)
+        private bool IsCurrentChatBubble(Panel container, LabelControl label, int generation)
         {
-            if (string.IsNullOrEmpty(sql)) return "";
-            // Clean up basic string formatting
-            return sql.Replace("SELECT", "SELECT\n   ")
-                      .Replace("FROM", "\nFROM\n   ")
-                      .Replace("LEFT JOIN", "\nLEFT JOIN\n   ")
-                      .Replace("WHERE", "\nWHERE\n   ")
-                      .Replace("AND", "\n   AND")
-                      .Replace("ORDER BY", "\nORDER BY\n   ");
+            return !IsDisposed && !Disposing && generation == _requestGeneration
+                && !container.IsDisposed && !label.IsDisposed && container.Parent == flpChat;
         }
-
-        // ================= STREAMING CHAT HELPER METHODS =================
 
         private LabelControl AddStreamingAiBubble(out Panel container)
         {
-            container = new Panel
-            {
-                Width = flpChat.ClientSize.Width - 30,
-                Height = 50,
-                Padding = new Padding(5)
-            };
-
-            string htmlContent = $"<b>TRỢ LÝ AI</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/><i>AI đang phân tích và truy vấn dữ liệu...</i>";
-
-            var lblMsg = new LabelControl
-            {
-                Text = htmlContent,
-                AllowHtmlString = true,
-                AutoSizeMode = LabelAutoSizeMode.Vertical,
-                Width = (int)(container.Width * 0.82),
-                Tag = "AI"
-            };
-
-            lblMsg.Appearance.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
-            lblMsg.Appearance.Font = new Font("Segoe UI", 10F);
-            lblMsg.Padding = new Padding(12);
-            lblMsg.Appearance.BackColor = Color.FromArgb(241, 245, 249); // Soft gray
-            lblMsg.Appearance.ForeColor = Color.FromArgb(15, 23, 42);
-
-            container.Controls.Add(lblMsg);
-
-            flpChat.SuspendLayout();
-            flpChat.Controls.Add(container);
-            ResizeBubble(container);
-            flpChat.ResumeLayout(true);
-
-            flpChat.ScrollControlIntoView(container);
-
-            return lblMsg;
+            var state = new BubbleState();
+            RenderBubble(state, "AI đang phân tích và truy vấn dữ liệu...");
+            container = state.Panels[0];
+            return (LabelControl)container.Controls[0];
         }
 
-        private void UpdateStreamingAiBubble(Panel container, LabelControl lblMsg, string messageToDisplay)
+        private void UpdateStreamingAiBubble(Panel container, LabelControl label, string text)
         {
-            if (lblMsg.InvokeRequired)
+            if (container.IsDisposed || label.IsDisposed || IsDisposed || Disposing) return;
+            if (label.InvokeRequired)
             {
-                lblMsg.BeginInvoke(new Action(() =>
-                {
-                    string htmlContent = $"<b>TRỢ LÝ AI</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{System.Net.WebUtility.HtmlEncode(messageToDisplay).Replace("\n", "<br/>")}";
-                    lblMsg.Text = htmlContent;
-
-                    flpChat.SuspendLayout();
-                    ResizeBubble(container);
-                    flpChat.ResumeLayout(true);
-
-                    flpChat.ScrollControlIntoView(container);
-                }));
+                label.BeginInvoke(new Action(() => UpdateStreamingAiBubble(container, label, text)));
+                return;
             }
-            else
-            {
-                string htmlContent = $"<b>TRỢ LÝ AI</b> <font color='gray' size='-1'>{DateTime.Now.ToString("HH:mm")}</font><br/>{System.Net.WebUtility.HtmlEncode(messageToDisplay).Replace("\n", "<br/>")}";
-                lblMsg.Text = htmlContent;
-
-                flpChat.SuspendLayout();
-                ResizeBubble(container);
-                flpChat.ResumeLayout(true);
-
-                flpChat.ScrollControlIntoView(container);
-            }
+            if (container.Tag is BubbleState state) RenderBubble(state, text);
         }
     }
 }

@@ -20,6 +20,7 @@ namespace QLyNSu.FORM_SYSTEM
         private List<ChannelFunctionRightViewModel> _rightList = new List<ChannelFunctionRightViewModel>();
 
         // Controls lựa chọn đối tượng
+        private RadioButton rdoAllSubjects;
         private RadioButton rdoGroup;
         private RadioButton rdoUser;
 
@@ -28,6 +29,10 @@ namespace QLyNSu.FORM_SYSTEM
         private RadioButton rdoDesktopChannel;
         private RadioButton rdoWebChannel;
         private RadioButton rdoMobileChannel;
+        private RadioButton rdoAiPermissions;
+        private FrmAiScopeGrantDetail _aiPermissionsForm;
+        private bool _switchingPermissionPage;
+        private bool IsAiPage => rdoAiPermissions != null && rdoAiPermissions.Checked;
         private CheckEdit chkParentAccess;
         private LabelControl lblParentInherited;
         private LabelControl lblReadinessStatus;
@@ -40,6 +45,8 @@ namespace QLyNSu.FORM_SYSTEM
         private SimpleButton btnLuu;
         private SimpleButton btnHuy;
 
+        private bool _loadingSubjects;
+        private int _rightsLoadVersion;
         private bool _isEditing = false;
         private bool _isSaving = false;
 
@@ -70,10 +77,10 @@ namespace QLyNSu.FORM_SYSTEM
             rdoGroup.Text = QLyNSu.Functions.TranslationManager.Translate("Nhóm người dùng");
             rdoGroup.Location = new Point(15, 12);
             rdoGroup.AutoSize = true;
-            rdoGroup.Checked = true;
+            rdoGroup.Checked = false;
             rdoGroup.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             rdoGroup.ForeColor = Color.FromArgb(107, 33, 168);
-            rdoGroup.CheckedChanged += (s, ev) => { if (rdoGroup.Checked) loadUsers(); };
+            rdoGroup.CheckedChanged += async (s, ev) => { if (rdoGroup.Checked) await loadUsers(); };
 
             rdoUser = new RadioButton();
             rdoUser.Text = QLyNSu.Functions.TranslationManager.Translate("Người dùng");
@@ -81,13 +88,17 @@ namespace QLyNSu.FORM_SYSTEM
             rdoUser.AutoSize = true;
             rdoUser.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             rdoUser.ForeColor = Color.FromArgb(3, 105, 161);
-            rdoUser.CheckedChanged += (s, ev) => { if (rdoUser.Checked) loadUsers(); };
+            rdoUser.CheckedChanged += async (s, ev) => { if (rdoUser.Checked) await loadUsers(); };
 
-            pnlToggle.Controls.Add(rdoGroup);
-            pnlToggle.Controls.Add(rdoUser);
+            var subjects = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, AutoSizeMode = AutoSizeMode.GrowAndShrink, WrapContents = true, Padding = new Padding(8) };
+            rdoGroup.Margin=new Padding(4);rdoUser.Margin=new Padding(4);
+            rdoAllSubjects = new RadioButton { Text = QLyNSu.Functions.TranslationManager.Translate("Tất cả"), AutoSize = true, Checked = true, Font = rdoGroup.Font, Margin = new Padding(4) };
+            rdoAllSubjects.CheckedChanged += async (s, ev) => { if (rdoAllSubjects.Checked) await loadUsers(); };
+            subjects.Controls.Add(rdoAllSubjects);subjects.Controls.Add(rdoGroup);subjects.Controls.Add(rdoUser);pnlToggle.Controls.Add(subjects);
+            subjects.SizeChanged += (s, e) => pnlToggle.Height = Math.Max(45, subjects.Height);
 
             splitContainerControl1.Panel1.Controls.Add(pnlToggle);
-            pnlToggle.BringToFront();
+            gcUser.BringToFront();
         }
 
         private void SetupChannelHeaderPanel()
@@ -157,12 +168,27 @@ namespace QLyNSu.FORM_SYSTEM
             pnlChannelHeader.Controls.Add(lblParentInherited);
             pnlChannelHeader.Controls.Add(lblReadinessStatus);
 
+            rdoAiPermissions=new RadioButton {Text="AI",AutoSize=true,Font=rdoDesktopChannel.Font,ForeColor=Color.FromArgb(107,33,168)};
+            rdoAiPermissions.CheckedChanged+=(s,e)=>{if(rdoAiPermissions.Checked) OnChannelChanged();};
+            var channels=new FlowLayoutPanel {Dock=DockStyle.Top,AutoSize=true,WrapContents=true,Padding=new Padding(8),MinimumSize=new Size(0,36)};
+            var parent=new FlowLayoutPanel {Dock=DockStyle.Top,AutoSize=true,WrapContents=true,Padding=new Padding(8),AutoScroll=true};
+            pnlChannelHeader.Controls.Clear();pnlChannelHeader.Height=110;
+            foreach(var control in new Control[]{lblChannel,rdoDesktopChannel,rdoWebChannel,rdoMobileChannel,rdoAiPermissions,lblReadinessStatus}) {control.Anchor=AnchorStyles.None;control.Margin=new Padding(6);channels.Controls.Add(control);}
+            foreach(var control in new Control[]{chkParentAccess,lblParentInherited}) {control.Anchor=AnchorStyles.None;control.Margin=new Padding(6);parent.Controls.Add(control);}
+            pnlChannelHeader.Controls.Add(parent);pnlChannelHeader.Controls.Add(channels);
+            EventHandler reflow=(s,e)=>pnlChannelHeader.Height=Math.Max(56,channels.Height+parent.Height+4);
+            channels.SizeChanged+=reflow;parent.SizeChanged+=reflow;
+
             splitContainerControl1.Panel2.Controls.Add(pnlChannelHeader);
-            pnlChannelHeader.BringToFront();
+            gcRight.BringToFront();
         }
 
-        private void OnChannelChanged()
+        private async void OnChannelChanged()
         {
+            if(_switchingPermissionPage) return;
+            if(_aiPermissionsForm!=null && !_aiPermissionsForm.TryDiscardChanges())
+            { _switchingPermissionPage=true; rdoAiPermissions.Checked=true; _switchingPermissionPage=false;return; }
+
             if (_isEditing)
             {
                 var choice = XtraMessageBox.Show(
@@ -178,7 +204,7 @@ namespace QLyNSu.FORM_SYSTEM
                 SetEditingState(false);
             }
 
-            loadRights();
+            await loadRights();
         }
 
         private void OnParentAccessCheckChanged()
@@ -223,14 +249,14 @@ namespace QLyNSu.FORM_SYSTEM
             btnLamMoi.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             btnLamMoi.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Regular);
             btnLamMoi.ImageOptions.SvgImage = GetSafeSvg("svgimages/dashboards/resetview.svg", "svgimages/icon builder/actions_refresh.svg");
-            btnLamMoi.Click += (s, ev) =>
+            btnLamMoi.Click += async (s, ev) =>
             {
                 try
                 {
-                    new Bu.CLASS_SYSTEM.SYS_USER().EnsureSeeded();
+                    if(_aiPermissionsForm!=null && !_aiPermissionsForm.TryDiscardChanges()) return;
+                    await QLyNSu.Functions.FormDataLoader.RunAsync(this, () => new Bu.CLASS_SYSTEM.SYS_USER().EnsureSeeded());
                     db = new MyEntities();
-                    loadUsers();
-                    loadRights();
+                    await loadUsers();
                     XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Đã làm mới dữ liệu chức năng và phân quyền thành công!"), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
@@ -326,6 +352,14 @@ namespace QLyNSu.FORM_SYSTEM
             panelControl1.Controls.Add(btnSua);
             panelControl1.Controls.Add(btnLuu);
             panelControl1.Controls.Add(btnHuy);
+            var actions=new FlowLayoutPanel {Dock=DockStyle.Fill,FlowDirection=FlowDirection.RightToLeft,WrapContents=true,Padding=new Padding(6)};
+            panelControl1.Controls.Clear();panelControl1.Height=72;
+            foreach(var button in new[]{btnDong,btnLuu,btnHuy,btnSua,btnBoChonTatCa,btnChonTatCa,btnLamMoi}) {
+                button.Anchor=AnchorStyles.None;button.Size=new Size(114,38);button.Margin=new Padding(4);
+                button.Appearance.TextOptions.HAlignment=DevExpress.Utils.HorzAlignment.Center;button.Appearance.TextOptions.VAlignment=DevExpress.Utils.VertAlignment.Center;actions.Controls.Add(button);
+            }
+            panelControl1.Controls.Add(actions);
+
         }
 
         private void SetEditingState(bool editing)
@@ -334,29 +368,36 @@ namespace QLyNSu.FORM_SYSTEM
             if (btnLamMoi != null) btnLamMoi.Enabled = !editing;
             if (btnChonTatCa != null) btnChonTatCa.Enabled = editing;
             if (btnBoChonTatCa != null) btnBoChonTatCa.Enabled = editing;
-            if (btnSua != null) btnSua.Enabled = !editing;
+            if (btnSua != null) btnSua.Enabled = !editing && UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG");
             if (btnLuu != null) btnLuu.Enabled = editing;
             if (btnHuy != null) btnHuy.Enabled = editing;
 
             gcUser.Enabled = !editing;
             if (rdoGroup != null) rdoGroup.Enabled = !editing;
             if (rdoUser != null) rdoUser.Enabled = !editing;
+            if (rdoAllSubjects != null) rdoAllSubjects.Enabled = !editing;
             if (pnlChannelHeader != null)
             {
                 rdoDesktopChannel.Enabled = !editing;
                 rdoWebChannel.Enabled = !editing;
                 rdoMobileChannel.Enabled = !editing;
+                rdoAiPermissions.Enabled = !editing && UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG");
                 chkParentAccess.Properties.ReadOnly = !editing;
             }
 
             gvRight.OptionsBehavior.Editable = editing;
         }
 
-        private void FrmPhanQuyenChucNang_Load(object sender, EventArgs e)
+        private async void FrmPhanQuyenChucNang_Load(object sender, EventArgs e)
         {
+            AutoScaleMode=AutoScaleMode.Dpi; Font=new Font("Segoe UI",9.5F); MinimumSize=new Size(1040,640);
+            splitContainerControl1.Panel1.MinimumSize=new Size(250,0);
+            splitContainerControl1.Panel2.MinimumSize=new Size(650,0);
+            splitContainerControl1.SplitterPosition=300;
+
             try
             {
-                new Bu.CLASS_SYSTEM.SYS_USER().EnsureSeeded();
+                await QLyNSu.Functions.FormDataLoader.RunAsync(this, () => new Bu.CLASS_SYSTEM.SYS_USER().EnsureSeeded());
             }
             catch { }
 
@@ -378,16 +419,23 @@ namespace QLyNSu.FORM_SYSTEM
             gvRight.ShowingEditor += gvRight_ShowingEditor;
 
             SetEditingState(false);
-            loadUsers();
+            await loadUsers();
 
             QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
-        private void loadUsers()
+        private async Task loadUsers()
         {
-            int targetMode = (rdoGroup != null && rdoGroup.Checked) ? 1 : 0;
-            var data = db.TB_SYS_USER.Where(x => (x.ISGROUP ?? 0) == targetMode).ToList();
-            gcUser.DataSource = data;
+            try
+            {
+            int targetMode = rdoAllSubjects != null && rdoAllSubjects.Checked ? -1 : (rdoGroup != null && rdoGroup.Checked ? 1 : 0);
+            // Never hide a subject based on its account name, including ADMIN.
+            var data = await QLyNSu.Functions.FormDataLoader.ReadAsync(this, () => {
+                using (var readDb = new MyEntities())
+                    return readDb.TB_SYS_USER.Where(x => targetMode < 0 || (x.ISGROUP ?? 0) == targetMode).OrderBy(x => x.USERNAME).ToList();
+            });
+            _loadingSubjects=true;
+            try { gcUser.DataSource = data; } finally { _loadingSubjects=false; }
 
             // Format User columns
             if (gvUser.Columns["IDUSER"] != null) gvUser.Columns["IDUSER"].Caption = "ID";
@@ -408,11 +456,17 @@ namespace QLyNSu.FORM_SYSTEM
                 if (col.FieldName != "IDUSER" && col.FieldName != "USERNAME" && col.FieldName != "FULLNAME")
                     col.Visible = false;
             }
+            await loadRights();
+        
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception error) { QLyNSu.Functions.FormDataLoader.ShowLoadError(this, error); }
         }
 
-        private void gvUser_FocusedRowChanged(object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e)
+        private async void gvUser_FocusedRowChanged(object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e)
         {
-            loadRights();
+            if (_loadingSubjects) return;
+            await loadRights();
         }
 
         private string GetModuleName(string parent)
@@ -431,11 +485,15 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void loadRights()
+        private async Task loadRights()
         {
+            try
+            {
+            int requestVersion=++_rightsLoadVersion;
             var selectedUser = (TB_SYS_USER)gvUser.GetFocusedRow();
             if (selectedUser == null)
             {
+                if(_aiPermissionsForm!=null) {_aiPermissionsForm.Dispose();_aiPermissionsForm=null;}
                 gcRight.DataSource = null;
                 if (chkParentAccess != null) chkParentAccess.Checked = false;
                 if (lblParentInherited != null) lblParentInherited.Text = "";
@@ -443,10 +501,29 @@ namespace QLyNSu.FORM_SYSTEM
                 return;
             }
 
+            foreach(var button in new[]{btnSua,btnLuu,btnHuy,btnBoChonTatCa,btnChonTatCa,btnLamMoi}) button.Visible=!IsAiPage;
+            chkParentAccess.Visible=!IsAiPage;lblParentInherited.Visible=!IsAiPage;lblReadinessStatus.Visible=!IsAiPage;
+            gcRight.Visible=!IsAiPage;
+            if(_aiPermissionsForm!=null) {_aiPermissionsForm.Dispose();_aiPermissionsForm=null;}
+            if(IsAiPage)
+            {
+                _aiPermissionsForm=new FrmAiScopeGrantDetail((int)selectedUser.IDUSER,selectedUser.USERNAME,selectedUser.FULLNAME,(selectedUser.ISGROUP ?? 0)==1);
+                _aiPermissionsForm.ConfigureEmbedded();
+                _aiPermissionsForm.DirtyStateChanged+=(s,e)=>{bool clean=!((FrmAiScopeGrantDetail)s).HasUnsavedChanges;gcUser.Enabled=clean;rdoUser.Enabled=clean;rdoGroup.Enabled=clean;rdoAllSubjects.Enabled=clean;};
+                splitContainerControl1.Panel2.Controls.Add(_aiPermissionsForm);_aiPermissionsForm.BringToFront();_aiPermissionsForm.Show();
+                return;
+            }
+            gcRight.BringToFront();
             string channel = CurrentChannelCode;
 
             // Nạp thông tin cây quyền theo kênh từ Resolver thực
-            var tree = _channelResolver.ResolveChannelTree(db, selectedUser.IDUSER, channel, selectedUser.USERNAME);
+            decimal subjectId=selectedUser.IDUSER;
+            string subjectName=selectedUser.USERNAME;
+            var tree = await QLyNSu.Functions.FormDataLoader.ReadAsync(this, () => {
+                using (var readDb = new MyEntities())
+                    return _channelResolver.ResolveChannelTree(readDb, subjectId, channel, subjectName);
+            });
+            if (requestVersion!=_rightsLoadVersion || IsDisposed || Disposing) return;
 
             // Cập nhật Quyền cha trên Header
             if (chkParentAccess != null)
@@ -479,7 +556,10 @@ namespace QLyNSu.FORM_SYSTEM
             }
 
             // Map DTO sang ViewModel của Grid
-            _rightList = tree.Functions.Select(f => new ChannelFunctionRightViewModel
+            _rightList = tree.Functions
+                .Where(f => f.SupportedCapabilities != null &&
+                    (f.SupportedCapabilities.CanView || f.SupportedCapabilities.CanAdd || f.SupportedCapabilities.CanEdit || f.SupportedCapabilities.CanDelete || f.SupportedCapabilities.CanPrint))
+                .Select(f => new ChannelFunctionRightViewModel
             {
                 MODULE_NAME = QLyNSu.Functions.TranslationManager.Translate(GetModuleName(f.ParentCode)),
                 FUNCTION_CODE = f.FunctionCode,
@@ -521,6 +601,24 @@ namespace QLyNSu.FORM_SYSTEM
 
             // Format right columns
             FormatRightColumns();
+            gvRight.OptionsView.ColumnAutoWidth=true;
+            gvRight.RowHeight=34;
+            gvRight.ColumnPanelRowHeight=40;
+            gvRight.OptionsView.RowAutoHeight=true;
+            gvRight.Appearance.HeaderPanel.TextOptions.HAlignment=DevExpress.Utils.HorzAlignment.Center;
+            gvRight.Appearance.HeaderPanel.TextOptions.VAlignment=DevExpress.Utils.VertAlignment.Center;
+            foreach(DevExpress.XtraGrid.Columns.GridColumn column in gvRight.Columns) {
+                column.MinWidth = column.FieldName.StartsWith("CAN_") ? 72 : (column.FieldName=="DESCRIPTION" ? 280 : column.FieldName=="RestrictionNote" ? 220 : 100);
+                column.OptionsColumn.FixedWidth=column.FieldName.StartsWith("CAN_");
+                column.AppearanceCell.TextOptions.WordWrap=DevExpress.Utils.WordWrap.Wrap;
+                column.AppearanceCell.TextOptions.VAlignment=DevExpress.Utils.VertAlignment.Center;
+                column.AppearanceCell.TextOptions.HAlignment=(column.FieldName=="DESCRIPTION" || column.FieldName=="RestrictionNote") ? DevExpress.Utils.HorzAlignment.Near : DevExpress.Utils.HorzAlignment.Center;
+            }
+
+        
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception error) { QLyNSu.Functions.FormDataLoader.ShowLoadError(this, error); }
         }
 
         private void FormatRightColumns()
@@ -550,7 +648,7 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 gvRight.Columns["DESCRIPTION"].Caption = QLyNSu.Functions.TranslationManager.Translate("Tên chức năng");
                 gvRight.Columns["DESCRIPTION"].OptionsColumn.AllowEdit = false;
-                gvRight.Columns["DESCRIPTION"].Width = 220;
+                gvRight.Columns["DESCRIPTION"].Width = 340;
             }
             if (gvRight.Columns["CAN_VIEW"] != null)
             {
@@ -586,7 +684,7 @@ namespace QLyNSu.FORM_SYSTEM
             {
                 gvRight.Columns["RestrictionNote"].Caption = QLyNSu.Functions.TranslationManager.Translate("Giới hạn kênh");
                 gvRight.Columns["RestrictionNote"].OptionsColumn.AllowEdit = false;
-                gvRight.Columns["RestrictionNote"].Width = 150;
+                gvRight.Columns["RestrictionNote"].Width = 250;
             }
 
             // Ẩn các cột bổ trợ không cần hiển thị trực tiếp
@@ -601,6 +699,7 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void btnSua_Click(object sender, EventArgs e)
         {
+            if(!UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG")) return;
             if (gvUser.GetFocusedRow() == null)
             {
                 XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Vui lòng chọn người dùng hoặc nhóm để sửa quyền."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -632,7 +731,8 @@ namespace QLyNSu.FORM_SYSTEM
 
         private async Task SaveRightsAsync()
         {
-            if (_isSaving) return;
+            if (IsAiPage || _isSaving) return;
+            if(!UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG")) {XtraMessageBox.Show("Bạn không có quyền sửa Phân quyền chức năng.");return;}
             _isSaving = true;
 
             var selectedUser = (TB_SYS_USER)gvUser.GetFocusedRow();
@@ -645,11 +745,12 @@ namespace QLyNSu.FORM_SYSTEM
             try
             {
                 string channel = CurrentChannelCode;
-                decimal actorId = UserSession.CurrentUser != null ? UserSession.CurrentUser.IDUSER : 1;
+                decimal actorId = UserSession.CurrentUser != null ? UserSession.CurrentUser.IDUSER : 0;
 
                 var req = new SaveChannelRightsRequest
                 {
                     ActorUserId = actorId,
+                    ActorChannel = UserSession.CurrentChannel,
                     TargetUserId = selectedUser.IDUSER,
                     Channel = channel,
                     ParentDirectGrant = chkParentAccess.Checked,
@@ -686,7 +787,7 @@ namespace QLyNSu.FORM_SYSTEM
                 );
 
                 SetEditingState(false);
-                loadRights();
+                await loadRights();
             }
             catch (Exception ex)
             {
@@ -703,28 +804,23 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnHuy_Click(object sender, EventArgs e)
+        private async void btnHuy_Click(object sender, EventArgs e)
         {
             SetEditingState(false);
-            loadRights();
+            await loadRights();
         }
 
         private void btnDong_Click(object sender, EventArgs e)
         {
-            if (_isEditing)
-            {
-                var choice = XtraMessageBox.Show(
-                    QLyNSu.Functions.TranslationManager.Translate("Dữ liệu phân quyền đang thay đổi chưa được lưu. Bạn có chắc chắn muốn đóng và hủy thay đổi không?"),
-                    QLyNSu.Functions.TranslationManager.Translate("Xác nhận"),
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Question
-                );
-                if (choice == DialogResult.No)
-                {
-                    return;
-                }
-            }
-            this.Close();
+            Close();
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            if(_isSaving) {e.Cancel=true; return;}
+            if(_isEditing && XtraMessageBox.Show("Có thay đổi phân quyền chưa lưu. Hủy thay đổi để đóng?", "Phân quyền", MessageBoxButtons.YesNo, MessageBoxIcon.Question)!=DialogResult.Yes) e.Cancel=true;
+            if(_aiPermissionsForm!=null && !_aiPermissionsForm.TryDiscardChanges()) e.Cancel=true;
+            base.OnFormClosing(e);
         }
 
         // ViewModel cho GridView phân quyền chức năng theo kênh

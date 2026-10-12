@@ -1,3 +1,4 @@
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -14,13 +15,17 @@ import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../hooks/useTheme';
 import { useLanguage } from '../../hooks/useLanguage';
 import { meApi } from '../../api/meApi';
-import { LeaveRequestDto } from '../../types/me';
+import { LeaveRequestDto, LeaveBalanceDto } from '../../types/me';
 import { AppHeader } from '../../components/AppHeader';
 import { AppCard } from '../../components/AppCard';
 import { AppBadge } from '../../components/AppBadge';
 import { AppButton } from '../../components/AppButton';
 import { AppTextInput } from '../../components/AppTextInput';
 import { AppLoading } from '../../components/AppLoading';
+import { useAuth } from '../../hooks/useAuth';
+import { canMobile } from '../../utils/mobilePermissions';
+import { localDate } from '../../utils/requestContracts';
+import { AppErrorState } from '../../components/AppErrorState';
 import { AppEmptyState } from '../../components/AppEmptyState';
 import { formatDate } from '../../utils/formatters';
 import { mapApiError } from '../../utils/errorMapper';
@@ -33,6 +38,10 @@ export const LeaveRequestScreen: React.FC = () => {
   const { colors } = useTheme();
   const { activeLanguage } = useLanguage();
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { user } = useAuth();
+  const [balance,setBalance]=useState<LeaveBalanceDto | null>(null);
+  const [balanceError,setBalanceError]=useState(false);
   const [history, setHistory] = useState<LeaveRequestDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -42,57 +51,60 @@ export const LeaveRequestScreen: React.FC = () => {
   const [leaveType, setLeaveType] = useState<string>('Nghỉ phép năm');
   const [fromDate, setFromDate] = useState<string>(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return localDate(today);
   });
   const [toDate, setToDate] = useState<string>(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return localDate(today);
   });
   const [totalDays, setTotalDays] = useState<string>('1');
   const [reason, setReason] = useState<string>('');
+  const [startTime,setStartTime]=useState(''), [endTime,setEndTime]=useState('');
 
   const leaveTypeOptions = [
     { label: t('requests.annualLeave'), value: 'Nghỉ phép năm' },
     { label: t('requests.sickLeave'), value: 'Nghỉ ốm hưởng BHXH' },
     { label: t('requests.unpaidLeave'), value: 'Nghỉ không lương' },
-    { label: t('requests.otherLeave'), value: 'Nghỉ việc riêng' },
+    { label: t('requests.otherLeave'), value: 'Nghỉ hưởng lương khác' },
   ];
 
   const fetchHistory = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
+    setErrorMessage(null);
     try {
-      const data = await meApi.getLeaveRequests();
-      setHistory(data);
-    } catch {
-      // ignore
+      const [historyResult,balanceResult]=await Promise.allSettled([meApi.getLeaveRequests(),meApi.getLeaveBalance()]);
+      if (historyResult.status==='rejected') throw historyResult.reason;
+      setHistory(historyResult.value);
+      setBalance(balanceResult.status==='fulfilled' ? balanceResult.value : null);
+      setBalanceError(balanceResult.status==='rejected');
+    } catch (error) {
+      setErrorMessage(mapApiError(error));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+  useFocusEffect(useCallback(() => { fetchHistory(); }, [fetchHistory]));
 
   const handleSubmit = async () => {
     if (submitting) return;
 
     if (!fromDate.trim() || !toDate.trim()) {
-      Alert.alert(t('common.error'), 'Vui lòng nhập ngày bắt đầu và ngày kết thúc.');
+      Alert.alert(t('common.error'), t('mobileReview.invalidLeave'));
       return;
     }
 
-    const days = parseFloat(totalDays);
+    const days = Number(totalDays);
     if (isNaN(days) || days <= 0) {
-      Alert.alert(t('common.error'), 'Số ngày nghỉ không hợp lệ.');
+      Alert.alert(t('common.error'), t('mobileReview.invalidLeave'));
       return;
     }
 
     if (!reason.trim()) {
-      Alert.alert(t('common.error'), 'Vui lòng nhập lý do xin nghỉ phép.');
+      Alert.alert(t('common.error'), t('mobileReview.requiredFields'));
       return;
     }
 
@@ -103,6 +115,8 @@ export const LeaveRequestScreen: React.FC = () => {
         fromDate: fromDate.trim(),
         toDate: toDate.trim(),
         totalDays: days,
+        startTime: startTime.trim() || undefined,
+        endTime: endTime.trim() || undefined,
         reason: reason.trim(),
       });
 
@@ -138,6 +152,8 @@ export const LeaveRequestScreen: React.FC = () => {
     }
   };
 
+  if (errorMessage) return <AppErrorState message={errorMessage} onRetry={() => fetchHistory()} />;
+
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <AppHeader title={t('requests.leaveTitle')} showBack onBack={() => navigation.goBack()} />
@@ -154,6 +170,12 @@ export const LeaveRequestScreen: React.FC = () => {
           />
         }
       >
+        <AppCard style={{marginBottom:spacing.md}}>
+          <Text style={[typography.h3,{color:colors.text}]}>{t('mobileReview.leaveBalanceTitle')}</Text>
+          <Text style={[typography.body,{color:balanceError ? colors.danger : colors.textSecondary,marginTop:spacing.sm}]}>
+            {balanceError ? t('mobileReview.leaveBalanceError') : balance?.transactions?.length ? t('mobileReview.leaveBalanceValue',{granted:balance.tongCapNgay,used:balance.daDungNgay,remaining:balance.conLaiNgay}) : t('mobileReview.leaveBalanceUnconfigured')}
+          </Text>
+        </AppCard>
         {/* Form Create Leave Request */}
         <AppCard style={styles.formCard}>
           <Text style={[typography.h3, { color: colors.text, marginBottom: spacing.xs }]}>
@@ -218,6 +240,11 @@ export const LeaveRequestScreen: React.FC = () => {
             </View>
           </View>
 
+          <Text style={[typography.caption,{color:colors.textSecondary,marginBottom:spacing.sm}]}>{t('mobileReview.leaveTimeHint')}</Text>
+          <View style={styles.rowInputs}>
+            <View style={{flex:1}}><AppTextInput label={t('mobileReview.leaveStartTime')} value={startTime} onChangeText={setStartTime} placeholder="HH:mm"/></View>
+            <View style={{flex:1}}><AppTextInput label={t('mobileReview.leaveEndTime')} value={endTime} onChangeText={setEndTime} placeholder="HH:mm"/></View>
+          </View>
           <AppTextInput
             label={t('requests.totalDays')}
             placeholder="1"
@@ -241,6 +268,7 @@ export const LeaveRequestScreen: React.FC = () => {
             title={submitting ? t('requests.submitting') : t('requests.submit')}
             onPress={handleSubmit}
             loading={submitting}
+            disabled={!canMobile(user, 'MOBILE_REQUEST_LEAVE', 'Add')}
             variant="primary"
             size="lg"
             style={{ marginTop: spacing.sm }}
@@ -257,43 +285,53 @@ export const LeaveRequestScreen: React.FC = () => {
         ) : history.length === 0 ? (
           <AppEmptyState message={t('requests.emptyRequests')} />
         ) : (
-          history.map((item) => (
-            <AppCard key={item.id} style={styles.historyCard}>
-              <View style={styles.historyHeader}>
-                <View style={styles.historyTypeWrapper}>
-                  <Ionicons name="calendar" size={18} color={colors.primary} />
-                  <Text style={[typography.bodyBold, { color: colors.text, marginLeft: spacing.xs }]}>
-                    {item.leaveType}
+          history.map((item, index) => {
+            const reqId = item.id || (item as any).idYeuCau || (item as any).id_yeucau || `leave-${index}`;
+            const leaveTypeStr = item.leaveType || (item as any).loaiNghi || t('requests.annualLeave');
+            const fromDateStr = item.fromDate || (item as any).tuNgay;
+            const toDateStr = item.toDate || (item as any).denNgay;
+            const daysNum = item.totalDays ?? (item as any).soNgay ?? 1;
+            const reasonStr = item.reason || (item as any).lyDo || '';
+            const statusStr = item.status || (item as any).trangThai || 'PENDING';
+
+            return (
+              <AppCard key={reqId} style={styles.historyCard}>
+                <View style={styles.historyHeader}>
+                  <View style={styles.historyTypeWrapper}>
+                    <Ionicons name="calendar" size={18} color={colors.primary} />
+                    <Text style={[typography.bodyBold, { color: colors.text, marginLeft: spacing.xs }]}>
+                      {leaveTypeStr}
+                    </Text>
+                  </View>
+                  <AppBadge label={getStatusLabel(statusStr)} variant={getStatusVariant(statusStr)} />
+                </View>
+
+                <View style={styles.historyMetaRow}>
+                  <Text style={[typography.caption, { color: colors.textSecondary }]}>
+                    {formatDate(fromDateStr, activeLanguage)} ➔ {formatDate(toDateStr, activeLanguage)} ({daysNum} ngày)
                   </Text>
                 </View>
-                <AppBadge label={getStatusLabel(item.status)} variant={getStatusVariant(item.status)} />
-              </View>
 
-              <View style={styles.historyMetaRow}>
-                <Text style={[typography.caption, { color: colors.textSecondary }]}>
-                  {formatDate(item.fromDate, activeLanguage)} ➔ {formatDate(item.toDate, activeLanguage)} ({item.totalDays} ngày)
+                <Text style={[typography.body, { color: colors.text, marginTop: spacing.xs }]}>
+                  {reasonStr}
                 </Text>
-              </View>
 
-              <Text style={[typography.body, { color: colors.text, marginTop: spacing.xs }]}>
-                {item.reason}
-              </Text>
+                {((item.note || (item as any).lyDoTuChoi || (item as any).ghichuduyet)) ? (
+                  <View style={[styles.noteBox, { backgroundColor: 'rgba(245, 158, 11, 0.08)', borderColor: colors.border }]}>
+                    <Text style={[typography.captionBold, { color: colors.warning }]}>
+                      {t('requests.note')}: {item.note || (item as any).lyDoTuChoi || (item as any).ghichuduyet}
+                    </Text>
+                  </View>
+                ) : null}
 
-              {item.note ? (
-                <View style={[styles.noteBox, { backgroundColor: 'rgba(245, 158, 11, 0.08)', borderColor: colors.border }]}>
-                  <Text style={[typography.captionBold, { color: colors.warning }]}>
-                    {t('requests.note')}: {item.note}
+                {(item.approverName || (item as any).nguoiDuyet) ? (
+                  <Text style={[typography.caption, { color: colors.textMuted, marginTop: spacing.xs }]}>
+                    {t('requests.approver')}: {item.approverName || (item as any).nguoiDuyet} {(item.approvedAt || (item as any).ngayDuyet) ? `• ${formatDate(item.approvedAt || (item as any).ngayDuyet, activeLanguage)}` : ''}
                   </Text>
-                </View>
-              ) : null}
-
-              {item.approverName ? (
-                <Text style={[typography.caption, { color: colors.textMuted, marginTop: spacing.xs }]}>
-                  {t('requests.approver')}: {item.approverName} {item.approvedAt ? `• ${formatDate(item.approvedAt, activeLanguage)}` : ''}
-                </Text>
-              ) : null}
-            </AppCard>
-          ))
+                ) : null}
+              </AppCard>
+            );
+          })
         )}
       </ScrollView>
     </View>

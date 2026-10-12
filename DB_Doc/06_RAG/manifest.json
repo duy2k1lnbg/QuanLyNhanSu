@@ -1,0 +1,552 @@
+{
+  "package_name": "HRMS DataDoc Knowledge Package",
+  "version": "2.1.0-demo-approved",
+  "generated_at": "2026-10-12T05:41:45.349554+00:00",
+  "total_documents": 30,
+  "total_clauses": 123,
+  "documents": [
+    {
+      "doc_id": "PL-01",
+      "relative_path": "01_Phap_luat_Viet_Nam/PL-01-Thoi-gio-lam-viec-va-ca.md",
+      "sha256": "7ebafe2663dea3beedf107c4a11facabc64177264bf4277131e1d2a5d711ddd7",
+      "file_size_bytes": 5731,
+      "clause_count": 6,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "VIETNAM_LAW",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "PL-01/DIEU-01",
+        "PL-01/DIEU-02",
+        "PL-01/DIEU-03",
+        "PL-01/DIEU-04",
+        "PL-01/DIEU-05",
+        "PL-01/DIEU-06"
+      ],
+      "document_title": "Quy định pháp luật về thời giờ làm việc và ca kíp"
+    },
+    {
+      "doc_id": "PL-02",
+      "relative_path": "01_Phap_luat_Viet_Nam/PL-02-Lam-them-gio-va-luong-dem.md",
+      "sha256": "da5c3c29a08aa24186cdf5e31dc8a670a737052a2471f30c1b95abed1e0985be",
+      "file_size_bytes": 7691,
+      "clause_count": 6,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "VIETNAM_LAW",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "PL-02/DIEU-01",
+        "PL-02/DIEU-02",
+        "PL-02/DIEU-03",
+        "PL-02/DIEU-04",
+        "PL-02/DIEU-05",
+        "PL-02/DIEU-06"
+      ],
+      "document_title": "Quy định pháp luật về làm thêm giờ, làm việc ban đêm và tiền lương làm thêm"
+    },
+    {
+      "doc_id": "PL-03",
+      "relative_path": "01_Phap_luat_Viet_Nam/PL-03-Nghi-phep-va-ngay-le.md",
+      "sha256": "bf42f78feb18db89736d9ae006c7dabbae2804b12e21c9836f51dd6e6d9d2028",
+      "file_size_bytes": 6014,
+      "clause_count": 5,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "VIETNAM_LAW",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "PL-03/DIEU-01",
+        "PL-03/DIEU-02",
+        "PL-03/DIEU-03",
+        "PL-03/DIEU-04",
+        "PL-03/DIEU-05"
+      ],
+      "document_title": "Quy định pháp luật về nghỉ phép hàng năm, nghỉ lễ tết và nghỉ việc riêng"
+    },
+    {
+      "doc_id": "PL-04",
+      "relative_path": "01_Phap_luat_Viet_Nam/PL-04-Luong-toi-thieu-Bac-Ninh.md",
+      "sha256": "320e6182471133f763b5ded1614d2570492fc3fd1d4baa73ac44f861a64bb5b3",
+      "file_size_bytes": 4040,
+      "clause_count": 3,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "VIETNAM_LAW",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "PL-04/DIEU-01",
+        "PL-04/DIEU-02",
+        "PL-04/DIEU-03"
+      ],
+      "document_title": "Mức lương tối thiểu vùng tại địa bàn tỉnh Bắc Ninh"
+    },
+    {
+      "doc_id": "PL-05",
+      "relative_path": "01_Phap_luat_Viet_Nam/PL-05-Che-do-nang-luong-va-thuong.md",
+      "sha256": "a2c5a1df038fa0451e9fe303b888e4ced54f0262e7562af5b563119b88de9644",
+      "file_size_bytes": 3694,
+      "clause_count": 3,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "VIETNAM_LAW",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "PL-05/DIEU-01",
+        "PL-05/DIEU-02",
+        "PL-05/DIEU-03"
+      ],
+      "document_title": "Quy định pháp luật về chế độ nâng lương và tiền thưởng"
+    },
+    {
+      "doc_id": "PL-06",
+      "relative_path": "01_Phap_luat_Viet_Nam/PL-06-Noi-quy-va-ky-luat-lao-dong.md",
+      "sha256": "43729f9acb12fed43e494298b13ed7fff22807a00b9f1534538a88be86294cb4",
+      "file_size_bytes": 7629,
+      "clause_count": 6,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "VIETNAM_LAW",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "PL-06/DIEU-01",
+        "PL-06/DIEU-02",
+        "PL-06/DIEU-03",
+        "PL-06/DIEU-04",
+        "PL-06/DIEU-05",
+        "PL-06/DIEU-06"
+      ],
+      "document_title": "Quy định pháp luật về nội quy lao động, kỷ luật lao động và trách nhiệm vật chất"
+    },
+    {
+      "doc_id": "FC-01",
+      "relative_path": "02_Tham_khao_Foxconn/FC-01-Tong-quan-nguon-va-pham-vi-tham-khao.md",
+      "sha256": "3e59a4d105aa9787ac63bd3cee4f4a824354a5cd75cf438d24c4d0e00e3d262f",
+      "file_size_bytes": 3080,
+      "clause_count": 3,
+      "status": "BENCHMARK_ONLY",
+      "source_kind": "EXTERNAL_BENCHMARK",
+      "applies_to_current_company": false,
+      "ingest_enabled": false,
+      "clause_ids": [
+        "FC-01/DIEU-01",
+        "FC-01/DIEU-02",
+        "FC-01/DIEU-03"
+      ],
+      "document_title": "Tổng quan nguồn và phạm vi tham khảo Foxconn / Hon Hai"
+    },
+    {
+      "doc_id": "FC-02",
+      "relative_path": "02_Tham_khao_Foxconn/FC-02-Quy-tac-ung-xu-va-quyen-nguoi-lao-dong.md",
+      "sha256": "e0b4e86219fc91967cd3b94bcfc186caf5fc3913bcb413c12b1f551a2835fc0c",
+      "file_size_bytes": 6167,
+      "clause_count": 5,
+      "status": "BENCHMARK_ONLY",
+      "source_kind": "EXTERNAL_BENCHMARK",
+      "applies_to_current_company": false,
+      "ingest_enabled": false,
+      "clause_ids": [
+        "FC-02/DIEU-01",
+        "FC-02/DIEU-02",
+        "FC-02/DIEU-03",
+        "FC-02/DIEU-04",
+        "FC-02/DIEU-05"
+      ],
+      "document_title": "Quy tắc ứng xử và bảo vệ quyền người lao động Foxconn"
+    },
+    {
+      "doc_id": "FC-03",
+      "relative_path": "02_Tham_khao_Foxconn/FC-03-Khoang-trong-chinh-sach-nha-may-Bac-Ninh.md",
+      "sha256": "46a0d94b03adc772769fb8788f52e24f35dd9ac1c5d3f9b1b3dd1b657bc12a2a",
+      "file_size_bytes": 3140,
+      "clause_count": 3,
+      "status": "BENCHMARK_ONLY",
+      "source_kind": "EXTERNAL_BENCHMARK",
+      "applies_to_current_company": false,
+      "ingest_enabled": false,
+      "clause_ids": [
+        "FC-03/DIEU-01",
+        "FC-03/DIEU-02",
+        "FC-03/DIEU-03"
+      ],
+      "document_title": "Khoảng trống chính sách và thông tin không công khai của Foxconn tại Bắc Ninh"
+    },
+    {
+      "doc_id": "CT-01",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-01-Noi-quy-lam-viec-theo-ca-va-ban-giao.md",
+      "sha256": "f90bb3f0b5469b72734d71848b4c33d3ae3e0527040b559736c5641e51f049f4",
+      "file_size_bytes": 5614,
+      "clause_count": 5,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-01/DIEU-01",
+        "CT-01/DIEU-02",
+        "CT-01/DIEU-03",
+        "CT-01/DIEU-04",
+        "CT-01/DIEU-05"
+      ],
+      "document_title": "Nội quy làm việc theo ca và quy trình bàn giao ca (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-02",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-02-Quy-che-cham-cong-va-sua-cong.md",
+      "sha256": "833d85e829edb812419aa19e3c365d22f52afb00ee2c60987b414c50ca7d9f47",
+      "file_size_bytes": 5382,
+      "clause_count": 4,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-02/DIEU-01",
+        "CT-02/DIEU-02",
+        "CT-02/DIEU-03",
+        "CT-02/DIEU-04"
+      ],
+      "document_title": "Quy chế chấm công và xử lý điều chỉnh công (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-03",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-03-Quy-che-lam-them-gio-va-phe-duyet-OT.md",
+      "sha256": "361edf4adc0e7876d02fff92520268511ef49b1b54992877e2f7dfd3468c8629",
+      "file_size_bytes": 6273,
+      "clause_count": 5,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-03/DIEU-01",
+        "CT-03/DIEU-02",
+        "CT-03/DIEU-03",
+        "CT-03/DIEU-04",
+        "CT-03/DIEU-05"
+      ],
+      "document_title": "Quy chế làm thêm giờ và quy trình phê duyệt OT (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-04",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-04-Quy-che-nghi-phep-doi-ca-va-nghi-le.md",
+      "sha256": "10d9c821caf2df5df0b7dce670f60a1ee06f8b563b60360486cf214e25ecf259",
+      "file_size_bytes": 8124,
+      "clause_count": 5,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-04/DIEU-01",
+        "CT-04/DIEU-02",
+        "CT-04/DIEU-03",
+        "CT-04/DIEU-04",
+        "CT-04/DIEU-05"
+      ],
+      "document_title": "Quy chế nghỉ phép, đổi ca và nghỉ ngày Lễ Tết (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-05",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-05-Quy-che-tra-luong-va-doi-soat-bang-luong.md",
+      "sha256": "e0f3a85e602e425c32b1b09fd5e8689f82930a175a55bfe0f641fb1c4cebc921",
+      "file_size_bytes": 7161,
+      "clause_count": 5,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-05/DIEU-01",
+        "CT-05/DIEU-02",
+        "CT-05/DIEU-03",
+        "CT-05/DIEU-04",
+        "CT-05/DIEU-05"
+      ],
+      "document_title": "Quy chế trả lương và đối soát bảng lương (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-06",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-06-Quy-che-nang-luong-va-xet-bac.md",
+      "sha256": "d23b05da7a615d676af80cf2ce057be4a0981ef16751784b96e8edefd13416e8",
+      "file_size_bytes": 6237,
+      "clause_count": 5,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-06/DIEU-01",
+        "CT-06/DIEU-02",
+        "CT-06/DIEU-03",
+        "CT-06/DIEU-04",
+        "CT-06/DIEU-05"
+      ],
+      "document_title": "Quy chế nâng lương và xét nâng bậc nghề (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-07",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-07-Quy-che-khen-thuong-va-phuc-loi.md",
+      "sha256": "3ec9bca52fd90fae3b144d7c390acc0d6b66226d3a97668f1c3d5342eb4e498b",
+      "file_size_bytes": 6857,
+      "clause_count": 6,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-07/DIEU-01",
+        "CT-07/DIEU-02",
+        "CT-07/DIEU-03",
+        "CT-07/DIEU-04",
+        "CT-07/DIEU-05",
+        "CT-07/DIEU-06"
+      ],
+      "document_title": "Quy chế khen thưởng và chế độ phúc lợi (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-08",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-08-Quy-che-ky-luat-va-trach-nhiem-vat-chat.md",
+      "sha256": "d444be80e8af63ff0a30713ff1d64421dc32382284f33aa8e82340ef5862ba63",
+      "file_size_bytes": 6561,
+      "clause_count": 5,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-08/DIEU-01",
+        "CT-08/DIEU-02",
+        "CT-08/DIEU-03",
+        "CT-08/DIEU-04",
+        "CT-08/DIEU-05"
+      ],
+      "document_title": "Quy chế kỷ luật lao động và trách nhiệm vật chất (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-09",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-09-Chinh-sach-an-ca-xe-va-ho-tro-doi-song.md",
+      "sha256": "41915816df4001aba89d94fdba19af657cbc0fe114c1420fcb9ac555fc58eb58",
+      "file_size_bytes": 6103,
+      "clause_count": 4,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-09/DIEU-01",
+        "CT-09/DIEU-02",
+        "CT-09/DIEU-03",
+        "CT-09/DIEU-04"
+      ],
+      "document_title": "Chính sách ăn ca, xe đưa đón và hỗ trợ đời sống (môi trường demo)"
+    },
+    {
+      "doc_id": "CT-10",
+      "relative_path": "03_Mau_quy_dinh_cong_ty/CT-10-Quy-tac-ung-xu-bao-mat-va-khieu-nai.md",
+      "sha256": "e1424ad31c6211d38a94eb161518dddde780cb54c7fc0e4bdb02e34ceda08a11",
+      "file_size_bytes": 5362,
+      "clause_count": 4,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "COMPANY_POLICY",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "CT-10/DIEU-01",
+        "CT-10/DIEU-02",
+        "CT-10/DIEU-03",
+        "CT-10/DIEU-04"
+      ],
+      "document_title": "Quy tắc ứng xử, bảo mật thông tin và cơ chế khiếu nại (môi trường demo)"
+    },
+    {
+      "doc_id": "BM-01",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/BM-01-Phieu-yeu-cau-sua-cong-va-giai-trinh.md",
+      "sha256": "e5eebaea27c1707f6f6022e2c5987492aa545778cdce9b1192b6c1f3c7d3e6b7",
+      "file_size_bytes": 5112,
+      "clause_count": 2,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "BM-01/MUC-01",
+        "BM-01/MUC-02"
+      ],
+      "document_title": "Phiếu yêu cầu sửa công và giải trình quên quẹt thẻ (môi trường demo)"
+    },
+    {
+      "doc_id": "BM-02",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/BM-02-Don-xin-nghi-phep-va-hoan-doi-ca.md",
+      "sha256": "4c2767a28b0d648f96af39d6cb418e020fb9525c65c61b5f9555fd65668ffc1a",
+      "file_size_bytes": 5163,
+      "clause_count": 2,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "BM-02/MUC-01",
+        "BM-02/MUC-02"
+      ],
+      "document_title": "Đơn xin nghỉ phép và hoán đổi ca làm việc (môi trường demo)"
+    },
+    {
+      "doc_id": "BM-03",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/BM-03-Phieu-dang-ky-va-xac-nhan-lam-them-gio.md",
+      "sha256": "83a54fdb2a323ab0f0911294a3d2e63747f084b658344edd97b79ab1b14bfdbd",
+      "file_size_bytes": 6369,
+      "clause_count": 2,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "BM-03/MUC-01",
+        "BM-03/MUC-02"
+      ],
+      "document_title": "Phiếu đăng ký và xác nhận làm thêm giờ (Phiếu phê duyệt OT) (môi trường demo)"
+    },
+    {
+      "doc_id": "BM-04",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/BM-04-Phieu-de-nghi-khen-thuong-va-nang-bac.md",
+      "sha256": "6e5273720cb9dc6bb2308af7b46d0cbad3b0f5863820e8705cafd33326cd2d71",
+      "file_size_bytes": 4656,
+      "clause_count": 1,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "BM-04/MUC-01"
+      ],
+      "document_title": "Phiếu đề nghị khen thưởng và nâng bậc lương (môi trường demo)"
+    },
+    {
+      "doc_id": "BM-05",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/BM-05-Bien-ban-su-viec-va-ban-giai-trinh-vi-pham.md",
+      "sha256": "c4b96cf25103b6790c4308bafa16fe3e00cfe5589eaa8967b7eba7e95dd3d8b7",
+      "file_size_bytes": 5812,
+      "clause_count": 2,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "BM-05/MUC-01",
+        "BM-05/MUC-02"
+      ],
+      "document_title": "Biên bản sự việc và bản giải trình vi phạm nội quy (môi trường demo)"
+    },
+    {
+      "doc_id": "BM-06",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/BM-06-Bien-ban-ban-giao-ca-va-thiet-bi.md",
+      "sha256": "c61a8346034ec64139047a88e2312d8e6e8e6b64bc72001c41a26fab7390d9a6",
+      "file_size_bytes": 4691,
+      "clause_count": 2,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "BM-06/MUC-01",
+        "BM-06/MUC-02"
+      ],
+      "document_title": "Biên bản bàn giao ca làm việc và thiết bị (môi trường demo)"
+    },
+    {
+      "doc_id": "BM-07",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/BM-07-Phieu-khieu-nai-va-phan-anh-che-do.md",
+      "sha256": "4a1a49130a6997109f86bd90580cf9c0b7eecdbe8860c767ee703661c2806479",
+      "file_size_bytes": 4978,
+      "clause_count": 2,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "BM-07/MUC-01",
+        "BM-07/MUC-02"
+      ],
+      "document_title": "Phiếu khiếu nại và phản ánh chế độ nhân sự (môi trường demo)"
+    },
+    {
+      "doc_id": "FAQ-01",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/FAQ-01-Hoi-dap-chinh-sach-nhan-su.md",
+      "sha256": "bcb00cbd72986bc7d876faae132fbec6ec8a4fe85d11735f11587e01f4713f37",
+      "file_size_bytes": 13667,
+      "clause_count": 11,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "FAQ-01/Q-01",
+        "FAQ-01/Q-02",
+        "FAQ-01/Q-03",
+        "FAQ-01/Q-04",
+        "FAQ-01/Q-05",
+        "FAQ-01/Q-06",
+        "FAQ-01/Q-07",
+        "FAQ-01/Q-08",
+        "FAQ-01/Q-09",
+        "FAQ-01/Q-10",
+        "FAQ-01/Q-11"
+      ],
+      "document_title": "Sổ tay hỏi đáp chính sách nhân sự và chế độ người lao động (môi trường demo)"
+    },
+    {
+      "doc_id": "HD-01",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/HD-01-Huong-dan-thao-tac-tren-he-thong-HRMS.md",
+      "sha256": "cf7719f119b5a725c0f31c4d9db6c701eb41c03487245cf1728ee2724534f2a7",
+      "file_size_bytes": 6859,
+      "clause_count": 5,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "SYSTEM_SPEC",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "HD-01/MUC-01",
+        "HD-01/MUC-02",
+        "HD-01/MUC-03",
+        "HD-01/MUC-04",
+        "HD-01/MUC-05"
+      ],
+      "document_title": "Hướng dẫn thao tác giao diện người dùng trên hệ thống HRMS (môi trường demo)"
+    },
+    {
+      "doc_id": "SOP-01",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/SOP-01-Quy-trinh-chot-bang-cong-va-tinh-luong.md",
+      "sha256": "4b1dd628e88d7614cc02018d18ba9e17a5e6fb6700fe83e85ba26ab354023222",
+      "file_size_bytes": 7114,
+      "clause_count": 3,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "SOP-01/MUC-01",
+        "SOP-01/MUC-02",
+        "SOP-01/MUC-03"
+      ],
+      "document_title": "Quy trình thao tác chuẩn: Chốt bảng công và tính lương hàng tháng (môi trường demo)"
+    },
+    {
+      "doc_id": "SOP-02",
+      "relative_path": "04_Quy_trinh_Bieu_mau_FAQ/SOP-02-Quy-trinh-phe-duyet-va-giam-sat-OT.md",
+      "sha256": "501939f6b2b50d741be21a31481f5f1f2f4915b7135c0f1d93300d1ccb79cab7",
+      "file_size_bytes": 6686,
+      "clause_count": 3,
+      "status": "ACTIVE_OFFICIAL",
+      "source_kind": "INTERNAL_PROCEDURE",
+      "applies_to_current_company": true,
+      "ingest_enabled": true,
+      "clause_ids": [
+        "SOP-02/MUC-01",
+        "SOP-02/MUC-02",
+        "SOP-02/MUC-03"
+      ],
+      "document_title": "Quy trình thao tác chuẩn: Phê duyệt và giám sát làm thêm giờ (OT) (môi trường demo)"
+    }
+  ]
+}

@@ -33,10 +33,15 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsTD.DataSource = _trinhdo.getList();
+            try
+            {
+            gcDsTD.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _trinhdo.getList());
             FormManager_Functions.CustomView_Colums(gvDsTD);
+                    }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()
@@ -95,7 +100,7 @@ namespace QLyNSu
             showHide(false);
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_DM_TRINHDO", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
@@ -110,14 +115,16 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _trinhdo.Delete(_IDTD);
-                LoadData();
+                await LoadData();
+            if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
         }
@@ -138,13 +145,14 @@ namespace QLyNSu
             if (!Functions.FormSecurity.AssertPermission("F_DM_TRINHDO", Bu.DTO.PermissionAction.Print)) return;
         }
 
-        private void FrmTrinhDo_Load(object sender, EventArgs e)
+        private async void FrmTrinhDo_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_TRINHDO")) return;
             _them = false;
             _trinhdo = new TRINHDO();
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
         private void gvDsTD_Click(object sender, EventArgs e)

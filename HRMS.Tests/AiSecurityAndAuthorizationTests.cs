@@ -1,7 +1,9 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Bu.Services.AI_Services.Security;
 using Bu.Services.AI_Services.Core;
+using Bu.Services.AI_Services.Interfaces;
 
 namespace Bu.Tests
 {
@@ -253,26 +255,102 @@ namespace Bu.Tests
         }
 
         [Test]
-        public void BranchB2Profile_CorrectlyEnables11CapabilitiesAndDisables5Capabilities()
+        public void InsuranceResponse_MasksBothAnswerAndPublicApiTable_WithoutMutatingSource()
         {
+            var plan = new QueryExecutionPlan { Domain = "INSURANCE", Strategy = ExecutionStrategy.SqlTemplate };
+            plan.FieldModes["SOBH"] = "MASK"; plan.FieldModes["NOICAP"] = "DENY";
+            var data = new System.Data.DataTable();
+            data.Columns.Add("MANV", typeof(int)); data.Columns.Add("SOBH", typeof(string)); data.Columns.Add("NOICAP", typeof(string));
+            data.Rows.Add(15, "DEMO_PRIVATE_NUMBER", "DEMO_PRIVATE_LOCATION");
+            var response = DeterministicResponseRenderer.Render(plan, new SqlExecutionResult { Status = SqlExecutionStatus.SuccessWithData, Data = data });
+            Assert.That(response.Answer, Does.Not.Contain("DEMO_PRIVATE_NUMBER"));
+            Assert.AreEqual("***", response.Data.Rows[0]["SOBH"]);
+            Assert.IsFalse(response.Data.Columns.Contains("NOICAP"));
+            Assert.AreEqual("DEMO_PRIVATE_NUMBER", data.Rows[0]["SOBH"], "Internal evidence must remain unchanged.");
+        }
+
+        private static AiAuthorizationContext InsuranceContext()
+        {
+            var ctx = new AiAuthorizationContext { UserId = 20, Manv = 15, PolicyLoaded = true, IsAdmin = true };
+            foreach (string code in new[] { "INSURANCE_SELF", "INSURANCE_VIEW" })
+            {
+                ctx.Capabilities[code] = new AiPolicyCapability { Enabled = true, SourceView = "V_AI_INSURANCE", RequiredFunctionCode = code == "INSURANCE_VIEW" ? "F_DM_NHANVIEN" : null };
+                ctx.ScopeGrants.Add(new AiScopeGrant { CapabilityCode = code, ScopeType = "ALL", Effect = "ALLOW" });
+                foreach (string field in new[] { "MANV", "HOTEN", "SOBH", "NGAYCAP", "NOICAP", "NOIKHAMBENH" })
+                {
+                    ctx.FieldPolicies[code + ":" + field] = code == "INSURANCE_VIEW" && field == "SOBH" ? "MASK" : "FULL";
+                    ctx.FieldOperations[code + ":" + field] = "LOOKUP,VIEW,LIST,SELF,SELECT";
+                }
+            }
+            return ctx;
+        }
+
+        [Test]
+        public void InsuranceManagement_RequiresFunctionEvenForAdmin_AndPreservesExplicitDeny()
+        {
+            var ctx = InsuranceContext();
+            Assert.IsFalse(_authService.CheckCapability(ctx, "INSURANCE_VIEW").IsAllowed);
+            ctx.Capabilities["INSURANCE_VIEW"].RequiredFunctionCode = null;
+            Assert.IsFalse(_authService.CheckCapability(ctx, "INSURANCE_VIEW").IsAllowed, "Database policy cannot remove the compiled function requirement.");
+            ctx.FunctionRights.Add("F_DM_NHANVIEN");
+            Assert.IsTrue(_authService.CheckCapability(ctx, "INSURANCE_VIEW").IsAllowed);
+            ctx.ScopeGrants.Add(new AiScopeGrant { CapabilityCode = "INSURANCE_VIEW", ScopeType = "ALL", Effect = "DENY" });
+            Assert.IsFalse(_authService.CheckCapability(ctx, "INSURANCE_VIEW").IsAllowed);
+            Assert.IsFalse(AiScopeEvaluator.BuildSqlScopeFilter(ctx, "INSURANCE_VIEW").IsAllowed);
+        }
+
+        [Test]
+        public void InsuranceManagement_RequiresExplicitScope_AndMasksInsuranceNumberInPlan()
+        {
+            var ctx = InsuranceContext(); ctx.FunctionRights.Add("F_DM_NHANVIEN"); ctx.ScopeGrants.Clear();
+            var question = new QueryUnderstandingResult { Domain = "INSURANCE", Operation = "LOOKUP", RequestedScope = "ALL" };
+            question.Entities.Add(new EntityMention { EntityType = "EMPLOYEE", ResolvedId = 99, Status = "RESOLVED" });
+            var planner = new QueryPlanner();
+            Assert.AreEqual(ExecutionStrategy.Forbidden, planner.CreatePlan(question, ctx).Strategy);
+            ctx.ScopeGrants.Add(new AiScopeGrant { CapabilityCode = "INSURANCE_VIEW", ScopeType = "DEPARTMENT", ScopeKey = "2", Effect = "ALLOW" });
+            question.Entities[0].DepartmentId = 3;
+            Assert.AreEqual(ExecutionStrategy.Forbidden, planner.CreatePlan(question, ctx).Strategy, "Other departments remain denied.");
+            question.Entities[0].DepartmentId = 2;
+            var plan = planner.CreatePlan(question, ctx);
+            Assert.AreEqual(ExecutionStrategy.SqlTemplate, plan.Strategy, plan.DenialOrUnsupportedReason);
+            Assert.That(plan.MaskedFields, Does.Contain("SOBH"));
+        }
+
+        [Test]
+        public void InsuranceSelf_NeverExpandsBeyondMappedEmployee_AndDeniesMissingIdentity()
+        {
+            var ctx = InsuranceContext();
+            Assert.IsTrue(AiScopeEvaluator.IsEmployeeInScope(ctx, 15, capabilityCode: "INSURANCE_SELF"));
+            Assert.IsFalse(AiScopeEvaluator.IsEmployeeInScope(ctx, 99, capabilityCode: "INSURANCE_SELF"));
+            var scope = AiScopeEvaluator.BuildSqlScopeFilter(ctx, "INSURANCE_SELF");
+            Assert.That(scope.SqlPredicate, Does.Contain("MANV = :p_scope_self"));
+            Assert.AreEqual(15, scope.Parameters[":p_scope_self"]);
+            ctx.Manv = null;
+            Assert.IsFalse(AiScopeEvaluator.BuildSqlScopeFilter(ctx, "INSURANCE_SELF").IsAllowed);
+        }
+
+        [Test]
+        public void AvailableSourceProfile_Enables13CapabilitiesAndKeeps4UnavailableCapabilitiesDisabled()
+        {
+            var previous = AiCapabilityCatalog.GetAll().ToDictionary(c => c.CapabilityCode, c => c.IsEnabled);
             try
             {
                 AiCapabilityCatalog.ApplyBranchB2Profile();
 
-                // 11 capabilities bật
+                // 13 available capabilities
                 string[] b2Active = new[]
                 {
                     "EMPLOYEE_LOOKUP", "EMPLOYEE_PROFILE", "EMPLOYEE_COUNT",
                     "ATTENDANCE_SUMMARY", "OVERTIME_VIEW", "OVERTIME_SUM",
                     "ALLOWANCE_VIEW", "INSURANCE_SELF", "ADVANCE_VIEW",
-                    "CONTRACT_VIEW", "SALARY_CHANGE_VIEW"
+                    "CONTRACT_VIEW", "SALARY_CHANGE_VIEW", "INSURANCE_VIEW", "POLICY_LOOKUP"
                 };
 
-                // 5 capabilities tắt
+                // 4 unavailable protected sources
                 string[] b2Disabled = new[]
                 {
                     "PAYROLL_SELF", "PAYROLL_VIEW", "PAYROLL_SUMMARY",
-                    "ATTENDANCE_DETAIL", "INSURANCE_VIEW"
+                    "ATTENDANCE_DETAIL"
                 };
 
                 foreach (var code in b2Active)
@@ -288,9 +366,7 @@ namespace Bu.Tests
             finally
             {
                 // Restore for other regression suites
-                AiCapabilityCatalog.SetEnabled("PAYROLL_SELF", true);
-                AiCapabilityCatalog.SetEnabled("PAYROLL_VIEW", true);
-                AiCapabilityCatalog.SetEnabled("PAYROLL_SUMMARY", true);
+                foreach (var state in previous) AiCapabilityCatalog.SetEnabled(state.Key, state.Value);
             }
         }
     }

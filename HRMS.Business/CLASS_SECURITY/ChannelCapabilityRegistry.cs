@@ -81,12 +81,29 @@ namespace Bu.CLASS_SECURITY
                 Register(AppChannels.Desktop, m, true, true, true, true, true);
             }
 
+            // Desktop already implements the approval centre. Capability does not grant permission.
+            Register(AppChannels.Desktop, "F_NV_PHEDUYET", true, true, true, false, true,
+                "Xem yêu cầu; quyền Thêm để lập đơn chuẩn bị công; quyền Sửa để sửa đơn chờ và duyệt/từ chối; quyền In để xuất danh sách.");
+
             // =========================================================================
             // 2. KÊNH WEB PORTAL: Hỗ trợ quản trị, báo cáo, hồ sơ, phê duyệt, AI Chat.
-            // ĐẶC BIỆT: Bảng lương (F_CC_BANGLUONG) CHỈ hỗ trợ Xem (View), khóa các action tính/ghi lương!
+            // Bảng lương Web hỗ trợ Xem/In khi được cấp quyền; vẫn cấm tính, thêm, sửa và xóa.
             // =========================================================================
-            Register(AppChannels.Web, "F_CC_BANGLUONG", true, false, false, false, false, "Web chỉ được xem bảng lương đã công bố, không được tính/sửa lương.");
+            Register(AppChannels.Desktop, "F_CC_CONGBO_LUONG", true, false, true, false, false, "Kiểm tra và công bố phiếu lương; sau công bố khóa bất biến lương và bảng công.");
+            Register(AppChannels.Web, "F_CC_CONGBO_LUONG", true, false, true, false, false, "Kiểm tra và công bố phiếu lương; sau công bố khóa bất biến lương và bảng công.");
+            Register(AppChannels.Web, "F_SYSTEM_GIAMSAT", true, false, true, false, false, "Xem nhật ký và thu hồi phiên khi được cấp quyền sửa.");
+            Register(AppChannels.Web, "F_CC_BANGLUONG", true, false, false, false, true, "Web hỗ trợ xem và in bảng lương khi được cấp quyền; không hỗ trợ tính, thêm, sửa hoặc xóa lương.");
             Register(AppChannels.Web, "F_NV_PHEDUYET", true, true, true, false, true, "Phê duyệt yêu cầu trực tuyến.");
+
+            // 3 mã quyền chuyên biệt: Duyệt tạm ứng, Duyệt hồ sơ, Chi tiền tạm ứng
+            Register(AppChannels.Desktop, "F_APPROVE_ADVANCE", true, false, true, false, true, "Xem và duyệt/từ chối đơn tạm ứng lương.");
+            Register(AppChannels.Web, "F_APPROVE_ADVANCE", true, false, true, false, true, "Xem và duyệt/từ chối đơn tạm ứng lương trực tuyến.");
+
+            Register(AppChannels.Desktop, "F_APPROVE_PROFILE", true, false, true, false, true, "Xem và duyệt/từ chối đề xuất thay đổi hồ sơ nhân viên.");
+            Register(AppChannels.Web, "F_APPROVE_PROFILE", true, false, true, false, true, "Xem và duyệt/từ chối đề xuất thay đổi hồ sơ nhân viên trực tuyến.");
+
+            Register(AppChannels.Desktop, "F_PAYROLL_DISBURSE_ADVANCE", true, false, true, false, true, "Xem và thực hiện giải ngân/chi tiền tạm ứng lương.");
+            Register(AppChannels.Web, "F_PAYROLL_DISBURSE_ADVANCE", true, false, true, false, true, "Xem và thực hiện giải ngân/chi tiền tạm ứng lương trực tuyến.");
 
             string[] webSupportedModules = new string[]
             {
@@ -94,7 +111,7 @@ namespace Bu.CLASS_SECURITY
                 "F_DM_PHONGBAN", "F_DM_TONGIAO", "F_DM_TRINHDO", "F_DM_LOAIPHEP",
                 "F_NV_LOAIHOPDONG", "F_NV_DIEUCHUYEN", "F_NV_HOPDONG", "F_NV_KHENTHUONG",
                 "F_NV_KYLUAT", "F_NV_NANGLUONG", "F_NV_THOIVIEC", "F_NV_NGHIPHEP",
-                "F_CC_BANGCONG", "F_CC_BCCT", "F_CC_NGAYLE",
+                "F_CC_BANGCONG", "F_CC_BCCT", "F_CC_NGAYLE", "F_CC_UNGLUONG", "F_CC_TANGCA",
                 "F_BC_BAOCAO", "F_DB_LUONG", "F_DB_NHANSU",
                 "F_SYSTEM_USER", "F_SYSTEM_GROUP", "F_SYSTEM_LOCK_USER", "F_SYSTEM_CAPTAIKHOAN",
                 "F_SYSTEM_PQ_CHUCNANG", "F_SYSTEM_PQ_BAOCAO", "F_SYSTEM_THONGBAO",
@@ -109,14 +126,19 @@ namespace Bu.CLASS_SECURITY
             // =========================================================================
             // 3. KÊNH MOBILE APP: Chuyên biệt cho nhân viên cá nhân (các mã MOBILE_*)
             // =========================================================================
+            Register(AppChannels.Mobile, "MOBILE_ROOT", true, false, false, false, false, "Phân hệ Mobile App");
             Register(AppChannels.Mobile, "MOBILE_PROFILE_VIEW", true, false, false, false, false, "Xem hồ sơ cá nhân trên Mobile");
+            Register(AppChannels.Mobile, "MOBILE_PROFILE_EDIT", true, true, true, false, false, "Đề xuất / Cập nhật hồ sơ cá nhân trên Mobile");
             Register(AppChannels.Mobile, "MOBILE_ATTENDANCE_VIEW", true, false, false, false, false, "Xem bảng công cá nhân trên Mobile");
+            Register(AppChannels.Mobile, "MOBILE_REQUEST_CORRECTION", true, true, false, false, false, "Gửi yêu cầu điều chỉnh công từ Mobile");
             Register(AppChannels.Mobile, "MOBILE_PAYROLL_VIEW", true, false, false, false, false, "Xem phiếu lương đã công bố trên Mobile");
             Register(AppChannels.Mobile, "MOBILE_CONTRACT_VIEW", true, false, false, false, false, "Xem hợp đồng lao động trên Mobile");
-            Register(AppChannels.Mobile, "MOBILE_INSURANCE_VIEW", true, false, false, false, false, "Xem bảo hiểm trên Mobile");
+            Register(AppChannels.Mobile, "MOBILE_INSURANCE_VIEW", true, false, false, false, false, "Xem bảo hiểm xã hội trên Mobile");
+            Register(AppChannels.Mobile, "MOBILE_REQUEST_INSURANCE", true, true, false, false, false, "Đề xuất thay đổi bảo hiểm từ Mobile");
+            Register(AppChannels.Mobile, "MOBILE_REQUEST_DEPENDENT", true, true, false, false, false, "Đề xuất người phụ thuộc từ Mobile");
             Register(AppChannels.Mobile, "MOBILE_NOTIFICATION_VIEW", true, false, false, false, false, "Xem thông báo nội bộ trên Mobile");
             Register(AppChannels.Mobile, "MOBILE_REQUEST_LEAVE", true, true, false, false, false, "Gửi đơn xin nghỉ phép từ Mobile");
-            Register(AppChannels.Mobile, "MOBILE_REQUEST_OVERTIME", true, true, false, false, false, "Gửi đơn đăng ký tăng ca từ Mobile");
+            Register(AppChannels.Mobile, "MOBILE_REQUEST_OVERTIME", true, true, true, false, false, "Gửi đơn và hủy đề xuất tăng ca từ Mobile");
             Register(AppChannels.Mobile, "MOBILE_REQUEST_ADVANCE", true, true, false, false, false, "Gửi yêu cầu tạm ứng lương từ Mobile");
             Register(AppChannels.Mobile, "DOIMATKHAU", true, false, true, false, false, "Đổi mật khẩu tài khoản");
         }

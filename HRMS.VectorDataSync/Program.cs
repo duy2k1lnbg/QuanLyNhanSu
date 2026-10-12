@@ -419,20 +419,24 @@ namespace VectorDataSync
                         continue;
                     }
 
-                    ulong empId = (ulong)emp.MANV;
+                    string pointId = Bu.Services.AI_Services.Vector.QdrantService.GeneratePointId("EMPLOYEE", emp.MANV.ToString());
                     int deptId = emp.IDPB.HasValue ? (int)emp.IDPB.Value : 0;
                     int compId = emp.IDCTY.HasValue ? (int)emp.IDCTY.Value : 1;
 
                     pointsBatch.Add(new
                     {
-                        id = empId,
+                        id = pointId,
                         vector = vector,
                         payload = new
                         {
-                            employeeId = (int)empId,
+                            employeeId = (int)emp.MANV,
                             departmentId = deptId,
                             companyId = compId,
                             tag = "EMPLOYEE",
+                            domain = "EMPLOYEE",
+                            documentType = "EMPLOYEE_PROFILE",
+                            sourceId = $"EMP_{emp.MANV}",
+                            title = emp.HOTEN,
                             text = text,
                             version = 2
                         }

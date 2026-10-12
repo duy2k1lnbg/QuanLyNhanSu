@@ -188,15 +188,10 @@ namespace HRMS_API.Filters
             }
             actionContext.Request.Properties["JwtUser"] = claims;
 
-            // 7. Đồng bộ thông tin người dùng từ JWT vào Entity Framework Audit Logging
-            if (claims != null)
-            {
-                if (int.TryParse(claims.UserId, out int auditUserId))
-                {
-                    DA.MyEntities.CurrentAuditUserId = auditUserId;
-                }
-                DA.MyEntities.CurrentAuditUsername = claims.Username;
-            }
+            var audit=AuditRequestContext.Create(claims,HttpContext.Current==null ? null : new HttpContextWrapper(HttpContext.Current));
+            actionContext.Request.Properties["HRMS_AUDIT_CONTEXT"]=audit;
+            if(HttpContext.Current!=null) HttpContext.Current.Items["HRMS_AUDIT_CONTEXT"]=audit;
+
         }
 
         /// <summary>

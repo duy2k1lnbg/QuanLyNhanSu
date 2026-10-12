@@ -8,6 +8,7 @@ namespace Bu.Services.AI_Services.Core
     /// Xử lý các câu hỏi cố định, xã giao (Rule-based) để trả lời ngay lập tức, 
     /// giảm tải việc gọi LLM và tăng tốc độ phản hồi.
     /// </summary>
+    [Obsolete("FastResponseService is dead code and does not check authorization. Use DeterministicResponseRenderer instead.", false)]
     public static class FastResponseService
     {
         public static string GetFastResponse(string question)

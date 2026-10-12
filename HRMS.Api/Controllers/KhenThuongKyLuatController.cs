@@ -51,6 +51,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách khen thưởng/kỷ luật: " + ex.ToString());
@@ -95,6 +96,7 @@ namespace HRMS_API.Controllers
                     return Ok(kt);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi thêm quyết định khen thưởng/kỷ luật: " + ex.ToString());
@@ -128,6 +130,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã xóa quyết định {soqd}." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi xóa quyết định: " + ex.ToString());

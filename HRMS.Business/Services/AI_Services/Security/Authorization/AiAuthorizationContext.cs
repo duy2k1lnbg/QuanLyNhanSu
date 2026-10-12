@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -33,6 +33,8 @@ namespace Bu.Services.AI_Services.Security
         public bool IsAdmin { get; set; }
         public HashSet<string> FunctionRights { get; set; } = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         public HashSet<int> AllowedDepartmentIds { get; set; } = new HashSet<int>();
+        // Membership must be populated by a trusted server-side identity provider; empty means no role access.
+        public HashSet<string> AllowedRoleIds { get; set; } = new HashSet<string>(StringComparer.Ordinal);
         public bool HasCompanyScope { get; set; }
         public bool HasAllScope { get; set; }
         public long PolicyVersion { get; set; }
@@ -51,6 +53,7 @@ namespace Bu.Services.AI_Services.Security
                 UserId, Manv, MaCty, PolicyVersion, PolicyLoaded, HasAllScope, HasCompanyScope,
                 Rights = (FunctionRights ?? new HashSet<string>()).OrderBy(x => x, StringComparer.Ordinal).ToArray(),
                 Departments = AllowedDepartmentIds.OrderBy(x => x).ToArray(),
+                Roles = AllowedRoleIds.OrderBy(x => x, StringComparer.Ordinal).ToArray(),
                 Caps = Capabilities.OrderBy(x => x.Key, StringComparer.Ordinal).ToArray(),
                 Operations = FieldOperations.OrderBy(x => x.Key, StringComparer.Ordinal).ToArray(),
                 Fields = FieldPolicies.OrderBy(x => x.Key, StringComparer.Ordinal).ToArray(),

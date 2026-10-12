@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import {notificationText} from '../../utils/notificationText';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -36,20 +37,17 @@ export const NotificationDetailScreen: React.FC<Props> = ({ route, navigation })
   const [loading, setLoading] = useState(!initialData);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [attempt,setAttempt]=useState(0);
+  const retry=useCallback(()=>setAttempt(value=>value+1),[]);
   useEffect(() => {
-    const fetchDetail = async () => {
-      try {
-        const data = await meApi.getNotificationDetail(notificationId);
-        setNotification(data);
-      } catch (error: any) {
-        setErrorMessage(mapApiError(error));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDetail();
-  }, [notificationId]);
+    let active=true;
+    setLoading(true);setErrorMessage(null);
+    meApi.getNotificationDetail(notificationId)
+      .then(data=>{if(active) setNotification({...data,isUnread:false});})
+      .catch(error=>{if(active) setErrorMessage(mapApiError(error));})
+      .finally(()=>{if(active) setLoading(false);});
+    return ()=>{active=false;};
+  }, [notificationId,attempt]);
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -62,8 +60,8 @@ export const NotificationDetailScreen: React.FC<Props> = ({ route, navigation })
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {loading ? (
           <AppLoading />
-        ) : errorMessage && !notification ? (
-          <AppErrorState message={errorMessage} />
+        ) : errorMessage ? (
+          <AppErrorState message={errorMessage} onRetry={retry} />
         ) : notification ? (
           <AppCard>
             <View style={styles.headerRow}>
@@ -71,7 +69,7 @@ export const NotificationDetailScreen: React.FC<Props> = ({ route, navigation })
                 <AppBadge label={t('notifications.pinned')} variant="warning" style={{ marginBottom: spacing.sm }} />
               )}
               <Text style={[typography.h2, { color: colors.text }]}>
-                {notification.tieude}
+                {notificationText(notification,t).tieude}
               </Text>
 
               <View style={styles.metaRow}>
@@ -92,7 +90,7 @@ export const NotificationDetailScreen: React.FC<Props> = ({ route, navigation })
             <AppDivider marginVertical={spacing.lg} />
 
             <Text style={[typography.body, { color: colors.text, lineHeight: 24 }]}>
-              {notification.noidung}
+              {notificationText(notification,t).noidung}
             </Text>
 
             {notification.fileDinhkem ? (
@@ -128,6 +126,7 @@ const styles = StyleSheet.create({
   },
   metaRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'center',
     marginTop: spacing.sm,
   },

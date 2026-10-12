@@ -32,6 +32,7 @@ namespace HRMS_API.Controllers
                 var list = _pbBus.getListDTO(lang);
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục phòng ban: " + ex.ToString());
@@ -52,6 +53,7 @@ namespace HRMS_API.Controllers
                 var list = _cvBus.getListDTO(lang);
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục chức vụ: " + ex.ToString());
@@ -72,6 +74,7 @@ namespace HRMS_API.Controllers
                 var list = _bpBus.getListDTO(lang);
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục bộ phận: " + ex.ToString());
@@ -92,6 +95,7 @@ namespace HRMS_API.Controllers
                 var list = _tdBus.getListDTO(lang);
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục trình độ: " + ex.ToString());
@@ -112,6 +116,7 @@ namespace HRMS_API.Controllers
                 var list = _dtBus.getListDTO(lang);
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục dân tộc: " + ex.ToString());
@@ -132,6 +137,7 @@ namespace HRMS_API.Controllers
                 var list = _tgBus.getListDTO(lang);
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục tôn giáo: " + ex.ToString());
@@ -152,6 +158,7 @@ namespace HRMS_API.Controllers
                 var list = _qtBus.getListDTO(lang);
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục quốc tịch: " + ex.ToString());
@@ -188,6 +195,7 @@ namespace HRMS_API.Controllers
                     quocTich = quoctich
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tổng hợp danh mục hệ thống: " + ex.ToString());

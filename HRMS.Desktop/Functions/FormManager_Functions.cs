@@ -1,4 +1,4 @@
-using DevExpress.XtraSplashScreen;
+﻿using DevExpress.XtraSplashScreen;
 using QLyNSu.Functions;
 using QLyNSu.FORM_SYSTEM;
 using System;
@@ -14,7 +14,6 @@ namespace QLyNSu
 {
     public class FormManager_Functions
     {
-        private SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private readonly Form _parentForm;
 
         public FormManager_Functions(Form parentForm)
@@ -53,111 +52,41 @@ namespace QLyNSu
             }
         }
 
+        // Existing menu entry points stay compatible; opening a child no longer locks the main window.
         public async Task OpenFormWithSplashScreen(Type typeForm)
         {
-            if (SplashScreenManager.Default == null || !SplashScreenManager.Default.IsSplashFormVisible)
-            {
-                SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, ParentFormState.Locked);
-            }
-            Form openedForm = null;
-            bool semaphoreAcquired = false;
             try
             {
-                semaphoreAcquired = _semaphore.Wait(0);
-                if (!semaphoreAcquired)
-                {
-                    MessageBox.Show("Hệ thống đang bận, vui lòng chờ một chút.");
-                    return;
-                }
-
-                openedForm = await OpenFormAsync(typeForm);
+                var openedForm = await OpenFormAsync(typeForm);
+                if (!_parentForm.IsDisposed && !openedForm.IsDisposed) ActivateForm(openedForm);
             }
             catch (Exception ex)
             {
-                string msg = Bu.CLASS_SYSTEM.ErrorHelper.ResolveUserFriendlyMessage(ex, "mở chức năng");
-                DevExpress.XtraEditors.XtraMessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            finally
-            {
-                if (SplashScreenManager.Default != null && SplashScreenManager.Default.IsSplashFormVisible)
-                {
-                    SplashScreenManager.CloseForm();
-                }
-                if (semaphoreAcquired)
-                {
-                    _semaphore.Release();
-                }
-            }
-
-            if (openedForm != null)
-            {
-                ActivateForm(openedForm);
+                if (!_parentForm.IsDisposed) QLyNSu.Functions.FormDataLoader.ShowLoadError(_parentForm, ex);
             }
         }
 
         public async Task OpenShowUserGroupFormWithSplashScreen(int mode)
         {
-            if (SplashScreenManager.Default == null || !SplashScreenManager.Default.IsSplashFormVisible)
-            {
-                SplashScreenManager.ShowForm(_parentForm, typeof(FrmWaiting), true, true, ParentFormState.Locked);
-            }
-            Form openedForm = null;
-            bool semaphoreAcquired = false;
+            await Task.Yield();
+            if (_parentForm.IsDisposed) return;
             try
             {
-                semaphoreAcquired = _semaphore.Wait(0);
-                if (!semaphoreAcquired)
-                {
-                    MessageBox.Show("Hệ thống đang bận, vui lòng chờ một chút.");
-                    return;
-                }
-
-                foreach (var frm in _parentForm.MdiChildren)
-                {
-                    if (frm is FrmShowUser_Group showUserGroup && showUserGroup.Mode == mode)
-                    {
-                        openedForm = frm;
-                        break;
-                    }
-                }
-
-                if (openedForm == null)
-                {
-                    FrmShowUser_Group f = new FrmShowUser_Group(mode);
-                    TranslationManager.Translate(f);
-                    f.MdiParent = _parentForm;
-                    await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => 
-                    {
-                        f.Show();
-                    })));
-                    openedForm = f;
-                }
+                var existing = _parentForm.MdiChildren.OfType<FrmShowUser_Group>().FirstOrDefault(child => child.Mode == mode);
+                if (existing != null) { ActivateForm(existing); return; }
+                var form = new FrmShowUser_Group(mode);
+                TranslationManager.Translate(form);
+                form.MdiParent = _parentForm;
+                form.Show();
+                ActivateForm(form);
             }
-            catch (Exception ex)
-            {
-                string msg = Bu.CLASS_SYSTEM.ErrorHelper.ResolveUserFriendlyMessage(ex, "mở chức năng");
-                DevExpress.XtraEditors.XtraMessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            }
-            finally
-            {
-                if (SplashScreenManager.Default != null && SplashScreenManager.Default.IsSplashFormVisible)
-                {
-                    SplashScreenManager.CloseForm();
-                }
-                if (semaphoreAcquired)
-                {
-                    _semaphore.Release();
-                }
-            }
-
-            if (openedForm != null)
-            {
-                ActivateForm(openedForm);
-            }
+            catch (Exception ex) { QLyNSu.Functions.FormDataLoader.ShowLoadError(_parentForm, ex); }
         }
 
         private async Task<Form> OpenFormAsync(Type typeForm)
         {
+            await Task.Yield();
+            if (_parentForm.IsDisposed) throw new OperationCanceledException();
             foreach (var frm in _parentForm.MdiChildren)
             {
                 if (frm.GetType() == typeForm)
@@ -172,10 +101,7 @@ namespace QLyNSu
                 f = (Form)Activator.CreateInstance(typeForm);
                 TranslationManager.Translate(f);
                 f.MdiParent = _parentForm;
-                await Task.Run(() => _parentForm.Invoke((MethodInvoker)(() => 
-                {
-                    f.Show();
-                })));
+                f.Show();
                 return f;
             }
             catch
@@ -213,7 +139,6 @@ namespace QLyNSu
                 DialogResult result = MessageBox.Show(message, title, MessageBoxButtons.YesNo);
                 if (result == DialogResult.Yes)
                 {
-                    AiBootstrap.StopOllama();
                     Application.Exit();
                 }
             }
@@ -251,7 +176,8 @@ namespace QLyNSu
             }
 
             gridView.Appearance.HeaderPanel.Options.UseFont = true;
-            gridView.Appearance.HeaderPanel.Font = new Font("Segoe UI", 11, FontStyle.Bold);
+            gridView.Appearance.HeaderPanel.Font = new Font("Segoe UI", 9.5f, FontStyle.Bold);
+            DesktopTypography.Grid(gridView);
         }
 
         public static void CustomView(DevExpress.XtraGrid.Views.Grid.GridView gridView, string layoutPath)

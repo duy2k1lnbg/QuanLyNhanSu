@@ -84,10 +84,17 @@ namespace Bu.CLASS_PAYROLL
             {
                 try
                 {
+                    // Payment tracking is optional in older schemas. Its absence must not
+                    // prevent reading the authoritative publication state or imply a payment.
+                    var paymentColumn = db.Database.SqlQuery<string>(@"
+                        SELECT COLUMN_NAME FROM ALL_TAB_COLUMNS WHERE OWNER='HR' AND TABLE_NAME='TB_BANGLUONG'
+                          AND COLUMN_NAME IN ('TRANGTHAI_CHITRA','TRANG_THAI_CHI_TRA')
+                        ORDER BY CASE COLUMN_NAME WHEN 'TRANGTHAI_CHITRA' THEN 0 ELSE 1 END").FirstOrDefault();
+                    string paymentExpression = paymentColumn == null ? "CAST(NULL AS NVARCHAR2(30))" : paymentColumn;
                     var row = db.Database.SqlQuery<PayrollStatusRow>(@"
                         SELECT NVL(TRANG_THAI, 'DRAFT') AS TRANG_THAI,
-                               NVL(TRANGTHAI_CHITRA, 'CHUA_CHI_TRA') AS TRANGTHAI_CHITRA
-                        FROM TB_BANGLUONG
+                               " + paymentExpression + @" AS TRANGTHAI_CHITRA
+                        FROM HR.TB_BANGLUONG
                         WHERE IDBL = :p0",
                         new OracleParameter("p0", bl.IDBL)
                     ).FirstOrDefault();

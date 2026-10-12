@@ -1,4 +1,4 @@
-using DA;
+﻿using DA;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -76,7 +76,7 @@ namespace Bu.CLASS_SECURITY
                 string empName = null;
                 bool isMobileEnabled = true;
 
-                if (!isAdmin && mapRow != null && mapRow.EMPLOYEE_ID.HasValue && mapRow.EMPLOYEE_ID.Value > 0)
+                if (mapRow != null && mapRow.EMPLOYEE_ID.HasValue && mapRow.EMPLOYEE_ID.Value > 0)
                 {
                     manv = mapRow.EMPLOYEE_ID.Value;
                     isMobileEnabled = (mapRow.IS_MOBILE_ENABLED ?? 1) == 1;
@@ -93,7 +93,7 @@ namespace Bu.CLASS_SECURITY
                         empName = emp.HOTEN;
                     }
                 }
-                else if (!isAdmin && user.MANV.HasValue && user.MANV.Value > 0)
+                else if (user.MANV.HasValue && user.MANV.Value > 0)
                 {
                     manv = user.MANV.Value;
                     var emp = db.Database.SqlQuery<EmpInfoRow>(@"
@@ -181,18 +181,6 @@ namespace Bu.CLASS_SECURITY
                             return new SavePlatformRightsResult { Success = false, Message = "Người dùng không tồn tại." };
                         }
 
-                        bool isTargetAdmin = user.USERNAME != null && user.USERNAME.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase);
-
-                        // Cấm cấp Mobile cho ADMIN
-                        if (isTargetAdmin && req.MobileDirectGrant)
-                        {
-                            transaction.Rollback();
-                            return new SavePlatformRightsResult
-                            {
-                                Success = false,
-                                Message = "Tài khoản Quản trị tối cao (ADMIN) bị cấm sử dụng ứng dụng di động Mobile."
-                            };
-                        }
 
                         // 2. Lấy trạng thái quyền hiệu lực TRƯỚC khi cập nhật
                         var beforeResolutions = _resolver.ResolveAllChannels(db, req.TargetUserId, user.USERNAME);
@@ -203,11 +191,11 @@ namespace Bu.CLASS_SECURITY
                         // 3. Cập nhật direct grants cho 3 mã F_LOGIN_* trong TB_SYS_RIGHT
                         UpdateSinglePlatformRight(db, req.TargetUserId, PlatformFunctionCodes.LoginDesktop, req.DesktopDirectGrant);
                         UpdateSinglePlatformRight(db, req.TargetUserId, PlatformFunctionCodes.LoginWeb, req.WebDirectGrant);
-                        UpdateSinglePlatformRight(db, req.TargetUserId, PlatformFunctionCodes.LoginMobile, isTargetAdmin ? false : req.MobileDirectGrant);
+                        UpdateSinglePlatformRight(db, req.TargetUserId, PlatformFunctionCodes.LoginMobile, req.MobileDirectGrant);
 
                         // 4. Cập nhật cờ IS_MOBILE_ENABLED nếu có truyền
                         bool mobileFlagChanged = false;
-                        if (req.IsMobileEnabled.HasValue && !isTargetAdmin)
+                        if (req.IsMobileEnabled.HasValue)
                         {
                             int targetFlag = req.IsMobileEnabled.Value ? 1 : 0;
                             int mapCount = db.Database.SqlQuery<int>(

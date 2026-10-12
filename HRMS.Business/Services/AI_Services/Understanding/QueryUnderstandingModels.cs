@@ -96,5 +96,22 @@ namespace Bu.Services.AI_Services.Core
         public ClarificationPrompt Clarification { get; set; }
 
         public bool IsGreetingOnly { get; set; }
+        public bool HasPolicyIntent { get; set; }
+        public bool IsPolicyPure { get; set; }
+
+        public ChatIntentSubtype IntentSubtype { get; set; } = ChatIntentSubtype.None;
+        public string SocialType { get; set; } // "GREETING", "THANK", "GOODBYE"
+        public string GeneralType { get; set; } // "MATH", "CREATIVE", "CONCEPT", "WEATHER", "OTHER"
+    }
+
+    public enum ChatIntentSubtype
+    {
+        None,
+        ChatSocial,   // chào hỏi, cảm ơn, tạm biệt
+        ChatGeneral,  // kiến thức chung, toán học, viết lời chúc, sáng tác, giải thích khái niệm
+        HrHelp,       // hướng dẫn sử dụng hệ thống, cách đặt câu hỏi
+        HrQuery,      // truy vấn dữ liệu nhân sự có cấu trúc
+        HrPolicy,     // tra cứu nội quy/chính sách từ tài liệu
+        Hybrid        // kết hợp chính sách và số liệu CSDL
     }
 }

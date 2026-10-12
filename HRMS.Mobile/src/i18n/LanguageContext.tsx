@@ -44,8 +44,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   }, [i18n]);
 
   const setLanguage = async (newPref: LanguagePreference) => {
-    setPreference(newPref);
     await storage.setLanguagePreference(newPref);
+    setPreference(newPref);
 
     let effectiveLang: SupportedLanguage;
     if (newPref === 'system') {

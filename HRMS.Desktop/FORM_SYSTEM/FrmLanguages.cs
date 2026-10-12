@@ -25,12 +25,13 @@ namespace QLyNSu.FORM_SYSTEM
             InitializeComponent();
         }
 
-        private void FrmLanguages_Load(object sender, EventArgs e)
+        private async void FrmLanguages_Load(object sender, EventArgs e)
         {
             _sysLanguage = new SYS_LANGUAGE();
             _them = false;
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             
             // Translate the Form controls using the translation manager
             TranslationManager.Translate(this);
@@ -51,13 +52,14 @@ namespace QLyNSu.FORM_SYSTEM
             chkActive.Enabled = !kt;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
             try
             {
-                gcDs.DataSource = _sysLanguage.getList();
+                gcDs.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _sysLanguage.getList());
                 FormManager_Functions.CustomView_Colums(gvDs);
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 MessageBox.Show(TranslationManager.Translate("Lỗi khi tải danh sách ngôn ngữ: ") + ex.Message, 
@@ -89,7 +91,7 @@ namespace QLyNSu.FORM_SYSTEM
             txtName.Focus();
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (string.IsNullOrEmpty(_selectedCode))
             {
@@ -117,7 +119,8 @@ namespace QLyNSu.FORM_SYSTEM
                     txtCode.Text = string.Empty;
                     txtName.Text = string.Empty;
                     chkActive.Checked = true;
-                    LoadData();
+                    await LoadData();
+            if (IsDisposed || Disposing) return;
                 }
                 catch (Exception ex)
                 {
@@ -127,7 +130,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (string.IsNullOrWhiteSpace(txtCode.Text))
             {
@@ -173,7 +176,8 @@ namespace QLyNSu.FORM_SYSTEM
 
                 _them = false;
                 showHide(true);
-                LoadData();
+                await LoadData();
+            if (IsDisposed || Disposing) return;
                 MessageBox.Show(TranslationManager.Translate("Lưu thành công!"), 
                     TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             }

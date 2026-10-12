@@ -112,6 +112,7 @@ namespace QLyNSu.FORM_BAOCAO
                                       .ToList();
                     }
                 });
+                if (IsDisposed || Disposing) return;
 
                 // Bind Chart 1: Xu hướng quỹ lương thực tế (6 tháng gần nhất)
                 chartLuong.Series.Clear();
@@ -174,6 +175,7 @@ namespace QLyNSu.FORM_BAOCAO
             }
             catch (Exception ex)
             {
+                if (IsDisposed || Disposing) return;
                 string errMsg = ex.Message;
                 if (ex.InnerException != null)
                 {
@@ -187,7 +189,7 @@ namespace QLyNSu.FORM_BAOCAO
             }
             finally
             {
-                this.Cursor = Cursors.Default;
+                if (!IsDisposed && !Disposing) this.Cursor = Cursors.Default;
             }
         }
     }

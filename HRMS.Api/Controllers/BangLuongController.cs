@@ -14,6 +14,46 @@ namespace HRMS_API.Controllers
     public class BangLuongController : ApiController
     {
 
+        [HttpGet]
+        [Route("{period:int}/publication")]
+        [JwtAuthorize(Right = "F_CC_BANGLUONG", Channel = "WEB")]
+        public IHttpActionResult GetPublication(int period)
+        { return PublicationAction(period,null,false,true); }
+
+        [HttpPost]
+        [Route("{period:int}/publish")]
+        [JwtAuthorize(Right = "F_CC_CONGBO_LUONG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit, Channel = "WEB")]
+        public IHttpActionResult Publish(int period,[FromBody] Bu.CLASS_PAYROLL.PayrollPublicationCommand command)
+        { return PublicationAction(period,command,false,false); }
+
+        [HttpPost]
+        [Route("{period:int}/revoke-publication")]
+        [JwtAuthorize(Right = "F_CC_CONGBO_LUONG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit, Channel = "WEB")]
+        public IHttpActionResult RevokePublication(int period,[FromBody] Bu.CLASS_PAYROLL.PayrollPublicationCommand command)
+        { return PublicationAction(period,command,true,false); }
+
+        private IHttpActionResult PublicationAction(int period,Bu.CLASS_PAYROLL.PayrollPublicationCommand command,bool revoke,bool read)
+        {
+            try {
+                var actor=JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                decimal id;
+                if(actor==null || !decimal.TryParse(actor.UserId,out id))return Unauthorized();
+                if(Bu.CLASS_SECURITY.AppChannels.Normalize(actor.ClientType)!=Bu.CLASS_SECURITY.AppChannels.Web)
+                    return Content(System.Net.HttpStatusCode.Forbidden,new {success=false,message="Chức năng này chỉ dành cho Web quản trị."});
+                var service=new Bu.CLASS_PAYROLL.PayrollPublicationService();
+                if(read)return Ok(new {success=true,data=service.Review(period,id,actor.ClientType)});
+                if(!ModelState.IsValid)return BadRequest(ModelState);
+                var changed=revoke?service.Revoke(period,id,actor.ClientType,command):service.Publish(period,id,actor.ClientType,command);
+                return Ok(new {success=true,data=changed});
+            }
+            catch(Exception ex) when(Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)){return Content(System.Net.HttpStatusCode.Conflict,new {success=false,code="PAYROLL_FROZEN",message=Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage});}
+            catch(UnauthorizedAccessException ex){return Content(System.Net.HttpStatusCode.Forbidden,new {success=false,message=ex.Message});}
+            catch(ArgumentException ex){return BadRequest(ex.Message);}
+            catch(InvalidOperationException ex){return Content(System.Net.HttpStatusCode.Conflict,new {success=false,message=ex.Message});}
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch(Exception ex){System.Diagnostics.Trace.TraceError("Payroll publication operation failed: "+ex);return Content(System.Net.HttpStatusCode.InternalServerError,new {success=false,message="Không thể cập nhật công bố lương. Vui lòng thử lại hoặc liên hệ quản trị viên."});}
+        }
+
         /// <summary>
         /// GET: api/bangluong?makycong={makycong}
         /// <summary>
@@ -157,6 +197,8 @@ namespace HRMS_API.Controllers
                                             item.TRANGTHAI_CHITRA = "Đã duyệt";
                                         else if (snap.TRANG_THAI == "PAID" || snap.TRANG_THAI == "DA_CHI_TRA")
                                             item.TRANGTHAI_CHITRA = "Đã chi trả";
+                                        else if (snap.TRANG_THAI == "CAN_TINH_LAI")
+                                            item.TRANGTHAI_CHITRA = "Cần tính lại";
                                         else if (snap.TRANG_THAI == "CALCULATED")
                                             item.TRANGTHAI_CHITRA = "Đã tính (Chưa công bố)";
                                         else if (snap.TRANG_THAI == "LEGACY_READONLY")
@@ -206,6 +248,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải bảng lương: " + ex.ToString());
@@ -494,6 +537,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải chi tiết bảng lương nhân viên: " + ex.ToString());
@@ -533,6 +577,7 @@ namespace HRMS_API.Controllers
                     return Ok(list);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách kỳ công: " + ex.ToString());

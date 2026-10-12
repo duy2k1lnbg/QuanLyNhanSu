@@ -1,22 +1,18 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 
 namespace QLyNSu
 {
     public partial class FrmStartup : Form
     {
         private Timer closeTimer;
+        private Image _loadedBackground;
 
         public FrmStartup()
         {
             InitializeComponent();
-            try {
-                string bgPath = System.IO.Path.Combine(Application.StartupPath, "Resources", "splash_bg.png");
-                if (System.IO.File.Exists(bgPath)) {
-                    this.peImage.EditValue = Image.FromFile(bgPath);
-                }
-            } catch { }
             this.labelCopyright.Text = "Copyright © 1998-" + DateTime.Now.Year.ToString() + " HRM OC System. All rights reserved.";
             
             // Set Form Icon if loaded
@@ -37,16 +33,15 @@ namespace QLyNSu
             this.labelCopyright.Appearance.Options.UseFont = true;
             this.labelCopyright.Appearance.Options.UseForeColor = true;
 
-            // Load the custom generated premium splash image
-            string imagePath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources", "hrm_splash.png");
-            if (System.IO.File.Exists(imagePath))
+            Shown += FrmStartup_Shown;
+            FormClosed += (s, e) =>
             {
-                try
-                {
-                    this.peImage.EditValue = Image.FromFile(imagePath);
-                }
-                catch { }
-            }
+                closeTimer.Stop();
+                closeTimer.Dispose();
+                peImage.EditValue = null;
+                _loadedBackground?.Dispose();
+                _loadedBackground = null;
+            };
 
             // Set up timer to close the form after 2.5 seconds (2500ms)
             closeTimer = new Timer();
@@ -55,10 +50,31 @@ namespace QLyNSu
             closeTimer.Start();
         }
 
+        private async void FrmStartup_Shown(object sender, EventArgs e)
+        {
+            string resources = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources");
+            var background = await Task.Run(() =>
+            {
+                foreach (string name in new[] { "hrm_splash.png", "splash_bg.png" })
+                {
+                    try
+                    {
+                        string path = System.IO.Path.Combine(resources, name);
+                        if (System.IO.File.Exists(path))
+                            using (var source = Image.FromFile(path)) return (Image)new Bitmap(source);
+                    }
+                    catch { }
+                }
+                return null;
+            });
+            if (IsDisposed || Disposing) { background?.Dispose(); return; }
+            _loadedBackground = background;
+            peImage.EditValue = background;
+        }
+
         private void CloseTimer_Tick(object sender, EventArgs e)
         {
             closeTimer.Stop();
-            closeTimer.Dispose();
             this.Close();
         }
     }

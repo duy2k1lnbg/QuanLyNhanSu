@@ -61,9 +61,9 @@
             this.labelControl1 = new DevExpress.XtraEditors.LabelControl();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.chkTrangThai = new System.Windows.Forms.CheckBox();
-            this.cboThang = new System.Windows.Forms.ComboBox();
+            this.cboThang = new DevExpress.XtraEditors.ComboBoxEdit();
             this.chkKhoa = new System.Windows.Forms.CheckBox();
-            this.cboNam = new System.Windows.Forms.ComboBox();
+            this.cboNam = new DevExpress.XtraEditors.ComboBoxEdit();
             this.labelControl2 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.barManager1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.gvDanhSach)).BeginInit();
@@ -432,8 +432,7 @@
             // cboThang
             // 
             this.cboThang.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboThang.FormattingEnabled = true;
-            this.cboThang.Items.AddRange(new object[] {
+            this.cboThang.Properties.Items.AddRange(new object[] {
             "1",
             "2",
             "3",
@@ -465,8 +464,7 @@
             // cboNam
             // 
             this.cboNam.Font = new System.Drawing.Font("Times New Roman", 13.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboNam.FormattingEnabled = true;
-            this.cboNam.Items.AddRange(new object[] {
+            this.cboNam.Properties.Items.AddRange(new object[] {
             "2020",
             "2021",
             "2022",
@@ -544,8 +542,8 @@
         private DevExpress.XtraGrid.Columns.GridColumn MAKYCONG;
         private DevExpress.XtraGrid.Columns.GridColumn DELETED_BY;
         private System.Windows.Forms.CheckBox chkKhoa;
-        private System.Windows.Forms.ComboBox cboNam;
-        private System.Windows.Forms.ComboBox cboThang;
+        private DevExpress.XtraEditors.ComboBoxEdit cboNam;
+        private DevExpress.XtraEditors.ComboBoxEdit cboThang;
         private DevExpress.XtraGrid.Columns.GridColumn THANG;
         private DevExpress.XtraGrid.Columns.GridColumn NGAYCONGTRONGTHANG;
         private DevExpress.XtraGrid.Columns.GridColumn NGAYTINHCONG;

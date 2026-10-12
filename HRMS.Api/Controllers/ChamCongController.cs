@@ -115,6 +115,7 @@ namespace HRMS_API.Controllers
                     return Ok(list);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách kỳ công: " + ex.ToString());
@@ -216,6 +217,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải bảng chấm công chi tiết: " + ex.ToString());
@@ -236,6 +238,7 @@ namespace HRMS_API.Controllers
                 var list = _bcChiTietBus.getBangCongCT(makycong, manv);
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải chi tiết chấm công nhân viên #" + manv + ": " + ex.ToString());
@@ -268,6 +271,7 @@ namespace HRMS_API.Controllers
                     return Ok(list);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục loại ca: " + ex.ToString());
@@ -300,6 +304,7 @@ namespace HRMS_API.Controllers
                     return Ok(list);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục loại công: " + ex.ToString());
@@ -387,6 +392,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi GetCaPhienBan: " + ex);
@@ -450,6 +456,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi GetCaPhienBanDetail: " + ex);
@@ -463,6 +470,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("ca-phienban")]
+        [JwtAuthorize(Right = "F_CC_BANGCONG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult CreateCaPhienBan([FromBody] CreateCaPhienBanRequest req)
         {
             if (req == null) return BadRequest("Dữ liệu cấu hình ca không hợp lệ.");
@@ -527,6 +535,7 @@ namespace HRMS_API.Controllers
                     }
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi CreateCaPhienBan: " + ex);
@@ -626,6 +635,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi GetLichLamViec: " + ex);
@@ -727,6 +737,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi PreviewBulkSchedule: " + ex);
@@ -740,6 +751,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("lich-lamviec/bulk")]
+        [JwtAuthorize(Right = "F_CC_BANGCONG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult ApplyBulkSchedule([FromBody] BulkScheduleRequest req)
         {
             if (req == null || req.Schedules == null || req.Schedules.Count == 0)
@@ -808,6 +820,7 @@ namespace HRMS_API.Controllers
                     }
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi ApplyBulkSchedule: " + ex);
@@ -825,6 +838,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("publish")]
+        [JwtAuthorize(Right = "F_CC_BANGCONG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult PublishAttendance([FromBody] PublishAttendanceApiRequest req)
         {
             if (req == null || req.MaKyCong <= 0)
@@ -866,6 +880,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi PublishAttendance: " + ex);
@@ -937,6 +952,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi GetLanTinhList: " + ex);
@@ -1023,6 +1039,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi GetBatThuongList: " + ex);
@@ -1036,6 +1053,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("bat-thuong/{id:long}/resolve")]
+        [JwtAuthorize(Right = "F_CC_BANGCONG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult ResolveBatThuong(long id, [FromBody] ResolveAnomalyApiRequest req)
         {
             if (req == null || string.IsNullOrWhiteSpace(req.Action))
@@ -1098,6 +1116,7 @@ namespace HRMS_API.Controllers
                     }
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi ResolveBatThuong: " + ex);
@@ -1199,6 +1218,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi CheckPeriodReadiness: " + ex);
@@ -1212,12 +1232,14 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("kycong/{makycong:int}/lock")]
+        [JwtAuthorize(Right = "F_CC_BANGCONG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult LockKyCong(int makycong, [FromBody] LockKyCongRequest req)
         {
             try
             {
                 var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
-                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
+                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 0;
+                if (currentUserId <= 0) return Unauthorized();
 
                 var kyCongBus = new Bu.CLASS_CHAMCONG.KYCONG();
                 kyCongBus.LockKyCong(makycong, currentUserId);
@@ -1236,8 +1258,11 @@ namespace HRMS_API.Controllers
                     message = ex.Message
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
+                if (ex is Bu.CLASS_SYSTEM.BusinessException business)
+                    return Content(HttpStatusCode.Conflict, new { success = false, message = business.Message });
                 System.Diagnostics.Trace.TraceError("Lỗi LockKyCong: " + ex);
                 return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi khi khóa kỳ công: " + ex.Message });
             }
@@ -1249,6 +1274,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("kycong/{makycong:int}/unlock")]
+        [JwtAuthorize(Right = "F_CC_BANGCONG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult UnlockKyCong(int makycong, [FromBody] LockKyCongRequest req)
         {
             if (req == null || string.IsNullOrWhiteSpace(req.LyDo))
@@ -1257,7 +1283,8 @@ namespace HRMS_API.Controllers
             try
             {
                 var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
-                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 1;
+                int currentUserId = (jwtUser != null && int.TryParse(jwtUser.UserId, out int uid)) ? uid : 0;
+                if (currentUserId <= 0) return Unauthorized();
 
                 var kyCongBus = new Bu.CLASS_CHAMCONG.KYCONG();
                 kyCongBus.UnlockKyCong(makycong, currentUserId, req.LyDo);
@@ -1268,8 +1295,11 @@ namespace HRMS_API.Controllers
                     message = $"Đã mở khóa kỳ công {makycong} thành công."
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
+                if (ex is Bu.CLASS_SYSTEM.BusinessException business)
+                    return Content(HttpStatusCode.Conflict, new { success = false, message = business.Message });
                 System.Diagnostics.Trace.TraceError("Lỗi UnlockKyCong: " + ex);
                 return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi khi mở khóa kỳ công: " + ex.Message });
             }

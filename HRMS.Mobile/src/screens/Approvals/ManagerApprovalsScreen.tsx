@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
 import { useTheme } from '../../hooks/useTheme';
+import { useAuth } from '../../hooks/useAuth';
 import { approvalsApi } from '../../api/approvalsApi';
 import {
   ApprovalSummaryDto,
@@ -42,6 +43,8 @@ export const ManagerApprovalsScreen: React.FC = () => {
   const { t } = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { colors } = useTheme();
+  const { user } = useAuth();
+  const myManv = user?.manv ? Number(user.manv) : null;
 
   const [activeTab, setActiveTab] = useState<ApprovalTab>('LEAVE');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('PENDING');
@@ -93,18 +96,24 @@ export const ManagerApprovalsScreen: React.FC = () => {
         pageSize: 50,
       };
 
+      // Chỉ hiển thị thông tin của chính tài khoản đó (Self-Scope trên Mobile)
+      const filterSelf = (list: any[]) => {
+        if (!myManv) return list;
+        return list.filter((item) => Number(item.manv) === myManv);
+      };
+
       if (activeTab === 'LEAVE') {
         const res = await approvalsApi.getLeaveList(filter);
-        setLeaves(res.data || []);
+        setLeaves(filterSelf(res.data || []));
       } else if (activeTab === 'CORRECTION') {
         const res = await approvalsApi.getAttendanceCorrections(filter);
-        setCorrections(res.data || []);
+        setCorrections(filterSelf(res.data || []));
       } else if (activeTab === 'OVERTIME') {
         const res = await approvalsApi.getOvertimeList(filter);
-        setOvertimes(res.data || []);
+        setOvertimes(filterSelf(res.data || []));
       } else if (activeTab === 'INSURANCE') {
         const res = await approvalsApi.getInsuranceMovements(filter);
-        setInsuranceMovements(res.data || []);
+        setInsuranceMovements(filterSelf(res.data || []));
       }
     } catch (err) {
       Alert.alert('Lỗi', mapApiError(err));
@@ -112,7 +121,7 @@ export const ManagerApprovalsScreen: React.FC = () => {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [activeTab, statusFilter, searchQuery, fetchSummary]);
+  }, [activeTab, statusFilter, searchQuery, fetchSummary, myManv]);
 
   useEffect(() => {
     fetchData();
@@ -216,6 +225,32 @@ export const ManagerApprovalsScreen: React.FC = () => {
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <AppHeader title="Phê duyệt yêu cầu" showBack onBack={() => navigation.goBack()} />
+
+      {/* Thông báo phạm vi cá nhân: App mobile chỉ cho xem thông tin chính tài khoản */}
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => navigation.replace('MyRequests')}
+        style={{
+          marginHorizontal: spacing.md,
+          marginTop: spacing.sm,
+          padding: spacing.sm,
+          borderRadius: 8,
+          backgroundColor: 'rgba(59, 130, 246, 0.08)',
+          borderWidth: 1,
+          borderColor: 'rgba(59, 130, 246, 0.3)',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        <View style={{ flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 8 }}>
+          <Ionicons name="information-circle-outline" size={20} color={colors.primary} />
+          <Text style={[typography.caption, { color: colors.text, marginLeft: 6 }]}>
+            App Mobile chỉ hiển thị đơn của chính tài khoản bạn ({user?.fullName || `NV#${myManv || '---'}`}).
+          </Text>
+        </View>
+        <Text style={[typography.captionBold, { color: colors.primary }]}>Đơn của tôi ➔</Text>
+      </TouchableOpacity>
 
       {/* 1. Summary Cards Header */}
       <View style={[styles.summaryRow, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}>
@@ -387,9 +422,9 @@ export const ManagerApprovalsScreen: React.FC = () => {
                 {leaves.length === 0 ? (
                   <AppEmptyState icon="calendar-outline" title="Không có đơn xin nghỉ phép nào" />
                 ) : (
-                  leaves.map((item) => (
+                  leaves.map((item, index) => (
                     <AppCard
-                      key={item.id}
+                      key={item.id || (item as any).idYeuCau || `leave-${index}`}
                       style={styles.requestCard}
                       onPress={() => {
                         setSelectedDetail({ ...item, _type: 'LEAVE' });
@@ -476,9 +511,9 @@ export const ManagerApprovalsScreen: React.FC = () => {
                 {corrections.length === 0 ? (
                   <AppEmptyState icon="time-outline" title="Không có yêu cầu điều chỉnh công nào" />
                 ) : (
-                  corrections.map((item) => (
+                  corrections.map((item, index) => (
                     <AppCard
-                      key={item.id}
+                      key={item.id || (item as any).idYeuCau || `corr-${index}`}
                       style={styles.requestCard}
                       onPress={() => {
                         setSelectedDetail({ ...item, _type: 'CORRECTION' });
@@ -565,9 +600,9 @@ export const ManagerApprovalsScreen: React.FC = () => {
                 {overtimes.length === 0 ? (
                   <AppEmptyState icon="flash-outline" title="Không có đề xuất tăng ca nào" />
                 ) : (
-                  overtimes.map((item) => (
+                  overtimes.map((item, index) => (
                     <AppCard
-                      key={item.id}
+                      key={item.id || (item as any).idYeuCau || `ot-${index}`}
                       style={styles.requestCard}
                       onPress={() => {
                         setSelectedDetail({ ...item, _type: 'OVERTIME' });
@@ -654,9 +689,9 @@ export const ManagerApprovalsScreen: React.FC = () => {
                 {insuranceMovements.length === 0 ? (
                   <AppEmptyState icon="shield-checkmark-outline" title="Không có biến động BHXH nào" />
                 ) : (
-                  insuranceMovements.map((item) => (
+                  insuranceMovements.map((item, index) => (
                     <AppCard
-                      key={item.id}
+                      key={item.id || `ins-${index}`}
                       style={styles.requestCard}
                       onPress={() => {
                         setSelectedDetail({ ...item, _type: 'INSURANCE' });

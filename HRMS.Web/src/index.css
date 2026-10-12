@@ -559,3 +559,13 @@ html, body, #root {
   }
 }
 
+
+/* Drawer inputs must remain readable while a request disables editing. */
+.hrms-ai-chat .ant-input::placeholder {
+  color: var(--color-text-secondary, #626B7E);
+  opacity: 1;
+}
+.hrms-ai-chat .ant-input-disabled {
+  color: var(--color-text-secondary, #626B7E);
+  background: var(--color-card-secondary-bg, #F9FAFD);
+}

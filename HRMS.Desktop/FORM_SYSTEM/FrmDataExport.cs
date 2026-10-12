@@ -320,7 +320,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void FrmBackupWizard_Load(object sender, EventArgs e)
+        private async void FrmBackupWizard_Load(object sender, EventArgs e)
         {
             cboConnection.Properties.Items.Clear();
             cboConnection.Properties.Items.Add("my_db");
@@ -422,27 +422,35 @@ namespace QLyNSu.FORM_SYSTEM
             cboFormat.SelectedIndexChanged += (s, ev) => UpdateFormatUI();
 
             UpdateUI();
-            LoadTables();
+            await LoadTables();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadTables()
+        private async Task LoadTables()
         {
+            try
+            {
             try
             {
                 using (var db = new DA.MyEntities())
                 {
                     chkTables.Items.Clear();
-                    var objects = db.Database.SqlQuery<string>("SELECT '[' || OBJECT_TYPE || '] ' || OBJECT_NAME FROM USER_OBJECTS WHERE OBJECT_TYPE IN ('TABLE', 'VIEW', 'PROCEDURE', 'FUNCTION', 'TRIGGER', 'SEQUENCE') AND OBJECT_NAME NOT LIKE 'BIN$%' ORDER BY OBJECT_TYPE, OBJECT_NAME").ToList();
+                    var objects = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<string>("SELECT '[' || OBJECT_TYPE || '] ' || OBJECT_NAME FROM USER_OBJECTS WHERE OBJECT_TYPE IN ('TABLE', 'VIEW', 'PROCEDURE', 'FUNCTION', 'TRIGGER', 'SEQUENCE') AND OBJECT_NAME NOT LIKE 'BIN$%' ORDER BY OBJECT_TYPE, OBJECT_NAME").ToList());
                     foreach (var obj in objects)
                     {
                         chkTables.Items.Add(obj, true);
                     }
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi khi tải danh sách bảng: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void CboSaveAs_SelectedIndexChanged(object sender, EventArgs e)
@@ -604,12 +612,13 @@ namespace QLyNSu.FORM_SYSTEM
             try
             {
                 string inMemoryResult = await Task.Run(() => PerformExport(opt));
+                if (IsDisposed || Disposing) return;
                 
                 if (opt.SaveAs == "Worksheet")
                 {
                     using (var frm = new FrmWorksheet("Export Data", inMemoryResult))
                     {
-                        frm.ShowDialog();
+                        await Functions.ChildFormWindow.ShowAsync(this, frm);
                     }
                 }
                 else if (opt.SaveAs == "Clipboard")

@@ -23,6 +23,14 @@ namespace DA
         public Nullable<System.DateTime> NGAY_HET_HIEU_LUC { get; set; }
         public string TRANG_THAI { get; set; }
         public System.DateTime CREATED_AT { get; set; }
+        public string LOAI_DINH_DANH { get; set; }
+        public string SO_HO_CHIEU { get; set; }
+        public string CAN_CU_CU_TRU { get; set; }
+        public string TRANG_THAI_HO_SO { get; set; }
+        public Nullable<System.DateTime> NGAY_XAC_MINH { get; set; }
+        public string NGUOI_XAC_MINH { get; set; }
+        public string DATA_ORIGIN { get; set; }
+        public string SOURCE_NOTE { get; set; }
     
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }

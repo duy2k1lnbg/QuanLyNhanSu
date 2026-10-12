@@ -27,7 +27,7 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
   const [downloadType, setDownloadType] = useState<'windows' | 'mobile' | 'general'>('windows');
 
   // Multilingual hook across system
-  const { lang: currentLang, setLang: handleLanguageChange, tLanding, tAuth, allConfigs } = useAppLanguage();
+  const { lang: currentLang, preference, setLang: handleLanguageChange, systemLabel, tLanding, tAuth, allConfigs } = useAppLanguage();
 
   // Natural calm ambient audio hook (woodland atmosphere)
   const { isPlaying: isAudioPlaying, toggleAudio } = useAmbientAudio();
@@ -69,6 +69,8 @@ export const Login: React.FC<LoginProps> = ({ onLoginSuccess }) => {
       {/* 1. TOP STICKY NAVIGATION HEADER */}
       <LandingHeader
         currentLang={currentLang}
+        preference={preference}
+        systemLabel={systemLabel}
         onLanguageChange={handleLanguageChange}
         allConfigs={allConfigs}
         tLanding={tLanding}

@@ -58,6 +58,7 @@ namespace HRMS_API.Controllers
 
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách hợp đồng: " + ex.ToString());
@@ -157,6 +158,7 @@ namespace HRMS_API.Controllers
 
                 return Ok(item);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lấy chi tiết hợp đồng " + sohd + ": " + ex.ToString());
@@ -193,6 +195,7 @@ namespace HRMS_API.Controllers
                 var result = _hopDongBus.Add(hd);
                 return Ok(result);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi thêm mới hợp đồng: " + ex.ToString());
@@ -227,6 +230,7 @@ namespace HRMS_API.Controllers
                 var result = _hopDongBus.Update(hd);
                 return Ok(result);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi cập nhật hợp đồng: " + ex.ToString());
@@ -258,6 +262,7 @@ namespace HRMS_API.Controllers
                 _hopDongBus.Delete(sohd, currentUserId);
                 return Ok(new { success = true, message = $"Đã xóa hợp đồng {sohd} thành công." });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi xóa hợp đồng " + sohd + ": " + ex.ToString());

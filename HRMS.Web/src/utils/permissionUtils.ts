@@ -14,9 +14,9 @@ export const ROUTE_FUNCTION_CODES: Record<string, string[]> = {
   khenthuong: ['F_NV_KHENTHUONG', 'F_NV_KYLUAT', 'KHENTHUONG', 'KYLUAT'],
   nangluong: ['F_NV_NANGLUONG', 'F_NV_DIEUCHUYEN', 'NANGLUONG', 'DIEUCHUYEN'],
   ungluong: ['F_CC_UNGLUONG', 'F_CC_TANGCA', 'UNGLUONG', 'TANGCA'],
-  approvals: ['F_CC_BANGCONG', 'F_CC_TANGCA', 'F_NV_NHANVIEN', 'APPROVE', 'CHAMCONG'],
+  approvals: ['F_NV_PHEDUYET', 'F_APPROVE_ADVANCE', 'F_APPROVE_PROFILE', 'F_PAYROLL_DISBURSE_ADVANCE', 'F_CC_BANGCONG', 'F_CC_TANGCA', 'F_NV_NHANVIEN', 'APPROVE', 'CHAMCONG'],
   phanquyen: ['F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER', 'PHANQUYEN'],
-  audit: ['F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'PHANQUYEN', 'AUDIT'],
+  audit: ['F_SYSTEM_GIAMSAT', 'F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'PHANQUYEN', 'AUDIT'],
 };
 
 /**
@@ -35,24 +35,18 @@ export const FUNCTION_CODE_ALIASES: Record<string, string[]> = {
   DIEUCHUYEN: ['F_NV_DIEUCHUYEN'],
   UNGLUONG: ['F_CC_UNGLUONG'],
   TANGCA: ['F_CC_TANGCA'],
-  PHANQUYEN: ['F_SYSTEM_USER', 'F_SYSTEM_GROUP'],
+  PHANQUYEN: ['F_SYSTEM_PQ_CHUCNANG'],
   USER: ['F_SYSTEM_USER'],
   DASHBOARD: ['F_DB_NHANSU', 'F_DB_LUONG'],
   BAOCAO: ['F_BC_BAOCAO'],
   AI: ['F_SYSTEM_AI'],
+  AUDIT: ['F_SYSTEM_GIAMSAT'],
+  APPROVE: ['F_NV_PHEDUYET', 'F_APPROVE_ADVANCE', 'F_APPROVE_PROFILE'],
 };
 
-/**
- * Kiểm tra xem người dùng có phải là Quản trị viên tối cao (Super Admin) hay không.
- * Super Admin luôn có toàn quyền tuyệt đối đối với mọi chức năng và thao tác.
- */
+/** Administrative role indicator; never bypasses an action grant. */
 export function isSuperAdmin(user: CurrentUserDTO | null | undefined): boolean {
-  if (!user) return false;
-  return Boolean(
-    user.IsAdmin ||
-    user.Username?.trim().toUpperCase() === 'ADMIN' ||
-    user.Rights?.includes('*')
-  );
+  return canView(user, 'F_SYSTEM_ADMIN');
 }
 
 /**
@@ -95,7 +89,6 @@ export function checkPermission(
   ...funcCodes: string[]
 ): boolean {
   if (!user) return false;
-  if (isSuperAdmin(user)) return true;
   if (funcCodes.length === 0) return false;
 
   return funcCodes.some((code) => {
@@ -183,7 +176,6 @@ export function hasRight(user: CurrentUserDTO | null | undefined, ...funcCodes: 
  */
 export function canAccessRoute(user: CurrentUserDTO | null | undefined, route: string): boolean {
   if (!user) return false;
-  if (isSuperAdmin(user)) return true;
 
   const cleanRoute = route.replace(/^#?\/?/, '').trim().toLowerCase();
   const codes = ROUTE_FUNCTION_CODES[cleanRoute];

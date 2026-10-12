@@ -13,6 +13,8 @@ namespace QLyNSu.FORM_CHAMCONG
 {
     public partial class FrmCapNhatNgayCong : DevExpress.XtraEditors.XtraForm
     {
+        private bool _initializing = true;
+        private int _dayLoadVersion;
         public FrmCapNhatNgayCong()
         {
             InitializeComponent();
@@ -43,15 +45,17 @@ namespace QLyNSu.FORM_CHAMCONG
         private DateTime? _draftGioVao = null;
         private DateTime? _draftGioRa = null;
 
-        private bool IsKyCongBiKhoa()
+        private async Task<bool> IsKyCongBiKhoa()
         {
             if (_kycong == null) _kycong = new KYCONG();
-            var kc = _kycong.getItem(_MAKYCONG);
+            var kc = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.getItem(_MAKYCONG));
             return kc != null && (kc.KHOA ?? 0) == 1;
         }
 
-        private void FrmCapNhatNgayCong_Load(object sender, EventArgs e)
+        private async void FrmCapNhatNgayCong_Load(object sender, EventArgs e)
         {
+            try
+            {
             this.AutoScaleMode = AutoScaleMode.None;
             this.ClientSize = new Size(840, 605);
             this.MinimumSize = new Size(856, 644);
@@ -73,7 +77,7 @@ namespace QLyNSu.FORM_CHAMCONG
             _kycong = new KYCONG();
 
             // Tải danh sách ca làm việc từ hệ thống
-            _allShifts = AttendanceCalculationHelper.LoadAllShifts();
+            _allShifts = await Functions.FormDataLoader.ReadAsync(this, () => AttendanceCalculationHelper.LoadAllShifts());
             cboCaLam.Properties.Items.Clear();
             foreach (var s in _allShifts)
             {
@@ -127,21 +131,31 @@ namespace QLyNSu.FORM_CHAMCONG
                 _ngayDate = new DateTime(nam, thang, ngay);
                 cldNgayCong.SetDate(_ngayDate);
 
+                _initializing = false;
                 // Tải dữ liệu ngày công
-                LoadThongTinNgayCong(_cngay);
+                await LoadThongTinNgayCong(_cngay);
+                if (IsDisposed || Disposing) return;
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show($"Vui lòng chọn đúng ô ngày công để cập nhật.\nLỗi: {ex.Message}", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Stop);
                 this.Close();
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         /// <summary>
         /// Tải thông tin ca làm, giờ quẹt thẻ và trạng thái công cho ngày được chọn
         /// </summary>
-        private void LoadThongTinNgayCong(int ngay)
+        private async Task LoadThongTinNgayCong(int ngay)
         {
+            try
+            {
+            var version = ++_dayLoadVersion;
             _isLoading = true;
             try
             {
@@ -158,8 +172,17 @@ namespace QLyNSu.FORM_CHAMCONG
                 lblKyCong.Text = _MAKYCONG.ToString();
 
                 // 1. Kiểm tra trạng thái khóa kỳ công
-                bool isKhoa = IsKyCongBiKhoa();
-                var v118 = _bcct_nv.GetChiTietNgayCongV118(_MAKYCONG, _manv, ngay);
+                var periodId = _MAKYCONG;
+                var employeeId = _manv;
+                var data = await Functions.FormDataLoader.ReadAsync(this, () => new {
+                    Period = _kycong.getItem(periodId),
+                    V118 = _bcct_nv.GetChiTietNgayCongV118(periodId, employeeId, ngay),
+                    Item = _bcct_nv.getItem(periodId, employeeId, ngay),
+                    Raw = _bcct_nv.GetBangCongRaw(employeeId, nam, thang, ngay)
+                });
+                if (version != _dayLoadVersion) return;
+                bool isKhoa = data.Period != null && (data.Period.KHOA ?? 0) == 1;
+                var v118 = data.V118;
                 if (v118 != null && v118.KyCongKhoa == 1)
                 {
                     isKhoa = true;
@@ -215,8 +238,8 @@ namespace QLyNSu.FORM_CHAMCONG
                 UpdatePhanNghiItems();
 
                 // 3. Đọc dữ liệu từ TB_BANGCONG_CHITIET và TB_BANGCONG
-                var currentBcct = _bcct_nv.getItem(_MAKYCONG, _manv, ngay);
-                var raw = _bcct_nv.GetBangCongRaw(_manv, nam, thang, ngay);
+                var currentBcct = data.Item;
+                var raw = data.Raw;
 
                 _hasDevicePunchLog = false;
                 _draftGioVao = null;
@@ -333,6 +356,7 @@ namespace QLyNSu.FORM_CHAMCONG
                     lblTrangThaiBangCong.ForeColor = Color.Gray;
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 lblTrangThaiBangCong.Text = "Lỗi tải thông tin: " + ex.Message;
@@ -341,8 +365,12 @@ namespace QLyNSu.FORM_CHAMCONG
             finally
             {
                 _isLoading = false;
-                UpdateLayoutAndPreview();
+                if (!IsDisposed && !Disposing && version == _dayLoadVersion) UpdateLayoutAndPreview();
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void UpdatePhanNghiItems()
@@ -606,9 +634,11 @@ namespace QLyNSu.FORM_CHAMCONG
             UpdateLayoutAndPreview();
         }
 
-        private void btnApDungGioCa_Click(object sender, EventArgs e)
+        private async void btnApDungGioCa_Click(object sender, EventArgs e)
         {
-            if (IsKyCongBiKhoa()) return;
+            try
+            {
+            if (await IsKyCongBiKhoa()) return;
             if (_currentShift == null) return;
 
             string phanNghi = GetPhanNghiCode();
@@ -626,19 +656,33 @@ namespace QLyNSu.FORM_CHAMCONG
 
                 UpdateLayoutAndPreview();
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void cldNgayCong_DateSelected(object sender, DateRangeEventArgs e)
+        private async void cldNgayCong_DateSelected(object sender, DateRangeEventArgs e)
         {
+            try
+            {
+            if (_initializing) return;
             _cngay = cldNgayCong.SelectionRange.Start.Day;
-            LoadThongTinNgayCong(_cngay);
+            await LoadThongTinNgayCong(_cngay);
+            if (IsDisposed || Disposing) return;
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private async void btnCapNhat_Click(object sender, EventArgs e)
         {
             try
             {
-                if (IsKyCongBiKhoa())
+            try
+            {
+                if (await IsKyCongBiKhoa())
                 {
                     XtraMessageBox.Show($"Kỳ công {_MAKYCONG} đã bị khóa, chỉ có thể xem, không thể cập nhật.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
@@ -751,7 +795,8 @@ namespace QLyNSu.FORM_CHAMCONG
                 });
 
                 // Tải lại dữ liệu vừa lưu
-                LoadThongTinNgayCong(_cngay);
+                await LoadThongTinNgayCong(_cngay);
+                if (IsDisposed || Disposing) return;
 
                 string msg = $"Cập nhật thành công ngày {_cngay:D2}/{thang:D2}/{nam}!\n" +
                              $"- Ca làm: {_currentShift?.TenPhienBan}\n" +
@@ -769,17 +814,23 @@ namespace QLyNSu.FORM_CHAMCONG
 
                 XtraMessageBox.Show(msg, "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
-                XtraMessageBox.Show($"Lỗi khi cập nhật ngày công: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                LoadThongTinNgayCong(_cngay);
+                Functions.FormDataLoader.ShowLoadError(this, ex);
+                await LoadThongTinNgayCong(_cngay);
+                if (IsDisposed || Disposing) return;
             }
             finally
             {
-                btnCapNhat.Enabled = !IsKyCongBiKhoa();
+                btnCapNhat.Enabled = !await IsKyCongBiKhoa();
                 btnDong.Enabled = true;
                 this.Cursor = Cursors.Default;
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnDong_Click(object sender, EventArgs e)

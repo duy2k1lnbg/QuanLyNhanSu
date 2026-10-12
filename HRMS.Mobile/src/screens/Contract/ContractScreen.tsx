@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../hooks/useTheme';
 import { useLanguage } from '../../hooks/useLanguage';
 import { meApi } from '../../api/meApi';
@@ -52,9 +52,7 @@ export const ContractScreen: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    fetchContract();
-  }, [fetchContract]);
+  useFocusEffect(useCallback(()=>{fetchContract();},[fetchContract]));
 
   const renderRow = (icon: keyof typeof Ionicons.glyphMap, label: string, value?: string | number | null) => (
     <View style={styles.infoRow}>

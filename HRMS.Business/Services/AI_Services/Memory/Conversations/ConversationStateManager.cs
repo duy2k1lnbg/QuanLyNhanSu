@@ -36,6 +36,7 @@ namespace Bu.Services.AI_Services.Memory
         public int Version { get; internal set; }
         public QueryUnderstandingResult Previous { get; internal set; }
         public ClarificationPrompt Pending { get; internal set; }
+        public List<ChatMessage> GeneralHistory { get; internal set; } = new List<ChatMessage>();
     }
     public class ConversationStateManager
     {
@@ -80,7 +81,8 @@ namespace Bu.Services.AI_Services.Memory
                     if (s.AuthorizationFingerprint != null && s.AuthorizationFingerprint != fingerprint) s.Clear();
                     s.AuthorizationFingerprint = fingerprint;
                     return new ConversationLease { Session = s, Sequence = ++s.RequestSequence, Generation = s.Generation,
-                        Version = s.Version, Previous = Clone(s.LastResolvedRequest), Pending = Clone(s.PendingClarification) };
+                        Version = s.Version, Previous = Clone(s.LastResolvedRequest), Pending = Clone(s.PendingClarification),
+                        GeneralHistory = Clone(s.Messages.Where(m => m.Domain == "CHAT_GENERAL" || m.Domain == "CHAT_SOCIAL" || m.Domain == "HR_HELP").Reverse().Take(8).Reverse().ToList()) };
                 }
             }
         }
@@ -93,8 +95,17 @@ namespace Bu.Services.AI_Services.Memory
                 lock (s.Sync)
                 {
                     if (cancellationToken.IsCancellationRequested || s.Generation != lease.Generation || s.RequestSequence != lease.Sequence) return false;
-                    s.LastResolvedRequest = Clone(understood); s.PendingClarification = Clone(prompt);
-                    if (question != null) { s.Messages.Add(new ChatMessage { Role = "user", Content = question }); s.Messages.Add(new ChatMessage { Role = "assistant", Content = answer }); }
+                    bool isNonBusiness = understood?.Domain == "CHAT_SOCIAL" || understood?.Domain == "CHAT_GENERAL" || understood?.Domain == "HR_HELP" || understood?.IsGreetingOnly == true;
+                    if (isNonBusiness && lease.Previous != null && (understood.Entities == null || understood.Entities.Count == 0))
+                    {
+                        s.LastResolvedRequest = Clone(lease.Previous);
+                    }
+                    else
+                    {
+                        s.LastResolvedRequest = Clone(understood);
+                    }
+                    s.PendingClarification = Clone(prompt);
+                    if (question != null) { s.Messages.Add(new ChatMessage { Role = "user", Content = question, Domain = understood?.Domain }); s.Messages.Add(new ChatMessage { Role = "assistant", Content = answer, Domain = understood?.Domain }); }
                     if (s.Messages.Count > 20) s.Messages.RemoveRange(0, s.Messages.Count - 20);
                     s.LastAccessed = _clock.UtcNow; version = ++s.Version; return true;
                 }

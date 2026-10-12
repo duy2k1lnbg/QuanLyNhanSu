@@ -167,7 +167,7 @@ namespace HRMS.Tests
         }
 
         [Test]
-        public void Test03_WebChannel_PayrollModule_OnlyAllowsView_RejectsCalculationsAndModifications()
+        public void Test03_WebChannel_PayrollModule_AllowsViewAndPrint_RejectsModifications()
         {
             // Arrange
             var eval = new InMemoryChannelPermissionEvaluator();
@@ -177,12 +177,17 @@ namespace HRMS.Tests
             eval.SetChannelRight(userId, AppChannels.Web, "F_CC_BANGLUONG", true, true, true, true, true);
 
             // Act & Assert
-            // Theo đặc tả Mục 13: Bảng lương trên Web chỉ cho phép View, khóa mọi action tính/sửa/xóa/in lương!
+            // Web supports viewing and printing with explicit grants; writes remain prohibited.
             Assert.IsTrue(eval.EvaluateAction(userId, AppChannels.Web, "F_CC_BANGLUONG", ChannelAction.View), "Web Bảng lương cho phép Xem.");
             Assert.IsFalse(eval.EvaluateAction(userId, AppChannels.Web, "F_CC_BANGLUONG", ChannelAction.Add), "Web Bảng lương cấm Thêm/Tính lương.");
             Assert.IsFalse(eval.EvaluateAction(userId, AppChannels.Web, "F_CC_BANGLUONG", ChannelAction.Edit), "Web Bảng lương cấm Sửa.");
             Assert.IsFalse(eval.EvaluateAction(userId, AppChannels.Web, "F_CC_BANGLUONG", ChannelAction.Delete), "Web Bảng lương cấm Xóa.");
-            Assert.IsFalse(eval.EvaluateAction(userId, AppChannels.Web, "F_CC_BANGLUONG", ChannelAction.Print), "Web Bảng lương cấm In.");
+            Assert.IsTrue(eval.EvaluateAction(userId, AppChannels.Web, "F_CC_BANGLUONG", ChannelAction.Print), "Web prints only when granted.");
+            eval.SetChannelRight(userId, AppChannels.Web, "F_CC_BANGLUONG", true, false, false, false, false);
+            Assert.IsFalse(eval.EvaluateAction(userId, AppChannels.Web, "F_CC_BANGLUONG", ChannelAction.Print), "Missing Print grant must block printing.");
+            eval.SetChannelRight(userId, AppChannels.Web, "F_CC_BANGLUONG", true, false, false, false, true);
+            eval.SetParentGrant(userId, AppChannels.Web, false);
+            Assert.IsFalse(eval.EvaluateAction(userId, AppChannels.Web, "F_CC_BANGLUONG", ChannelAction.Print), "Disabled Web parent must block printing.");
         }
 
         [Test]
@@ -293,7 +298,7 @@ namespace HRMS.Tests
             Assert.IsFalse(webPayroll.CanAdd);
             Assert.IsFalse(webPayroll.CanEdit);
             Assert.IsFalse(webPayroll.CanDelete);
-            Assert.IsFalse(webPayroll.CanPrint);
+            Assert.IsTrue(webPayroll.CanPrint);
 
             // Desktop Bảng lương
             var dtPayroll = ChannelCapabilityRegistry.GetCapability(AppChannels.Desktop, "F_CC_BANGLUONG");
@@ -322,6 +327,43 @@ namespace HRMS.Tests
             Assert.IsFalse(PlatformFunctionCodes.IsPlatformCode("F_CC_BANGLUONG"));
             Assert.IsFalse(PlatformFunctionCodes.IsPlatformCode("F_NV_HOPDONG"));
             Assert.IsFalse(PlatformFunctionCodes.IsPlatformCode("MOBILE_PROFILE_VIEW"));
+        }
+
+        [Test]
+        public void Test11_MobileChannel_AllFourteenCapabilities_RegisteredAndEnforced()
+        {
+            string[] mobileFuncs = new string[]
+            {
+                "MOBILE_ROOT", "MOBILE_PROFILE_VIEW", "MOBILE_PROFILE_EDIT",
+                "MOBILE_ATTENDANCE_VIEW", "MOBILE_REQUEST_CORRECTION",
+                "MOBILE_PAYROLL_VIEW", "MOBILE_CONTRACT_VIEW",
+                "MOBILE_INSURANCE_VIEW", "MOBILE_REQUEST_INSURANCE", "MOBILE_REQUEST_DEPENDENT",
+                "MOBILE_NOTIFICATION_VIEW", "MOBILE_REQUEST_LEAVE",
+                "MOBILE_REQUEST_OVERTIME", "MOBILE_REQUEST_ADVANCE"
+            };
+
+            foreach (var code in mobileFuncs)
+            {
+                var cap = ChannelCapabilityRegistry.GetCapability(AppChannels.Mobile, code);
+                Assert.IsNotNull(cap, $"Capability [{code}] phải tồn tại trên Mobile.");
+                Assert.IsTrue(cap.CanView, $"[{code}] phải hỗ trợ View trên Mobile.");
+                Assert.IsFalse(cap.CanPrint, $"[{code}] tuyệt đối không hỗ trợ Print trên Mobile.");
+                Assert.IsFalse(cap.CanDelete, $"[{code}] tuyệt đối không hỗ trợ Delete trên Mobile.");
+            }
+
+            // Kiểm tra các capability có hành động ghi (Add/Edit)
+            Assert.IsTrue(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_PROFILE_EDIT", ChannelAction.Edit));
+            Assert.IsTrue(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_REQUEST_CORRECTION", ChannelAction.Add));
+            Assert.IsTrue(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_REQUEST_INSURANCE", ChannelAction.Add));
+            Assert.IsTrue(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_REQUEST_DEPENDENT", ChannelAction.Add));
+            Assert.IsTrue(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_REQUEST_OVERTIME", ChannelAction.Edit)); // Cancel request
+            Assert.IsTrue(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_REQUEST_ADVANCE", ChannelAction.Add));
+            Assert.IsTrue(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_REQUEST_LEAVE", ChannelAction.Add));
+
+            // Kiểm tra các capability chỉ đọc không cho phép ghi
+            Assert.IsFalse(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_PAYROLL_VIEW", ChannelAction.Add));
+            Assert.IsFalse(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_CONTRACT_VIEW", ChannelAction.Edit));
+            Assert.IsFalse(ChannelCapabilityRegistry.IsActionSupported(AppChannels.Mobile, "MOBILE_INSURANCE_VIEW", ChannelAction.Add));
         }
 
         #endregion

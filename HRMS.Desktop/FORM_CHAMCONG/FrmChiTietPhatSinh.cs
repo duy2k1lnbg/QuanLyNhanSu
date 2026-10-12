@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu;
 using Bu.CLASS_CHAMCONG;
 using Bu.CLASS_PAYROLL;
@@ -34,13 +35,15 @@ namespace QLyNSu.FORM_CHAMCONG
             _existingItem = item;
         }
 
-        private void FrmChiTietPhatSinh_Load(object sender, EventArgs e)
+        private async void FrmChiTietPhatSinh_Load(object sender, EventArgs e)
         {
+            try
+            {
             _isLoading = true;
             try
             {
                 // Load danh sách nhân viên
-                var listNv = _nhanVienBus.getListFll_DTO();
+                var listNv = await Functions.FormDataLoader.ReadAsync(this, () => _nhanVienBus.getListFll_DTO());
                 lookUpNhanVien.Properties.DataSource = listNv;
                 lookUpNhanVien.Properties.ValueMember = "MANV";
                 lookUpNhanVien.Properties.DisplayMember = "HOTEN";
@@ -117,6 +120,10 @@ namespace QLyNSu.FORM_CHAMCONG
                 _isLoading = false;
                 _isDirty = false;
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private bool SaveDraft(bool showSuccessMessage = true)

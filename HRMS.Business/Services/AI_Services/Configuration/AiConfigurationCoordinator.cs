@@ -19,6 +19,15 @@ namespace Bu.Services.AI_Services.Core
 {
     public class AiConfigurationSnapshot
     {
+        public const int DefaultRequestTimeoutSeconds = 180;
+        public const int MinRequestTimeoutSeconds = 30;
+        public const int MaxRequestTimeoutSeconds = 900;
+        // Client transport waits longer so the API can return its timeout response.
+        public const int ClientTransportTimeoutSeconds = MaxRequestTimeoutSeconds + 30;
+        public static int NormalizeRequestTimeout(int? seconds) =>
+            seconds >= MinRequestTimeoutSeconds && seconds <= MaxRequestTimeoutSeconds
+                ? seconds.Value : DefaultRequestTimeoutSeconds;
+        public int AiRequestTimeoutSeconds { get; set; } = DefaultRequestTimeoutSeconds;
         public string OllamaHost { get; set; } = "http://127.0.0.1:11434";
         public string AiModel { get; set; } = "qwen2.5:latest";
         public string QdrantUrl { get; set; } = "http://127.0.0.1:6333";
@@ -44,6 +53,7 @@ namespace Bu.Services.AI_Services.Core
                 AiTopK = this.AiTopK,
                 AiTopP = this.AiTopP,
                 AiRepeat = this.AiRepeat,
+                AiRequestTimeoutSeconds = this.AiRequestTimeoutSeconds,
                 Version = this.Version,
                 UpdatedAt = this.UpdatedAt
             };
@@ -61,6 +71,7 @@ namespace Bu.Services.AI_Services.Core
         public int? AiTopK { get; set; }
         public double? AiTopP { get; set; }
         public double? AiRepeat { get; set; }
+        public int? AiRequestTimeoutSeconds { get; set; }
         public long? ExpectedVersion { get; set; }
     }
 
@@ -369,6 +380,9 @@ namespace Bu.Services.AI_Services.Core
                     if (ParseInvariantDouble(GetVal("AiTopP", "0.8"), 0.8, out double topp, 0.0, 1.0)) snap.AiTopP = topp;
                     if (ParseInvariantDouble(GetVal("AiRepeat", "1.15"), 1.15, out double rep, 0.01, 2.0)) snap.AiRepeat = rep;
 
+                    snap.AiRequestTimeoutSeconds = AiConfigurationSnapshot.NormalizeRequestTimeout(
+                        int.TryParse(GetVal("AiRequestTimeoutSeconds", ConfigurationManager.AppSettings["AiRequestTimeoutSeconds"] ?? "180"), out int timeout) ? (int?)timeout : null);
+
                     string verStr = GetVal("AiConfigVersion", "1");
                     snap.Version = long.TryParse(verStr, out long v) ? v : 1;
                     snap.UpdatedAt = DateTime.UtcNow;
@@ -390,6 +404,7 @@ namespace Bu.Services.AI_Services.Core
                     OllamaHost = NormalizeBaseUrl(ConfigurationManager.AppSettings["OllamaHost"] ?? ConfigurationManager.AppSettings["OllamaUrl"] ?? "http://127.0.0.1:11434"),
                     AiModel = ConfigurationManager.AppSettings["AiModel"] ?? "qwen2.5:latest",
                     QdrantUrl = NormalizeBaseUrl(ConfigurationManager.AppSettings["QdrantUrl"] ?? "http://127.0.0.1:6333"),
+                    AiRequestTimeoutSeconds = AiConfigurationSnapshot.NormalizeRequestTimeout(int.TryParse(ConfigurationManager.AppSettings["AiRequestTimeoutSeconds"], out int timeout) ? (int?)timeout : null),
                     Version = 0
                 };
                 return degraded;
@@ -469,6 +484,11 @@ namespace Bu.Services.AI_Services.Core
                     return (false, "Repeat Penalty phải là số lớn hơn 0.0 và nhỏ hơn hoặc bằng 2.0.", _currentSnapshot.Clone());
                 }
             }
+
+            if (update.AiRequestTimeoutSeconds.HasValue &&
+                (update.AiRequestTimeoutSeconds.Value < AiConfigurationSnapshot.MinRequestTimeoutSeconds ||
+                 update.AiRequestTimeoutSeconds.Value > AiConfigurationSnapshot.MaxRequestTimeoutSeconds))
+                return (false, "Thời gian chờ AI phải là số nguyên từ 30 đến 900 giây.", _currentSnapshot.Clone());
 
             lock (_lock)
             {
@@ -551,6 +571,9 @@ namespace Bu.Services.AI_Services.Core
                             Upsert("AiRepeat", update.AiRepeat.Value.ToString("0.00", CultureInfo.InvariantCulture));
                         }
 
+                        if (update.AiRequestTimeoutSeconds.HasValue)
+                            Upsert("AiRequestTimeoutSeconds", update.AiRequestTimeoutSeconds.Value.ToString(CultureInfo.InvariantCulture));
+
                         long nextVersion = currentDbVersion + 1;
                         Upsert("AiConfigVersion", nextVersion.ToString(CultureInfo.InvariantCulture));
 
@@ -569,6 +592,7 @@ namespace Bu.Services.AI_Services.Core
                             AiTopK = update.AiTopK ?? _currentSnapshot.AiTopK,
                             AiTopP = update.AiTopP ?? _currentSnapshot.AiTopP,
                             AiRepeat = update.AiRepeat ?? _currentSnapshot.AiRepeat,
+                            AiRequestTimeoutSeconds = update.AiRequestTimeoutSeconds ?? _currentSnapshot.AiRequestTimeoutSeconds,
                             Version = nextVersion,
                             UpdatedAt = DateTime.UtcNow
                         };

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Bu.Services.AI_Services.Core
 {
+    [Obsolete("SqlGeneratorService uses unvalidated LLM SQL generation and is legacy. Use QueryPlanner and ScopedSqlExecutor instead.", false)]
     public class SqlGeneratorService : ISqlGenerator
     {
         private readonly ILlmService _ollama;

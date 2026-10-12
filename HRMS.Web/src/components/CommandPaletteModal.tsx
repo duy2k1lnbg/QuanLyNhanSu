@@ -11,6 +11,7 @@ import {
 } from '@ant-design/icons';
 import type { NhanVienDTO, KyCongDTO, HopDongDTO, CurrentUserDTO } from '../types/hrms';
 import { canView, canAdd, canEdit, canAccessRoute } from '../utils/permissionUtils';
+import { useAppLanguage } from '../services/i18n';
 
 export interface CommandPaletteModalProps {
   visible: boolean;
@@ -46,6 +47,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
   onOpenAiDrawer,
   currentUser: propUser,
 }) => {
+  const { t } = useAppLanguage();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -68,10 +70,10 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       list.push({
         id: 'act-add-emp',
         type: 'action',
-        title: 'Thêm hồ sơ nhân viên mới',
-        subtitle: 'Mở biểu mẫu tiếp nhận và cấp mã nhân sự',
+        title: t('commandPalette.actionAddEmpTitle'),
+        subtitle: t('commandPalette.actionAddEmpDesc'),
         icon: <UserOutlined style={{ color: '#10b981' }} />,
-        tag: 'Hành động',
+        tag: t('commandPalette.tagAction'),
         tagColor: 'green',
         action: () => {
           onNavigate('nhanvien');
@@ -84,10 +86,10 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       list.push({
         id: 'act-tinh-luong',
         type: 'action',
-        title: 'Tính toán bảng lương tự động',
-        subtitle: 'Chạy công thức lương Gross-to-Net cho kỳ hiện tại',
+        title: t('commandPalette.actionPayrollTitle'),
+        subtitle: t('commandPalette.actionPayrollDesc'),
         icon: <DollarOutlined style={{ color: '#f59e0b' }} />,
-        tag: 'Bảng lương',
+        tag: t('commandPalette.tagPayroll'),
         tagColor: 'orange',
         action: () => {
           onNavigate('bangluong');
@@ -99,8 +101,8 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     list.push({
       id: 'act-ai-copilot',
       type: 'action',
-      title: 'Trợ lý AI Copilot phân tích dữ liệu',
-      subtitle: 'Hỏi đáp báo cáo, dự báo biến động lương và bất thường',
+      title: t('commandPalette.actionAiTitle'),
+      subtitle: t('commandPalette.actionAiDesc'),
       icon: <RobotOutlined style={{ color: '#8b5cf6' }} />,
       tag: 'AI',
       tagColor: 'purple',
@@ -114,10 +116,10 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       list.push({
         id: 'act-cham-cong',
         type: 'navigation',
-        title: 'Bảng chấm công & Ca làm việc',
-        subtitle: 'Xem bảng công chi tiết và phân ca nhân sự',
+        title: t('commandPalette.actionAttendanceTitle'),
+        subtitle: t('commandPalette.actionAttendanceDesc'),
         icon: <CalendarOutlined style={{ color: '#3b82f6' }} />,
-        tag: 'Điều hướng',
+        tag: t('commandPalette.tagNavigation'),
         tagColor: 'blue',
         action: () => {
           onNavigate('chamcong');
@@ -130,10 +132,10 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       list.push({
         id: 'act-hop-dong',
         type: 'navigation',
-        title: 'Hợp đồng lao động & Tái ký',
-        subtitle: 'Quản lý thời hạn và quyết định gia hạn hợp đồng',
+        title: t('commandPalette.actionContractTitle'),
+        subtitle: t('commandPalette.actionContractDesc'),
         icon: <FileTextOutlined style={{ color: '#ec4899' }} />,
-        tag: 'Hợp đồng',
+        tag: t('commandPalette.tagContract'),
         tagColor: 'magenta',
         action: () => {
           onNavigate('hopdong');
@@ -143,7 +145,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     }
 
     return list;
-  }, [currentUser, onNavigate, onClose, onOpenAiDrawer]);
+  }, [currentUser, onNavigate, onClose, onOpenAiDrawer, t]);
 
   // Search filter
   const filteredItems = useMemo(() => {
@@ -175,7 +177,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
             title: emp.HOTEN,
             subtitle: `Mã NV #${emp.MANV} • ${emp.TENPB || 'Chưa phân phòng'} • ${emp.TENCV || 'Nhân viên'}`,
             icon: <UserOutlined style={{ color: '#3b82f6' }} />,
-            tag: 'Nhân sự 360°',
+            tag: t('commandPalette.tagEmployee'),
             tagColor: 'cyan',
             action: () => {
               onClose();
@@ -202,7 +204,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
             title: `Hợp đồng #${hd.SOHD}`,
             subtitle: `Nhân sự: ${hd.HOTEN || 'N/A'} • Lương: ${(hd.LUONG_THOA_THUAN ?? 0).toLocaleString('vi-VN')} đ`,
             icon: <FileTextOutlined style={{ color: '#10b981' }} />,
-            tag: 'Hợp đồng',
+            tag: t('commandPalette.tagContract'),
             tagColor: 'green',
             action: () => {
               onNavigate('hopdong');
@@ -224,7 +226,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
             title: `Bảng lương Kỳ Tháng ${kc.THANG}/${kc.NAM}`,
             subtitle: `Mã kỳ công #${kc.MAKYCONG} • ${kc.KHOA === 1 ? 'Đã khóa bảng' : 'Chưa khóa'}`,
             icon: <DollarOutlined style={{ color: '#f59e0b' }} />,
-            tag: 'Bảng lương',
+            tag: t('commandPalette.tagPayroll'),
             tagColor: 'gold',
             action: () => {
               onNavigate('bangluong');
@@ -236,7 +238,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
     }
 
     return results.slice(0, 12);
-  }, [searchTerm, systemActions, nhanVienList, hopDongList, kyCongList, onClose, onSelectEmployee, onNavigate, currentUser]);
+  }, [searchTerm, systemActions, nhanVienList, hopDongList, kyCongList, onClose, onSelectEmployee, onNavigate, currentUser, t]);
 
   useEffect(() => {
     setSelectedIndex(0);
@@ -263,12 +265,8 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
       onCancel={onClose}
       footer={
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 12, color: '#94a3b8', flexWrap: 'wrap', gap: 6 }}>
-          <span>
-            Dùng phím <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>↑</kbd>{' '}
-            <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>↓</kbd> để di chuyển,{' '}
-            <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>Enter</kbd> để chọn
-          </span>
-          <span>Phím tắt: <kbd style={{ padding: '2px 6px', background: '#f1f5f9', borderRadius: 4 }}>Ctrl + K</kbd></span>
+          <span>{t('commandPalette.footerNavigate')}</span>
+          <span>{t('commandPalette.footerShortcut')}</span>
         </div>
       }
       closable={false}
@@ -280,7 +278,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
         autoFocus
         size="large"
         prefix={<SearchOutlined style={{ color: '#64748b', fontSize: 20, marginRight: 8 }} />}
-        placeholder="Tìm kiếm nhân viên, phòng ban, số hợp đồng, kỳ lương... (Ctrl + K)"
+        placeholder={t('commandPalette.searchPlaceholder')}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         onKeyDown={handleKeyDown}
@@ -295,7 +293,7 @@ export const CommandPaletteModal: React.FC<CommandPaletteModalProps> = ({
 
       <div style={{ maxHeight: 380, overflowY: 'auto' }}>
         {filteredItems.length === 0 ? (
-          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="Không tìm thấy kết quả phù hợp" />
+          <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('commandPalette.noResults')} />
         ) : (
           <List
             dataSource={filteredItems}

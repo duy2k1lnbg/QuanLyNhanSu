@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu.DTO;
 using DevExpress.XtraEditors;
 using System;
@@ -475,30 +476,39 @@ namespace QLyNSu.FORM_CHAMCONG
             }
         }
 
-        private void btnDieuChinh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnDieuChinh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            try
+            {
             if (_bangLuongItem != null)
             {
                 using (var frm = new FrmDieuChinhLuong(_bangLuongItem))
                 {
-                    if (frm.ShowDialog(this) == DialogResult.OK)
+                    if (await Functions.ChildFormWindow.ShowAsync(this, frm) == DialogResult.OK)
                     {
                         // Refresh data after adjustment from database
-                        ReloadDataFromDatabase();
+                        await ReloadDataFromDatabase();
+                        if (IsDisposed || Disposing) return;
                         DisplayData();
                     }
                 }
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void ReloadDataFromDatabase()
+        private async Task ReloadDataFromDatabase()
         {
+            try
+            {
             if (_bangLuongItem == null || _bangLuongItem.IDBL <= 0) return;
             try
             {
                 using (var db = new DA.MyEntities())
                 {
-                    var bl = db.TB_BANGLUONG.FirstOrDefault(x => x.IDBL == _bangLuongItem.IDBL);
+                    var bl = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_BANGLUONG.FirstOrDefault(x => x.IDBL == _bangLuongItem.IDBL));
                     if (bl != null)
                     {
                         _bangLuongItem.LUONG_CONG_THUCTE = bl.LUONG_CONG_THUCTE;
@@ -518,10 +528,15 @@ namespace QLyNSu.FORM_CHAMCONG
                     }
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"[FrmChiTietLuong] ReloadDataFromDatabase failed: {ex.Message}");
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

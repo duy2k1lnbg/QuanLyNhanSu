@@ -32,6 +32,17 @@ namespace Bu.CLASS_SYSTEM
 
     public static class ErrorHelper
     {
+        public const string PayrollFrozenMessage = "Lương kỳ này đã công bố. Không được sửa, xóa, tính lại, thu hồi công bố, đổi trạng thái lương hoặc sửa/mở khóa bảng công.";
+        public static bool IsPayrollFrozen(Exception error)
+        {
+            if(error==null)return false;
+            if(error is BusinessException business && business.ErrorCode=="PAYROLL_FROZEN")return true;
+            if(error is AggregateException aggregate && aggregate.InnerExceptions.Any(IsPayrollFrozen))return true;
+            if(error is Oracle.ManagedDataAccess.Client.OracleException oracle && oracle.Errors.Cast<Oracle.ManagedDataAccess.Client.OracleError>().Any(e=>e.Number==20044))return true;
+            return error.Message.IndexOf("PAYROLL_FROZEN",StringComparison.OrdinalIgnoreCase)>=0 ||
+                error.Message.IndexOf(PayrollFrozenMessage,StringComparison.Ordinal)>=0 || IsPayrollFrozen(error.InnerException);
+        }
+
         public static string ResolveUserFriendlyMessage(Exception ex, string defaultAction = "thao tác")
         {
             return ResolveUserFriendlyMessage(ex, defaultAction, out _);
@@ -45,6 +56,8 @@ namespace Bu.CLASS_SYSTEM
             {
                 return "Đã xảy ra lỗi không xác định.";
             }
+
+            if(IsPayrollFrozen(ex))return PayrollFrozenMessage;
 
             // 1. Direct or nested BusinessException: Keep clear business message
             if (ex is Bu.CLASS_PAYROLL.PolicySchemaMissingException psEx)

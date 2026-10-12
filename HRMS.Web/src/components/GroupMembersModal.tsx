@@ -25,6 +25,7 @@ import {
 import type { ColumnsType } from 'antd/es/table';
 import api from '../services/api';
 import type { GroupMembersResponseDTO, GroupMemberItemDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text } = Typography;
 
@@ -45,6 +46,7 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
   groupFullName,
   onSuccess,
 }) => {
+  const { t } = useAppLanguage();
   const [data, setData] = useState<GroupMembersResponseDTO | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [selectedUserToAdd, setSelectedUserToAdd] = useState<number | null>(null);
@@ -64,7 +66,7 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
         setData(res.data);
       }
     } catch {
-      message.error('Không thể tải danh sách thành viên nhóm.');
+      message.error(t('user.loadMembersError'));
     } finally {
       setLoading(false);
     }
@@ -72,18 +74,18 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
 
   const handleAddMember = async () => {
     if (!selectedUserToAdd) {
-      message.warning('Vui lòng chọn tài khoản cần thêm vào nhóm.');
+      message.warning(t('user.selectUserToAddWarning'));
       return;
     }
     setAdding(true);
     try {
       await api.post(`/users/groups/${groupId}/members/${selectedUserToAdd}`);
-      message.success('Đã thêm thành viên vào nhóm thành công!');
+      message.success(t('user.addMemberSuccess'));
       setSelectedUserToAdd(null);
       loadMembers();
       if (onSuccess) onSuccess();
     } catch {
-      message.error('Lỗi khi thêm thành viên vào nhóm.');
+      message.error(t('user.addMemberError'));
     } finally {
       setAdding(false);
     }
@@ -92,11 +94,11 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
   const handleRemoveMember = async (memberId: number) => {
     try {
       await api.delete(`/users/groups/${groupId}/members/${memberId}`);
-      message.success('Đã gỡ thành viên khỏi nhóm thành công!');
+      message.success(t('user.removeMemberSuccess'));
       loadMembers();
       if (onSuccess) onSuccess();
     } catch {
-      message.error('Lỗi khi gỡ thành viên khỏi nhóm.');
+      message.error(t('user.removeMemberError'));
     }
   };
 
@@ -109,7 +111,7 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
       render: (id: number) => <Tag color="blue">#{id}</Tag>,
     },
     {
-      title: 'Tài khoản',
+      title: t('user.colUsername'),
       dataIndex: 'Username',
       key: 'Username',
       width: 150,
@@ -121,34 +123,38 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
       ),
     },
     {
-      title: 'Họ và tên',
+      title: t('user.colFullName'),
       dataIndex: 'FullName',
       key: 'FullName',
-      render: (name: string) => name || 'Chưa cập nhật',
+      render: (name: string) => name || t('employee360.notUpdated'),
     },
     {
-      title: 'Trạng thái',
+      title: t('user.colStatus'),
       dataIndex: 'Disabled',
       key: 'Disabled',
       width: 120,
       render: (disabled?: boolean) =>
-        disabled ? <Tag color="red">Bị khóa</Tag> : <Tag color="green">Hoạt động</Tag>,
+        disabled ? (
+          <Tag color="red">{t('employee360.accountSuspended')}</Tag>
+        ) : (
+          <Tag color="green">{t('employee360.accountActive')}</Tag>
+        ),
     },
     {
-      title: 'Thao tác',
+      title: t('common.actions'),
       key: 'action',
       width: 110,
       align: 'center',
       render: (_, record) => (
         <Popconfirm
-          title="Gỡ khỏi nhóm?"
-          description={`Gỡ tài khoản [${record.Username}] khỏi nhóm [${groupName}]?`}
+          title={t('user.removeMemberConfirmTitle')}
+          description={t('user.removeMemberConfirmDesc', { username: record.Username, groupName })}
           onConfirm={() => handleRemoveMember(record.IdUser)}
-          okText="Gỡ"
-          cancelText="Hủy"
+          okText={t('user.btnRemove')}
+          cancelText={t('common.cancel')}
         >
           <Button size="small" danger icon={<UserDeleteOutlined />}>
-            Gỡ
+            {t('user.btnRemove')}
           </Button>
         </Popconfirm>
       ),
@@ -164,7 +170,7 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
         <Space>
           <TeamOutlined style={{ color: '#722ed1', fontSize: 18 }} />
           <span>
-            Thành viên nhóm quyền: <b style={{ color: '#722ed1' }}>{groupFullName || groupName}</b> ({groupName})
+            {t('user.groupMembersTitle', { name: groupFullName || groupName })} ({groupName})
           </span>
         </Space>
       }
@@ -173,16 +179,12 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
       width="min(720px, 95vw)"
       footer={[
         <Button key="close" type="primary" onClick={onClose}>
-          Hoàn tất
+          {t('user.btnComplete')}
         </Button>,
       ]}
     >
       <Alert
-        message={
-          <span>
-            Tất cả các thành viên trong nhóm này sẽ tự động kế thừa toàn bộ quyền chức năng được phân cho nhóm <b>[{groupName}]</b>.
-          </span>
-        }
+        message={t('user.groupInheritAlert', { groupName })}
         type="info"
         showIcon
         style={{ marginBottom: 16, marginTop: 8 }}
@@ -194,14 +196,14 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
         title={
           <Space>
             <UserAddOutlined style={{ color: '#52c41a' }} />
-            <span>Thêm tài khoản vào nhóm</span>
+            <span>{t('user.addMemberCardTitle')}</span>
           </Space>
         }
       >
         <Row gutter={[8, 8]} align="middle">
           <Col xs={24} sm={15} md="auto" flex="auto">
             <Select
-              placeholder="Chọn người dùng để thêm vào nhóm..."
+              placeholder={t('user.selectUserPrompt')}
               value={selectedUserToAdd}
               onChange={(val) => setSelectedUserToAdd(val)}
               style={{ width: '100%' }}
@@ -224,7 +226,7 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
               disabled={!selectedUserToAdd}
               style={{ background: '#52c41a', width: '100%' }}
             >
-              Thêm vào nhóm
+              {t('user.btnAddMember')}
             </Button>
           </Col>
           <Col xs={6} sm="auto">
@@ -242,7 +244,7 @@ export const GroupMembersModal: React.FC<GroupMembersModalProps> = ({
         pagination={{ pageSize: 6 }}
         size="small"
         locale={{
-          emptyText: <Empty description="Nhóm này chưa có thành viên nào. Hãy chọn người dùng ở trên để thêm vào nhóm." />,
+          emptyText: <Empty description={t('user.emptyGroupMembers')} />,
         }}
       />
     </Modal>

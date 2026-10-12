@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0",
+  "retrieved_at": "2026-10-11",
+  "scope": "starter_reference_registry",
+  "ingest_enabled": false,
+  "sources": [
+    {
+      "source_id": "VN-LABOR-CONSOLIDATED-2026",
+      "title": "Bộ luật Lao động — 18/VBHN-VPQH",
+      "issued_at": "2026-02-12",
+      "url": "https://chinhphu.vn/?classid=2629&docid=217002&pageid=27160",
+      "pdf_url": "https://datafiles.chinhphu.vn/cpp/files/vbpq/2026/02/18-vbhn-vpqh.pdf",
+      "file": "05_Nguon_goc/18-vbhn-vpqh-2026.pdf",
+      "notes": "Bản hợp nhất; ngày hợp nhất không phải ngày mọi điều khoản có hiệu lực. PDF ảnh 86 trang; đã đối chiếu trực quan trang 1, 38–39, 41–43, 47–48 và contact sheet 31–50; chưa OCR/đọc toàn bộ.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false,
+      "sha256": "5a01a5b4b778b78c7bc9372e3a7270735bd98c28160604bff95db06bb3345a6f",
+      "size_bytes": 38999953
+    },
+    {
+      "source_id": "VN-MIN-WAGE-293-2025",
+      "title": "Nghị định 293/2025/NĐ-CP — mức lương tối thiểu",
+      "issued_at": "2025-11-10",
+      "effective_from": "2026-01-01",
+      "url": "https://xaydungchinhsach.chinhphu.vn/nghi-dinh-so-293-2025-nd-cp-quy-dinh-muc-luong-toi-thieu-doi-voi-nguoi-lao-dong-lam-viec-theo-hop-dong-lao-dong-119251110172808433.htm",
+      "pdf_url": "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/11/10/293-2025-nd-cp-10112025-3-signed-1762770239794100377083.pdf",
+      "file": "05_Nguon_goc/293-2025-nd-cp.pdf",
+      "notes": "Bản chính 4 trang. Đối chiếu văn bản trên Cổng Chính phủ; chưa chọn vùng lương cho pháp nhân chưa biết địa chỉ.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false,
+      "sha256": "df3470513ca68d54af38808a00ca64eba9ccdb058e7766366050ee816f6988fb",
+      "size_bytes": 189319
+    },
+    {
+      "source_id": "VN-MIN-WAGE-293-ANNEX",
+      "title": "Phụ lục địa bàn — Nghị định 293/2025/NĐ-CP",
+      "issued_at": "2025-11-10",
+      "effective_from": "2026-01-01",
+      "url": "https://xaydungchinhsach.chinhphu.vn/nghi-dinh-so-293-2025-nd-cp-quy-dinh-muc-luong-toi-thieu-doi-voi-nguoi-lao-dong-lam-viec-theo-hop-dong-lao-dong-119251110172808433.htm",
+      "pdf_url": "https://xdcs.cdnchinhphu.vn/446259493575335936/2025/11/10/293-2025-nd-cp-10112025-4-signed-17627702819891838494117.pdf",
+      "file": "05_Nguon_goc/293-2025-nd-cp-phu-luc.pdf",
+      "notes": "10 trang; phần Bắc Ninh ở trang PDF 3; tỉnh có nhiều vùng. Bản annex đăng kèm có chỗ đầu trang bỏ trống số/ngày, đối chiếu bản chính và trang công bố, không tự sửa PDF gốc.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false,
+      "sha256": "e75e9b72bcc3eb173b8c110e3db5763990c8ad4e6f01121e218bafdf5d84719e",
+      "size_bytes": 224736
+    },
+    {
+      "source_id": "FC-CODE-2021-REFERENCE",
+      "title": "Foxconn Global Code of Conduct — URL bản 2021",
+      "issued_at": null,
+      "url": "https://www.foxconn.com/vi-vn/CSR/esg-policy-documents",
+      "pdf_url": "https://www.foxconn.com/s3/reports/CSR%E5%A0%B1%E5%91%8A%E6%9B%B8/%E6%96%B9%E9%87%9D%E6%BA%96%E5%89%87/Foxconn%20Global%20Code%20of%20Conduct%202021%20.pdf",
+      "file": "05_Nguon_goc/Foxconn_Global_Code_of_Conduct_2021.pdf",
+      "notes": "15 trang, đã đọc text trang 1–7; nhãn năm theo URL, không xác nhận là bản mới nhất. Không xác minh quy chế thưởng riêng của nhà máy Bắc Ninh; không áp dụng mặc định cho công ty hiện tại.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false,
+      "sha256": "0ba63662106e3526b5e8c71f40c56ff357d3903b0f780ae8439817f86c3a74bd",
+      "size_bytes": 200816
+    },
+    {
+      "source_id": "VN-OT-EXPLANATION",
+      "title": "Làm thêm giờ thế nào là đúng quy định?",
+      "issued_at": "2024-01-30",
+      "url": "https://baochinhphu.vn/lam-them-gio-the-nao-la-dung-quy-dinh-102240130085419703.htm",
+      "notes": "Giải đáp về thời giờ; đối chiếu văn bản hiện hành trước khi ban hành.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false
+    },
+    {
+      "source_id": "VN-SALARY-DISCIPLINE",
+      "title": "Người lao động bị kỷ luật, tính thời hạn nâng lương thế nào?",
+      "issued_at": null,
+      "url": "https://chinhsachonline.chinhphu.vn/nguoi-lao-dong-bi-ky-luat-tinh-thoi-han-nang-luong-the-nao-76608.htm",
+      "notes": "Căn cứ Điều 103 và 124; ví dụ lịch nâng lương của người hỏi không phải quy định chung.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false
+    },
+    {
+      "source_id": "VN-OT-300",
+      "title": "Khi nào doanh nghiệp được đăng ký tăng giờ làm thêm?",
+      "issued_at": null,
+      "url": "https://chinhsachonline.chinhphu.vn/khi-nao-doanh-nghiep-duoc-dang-ky-tang-gio-lam-them-67412.htm",
+      "notes": "Nguồn giải đáp năm 2023; xác minh tên cơ quan và thủ tục hiện hành trước khi dùng.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false
+    },
+    {
+      "source_id": "VN-HOURLY-WAGE-EXPLANATION",
+      "title": "Phụ cấp theo xếp loại có tính đóng BHXH và lương làm thêm giờ?",
+      "issued_at": null,
+      "url": "https://chinhsachonline.chinhphu.vn/phu-cap-theo-xep-loai-co-tinh-dong-bhxh-va-luong-lam-them-gio-89208.htm",
+      "notes": "Đã đọc phần dẫn Điều 55 Nghị định 145/2020/NĐ-CP; không suy rộng kết luận một phụ cấp cho mọi phụ cấp.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false
+    },
+    {
+      "source_id": "FC-ESG-DIRECTORY",
+      "title": "Danh mục chính sách ESG chính thức Hon Hai/Foxconn",
+      "issued_at": null,
+      "url": "https://www.foxconn.com/vi-vn/CSR/esg-policy-documents",
+      "notes": "Có danh mục quy tắc ứng xử và quyền người lao động; không chứng minh mức thưởng hoặc nội quy nhà máy cụ thể.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false
+    },
+    {
+      "source_id": "FC-CSR-IMPLEMENTATION",
+      "title": "Hon Hai — Implementation of the Sustainable Development",
+      "issued_at": null,
+      "url": "https://www.foxconn.com.tw/en-us/CSR/social-responsibility-implementation",
+      "notes": "Trang tham khảo trách nhiệm xã hội, cần mở từng nội dung nếu dùng cho điều khoản cụ thể.",
+      "retrieved_at": "2026-10-11",
+      "ingest_enabled": false
+    }
+  ]
+}

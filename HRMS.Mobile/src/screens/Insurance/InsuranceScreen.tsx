@@ -1,165 +1,76 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  RefreshControl,
-} from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, ScrollView, RefreshControl, Modal, Alert, Switch, StyleSheet } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
-import { useLanguage } from '../../hooks/useLanguage';
 import { meApi } from '../../api/meApi';
-import { InsuranceDto } from '../../types/me';
+import { InsuranceDto, AllProfileQuotasDto } from '../../types/me';
+import { canMobile } from '../../utils/mobilePermissions';
+import { isoDate, localDate } from '../../utils/requestContracts';
+import { mapApiError } from '../../utils/errorMapper';
 import { AppHeader } from '../../components/AppHeader';
 import { AppCard } from '../../components/AppCard';
+import { AppButton } from '../../components/AppButton';
+import { AppTextInput } from '../../components/AppTextInput';
 import { AppLoading } from '../../components/AppLoading';
-import { AppEmptyState } from '../../components/AppEmptyState';
 import { AppErrorState } from '../../components/AppErrorState';
-import { AppDivider } from '../../components/AppDivider';
-import { formatDate, formatCurrency } from '../../utils/formatters';
-import { mapApiError } from '../../utils/errorMapper';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 
-export const InsuranceScreen: React.FC = () => {
-  const { t } = useTranslation();
-  const navigation = useNavigation();
-  const { colors } = useTheme();
-  const { activeLanguage } = useLanguage();
-
-  const [insurance, setInsurance] = useState<InsuranceDto | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const fetchInsurance = useCallback(async (isRefresh = false) => {
-    if (isRefresh) setRefreshing(true);
-    else setLoading(true);
-    setErrorMessage(null);
-
-    try {
-      const data = await meApi.getInsurance();
-      setInsurance(data);
-    } catch (error: any) {
-      setErrorMessage(mapApiError(error));
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchInsurance();
-  }, [fetchInsurance]);
-
-  const renderRow = (icon: keyof typeof Ionicons.glyphMap, label: string, value?: string | number | null) => (
-    <View style={styles.infoRow}>
-      <Ionicons name={icon} size={20} color={colors.primary} style={styles.rowIcon} />
-      <View style={styles.textColumn}>
-        <Text style={[typography.caption, { color: colors.textSecondary }]}>{label}</Text>
-        <Text style={[typography.bodyBold, { color: colors.text, marginTop: 2 }]}>
-          {value || t('common.notUpdated')}
-        </Text>
-      </View>
-    </View>
-  );
-
-  return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
-      <AppHeader
-        title={t('insurance.title')}
-        showBack
-        onBack={() => navigation.goBack()}
-      />
-
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={() => fetchInsurance(true)}
-            colors={[colors.primary]}
-            tintColor={colors.primary}
-          />
-        }
-      >
-        {loading && !refreshing ? (
-          <AppLoading />
-        ) : errorMessage && !insurance ? (
-          <AppErrorState message={errorMessage} onRetry={() => fetchInsurance()} />
-        ) : !insurance ? (
-          <AppEmptyState
-            icon="medkit-outline"
-            title={t('insurance.noData')}
-          />
-        ) : (
-          <AppCard>
-            <View style={styles.cardHeader}>
-              <View style={[styles.iconCircle, { backgroundColor: 'rgba(14, 165, 233, 0.1)' }]}>
-                <Ionicons name="shield-checkmark-outline" size={28} color="#0EA5E9" />
-              </View>
-              <View style={{ flex: 1, marginLeft: spacing.md }}>
-                <Text style={[typography.caption, { color: colors.textSecondary }]}>
-                  {t('insurance.bookNumber')}
-                </Text>
-                <Text style={[typography.h2, { color: colors.text }]}>
-                  {insurance.sobh || '---'}
-                </Text>
-              </View>
-            </View>
-
-            <AppDivider marginVertical={spacing.lg} />
-
-            {renderRow('calendar-outline', t('insurance.issuedDate'), formatDate(insurance.ngaycap, activeLanguage))}
-            <AppDivider marginVertical={spacing.sm} />
-            {renderRow('location-outline', t('insurance.issuedPlace'), insurance.noicap)}
-            <AppDivider marginVertical={spacing.sm} />
-            {renderRow('business-outline', t('insurance.hospital'), insurance.noikhambenh)}
-            {insurance.luongBhxh ? (
-              <>
-                <AppDivider marginVertical={spacing.sm} />
-                {renderRow('cash-outline', t('insurance.insuranceSalary'), formatCurrency(insurance.luongBhxh, activeLanguage))}
-              </>
-            ) : null}
-          </AppCard>
-        )}
+export const InsuranceScreen:React.FC=()=>{
+  const {t}=useTranslation(), navigation=useNavigation(), {colors}=useTheme(), {user}=useAuth();
+  const [insurance,setInsurance]=useState<InsuranceDto|null>(null), [quota,setQuota]=useState<AllProfileQuotasDto|null>(null);
+  const [loading,setLoading]=useState(true), [refreshing,setRefreshing]=useState(false), [error,setError]=useState<string|null>(null);
+  const [visible,setVisible]=useState(false), [saving,setSaving]=useState(false), [salary,setSalary]=useState(''), [region,setRegion]=useState(''), [date,setDate]=useState(localDate), [reason,setReason]=useState('');
+  const [flags,setFlags]=useState({thamGiaBhxh:false,thamGiaBhyt:false,thamGiaBhtn:false,thamGiaTnldBnn:false});
+  const allowed=canMobile(user,'MOBILE_REQUEST_INSURANCE','Add');
+  const reload=useCallback(async(refresh=false)=>{
+    refresh ? setRefreshing(true):setLoading(true);setError(null);
+    try {const results=await Promise.allSettled([meApi.getInsurance(),meApi.getProfileQuotas()]);if(results[0].status==='rejected') throw results[0].reason;setInsurance(results[0].value);setQuota(results[1].status==='fulfilled' ? results[1].value:null);}
+    catch(e) {setError(mapApiError(e));} finally {setLoading(false);setRefreshing(false);}
+  },[]);
+  useFocusEffect(useCallback(()=>{reload();},[reload]));
+  const open=()=>{
+    const current=insurance?.participations?.find(item=>isoDate(item.ngayBatDau)<=localDate() && (!item.ngayKetThuc || isoDate(item.ngayKetThuc)>=localDate()));
+    setSalary(String(current?.luongDongBhxhRieng || ''));setRegion(String(current?.vungLuong || ''));setDate(localDate());setReason('');
+    setFlags({thamGiaBhxh:current?.thamGiaBhxh ?? false,thamGiaBhyt:current?.thamGiaBhyt ?? false,thamGiaBhtn:current?.thamGiaBhtn ?? false,thamGiaTnldBnn:current?.thamGiaTnldBnn ?? false});setVisible(true);
+  };
+  const save=async()=>{
+    if(saving || !allowed) return;
+    if(!/^[1-4]$/.test(region) || !reason.trim() || (salary && !/^\d+$/.test(salary))) {Alert.alert(t('common.error'),t('mobileReview.insuranceValidation'));return;}
+    setSaving(true);
+    try {const result=await meApi.proposeInsurance({...flags,vungLuong:region,luongDongBhxhRieng:salary ? Number(salary):undefined,ngayBatDau:isoDate(date),reason:reason.trim()});Alert.alert(t('common.success'),t(result.isDirectEdit ? 'mobileReview.savedDirect':'mobileReview.sentForApproval'));setVisible(false);await reload(true);}
+    catch(e) {Alert.alert(t('common.error'),mapApiError(e));} finally {setSaving(false);}
+  };
+  return <View style={[styles.container,{backgroundColor:colors.background}]}>
+    <AppHeader title={t('nav.insurance')} showBack onBack={()=>navigation.goBack()}/>
+    <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={()=>reload(true)} tintColor={colors.primary}/>}>
+      {loading ? <AppLoading/>:error ? <AppErrorState message={error} onRetry={()=>reload()}/>:<>
+        <AppCard style={styles.card}><Text style={[typography.bodyBold,{color:colors.text}]}>{insurance?.sobh || t('common.notUpdated')}</Text><Text style={[typography.body,{color:colors.textSecondary,marginTop:spacing.sm}]}>{insurance?.noicap || t('common.notUpdated')}</Text>
+          <Text style={[typography.caption,{color:colors.textSecondary,marginVertical:spacing.md}]}>{t(quota?.insuranceInfo?.isFirstEditAvailable ? 'mobileReview.firstEdit':'mobileReview.approvalRequired')}</Text>
+          <AppButton title={t('mobileReview.proposeInsurance')} disabled={!allowed} onPress={open}/>
+        </AppCard>
+        {(insurance?.participations || []).map(item=><AppCard key={item.id} style={styles.card}><Text style={[typography.bodyBold,{color:colors.text}]}>{t('mobileReview.insuranceRegion',{region:item.vungLuong})}</Text><Text style={[typography.caption,{color:colors.textSecondary,marginTop:spacing.sm}]}>{item.ngayBatDau} — {item.ngayKetThuc || t('mobileReview.noExpiry')}</Text>
+          {(['thamGiaBhxh','thamGiaBhyt','thamGiaBhtn','thamGiaTnldBnn'] as const).map(key=><Text key={key} style={[typography.body,{color:colors.text,marginTop:spacing.xs}]}>{t('mobileReview.'+key)}: {t(item[key] ? 'common.yes':'common.no')}</Text>)}
+        </AppCard>)}
+        {insurance?.unionParticipation && <AppCard style={styles.card}><Text style={[typography.bodyBold,{color:colors.text}]}>{t('mobileReview.union')}</Text><Text style={[typography.body,{color:colors.text}]}>{t('mobileReview.unionMember')}: {t(insurance.unionParticipation.laDoanVien ? 'common.yes':'common.no')}</Text><Text style={[typography.caption,{color:colors.textSecondary}]}>{insurance.unionParticipation.ngayGiaNhap} — {insurance.unionParticipation.ngayKetThuc || t('mobileReview.noExpiry')}</Text></AppCard>}
+        {(insurance?.movements || []).map(item=><AppCard key={'movement-'+item.id} style={styles.card}><Text style={[typography.bodyBold,{color:colors.text}]}>{t('mobileReview.movement'+item.loai,{defaultValue:t('mobileReview.insuranceMovement')})}</Text><Text style={[typography.body,{color:colors.textSecondary}]}>{item.ngayHieuLuc} · {t('mobileReview.status'+item.trangThai,{defaultValue:item.trangThai})}</Text><Text style={[typography.body,{color:colors.text}]}>{item.lyDo}</Text></AppCard>)}
+        {canMobile(user,'MOBILE_REQUEST_DEPENDENT') && <AppButton title={t('nav.dependents')} variant="outline" onPress={()=>navigation.navigate('Dependents' as never)}/>}
+      </>}
+    </ScrollView>
+    <Modal visible={visible} animationType="slide" onRequestClose={()=>!saving && setVisible(false)}><View style={[styles.container,{backgroundColor:colors.background}]}>
+      <AppHeader title={t('mobileReview.proposeInsurance')} showBack onBack={()=>!saving && setVisible(false)}/>
+      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <Text style={[typography.caption,{color:colors.textSecondary,marginBottom:spacing.md}]}>{t('mobileReview.insuranceHistoryHint')}</Text>
+        <AppTextInput label={t('mobileReview.region')+' *'} value={region} onChangeText={setRegion} keyboardType="numeric" placeholder="1–4"/>
+        <AppTextInput label={t('mobileReview.insuranceSalary')} value={salary} onChangeText={setSalary} keyboardType="numeric"/>
+        <AppTextInput label={t('mobileReview.effectiveDate')+' *'} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD"/>
+        {(Object.keys(flags) as (keyof typeof flags)[]).map(key=><View key={key} style={styles.row}><Text style={[typography.body,{color:colors.text,flex:1}]}>{t('mobileReview.'+key)}</Text><Switch value={flags[key]} onValueChange={value=>setFlags({...flags,[key]:value})}/></View>)}
+        <AppTextInput label={t('mobileReview.reason')+' *'} value={reason} onChangeText={setReason} multiline numberOfLines={3}/>
+        <AppButton title={t('common.save')} loading={saving} disabled={!allowed} onPress={save}/>
       </ScrollView>
-    </View>
-  );
+    </View></Modal>
+  </View>;
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  scrollContent: {
-    padding: spacing.lg,
-    paddingBottom: 40,
-  },
-  cardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconCircle: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  infoRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.xs,
-  },
-  rowIcon: {
-    width: 28,
-  },
-  textColumn: {
-    flex: 1,
-    marginLeft: spacing.sm,
-  },
-});
+const styles=StyleSheet.create({container:{flex:1},content:{padding:spacing.md,paddingBottom:spacing.xxl},card:{marginBottom:spacing.md},row:{flexDirection:'row',alignItems:'center',marginBottom:spacing.md}});

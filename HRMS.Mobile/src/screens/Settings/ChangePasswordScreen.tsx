@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/types';
+import { canMobile } from '../../utils/mobilePermissions';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { authApi } from '../../api/authApi';
@@ -24,7 +25,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'ChangePassword'>;
 
 export const ChangePasswordScreen: React.FC<Props> = ({ navigation }) => {
   const { t } = useTranslation();
-  const { logout } = useAuth();
+  const { logout,user } = useAuth();
   const { colors } = useTheme();
 
   const [oldPassword, setOldPassword] = useState('');
@@ -34,6 +35,8 @@ export const ChangePasswordScreen: React.FC<Props> = ({ navigation }) => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const handleSubmit = async () => {
+    if (loading) return;
+    if (!canMobile(user,'DOIMATKHAU','Edit')) { setErrorMsg(t('mobileReview.permissionRefreshHelp')); return; }
     setErrorMsg(null);
 
     if (!oldPassword.trim()) {
@@ -65,10 +68,7 @@ export const ChangePasswordScreen: React.FC<Props> = ({ navigation }) => {
           text: 'OK',
           onPress: async () => {
             await logout();
-            navigation.reset({
-              index: 0,
-              routes: [{ name: 'Login' }],
-            });
+
           },
         },
       ]);

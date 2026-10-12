@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
@@ -25,12 +25,13 @@ namespace QLyNSu.FORM_CHAMCONG
         bool _them;
         int _IDLOAICA;
 
-        private void FrmLoaiCa_Load(object sender, EventArgs e)
+        private async void FrmLoaiCa_Load(object sender, EventArgs e)
         {
             _them = false;
             _loaica = new LOAICA();
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
         private void gvDanhSach_Click(object sender, EventArgs e)
@@ -76,21 +77,23 @@ namespace QLyNSu.FORM_CHAMCONG
             showHide(false);
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             // Hiển thị hộp thoại xác nhận
             if (MessageBox.Show("Bạn có chắc là xoá nó đi không?", "Thông báo", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _loaica.Delete(_IDLOAICA, 1);
-                LoadData();
+                await LoadData();
+            if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
         }
@@ -124,10 +127,15 @@ namespace QLyNSu.FORM_CHAMCONG
             spHeSo.Enabled = !kt;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDanhSach.DataSource = _loaica.getList();
+            try
+            {
+            gcDanhSach.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _loaica.getList());
             FormManager_Functions.CustomView_Colums(gvDanhSach);
+                    }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()

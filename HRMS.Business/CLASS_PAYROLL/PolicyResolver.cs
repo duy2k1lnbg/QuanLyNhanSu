@@ -1,4 +1,4 @@
-using DA;
+﻿using DA;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Concurrent;
@@ -22,13 +22,13 @@ namespace Bu.CLASS_PAYROLL
 
     public class PolicyResolver : IPolicyResolver
     {
-        private static readonly object _syncLock = new object();
-        private static List<SalaryPolicyDto> _salaryPolicies;
-        private static List<InsurancePolicyDto> _insurancePolicies;
-        private static List<InsuranceRegionDto> _insuranceRegions;
-        private static List<UnionPolicyDto> _unionPolicies;
-        private static List<TaxPolicyDto> _taxPolicies;
-        private static List<TaxBracketDto> _taxBrackets;
+        private readonly object _syncLock = new object();
+        private List<SalaryPolicyDto> _salaryPolicies;
+        private List<InsurancePolicyDto> _insurancePolicies;
+        private List<InsuranceRegionDto> _insuranceRegions;
+        private List<UnionPolicyDto> _unionPolicies;
+        private List<TaxPolicyDto> _taxPolicies;
+        private List<TaxBracketDto> _taxBrackets;
 
         public PolicyResolver()
         {
@@ -363,7 +363,7 @@ namespace Bu.CLASS_PAYROLL
             {
                 res.Status = PolicyGroupStatus.ObjectNotFound;
                 res.StatusDisplay = $"[Chưa sẵn sàng] Bảng '{tableName}' chưa tồn tại trong CSDL hoặc thiếu quyền truy cập (ORA-00942)";
-                res.ActionRequired = "Yêu cầu Quản trị viên (DBA) thực thi migration 'apply_payroll_v1_16_objects.sql' trên schema CSDL";
+                res.ActionRequired = "Kiểm tra tài khoản kết nối, schema và quyền SELECT. Chỉ chạy migration trên schema sở hữu dữ liệu sau khi DBA xác nhận bảng thực sự chưa tồn tại.";
             }
             else if (exText.IndexOf("ORA-00904", StringComparison.OrdinalIgnoreCase) >= 0 ||
                      exText.IndexOf("invalid identifier", StringComparison.OrdinalIgnoreCase) >= 0)
@@ -408,7 +408,7 @@ namespace Bu.CLASS_PAYROLL
                     {
                         currentStep = "Tải chính sách lương chuẩn";
                         currentTable = "TB_CHINH_SACH_LUONG";
-                        _salaryPolicies = db.Database.SqlQuery<SalaryPolicyDto>(@"
+                        var loaded_salaryPolicies = db.Database.SqlQuery<SalaryPolicyDto>(@"
                             SELECT ID, MA_CHINH_SACH, TEN_CHINH_SACH, NGAY_HIEU_LUC, NGAY_HET_HIEU_LUC,
                                    SO_CONG_CHUAN_THANG, SO_GIO_CHUAN_NGAY, HE_SO_LAM_DEM, TRANG_THAI
                             FROM TB_CHINH_SACH_LUONG
@@ -417,7 +417,7 @@ namespace Bu.CLASS_PAYROLL
 
                         currentStep = "Tải chính sách bảo hiểm xã hội";
                         currentTable = "TB_CHINH_SACH_BHXH";
-                        _insurancePolicies = db.Database.SqlQuery<InsurancePolicyDto>(@"
+                        var loaded_insurancePolicies = db.Database.SqlQuery<InsurancePolicyDto>(@"
                             SELECT ID, MA_CHINH_SACH, TEN_CHINH_SACH, NGAY_HIEU_LUC, NGAY_HET_HIEU_LUC, MUC_THAM_CHIEU,
                                    TY_LE_BHXH_NLD, TY_LE_BHYT_NLD, TY_LE_BHTN_NLD,
                                    TY_LE_BHXH_NSDLD, TY_LE_BHYT_NSDLD, TY_LE_BHTN_NSDLD,
@@ -429,14 +429,14 @@ namespace Bu.CLASS_PAYROLL
 
                         currentStep = "Tải bảng lương tối thiểu vùng BHXH";
                         currentTable = "TB_CHINH_SACH_BHXH_VUNG";
-                        _insuranceRegions = db.Database.SqlQuery<InsuranceRegionDto>(@"
+                        var loaded_insuranceRegions = db.Database.SqlQuery<InsuranceRegionDto>(@"
                             SELECT ID, POLICY_BHXH_ID, VUNG_LUONG, LUONG_TOI_THIEU_THANG, LUONG_TOI_THIEU_GIO, HE_SO_SAN_DOANH_NGHIEP
                             FROM TB_CHINH_SACH_BHXH_VUNG
                             ORDER BY POLICY_BHXH_ID, VUNG_LUONG").ToList();
 
                         currentStep = "Tải chính sách kinh phí công đoàn";
                         currentTable = "TB_CHINH_SACH_CONG_DOAN";
-                        _unionPolicies = db.Database.SqlQuery<UnionPolicyDto>(@"
+                        var loaded_unionPolicies = db.Database.SqlQuery<UnionPolicyDto>(@"
                             SELECT ID, MA_CHINH_SACH, TEN_CHINH_SACH, NGAY_HIEU_LUC, NGAY_HET_HIEU_LUC,
                                    TY_LE_DOAN_PHI_NLD, CAP_PERCENT_STATUTORY_BASE_SALARY, KINH_PHI_CONG_DOAN_NSDLD, TRANG_THAI
                             FROM TB_CHINH_SACH_CONG_DOAN
@@ -445,7 +445,7 @@ namespace Bu.CLASS_PAYROLL
 
                         currentStep = "Tải chính sách giảm trừ thuế TNCN";
                         currentTable = "TB_THUE_TNCN_CHINH_SACH";
-                        _taxPolicies = db.Database.SqlQuery<TaxPolicyDto>(@"
+                        var loaded_taxPolicies = db.Database.SqlQuery<TaxPolicyDto>(@"
                             SELECT ID, MA_CHINH_SACH, TEN_CHINH_SACH, TAX_YEAR, NGAY_HIEU_LUC, NGAY_HET_HIEU_LUC,
                                    GIAM_TRU_BAN_THAN_THANG, GIAM_TRU_PHU_THUOC_THANG,
                                    GIAM_TRU_BAN_THAN_NAM, GIAM_TRU_PHU_THUOC_NAM, TRANG_THAI
@@ -455,10 +455,16 @@ namespace Bu.CLASS_PAYROLL
 
                         currentStep = "Tải biểu bậc thuế suất lũy tiến TNCN";
                         currentTable = "TB_THUE_TNCN_BAC";
-                        _taxBrackets = db.Database.SqlQuery<TaxBracketDto>(@"
+                        var loaded_taxBrackets = db.Database.SqlQuery<TaxBracketDto>(@"
                             SELECT ID, POLICY_THUE_ID, TAX_YEAR, PERIOD_TYPE, BAC_THUE, CAN_DUOI, CAN_TREN, THUE_SUAT
                             FROM TB_THUE_TNCN_BAC
                             ORDER BY POLICY_THUE_ID, PERIOD_TYPE, BAC_THUE").ToList();
+                        _insurancePolicies = loaded_insurancePolicies;
+                        _insuranceRegions = loaded_insuranceRegions;
+                        _unionPolicies = loaded_unionPolicies;
+                        _taxPolicies = loaded_taxPolicies;
+                        _taxBrackets = loaded_taxBrackets;
+                        _salaryPolicies = loaded_salaryPolicies;
                     }
                     catch (Exception ex)
                     {

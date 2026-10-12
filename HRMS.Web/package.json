@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "build:vps": "powershell -ExecutionPolicy Bypass -File ../build_deploy.ps1",
     "lint": "oxlint",
-    "test": "node --experimental-strip-types tests/kpiAndAttendance.test.ts && node --experimental-strip-types tests/welcomeAndScrollReveal.test.ts && node --experimental-strip-types tests/heroCarousel.test.ts && node --experimental-strip-types tests/aiChatbot.test.ts && node --experimental-strip-types tests/channelPermissionsModal.test.ts",
+    "test": "node --experimental-strip-types tests/kpiAndAttendance.test.ts && node --experimental-strip-types tests/welcomeAndScrollReveal.test.ts && node --experimental-strip-types tests/heroCarousel.test.ts && node --experimental-strip-types tests/aiChatbot.test.ts && node --experimental-strip-types tests/channelPermissionsModal.test.ts && node --experimental-strip-types tests/aiPermissions.test.ts && node --experimental-strip-types tests/profileEventLabels.test.ts && node --experimental-strip-types tests/attendancePublicationAndPrint.test.ts && node --experimental-strip-types tests/payrollPublication.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

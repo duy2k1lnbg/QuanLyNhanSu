@@ -15,7 +15,7 @@ namespace Bu.Services.AI_Services.Core
             bool explicitOther = u.Entities.Any(e => e.EntityType == "EMPLOYEE" && (!e.ResolvedId.HasValue || e.ResolvedId != ctx?.Manv));
             if (question != null && u.RequestedScope != "SELF")
             {
-                var id = System.Text.RegularExpressions.Regex.Match(question, @"\b(?:mã nhân viên|mã nv|mã|manv|nv)\s*[:=]?\s*(\d+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                var id = System.Text.RegularExpressions.Regex.Match(question, @"\b(?:mã\s+(?:nhân viên|nv|số)|manv|nv|mã)\s*[:=]?\s*(\d+)\b", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                 if (id.Success) explicitOther |= !int.TryParse(id.Groups[1].Value,out var employeeId) || employeeId != ctx?.Manv;
                 else explicitOther |= System.Text.RegularExpressions.Regex.IsMatch(question, @"\b(?:anh ấy|cô ấy|người đó|nhân viên đó)\b|(?:của|tên)\s+(?!tôi\b|mình\b)[\p{L}]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
             }
@@ -41,13 +41,38 @@ namespace Bu.Services.AI_Services.Core
             if (u == null) return Stop(p, ExecutionStrategy.Unsupported, "Không có yêu cầu để phân tích.");
             p.Domain = u.Domain; p.Operation = u.Operation; p.Metric = u.Metric; p.RequestedScope = u.RequestedScope; p.Assumptions = u.Assumptions.ToList();
             if (ctx == null || !ctx.IsAuthenticated) return Stop(p, ExecutionStrategy.Forbidden, "Bạn cần đăng nhập để sử dụng trợ lý.");
-            if (u.Domain == "GENERAL") { p.Strategy = ExecutionStrategy.DeterministicDirect; return p; }
+            if (u.Domain == "CHAT_SOCIAL" || (u.Domain == "GENERAL" && u.IsGreetingOnly))
+            {
+                p.Strategy = ExecutionStrategy.ChatSocial;
+                return p;
+            }
+            if (u.Domain == "CHAT_GENERAL")
+            {
+                p.Strategy = ExecutionStrategy.ChatGeneral;
+                return p;
+            }
+            if (u.Domain == "HR_HELP" || (u.Domain == "GENERAL" && u.Operation == "HELP"))
+            {
+                p.Strategy = ExecutionStrategy.HrHelp;
+                return p;
+            }
+            if (u.Domain == "GENERAL")
+            {
+                p.Strategy = ExecutionStrategy.ChatGeneral;
+                return p;
+            }
             p.RequiredCapability = DetermineCapability(u, ctx);
             if (AiCapabilityCatalog.Get(p.RequiredCapability)?.IsEnabled == false) return Stop(p,ExecutionStrategy.Unsupported,"Nguồn dữ liệu hoặc ánh xạ quyền cho chức năng này chưa sẵn sàng.");
             if (!AiAuthorizationService.ValidateCapability(ctx, p.RequiredCapability).IsAllowed || u.SupportStatus == QuerySupportStatus.Forbidden) return Stop(p, ExecutionStrategy.Forbidden, "Bạn chưa được cấp quyền tra cứu nghiệp vụ này.");
-            if (u.Domain == "POLICY")
+            if ((u.RequestedScope == "SELF" || p.RequiredCapability?.EndsWith("_SELF") == true) && !(ctx.Manv > 0))
+            {
+                return Stop(p, ExecutionStrategy.Unsupported, "Tài khoản đăng nhập hiện chưa được liên kết với mã nhân viên (MANV không tồn tại). Vui lòng liên kết tài khoản với hồ sơ nhân sự để tra cứu thông tin cá nhân.");
+            }
+            if (u.Domain == "POLICY" || u.IsPolicyPure)
             {
                 p.Strategy = ExecutionStrategy.VectorSearch;
+                p.VectorCapability = "POLICY_LOOKUP";
+                p.VectorQuery = u.OriginalQuestion ?? u.NormalizedQuestion;
                 p.EffectiveScopeDisplay = "Quy chế & văn bản chính sách";
                 p.AuthorizationFingerprint = ctx.Fingerprint();
                 return p;
@@ -158,7 +183,8 @@ namespace Bu.Services.AI_Services.Core
             }
             p.Strategy = ExecutionStrategy.SqlTemplate;
             string q = u.OriginalQuestion ?? u.NormalizedQuestion ?? "";
-            if (q.IndexOf("quy định", StringComparison.OrdinalIgnoreCase) >= 0 ||
+            if (u.HasPolicyIntent ||
+                q.IndexOf("quy định", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 q.IndexOf("chính sách", StringComparison.OrdinalIgnoreCase) >= 0 ||
                 q.IndexOf("quy chế", StringComparison.OrdinalIgnoreCase) >= 0)
             {

@@ -33,3 +33,26 @@ assert.deepEqual(getAiAvailability({ connected: true, llmAvailable: true, queryR
 assert.deepEqual(getAiAvailability({ connected: true, llmAvailable: false, queryReady: true }), {connected:true,queryReady:true});
 assert.deepEqual(getAiAvailability({ connected: true }), {connected:true,queryReady:null});
 assert.deepEqual(getAiAvailability({ connected: false, queryReady: true }), {connected:false,queryReady:null});
+
+
+// Word animation must never lose accents, punctuation, whitespace or the end of a long answer.
+const { createAiTypingTimeline } = await import('../src/utils/aiTyping.ts');
+for (const text of ['', ' \n\t', '  Xin chào 👩‍💻!\r\nDòng cuối: 1.234.567 ₫.  ', 'Từ '.repeat(15000) + 'KẾT THÚC']) {
+  const timeline = createAiTypingTimeline(text);
+  let previous = '';
+  let reconstructed = '';
+  for (let elapsed = 0; elapsed <= timeline.durationMs + 30; elapsed += 30) {
+    const shown = text.slice(0, timeline.visibleLength(elapsed));
+    assert.ok(shown.startsWith(previous));
+    reconstructed += shown.slice(previous.length);
+    previous = shown;
+  }
+  assert.equal(reconstructed, text);
+}
+const speeds = [10, 100, 500, 1000, 10000].map(words => {
+  const timeline = createAiTypingTimeline('từ '.repeat(words));
+  assert.ok(timeline.durationMs <= 6000);
+  return words / timeline.durationMs;
+});
+assert.ok(speeds.every((speed, i) => i === 0 || speed > speeds[i - 1]));
+console.log('AI typing: exact full text, monotonic prefixes and increasing long-answer speed passed.');

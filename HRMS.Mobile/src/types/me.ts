@@ -18,6 +18,10 @@ export interface ProfileDto {
 }
 
 export interface UpdateProfileDto {
+  hoten?: string;
+  gioitinh?: string;
+  ngaysinh?: string;
+  cccd?: string;
   dienthoai?: string;
   email?: string;
   diachi?: string;
@@ -40,6 +44,8 @@ export interface LeaveRequestDto {
 }
 
 export interface CreateLeaveRequestDto {
+  startTime?: string;
+  endTime?: string;
   leaveType: string;
   fromDate: string;
   toDate: string;
@@ -91,10 +97,40 @@ export interface CreateOvertimeRequestDto {
   reason: string;
 }
 
+export interface AdvanceSalaryDto {
+  id: number;
+  idUl: number;
+  manv: number;
+  thang?: number;
+  nam?: number;
+  ngay?: number;
+  advanceDate: string;
+  ngayUng: string;
+  soTienUng: number;
+  amount: number;
+  ghiChu: string;
+  reason: string;
+  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  createdAt: string;
+}
+
+export interface CreateAdvanceSalaryDto {
+  amount: number;
+  reason: string;
+  advanceDate?: string;
+  soTien?: number;
+}
+
+export interface UnifiedRequestItem {
+  id: number; requestType: string; status: string; title?: string; subtitle?: string; reason?: string; rejectionReason?: string; createdAt?: string; dateRange?: string; amount?: number; hours?: number; totalDays?: number;
+}
+
 export interface UnifiedRequestsDto {
+  items?: UnifiedRequestItem[];
   leaves: LeaveRequestDto[];
   corrections: AttendanceCorrectionDto[];
   overtimes: OvertimeRequestDto[];
+  advances?: AdvanceSalaryDto[];
 }
 
 export interface AttendanceDailyItemDto {
@@ -358,6 +394,40 @@ export interface NotificationDto {
   isPinned: boolean;
   fileDinhkem?: string | null;
   isUnread: boolean;
+  targetType?: string;
+  eventType?: string;
+  entityId?: number | null;
+}
+
+export interface RegisterDeviceDto {
+  installationId: string;
+  expoPushToken?: string | null;
+  platform: string;
+  projectId?: string | null;
+  environment?: string;
+  language?: string;
+  appVersion?: string | null;
+  permissionStatus: 'GRANTED' | 'DENIED' | 'UNDETERMINED';
+  pushEnabled: boolean;
+  deviceName?: string | null;
+}
+
+export interface DevicePreferenceDto {
+  pushEnabled?: boolean;
+  language?: string;
+  permissionStatus?: string;
+}
+
+export interface UserDeviceInfoDto {
+  id: number;
+  installationId: string;
+  platform: string;
+  deviceName?: string | null;
+  pushEnabled: boolean;
+  permissionStatus: string;
+  isActive: boolean;
+  lastSeenAt?: string | null;
+  createdAt?: string | null;
 }
 
 export interface DashboardDto {
@@ -368,4 +438,54 @@ export interface DashboardDto {
   expiringContractInfo?: string | null;
   unreadNotificationCount: number;
   recentNotifications: NotificationDto[];
+}
+
+export interface ProfileQuotaItemDto {
+  groupCode: string;
+  directEditCount: number;
+  isFirstEditAvailable: boolean;
+  firstEditDate?: string | null;
+  lastEditDate?: string | null;
+}
+
+export interface AllProfileQuotasDto {
+  personalInfo: ProfileQuotaItemDto;
+  insuranceInfo: ProfileQuotaItemDto;
+  dependents: ProfileQuotaItemDto;
+  avatar: ProfileQuotaItemDto;
+}
+
+export interface ProfileOperationResultDto {
+  success: boolean;
+  isDirectEdit: boolean;
+  requestId?: number | null;
+  message: string;
+}
+
+export interface DependentDto {
+  id?: number;
+  manv?: number;
+  hoTen: string;
+  moiQuanHe: string;
+  cccd?: string;
+  maSoThueNpt?: string;
+  ngaySinh?: string;
+  loaiGiayTo?: string;
+  soGiayTo?: string;
+  thangBatDau?: string | number;
+  thangKetThuc?: string | number;
+  action?: 'ADD' | 'UPDATE' | 'TERMINATE';
+  trangThai?: string;
+}
+
+export interface ProposeInsuranceDto {
+  vungLuong?: string;
+  thamGiaBhxh?: boolean;
+  thamGiaBhyt?: boolean;
+  thamGiaBhtn?: boolean;
+  thamGiaTnldBnn?: boolean;
+  luongDongBhxhRieng?: number;
+  ngayBatDau?: string;
+  reason?: string;
+  lyDo?: string;
 }

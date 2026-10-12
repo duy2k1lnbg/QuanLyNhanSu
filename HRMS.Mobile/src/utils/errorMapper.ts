@@ -1,6 +1,7 @@
 import i18n from '../i18n/i18n';
 
 export const mapApiError = (error: any): string => {
+  if (error instanceof Error && error.message.startsWith('mobileReview.')) return i18n.t(error.message);
   if (!error) return i18n.t('errors.unknown');
 
   // Lỗi mạng hoặc server không phản hồi
@@ -14,6 +15,7 @@ export const mapApiError = (error: any): string => {
 
   const status = error.response.status;
   const data = error.response.data;
+  if (data?.code === 'PAYROLL_FROZEN') return i18n.t('errors.payrollFrozen');
 
   // Lấy message từ server nếu là thông điệp thân thiện
   if (data) {

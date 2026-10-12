@@ -32,6 +32,7 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import api from '../services/api';
+import AiPermissionsPanel from './AiPermissionsPanel';
 import { useAppLanguage } from '../services/i18n';
 import type {
   PlatformChannelTreeDTO,
@@ -98,10 +99,14 @@ const CANONICAL_FUNCTION_NAMES: Record<string, string> = {
   F_CC_BANGLUONG: 'Bảng Lương',
   MOBILE_ROOT: 'Phân Hệ Mobile App',
   MOBILE_PROFILE_VIEW: 'Xem Hồ Sơ Cá Nhân Mobile',
+  MOBILE_PROFILE_EDIT: 'Đề Xuất / Cập Nhật Hồ Sơ Cá Nhân Mobile',
   MOBILE_ATTENDANCE_VIEW: 'Xem Bảng Công Mobile',
+  MOBILE_REQUEST_CORRECTION: 'Gửi Yêu Cầu Điều Chỉnh Công Mobile',
   MOBILE_PAYROLL_VIEW: 'Xem Bảng Lương Mobile',
   MOBILE_CONTRACT_VIEW: 'Xem Hợp Đồng Lao Động Mobile',
   MOBILE_INSURANCE_VIEW: 'Xem Bảo Hiểm Xã Hội Mobile',
+  MOBILE_REQUEST_INSURANCE: 'Đề Xuất Thay Đổi Bảo Hiểm Mobile',
+  MOBILE_REQUEST_DEPENDENT: 'Đề Xuất Người Phụ Thuộc Mobile',
   MOBILE_NOTIFICATION_VIEW: 'Xem Thông Báo Nội Bộ Mobile',
   MOBILE_REQUEST_LEAVE: 'Gửi Đơn Nghỉ Phép Mobile',
   MOBILE_REQUEST_OVERTIME: 'Gửi Đơn Tăng Ca Mobile',
@@ -125,10 +130,13 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
 }) => {
   const { t } = useAppLanguage();
 
-  const [activeChannelTab, setActiveChannelTab] = useState<'DESKTOP' | 'WEB' | 'MOBILE'>('DESKTOP');
+  const [activeChannelTab, setActiveChannelTab] = useState<'DESKTOP' | 'WEB' | 'MOBILE' | 'AI'>('DESKTOP');
   const [channelTrees, setChannelTrees] = useState<Record<string, PlatformChannelTreeDTO>>({});
   const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<'idle' | 'loading' | 'ready' | 'saving' | 'load-error' | 'conflict'>('idle');
+  const [aiDirty, setAiDirty] = useState(false);
+  const [aiSaving, setAiSaving] = useState(false);
+  const [aiSession, setAiSession] = useState(0);
   const [isDirty, setIsDirty] = useState<boolean>(false);
   const [securityVersion, setSecurityVersion] = useState<number>(1);
   const latestRequestId = useRef<number>(0);
@@ -173,13 +181,14 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
     if (visible && userId) {
       loadChannelPermissions();
     } else {
-      setIsDirty(false);
+      setIsDirty(false); setAiDirty(false);
       setStatus('idle');
     }
   }, [visible, userId, loadChannelPermissions]);
 
   const handleRequestClose = () => {
-    if (isDirty) {
+    if(aiSaving || savingAll || savingChannel !== null) return;
+    if (isDirty || aiDirty) {
       Modal.confirm({
         title: t('common.confirm') || 'Xác nhận',
         content: t('user.discardChangesConfirm') || 'Bạn có thay đổi phân quyền chưa lưu. Bạn có chắc chắn muốn hủy các thay đổi này?',
@@ -194,15 +203,17 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
   };
 
   const handleRequestReload = () => {
-    if (isDirty) {
+    if (isDirty || aiDirty) {
       Modal.confirm({
         title: t('common.confirm') || 'Xác nhận',
         content: t('user.reloadDiscardConfirm') || 'Bạn có thay đổi phân quyền chưa lưu. Tải lại sẽ làm mất các thay đổi này, bạn có muốn tiếp tục?',
         onOk: () => {
+          setAiDirty(false); setAiSession(value => value + 1);
           loadChannelPermissions();
         },
       });
     } else {
+      setAiSession(value => value + 1);
       loadChannelPermissions();
     }
   };
@@ -567,6 +578,9 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
         return { label: t('user.subsystemBC') || 'Báo cáo', color: 'green' };
       case 'SYSTEM':
         return { label: t('user.subsystemSYSTEM') || 'Hệ thống & AI', color: 'purple' };
+      case 'MOBILE':
+      case 'MOBILE_ROOT':
+        return { label: t('user.subsystemMOBILE') || 'Dịch vụ Mobile Self-Service', color: 'magenta' };
       default:
         return { label: parent || t('user.subsystemOTHER') || 'Khác', color: 'default' };
     }
@@ -822,9 +836,9 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
       }
       open={visible}
       onCancel={handleRequestClose}
-      width={1120}
+      width="min(1240px, 96vw)"
       destroyOnClose
-      footer={
+      footer={activeChannelTab === 'AI' ? <Button disabled={aiSaving} onClick={handleRequestClose}>{t('common.close')}</Button> :
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Space>
             <Button
@@ -872,7 +886,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
         {/* PLATFORM TABS */}
         <Tabs
           activeKey={activeChannelTab}
-          onChange={(k) => setActiveChannelTab(k as 'DESKTOP' | 'WEB' | 'MOBILE')}
+          onChange={(k) => { if(aiSaving || savingAll || savingChannel !== null) return; setActiveChannelTab(k as 'DESKTOP' | 'WEB' | 'MOBILE' | 'AI'); }}
           items={[
             {
               key: 'DESKTOP',
@@ -916,9 +930,14 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
                 </Space>
               ),
             },
+            { key: 'AI', label: <Space><SafetyCertificateOutlined /><span>{t('aiPermissions.tab')}</span></Space> },
           ]}
         />
 
+        <div style={{ display: activeChannelTab === 'AI' ? 'block' : 'none' }}>
+          <AiPermissionsPanel key={`${userId}-${isGroup}-${visible}-${aiSession}`} subjectId={userId} isGroup={isGroup} visible={visible && activeChannelTab === 'AI'} onDirtyChange={setAiDirty} onBusyChange={setAiSaving} onSuccess={onSuccess} />
+        </div>
+        <div style={{ display: activeChannelTab === 'AI' ? 'none' : 'block' }}>
         {/* CHANNEL HEADER CARD */}
         {currentTree && (
           <Card
@@ -999,6 +1018,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
                   { label: 'DM', value: 'DM' },
                   { label: 'BC', value: 'BC' },
                   { label: 'SYSTEM', value: 'SYSTEM' },
+                  { label: 'MOBILE', value: 'MOBILE_ROOT' },
                 ]}
               />
               <Input
@@ -1056,6 +1076,7 @@ export const PhanQuyenModal: React.FC<PhanQuyenModalProps> = ({
           scroll={{ y: 380 }}
           bordered
         />
+        </div>
       </div>
     </Modal>
   );

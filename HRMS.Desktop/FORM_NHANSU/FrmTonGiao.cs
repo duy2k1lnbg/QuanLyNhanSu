@@ -32,10 +32,15 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsTG.DataSource = _tongiao.getList();
+            try
+            {
+            gcDsTG.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _tongiao.getList());
             FormManager_Functions.CustomView_Colums(gvDsTG);
+                    }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()
@@ -80,13 +85,14 @@ namespace QLyNSu
         }
 
 
-        private void FrmTonGiao_Load_1(object sender, EventArgs e)
+        private async void FrmTonGiao_Load_1(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_TONGIAO")) return;
             _them = false;
             _tongiao = new TONGIAO();
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -104,7 +110,7 @@ namespace QLyNSu
             showHide(false);
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_DM_TONGIAO", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
@@ -119,14 +125,16 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _tongiao.Delete(_IDTG);
-                LoadData();
+                await LoadData();
+            if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
         }

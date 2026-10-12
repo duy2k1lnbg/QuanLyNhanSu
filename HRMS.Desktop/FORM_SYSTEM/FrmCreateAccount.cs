@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu.CLASS_SYSTEM;
 using DA;
 using DevExpress.XtraEditors;
@@ -350,31 +351,40 @@ namespace QLyNSu.FORM_SYSTEM
 
 
 
-        private void FrmCreateAccount_Load(object sender, EventArgs e)
+        private async void FrmCreateAccount_Load(object sender, EventArgs e)
         {
-            loadAccounts();
+            await loadAccounts();
+            if (IsDisposed || Disposing) return;
             btnNewAccount_Click(null, null);
             chkDisabled.Enabled = UserSession.HasRight("F_SYSTEM_LOCK_USER");
         }
 
-        private void loadAccounts()
+        private async Task loadAccounts()
         {
-            var accounts = db.TB_SYS_USER.Where(x => (x.ISGROUP ?? 0) == 0)
+            try
+            {
+            var accounts = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_SYS_USER.Where(x => (x.ISGROUP ?? 0) == 0)
                 .Select(x => new {
                     x.IDUSER,
                     x.USERNAME,
                     x.FULLNAME,
                     TRANGTHAI = x.DISABLED == 1 ? "Đã khóa" : "Hoạt động"
-                }).ToList();
+                }).ToList());
             cboTaiKhoan.Properties.DataSource = accounts;
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void cboTaiKhoan_EditValueChanged(object sender, EventArgs e)
+        private async void cboTaiKhoan_EditValueChanged(object sender, EventArgs e)
         {
+            try
+            {
             if (cboTaiKhoan.EditValue != null && cboTaiKhoan.EditValue != DBNull.Value)
             {
                 decimal userId = Convert.ToDecimal(cboTaiKhoan.EditValue);
-                _user = db.TB_SYS_USER.FirstOrDefault(x => x.IDUSER == userId);
+                _user = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_SYS_USER.FirstOrDefault(x => x.IDUSER == userId));
                 if (_user != null)
                 {
                     _them = false;
@@ -384,15 +394,19 @@ namespace QLyNSu.FORM_SYSTEM
                     txtPassword.Text = string.Empty; // Don't show password hashes
                     txtPassword.Properties.NullValuePrompt = "Để trống nếu không muốn đổi mật khẩu";
                     chkDisabled.Checked = _user.DISABLED == 1;
-                    chkDisabled.Enabled = !_user.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && 
-                                          !_user.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase) && 
+                    chkDisabled.Enabled = !_user.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase) && 
                                           UserSession.HasRight("F_SYSTEM_LOCK_USER");
                     
                     tapNhomCuaUser.PageEnabled = true;
                     btnXoaTK.Enabled = true;
-                    loadUserGroups();
+                    await loadUserGroups();
+                    if (IsDisposed || Disposing) return;
                 }
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnNewAccount_Click(object sender, EventArgs e)
@@ -413,12 +427,14 @@ namespace QLyNSu.FORM_SYSTEM
             txtUsername.Focus();
         }
 
-        private void loadUserGroups()
+        private async Task loadUserGroups()
         {
+            try
+            {
             if (_user != null)
             {
-                var userGroupIds = db.TB_SYS_GROUP.Where(g => g.MEMBER == _user.IDUSER).Select(g => g.ID_GROUP).ToList();
-                var userGroups = db.TB_SYS_USER.Where(u => userGroupIds.Contains(u.IDUSER) && u.ISGROUP == 1).ToList();
+                var userGroupIds = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_SYS_GROUP.Where(g => g.MEMBER == _user.IDUSER).Select(g => g.ID_GROUP).ToList());
+                var userGroups = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_SYS_USER.Where(u => userGroupIds.Contains(u.IDUSER) && u.ISGROUP == 1).ToList());
                 gcNhom.DataSource = userGroups;
                 FormManager_Functions.CustomView_Colums(gvNhom);
 
@@ -437,9 +453,13 @@ namespace QLyNSu.FORM_SYSTEM
                         col.Visible = false;
                 }
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnLuu_Click(object sender, EventArgs e)
+        private async void btnLuu_Click(object sender, EventArgs e)
         {
             string username = txtUsername.Text.Trim();
             string fullname = txtFullName.Text.Trim();
@@ -498,12 +518,15 @@ namespace QLyNSu.FORM_SYSTEM
                 _them = false;
                 _dataSaved = true;
                 
-                loadAccounts();
+                await loadAccounts();
+                
+                if (IsDisposed || Disposing) return;
                 cboTaiKhoan.EditValue = _user.IDUSER;
                 
                 tapNhomCuaUser.PageEnabled = true;
                 pageAccount.SelectedTabPage = tapNhomCuaUser;
-                loadUserGroups();
+                await loadUserGroups();
+                if (IsDisposed || Disposing) return;
                 
                 MessageBox.Show("Tạo tài khoản người dùng thành công. Bây giờ bạn có thể gán tài khoản này vào các nhóm ở tab Nhóm Người Dùng.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -521,12 +544,6 @@ namespace QLyNSu.FORM_SYSTEM
                         MessageBox.Show("Bạn không thể tự khóa tài khoản của chính mình.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                }
-
-                if (_user.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && chkDisabled.Checked)
-                {
-                    MessageBox.Show("Không thể khóa tài khoản Quản trị hệ thống (ADMIN).", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
                 }
 
                 // Log audit action if status changed
@@ -552,26 +569,22 @@ namespace QLyNSu.FORM_SYSTEM
                 db.SaveChanges();
                 _dataSaved = true;
                 
-                loadAccounts();
+                await loadAccounts();
+                
+                if (IsDisposed || Disposing) return;
                 cboTaiKhoan.EditValue = _user.IDUSER;
                 
                 MessageBox.Show("Cập nhật thông tin tài khoản thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
 
-        private void btnXoaTK_Click(object sender, EventArgs e)
+        private async void btnXoaTK_Click(object sender, EventArgs e)
         {
             if (_user == null || _them) return;
 
             if (_user.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Bạn không thể tự xóa tài khoản của chính mình.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (_user.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
-            {
-                MessageBox.Show("Không thể xóa tài khoản Quản trị hệ thống (ADMIN).", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -614,7 +627,8 @@ namespace QLyNSu.FORM_SYSTEM
                     catch { }
 
                     btnNewAccount_Click(null, null);
-                    loadAccounts();
+                    await loadAccounts();
+                    if (IsDisposed || Disposing) return;
                 }
                 catch (Exception ex)
                 {
@@ -623,8 +637,10 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnThemNhom_Click(object sender, EventArgs e)
+        private async void btnThemNhom_Click(object sender, EventArgs e)
         {
+            try
+            {
             if (_user == null) return;
 
             // Load groups this user is NOT in
@@ -639,7 +655,7 @@ namespace QLyNSu.FORM_SYSTEM
 
             using (var selector = new FrmSelectGroups(nonGroups))
             {
-                if (selector.ShowDialog() == DialogResult.OK)
+                if (await Functions.ChildFormWindow.ShowAsync(this, selector) == DialogResult.OK)
                 {
                     foreach (var grp in selector.SelectedGroups)
                     {
@@ -648,12 +664,17 @@ namespace QLyNSu.FORM_SYSTEM
                     }
                     db.SaveChanges();
                     _dataSaved = true;
-                    loadUserGroups();
+                    await loadUserGroups();
+                    if (IsDisposed || Disposing) return;
                 }
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnRemoveGroup_Click(object sender, EventArgs e)
+        private async void btnRemoveGroup_Click(object sender, EventArgs e)
         {
             if (_user == null) return;
 
@@ -681,7 +702,8 @@ namespace QLyNSu.FORM_SYSTEM
                         db.TB_SYS_GROUP.Remove(record);
                         db.SaveChanges();
                         _dataSaved = true;
-                        loadUserGroups();
+                        await loadUserGroups();
+                        if (IsDisposed || Disposing) return;
                         MessageBox.Show("Đã loại bỏ tài khoản khỏi nhóm thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
                 }
@@ -739,9 +761,9 @@ namespace QLyNSu.FORM_SYSTEM
 
             gc.DataSource = groups;
 
-            gv.Columns["IDUSER"].Caption = "Mã nhóm";
-            gv.Columns["USERNAME"].Caption = "Tên nhóm";
-            gv.Columns["FULLNAME"].Caption = "Mô tả";
+            gv.Columns["IDUSER"].Caption = QLyNSu.Functions.TranslationManager.Translate("Mã nhóm");
+            gv.Columns["USERNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Tên nhóm");
+            gv.Columns["FULLNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Mô tả");
 
             foreach (DevExpress.XtraGrid.Columns.GridColumn col in gv.Columns)
             {
@@ -750,6 +772,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
 
             FormManager_Functions.CustomView_Colums(gv);
+            QLyNSu.Functions.TranslationManager.Translate(this);
 
             btnCancel.Click += (s, e) => this.Close();
             btnSelect.Click += (s, e) => {

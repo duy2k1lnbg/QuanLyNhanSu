@@ -1,3 +1,4 @@
+﻿using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -7,6 +8,7 @@ using System.IO;
 using Newtonsoft.Json;
 using System.Linq;
 using Oracle.ManagedDataAccess.Client;
+using QLyNSu.Functions;
 
 namespace QLyNSu.FORM_SYSTEM
 {
@@ -65,9 +67,10 @@ namespace QLyNSu.FORM_SYSTEM
             btnConnect.Click += BtnConnect_Click;
         }
 
-        private void FrmDatabaseConfig_Load(object sender, EventArgs e)
+        private async void FrmDatabaseConfig_Load(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
@@ -95,18 +98,21 @@ namespace QLyNSu.FORM_SYSTEM
             btnApply.Visible = !isEditing;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            try
+            {
             try
             {
                 if (File.Exists(_overrideFile))
                 {
-                    string json = File.ReadAllText(_overrideFile);
+                    string json = await Functions.FormDataLoader.ReadAsync(this, () => File.ReadAllText(_overrideFile));
                     _configData = JsonConvert.DeserializeObject<DatabaseConfigData>(json) ?? new DatabaseConfigData();
                 }
                 else
                 {
-                    CreateDefaultProfile();
+                    await CreateDefaultProfile();
+                    if (IsDisposed || Disposing) return;
                 }
 
                 RefreshList();
@@ -123,23 +129,31 @@ namespace QLyNSu.FORM_SYSTEM
                 }
                 SetMode(false);
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
-                XtraMessageBox.Show("L?i d?c c?u h�nh: " + ex.Message, "L?i", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                CreateDefaultProfile();
+                XtraMessageBox.Show(TranslationManager.Translate("Lỗi đọc cấu hình: ") + ex.Message, TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await CreateDefaultProfile();
+                if (IsDisposed || Disposing) return;
                 RefreshList();
                 SetMode(false);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void CreateDefaultProfile()
+        private async Task CreateDefaultProfile()
         {
+            try
+            {
             _configData = new DatabaseConfigData();
             var profile = new DatabaseProfile
             {
                 Id = Guid.NewGuid().ToString(),
                 ProfileName = "Local XE",
-                ServerIP = GetLocalIPAddress(),
+                ServerIP = await Functions.FormDataLoader.ReadAsync(this, () => GetLocalIPAddress()),
                 Port = "1521",
                 Database = "xe",
                 IdentifierType = "SID",
@@ -150,7 +164,12 @@ namespace QLyNSu.FORM_SYSTEM
             };
             _configData.Profiles.Add(profile);
             _configData.ActiveProfileId = profile.Id;
-            SaveConfigToFile();
+            var json = JsonConvert.SerializeObject(_configData, Formatting.Indented);
+            await Functions.FormDataLoader.RunAsync(this, () => File.WriteAllText(_overrideFile, json));
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveConfigToFile()
@@ -161,7 +180,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
             catch (Exception ex)
             {
-                XtraMessageBox.Show("L?i ghi file c?u h�nh: " + ex.Message, "L?i", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                XtraMessageBox.Show(TranslationManager.Translate("Lỗi ghi file cấu hình: ") + ex.Message, TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -265,7 +284,7 @@ namespace QLyNSu.FORM_SYSTEM
         {
             if (lstProfiles.SelectedItem == null)
             {
-                XtraMessageBox.Show("Vui l�ng ch?n m?t k?t n?i d? s?a.", "Th�ng b�o", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show(TranslationManager.Translate("Vui lòng chọn một kết nối để sửa."), TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
             _isAdding = false;
@@ -278,7 +297,8 @@ namespace QLyNSu.FORM_SYSTEM
             var profile = lstProfiles.SelectedItem as DatabaseProfile;
             if (profile != null)
             {
-                if (XtraMessageBox.Show($"B?n c� ch?c mu?n xo� k?t n?i '{profile.ProfileName}'?", "X�c nh?n", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                string confirmMsg = string.Format(TranslationManager.Translate("Bạn có chắc muốn xóa kết nối '{0}'?"), profile.ProfileName);
+                if (XtraMessageBox.Show(confirmMsg, TranslationManager.Translate("Xác nhận"), MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                 {
                     _configData.Profiles.Remove(profile);
                     if (_configData.ActiveProfileId == profile.Id)
@@ -294,12 +314,14 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void BtnClear_Click(object sender, EventArgs e)
+        private async void BtnClear_Click(object sender, EventArgs e)
         {
+            try
+            {
             txtProfileName.Text = "";
             txtUsername.Text = "";
             txtPassword.Text = "";
-            txtHostname.Text = GetLocalIPAddress();
+            txtHostname.Text = await Functions.FormDataLoader.ReadAsync(this, () => GetLocalIPAddress());
             txtPort.Text = "1521";
             txtSID.Text = "xe";
             txtServiceName.Text = "";
@@ -309,6 +331,10 @@ namespace QLyNSu.FORM_SYSTEM
             chkSavePassword.Checked = false;
             btnColor.Color = System.Drawing.Color.Empty;
             lblStatus.Text = "Status : Ready";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void BtnCancel_Click(object sender, EventArgs e)
@@ -324,7 +350,7 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void SaveCurrentFormToProfile(DatabaseProfile profile)
         {
-            profile.ProfileName = string.IsNullOrEmpty(txtProfileName.Text) ? "Kh�ng T�n" : txtProfileName.Text.Trim();
+            profile.ProfileName = string.IsNullOrEmpty(txtProfileName.Text) ? TranslationManager.Translate("Không Tên") : txtProfileName.Text.Trim();
             profile.ServerIP = string.IsNullOrEmpty(txtHostname.Text) ? "localhost" : txtHostname.Text.Trim();
             profile.Port = string.IsNullOrEmpty(txtPort.Text) ? "1521" : txtPort.Text.Trim();
             
@@ -386,43 +412,9 @@ namespace QLyNSu.FORM_SYSTEM
 
         private string BuildConnectionString()
         {
-            string host = string.IsNullOrEmpty(txtHostname.Text) ? "localhost" : txtHostname.Text.Trim();
-            string port = string.IsNullOrEmpty(txtPort.Text) ? "1521" : txtPort.Text.Trim();
-            string identifier = chkServiceName.Checked ? txtServiceName.Text.Trim() : txtSID.Text.Trim();
-            string user = txtUsername.Text.Trim();
-            string pass = txtPassword.Text.Trim();
-            string role = cboRole.Text;
-
-            string connString = "";
-            
-            if (chkServiceName.Checked) // ServiceName
-            {
-                connString = $"DATA SOURCE={host}:{port}/{identifier};";
-            }
-            else // SID
-            {
-                connString = $"DATA SOURCE=(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={port}))(CONNECT_DATA=(SID={identifier})));";
-            }
-
-            if (cboAuthType.Text == "OS")
-            {
-                connString += "USER ID=/;";
-            }
-            else
-            {
-                connString += $"USER ID={user};PASSWORD={pass};";
-            }
-
-            if (role == "SYSDBA")
-            {
-                connString += "DBA PRIVILEGE=SYSDBA;";
-            }
-            else if (role == "SYSOPER")
-            {
-                connString += "DBA PRIVILEGE=SYSOPER;";
-            }
-
-            return connString;
+            var profile = new DatabaseProfile();
+            SaveCurrentFormToProfile(profile);
+            return profile.GetProviderConnectionString();
         }
 
         private bool PerformTest()
@@ -494,6 +486,41 @@ namespace QLyNSu.FORM_SYSTEM
         public string AuthType { get; set; } = "Default";
         public string IdentifierType { get; set; } = "SID"; // "SID" or "ServiceName"
         public string ColorHex { get; set; } = "";
+
+        // Testing and application startup must use the same Oracle identifier and credentials.
+        public string GetProviderConnectionString()
+        {
+            string host = string.IsNullOrWhiteSpace(ServerIP) ? "localhost" : ServerIP.Trim();
+            string port = string.IsNullOrWhiteSpace(Port) ? "1521" : Port.Trim();
+            int portNumber;
+            if (!int.TryParse(port, out portNumber) || portNumber < 1 || portNumber > 65535)
+                throw new ArgumentException("Cổng Oracle không hợp lệ.");
+            string identifier = (Database ?? "").Trim();
+            if (identifier.Length == 0) throw new ArgumentException("Chưa nhập SID hoặc Service Name của Oracle.");
+            bool sid = string.Equals(IdentifierType, "SID", StringComparison.OrdinalIgnoreCase);
+            if (!sid && !string.IsNullOrWhiteSpace(IdentifierType) &&
+                !string.Equals(IdentifierType, "ServiceName", StringComparison.OrdinalIgnoreCase))
+                throw new ArgumentException("Loại định danh Oracle không hợp lệ.");
+            var builder = new OracleConnectionStringBuilder();
+            builder.DataSource = sid
+                ? $"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST={host})(PORT={portNumber}))(CONNECT_DATA=(SID={identifier})))"
+                : $"{host}:{portNumber}/{identifier}";
+            bool os = string.Equals(AuthType, "OS", StringComparison.OrdinalIgnoreCase);
+            builder.UserID = os ? "/" : (Username ?? "").Trim();
+            if (!os) builder.Password = Password ?? "";
+            string role = (Role ?? "").Trim().ToUpperInvariant();
+            if (role == "SYSDBA" || role == "SYSOPER") builder.DBAPrivilege = role;
+            return builder.ConnectionString;
+        }
+
+        public string GetEntityConnectionString()
+        {
+            return new System.Data.Entity.Core.EntityClient.EntityConnectionStringBuilder {
+                Metadata = "res://*/QLNhanSu.csdl|res://*/QLNhanSu.ssdl|res://*/QLNhanSu.msl",
+                Provider = "Oracle.ManagedDataAccess.Client",
+                ProviderConnectionString = GetProviderConnectionString()
+            }.ConnectionString;
+        }
 
         public override string ToString()
         {

@@ -15,6 +15,7 @@ namespace HRMS_API
     {
         protected void Application_Start()
         {
+            DA.MyEntities.AuditIdentityProvider=()=>HttpContext.Current?.Items["HRMS_AUDIT_CONTEXT"] as DA.AuditIdentity;
             // Đảm bảo Oracle Entity Framework Provider luôn được nạp vào bộ nhớ
             Type _ = typeof(Oracle.ManagedDataAccess.EntityFramework.EFOracleProviderServices);
 
@@ -40,6 +41,14 @@ namespace HRMS_API
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+            // Khởi động background worker xử lý Outbox Remote Push
+            Services.PushNotificationHostingWorker.Start();
+        }
+
+        protected void Application_End()
+        {
+            Services.PushNotificationHostingWorker.Shutdown();
         }
     }
 }

@@ -1,3 +1,4 @@
+﻿using System.Threading.Tasks;
 using Bu.CLASS_CHAMCONG;
 using Bu.CLASS_PAYROLL;
 using Bu.CLASS_SYSTEM;
@@ -12,24 +13,69 @@ namespace QLyNSu.FORM_CHAMCONG
 {
     public partial class FrmPhatSinhLuong : DevExpress.XtraEditors.XtraForm
     {
+        public int InitialPeriod { get; set; }
+        private readonly DevExpress.XtraBars.BarButtonItem _manageSource = new DevExpress.XtraBars.BarButtonItem();
+        private bool _loadingFilters;
+        private int _loadVersion;
         private KYCONG _kycong;
+        private readonly Label _sourceNotice = new Label { Dock = DockStyle.Bottom, Height = 42, Padding = new Padding(12, 4, 12, 4), TextAlign = System.Drawing.ContentAlignment.MiddleLeft };
         private readonly PayrollOccurrenceService _occurrenceService = new PayrollOccurrenceService();
 
         public FrmPhatSinhLuong()
         {
             InitializeComponent();
+            Functions.DesktopTypography.Apply(this, barManager1);
+            barManager1.Items.Add(_manageSource); bar1.AddItem(_manageSource);
+            _manageSource.ItemClick += async (sender, args) => await OpenSource(gvPhatSinh.GetFocusedRow() as PayrollOccurrenceDto);
+            Functions.DesktopTypography.Apply(this, barManager1);
+            Functions.DesktopTypography.Grid(gvPhatSinh);
+            _sourceNotice.Font = Font;
+            Controls.Add(_sourceNotice);
+            _sourceNotice.BringToFront();
+            Controls.SetChildIndex(gcPhatSinh, 0); // Fill last, after reserving the bottom source notice.
+            lblLoai.Text = "Loại dữ liệu:";
+            gvPhatSinh.FocusedRowChanged += (sender, args) => UpdateOccurrenceActions(gvPhatSinh.GetFocusedRow() as PayrollOccurrenceDto);
+            UpdateOccurrenceActions(null);
         }
 
-        private void FrmPhatSinhLuong_Load(object sender, EventArgs e)
+        private void UpdateOccurrenceActions(PayrollOccurrenceDto selected)
         {
+            bool own = selected != null && selected.SourceType == "PHATSINH";
+            bool allowance = selected?.SourceType == "PHUCAP", advance = selected?.SourceType == "UNGLUONG";
+            _manageSource.Caption = allowance ? "Quản lý phụ cấp" : advance ? "Quản lý ứng lương" : "Mở nơi quản lý";
+            _manageSource.Visibility = allowance || advance ? DevExpress.XtraBars.BarItemVisibility.Always : DevExpress.XtraBars.BarItemVisibility.Never;
+            _manageSource.Enabled = selected != null && UserSession.CanView(allowance ? "F_CC_PHUCAP" : "F_CC_UNGLUONG");
+            bool edit = UserSession.CanEdit("F_CC_BANGLUONG");
+            btnThem.Enabled = UserSession.CanAdd("F_CC_BANGLUONG");
+            btnDuyet.Enabled = own && selected.CanApprove && edit;
+            btnThuHoi.Enabled = own && selected.CanRevoke && edit;
+            btnXoaMem.Enabled = own && selected.CanDelete && UserSession.CanDelete("F_CC_BANGLUONG");
+            string hint = selected?.SourceType == "PHUCAP"
+                ? "Phụ cấp hợp đồng: quản lý tại mục Phụ cấp nhân viên."
+                : selected?.SourceType == "UNGLUONG"
+                    ? "Tạm ứng: quản lý tại mục Ứng lương."
+                    : "Chọn khoản phát sinh nháp để duyệt; khoản đã duyệt có thể thu hồi.";
+            Functions.TranslationManager.SetTranslatedText(_sourceNotice, hint);
+            btnDuyet.Hint = btnThuHoi.Hint = btnXoaMem.Hint = _sourceNotice.Text;
+        }
+
+        private async void FrmPhatSinhLuong_Load(object sender, EventArgs e)
+        {
+            try
+            {
+            _loadingFilters = true;
             _kycong = new KYCONG();
 
-            cboKyCong.DataSource = _kycong.getList();
+            cboKyCong.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.getList());
             cboKyCong.DisplayMember = "MAKYCONG";
             cboKyCong.ValueMember = "MAKYCONG";
+            if (PayrollReadinessService.IsValidPeriod(InitialPeriod)) cboKyCong.SelectedValue = InitialPeriod;
 
             cboLoaiPhatSinh.Items.Clear();
-            cboLoaiPhatSinh.Items.Add("Tất cả");
+            cboLoaiPhatSinh.Items.Add("Khoản phát sinh nhập riêng");
+            cboLoaiPhatSinh.Items.Add("Phụ cấp hợp đồng");
+            cboLoaiPhatSinh.Items.Add("Ứng lương");
+            cboLoaiPhatSinh.Items.Add("Tất cả nguồn");
             cboLoaiPhatSinh.Items.Add("Thu nhập phát sinh");
             cboLoaiPhatSinh.Items.Add("Khấu trừ phát sinh");
             cboLoaiPhatSinh.SelectedIndex = 0;
@@ -37,8 +83,15 @@ namespace QLyNSu.FORM_CHAMCONG
             gvPhatSinh.PopupMenuShowing += GvPhatSinh_PopupMenuShowing;
             gvPhatSinh.DoubleClick += GvPhatSinh_DoubleClick;
 
-            LoadData();
+            _loadingFilters = false;
+            await LoadData();
+
+            if (IsDisposed || Disposing) return;
             Functions.TranslationManager.Translate(this);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void GvPhatSinh_PopupMenuShowing(object sender, DevExpress.XtraGrid.Views.Grid.PopupMenuShowingEventArgs e)
@@ -46,47 +99,71 @@ namespace QLyNSu.FORM_CHAMCONG
             if (e.MenuType == DevExpress.XtraGrid.Views.Grid.GridMenuType.Row || e.MenuType == DevExpress.XtraGrid.Views.Grid.GridMenuType.User)
             {
                 var itemAddDraft = new DevExpress.Utils.Menu.DXMenuItem("Thêm khoản phát sinh nháp mới...", OnAddDraftOccurrenceClicked);
+                itemAddDraft.Enabled = UserSession.CanAdd("F_CC_BANGLUONG");
                 e.Menu.Items.Add(itemAddDraft);
 
                 var selected = gvPhatSinh.GetFocusedRow() as PayrollOccurrenceDto;
                 if (selected != null && selected.SourceType == "PHATSINH")
                 {
-                    var itemEdit = new DevExpress.Utils.Menu.DXMenuItem("Xem / Sửa chi tiết phát sinh...", (s, ev) => OpenDetailDialog(selected));
+                    var itemEdit = new DevExpress.Utils.Menu.DXMenuItem("Xem / Sửa chi tiết phát sinh...", async (s, ev) => await OpenDetailDialog(selected));
+                    itemEdit.Enabled = UserSession.CanView("F_CC_BANGLUONG");
                     e.Menu.Items.Add(itemEdit);
 
                     if (selected.TrangThai == "Đã duyệt")
                     {
-                        var itemRevoke = new DevExpress.Utils.Menu.DXMenuItem("Thu hồi phê duyệt (chuyển về Bản nháp)...", (s, ev) => RevokeSelectedOccurrence(selected));
+                        var itemRevoke = new DevExpress.Utils.Menu.DXMenuItem("Thu hồi phê duyệt (chuyển về Bản nháp)...", async (s, ev) => await RevokeSelectedOccurrence(selected));
+                        itemRevoke.Enabled = selected.CanRevoke && UserSession.CanEdit("F_CC_BANGLUONG");
                         e.Menu.Items.Add(itemRevoke);
                     }
                 }
             }
         }
 
-        private void GvPhatSinh_DoubleClick(object sender, EventArgs e)
+        private async void GvPhatSinh_DoubleClick(object sender, EventArgs e)
         {
             var selected = gvPhatSinh.GetFocusedRow() as PayrollOccurrenceDto;
+            if (selected != null && selected.SourceType != "PHATSINH") { await OpenSource(selected); return; }
             if (selected != null && selected.SourceType == "PHATSINH")
             {
-                OpenDetailDialog(selected);
+                await OpenDetailDialog(selected);
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void OpenDetailDialog(PayrollOccurrenceDto selected)
+        internal static System.Collections.Generic.List<PayrollOccurrenceDto> FilterBySource(System.Collections.Generic.IEnumerable<PayrollOccurrenceDto> items, string filter)
         {
+            string source = filter == "Khoản phát sinh nhập riêng" ? "PHATSINH" : filter == "Phụ cấp hợp đồng" ? "PHUCAP" : filter == "Ứng lương" ? "UNGLUONG" : null;
+            return items.Where(x => source == null || x.SourceType == source).ToList();
+        }
+        private async Task OpenSource(PayrollOccurrenceDto selected)
+        {
+            if (selected == null || selected.SourceType == "PHATSINH") return;
+            string capability = selected.SourceType == "PHUCAP" ? "F_CC_PHUCAP" : "F_CC_UNGLUONG";
+            if (!Functions.FormSecurity.AssertPermission(capability, Bu.DTO.PermissionAction.View)) return;
+            try {
+                using (Form child = selected.SourceType == "PHUCAP" ? (Form)new FrmPhuCap { InitialEmployeeId = selected.MaNV } : new FrmUngLuong { InitialEmployeeId = selected.MaNV, InitialSourceId = int.TryParse(selected.SourceId, out int sourceId) ? sourceId : 0 })
+                    await Functions.ChildFormWindow.ShowAsync(this, child);
+                if (!IsDisposed) await LoadData();
+            } catch (OperationCanceledException) {} catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
+        }
+
+        private async Task OpenDetailDialog(PayrollOccurrenceDto selected)
+        {
+            try
+            {
             if (cboKyCong.SelectedValue == null || !int.TryParse(cboKyCong.SelectedValue.ToString(), out int makycong))
             {
                 XtraMessageBox.Show("Vui lòng chọn kỳ công hợp lệ trước khi thao tác!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            using (var frm = new FrmChiTietPhatSinh(selected, makycong))
-            {
-                if (frm.ShowDialog() == DialogResult.OK)
-                {
-                    LoadData();
-                }
+            var frm = new FrmChiTietPhatSinh(selected, makycong);
+            try { await Functions.ChildFormWindow.ShowAsync(this, frm); } finally { frm.Dispose(); }
+            if (!IsDisposed && !Disposing) await LoadData();
+        
             }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -94,55 +171,72 @@ namespace QLyNSu.FORM_CHAMCONG
             OnAddDraftOccurrenceClicked(sender, EventArgs.Empty);
         }
 
-        private void OnAddDraftOccurrenceClicked(object sender, EventArgs e)
+        private async void OnAddDraftOccurrenceClicked(object sender, EventArgs e)
         {
+            try
+            {
             if (cboKyCong.SelectedValue == null || !int.TryParse(cboKyCong.SelectedValue.ToString(), out int makycong))
             {
                 XtraMessageBox.Show("Vui lòng chọn kỳ công hợp lệ trước khi thêm phát sinh!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
-            using (var frm = new FrmChiTietPhatSinh(makycong))
-            {
-                if (frm.ShowDialog() == DialogResult.OK)
-                {
-                    LoadData();
-                }
+            var frm = new FrmChiTietPhatSinh(makycong);
+            try { await Functions.ChildFormWindow.ShowAsync(this, frm); } finally { frm.Dispose(); }
+            if (!IsDisposed && !Disposing) await LoadData();
+        
             }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void cboKyCong_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cboKyCong_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void cboLoaiPhatSinh_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cboLoaiPhatSinh_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            if (_loadingFilters) return;
+            int loadVersion = ++_loadVersion;
+            try
+            {
             try
             {
                 if (cboKyCong.SelectedValue == null || !int.TryParse(cboKyCong.SelectedValue.ToString(), out int makycong))
                 {
                     gcPhatSinh.DataSource = null;
+                    UpdateOccurrenceActions(null);
                     return;
                 }
 
-                string filterType = cboLoaiPhatSinh.SelectedItem?.ToString() ?? "Tất cả";
-                var items = _occurrenceService.GetOccurrences(makycong, filterType);
-                gcPhatSinh.DataSource = items;
+                string[] filters = { "Khoản phát sinh nhập riêng", "Phụ cấp hợp đồng", "Ứng lương", "Tất cả nguồn", "Thu nhập phát sinh", "Khấu trừ phát sinh" };
+                string filterType = cboLoaiPhatSinh.SelectedIndex >= 0 && cboLoaiPhatSinh.SelectedIndex < filters.Length ? filters[cboLoaiPhatSinh.SelectedIndex] : filters[0];
+                var items = await Functions.FormDataLoader.ReadAsync(this, () => _occurrenceService.GetOccurrences(makycong, filterType == "Thu nhập phát sinh" || filterType == "Khấu trừ phát sinh" ? filterType : "Tất cả"));
+                if (loadVersion != _loadVersion || IsDisposed) return;
+                gcPhatSinh.DataSource = FilterBySource(items, filterType);
+                UpdateOccurrenceActions(gvPhatSinh.GetFocusedRow() as PayrollOccurrenceDto);
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 string userMsg = ErrorHelper.ResolveUserFriendlyMessage(ex, "tải danh sách phát sinh lương");
                 XtraMessageBox.Show(userMsg, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnDuyet_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnDuyet_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             var selected = gvPhatSinh.GetFocusedRow() as PayrollOccurrenceDto;
             if (selected == null)
@@ -173,7 +267,7 @@ namespace QLyNSu.FORM_CHAMCONG
 
                 if (askRevoke == DialogResult.Yes)
                 {
-                    RevokeSelectedOccurrence(selected);
+                    await RevokeSelectedOccurrence(selected);
                 }
                 return;
             }
@@ -195,9 +289,10 @@ namespace QLyNSu.FORM_CHAMCONG
 
             try
             {
-                _occurrenceService.ApproveOccurrence(selected.SourceId, userId, selected.DataVersion);
+                await Functions.FormDataLoader.RunAsync(this, () => _occurrenceService.ApproveOccurrence(selected.SourceId, userId, selected.DataVersion));
                 XtraMessageBox.Show($"Đã phê duyệt thành công khoản phát sinh [{selected.TenKhoan}] của nhân viên [{selected.HoTen}]!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
             catch (Exception ex)
             {
@@ -206,7 +301,7 @@ namespace QLyNSu.FORM_CHAMCONG
             }
         }
 
-        private void btnThuHoi_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnThuHoi_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             var selected = gvPhatSinh.GetFocusedRow() as PayrollOccurrenceDto;
             if (selected == null)
@@ -227,10 +322,10 @@ namespace QLyNSu.FORM_CHAMCONG
                 return;
             }
 
-            RevokeSelectedOccurrence(selected);
+            await RevokeSelectedOccurrence(selected);
         }
 
-        private void RevokeSelectedOccurrence(PayrollOccurrenceDto selected)
+        private async Task RevokeSelectedOccurrence(PayrollOccurrenceDto selected)
         {
             int userId = UserSession.CurrentUser != null ? (int)UserSession.CurrentUser.IDUSER : 0;
             if (userId <= 0)
@@ -253,9 +348,10 @@ namespace QLyNSu.FORM_CHAMCONG
 
             try
             {
-                _occurrenceService.RevokeOccurrence(selected.SourceId, userId, lyDo.Trim(), selected.DataVersion);
+                await Functions.FormDataLoader.RunAsync(this, () => _occurrenceService.RevokeOccurrence(selected.SourceId, userId, lyDo.Trim(), selected.DataVersion));
                 XtraMessageBox.Show($"Đã thu hồi phê duyệt khoản phát sinh [{selected.TenKhoan}]. Khoản này đã chuyển về trạng thái [Đã thu hồi / Hủy] và bị loại khỏi lần tính lương tiếp theo.", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
             catch (Exception ex)
             {
@@ -264,7 +360,7 @@ namespace QLyNSu.FORM_CHAMCONG
             }
         }
 
-        private void btnXoaMem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoaMem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             var selected = gvPhatSinh.GetFocusedRow() as PayrollOccurrenceDto;
             if (selected == null)
@@ -302,9 +398,10 @@ namespace QLyNSu.FORM_CHAMCONG
 
             try
             {
-                _occurrenceService.DeleteOccurrence(selected.SourceId, userId, selected.DataVersion);
+                await Functions.FormDataLoader.RunAsync(this, () => _occurrenceService.DeleteOccurrence(selected.SourceId, userId, selected.DataVersion));
                 XtraMessageBox.Show("Đã chuyển khoản phát sinh vào Thùng rác thành công. Bạn có thể khôi phục trong Quản trị dữ liệu > Thùng rác.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
             catch (Exception ex)
             {
@@ -313,9 +410,10 @@ namespace QLyNSu.FORM_CHAMCONG
             }
         }
 
-        private void btnLamMoi_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLamMoi_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

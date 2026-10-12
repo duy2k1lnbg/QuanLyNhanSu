@@ -26,7 +26,7 @@ namespace QLyNSu
         private NHANVIEN _nhanvien;
         private PHONGBAN _phongban;
 
-        private void FrmDieuChuyen_NhanVien_Load(object sender, EventArgs e)
+        private async void FrmDieuChuyen_NhanVien_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_NV_DIEUCHUYEN")) return;
 
@@ -35,9 +35,12 @@ namespace QLyNSu
             _phongban = new PHONGBAN();
             _them = false;
             showHide(true);
-            LoadData();
-            loadNhanVien();
-            LoadDonVi();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            await loadNhanVien();
+            if (IsDisposed || Disposing) return;
+            await LoadDonVi();
+            if (IsDisposed || Disposing) return;
             splitContainer1.Panel1Collapsed = true;
         }
 
@@ -59,7 +62,7 @@ namespace QLyNSu
             gcDsDC.Enabled = true;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_NV_DIEUCHUYEN", Bu.DTO.PermissionAction.Delete)) return;
             splitContainer1.Panel1Collapsed = true;
@@ -68,14 +71,16 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _dcnv.Delete(_SOQD);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
             splitContainer1.Panel1Collapsed = true;
@@ -160,24 +165,42 @@ namespace QLyNSu
             searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
         }
 
-        private void loadNhanVien()
+        private async Task loadNhanVien()
         {
-            searchMANV.Properties.DataSource = _nhanvien.getList();
+            try
+            {
+            searchMANV.Properties.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _nhanvien.getList());
             searchMANV.Properties.ValueMember = "MANV";
             searchMANV.Properties.DisplayMember = "HOTEN";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsDC.DataSource = _dcnv.getListFull();
+            try
+            {
+            gcDsDC.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _dcnv.getListFull());
             FormManager_Functions.CustomView_Colums(gvDsDC);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        public void LoadDonVi()
+        public async Task LoadDonVi()
         {
-            cboDieuChuyen.DataSource = _phongban.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            try
+            {
+            cboDieuChuyen.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _phongban.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode()));
             cboDieuChuyen.ValueMember = "IDPB";
             cboDieuChuyen.DisplayMember = "TENPB";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()

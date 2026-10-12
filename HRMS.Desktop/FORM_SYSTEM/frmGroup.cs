@@ -41,18 +41,26 @@ namespace QLyNSu.FORM_SYSTEM
 
 
 
-        private void loadGroups()
+        private async Task loadGroups()
         {
-            var groups = _sysUser.getALL().Where(x => (x.ISGROUP ?? 0) == 1).ToList();
+            try
+            {
+            var groups = await Functions.FormDataLoader.ReadAsync(this, () => _sysUser.getALL().Where(x => (x.ISGROUP ?? 0) == 1).ToList());
             cboNhom.Properties.DataSource = groups;
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void cboNhom_EditValueChanged(object sender, EventArgs e)
+        private async void cboNhom_EditValueChanged(object sender, EventArgs e)
         {
+            try
+            {
             if (cboNhom.EditValue != null && cboNhom.EditValue != DBNull.Value)
             {
                 decimal groupId = Convert.ToDecimal(cboNhom.EditValue);
-                _user = _sysUser.getItem(Convert.ToInt32(groupId));
+                _user = await Functions.FormDataLoader.ReadAsync(this, () => _sysUser.getItem(Convert.ToInt32(groupId)));
                 if (_user != null)
                 {
                     _them = false;
@@ -62,9 +70,14 @@ namespace QLyNSu.FORM_SYSTEM
                     tapThanhVien.PageEnabled = true;
                     if (btnXoaNhom != null) btnXoaNhom.Enabled = true;
                     if (btnQuyenAi != null) btnQuyenAi.Enabled = true;
-                    loadMembers();
+                    await loadMembers();
+                    if (IsDisposed || Disposing) return;
                 }
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnNewGroup_Click(object sender, EventArgs e)
@@ -81,15 +94,9 @@ namespace QLyNSu.FORM_SYSTEM
             txtTenNhom.Focus();
         }
 
-        private void btnXoaNhom_Click(object sender, EventArgs e)
+        private async void btnXoaNhom_Click(object sender, EventArgs e)
         {
             if (_user == null || _them) return;
-
-            if (_user.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
-            {
-                MessageBox.Show("Không thể xóa nhóm Quản trị hệ thống (ADMIN).", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
 
             DialogResult confirm = MessageBox.Show(
                 $"Bạn có chắc chắn muốn xóa nhóm [{_user.USERNAME}] không?\nHành động này cũng sẽ xóa toàn bộ phân quyền và liên kết nhóm liên quan.",
@@ -107,7 +114,8 @@ namespace QLyNSu.FORM_SYSTEM
                     _dataSaved = true;
                     
                     btnNewGroup_Click(null, null);
-                    loadGroups();
+                    await loadGroups();
+                    if (IsDisposed || Disposing) return;
                 }
                 catch (Exception ex)
                 {
@@ -116,7 +124,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void frmGroup_Load(object sender, EventArgs e)
+        private async void frmGroup_Load(object sender, EventArgs e)
         {
             // Register button click handlers for members management
             simpleButton3.Click += btnThemThanhVien_Click; // Add member
@@ -128,29 +136,31 @@ namespace QLyNSu.FORM_SYSTEM
                 Text = "Quyền tra cứu AI...",
                 Size = new Size(160, 40),
                 Location = new Point(btnLuu.Location.X - 170, btnLuu.Location.Y),
-                Visible = UserSession.IsAdmin,
-                Enabled = !_them && _user != null && UserSession.IsAdmin
+                Visible = UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG"),
+                Enabled = !_them && _user != null && UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG")
             };
             btnQuyenAi.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
             btnQuyenAi.Appearance.Options.UseFont = true;
-            btnQuyenAi.Click += (s, ev) =>
+            btnQuyenAi.Click += async (s, ev) =>
             {
-                if (!UserSession.IsAdmin)
+                if (!UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG"))
                 {
                     MessageBox.Show("Chỉ Quản trị viên hệ thống (Admin) mới có quyền quản trị quyền tra cứu AI.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     return;
                 }
                 if (_user != null)
                 {
-                    using (var frm = new FrmAiScopeGrantDetail((int)_user.IDUSER, _user.USERNAME, _user.FULLNAME, isGroup: true))
-                    {
-                        frm.ShowDialog(this);
-                    }
+                    var frm = new FrmAiScopeGrantDetail((int)_user.IDUSER, _user.USERNAME, _user.FULLNAME, isGroup: true);
+                    try { await Functions.ChildFormWindow.ShowAsync(this, frm); }
+                    catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
+                    finally { frm.Dispose(); }
                 }
             };
             this.Controls.Add(btnQuyenAi);
 
-            loadGroups();
+            await loadGroups();
+
+            if (IsDisposed || Disposing) return;
 
             if (_them)
             {
@@ -179,21 +189,28 @@ namespace QLyNSu.FORM_SYSTEM
                 txtTenNhom.Enabled = false; // Group name is permanent
                 txtMoTa.Text = _user.FULLNAME;
                 tapThanhVien.PageEnabled = true;
-                loadMembers();
+                await loadMembers();
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void loadMembers()
+        private async Task loadMembers()
         {
+            try
+            {
             if (_user != null)
             {
-                gcThanhVien.DataSource = _sysUser.GetGroupMembers(_user.IDUSER);
+                gcThanhVien.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _sysUser.GetGroupMembers(_user.IDUSER));
                 FormManager_Functions.CustomView_Colums(gvThanhVien);
                 
                 // Hide system audit/config columns in members grid
                 if (gvThanhVien.Columns["PASSWORD"] != null) gvThanhVien.Columns["PASSWORD"].Visible = false;
                 if (gvThanhVien.Columns["LAST_PWD_CHANGED"] != null) gvThanhVien.Columns["LAST_PWD_CHANGED"].Visible = false;
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnDong_Click(object sender, EventArgs e)
@@ -202,7 +219,7 @@ namespace QLyNSu.FORM_SYSTEM
             this.Close();
         }
 
-        private void btnLuu_Click(object sender, EventArgs e)
+        private async void btnLuu_Click(object sender, EventArgs e)
         {
             string groupName = txtTenNhom.Text.Trim();
             string description = txtMoTa.Text.Trim();
@@ -242,7 +259,9 @@ namespace QLyNSu.FORM_SYSTEM
                 _them = false;
                 _dataSaved = true;
                 
-                loadGroups();
+                await loadGroups();
+                
+                if (IsDisposed || Disposing) return;
                 if (cboNhom.Enabled)
                 {
                     cboNhom.EditValue = _user.IDUSER;
@@ -251,7 +270,8 @@ namespace QLyNSu.FORM_SYSTEM
                 // Enable members tab for adding users now that ID is generated
                 tapThanhVien.PageEnabled = true;
                 pageGroup.SelectedTabPage = tapThanhVien;
-                loadMembers();
+                await loadMembers();
+                if (IsDisposed || Disposing) return;
                 
                 MessageBox.Show("Tạo nhóm thành công. Hãy thêm thành viên vào nhóm ở tab Thành Viên.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -261,7 +281,9 @@ namespace QLyNSu.FORM_SYSTEM
                 _sysUser.Update(_user);
                 _dataSaved = true;
                 
-                loadGroups();
+                await loadGroups();
+                
+                if (IsDisposed || Disposing) return;
                 if (cboNhom.Enabled)
                 {
                     cboNhom.EditValue = _user.IDUSER;
@@ -277,11 +299,15 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnThemThanhVien_Click(object sender, EventArgs e)
+        private async void btnThemThanhVien_Click(object sender, EventArgs e)
         {
+            try
+            {
+            try
+            {
             if (_user == null) return;
 
-            var nonMembers = _sysUser.GetUsersNotInGroup(_user.IDUSER);
+            var nonMembers = await Functions.FormDataLoader.ReadAsync(this, () => _sysUser.GetUsersNotInGroup(_user.IDUSER));
             if (nonMembers.Count == 0)
             {
                 MessageBox.Show("Tất cả người dùng đều đã là thành viên của nhóm này.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -290,19 +316,28 @@ namespace QLyNSu.FORM_SYSTEM
 
             using (var selector = new FrmSelectUsers(nonMembers))
             {
-                if (selector.ShowDialog() == DialogResult.OK)
+                if (await Functions.ChildFormWindow.ShowAsync(this, selector) == DialogResult.OK)
                 {
                     foreach (var user in selector.SelectedUsers)
                     {
                         _sysUser.AddUserToGroup(_user.IDUSER, user.IDUSER);
                     }
                     _dataSaved = true;
-                    loadMembers();
+                    await loadMembers();
+                    if (IsDisposed || Disposing) return;
                 }
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnXoaThanhVien_Click(object sender, EventArgs e)
+        private async void btnXoaThanhVien_Click(object sender, EventArgs e)
         {
             if (_user == null) return;
 
@@ -326,7 +361,8 @@ namespace QLyNSu.FORM_SYSTEM
                 {
                     _sysUser.RemoveUserFromGroup(_user.IDUSER, selectedMember.IDUSER);
                     _dataSaved = true;
-                    loadMembers();
+                    await loadMembers();
+                    if (IsDisposed || Disposing) return;
                     MessageBox.Show("Đã loại bỏ thành viên thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
                 catch (Exception ex)
@@ -380,9 +416,9 @@ namespace QLyNSu.FORM_SYSTEM
             gc.DataSource = users;
 
             // Format columns
-            gv.Columns["IDUSER"].Caption = "ID";
-            gv.Columns["USERNAME"].Caption = "Tên tài khoản";
-            gv.Columns["FULLNAME"].Caption = "Họ và tên";
+            gv.Columns["IDUSER"].Caption = QLyNSu.Functions.TranslationManager.Translate("ID");
+            gv.Columns["USERNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Tên tài khoản");
+            gv.Columns["FULLNAME"].Caption = QLyNSu.Functions.TranslationManager.Translate("Họ và tên");
 
             // Hide audit/mapping fields
             foreach (DevExpress.XtraGrid.Columns.GridColumn col in gv.Columns)
@@ -393,6 +429,7 @@ namespace QLyNSu.FORM_SYSTEM
 
             // Apply modern grid padding and styling
             FormManager_Functions.CustomView_Colums(gv);
+            QLyNSu.Functions.TranslationManager.Translate(this);
 
             btnCancel.Click += (s, e) => this.Close();
             btnSelect.Click += (s, e) => {

@@ -1,4 +1,4 @@
-using Bu.DTO;
+﻿using Bu.DTO;
 using DA;
 using System;
 using System.Collections.Generic;
@@ -254,6 +254,7 @@ namespace Bu.CLASS_SYSTEM
 
         public static void Clear()
         {
+            CurrentUser = null;
             if (UserRights == null) UserRights = new List<string>();
             else UserRights.Clear();
             if (DetailedRights == null) DetailedRights = new Dictionary<string, UserRightDetail>(StringComparer.OrdinalIgnoreCase);

@@ -43,3 +43,10 @@ yarn-error.*
 # crash and bug reports
 bugreport*
 *.zip
+
+# Firebase config is supplied locally or through an EAS file environment variable.
+google-services.json
+GoogleService-Info.plist
+
+# Private Firebase service-account keys are local only; upload via EAS Credentials.
+*firebase-adminsdk*.json

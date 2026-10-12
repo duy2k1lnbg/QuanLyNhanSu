@@ -9,6 +9,7 @@ export const SecureTokenStorage = {
       await SecureStore.setItemAsync(APP_CONFIG.storageKeys.token, token);
     } catch (e) {
       console.warn('[SecureStore] Save token error:', e);
+      throw e;
     }
   },
 

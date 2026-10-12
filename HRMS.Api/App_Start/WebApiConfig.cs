@@ -12,6 +12,7 @@ namespace HRMS_API
             // Web API configuration and services
             config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Never;
             config.MessageHandlers.Add(new CorsHandler());
+            config.Filters.Add(new Filters.PayrollFrozenExceptionFilter());
 
             // Luôn trả về JSON thay vì XML khi mở trên trình duyệt web
             config.Formatters.Remove(config.Formatters.XmlFormatter);

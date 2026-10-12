@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -35,7 +35,7 @@ namespace Bu.Services.AI_Services.Security
             // 1. Kiểm tra quyền Quản trị viên của Actor
             if (!_securityContext.IsAdmin() || _securityContext.GetActorUserId() <= 0)
             {
-                throw new UnauthorizedAccessException("Từ chối truy cập: Chỉ Quản trị viên hệ thống (Admin) mới có quyền xem phân quyền tra cứu AI.");
+                throw new UnauthorizedAccessException("Từ chối truy cập: Cần quyền sửa Phân quyền chức năng để quản lý quyền tra cứu AI.");
             }
 
             var now = asOf ?? DateTime.Now;
@@ -274,7 +274,7 @@ namespace Bu.Services.AI_Services.Security
             if (!_securityContext.IsAdmin() || _securityContext.GetActorUserId() <= 0)
             {
                 res.Success = false;
-                res.Message = "Từ chối truy cập: Thao tác này yêu cầu quyền Quản trị viên hệ thống (Admin).";
+                res.Message = "Từ chối truy cập: Thao tác này yêu cầu quyền sửa Phân quyền chức năng.";
                 return res;
             }
 
@@ -432,6 +432,20 @@ namespace Bu.Services.AI_Services.Security
                 return res;
             }
 
+            // Read-only capabilities are omitted by both editors. Retain their stored grants
+            // so editing an available capability does not erase a temporarily disabled policy.
+            try
+            {
+                validGrants.AddRange((_repository.GetGrants(sType, request.SubjectId) ?? new List<AiScopeGrantRecord>())
+                    .Where(g => AiCapabilityCatalog.Get(g.CapabilityCode) == null || !AiCapabilityCatalog.Get(g.CapabilityCode).IsEnabled));
+            }
+            catch
+            {
+                res.Success = false;
+                res.Message = "Không đọc được cấu hình quyền hiện có. Không lưu để tránh mất quyền chưa được chỉnh sửa.";
+                return res;
+            }
+
             // 5. Lưu vào CSDL qua Repository có đảm bảo Transaction và Concurrency
             long expectedRev = request.BaseRevision ?? 0;
             bool saved = _repository.SaveGrantsTransactional(
@@ -478,7 +492,7 @@ namespace Bu.Services.AI_Services.Security
         {
             if (!_securityContext.IsAdmin())
             {
-                throw new UnauthorizedAccessException("Chỉ Quản trị viên hệ thống mới có quyền truy cập danh mục phân quyền AI.");
+                throw new UnauthorizedAccessException("Cần quyền sửa Phân quyền chức năng để truy cập danh mục phân quyền AI.");
             }
             return _repository.GetDepartmentOptions() ?? new List<KeyValuePair<string, string>>();
         }
@@ -487,7 +501,7 @@ namespace Bu.Services.AI_Services.Security
         {
             if (!_securityContext.IsAdmin())
             {
-                throw new UnauthorizedAccessException("Chỉ Quản trị viên hệ thống mới có quyền truy cập danh mục phân quyền AI.");
+                throw new UnauthorizedAccessException("Cần quyền sửa Phân quyền chức năng để truy cập danh mục phân quyền AI.");
             }
             return _repository.GetCompanyOptions() ?? new List<KeyValuePair<string, string>>();
         }

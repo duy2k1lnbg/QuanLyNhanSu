@@ -161,16 +161,30 @@ if (Test-Path $apkSrc) {
     Write-Host "  -> [OK] Da copy HRMS_Mobile.apk vao deploy_vps\mobile! ($([Math]::Round($apkSize / 1MB, 2)) MB)" -ForegroundColor Green
 }
 
-# Copy HR_BACKUP.DMP
+# Copy HR_BACKUP.DMP & HR_BACKUP.DM
 $dmpSrc = Join-Path $root "HR_BACKUP.DMP"
 if (Test-Path $dmpSrc) {
     Copy-Item -Force $dmpSrc (Join-Path $deployRoot "HR_BACKUP.DMP")
+    Copy-Item -Force $dmpSrc (Join-Path $deployRoot "HR_BACKUP.DM")
     $dmpSize = (Get-Item (Join-Path $deployRoot "HR_BACKUP.DMP")).Length
-    Write-Host "  -> [OK] Da copy HR_BACKUP.DMP vao deploy_vps! ($([Math]::Round($dmpSize / 1MB, 2)) MB)" -ForegroundColor Green
+    Write-Host "  -> [OK] Da copy HR_BACKUP.DMP & HR_BACKUP.DM vao deploy_vps! ($([Math]::Round($dmpSize / 1MB, 2)) MB)" -ForegroundColor Green
 }
 
-# ------------------------------------------------------------------------------
-# 4. TAO CAC FILE CHAY TU DONG TRONG D:\QL_NS\deploy_vps
+# Copy AI_OWNER_BACKUP.DMP
+$aiDmpSrc = Join-Path $root "AI_OWNER_BACKUP.DMP"
+if (Test-Path $aiDmpSrc) {
+    Copy-Item -Force $aiDmpSrc (Join-Path $deployRoot "AI_OWNER_BACKUP.DMP")
+    $aiDmpSize = (Get-Item (Join-Path $deployRoot "AI_OWNER_BACKUP.DMP")).Length
+    Write-Host "  -> [OK] Da copy AI_OWNER_BACKUP.DMP vao deploy_vps! ($([Math]::Round($aiDmpSize / 1KB, 2)) KB)" -ForegroundColor Green
+# Copy Qdrant Package & Snapshots
+$qdrantDir = "D:\Qdrant"
+$deployQdrant = Join-Path $deployRoot "qdrant"
+if (Test-Path $qdrantDir) {
+    if (-not (Test-Path $deployQdrant)) { New-Item -ItemType Directory -Path $deployQdrant -Force | Out-Null }
+    Copy-Item -Force (Join-Path $qdrantDir "qdrant.exe") (Join-Path $deployQdrant "qdrant.exe")
+    Copy-Item -Force (Join-Path $qdrantDir "nssm.exe") (Join-Path $deployQdrant "nssm.exe")
+    Write-Host "  -> [OK] Da dong goi Qdrant binaries vao deploy_vps\qdrant!" -ForegroundColor Green
+}
 # ------------------------------------------------------------------------------
 Write-Host "`n[4/6] Tao cac file chay tu dong va huong dan vao $deployRoot..." -ForegroundColor Yellow
 

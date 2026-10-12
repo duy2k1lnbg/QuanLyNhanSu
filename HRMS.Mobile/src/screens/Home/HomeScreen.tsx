@@ -1,3 +1,5 @@
+import {notificationText} from '../../utils/notificationText';
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -5,6 +7,7 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  Alert,
   TouchableOpacity,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
@@ -17,17 +20,21 @@ import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { useLanguage } from '../../hooks/useLanguage';
 import { meApi } from '../../api/meApi';
-import { approvalsApi } from '../../api/approvalsApi';
 import { DashboardDto, NotificationDto } from '../../types/me';
 import { AppAvatar } from '../../components/AppAvatar';
 import { AppCard } from '../../components/AppCard';
 import { AppBadge } from '../../components/AppBadge';
 import { AppLoading } from '../../components/AppLoading';
 import { AppErrorState } from '../../components/AppErrorState';
+import { NotificationPermissionModal } from '../../components/NotificationPermissionModal';
+import { notificationService } from '../../services/notificationService';
 import { formatCurrency, formatDate } from '../../utils/formatters';
 import { mapApiError } from '../../utils/errorMapper';
 import { getLocalizedPayrollStatus } from '../../utils/statusMapper';
 import { spacing } from '../../constants/spacing';
+import { canMobile, canViewRequests } from '../../utils/mobilePermissions';
+import { pendingRequestCount } from '../../utils/requestContracts';
+import {subscribeNotificationChanges} from '../../utils/notificationEvents';
 import { typography } from '../../constants/typography';
 
 export const HomeScreen: React.FC = () => {
@@ -42,9 +49,9 @@ export const HomeScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   const [pendingRequestsCount, setPendingRequestsCount] = useState<number>(0);
-  const [managerPendingCount, setManagerPendingCount] = useState<number>(0);
+  const [requestsUnavailable,setRequestsUnavailable]=useState(false);
+  const [permissionModalVisible, setPermissionModalVisible] = useState(false);
 
   const fetchDashboard = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
@@ -52,23 +59,18 @@ export const HomeScreen: React.FC = () => {
     setErrorMessage(null);
 
     try {
-      const [dashData, reqData, apprvData] = await Promise.allSettled([
+      const [dashData, reqData] = await Promise.allSettled([
         meApi.getDashboard(),
         meApi.getAllRequests(),
-        approvalsApi.getSummary(),
       ]);
 
+      if (dashData.status === 'rejected') throw dashData.reason;
       if (dashData.status === 'fulfilled') {
         setDashboard(dashData.value);
       }
+      setRequestsUnavailable(reqData.status === 'rejected');
       if (reqData.status === 'fulfilled' && reqData.value) {
-        const leavesPending = (reqData.value.leaves || []).filter((l) => l.status === 'PENDING').length;
-        const corrPending = (reqData.value.corrections || []).filter((c) => c.status === 'PENDING').length;
-        const otPending = (reqData.value.overtimes || []).filter((o) => o.status === 'PENDING').length;
-        setPendingRequestsCount(leavesPending + corrPending + otPending);
-      }
-      if (apprvData.status === 'fulfilled' && apprvData.value) {
-        setManagerPendingCount(apprvData.value.totalPending || 0);
+        setPendingRequestsCount(pendingRequestCount(reqData.value));
       }
     } catch (error: any) {
       setErrorMessage(mapApiError(error));
@@ -78,9 +80,66 @@ export const HomeScreen: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {
+  useFocusEffect(useCallback(() => {
     fetchDashboard();
-  }, [fetchDashboard]);
+    return subscribeNotificationChanges(() => fetchDashboard(true));
+  }, [fetchDashboard]));
+
+  // Kiểm tra quyền thông báo sau khi đăng nhập và thiết lập listeners
+  useEffect(() => {
+    let isMounted = true;
+
+    const checkPermissionOnReady = async () => {
+      // 1. Kiểm tra cold-start notification click
+      await notificationService.checkLastNotificationResponse(navigation);
+
+      if (!notificationService.isRemotePushConfigured()) return;
+
+      // 2. Kiểm tra xem đã từng hỏi người dùng chưa
+      const hasPrompted = await notificationService.hasPromptedForPermission();
+      const { status } = await notificationService.getPermissionStatus();
+
+      if (!hasPrompted && status === 'UNDETERMINED') {
+        // Hiện modal mời bật thông báo lần đầu (non-blocking)
+        if (isMounted) {
+          setPermissionModalVisible(true);
+        }
+      } else if (status === 'GRANTED') {
+        // Đã cấp quyền -> đồng bộ đăng ký thiết bị ngầm
+        await notificationService.syncDeviceRegistration();
+      }
+    };
+
+    checkPermissionOnReady().catch(error=>console.warn('[Notifications] Background registration failed:',error?.message));
+
+    // 4. Listener khi người dùng click vào notification banner -> điều hướng
+    const responseSub = notificationService.subscribeResponse((response) => {
+      const data = response.notification?.request?.content?.data;
+      if (data) {
+        notificationService.handleNotificationNavigation(navigation, data);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      responseSub();
+    };
+  }, [navigation, fetchDashboard]);
+
+  const handleAcceptPermission = async () => {
+    setPermissionModalVisible(false);
+    await notificationService.setPromptedForPermission();
+    try {
+      await notificationService.requestPermission();
+      const status=await notificationService.syncDeviceRegistration();
+      if (status.errorMessage) Alert.alert(t('common.error'), status.errorMessage.startsWith('mobileReview.') ? t(status.errorMessage) : t('errors.serverError'));
+    } catch(error) { Alert.alert(t('common.error'),mapApiError(error)); }
+  };
+
+  const handleDismissPermission = async () => {
+    setPermissionModalVisible(false);
+    await notificationService.setPromptedForPermission();
+  };
 
   if (loading && !refreshing) {
     return <AppLoading />;
@@ -96,12 +155,13 @@ export const HomeScreen: React.FC = () => {
   const notifications = dashboard?.recentNotifications || (dashboard as any)?.RecentNotifications || [];
 
   return (
-    <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={[
-        styles.content,
-        { paddingTop: Math.max(insets.top, spacing.md) },
-      ]}
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView
+        style={styles.container}
+        contentContainerStyle={[
+          styles.content,
+          { paddingTop: Math.max(insets.top, spacing.md) },
+        ]}
       refreshControl={
         <RefreshControl
           refreshing={refreshing}
@@ -164,6 +224,7 @@ export const HomeScreen: React.FC = () => {
       {/* 3. Summary Cards Row */}
       <View style={styles.cardsRow}>
         {/* Attendance Summary */}
+        {canMobile(user,'MOBILE_ATTENDANCE_VIEW') && (
         <AppCard
           style={styles.summaryCard}
           onPress={() => navigation.navigate('Main', { screen: 'AttendanceTab' } as any)}
@@ -187,8 +248,10 @@ export const HomeScreen: React.FC = () => {
             {t('attendance.lateCount')}: {attendance ? attendance.soLanDiMuon : 0}
           </Text>
         </AppCard>
+        )}
 
         {/* Payroll Summary */}
+        {canMobile(user,'MOBILE_PAYROLL_VIEW') && (
         <AppCard
           style={styles.summaryCard}
           onPress={() => navigation.navigate('Main', { screen: 'PayrollTab' } as any)}
@@ -212,10 +275,11 @@ export const HomeScreen: React.FC = () => {
             {payroll ? getLocalizedPayrollStatus(payroll.trangThaiChiTra) : t('payroll.statusPending')}
           </Text>
         </AppCard>
+        )}
       </View>
 
       {/* 4. Pending Requests Status Banner (Rule 24) */}
-      <TouchableOpacity
+      {canViewRequests(user) && (      <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => navigation.navigate('MyRequests')}
         style={[
@@ -237,40 +301,14 @@ export const HomeScreen: React.FC = () => {
             {t('home.pendingRequests')}
           </Text>
           <Text style={[typography.caption, { color: colors.text }]}>
-            {pendingRequestsCount > 0
-              ? `${pendingRequestsCount} ${t('home.pendingCount')} đang chờ người quản lý phê duyệt.`
+            {requestsUnavailable ? t('mobileReview.requestsUnavailable'):pendingRequestsCount > 0
+              ? t('mobileReview.pendingCount',{count:pendingRequestsCount})
               : t('home.noPendingRequests')}
           </Text>
         </View>
         <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
-      </TouchableOpacity>
+      </TouchableOpacity>)}
 
-      {/* 4b. Manager Approvals Banner (For Managers/HR) */}
-      {managerPendingCount > 0 && (
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate('ManagerApprovals')}
-          style={[
-            styles.alertCard,
-            {
-              backgroundColor: 'rgba(239, 68, 68, 0.08)',
-              borderColor: colors.danger,
-              marginTop: spacing.sm,
-            },
-          ]}
-        >
-          <Ionicons name="checkbox-outline" size={24} color={colors.danger} />
-          <View style={styles.alertTextWrapper}>
-            <Text style={[typography.bodyBold, { color: colors.danger }]}>
-              Duyệt yêu cầu ({managerPendingCount} đang chờ)
-            </Text>
-            <Text style={[typography.caption, { color: colors.text }]}>
-              Có {managerPendingCount} yêu cầu nghỉ phép, sửa công, tăng ca đang chờ bạn xử lý.
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.danger} />
-        </TouchableOpacity>
-      )}
 
       {/* 5. Quick Actions Grid (Rule 24 & 25: Chấm công, Xin nghỉ, Xem lương, Điều chỉnh công, Tăng ca, Yêu cầu) */}
       <View style={styles.sectionHeaderRow}>
@@ -288,124 +326,49 @@ export const HomeScreen: React.FC = () => {
       </View>
 
       <View style={styles.quickGrid}>
-        {/* [ Chấm công ] */}
-        <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('Main', { screen: 'AttendanceTab' } as any)}
-        >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
-            <Ionicons name="time-outline" size={22} color="#3B82F6" />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.attendance')}
-          </Text>
-        </TouchableOpacity>
-
-        {/* [ Xin nghỉ ] */}
-        <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('LeaveRequest')}
-        >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-            <Ionicons name="calendar-outline" size={22} color="#EF4444" />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.leaveRequest')}
-          </Text>
-        </TouchableOpacity>
-
-        {/* [ Xem lương ] */}
-        <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('Main', { screen: 'PayrollTab' } as any)}
-        >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
-            <Ionicons name="wallet-outline" size={22} color="#10B981" />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.payroll')}
-          </Text>
-        </TouchableOpacity>
-
-        {/* [ Điều chỉnh công ] */}
-        <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('AttendanceCorrection')}
-        >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(139, 92, 246, 0.1)' }]}>
-            <Ionicons name="build-outline" size={22} color="#8B5CF6" />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.attendanceCorrection')}
-          </Text>
-        </TouchableOpacity>
-
-        {/* [ Đăng ký tăng ca ] */}
-        <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('MyOvertime')}
-        >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
-            <Ionicons name="flash-outline" size={22} color="#F59E0B" />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.overtime')}
-          </Text>
-        </TouchableOpacity>
-
-        {/* [ Yêu cầu của tôi ] */}
-        <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('MyRequests')}
-        >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(14, 165, 233, 0.1)' }]}>
-            <Ionicons name="file-tray-full-outline" size={22} color="#0EA5E9" />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            {t('nav.myRequests')}
-          </Text>
-        </TouchableOpacity>
-
-        {/* [ Duyệt yêu cầu ] */}
-        <TouchableOpacity
-          style={[styles.quickItem, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('ManagerApprovals')}
-        >
-          <View style={[styles.quickIconCircle, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-            <Ionicons name="checkbox-outline" size={22} color="#EF4444" />
-          </View>
-          <Text style={[typography.captionBold, { color: colors.text, marginTop: spacing.xs }]}>
-            Duyệt yêu cầu
-          </Text>
+        {[
+          {code:'MOBILE_ATTENDANCE_VIEW',label:'nav.attendance',icon:'time-outline',route:'Main',params:{screen:'AttendanceTab'}},
+          {code:'MOBILE_REQUEST_LEAVE',label:'nav.leaveRequest',icon:'calendar-outline',route:'LeaveRequest'},
+          {code:'MOBILE_PAYROLL_VIEW',label:'nav.payroll',icon:'wallet-outline',route:'Main',params:{screen:'PayrollTab'}},
+          {code:'MOBILE_REQUEST_CORRECTION',label:'nav.attendanceCorrection',icon:'build-outline',route:'AttendanceCorrection'},
+          {code:'MOBILE_REQUEST_OVERTIME',label:'nav.overtime',icon:'flash-outline',route:'MyOvertime'},
+          {code:'MOBILE_REQUEST_ADVANCE',label:'requests.advanceTitle',icon:'cash-outline',route:'SalaryAdvance'},
+          {code:'MOBILE_REQUEST_DEPENDENT',label:'nav.dependents',icon:'people-outline',route:'Dependents'},
+          {code:'MOBILE_INSURANCE_VIEW',label:'nav.insurance',icon:'shield-checkmark-outline',route:'Insurance'},
+          {code:'MOBILE_CONTRACT_VIEW',label:'nav.contract',icon:'document-text-outline',route:'Contract'},
+          {code:'REQUESTS',label:'requests.title',icon:'file-tray-outline',route:'MyRequests'},
+        ].filter(item=>item.code==='REQUESTS' ? canViewRequests(user) : canMobile(user,item.code)).map(item=>(
+          <TouchableOpacity key={item.code} style={[styles.quickItem,{backgroundColor:colors.surfaceCard,borderColor:colors.border}]} onPress={()=>navigation.navigate(item.route as any,item.params as any)}>
+            <Ionicons name={item.icon as any} size={24} color={colors.primary}/>
+            <Text style={[typography.captionBold,{color:colors.text,marginTop:spacing.sm,textAlign:'center'}]}>{t(item.label)}</Text>
+          </TouchableOpacity>
+        ))}
+        <TouchableOpacity style={[styles.quickItem,{backgroundColor:colors.surfaceCard,borderColor:colors.border}]} onPress={()=>navigation.navigate('Settings')}>
+          <Ionicons name="settings-outline" size={24} color={colors.primary}/><Text style={[typography.captionBold,{color:colors.text,marginTop:spacing.sm}]}>{t('nav.settings')}</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Secondary Navigation Row: Hợp đồng & Bảo hiểm (Rule 25) */}
-      <View style={styles.secondaryRow}>
+      {/* Secondary Navigation Row: Hợp đồng lao động */}
+      {canMobile(user,'MOBILE_CONTRACT_VIEW') && <View style={{ marginTop: spacing.md }}>
         <TouchableOpacity
           style={[styles.secondaryCard, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
           onPress={() => navigation.navigate('Contract')}
         >
-          <Ionicons name="document-text-outline" size={20} color={colors.primary} />
-          <Text style={[typography.captionBold, { color: colors.text, marginLeft: spacing.xs }]}>
-            {t('nav.contract')}
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color={colors.textMuted} style={{ marginLeft: 'auto' }} />
+          <Ionicons name="document-text-outline" size={22} color={colors.primary} />
+          <View style={{ marginLeft: spacing.sm, flex: 1 }}>
+            <Text style={[typography.bodyBold, { color: colors.text }]}>
+              {t('nav.contract')}
+            </Text>
+            <Text style={[typography.caption, { color: colors.textSecondary }]}>
+              {dashboard?.expiringContractInfo || t('mobileReview.contractHint')}
+            </Text>
+          </View>
+          <Ionicons name="chevron-forward" size={18} color={colors.textMuted} />
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.secondaryCard, { backgroundColor: colors.surfaceCard, borderColor: colors.border }]}
-          onPress={() => navigation.navigate('Insurance')}
-        >
-          <Ionicons name="medkit-outline" size={20} color={colors.success} />
-          <Text style={[typography.captionBold, { color: colors.text, marginLeft: spacing.xs }]}>
-            {t('nav.insurance')}
-          </Text>
-          <Ionicons name="chevron-forward" size={16} color={colors.textMuted} style={{ marginLeft: 'auto' }} />
-        </TouchableOpacity>
-      </View>
+      </View>}
 
       {/* 5. Recent Announcements */}
+      {canMobile(user,'MOBILE_NOTIFICATION_VIEW') && <>
       <View style={styles.sectionHeaderRow}>
         <Text style={[typography.h3, { color: colors.text }]}>
           {t('home.recentNotifications')}
@@ -449,12 +412,12 @@ export const HomeScreen: React.FC = () => {
               <View style={styles.notifContent}>
                 <View style={styles.notifTitleRow}>
                   <Text style={[typography.bodyBold, { color: colors.text, flex: 1 }]} numberOfLines={1}>
-                    {item.tieude}
+                    {notificationText(item,t).tieude}
                   </Text>
                   {item.isUnread && <View style={[styles.unreadDot, { backgroundColor: colors.danger }]} />}
                 </View>
                 <Text style={[typography.caption, { color: colors.textSecondary, marginTop: 2 }]} numberOfLines={2}>
-                  {item.noidung}
+                  {notificationText(item,t).noidung}
                 </Text>
                 <Text style={[typography.caption, { color: colors.textMuted, marginTop: 4 }]}>
                   {formatDate(item.ngaydang, activeLanguage)} • {item.nguoidang || 'HR'}
@@ -464,7 +427,14 @@ export const HomeScreen: React.FC = () => {
           </AppCard>
         ))
       )}
-    </ScrollView>
+      </>}
+      </ScrollView>
+      <NotificationPermissionModal
+        visible={permissionModalVisible}
+        onAccept={handleAcceptPermission}
+        onDismiss={handleDismissPermission}
+      />
+    </View>
   );
 };
 
@@ -594,7 +564,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
   },
   secondaryCard: {
-    flex: 1,
+    width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: spacing.md,

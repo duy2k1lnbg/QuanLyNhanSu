@@ -15,6 +15,7 @@ namespace QLyNSu.FORM_SYSTEM
 {
     public partial class FrmPhanQuyenBaoCao : DevExpress.XtraEditors.XtraForm
     {
+        private int _rightsVersion;
         private MyEntities db = new MyEntities();
         private List<ReportRightItem> _rightList = new List<ReportRightItem>();
 
@@ -23,7 +24,7 @@ namespace QLyNSu.FORM_SYSTEM
             InitializeComponent();
         }
 
-        private void FrmPhanQuyenBaoCao_Load(object sender, EventArgs e)
+        private async void FrmPhanQuyenBaoCao_Load(object sender, EventArgs e)
         {
             // Set grid formatting
             FormManager_Functions.CustomView_Colums(gvUser);
@@ -33,13 +34,17 @@ namespace QLyNSu.FORM_SYSTEM
             gvUser.FocusedRowChanged += gvUser_FocusedRowChanged;
             gvRight.CellValueChanged += gvRight_CellValueChanged;
 
-            loadUsers();
+            await loadUsers();
+
+            if (IsDisposed || Disposing) return;
             QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
-        private void loadUsers()
+        private async Task loadUsers()
         {
-            gcUser.DataSource = db.TB_SYS_USER.ToList();
+            try
+            {
+            gcUser.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => { using (var readDb = new MyEntities()) return readDb.TB_SYS_USER.ToList(); });
             
             // Format User columns
             if (gvUser.Columns["IDUSER"] != null) gvUser.Columns["IDUSER"].Caption = "ID";
@@ -52,15 +57,22 @@ namespace QLyNSu.FORM_SYSTEM
                 if (col.FieldName != "IDUSER" && col.FieldName != "USERNAME" && col.FieldName != "FULLNAME")
                     col.Visible = false;
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void gvUser_FocusedRowChanged(object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e)
+        private async void gvUser_FocusedRowChanged(object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e)
         {
-            loadRights();
+            await loadRights();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void loadRights()
+        private async Task loadRights()
         {
+            try
+            {
             var selectedUser = (TB_SYS_USER)gvUser.GetFocusedRow();
             if (selectedUser == null)
             {
@@ -68,14 +80,17 @@ namespace QLyNSu.FORM_SYSTEM
                 return;
             }
 
-            // Load all reports
-            var allReports = db.TB_SYS_REPORT.OrderBy(r => r.REP_CODE).ToList();
-
-            // Load current user report rights
-            var userReportRights = db.TB_SYS_RIGHT_REPORT
-                .Where(r => r.IDUSER == selectedUser.IDUSER && r.USER_RIGHT == 1)
-                .Select(r => r.REP_CODE)
-                .ToList();
+            var subjectId = selectedUser.IDUSER;
+            var version = ++_rightsVersion;
+            var data = await Functions.FormDataLoader.ReadAsync(this, () => {
+                using (var readDb = new MyEntities()) return new {
+                    Reports = readDb.TB_SYS_REPORT.OrderBy(r => r.REP_CODE).ToList(),
+                    Rights = readDb.TB_SYS_RIGHT_REPORT.Where(r => r.IDUSER == subjectId && r.USER_RIGHT == 1).Select(r => r.REP_CODE).ToList()
+                };
+            });
+            if (version != _rightsVersion) return;
+            var allReports = data.Reports;
+            var userReportRights = data.Rights;
 
             // Map to list item
             _rightList = allReports.Select(r => new ReportRightItem
@@ -103,6 +118,10 @@ namespace QLyNSu.FORM_SYSTEM
                 gvRight.Columns["HAS_RIGHT"].Caption = QLyNSu.Functions.TranslationManager.Translate("Cho phép xem");
                 gvRight.Columns["HAS_RIGHT"].OptionsColumn.AllowEdit = true;
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void gvRight_CellValueChanged(object sender, DevExpress.XtraGrid.Views.Base.CellValueChangedEventArgs e)

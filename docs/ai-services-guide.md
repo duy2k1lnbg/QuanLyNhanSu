@@ -2,7 +2,7 @@
 
 Tài liệu này cung cấp quy chuẩn thiết kế, cấu trúc tổ chức mã nguồn, phân định trách nhiệm chi tiết cho từng thư mục, hợp đồng dữ liệu (DTO), luồng thực thi (execution pipeline), ma trận phân quyền và sổ tay vận hành cho toàn bộ phân hệ Trợ lý Trí tuệ Nhân tạo & RAG (Retrieval-Augmented Generation) của hệ thống HRMS Enterprise.
 
-- **Ngày cập nhật & rà soát thực tế:** 09/10/2026  
+- **Ngày cập nhật & rà soát thực tế:** 10/10/2026 (Hoàn tất Remediation Pipeline V2: F01–F10, 100% Build & Unit Tests Pass)  
 - **Môi trường áp dụng:** ASP.NET Web API 2 (.NET Framework 4.7.2) / Windows Desktop (WinForms) / React Vite Web / Oracle Database 19c / Qdrant Vector Engine 1.19.0 / Ollama Local LLM (`bge-m3:latest`, `qwen2.5:latest`)  
 - **Cơ chế xác thực & định danh:** Bearer JWT kết hợp Snapshot Ủy quyền (`AiAuthorizationContext`)  
 
@@ -40,28 +40,30 @@ HRMS.Business/Services/AI_Services/
 │   ├── AiRouterService.cs                       # Phân loại intent trợ giúp trong allowlist
 │   ├── ClarificationPolicy.cs                   # Chính sách làm rõ câu hỏi mơ hồ, sinh ClarificationToken (TTL 10 phút)
 │   ├── EntityResolver.cs                        # Phân giải thực thể nhân viên/phòng ban/kỳ công có kiểm tra Scope
-│   ├── QueryPreprocessor.cs                     # Chuẩn hóa Unicode tiếng Việt, khoảng trắng, dấu câu
-│   ├── QueryUnderstandingModels.cs              # DTO: Intent, Entity, ClarificationToken, DateRangeToken
+│   ├── QueryPreprocessor.cs                     # [Obsolete] Chuẩn hóa Unicode (đã tích hợp vào QueryUnderstandingService)
+│   ├── QueryUnderstandingModels.cs              # DTO: Intent, Entity, ClarificationToken, HasPolicyIntent, IsPolicyPure
 │   └── QueryUnderstandingService.cs             # Pipeline hiểu câu hỏi (Preprocessor -> Intent -> Resolver -> Clarification)
 ├── Planning/
-│   ├── ExecutionPlan.cs                         # Model đặc tả kế hoạch: SqlTemplate, DeterministicDirect, VectorSearch, Hybrid
-│   └── QueryPlanner.cs                          # Lập ExecutionPlan dựa trên Intent, Entity và phân quyền Fail-Closed
+│   ├── ExecutionPlan.cs                         # Model đặc tả kế hoạch: CloneForSubPlan bảo toàn RowLimit & Masking
+│   └── QueryPlanner.cs                          # Lập ExecutionPlan: Routing SqlTemplate, VectorSearch, Hybrid, Forbidden
 ├── Retrieval/
 │   ├── Sql/
-│   │   ├── AiSchemaService.cs                   # Catalog metadata bảng/cột được phép tra cứu trong AI (chưa Compile)
+│   │   ├── AiSchemaCatalog.cs                   # Catalog metadata strongly-typed 14 view Oracle V1_25, grain & capability
+│   │   ├── AiSchemaService.cs                   # Facade mỏng ủy quyền truy vấn schema sang AiSchemaCatalog
 │   │   ├── OracleSqlAstValidator.cs             # AST validator kiểm tra cú pháp và allowlist câu lệnh SQL Oracle
 │   │   ├── SafeSqlExecutor.cs                   # Adapter kiểm tra AST và ủy quyền an toàn cho ScopedSqlExecutor
 │   │   ├── ScopedSqlExecutor.cs                 # Điểm truy cập Oracle DB duy nhất trong AI: áp dụng scope ALL/COMPANY/DEPT/SELF
-│   │   └── SqlGeneratorService.cs               # Trình chọn mẫu SQL template từ catalog đã duyệt; không sinh SQL tùy ý
+│   │   └── SqlGeneratorService.cs               # [Obsolete] Thay bằng QueryPlanner và ScopedSqlExecutor
 │   ├── Vector/
-│   │   ├── QdrantService.cs                     # Client HTTP REST Qdrant: SearchScopedAsync có fail-closed ACL
-│   │   └── VectorSearchModels.cs                # Model VectorSecurityFilter, VectorHit, VectorSearchResult, Citation
+│   │   ├── QdrantService.cs                     # Client HTTP REST Qdrant: UUID v5 Point IDs, SearchScopedAsync có fail-closed ACL
+│   │   └── VectorSearchModels.cs                # Model VectorSecurityFilter, VectorHit, VectorSearchResult, VectorSearchStatus
 │   └── Hybrid/
-│       ├── HybridRagService.cs                  # Service phối hợp đa nguồn (Oracle DB + Qdrant Vector) theo ExecutionPlan
+│       ├── HybridRagService.cs                  # [Obsolete] Thay bằng AiExecutionService (bảo đảm Zero-Trust Context)
 │       └── RagContextRetriever.cs               # Thu thập bằng chứng (evidence) có kiểm soát provenance và lọc quyền
 ├── Responses/
 │   ├── DeterministicResponseRenderer.cs         # Dựng câu trả lời số liệu chuẩn xác từ Oracle SQL, không qua LLM bịa đặt
-│   ├── FastResponseService.cs                   # Phản hồi tĩnh tức thì cho câu chào hỏi, trợ giúp chức năng
+│   ├── FastResponseService.cs                   # [Obsolete] Tích hợp trực tiếp vào DeterministicResponseRenderer
+│   ├── QueryResult.cs                           # DTO kết quả truy vấn SQL độc lập có kiểm soát schema
 │   └── RagSynthesizer.cs                        # Tổng hợp văn phong tự nhiên từ bằng chứng đã kiểm duyệt bằng LLM
 ├── Providers/
 │   └── Ollama/
@@ -122,21 +124,23 @@ HRMS.Business/Services/AI_Services/
 | 7 | `Core/DeterministicResponseRenderer.cs` | `Responses/DeterministicResponseRenderer.cs` | Dựng câu trả lời chính xác từ Oracle SQL, không qua LLM bịa đặt | `AiExecutionService` | Included |
 | 8 | `Core/EntityResolver.cs` | `Understanding/EntityResolver.cs` | Phân giải nhân viên/phòng ban/kỳ công có kiểm tra Scope | `QueryUnderstandingService` | Included |
 | 9 | `Core/ExecutionPlan.cs` | `Planning/ExecutionPlan.cs` | Model kế hoạch thực thi: SqlTemplate, VectorSearch, Hybrid | `QueryPlanner`, `AiExecutionService` | Included |
-| 10 | `Core/FastResponseService.cs` | `Responses/FastResponseService.cs` | Phản hồi tức thì cho câu chào hỏi, trợ giúp cú pháp hệ thống | `AiExecutionService` | Included |
-| 11 | `Core/HybridRagService.cs` | `Retrieval/Hybrid/HybridRagService.cs` | Phối hợp đồng thời kết quả giữa Oracle SQL và Qdrant Vector | `AiExecutionService`, `RagContextRetriever` | Included |
+| 10 | `Core/FastResponseService.cs` | `Responses/FastResponseService.cs` | [Obsolete] Phản hồi tức thì cho câu chào hỏi (dùng DeterministicResponseRenderer) | `AiExecutionService` | Included (Obsolete) |
+| 11 | `Core/HybridRagService.cs` | `Retrieval/Hybrid/HybridRagService.cs` | [Obsolete] Phối hợp đa nguồn (thay bằng AiExecutionService bảo đảm Zero-Trust) | `AiExecutionService`, `RagContextRetriever` | Included (Obsolete) |
 | 12 | `Core/IClockProvider.cs` | `Runtime/Time/IClockProvider.cs` | Cung cấp thời gian hệ thống và đồng hồ giả lập cho kiểm thử | `AiCacheCoordinator`, `ConversationStateManager` | Included |
 | 13 | `Core/JsonPromptManager.cs` | `Prompts/JsonPromptManager.cs` | Nạp system prompt từ file JSON tài nguyên đóng gói có version | `RagSynthesizer`, `AiExecutionService` | Included |
 | 14 | `Core/OracleSqlAstValidator.cs` | `Retrieval/Sql/OracleSqlAstValidator.cs` | Kiểm định cú pháp AST và allowlist câu lệnh Oracle SQL | `ScopedSqlExecutor`, `SafeSqlExecutor` | Included |
 | 15 | `Core/QueryPlanner.cs` | `Planning/QueryPlanner.cs` | Phân tích intent, thực thể và quyền hạn để lập ra ExecutionPlan | `AiExecutionService` | Included |
-| 16 | `Core/QueryPreprocessor.cs` | `Understanding/QueryPreprocessor.cs` | Tiền xử lý, chuẩn hóa Unicode tiếng Việt, dấu câu, khoảng trắng | `QueryUnderstandingService` | Included |
-| 17 | `Core/QueryUnderstandingModels.cs` | `Understanding/QueryUnderstandingModels.cs` | Tập hợp các DTO intent, entity, clarification token, date token | `QueryUnderstandingService`, `EntityResolver` | Included |
+| 16 | `Core/QueryPreprocessor.cs` | `Understanding/QueryPreprocessor.cs` | [Obsolete] Tiền xử lý Unicode (thay bằng QueryUnderstandingService.Normalize) | `QueryUnderstandingService` | Included (Obsolete) |
+| 17 | `Core/QueryUnderstandingModels.cs` | `Understanding/QueryUnderstandingModels.cs` | Tập hợp các DTO intent, entity, clarification token, date token, policy flags | `QueryUnderstandingService`, `EntityResolver` | Included |
 | 18 | `Core/QueryUnderstandingService.cs` | `Understanding/QueryUnderstandingService.cs` | Pipeline hiểu câu hỏi: tiền xử lý, phân giải intent và thực thể | `AiExecutionService` | Included |
 | 19 | `Core/RagContextRetriever.cs` | `Retrieval/Hybrid/RagContextRetriever.cs` | Thu thập bằng chứng ngữ cảnh có kiểm soát nguồn gốc (provenance) | `HybridRagService`, `AiExecutionService` | Included |
 | 20 | `Core/RagSynthesizer.cs` | `Responses/RagSynthesizer.cs` | Dùng LLM tổng hợp văn phong trả lời từ bằng chứng đã lọc quyền | `AiExecutionService` | Included |
 | 21 | `Core/SafeSqlExecutor.cs` | `Retrieval/Sql/SafeSqlExecutor.cs` | Adapter kiểm định AST và ủy thác sang ScopedSqlExecutor | `HybridRagService`, `AiServiceLocator` | Included |
 | 22 | `Core/ScopedSqlExecutor.cs` | `Retrieval/Sql/ScopedSqlExecutor.cs` | Điểm truy cập Oracle DB duy nhất: áp dụng scope ALL/DEPT/SELF | `AiExecutionService`, `SafeSqlExecutor` | Included |
-| 23 | `Core/SqlGeneratorService.cs` | `Retrieval/Sql/SqlGeneratorService.cs` | Chọn lựa mẫu SQL template từ catalog được duyệt; không sinh tự do | `AiExecutionService` | Included |
-| 24 | `Core/AiSchemaService.cs` | `Retrieval/Sql/AiSchemaService.cs` | Catalog metadata schema phục vụ tra cứu AI | `SqlGeneratorService` | *Excluded (Baseline)* |
+| 23 | `Core/SqlGeneratorService.cs` | `Retrieval/Sql/SqlGeneratorService.cs` | [Obsolete] Trình chọn mẫu SQL template (thay bằng QueryPlanner & ScopedSqlExecutor) | `AiExecutionService` | Included (Obsolete) |
+| 24 | `Core/AiSchemaService.cs` | `Retrieval/Sql/AiSchemaService.cs` | Facade mỏng truy xuất schema, ủy quyền sang AiSchemaCatalog | `AiExecutionService` | Included |
+| 24b | *(Mới)* `AiSchemaCatalog.cs` | `Retrieval/Sql/AiSchemaCatalog.cs` | Schema Catalog định kiểu mạnh 14 view Oracle V1_25, grain, PK & capability | `AiSchemaService`, `QueryPlanner` | Included |
+| 24c | *(Mới)* `QueryResult.cs` | `Responses/QueryResult.cs` | DTO kết quả truy vấn SQL độc lập có kiểm soát schema (tách từ Renderer) | `ISafeSqlExecutor`, `ScopedSqlExecutor` | Included |
 | 25 | `Interfaces/ILlmService.cs` | `Interfaces/ILlmService.cs` | Hợp đồng giao tiếp mô hình LLM (Chat, Embedding) | `OllamaService` | Included |
 | 26 | `Interfaces/IPromptManager.cs` | `Interfaces/IPromptManager.cs` | Hợp đồng quản lý System Prompt theo phiên bản | `JsonPromptManager` | Included |
 | 27 | `Interfaces/IRagContextRetriever.cs` | `Interfaces/IRagContextRetriever.cs` | Hợp đồng thu thập ngữ cảnh cho RAG có chứng nhận phạm vi | `RagContextRetriever` | Included |
@@ -439,6 +443,37 @@ HRMS.Business/Services/AI_Services/
   .\HRMS.VectorDataSync.exe verify
   ```
 
+### Kịch Bản 9: Xử Lý Hàng Đợi Dead-Letter & Phục Hồi Đồng Bộ Vector (Dual-Mode Outbox)
+- **Tình huống:** Qdrant bị gián đoạn mạng đột ngột hoặc dừng service trong khi có nhiều cập nhật nhân viên từ hệ thống.
+- **Luồng xử lý:**
+  1. `QdrantOutboxManager` ghi nhận các sự kiện đồng bộ vào bảng Oracle `AI_OWNER.AI_INDEX_OUTBOX` (thông qua package `AI_OWNER.PKG_AI_INDEX`).
+  2. Khi tiến trình đồng bộ cố gắng đẩy vector lên Qdrant nhưng gặp lỗi kết nối quá số lần retry tối đa (MaxRetries = 5), sự kiện được tự động chuyển vào tệp bền vững `qdrant_outbox_deadletter.json` (Dead-Letter Queue).
+  3. Khi dịch vụ Qdrant khôi phục hoạt động, quản trị viên kích hoạt:
+     ```powershell
+     # Nạp lại toàn bộ sự kiện tồn đọng trong dead-letter queue
+     .\HRMS.VectorDataSync.exe drain-deadletter
+     ```
+  4. Hệ thống đọc lại từng sự kiện, xác thực tính hợp lệ, nạp vector và dọn sạch hàng đợi dead-letter an toàn.
+
+---
+
+## 4.5. Đặc Tả Kiến Trúc Sau Đợt Khắc Phục Remediation V2 (Lỗi F01 – F10)
+
+Đợt cập nhật ngày 10/10/2026 đã tái cấu trúc và chuẩn hóa triệt để 10 phát hiện kiến trúc trọng yếu:
+
+| Mã Lỗi | Nội Dung Phát Hiện | Giải Pháp & Triển Khai Thực Tế Trong Mã Nguồn | File Liên Quan |
+| :--- | :--- | :--- | :--- |
+| **F01** | Qdrant metadata & Point ID thiếu đồng nhất | Chuẩn hóa tạo Point ID bằng thuật toán RFC 4122 UUID v5 xác định (`QdrantService.GeneratePointId(domain, sourceId)`). Bổ sung đầy đủ metadata chuẩn: `domain`, `documentType`, `companyId`, `departmentId`, `version`, `sourceId`, `title`, `section` cho mọi point. | `QdrantService.cs`, `VectorSearchModels.cs`, `Program.cs` (`VectorDataSync`) |
+| **F02** | Thiếu đồng bộ Company/Department Scope trong `AiPolicyProvider` | `AiPolicyProvider.LoadContextAsync` nạp đầy đủ `AllowedDepartmentIds`, `HasCompanyScope`, `HasAllScope` từ các bản ghi grant `DEPARTMENT`, `COMPANY`, `ALL`. | `AiPolicyProvider.cs`, `AiScopeEvaluator.cs` |
+| **F03** | `CloneForSubPlan` làm rơi `RowLimit`, Masking & Revision trong Hybrid Search | Bổ sung phương thức `plan.CloneForSubPlan(subStrategy)` sao chép toàn vẹn `RowLimit`, `FieldModes`, `MaskedFields`, `SourceRevision`, `HasMore` sang mọi subplan. | `ExecutionPlan.cs`, `AiExecutionService.cs` |
+| **F04** | LLM tự do sinh SQL không kiểm soát | Đánh dấu `[Obsolete]` trên `SqlGeneratorService.cs`. Toàn bộ luồng SQL được định tuyến qua `QueryPlanner` và thực thi qua `ScopedSqlExecutor` với tham số bind tham chiếu an toàn. | `SqlGeneratorService.cs`, `QueryPlanner.cs` |
+| **F05** | Outbox phân tán, thiếu Dead-Letter Queue | Nâng cấp `QdrantOutboxManager` thành Dual-Mode: tích hợp 2 chiều với Oracle package `AI_OWNER.PKG_AI_INDEX` và lưu trữ dead-letter bền vững ra tệp `qdrant_outbox_deadletter.json`. | `QdrantOutboxManager.cs` |
+| **F06** | `DeterministicResponseRenderer` gánh DTO kết quả SQL | Tách DTO `QueryResult` sang file riêng độc lập `Responses/QueryResult.cs`, đưa vào compile project `HRMS.Business.csproj`. | `QueryResult.cs`, `ISafeSqlExecutor.cs` |
+| **F07** | Nhầm lẫn giữa câu hỏi Quy chế/Chính sách (Policy) và số liệu cá nhân | Thêm cờ `HasPolicyIntent` và `IsPolicyPure` trong `QueryUnderstandingModels.cs`. `QueryPlanner` định tuyến câu hỏi thuần quy chế (`IsPolicyPure == true`) sang `VectorSearch` trực tiếp, và câu hỏi phối hợp sang `Hybrid`. | `QueryUnderstandingModels.cs`, `QueryUnderstandingService.cs`, `QueryPlanner.cs` |
+| **F08** | Vector search coi lỗi mạng/sập service là `NoMatch` | Mở rộng enum `VectorSearchStatus` (`Success`, `NoMatch`, `Forbidden`, `Unavailable`, `Timeout`, `Cancelled`). Khi Qdrant offline, `AiExecutionService` thông báo rõ dịch vụ tìm kiếm văn bản tạm thời không khả dụng, không nói dối là không có văn bản. | `VectorSearchModels.cs`, `QdrantService.cs`, `AiExecutionService.cs` |
+| **F09** | Cache Embedding & Entity Lookup bị bỏ ngỏ | Tích hợp `AiCacheCoordinator.GetOrComputeEmbeddingAsync` vào cả `AddAsync` và `SearchScopedAsync` trong `QdrantService.cs`. Kết nối `EntityCache` vào `DatabaseEntityLookupProvider` trong `EntityResolver.cs`. | `QdrantService.cs`, `EntityResolver.cs` |
+| **F10** | Thiếu Schema Catalog định kiểu mạnh cho 14 view V1_25 | Xây dựng `AiSchemaCatalog.cs` mô tả định kiểu mạnh 14 view Oracle V1_25, bao gồm grain, primary keys, required capabilities, và chính sách masking. `AiSchemaService.cs` đóng vai trò facade mỏng. | `AiSchemaCatalog.cs`, `AiSchemaService.cs` |
+
 ---
 
 ## 5. Sổ Tay Vận Hành & Khắc Phục Sự Cố (Troubleshooting Runbook)
@@ -452,6 +487,27 @@ HRMS.Business/Services/AI_Services/
 | **Ollama Timeout (quá 35 giây)** | Dịch vụ Ollama chưa chạy hoặc máy chủ quá tải khi nạp mô hình LLM. | `http://127.0.0.1:11434`, task `ollama serve` | Khởi động Ollama: `ollama serve`, kiểm tra mô hình qua `ollama list` (`bge-m3:latest`, `qwen2.5:latest`). |
 | **HTTP 409 Conflict (CAS Version Mismatch)** | Có hai quản trị viên cùng sửa đổi cấu hình hoặc scope grant cùng thời điểm. | `AiConfigurationCoordinator.cs` | Nhấn "Tải lại dữ liệu mới nhất" trên giao diện, kiểm tra các thay đổi và tiến hành lưu lại. |
 | **Clarification Token Expired** | Người dùng để câu hỏi quá 10 phút mới bấm chọn nhân viên làm rõ. | `ConversationStateManager.cs` | Nhập lại câu hỏi mới kèm thông tin cụ thể (ví dụ: nhập kèm mã nhân viên hoặc phòng ban). |
+| **Vector Search Trả về "Unavailable"** | Dịch vụ Qdrant sập hoặc mạng ngắt kết nối (`VectorSearchStatus.Unavailable`). | `QdrantService.cs`, `AiExecutionService.cs` | Kiểm tra Docker container Qdrant: `docker ps`. Kiểm tra file `qdrant_outbox_deadletter.json` để chạy drain khi Qdrant online trở lại. |
+
+### 5.1. Lệnh Kiểm Tra Sức Khỏe Toàn Diện & Unit Tests
+
+Để xác thực hệ thống sau khi deploy hoặc cập nhật mà không chạm vào CSDL thật:
+
+```powershell
+# 1. Chạy toàn bộ Unit Tests kiểm định Pipeline Remediation V2 (Mocks, Fake Clock, In-Memory)
+dotnet test HRMS.Tests\HRMS.Tests.csproj --filter "FullyQualifiedName~AiPipelineRemediationTests"
+
+# 2. Chạy hồi quy các bộ test Understanding, Planning, Authorization không phụ thuộc DB
+dotnet test HRMS.Tests\HRMS.Tests.csproj --filter "FullyQualifiedName~AiQueryUnderstandingTests|FullyQualifiedName~AiQueryPlannerAndExecutionTests|FullyQualifiedName~AiSecurityAndAuthorizationTests"
+
+# 3. Kiểm tra tính sẵn sàng của Qdrant và Ollama qua công cụ CLI
+.\HRMS.VectorDataSync.exe preflight
+
+# 4. Kiểm tra số lượng sự kiện tồn đọng trong Dead-Letter Queue
+if (Test-Path ".\qdrant_outbox_deadletter.json") {
+    Get-Content ".\qdrant_outbox_deadletter.json" | ConvertFrom-Json | Measure-Object
+}
+```
 
 ---
 

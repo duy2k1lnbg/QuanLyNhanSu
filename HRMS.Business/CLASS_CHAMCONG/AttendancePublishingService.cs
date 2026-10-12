@@ -1,4 +1,4 @@
-using DA;
+﻿using DA;
 using Newtonsoft.Json;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -254,31 +254,10 @@ namespace Bu.CLASS_CHAMCONG
                     return result;
                 }
 
-                // 1.4 Nạp các phiên bản ca và khung giờ
-                var shifts = LoadShiftsWithFrames(conn);
-
-                // 1.4.1 Tự động bảo đảm lịch làm việc phân công chuẩn tồn tại cho tất cả nhân sự trong kỳ nếu chưa có
                 EnsureSchedulesExist(conn, targetManvList, tuNgay, lastDayOfMonth, validUserId);
-
-                // 1.5 Nạp lịch làm việc của nhân viên
-                var schedules = LoadSchedules(conn, targetManvList, tuNgay, lastDayOfMonth);
-
-                // 1.6 Nạp quẹt thẻ thô từ TB_BANGCONG
-                var rawPunches = LoadRawPunches(conn, targetManvList, nam, thang);
-
-                // 1.7 Nạp đơn tăng ca đã duyệt
-                var approvedOts = LoadApprovedOvertimes(conn, targetManvList, tuNgay, denNgay);
-
-                // 1.8 Nạp đơn nghỉ phép đã duyệt
-                var approvedLeaves = LoadApprovedLeaves(conn, targetManvList, tuNgay, denNgay);
-
-                // 1.9 Nạp đơn điều chỉnh công đã duyệt
-                var approvedAdjustments = LoadApprovedAdjustments(conn, targetManvList, tuNgay, lastDayOfMonth);
-
-                // 1.10 Nạp hoặc đảm bảo sự tồn tại của TB_BANGCONG_CHITIET
                 var bcctMap = EnsureAndLoadBangCongChiTiet(conn, targetManvList, request.MaKyCong, tuNgay, lastDayOfMonth, validUserId);
 
-                // Đồng bộ lại loadedInputRev và loadedPublishRev sau khi hoàn tất các bước chuẩn bị (đảm bảo không bị coi là drift)
+                // Capture revisions AFTER preparation but BEFORE reading calculation inputs.
                 using (var revSyncCmd = CreateCmd(@"
                     SELECT NVL(CONG_INPUT_REV, 0) AS CONG_INPUT_REV, 
                            NVL(CONG_PUBLISH_REV, 0) AS CONG_PUBLISH_REV 
@@ -296,6 +275,23 @@ namespace Bu.CLASS_CHAMCONG
                     }
                 }
 
+                var shifts = LoadShiftsWithFrames(conn);
+                // 1.5 Nạp lịch làm việc của nhân viên
+                var schedules = LoadSchedules(conn, targetManvList, tuNgay, lastDayOfMonth);
+
+                // 1.6 Nạp quẹt thẻ thô từ TB_BANGCONG
+                var rawPunches = LoadRawPunches(conn, targetManvList, nam, thang);
+
+                // 1.7 Nạp đơn tăng ca đã duyệt
+                var approvedOts = LoadApprovedOvertimes(conn, targetManvList, tuNgay, denNgay);
+
+                // 1.8 Nạp đơn nghỉ phép đã duyệt
+                var approvedLeaves = LoadApprovedLeaves(conn, targetManvList, tuNgay, denNgay);
+
+                // 1.9 Nạp đơn điều chỉnh công đã duyệt
+                var approvedAdjustments = LoadApprovedAdjustments(conn, targetManvList, tuNgay, lastDayOfMonth);
+
+                var reviewedIntervals = Bu.CLASS_PAYROLL.AttendancePreparationReviewService.LoadDecisions(conn, request.MaKyCong);
                 // BƯỚC 2: Tính toán thuần túy bằng TimeSegmentationEngine (Hoàn toàn ngoài Transaction)
                 var calculatedDays = new List<DayCalculationResult>();
                 var dayHashes = new List<string>();
@@ -351,6 +347,7 @@ namespace Bu.CLASS_CHAMCONG
                         };
 
                         var dayRes = _engine.ProcessDay(dayInput);
+                        Bu.CLASS_PAYROLL.AttendancePreparationReviewService.ApplyDecisions(dayRes, reviewedIntervals);
                         calculatedDays.Add(dayRes);
                         dayHashes.Add(dayRes.InputHash);
                     }
@@ -372,6 +369,7 @@ namespace Bu.CLASS_CHAMCONG
                     {
                         // 3.1 Khóa dòng kỳ công bằng SELECT FOR UPDATE
                         decimal lockedKhoa = 0;
+                        bool periodExists = false;
                         long currentInputRev = 0;
                         long currentPublishRev = 0;
 
@@ -380,7 +378,7 @@ namespace Bu.CLASS_CHAMCONG
                                    NVL(CONG_INPUT_REV, 0) AS CONG_INPUT_REV, 
                                    NVL(CONG_PUBLISH_REV, 0) AS CONG_PUBLISH_REV 
                             FROM TB_KYCONG 
-                            WHERE MAKYCONG = :p_mkc 
+                            WHERE MAKYCONG = :p_mkc AND DELETED_DATE IS NULL
                             FOR UPDATE WAIT 5", conn))
                         {
                             lockCmd.Parameters.Add("p_mkc", request.MaKyCong);
@@ -388,6 +386,7 @@ namespace Bu.CLASS_CHAMCONG
                             {
                                 if (reader.Read())
                                 {
+                                    periodExists = true;
                                     lockedKhoa = Convert.ToDecimal(reader["KHOA"]);
                                     currentInputRev = Convert.ToInt64(reader["CONG_INPUT_REV"]);
                                     currentPublishRev = Convert.ToInt64(reader["CONG_PUBLISH_REV"]);
@@ -395,6 +394,14 @@ namespace Bu.CLASS_CHAMCONG
                             }
                         }
 
+                        if (!periodExists)
+                        {
+                            tx.Rollback();
+                            result.Success = false;
+                            result.TrangThai = "THAT_BAI";
+                            result.ErrorMessage = "Kỳ công không còn tồn tại hoặc đã chuyển vào thùng rác.";
+                            return result;
+                        }
                         if (lockedKhoa != 0)
                         {
                             tx.Rollback();
@@ -407,7 +414,7 @@ namespace Bu.CLASS_CHAMCONG
                         // 3.2 Kiểm tra va chạm đồng thời: Input Revision đã bị thay đổi trong lúc tính toán
                         var alreadyPublished = FindCompletedRun(conn, maYeuCau, requestHash);
                         if (alreadyPublished != null) { tx.Rollback(); return alreadyPublished; }
-                        if (!request.ForceRecalculate && (currentInputRev != loadedInputRev || currentPublishRev != loadedPublishRev))
+                        if (HasRevisionDrift(currentInputRev, loadedInputRev, currentPublishRev, loadedPublishRev))
                         {
                             tx.Rollback();
 
@@ -590,6 +597,7 @@ namespace Bu.CLASS_CHAMCONG
                             foreach (var anom in day.Anomalies)
                             {
                                 anom.IdLanTinhPhatHien = idLanTinh;
+                                Bu.CLASS_PAYROLL.AttendancePreparationReviewService.RefreshChangedEvidence(conn, anom, idLanTinh, request.NguoiThucHien);
                                 using (var anomCmd = CreateCmd(@"
                                     MERGE INTO TB_CHAMCONG_BATTHUONG t
                                     USING (SELECT :p_hash AS h FROM DUAL) s
@@ -715,6 +723,12 @@ namespace Bu.CLASS_CHAMCONG
             }
 
             return result;
+        }
+
+        private static bool HasRevisionDrift(long currentInputRev, long loadedInputRev, long currentPublishRev, long loadedPublishRev)
+        {
+            // Force recalculation still needs a stable input and publication snapshot.
+            return currentInputRev != loadedInputRev || currentPublishRev != loadedPublishRev;
         }
 
         private void RollupToKyCongChiTiet(OracleConnection conn, List<long> manvList, int makycong, int nam, int thang, int daysInMonth)

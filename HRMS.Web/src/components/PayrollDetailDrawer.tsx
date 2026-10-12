@@ -15,6 +15,7 @@ import {
   UserOutlined,
   CheckCircleOutlined,
 } from '@ant-design/icons';
+import { useAppLanguage } from '../services/i18n';
 import type { BangLuongDTO } from '../types/hrms';
 
 const { Title, Text } = Typography;
@@ -23,6 +24,7 @@ interface PayrollDetailDrawerProps {
   visible: boolean;
   onClose: () => void;
   record: BangLuongDTO | null;
+  printAllowed?: boolean;
   onOpenFullModal?: (record: BangLuongDTO) => void;
 }
 
@@ -31,7 +33,9 @@ export const PayrollDetailDrawer: React.FC<PayrollDetailDrawerProps> = ({
   onClose,
   record,
   onOpenFullModal,
+  printAllowed = false,
 }) => {
+  const { t } = useAppLanguage();
   if (!record) return null;
 
   const congChuan = record.CONG_CHUAN || 26;
@@ -90,7 +94,7 @@ export const PayrollDetailDrawer: React.FC<PayrollDetailDrawerProps> = ({
             type="primary"
             icon={<PrinterOutlined />}
             onClick={() => {
-              if (onOpenFullModal) onOpenFullModal(record);
+              if (printAllowed && onOpenFullModal) onOpenFullModal(record);
             }}
           >
             In Payslip
@@ -354,22 +358,26 @@ export const PayrollDetailDrawer: React.FC<PayrollDetailDrawerProps> = ({
       <Space style={{ width: '100%' }} direction="vertical">
         <Button
           type="primary"
+          disabled={!printAllowed}
+          title={!printAllowed ? t('attendanceOps.printDenied') : undefined}
           block
           icon={<PrinterOutlined />}
           size="large"
           style={{ background: '#0f172a', borderColor: '#0f172a' }}
           onClick={() => {
-            if (onOpenFullModal) onOpenFullModal(record);
+            if (printAllowed && onOpenFullModal) onOpenFullModal(record);
           }}
         >
-          Xem Phiếu lương A4 & In ấn
+          {t('attendanceOps.viewPayslip')}
         </Button>
         <Button
           block
           icon={<FilePdfOutlined />}
-          onClick={() => window.print()}
+          disabled={!printAllowed}
+          title={!printAllowed ? t('attendanceOps.printDenied') : undefined}
+          onClick={() => { if (printAllowed) window.print(); }}
         >
-          Xuất tệp PDF bảng lương
+          {t('attendanceOps.exportPdf')}
         </Button>
       </Space>
     </Drawer>

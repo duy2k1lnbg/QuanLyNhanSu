@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Web.Http;
 
 namespace HRMS_API.Controllers
@@ -13,7 +14,7 @@ namespace HRMS_API.Controllers
     /// Approval Center (Trung tâm Phê duyệt tập trung dành cho HR/Manager trên Web) - Quy tắc 35
     /// Tích hợp và điều phối phê duyệt: Nghỉ phép, Điều chỉnh công, Tăng ca.
     /// </summary>
-    [JwtAuthorize]
+    [JwtAuthorize(Channel = "WEB")]
     [RoutePrefix("api/approvals")]
     public class ApprovalController : ApiController
     {
@@ -42,9 +43,86 @@ namespace HRMS_API.Controllers
             return jwtUser?.Username ?? "Admin";
         }
 
+        private decimal? GetCallerEmployeeId(MyEntities db)
+        {
+            try
+            {
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                if (jwtUser != null && int.TryParse(jwtUser.UserId, out int uId))
+                {
+                    var mapRow = db.Database.SqlQuery<decimal?>(
+                        "SELECT EMPLOYEE_ID FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0 AND ROWNUM = 1",
+                        new OracleParameter("p0", (decimal)uId)
+                    ).FirstOrDefault();
+
+                    if (mapRow.HasValue && mapRow.Value > 0)
+                    {
+                        return mapRow.Value;
+                    }
+
+                    var user = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == uId);
+                    if (user != null && user.MANV.HasValue && user.MANV.Value > 0)
+                    {
+                        return user.MANV.Value;
+                    }
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private bool IsMobileRequest()
+        {
+            try
+            {
+                if (Request.Headers.Contains("X-Client-Type"))
+                {
+                    var clientType = Request.Headers.GetValues("X-Client-Type").FirstOrDefault();
+                    if (string.Equals(clientType, "MOBILE", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return true;
+                    }
+                }
+                var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+                if (jwtUser != null && string.Equals(jwtUser.ClientType, "MOBILE", StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            catch { }
+            return false;
+        }
+
+        private bool HasPermission(MyEntities db, string functionCode, Bu.CLASS_SECURITY.ChannelAction action)
+        {
+            var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
+            if (jwtUser == null || !decimal.TryParse(jwtUser.UserId, out decimal uid) || uid <= 0) return false;
+            string channel = Bu.CLASS_SECURITY.AppChannels.Normalize(jwtUser.ClientType) ?? Bu.CLASS_SECURITY.AppChannels.Web;
+            return Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(db, uid, channel, functionCode, action, jwtUser.Username);
+        }
+
+        private bool HasAnyPermission(MyEntities db, Bu.CLASS_SECURITY.ChannelAction action, params string[] functionCodes)
+        {
+            if (functionCodes == null || functionCodes.Length == 0) return false;
+            foreach (var fc in functionCodes)
+            {
+                if (HasPermission(db, fc, action)) return true;
+            }
+            return false;
+        }
+
+        private IHttpActionResult ForbiddenResult(string message = "Từ chối truy cập: Bạn không có quyền thực hiện thao tác này.")
+        {
+            return Content(HttpStatusCode.Forbidden, new { success = false, message });
+        }
+
         /// <summary>
         /// GET: api/approvals/summary
-        /// Lấy số lượng yêu cầu đang chờ duyệt theo từng loại để hiển thị Badge và Dashboard
+        /// Lấy số lượng yêu cầu đang chờ duyệt theo từng loại để hiển thị Badge và Dashboard.
+        /// Trên Mobile: Luôn tuân thủ Self-Scope (chỉ đếm đơn của chính tài khoản đó).
         /// </summary>
         [HttpGet]
         [Route("summary")]
@@ -54,33 +132,95 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
-                    int leaveCount = (int)db.Database.SqlQuery<decimal>(
-                        "SELECT COUNT(*) FROM HR.TB_YEUCAU_NGHIPHEP WHERE TRANGTHAI = 'PENDING'"
-                    ).FirstOrDefault();
+                    if (!IsMobileRequest() && !HasAnyPermission(db, Bu.CLASS_SECURITY.ChannelAction.View, "F_NV_PHEDUYET", "F_APPROVE_ADVANCE", "F_APPROVE_PROFILE", "F_PAYROLL_DISBURSE_ADVANCE"))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền xem trung tâm phê duyệt.");
+                    }
 
-                    int attendanceCount = (int)db.Database.SqlQuery<decimal>(
-                        "SELECT COUNT(*) FROM HR.TB_YEUCAU_DIEUCHINHCONG WHERE TRANGTHAI = 'PENDING'"
-                    ).FirstOrDefault();
+                    int leaveCount = 0;
+                    int attendanceCount = 0;
+                    int overtimeCount = 0;
+                    int insuranceCount = 0;
+                    int advanceCount = 0;
+                    int profileCount = 0;
 
-                    int overtimeCount = (int)db.Database.SqlQuery<decimal>(
-                        "SELECT COUNT(*) FROM HR.TB_YEUCAU_TANGCA WHERE TRANGTHAI = 'PENDING'"
-                    ).FirstOrDefault();
+                    if (IsMobileRequest())
+                    {
+                        decimal? empId = GetCallerEmployeeId(db);
+                        if (empId.HasValue)
+                        {
+                            leaveCount = (int)db.Database.SqlQuery<decimal>(
+                                "SELECT COUNT(*) FROM HR.TB_YEUCAU_NGHIPHEP WHERE TRANGTHAI = 'PENDING' AND MANV = :p0",
+                                new OracleParameter("p0", empId.Value)
+                            ).FirstOrDefault();
 
-                    int insuranceCount = (int)db.Database.SqlQuery<decimal>(
-                        "SELECT COUNT(*) FROM HR.TB_BAOHIEM_BIENDONG WHERE TRANG_THAI = 'DRAFT' OR TRANG_THAI = 'PENDING'"
-                    ).FirstOrDefault();
+                            attendanceCount = (int)db.Database.SqlQuery<decimal>(
+                                "SELECT COUNT(*) FROM HR.TB_YEUCAU_DIEUCHINHCONG WHERE TRANGTHAI = 'PENDING' AND MANV = :p0",
+                                new OracleParameter("p0", empId.Value)
+                            ).FirstOrDefault();
+
+                            overtimeCount = (int)db.Database.SqlQuery<decimal>(
+                                "SELECT COUNT(*) FROM HR.TB_YEUCAU_TANGCA WHERE TRANGTHAI = 'PENDING' AND MANV = :p0",
+                                new OracleParameter("p0", empId.Value)
+                            ).FirstOrDefault();
+
+                            insuranceCount = (int)db.Database.SqlQuery<decimal>(
+                                "SELECT COUNT(*) FROM HR.TB_BAOHIEM_BIENDONG WHERE (TRANG_THAI = 'DRAFT' OR TRANG_THAI = 'PENDING') AND MANV = :p0",
+                                new OracleParameter("p0", empId.Value)
+                            ).FirstOrDefault();
+
+                            advanceCount = (int)db.Database.SqlQuery<decimal>(
+                                "SELECT COUNT(*) FROM HR.TB_YEUCAU_UNGLUONG WHERE TRANGTHAI = 'PENDING' AND MANV = :p0",
+                                new OracleParameter("p0", empId.Value)
+                            ).FirstOrDefault();
+
+                            profileCount = (int)db.Database.SqlQuery<decimal>(
+                                "SELECT COUNT(*) FROM HR.TB_YEUCAU_THAYDOI_HOSO WHERE STATUS = 'PENDING' AND MANV = :p0",
+                                new OracleParameter("p0", empId.Value)
+                            ).FirstOrDefault();
+                        }
+                    }
+                    else
+                    {
+                        leaveCount = (int)db.Database.SqlQuery<decimal>(
+                            "SELECT COUNT(*) FROM HR.TB_YEUCAU_NGHIPHEP WHERE TRANGTHAI = 'PENDING'"
+                        ).FirstOrDefault();
+
+                        attendanceCount = (int)db.Database.SqlQuery<decimal>(
+                            "SELECT COUNT(*) FROM HR.TB_YEUCAU_DIEUCHINHCONG WHERE TRANGTHAI = 'PENDING'"
+                        ).FirstOrDefault();
+
+                        overtimeCount = (int)db.Database.SqlQuery<decimal>(
+                            "SELECT COUNT(*) FROM HR.TB_YEUCAU_TANGCA WHERE TRANGTHAI = 'PENDING'"
+                        ).FirstOrDefault();
+
+                        insuranceCount = (int)db.Database.SqlQuery<decimal>(
+                            "SELECT COUNT(*) FROM HR.TB_BAOHIEM_BIENDONG WHERE TRANG_THAI = 'DRAFT' OR TRANG_THAI = 'PENDING'"
+                        ).FirstOrDefault();
+
+                        advanceCount = (int)db.Database.SqlQuery<decimal>(
+                            "SELECT COUNT(*) FROM HR.TB_YEUCAU_UNGLUONG WHERE TRANGTHAI = 'PENDING'"
+                        ).FirstOrDefault();
+
+                        profileCount = (int)db.Database.SqlQuery<decimal>(
+                            "SELECT COUNT(*) FROM HR.TB_YEUCAU_THAYDOI_HOSO WHERE STATUS = 'PENDING'"
+                        ).FirstOrDefault();
+                    }
 
                     return Ok(new
                     {
                         success = true,
-                        totalPending = leaveCount + attendanceCount + overtimeCount + insuranceCount,
+                        totalPending = leaveCount + attendanceCount + overtimeCount + insuranceCount + advanceCount + profileCount,
                         leavePending = leaveCount,
                         attendancePending = attendanceCount,
                         overtimePending = overtimeCount,
-                        insurancePending = insuranceCount
+                        insurancePending = insuranceCount,
+                        advancePending = advanceCount,
+                        profilePending = profileCount
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[GET /api/approvals/summary Error]: " + ex);
@@ -101,10 +241,15 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!IsMobileRequest() && !HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.View))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền xem danh sách đơn xin nghỉ phép.");
+                    }
+
                     string sql = @"
                         SELECT Y.ID AS ID_YEUCAU, Y.MANV, NV.EMPLOYEE_CODE, NV.HOTEN AS EMPLOYEE_NAME, PB.TENPB AS DEPARTMENT_NAME,
-                               Y.LOAIPHEP AS LOAI_NGHI, Y.TUNGAY AS TU_NGAY, Y.DENNGAY AS DEN_NGAY, Y.SONGAY AS SO_NGAY, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO,
-                               NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI
+                                Y.LOAIPHEP AS LOAI_NGHI, Y.TUNGAY AS TU_NGAY, Y.DENNGAY AS DEN_NGAY, Y.SONGAY AS SO_NGAY, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO,
+                                NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI
                         FROM HR.TB_YEUCAU_NGHIPHEP Y
                         LEFT JOIN HR.TB_NHANVIEN NV ON Y.MANV = NV.MANV
                         LEFT JOIN HR.TB_PHONGBAN PB ON NV.IDPB = PB.IDPB
@@ -123,6 +268,20 @@ namespace HRMS_API.Controllers
                     {
                         sql += " AND (LOWER(NV.HOTEN) LIKE :pSearch OR LOWER(NV.EMPLOYEE_CODE) LIKE :pSearch)";
                         parameters.Add(new OracleParameter("pSearch", $"%{search.Trim().ToLower()}%"));
+                    }
+
+                    if (IsMobileRequest())
+                    {
+                        decimal? empId = GetCallerEmployeeId(db);
+                        if (empId.HasValue)
+                        {
+                            sql += " AND Y.MANV = :pSelfManv";
+                            parameters.Add(new OracleParameter("pSelfManv", empId.Value));
+                        }
+                        else
+                        {
+                            sql += " AND 1=0";
+                        }
                     }
 
                     sql += " ORDER BY Y.CREATED_DATE DESC";
@@ -159,6 +318,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[GET /api/approvals/leave Error]: " + ex);
@@ -177,58 +337,33 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền phê duyệt đơn xin nghỉ phép.");
+                    }
+
                     decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
 
-                    var leaveReq = db.Database.SqlQuery<LeaveReqInfoRow>(
-                        "SELECT ID, MANV, TUNGAY, SONGAY, GIAY_NGHI, LYDO, LOAIPHEP, TRANGTHAI FROM HR.TB_YEUCAU_NGHIPHEP WHERE ID = :p0",
-                        new OracleParameter("p0", id)
-                    ).FirstOrDefault();
-
-                    if (leaveReq == null || leaveReq.TRANGTHAI != "PENDING")
-                    {
-                        return BadRequest("Yêu cầu không tồn tại hoặc đã được xử lý trước đó.");
-                    }
-
-                    int affected = db.Database.ExecuteSqlCommand(
-                        "UPDATE HR.TB_YEUCAU_NGHIPHEP SET TRANGTHAI = 'APPROVED', NGUOIDUYET = :p0, NGAYDUYET = SYSDATE WHERE ID = :p1 AND TRANGTHAI = 'PENDING'",
-                        new OracleParameter("p0", userId),
-                        new OracleParameter("p1", id)
-                    );
-
-                    if (affected == 0)
-                    {
-                        return BadRequest("Yêu cầu không tồn tại hoặc đã được xử lý trước đó.");
-                    }
-
-                    // Đồng bộ trừ vào sổ phát sinh phép TB_PHEP_SOPHATSINH
-                    try
-                    {
-                        long seconds = leaveReq.GIAY_NGHI.HasValue && leaveReq.GIAY_NGHI.Value > 0
-                            ? leaveReq.GIAY_NGHI.Value
-                            : (long)((leaveReq.SONGAY ?? 1) * 28800);
-
-                        db.Database.ExecuteSqlCommand(
-                            @"INSERT INTO HR.TB_PHEP_SOPHATSINH (MANV, NGAY, LOAI, GIAY_PHEP, IDDON, LY_DO)
-                              VALUES (:p0, :p1, 'SU_DUNG', :p2, :p3, :p4)",
-                            new OracleParameter("p0", leaveReq.MANV),
-                            new OracleParameter("p1", leaveReq.TUNGAY ?? DateTime.Today),
-                            new OracleParameter("p2", -Math.Abs(seconds)),
-                            new OracleParameter("p3", id),
-                            new OracleParameter("p4", "Phê duyệt nghỉ phép - " + (leaveReq.LYDO ?? leaveReq.LOAIPHEP ?? "Nghỉ phép"))
-                        );
-                    }
-                    catch (Exception phepEx)
-                    {
-                        System.Diagnostics.Trace.TraceWarning("[ApproveLeave TB_PHEP_SOPHATSINH Warning]: " + phepEx.Message);
-                    }
+                    var attendanceService = new Bu.CLASS_CHAMCONG.AttendanceApprovalService();
+                    attendanceService.ApproveLeave(id, userId, callerEmpId);
 
                     return Ok(new { success = true, message = "Phê duyệt đơn xin nghỉ phép thành công!" });
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[ApproveLeave Error]: " + ex);
-                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi phê duyệt." });
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi phê duyệt: " + ex.Message });
             }
         }
 
@@ -243,13 +378,29 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền từ chối đơn xin nghỉ phép.");
+                    }
+
                     decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
                     string reason = req?.Reason ?? "Từ chối bởi cấp quản lý";
 
                     var leaveReq = db.Database.SqlQuery<LeaveReqInfoRow>(
                         "SELECT ID, MANV, TUNGAY, SONGAY, GIAY_NGHI, LYDO, LOAIPHEP, TRANGTHAI FROM HR.TB_YEUCAU_NGHIPHEP WHERE ID = :p0",
                         new OracleParameter("p0", id)
                     ).FirstOrDefault();
+
+                    if (leaveReq == null)
+                    {
+                        return NotFound();
+                    }
+
+                    if (callerEmpId.HasValue && callerEmpId.Value == leaveReq.MANV)
+                    {
+                        return BadRequest("Bạn không được phép tự từ chối/phê duyệt đơn xin nghỉ phép của chính mình.");
+                    }
 
                     int affected = db.Database.ExecuteSqlCommand(
                         "UPDATE HR.TB_YEUCAU_NGHIPHEP SET TRANGTHAI = 'REJECTED', NGUOIDUYET = :p0, NGAYDUYET = SYSDATE, GHICHUDUYET = :p1 WHERE ID = :p2 AND TRANGTHAI IN ('PENDING', 'APPROVED')",
@@ -266,38 +417,65 @@ namespace HRMS_API.Controllers
                     // Nếu đơn này từng được duyệt (có trừ trong TB_PHEP_SOPHATSINH), thực hiện hoàn phép
                     try
                     {
-                        if (leaveReq != null)
+                        var existingDeduction = db.Database.SqlQuery<decimal>(
+                            "SELECT COUNT(*) FROM HR.TB_PHEP_SOPHATSINH WHERE IDDON = :p0 AND LOAI = 'SU_DUNG'",
+                            new OracleParameter("p0", id)
+                        ).FirstOrDefault();
+
+                        if (existingDeduction > 0)
                         {
-                            var existingDeduction = db.Database.SqlQuery<decimal>(
-                                "SELECT COUNT(*) FROM HR.TB_PHEP_SOPHATSINH WHERE IDDON = :p0 AND LOAI = 'SU_DUNG'",
-                                new OracleParameter("p0", id)
-                            ).FirstOrDefault();
+                            long seconds = leaveReq.GIAY_NGHI.HasValue && leaveReq.GIAY_NGHI.Value > 0
+                                ? leaveReq.GIAY_NGHI.Value
+                                : (long)((leaveReq.SONGAY ?? 1) * 28800);
 
-                            if (existingDeduction > 0)
-                            {
-                                long seconds = leaveReq.GIAY_NGHI.HasValue && leaveReq.GIAY_NGHI.Value > 0
-                                    ? leaveReq.GIAY_NGHI.Value
-                                    : (long)((leaveReq.SONGAY ?? 1) * 28800);
-
-                                db.Database.ExecuteSqlCommand(
-                                    @"INSERT INTO HR.TB_PHEP_SOPHATSINH (MANV, NGAY, LOAI, GIAY_PHEP, IDDON, LY_DO)
-                                      VALUES (:p0, SYSDATE, 'HOAN', :p1, :p2, :p3)",
-                                    new OracleParameter("p0", leaveReq.MANV),
-                                    new OracleParameter("p1", Math.Abs(seconds)),
-                                    new OracleParameter("p2", id),
-                                    new OracleParameter("p3", "Hoàn phép do từ chối/hủy đơn: " + reason)
-                                );
-                            }
+                            db.Database.ExecuteSqlCommand(
+                                @"INSERT INTO HR.TB_PHEP_SOPHATSINH (MANV, NGAY, LOAI, GIAY_PHEP, IDDON, LY_DO)
+                                  VALUES (:p0, SYSDATE, 'HOAN', :p1, :p2, :p3)",
+                                new OracleParameter("p0", leaveReq.MANV),
+                                new OracleParameter("p1", Math.Abs(seconds)),
+                                new OracleParameter("p2", id),
+                                new OracleParameter("p3", "Hoàn phép do từ chối/hủy đơn: " + reason)
+                            );
                         }
                     }
+                    catch (Exception hoanEx) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(hoanEx)) { throw; }
                     catch (Exception hoanEx)
                     {
                         System.Diagnostics.Trace.TraceWarning("[RejectLeave TB_PHEP_SOPHATSINH Refund Warning]: " + hoanEx.Message);
                     }
 
+                    // Thông báo tới nhân viên
+                    try
+                    {
+                        string connStr = Bu.CLASS_CHAMCONG.AttendanceCalculationHelper.GetStoreConnectionString(db);
+                        using (var conn = new OracleConnection(connStr))
+                        {
+                            conn.Open();
+                            Bu.CLASS_SYSTEM.NotificationService.CreateNotification(
+                                conn,
+                                null,
+                                "Đơn xin nghỉ phép bị từ chối",
+                                $"Đơn xin nghỉ phép #{id} của bạn đã bị từ chối. Lý do: {reason}.",
+                                "NGHI_PHEP",
+                                "HR_SYSTEM",
+                                targetType: "PERSONAL",
+                                targetManv: (long)leaveReq.MANV,
+                                eventType: "LEAVE_REJECTED",
+                                entityId: id,
+                                discretePushBody: "HRMS: Đơn xin nghỉ phép của bạn đã bị từ chối."
+                            );
+                        }
+                    }
+                    catch (Exception exNotif) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(exNotif)) { throw; }
+                    catch (Exception exNotif)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[RejectLeave Notification Warning]: " + exNotif.Message);
+                    }
+
                     return Ok(new { success = true, message = "Đã từ chối đơn xin nghỉ phép." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[RejectLeave Error]: " + ex);
@@ -320,6 +498,11 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!IsMobileRequest() && !HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.View))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền xem danh sách điều chỉnh công.");
+                    }
+
                     string sql = @"
                         SELECT Y.ID AS ID_YEUCAU, Y.MANV, NV.EMPLOYEE_CODE, NV.HOTEN AS EMPLOYEE_NAME, PB.TENPB AS DEPARTMENT_NAME,
                                Y.NGAY AS NGAY_CONG, Y.GIO_VAO AS GIO_VAO_MOI, Y.GIO_RA AS GIO_RA_MOI, Y.LYDO, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO,
@@ -342,6 +525,20 @@ namespace HRMS_API.Controllers
                     {
                         sql += " AND (LOWER(NV.HOTEN) LIKE :pSearch OR LOWER(NV.EMPLOYEE_CODE) LIKE :pSearch)";
                         parameters.Add(new OracleParameter("pSearch", $"%{search.Trim().ToLower()}%"));
+                    }
+
+                    if (IsMobileRequest())
+                    {
+                        decimal? empId = GetCallerEmployeeId(db);
+                        if (empId.HasValue)
+                        {
+                            sql += " AND Y.MANV = :pSelfManv";
+                            parameters.Add(new OracleParameter("pSelfManv", empId.Value));
+                        }
+                        else
+                        {
+                            sql += " AND 1=0";
+                        }
                     }
 
                     sql += " ORDER BY Y.CREATED_DATE DESC";
@@ -377,6 +574,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[GET /api/approvals/attendance-corrections Error]: " + ex);
@@ -386,7 +584,7 @@ namespace HRMS_API.Controllers
 
         /// <summary>
         /// POST: api/approvals/attendance-corrections/{id}/approve
-        /// Khi duyệt: Cập nhật yêu cầu thành APPROVED và tự động đồng bộ sang bảng chấm công chi tiết TB_BANGCONG_CHITIET
+        /// Khi duyệt: Cập nhật yêu cầu thành APPROVED và tự động tính công theo ca kíp thực tế vào TB_BANGCONG_CHITIET
         /// </summary>
         [HttpPost]
         [Route("attendance-corrections/{id:decimal}/approve")]
@@ -396,52 +594,33 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền phê duyệt điều chỉnh công.");
+                    }
+
                     decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
 
-                    var reqItem = db.Database.SqlQuery<AttendanceApprovalRow>(
-                        "SELECT ID AS ID_YEUCAU, MANV, NGAY AS NGAY_CONG, GIO_VAO AS GIO_VAO_MOI, GIO_RA AS GIO_RA_MOI, TRANGTHAI FROM HR.TB_YEUCAU_DIEUCHINHCONG WHERE ID = :p0",
-                        new OracleParameter("p0", id)
-                    ).FirstOrDefault();
+                    var attService = new Bu.CLASS_CHAMCONG.AttendanceApprovalService();
+                    attService.ApproveAttendanceCorrection(id, userId, callerEmpId);
 
-                    if (reqItem == null || reqItem.TRANGTHAI != "PENDING")
-                    {
-                        return BadRequest("Yêu cầu không tồn tại hoặc đã được xử lý trước đó.");
-                    }
-
-                    // 1. Cập nhật trạng thái yêu cầu
-                    db.Database.ExecuteSqlCommand(
-                        "UPDATE HR.TB_YEUCAU_DIEUCHINHCONG SET TRANGTHAI = 'APPROVED', NGUOIDUYET = :p0, NGAYDUYET = SYSDATE WHERE ID = :p1",
-                        new OracleParameter("p0", userId),
-                        new OracleParameter("p1", id)
-                    );
-
-                    // 2. Tự động đồng bộ giờ vào/ra và ngày công vào TB_BANGCONG_CHITIET
-                    if (reqItem.NGAY_CONG.HasValue)
-                    {
-                        try
-                        {
-                            db.Database.ExecuteSqlCommand(
-                                "UPDATE HR.TB_BANGCONG_CHITIET SET GIOVAO = :p0, GIORA = :p1, NGAYCONG = 1, KYHIEU = 'X' " +
-                                "WHERE MANV = :p2 AND TRUNC(NGAY) = TRUNC(:p3)",
-                                new OracleParameter("p0", reqItem.GIO_VAO_MOI ?? "08:00"),
-                                new OracleParameter("p1", reqItem.GIO_RA_MOI ?? "17:00"),
-                                new OracleParameter("p2", reqItem.MANV),
-                                new OracleParameter("p3", reqItem.NGAY_CONG.Value)
-                            );
-                        }
-                        catch (Exception exSync)
-                        {
-                            System.Diagnostics.Trace.TraceWarning("Không thể đồng bộ ngay sang TB_BANGCONG_CHITIET: " + exSync.Message);
-                        }
-                    }
-
-                    return Ok(new { success = true, message = "Phê duyệt điều chỉnh công thành công và đã đồng bộ dữ liệu chấm công!" });
+                    return Ok(new { success = true, message = "Phê duyệt điều chỉnh công thành công và đã đồng bộ dữ liệu chấm công theo ca!" });
                 }
             }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[ApproveAttendanceCorrection Error]: " + ex);
-                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi phê duyệt điều chỉnh công." });
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi phê duyệt điều chỉnh công: " + ex.Message });
             }
         }
 
@@ -456,8 +635,29 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền từ chối điều chỉnh công.");
+                    }
+
                     decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
                     string reason = req?.Reason ?? "Từ chối bởi cấp quản lý";
+
+                    var reqItem = db.Database.SqlQuery<AttendanceApprovalRow>(
+                        "SELECT ID AS ID_YEUCAU, MANV, NGAY AS NGAY_CONG, GIO_VAO AS GIO_VAO_MOI, GIO_RA AS GIO_RA_MOI, TRANGTHAI FROM HR.TB_YEUCAU_DIEUCHINHCONG WHERE ID = :p0",
+                        new OracleParameter("p0", id)
+                    ).FirstOrDefault();
+
+                    if (reqItem == null)
+                    {
+                        return NotFound();
+                    }
+
+                    if (callerEmpId.HasValue && callerEmpId.Value == reqItem.MANV)
+                    {
+                        return BadRequest("Bạn không được phép tự từ chối/phê duyệt đơn điều chỉnh công của chính mình.");
+                    }
 
                     int affected = db.Database.ExecuteSqlCommand(
                         "UPDATE HR.TB_YEUCAU_DIEUCHINHCONG SET TRANGTHAI = 'REJECTED', NGUOIDUYET = :p0, NGAYDUYET = SYSDATE, GHICHUDUYET = :p1 WHERE ID = :p2 AND TRANGTHAI = 'PENDING'",
@@ -471,9 +671,38 @@ namespace HRMS_API.Controllers
                         return BadRequest("Yêu cầu không tồn tại hoặc đã được xử lý trước đó.");
                     }
 
+                    // Thông báo tới nhân viên
+                    try
+                    {
+                        string connStr = Bu.CLASS_CHAMCONG.AttendanceCalculationHelper.GetStoreConnectionString(db);
+                        using (var conn = new OracleConnection(connStr))
+                        {
+                            conn.Open();
+                            Bu.CLASS_SYSTEM.NotificationService.CreateNotification(
+                                conn,
+                                null,
+                                "Điều chỉnh công bị từ chối",
+                                $"Giải trình chấm công #{id} của bạn đã bị từ chối. Lý do: {reason}.",
+                                "DIEUCHINH_CONG",
+                                "HR_SYSTEM",
+                                targetType: "PERSONAL",
+                                targetManv: (long)reqItem.MANV,
+                                eventType: "ATTENDANCE_CORRECTION_REJECTED",
+                                entityId: id,
+                                discretePushBody: "HRMS: Yêu cầu điều chỉnh công của bạn đã bị từ chối."
+                            );
+                        }
+                    }
+                    catch (Exception exNotif) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(exNotif)) { throw; }
+                    catch (Exception exNotif)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[RejectAttendanceCorrection Notification Warning]: " + exNotif.Message);
+                    }
+
                     return Ok(new { success = true, message = "Đã từ chối yêu cầu điều chỉnh chấm công." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[RejectAttendanceCorrection Error]: " + ex);
@@ -496,9 +725,14 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!IsMobileRequest() && !HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.View))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền xem danh sách tăng ca.");
+                    }
+
                     string sql = @"
                         SELECT Y.ID AS ID_YEUCAU, Y.MANV, NV.EMPLOYEE_CODE, NV.HOTEN AS EMPLOYEE_NAME, PB.TENPB AS DEPARTMENT_NAME,
-                               Y.NGAY AS NGAY_TANGCA, Y.GIOTANGCA AS SO_GIO, NVL(L.HESO, 1.0) AS HE_SO, Y.IDCA, NVL(L.TENLOAICA, 'Ca ngày') AS TEN_CA,
+                               Y.NGAY AS NGAY_TANGCA, Y.GIOTANGCA AS SO_GIO, NVL(L.HESOLOAICA, 1.0) AS HE_SO, Y.IDCA, NVL(L.TENLOAICA, 'Ca ngày') AS TEN_CA,
                                Y.LYDO AS NOI_DUNG, Y.TRANGTHAI, Y.CREATED_DATE AS NGAY_TAO,
                                NVL(U.FULLNAME, U.USERNAME) AS NGUOI_DUYET, Y.NGAYDUYET AS NGAY_DUYET, Y.GHICHUDUYET AS LYDO_TUCHOI
                         FROM HR.TB_YEUCAU_TANGCA Y
@@ -520,6 +754,20 @@ namespace HRMS_API.Controllers
                     {
                         sql += " AND (LOWER(NV.HOTEN) LIKE :pSearch OR LOWER(NV.EMPLOYEE_CODE) LIKE :pSearch)";
                         parameters.Add(new OracleParameter("pSearch", $"%{search.Trim().ToLower()}%"));
+                    }
+
+                    if (IsMobileRequest())
+                    {
+                        decimal? empId = GetCallerEmployeeId(db);
+                        if (empId.HasValue)
+                        {
+                            sql += " AND Y.MANV = :pSelfManv";
+                            parameters.Add(new OracleParameter("pSelfManv", empId.Value));
+                        }
+                        else
+                        {
+                            sql += " AND 1=0";
+                        }
                     }
 
                     sql += " ORDER BY Y.CREATED_DATE DESC";
@@ -557,6 +805,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[GET /api/approvals/overtime Error]: " + ex);
@@ -576,12 +825,18 @@ namespace HRMS_API.Controllers
             try
             {
                 using (var db = new MyEntities())
+                using (var transaction = db.Database.BeginTransaction())
                 {
+                    if (!HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền phê duyệt tăng ca.");
+                    }
+
                     decimal userId = GetCurrentUserId(db);
 
                     var reqItem = db.Database.SqlQuery<OvertimeApprovalRow>(
                         @"SELECT Y.ID AS ID_YEUCAU, Y.MANV, Y.NGAY AS NGAY_TANGCA, Y.GIOTANGCA AS SO_GIO, 
-                                 NVL(L.HESO, 1.0) AS HE_SO, Y.IDCA, NVL(L.TENLOAICA, 'Ca ngày') AS TEN_CA, 
+                                 NVL(L.HESOLOAICA, 1.0) AS HE_SO, Y.IDCA, NVL(L.TENLOAICA, 'Ca ngày') AS TEN_CA,
                                  Y.LYDO AS NOI_DUNG, Y.TRANGTHAI 
                           FROM HR.TB_YEUCAU_TANGCA Y 
                           LEFT JOIN HR.TB_LOAICA L ON Y.IDCA = L.IDLOAICA 
@@ -609,6 +864,9 @@ namespace HRMS_API.Controllers
                     {
                         return BadRequest("Người dùng không thể tự phê duyệt đề xuất tăng ca của chính mình.");
                     }
+
+                    if (!reqItem.NGAY_TANGCA.HasValue || !reqItem.SO_GIO.HasValue || reqItem.SO_GIO.Value <= 0 || reqItem.MANV <= 0)
+                        return BadRequest("Đề xuất tăng ca thiếu ngày, nhân viên hoặc số giờ hợp lệ.");
 
                     // 1. Cập nhật trạng thái sang APPROVED (atomic check PENDING)
                     int updated = db.Database.ExecuteSqlCommand(
@@ -638,20 +896,51 @@ namespace HRMS_API.Controllers
                                 new OracleParameter("p4", reqItem.SO_GIO.Value),
                                 new OracleParameter("p5", reqItem.HE_SO ?? 1.0m),
                                 new OracleParameter("p6", reqItem.NOI_DUNG ?? "Duyệt từ yêu cầu tăng ca"),
-                                new OracleParameter("p7", reqItem.IDCA ?? 1),
+                                new OracleParameter("p7", (object)reqItem.IDCA ?? DBNull.Value),
                                 new OracleParameter("p8", reqItem.ID_YEUCAU),
                                 new OracleParameter("p9", userId)
                             );
                         }
+                        catch (Exception exTc) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(exTc)) { throw; }
                         catch (Exception exTc)
                         {
-                            System.Diagnostics.Trace.TraceWarning("Không thể tự động thêm vào TB_TANGCA: " + exTc.Message);
+                            throw new Bu.CLASS_SYSTEM.BusinessException("OVERTIME_SYNC_FAILED", "Không ghi được giờ tăng ca; yêu cầu chưa được phê duyệt.", exTc);
                         }
                     }
 
+                    // 3. Thông báo tới nhân viên
+                    try
+                    {
+                        string connStr = Bu.CLASS_CHAMCONG.AttendanceCalculationHelper.GetStoreConnectionString(db);
+                        using (var conn = new OracleConnection(connStr))
+                        {
+                            conn.Open();
+                            Bu.CLASS_SYSTEM.NotificationService.CreateNotification(
+                                conn,
+                                null,
+                                "Đăng ký tăng ca đã được phê duyệt",
+                                $"Đề xuất tăng ca #{id} ({(reqItem.SO_GIO ?? 0):N1} giờ) ngày {(reqItem.NGAY_TANGCA.HasValue ? reqItem.NGAY_TANGCA.Value.ToString("dd/MM/yyyy") : "")} của bạn đã được phê duyệt thành công.",
+                                "TANG_CA",
+                                "HR_SYSTEM",
+                                targetType: "PERSONAL",
+                                targetManv: (long)reqItem.MANV,
+                                eventType: "OVERTIME_APPROVED",
+                                entityId: id,
+                                discretePushBody: "HRMS: Đề xuất tăng ca của bạn đã được phê duyệt."
+                            );
+                        }
+                    }
+                    catch (Exception exNotif) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(exNotif)) { throw; }
+                    catch (Exception exNotif)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[ApproveOvertime Notification Warning]: " + exNotif.Message);
+                    }
+
+                    transaction.Commit();
                     return Ok(new { success = true, message = "Phê duyệt đề xuất tăng ca thành công và đã đồng bộ vào bảng tăng ca thực tế!" });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[ApproveOvertime Error]: " + ex);
@@ -671,6 +960,11 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền từ chối tăng ca.");
+                    }
+
                     decimal userId = GetCurrentUserId(db);
 
                     var reqItem = db.Database.SqlQuery<OvertimeApprovalRow>(
@@ -716,9 +1010,38 @@ namespace HRMS_API.Controllers
                         return BadRequest("Yêu cầu không tồn tại hoặc đã được xử lý trước đó.");
                     }
 
+                    // Thông báo tới nhân viên
+                    try
+                    {
+                        string connStr = Bu.CLASS_CHAMCONG.AttendanceCalculationHelper.GetStoreConnectionString(db);
+                        using (var conn = new OracleConnection(connStr))
+                        {
+                            conn.Open();
+                            Bu.CLASS_SYSTEM.NotificationService.CreateNotification(
+                                conn,
+                                null,
+                                "Đăng ký tăng ca bị từ chối",
+                                $"Đề xuất tăng ca #{id} của bạn đã bị từ chối. Lý do: {req.Reason.Trim()}.",
+                                "TANG_CA",
+                                "HR_SYSTEM",
+                                targetType: "PERSONAL",
+                                targetManv: (long)reqItem.MANV,
+                                eventType: "OVERTIME_REJECTED",
+                                entityId: id,
+                                discretePushBody: "HRMS: Đề xuất tăng ca của bạn đã bị từ chối."
+                            );
+                        }
+                    }
+                    catch (Exception exNotif) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(exNotif)) { throw; }
+                    catch (Exception exNotif)
+                    {
+                        System.Diagnostics.Trace.TraceWarning("[RejectOvertime Notification Warning]: " + exNotif.Message);
+                    }
+
                     return Ok(new { success = true, message = "Đã từ chối đề xuất đăng ký tăng ca." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[RejectOvertime Error]: " + ex);
@@ -741,6 +1064,11 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!IsMobileRequest() && !HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.View))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền xem danh sách biến động bảo hiểm.");
+                    }
+
                     string sql = @"
                         SELECT 
                             B.ID,
@@ -782,6 +1110,20 @@ namespace HRMS_API.Controllers
                         parameters.Add(new OracleParameter("pSearch", "%" + search.ToLower().Trim() + "%"));
                     }
 
+                    if (IsMobileRequest())
+                    {
+                        decimal? empId = GetCallerEmployeeId(db);
+                        if (empId.HasValue)
+                        {
+                            sql += " AND B.MANV = :pSelfManv";
+                            parameters.Add(new OracleParameter("pSelfManv", empId.Value));
+                        }
+                        else
+                        {
+                            sql += " AND 1=0";
+                        }
+                    }
+
                     sql += " ORDER BY B.NGAY_HIEULUC DESC, B.ID DESC";
 
                     var rows = db.Database.SqlQuery<InsuranceMovementRow>(sql, parameters.ToArray()).ToList();
@@ -805,6 +1147,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, data });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[GET /api/approvals/insurance-movements Error]: " + ex);
@@ -823,7 +1166,20 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền phê duyệt biến động bảo hiểm.");
+                    }
+
                     decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
+
+                    var mv = db.Database.SqlQuery<decimal?>("SELECT MANV FROM HR.TB_BAOHIEM_BIENDONG WHERE ID = :p0", new OracleParameter("p0", id)).FirstOrDefault();
+                    if (mv.HasValue && callerEmpId.HasValue && callerEmpId.Value == mv.Value)
+                    {
+                        return BadRequest("Bạn không được phép tự phê duyệt biến động bảo hiểm của chính mình.");
+                    }
+
                     int affected = db.Database.ExecuteSqlCommand(
                         "UPDATE HR.TB_BAOHIEM_BIENDONG SET TRANG_THAI = 'APPROVED', NGUOI_DUYET = :p0 WHERE ID = :p1 AND (TRANG_THAI = 'DRAFT' OR TRANG_THAI = 'PENDING')",
                         new OracleParameter("p0", userId),
@@ -838,6 +1194,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = "Phê duyệt biến động bảo hiểm thành công!" });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[ApproveInsuranceMovement Error]: " + ex);
@@ -856,8 +1213,20 @@ namespace HRMS_API.Controllers
             {
                 using (var db = new MyEntities())
                 {
+                    if (!HasPermission(db, "F_NV_PHEDUYET", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền từ chối biến động bảo hiểm.");
+                    }
+
                     decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
                     string reason = req?.Reason ?? "Từ chối bởi cấp quản lý";
+
+                    var mv = db.Database.SqlQuery<decimal?>("SELECT MANV FROM HR.TB_BAOHIEM_BIENDONG WHERE ID = :p0", new OracleParameter("p0", id)).FirstOrDefault();
+                    if (mv.HasValue && callerEmpId.HasValue && callerEmpId.Value == mv.Value)
+                    {
+                        return BadRequest("Bạn không được phép tự từ chối biến động bảo hiểm của chính mình.");
+                    }
 
                     int affected = db.Database.ExecuteSqlCommand(
                         "UPDATE HR.TB_BAOHIEM_BIENDONG SET TRANG_THAI = 'REJECTED', NGUOI_DUYET = :p0, LY_DO = SUBSTR(LY_DO || ' [Từ chối: ' || :p1 || ']', 1, 500) WHERE ID = :p2 AND (TRANG_THAI = 'DRAFT' OR TRANG_THAI = 'PENDING')",
@@ -874,10 +1243,364 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = "Đã từ chối biến động bảo hiểm." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("[RejectInsuranceMovement Error]: " + ex);
                 return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi từ chối." });
+            }
+        }
+
+        #endregion
+
+        #region Tạm ứng lương (Salary Advance Approvals)
+
+        /// <summary>
+        /// GET: api/approvals/advance
+        /// </summary>
+        [HttpGet]
+        [Route("advance")]
+        public IHttpActionResult GetAdvanceList(int? thang = null, int? nam = null, string status = null, string search = null, int page = 1, int pageSize = 20)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!IsMobileRequest() && !HasAnyPermission(db, Bu.CLASS_SECURITY.ChannelAction.View, "F_NV_PHEDUYET", "F_APPROVE_ADVANCE"))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền xem danh sách tạm ứng lương.");
+                    }
+
+                    decimal? selfEmpId = IsMobileRequest() ? GetCallerEmployeeId(db) : null;
+                    var advanceService = new Bu.CLASS_PAYROLL.SalaryAdvanceService();
+                    int total;
+                    var list = advanceService.GetList(thang, nam, status, search, selfEmpId, page, pageSize, out total);
+                    return Ok(new
+                    {
+                        success = true,
+                        total = total,
+                        page = page,
+                        pageSize = pageSize,
+                        data = list
+                    });
+                }
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/approvals/advance Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi khi tải danh sách tạm ứng lương." });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/approvals/advance/{id}/approve
+        /// </summary>
+        [HttpPost]
+        [Route("advance/{id:long}/approve")]
+        public IHttpActionResult ApproveAdvance(long id)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!HasAnyPermission(db, Bu.CLASS_SECURITY.ChannelAction.Edit, "F_NV_PHEDUYET", "F_APPROVE_ADVANCE"))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền phê duyệt tạm ứng lương.");
+                    }
+
+                    decimal userId = GetCurrentUserId(db);
+                    string username = GetCurrentUsername();
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
+
+                    var advanceService = new Bu.CLASS_PAYROLL.SalaryAdvanceService();
+                    advanceService.ApproveRequest(id, (long)userId, username, callerEmpId);
+
+                    return Ok(new { success = true, message = "Phê duyệt đơn tạm ứng lương thành công!" });
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[ApproveAdvance Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi phê duyệt tạm ứng lương: " + ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/approvals/advance/{id}/reject
+        /// </summary>
+        [HttpPost]
+        [Route("advance/{id:long}/reject")]
+        public IHttpActionResult RejectAdvance(long id, [FromBody] RejectActionRequest req)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!HasAnyPermission(db, Bu.CLASS_SECURITY.ChannelAction.Edit, "F_NV_PHEDUYET", "F_APPROVE_ADVANCE"))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền từ chối tạm ứng lương.");
+                    }
+
+                    decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
+                    string reason = req?.Reason ?? "Từ chối bởi cấp quản lý";
+
+                    var advanceService = new Bu.CLASS_PAYROLL.SalaryAdvanceService();
+                    advanceService.RejectRequest(id, (long)userId, reason, callerEmpId);
+
+                    return Ok(new { success = true, message = "Đã từ chối đơn tạm ứng lương." });
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[RejectAdvance Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi từ chối tạm ứng lương: " + ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/approvals/advance/{id}/disburse
+        /// Kế toán giải ngân khoản tạm ứng (Ghi sổ TB_UNGLUONG và chuyển trạng thái DISBURSED)
+        /// </summary>
+        [HttpPost]
+        [Route("advance/{id:long}/disburse")]
+        public IHttpActionResult DisburseAdvance(long id, [FromBody] HRMS_API.Models.DisburseAdvanceRequest req)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!HasPermission(db, "F_PAYROLL_DISBURSE_ADVANCE", Bu.CLASS_SECURITY.ChannelAction.Edit))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền giải ngân tạm ứng lương.");
+                    }
+
+                    decimal userId = GetCurrentUserId(db);
+                    DateTime ngayChi = DateTime.Today;
+                    if (!string.IsNullOrWhiteSpace(req?.NgayChi) && DateTime.TryParse(req.NgayChi, out var parsedDate))
+                    {
+                        ngayChi = parsedDate;
+                    }
+
+                    string soChungTu = req?.SoChungTu;
+                    string ghiChuChi = req?.GhiChu;
+
+                    if (string.IsNullOrWhiteSpace(soChungTu))
+                    {
+                        return BadRequest("Vui lòng nhập số chứng từ chi tiền.");
+                    }
+
+                    var advanceService = new Bu.CLASS_PAYROLL.SalaryAdvanceService();
+                    long idUl = advanceService.DisburseAdvance(id, (long)userId, ngayChi, soChungTu, ghiChuChi);
+
+                    return Ok(new { success = true, message = $"Giải ngân tạm ứng thành công! Mã phiếu chi: #{idUl}", idUl = idUl });
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[DisburseAdvance Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi giải ngân: " + ex.Message });
+            }
+        }
+
+        #endregion
+
+        #region Thay đổi hồ sơ (Profile Change Approvals)
+
+        /// <summary>
+        /// GET: api/approvals/profile-requests
+        /// </summary>
+        [HttpGet]
+        [Route("profile-requests")]
+        public IHttpActionResult GetProfileRequests(string groupCode = null, string status = null, string search = null, int page = 1, int pageSize = 20)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!IsMobileRequest() && !HasAnyPermission(db, Bu.CLASS_SECURITY.ChannelAction.View, "F_NV_PHEDUYET", "F_APPROVE_PROFILE"))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền xem danh sách yêu cầu thay đổi hồ sơ.");
+                    }
+
+                    decimal? selfEmpId = IsMobileRequest() ? GetCallerEmployeeId(db) : null;
+                    var profileService = new Bu.CLASS_NHANSU.EmployeeProfileRequestService();
+                    int total;
+                    var list = profileService.GetRequests(groupCode, status, search, selfEmpId, page, pageSize, out total);
+
+                    return Ok(new
+                    {
+                        success = true,
+                        total = total,
+                        page = page,
+                        pageSize = pageSize,
+                        data = list
+                    });
+                }
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET /api/approvals/profile-requests Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi khi tải danh sách yêu cầu thay đổi hồ sơ." });
+            }
+        }
+
+        /// <summary>
+        /// GET: api/approvals/profile-requests/{id}/avatar
+        /// </summary>
+        [HttpGet]
+        [Route("profile-requests/{id:long}/avatar")]
+        public System.Net.Http.HttpResponseMessage GetProposedAvatar(long id)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    bool canView = HasAnyPermission(db, Bu.CLASS_SECURITY.ChannelAction.View, "F_NV_PHEDUYET", "F_APPROVE_PROFILE");
+                    if (!canView)
+                    {
+                        decimal? callerEmpId = GetCallerEmployeeId(db);
+                        var reqEmpId = db.Database.SqlQuery<decimal?>("SELECT MANV FROM HR.TB_YEUCAU_THAYDOI_HOSO WHERE ID = :p0", new OracleParameter("p0", (decimal)id)).FirstOrDefault();
+                        if (!callerEmpId.HasValue || !reqEmpId.HasValue || callerEmpId.Value != reqEmpId.Value)
+                        {
+                            return Request.CreateResponse(HttpStatusCode.Forbidden, new { success = false, message = "Từ chối truy cập: Bạn không có quyền xem ảnh đại diện của yêu cầu này." });
+                        }
+                    }
+
+                    var profileService = new Bu.CLASS_NHANSU.EmployeeProfileRequestService();
+                    byte[] bytes = profileService.GetProposedAvatar(id);
+                    if (bytes == null || bytes.Length == 0)
+                    {
+                        return Request.CreateResponse(HttpStatusCode.NotFound);
+                    }
+
+                    var response = new System.Net.Http.HttpResponseMessage(HttpStatusCode.OK);
+                    response.Content = new System.Net.Http.ByteArrayContent(bytes);
+                    response.Content.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("image/jpeg");
+                    return response;
+                }
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[GET proposed avatar Error]: " + ex);
+                return Request.CreateResponse(HttpStatusCode.InternalServerError);
+            }
+        }
+
+        /// <summary>
+        /// POST: api/approvals/profile-requests/{id}/approve
+        /// </summary>
+        [HttpPost]
+        [Route("profile-requests/{id:long}/approve")]
+        public IHttpActionResult ApproveProfileRequest(long id)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!HasAnyPermission(db, Bu.CLASS_SECURITY.ChannelAction.Edit, "F_NV_PHEDUYET", "F_APPROVE_PROFILE"))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền phê duyệt yêu cầu thay đổi hồ sơ.");
+                    }
+
+                    decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
+
+                    var profileService = new Bu.CLASS_NHANSU.EmployeeProfileRequestService();
+                    profileService.ApproveRequest(id, (long)userId, callerEmpId);
+
+                    return Ok(new { success = true, message = "Phê duyệt và cập nhật hồ sơ thành công!" });
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[ApproveProfileRequest Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi phê duyệt hồ sơ: " + ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// POST: api/approvals/profile-requests/{id}/reject
+        /// </summary>
+        [HttpPost]
+        [Route("profile-requests/{id:long}/reject")]
+        public IHttpActionResult RejectProfileRequest(long id, [FromBody] RejectActionRequest req)
+        {
+            try
+            {
+                using (var db = new MyEntities())
+                {
+                    if (!HasAnyPermission(db, Bu.CLASS_SECURITY.ChannelAction.Edit, "F_NV_PHEDUYET", "F_APPROVE_PROFILE"))
+                    {
+                        return ForbiddenResult("Từ chối truy cập: Bạn không có quyền từ chối yêu cầu thay đổi hồ sơ.");
+                    }
+
+                    decimal userId = GetCurrentUserId(db);
+                    decimal? callerEmpId = GetCallerEmployeeId(db);
+                    string reason = req?.Reason ?? "Từ chối bởi cấp quản lý";
+
+                    var profileService = new Bu.CLASS_NHANSU.EmployeeProfileRequestService();
+                    profileService.RejectRequest(id, (long)userId, reason, callerEmpId);
+
+                    return Ok(new { success = true, message = "Đã từ chối yêu cầu thay đổi hồ sơ." });
+                }
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound();
+            }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Trace.TraceError("[RejectProfileRequest Error]: " + ex);
+                return Content(HttpStatusCode.InternalServerError, new { success = false, message = "Lỗi hệ thống khi từ chối hồ sơ: " + ex.Message });
             }
         }
 

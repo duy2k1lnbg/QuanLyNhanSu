@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
@@ -15,18 +16,21 @@ namespace QLyNSu.FORM_CHAMCONG
             InitializeComponent();
         }
 
+        private bool _filterReady;
         private NGAYLE _ngayLe;
         private bool _them;
         private int _IDLE;
 
-        private void FrmNgayLe_Load(object sender, EventArgs e)
+        private async void FrmNgayLe_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_CC_NGAYLE")) return;
             _them = false;
             _ngayLe = new NGAYLE();
             showHide(true);
             InitFilterNam();
-            LoadData();
+            _filterReady = true;
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             Functions.TranslationManager.Translate(this);
         }
 
@@ -56,17 +60,23 @@ namespace QLyNSu.FORM_CHAMCONG
             gcDanhSach.Enabled = kt;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            try
+            {
             if (cboFilterNam.SelectedItem != null && int.TryParse(cboFilterNam.SelectedItem.ToString(), out int nam))
             {
-                gcDanhSach.DataSource = _ngayLe.getListByNam(nam);
+                gcDanhSach.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _ngayLe.getListByNam(nam));
             }
             else
             {
-                gcDanhSach.DataSource = _ngayLe.getAll();
+                gcDanhSach.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _ngayLe.getAll());
             }
             FormManager_Functions.CustomView_Colums(gvDanhSach);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -95,7 +105,7 @@ namespace QLyNSu.FORM_CHAMCONG
             txtTenLe.Focus();
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_CC_NGAYLE", Bu.DTO.PermissionAction.Delete)) return;
             if (_IDLE <= 0)
@@ -109,7 +119,8 @@ namespace QLyNSu.FORM_CHAMCONG
                 try
                 {
                     _ngayLe.Delete(_IDLE, 1);
-                    LoadData();
+                    await LoadData();
+                    if (IsDisposed || Disposing) return;
                     _IDLE = 0;
                     txtTenLe.Text = string.Empty;
                     MessageBox.Show("Xóa ngày lễ thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -121,12 +132,13 @@ namespace QLyNSu.FORM_CHAMCONG
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            SaveData();
+            await SaveData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void SaveData()
+        private async Task SaveData()
         {
             var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
             if (!Functions.FormSecurity.AssertPermission("F_CC_NGAYLE", permAction)) return;
@@ -181,7 +193,9 @@ namespace QLyNSu.FORM_CHAMCONG
                     MessageBox.Show("Cập nhật ngày lễ thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
-                LoadData();
+                await LoadData();
+
+                if (IsDisposed || Disposing) return;
                 _them = false;
                 showHide(true);
             }
@@ -207,9 +221,11 @@ namespace QLyNSu.FORM_CHAMCONG
             spNam.EditValue = dtNgay.Value.Year;
         }
 
-        private void cboFilterNam_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cboFilterNam_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadData();
+            if (!_filterReady) return;
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
         private void gvDanhSach_Click(object sender, EventArgs e)

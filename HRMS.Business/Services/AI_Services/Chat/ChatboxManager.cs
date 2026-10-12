@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Threading;
@@ -77,7 +77,9 @@ namespace Bu.Services.AI_Services
             {
                 if (_actorId != 0 && _actorId != auth.UserId) { _active?.Cancel(); _messages.Clear(); _pending = null; _version = null; }
                 _actorId = auth.UserId; generation = ++_generation; pending = _pending; version = _version;
-                _active?.Cancel(); active = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken); active.CancelAfter(TimeSpan.FromSeconds(35)); _active = active;
+                _active?.Cancel(); active = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken); active.CancelAfter(TimeSpan.FromSeconds(_remoteChatHandler != null
+                    ? AiConfigurationSnapshot.ClientTransportTimeoutSeconds
+                    : AiConfigurationSnapshot.NormalizeRequestTimeout(AiConfigurationCoordinator.Instance.CurrentSnapshot.AiRequestTimeoutSeconds))); _active = active;
             }
             try
             {
@@ -97,7 +99,8 @@ namespace Bu.Services.AI_Services
                     {
                         _messages.Add(new ChatMessage { Role = "User", Content = query });
                         _messages.Add(new ChatMessage { Role = "AI", Content = result.Answer });
-                        if (_messages.Count > 20) _messages.RemoveRange(0, _messages.Count - 20);
+                        // This is the visible transcript. LLM context limits belong to server memory,
+                        // not to the history restored by the desktop UI.
                     }
                     onTokenReceived?.Invoke(result.Answer);
                     return new QueryResult

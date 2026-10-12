@@ -1,0 +1,28 @@
+{
+  "cli": {
+    "version": ">= 16.0.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "environment": "preview"
+    },
+    "push-preview": {
+      "extends": "preview",
+      "env": {
+        "HRMS_REQUIRE_REMOTE_PUSH": "true"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "HRMS_REQUIRE_REMOTE_PUSH": "true"
+      },
+      "environment": "production"
+    }
+  }
+}

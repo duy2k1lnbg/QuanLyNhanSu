@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
@@ -859,6 +859,13 @@ namespace Bu.CLASS_CHAMCONG
                 MucDo = mucDo,
                 ChanChot = chanChot,
                 ScheduleId = input.Schedule?.IdLich,
+                EvidenceVersion = 2,
+                Period = input.MaKyCong,
+                Shift = input.Shift,
+                Policy = input.Policy,
+                ApprovedOvertimes = input.ApprovedOvertimes?.OrderBy(o => o.Id),
+                ApprovedLeaves = input.ApprovedLeaves?.OrderBy(l => l.Id),
+                ApprovedAdjustment = input.ApprovedAdjustment,
                 Punches = (input.RawPunches != null && input.RawPunches.Count > 0)
                     ? input.RawPunches.Select(p => new { p.Mabc, p.ThoiDiemVao, p.ThoiDiemRa, p.NguonCham }).ToArray()
                     : (input.RawPunch != null ? new[] { new { input.RawPunch.Mabc, input.RawPunch.ThoiDiemVao, input.RawPunch.ThoiDiemRa, input.RawPunch.NguonCham } } : null)

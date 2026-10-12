@@ -456,5 +456,39 @@ namespace HRMS.Tests
             Assert.AreEqual("bge-m3", Bu.Services.AI_Services.Core.OllamaService.DEFAULT_EMBEDDING_MODEL);
             Assert.AreEqual("hrms_vectors_v2", Bu.Services.AI_Services.Vector.QdrantService.DEFAULT_COLLECTION_NAME);
         }
+
+        [Test]
+        public async Task Production_SaveChannelRights_WebBangLuong_CanPrint_PersistsSuccessfully()
+        {
+            var resolver = new ChannelPermissionResolver();
+            var req = new SaveChannelRightsRequest
+            {
+                ActorUserId = 80,
+                ActorChannel = "DESKTOP",
+                TargetUserId = 80,
+                Channel = "WEB",
+                ParentDirectGrant = true,
+                Functions = new List<SaveChannelFunctionItemRequest>
+                {
+                    new SaveChannelFunctionItemRequest
+                    {
+                        FunctionCode = "F_CC_BANGLUONG",
+                        CanView = true,
+                        CanPrint = true
+                    }
+                }
+            };
+
+            var result = await resolver.SaveChannelRightsAsync(req);
+            Assert.IsTrue(result.Success, $"SaveChannelRights failed: {result.Message}");
+
+            using (var db = new DA.MyEntities())
+            {
+                var storedPrint = db.Database.SqlQuery<decimal>(
+                    "SELECT CAN_PRINT FROM HR.TB_SYS_RIGHT_CHANNEL WHERE IDUSER=80 AND CLIENT_TYPE='WEB' AND FUNCTION_CODE='F_CC_BANGLUONG'"
+                ).FirstOrDefault();
+                Assert.AreEqual(1, storedPrint, "CAN_PRINT must be 1 in database");
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\packages\EntityFramework.6.5.1\build\EntityFramework.props" Condition="Exists('..\packages\EntityFramework.6.5.1\build\EntityFramework.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -143,6 +143,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CLASS_PAYROLL\AttendancePreparationReviewService.cs" />
+    <Compile Include="CLASS_PAYROLL\PayrollReadinessService.cs" />
+    <Compile Include="CLASS_PAYROLL\PayrollPreparationDataService.cs" />
     <Compile Include="CLASS_CHAMCONG\BANGCONG_NV_CHITIET.cs" />
     <Compile Include="CLASS_CHAMCONG\AttendanceCalculationHelper.cs" />
     <Compile Include="CLASS_CHAMCONG\TimeSegmentationEngine.cs" />
@@ -161,6 +164,13 @@
     <Compile Include="CLASS_PAYROLL\SalaryAdjustmentService.cs" />
     <Compile Include="CLASS_PAYROLL\PayrollOccurrenceService.cs" />
     <Compile Include="CLASS_PAYROLL\PayrollPublicationHelper.cs" />
+    <Compile Include="CLASS_PAYROLL\PayrollPublicationService.cs" />
+    <Compile Include="CLASS_PAYROLL\SalaryAdvanceService.cs" />
+    <Compile Include="CLASS_NHANSU\EmployeeProfileRequestService.cs" />
+    <Compile Include="CLASS_CHAMCONG\AttendanceApprovalService.cs" />
+    <Compile Include="CLASS_SYSTEM\NotificationService.cs" />
+    <Compile Include="CLASS_SYSTEM\DeviceRegistrationService.cs" />
+    <Compile Include="CLASS_SYSTEM\PushNotificationOutboxProcessor.cs" />
     <Compile Include="CLASS_CHAMCONG\HESO_TANGCA.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONG.cs" />
     <Compile Include="CLASS_CHAMCONG\KYCONGCHITIET.cs" />
@@ -221,6 +231,7 @@
     <Compile Include="Services\AI_Services\Configuration\AiConfigurationCoordinator.cs" />
     <Compile Include="Services\AI_Services\Chat\ChatboxManager.cs" />
     <Compile Include="Services\AI_Services\Chat\AiExecutionService.cs" />
+    <Compile Include="Services\AI_Services\Runtime\Diagnostics\AiRequestTrace.cs" />
     <Compile Include="Services\AI_Services\Understanding\AiRouterService.cs" />
     <Compile Include="Services\AI_Services\Understanding\ClarificationPolicy.cs" />
     <Compile Include="Services\AI_Services\Understanding\EntityResolver.cs" />
@@ -233,6 +244,8 @@
     <Compile Include="Services\AI_Services\Retrieval\Sql\SafeSqlExecutor.cs" />
     <Compile Include="Services\AI_Services\Retrieval\Sql\ScopedSqlExecutor.cs" />
     <Compile Include="Services\AI_Services\Retrieval\Sql\SqlGeneratorService.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Sql\AiSchemaCatalog.cs" />
+    <Compile Include="Services\AI_Services\Retrieval\Sql\AiSchemaService.cs" />
     <Compile Include="Services\AI_Services\Retrieval\Vector\QdrantService.cs" />
     <Compile Include="Services\AI_Services\Retrieval\Vector\VectorSearchModels.cs" />
     <Compile Include="Services\AI_Services\Retrieval\Hybrid\HybridRagService.cs" />
@@ -240,6 +253,7 @@
     <Compile Include="Services\AI_Services\Responses\DeterministicResponseRenderer.cs" />
     <Compile Include="Services\AI_Services\Responses\FastResponseService.cs" />
     <Compile Include="Services\AI_Services\Responses\RagSynthesizer.cs" />
+    <Compile Include="Services\AI_Services\Responses\QueryResult.cs" />
     <Compile Include="Services\AI_Services\Providers\Ollama\OllamaService.cs" />
     <Compile Include="Services\AI_Services\Prompts\JsonPromptManager.cs" />
     <Compile Include="Services\AI_Services\Memory\Cache\AiCacheCoordinator.cs" />
@@ -307,6 +321,7 @@
     <Compile Include="DTO\PhuCapDTO.cs" />
     <Compile Include="DTO\SysLanguageDTO.cs" />
   </ItemGroup>
+  <ItemGroup><Compile Include="CLASS_SYSTEM\MonitoringService.cs" /></ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>

@@ -170,8 +170,9 @@ namespace HRMS_API.Controllers
                 question = request.Clarification.FreeTextAnswer.Trim();
             }
 
-            // 5. Khởi tạo CancellationToken với thời gian chờ tối đa 35 giây
-            using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(35)))
+            // One configured deadline covers the whole pipeline, including retrieval and Ollama.
+            int timeoutSeconds = AiConfigurationSnapshot.NormalizeRequestTimeout(AiConfigurationCoordinator.Instance.CurrentSnapshot.AiRequestTimeoutSeconds);
+            using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(timeoutSeconds)))
             {
                 try
                 {
@@ -196,6 +197,7 @@ namespace HRMS_API.Controllers
                         ConversationVersion = execResult.ConversationVersion,
                         RequestId = execResult.ClientRequestId ?? Guid.NewGuid().ToString("N"),
                         Source = execResult.Provenance ?? (execResult.BypassedLlm ? "Deterministic_Engine" : "RAG_Engine"),
+                        Diagnostics = execResult.Diagnostics,
                         SqlQuery = string.Empty, // Không lộ cấu trúc SQL ra client
                         InterpretedRequest = execResult.InterpretedRequest != null ? new InterpretedRequestSummaryDto
                         {
@@ -243,11 +245,12 @@ namespace HRMS_API.Controllers
                     return Content(HttpStatusCode.GatewayTimeout, new AiChatResponseDto
                     {
                         Status = "error",
-                        Answer = "Yêu cầu xử lý đã quá thời gian cho phép (35 giây). Vui lòng thử lại với câu hỏi ngắn gọn hơn.",
+                        Answer = $"Yêu cầu xử lý đã quá thời gian chờ AI ({timeoutSeconds} giây). Vui lòng thử lại hoặc điều chỉnh thời gian chờ trong cấu hình AI.",
                         ConversationId = conversationId,
                         Source = "Timeout_Handler"
                     });
                 }
+                catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
                 catch (Exception ex)
                 {
                     System.Diagnostics.Trace.TraceError("Lỗi trong AiChatController.Chat: " + ex.GetType().Name);
@@ -316,6 +319,7 @@ namespace HRMS_API.Controllers
                 var result = await Bu.Services.AI_Services.Vector.QdrantOutboxManager.Instance.ReconcileAllEmployeesAsync();
                 return Ok(result);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi trong ReconcileVectors: " + ex.ToString());
@@ -337,6 +341,7 @@ namespace HRMS_API.Controllers
                 int pending = Bu.Services.AI_Services.Vector.QdrantOutboxManager.Instance.PendingCount;
                 return Ok(new { pendingMessages = pending });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi trong GetOutboxStatus: " + ex.ToString());
@@ -380,6 +385,7 @@ namespace HRMS_API.Controllers
                 aiTopK = snap.AiTopK,
                 aiTopP = snap.AiTopP,
                 aiRepeat = snap.AiRepeat,
+                aiRequestTimeoutSeconds = snap.AiRequestTimeoutSeconds,
                 version = snap.Version,
                 updatedAt = snap.UpdatedAt
             });
@@ -439,6 +445,7 @@ namespace HRMS_API.Controllers
                     aiTopK = snapshot.AiTopK,
                     aiTopP = snapshot.AiTopP,
                     aiRepeat = snapshot.AiRepeat,
+                    aiRequestTimeoutSeconds = snapshot.AiRequestTimeoutSeconds,
                     version = snapshot.Version,
                     updatedAt = snapshot.UpdatedAt
                 }
@@ -481,7 +488,19 @@ namespace HRMS_API.Controllers
             }
 
             var testResult = await AiConfigurationCoordinator.Instance.TestTargetEndpointAsync(req.Target, req.Url, req.Model);
-            return Ok(testResult);
+            return Ok(new
+            {
+                success = testResult.Success,
+                Success = testResult.Success,
+                targetKind = testResult.TargetKind,
+                TargetKind = testResult.TargetKind,
+                message = testResult.Message,
+                Message = testResult.Message,
+                statusCode = testResult.StatusCode,
+                StatusCode = testResult.StatusCode,
+                latencyMs = testResult.LatencyMs,
+                LatencyMs = testResult.LatencyMs
+            });
         }
 
         private static bool IsOllamaOnline()
@@ -610,6 +629,7 @@ namespace HRMS_API.Controllers
                     columns = listResult.Data != null ? listResult.Data.Columns.Cast<System.Data.DataColumn>().Select(c => c.ColumnName).ToList() : new List<string>()
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi trong AiChatController.GetDashboard: " + ex);
@@ -717,6 +737,9 @@ namespace HRMS_API.Controllers
 
         [JsonProperty("source")]
         public string Source { get; set; }
+
+        [JsonProperty("diagnostics")]
+        public List<AiTraceEvent> Diagnostics { get; set; } = new List<AiTraceEvent>();
 
         [JsonProperty("sqlQuery")]
         public string SqlQuery { get; set; } = string.Empty;

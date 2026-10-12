@@ -17,13 +17,43 @@ export const getLocalizedRequestStatus = (status: string | null | undefined): st
 };
 
 /**
+ * Check if a payroll status represents a completed/paid payment.
+ * Explicitly guards against 'unpaid', 'chưa thanh toán', 'chờ thanh toán', 'pending'.
+ */
+export const isPayrollPaid = (status: string | null | undefined): boolean => {
+  if (!status) return false;
+  const lower = status.trim().toLowerCase();
+
+  // Explicit negative guards: unpaid, pending, awaiting, not yet paid
+  if (
+    lower.includes('unpaid') ||
+    lower.includes('chưa') ||
+    lower.includes('chờ') ||
+    lower.includes('pending') ||
+    lower.includes('awaiting')
+  ) {
+    return false;
+  }
+
+  // Positive markers for paid status
+  return (
+    lower === 'paid' ||
+    lower === 'đã thanh toán' ||
+    lower === 'da thanh toan' ||
+    lower === 'hoàn tất' ||
+    lower === 'hoan tat' ||
+    lower === 'đã chi trả' ||
+    lower === 'da chi tra' ||
+    (lower.startsWith('đã') && !lower.includes('chưa'))
+  );
+};
+
+/**
  * Map raw payroll payment status to localized string
  */
 export const getLocalizedPayrollStatus = (status: string | null | undefined): string => {
   if (!status) return i18n.t('payroll.statusPending');
-  const lower = status.trim().toLowerCase();
-
-  if (lower.includes('đã') || lower.includes('paid') || lower.includes('hoàn tất') || lower.includes('thanh toán')) {
+  if (isPayrollPaid(status)) {
     return i18n.t('payroll.statusPaid');
   }
   return i18n.t('payroll.statusPending');

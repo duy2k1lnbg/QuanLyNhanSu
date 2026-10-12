@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
@@ -139,15 +139,72 @@ namespace Bu.Services.AI_Services.Security
                         {
                             while (reader.Read())
                             {
-                                ctx.ScopeGrants.Add(new AiScopeGrant
+                                var grant = new AiScopeGrant
                                 {
-                                    CapabilityCode = reader["CAPABILITY_CODE"].ToString(),
-                                    ScopeType = reader["SCOPE_TYPE"].ToString(),
+                                    CapabilityCode = reader["CAPABILITY_CODE"]?.ToString(),
+                                    ScopeType = reader["SCOPE_TYPE"]?.ToString(),
                                     ScopeKey = reader["SCOPE_KEY"]?.ToString(),
-                                    Effect = reader["EFFECT"].ToString(),
+                                    Effect = reader["EFFECT"]?.ToString(),
                                     ValidTo = reader["VALID_TO"] != DBNull.Value ? (DateTime?)Convert.ToDateTime(reader["VALID_TO"]) : null
-                                });
+                                };
+                                ctx.ScopeGrants.Add(grant);
+
+                                if (string.Equals(grant.Effect, "ALLOW", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    if (string.Equals(grant.ScopeType, "ALL", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        ctx.HasAllScope = true;
+                                        ctx.HasCompanyScope = true;
+                                    }
+                                    else if (string.Equals(grant.ScopeType, "COMPANY", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        ctx.HasCompanyScope = true;
+                                    }
+                                    else if (string.Equals(grant.ScopeType, "DEPARTMENT", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        if (!string.IsNullOrWhiteSpace(grant.ScopeKey) && int.TryParse(grant.ScopeKey.Trim(), out int deptId) && deptId > 0)
+                                        {
+                                            ctx.AllowedDepartmentIds.Add(deptId);
+                                        }
+                                    }
+                                }
                             }
+                            if (ctx.HasAllScope || (ctx.FunctionRights != null && ctx.FunctionRights.Contains("F_SYSTEM_ADMIN")))
+                            {
+                                ctx.IsAdmin = true;
+                            }
+                        }
+
+                        stage = "role_membership";
+                        // Read roles through the proof-validated AI_OWNER boundary, never HR tables.
+                        try
+                        {
+                            var rolesProof = _proofService.GenerateProof(userId, "ACTOR_SNAPSHOT");
+                            using (var rolesCommand = conn.CreateCommand())
+                            {
+                                rolesCommand.BindByName = true; rolesCommand.CommandTimeout = 10;
+                                rolesCommand.CommandType = CommandType.StoredProcedure;
+                                rolesCommand.CommandText = "AI_OWNER.GET_ACTOR_ROLE_IDS";
+                                rolesCommand.Parameters.Add(new OracleParameter("p_actor_id", OracleDbType.Int32) { Value=userId });
+                                rolesCommand.Parameters.Add(new OracleParameter("p_audience", OracleDbType.Varchar2) { Value=rolesProof.Audience });
+                                rolesCommand.Parameters.Add(new OracleParameter("p_nonce", OracleDbType.Varchar2) { Value=rolesProof.Nonce });
+                                rolesCommand.Parameters.Add(new OracleParameter("p_exp", OracleDbType.Int64) { Value=rolesProof.ExpEpochSeconds });
+                                rolesCommand.Parameters.Add(new OracleParameter("p_signature", OracleDbType.Varchar2) { Value=rolesProof.SignatureHex });
+                                var rolesCursor = new OracleParameter("p_roles", OracleDbType.RefCursor) { Direction=ParameterDirection.Output };
+                                rolesCommand.Parameters.Add(rolesCursor); rolesCommand.ExecuteNonQuery();
+                                using (var rolesReader = ((OracleRefCursor)rolesCursor.Value).GetDataReader())
+                                    while (rolesReader.Read())
+                                    {
+                                        int roleId=Convert.ToInt32(rolesReader["ROLE_ID"]);
+                                        if(roleId>0) ctx.AllowedRoleIds.Add(roleId.ToString(System.Globalization.CultureInfo.InvariantCulture));
+                                    }
+                                AiRequestTrace.Record("ACL_MEMBERSHIP", "Nạp nhóm quyền từ thủ tục được xác thực", new {roleCount=ctx.AllowedRoleIds.Count});
+                            }
+                        }
+                        catch (OracleException rolesError) when (rolesError.Number==6550 || rolesError.Number==1031)
+                        {
+                            ctx.AllowedRoleIds.Clear();
+                            AiRequestTrace.Record("ACL_MEMBERSHIP", "Chưa có thủ tục đọc nhóm; chặn tài liệu theo nhóm khi chưa xác minh được quyền", new {roleCount=0, oracleCode=rolesError.Number});
                         }
 
                         // 6. Read Revisions

@@ -28,7 +28,7 @@ namespace QLyNSu
         private KHENTHUONG_KYLUAT _ktkl;
         private NHANVIEN _nhanvien;
         public List<KHENTHUONG_KYLUAT_DTO> _lstKL;
-        private void FrmKyLuat_Load(object sender, EventArgs e)
+        private async void FrmKyLuat_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_NV_KYLUAT")) return;
 
@@ -36,8 +36,10 @@ namespace QLyNSu
             _nhanvien = new NHANVIEN();
             _them = false;
             showHide(true);
-            LoadData();
-            loadNhanVien();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            await loadNhanVien();
+            if (IsDisposed || Disposing) return;
             splitContainer1.Panel1Collapsed = true;
             spSoTien.Enter += (s, ev) => { BeginInvoke((Action)(() => spSoTien.SelectAll())); };
             spNamApDung.Enter += (s, ev) => { BeginInvoke((Action)(() => spNamApDung.SelectAll())); };
@@ -101,17 +103,29 @@ namespace QLyNSu
             }
         }
 
-        private void loadNhanVien()
+        private async Task loadNhanVien()
         {
-            searchMANV.Properties.DataSource = _nhanvien.getList();
+            try
+            {
+            searchMANV.Properties.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _nhanvien.getList());
             searchMANV.Properties.ValueMember = "MANV";
             searchMANV.Properties.DisplayMember = "HOTEN";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsKl.DataSource = _ktkl.getListFull(2);
+            try
+            {
+            gcDsKl.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _ktkl.getListFull(2));
             FormManager_Functions.CustomView_Colums(gvDsKl);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -132,7 +146,7 @@ namespace QLyNSu
             gcDsKl.Enabled = true;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_NV_KYLUAT", Bu.DTO.PermissionAction.Delete)) return;
             splitContainer1.Panel1Collapsed = true;
@@ -141,14 +155,16 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _ktkl.Delete(_SOQD,1);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
             splitContainer1.Panel1Collapsed = true;

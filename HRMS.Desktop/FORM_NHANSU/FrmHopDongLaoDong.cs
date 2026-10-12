@@ -556,6 +556,8 @@ namespace QLyNSu
 
         private async void btnPhuLuc_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            try
+            {
             if (string.IsNullOrEmpty(_SOHD))
             {
                 DevExpress.XtraEditors.XtraMessageBox.Show("Vui lòng chọn một hợp đồng lao động để lập phụ lục!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -563,6 +565,7 @@ namespace QLyNSu
             }
 
             var hd = await Task.Run(() => _hdld.getItem(_SOHD));
+            if (IsDisposed || Disposing) return;
             if (hd == null)
             {
                 DevExpress.XtraEditors.XtraMessageBox.Show("Không tìm thấy thông tin hợp đồng đã chọn!", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -572,11 +575,15 @@ namespace QLyNSu
             string tenNhanVien = searchMANV.Text;
             using (var frm = new FrmPhuLucHopDong(hd, tenNhanVien))
             {
-                if (frm.ShowDialog(this) == DialogResult.OK)
+                if (await Functions.ChildFormWindow.ShowAsync(this, frm) == DialogResult.OK)
                 {
                     await LoadDataAsync();
                 }
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
     }
 }

@@ -58,6 +58,7 @@ namespace Bu.CLASS_CHAMCONG
             catch (Exception ex)
             {
 
+                if (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) throw new Bu.CLASS_SYSTEM.BusinessException("PAYROLL_FROZEN", Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage, ex);
                 throw new Exception("Lỗi Add data " + ex.Message);
             }
         }
@@ -82,6 +83,7 @@ namespace Bu.CLASS_CHAMCONG
             catch (Exception ex)
             {
 
+                if (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) throw new Bu.CLASS_SYSTEM.BusinessException("PAYROLL_FROZEN", Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage, ex);
                 throw new Exception("Lỗi Update data " + ex.Message);
             }
         }

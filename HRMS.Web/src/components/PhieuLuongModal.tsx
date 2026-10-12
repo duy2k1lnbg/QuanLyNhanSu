@@ -3,6 +3,7 @@ import { Modal, Button, Spin } from 'antd';
 import { PrinterOutlined } from '@ant-design/icons';
 import type { BangLuongDTO } from '../types/hrms';
 import api from '../services/api';
+import { useAppLanguage } from '../services/i18n';
 
 export interface ChiTietLuongNVDTO {
   IDBL?: number;
@@ -60,6 +61,7 @@ interface PhieuLuongModalProps {
   onClose: () => void;
   record: BangLuongDTO | null;
   kyCongLabel?: string;
+  printAllowed?: boolean;
 }
 
 export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
@@ -67,7 +69,9 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
   onClose,
   record,
   kyCongLabel,
+  printAllowed = false,
 }) => {
+  const { t } = useAppLanguage();
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [detailData, setDetailData] = useState<ChiTietLuongNVDTO | null>(null);
 
@@ -207,6 +211,7 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
 
   // In A4 thông qua iframe độc lập để không dính URL header/footer hay modal styling
   const handlePrint = () => {
+    if (!printAllowed) return;
     const payslipEl = document.getElementById('printable-payslip');
     if (!payslipEl) {
       window.print();
@@ -301,11 +306,13 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
       footer={
         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '8px', paddingTop: '10px', flexWrap: 'wrap' }}>
           <Button onClick={onClose} size="middle" style={{ borderRadius: '6px' }}>
-            Đóng
+            {t('payslip.btnClose')}
           </Button>
           <Button
             type="primary"
             icon={<PrinterOutlined />}
+            disabled={!printAllowed}
+            title={!printAllowed ? t('attendanceOps.printDenied') : undefined}
             onClick={handlePrint}
             size="middle"
             style={{
@@ -315,12 +322,12 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
               boxShadow: '0 2px 4px rgba(22, 119, 255, 0.25)',
             }}
           >
-            In Bảng Lương (A4)
+            {t('payslip.btnPrint')}
           </Button>
         </div>
       }
     >
-      <Spin spinning={loadingDetail} tip="Đang tải dữ liệu chi tiết từ CSDL...">
+      <Spin spinning={loadingDetail} tip={t('payslip.loading')}>
         {/* CONTAINER SCROLL ĐỂ XEM ĐẦY ĐỦ 51 MỤC TRÊN MÀN HÌNH */}
         <div
           id="printable-payslip-wrapper"
@@ -430,15 +437,15 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
                 }}
               >
                 <div style={{ flex: 1.3, padding: '7px 12px', borderRight: '1px solid #cbd5e1' }}>
-                  <span style={{ color: '#64748b', marginRight: '4px' }}>Họ và tên:</span>
+                  <span style={{ color: '#64748b', marginRight: '4px' }}>{t('employee360.fullName')}:</span>
                   <strong style={{ fontSize: '13px', color: '#0f172a' }}>{record.HOTEN}</strong>
                 </div>
                 <div style={{ flex: 1.3, padding: '7px 12px', borderRight: '1px solid #cbd5e1' }}>
-                  <span style={{ color: '#64748b', marginRight: '4px' }}>Phòng ban:</span>
+                  <span style={{ color: '#64748b', marginRight: '4px' }}>{t('employee360.department')}</span>
                   <strong style={{ color: '#1e293b' }}>{tenpb}</strong>
                 </div>
                 <div style={{ width: '180px', padding: '7px 12px', textAlign: 'center' }}>
-                  <span style={{ color: '#64748b', marginRight: '4px' }}>Mã NV:</span>
+                  <span style={{ color: '#64748b', marginRight: '4px' }}>{t('employee360.empCodeLabel')}:</span>
                   <strong style={{ color: '#1e40af', fontSize: '13px' }}>{record.MANV}</strong>
                 </div>
               </div>
@@ -457,16 +464,16 @@ export const PhieuLuongModal: React.FC<PhieuLuongModalProps> = ({
               <thead>
                 <tr style={{ backgroundColor: '#f1f5f9', color: '#0f172a', fontWeight: 700, textAlign: 'center' }}>
                   <th style={{ width: '48px', border: '1px solid #cbd5e1', borderBottom: '1.5px solid #334155', padding: '6px 3px' }}>
-                    Mục
+                    {t('payslip.colNo')}
                   </th>
                   <th style={{ border: '1px solid #cbd5e1', borderBottom: '1.5px solid #334155', padding: '6px 10px', textAlign: 'left' }}>
-                    Nội dung diễn giải chi tiết
+                    {t('payslip.colContent')}
                   </th>
                   <th style={{ width: '140px', border: '1px solid #cbd5e1', borderBottom: '1.5px solid #334155', padding: '6px 6px' }}>
-                    Số lượng / Công / Giờ
+                    {t('payslip.colQuantity')}
                   </th>
                   <th style={{ width: '155px', border: '1px solid #cbd5e1', borderBottom: '1.5px solid #334155', padding: '6px 10px', textAlign: 'right' }}>
-                    Thành tiền (VNĐ)
+                    {t('payslip.colAmount')}
                   </th>
                 </tr>
               </thead>

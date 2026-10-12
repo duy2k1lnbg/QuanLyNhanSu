@@ -167,12 +167,14 @@ namespace Bu.CLASS_PAYROLL
             var unionPolicy = _policyResolver.GetUnionPolicy(effectiveDate);
             var taxPolicy = _policyResolver.GetTaxPolicy(nam, effectiveDate);
             var monthTaxBrackets = _policyResolver.GetTaxBrackets(taxPolicy.ID, "MONTH");
+            var insuranceRegionSnapshot = _policyResolver.GetInsuranceRegions(insurancePolicy.ID);
 
             using (var db = new MyEntities())
             {
                 // 0. Pre-flight Checks (Fail-Closed)
+                EnsureNotPublished(db,makycong);
                 // A. Check Period Lock: Cannot recalculate if locked
-                var kyCong = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == (decimal)makycong);
+                var kyCong = db.TB_KYCONG.AsNoTracking().FirstOrDefault(x => x.MAKYCONG == (decimal)makycong);
                 if (kyCong == null)
                 {
                     throw new InvalidOperationException($"Không tìm thấy kỳ công {makycong} trong hệ thống.");
@@ -221,7 +223,7 @@ namespace Bu.CLASS_PAYROLL
                 );
 
                 // Load all eligible employees in period (prioritizing TB_LUONG_HIEULUC with fallback to TB_HOPDONG)
-                var employees = db.Database.SqlQuery<EmployeeAttendanceRow>(@"
+                var employeeQuery = @"
                     SELECT MANV, HOTEN, BASE_SALARY, IDPB, IDCV, CONTRACT_COUNT, CONTRACT_START, CONTRACT_END FROM (
                         SELECT nv.MANV, nv.HOTEN, 
                                NVL(lh.LUONG_THANG, hd.LUONG_THOA_THUAN) AS BASE_SALARY, 
@@ -240,7 +242,8 @@ namespace Bu.CLASS_PAYROLL
                           AND hd.DEL_DATE IS NULL
                           AND hd.NGAYBATDAU <= :p_end
                           AND (hd.NGAYKETTHUC IS NULL OR hd.NGAYKETTHUC >= :p_start)
-                    ) WHERE RN = 1 ORDER BY MANV",
+                    ) WHERE RN = 1 ORDER BY MANV";
+                var employees = PayrollPreparationSql.Query<EmployeeAttendanceRow>(db, employeeQuery,
                     new OracleParameter("p_start", new DateTime(nam, thang, 1)),
                     new OracleParameter("p_end", effectiveDate)).ToList();
 
@@ -281,7 +284,7 @@ namespace Bu.CLASS_PAYROLL
                             {
                                 var c1 = allContracts[i];
                                 var c2 = allContracts[i + 1];
-                                if (c1.NGAYKETTHUC.HasValue && c1.NGAYKETTHUC.Value >= c2.NGAYBATDAU)
+                                if (!c1.NGAYKETTHUC.HasValue || c1.NGAYKETTHUC.Value >= c2.NGAYBATDAU)
                                 {
                                     throw new InvalidOperationException($"EMPLOYMENT_INTERVAL_OVERLAP: Có hợp đồng chồng lấn thời gian hiệu lực ({c1.SOHD} kết thúc {c1.NGAYKETTHUC:dd/MM/yyyy} trùng lặp với {c2.SOHD} bắt đầu {c2.NGAYBATDAU:dd/MM/yyyy}).");
                                 }
@@ -368,17 +371,46 @@ namespace Bu.CLASS_PAYROLL
                             throw new InvalidOperationException("Dữ liệu chấm công đã bị thay đổi trong quá trình tính toán lương. Toàn bộ giao dịch bị hủy bỏ; vui lòng tính toán lại.");
                         }
 
+                        EnsureNotPublished(db,makycong);
+
                         // Re-verify period is still unlocked under pessimistic lock
-                        var lockedKc = db.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == (decimal)makycong);
+                        var lockedKc = db.TB_KYCONG.AsNoTracking().FirstOrDefault(x => x.MAKYCONG == (decimal)makycong);
                         if (lockedKc != null && (lockedKc.KHOA ?? 0) == 1)
                         {
                             throw new InvalidOperationException($"Kỳ công {makycong} đã bị khóa trong khi đang xử lý.");
+                        }
+
+                        // Preparation editors lock this period as well. Re-read under that lock so a
+                        // concurrent policy/profile edit cannot commit a payroll based on outdated values.
+                        _policyResolver.RefreshCache();
+                        Func<object, object, bool> sameInput = (a, b) => Newtonsoft.Json.JsonConvert.SerializeObject(a) == Newtonsoft.Json.JsonConvert.SerializeObject(b);
+                        if (!sameInput(salaryPolicy, _policyResolver.GetSalaryPolicy(effectiveDate))
+                            || !sameInput(insurancePolicy, _policyResolver.GetInsurancePolicy(effectiveDate))
+                            || !sameInput(unionPolicy, _policyResolver.GetUnionPolicy(effectiveDate))
+                            || !sameInput(taxPolicy, _policyResolver.GetTaxPolicy(nam, effectiveDate))
+                            || !sameInput(monthTaxBrackets, _policyResolver.GetTaxBrackets(taxPolicy.ID, "MONTH"))
+                            || !sameInput(insuranceRegionSnapshot, _policyResolver.GetInsuranceRegions(insurancePolicy.ID)))
+                            throw new InvalidOperationException("Chính sách lương đã thay đổi trong khi tính. Giữ nguyên bảng lương cũ; kiểm tra lại đầu vào rồi tính lại.");
+                        var currentEmployees = PayrollPreparationSql.Query<EmployeeAttendanceRow>(db, employeeQuery,
+                            new OracleParameter("p_start", new DateTime(nam, thang, 1)), new OracleParameter("p_end", effectiveDate));
+                        if (!sameInput(employees, currentEmployees))
+                            throw new InvalidOperationException("Hợp đồng hoặc mức lương đã thay đổi trong khi tính. Giữ nguyên bảng lương cũ và kiểm tra lại danh sách nhân viên.");
+                        foreach (var snapshot in calculatedList)
+                        {
+                            var profileDate = PayrollReadinessService.ProfileDate(new PayrollReadinessService.EmployeeRow { CONTRACT_END = snapshot.Item1.CONTRACT_END }, effectiveDate);
+                            if (!sameInput(snapshot.Item3, _profileResolver.GetInsuranceProfile(snapshot.Item1.MANV, profileDate))
+                                || !sameInput(snapshot.Item4, _profileResolver.GetUnionProfile(snapshot.Item1.MANV, profileDate))
+                                || !sameInput(snapshot.Item5, _profileResolver.GetTaxProfile(snapshot.Item1.MANV, profileDate))
+                                || snapshot.Item6 != _profileResolver.GetActiveDependents(snapshot.Item1.MANV, (int)makycong).Count)
+                                throw new InvalidOperationException("Hồ sơ BHXH/công đoàn/thuế hoặc người phụ thuộc đã thay đổi khi tính. Giữ nguyên bảng lương cũ và tính lại sau khi đối chiếu.");
                         }
 
                         // 4.2 Atomically write every calculated employee
                         foreach (var item in calculatedList)
                         {
                             SaveCalculatedPayroll(db, item.Item2, salaryPolicy, insurancePolicy, unionPolicy, taxPolicy, item.Item3, item.Item4, item.Item5, item.Item6, runId);
+                            db.Database.ExecuteSqlCommand("UPDATE TB_BANGLUONG SET CONG_INPUT_REV_AT_CALC=:p0,CONG_PUBLISH_REV_AT_CALC=:p1 WHERE IDBL=:p2",
+                                new OracleParameter("p0",lockedRevision.INPUT_REV),new OracleParameter("p1",lockedRevision.PUBLISH_REV),new OracleParameter("p2",item.Item2.IDBL));
                         }
 
                         // 4.3 Update calculation run status to SUCCESS in the SAME transaction
@@ -1110,6 +1142,12 @@ namespace Bu.CLASS_PAYROLL
             input.OtNotificationFiled = 1;
 
             return input;
+        }
+
+        private static void EnsureNotPublished(MyEntities db,decimal period)
+        {
+            int count=db.Database.SqlQuery<int>("SELECT COUNT(*) FROM TB_BANGLUONG WHERE MAKYCONG=:p0 AND TRANG_THAI IN ('PUBLISHED','APPROVED','CONG_BO','DA_DUYET','PAID','DA_CHI_TRA')",new OracleParameter("p0",period)).Single();
+            if(count>0)throw new InvalidOperationException(Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage);
         }
 
         private sealed class AttendanceRevisionRow

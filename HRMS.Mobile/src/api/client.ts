@@ -1,4 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
+import { getInstallationId } from '../utils/deviceIdentity';
 import { APP_CONFIG } from '../config';
 import { Platform } from 'react-native';
 import { storage, AppPreferencesStorage } from '../utils/storage';
@@ -12,22 +13,6 @@ export const apiClient = axios.create({
     'X-Client-Type': 'MOBILE',
   },
 });
-
-let cachedDeviceId: string | null = null;
-async function getMobileDeviceId(): Promise<string> {
-  if (cachedDeviceId) return cachedDeviceId;
-  try {
-    let id = await AppPreferencesStorage.getItem('hrms_mobile_device_id');
-    if (!id) {
-      id = 'mob_' + Platform.OS + '_' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-      await AppPreferencesStorage.setItem('hrms_mobile_device_id', id);
-    }
-    cachedDeviceId = id;
-    return id;
-  } catch {
-    return 'mob_' + Platform.OS + '_default';
-  }
-}
 
 let onUnauthorizedCallback: (() => void) | null = null;
 
@@ -55,12 +40,15 @@ apiClient.interceptors.request.use(
       if (config.headers) {
         config.headers['Accept-Language'] = acceptLang;
         config.headers['X-Platform'] = Platform.OS.toUpperCase();
-        config.headers['X-Device-Id'] = await getMobileDeviceId();
+        const deviceId = await getInstallationId();
+        config.headers['X-Device-Id'] = deviceId;
+        config.headers['X-Installation-Id'] = deviceId;
         config.headers['X-Device-Name'] = `${Platform.OS.toUpperCase()} App`;
         config.headers['X-Correlation-Id'] = 'mob_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 7);
       }
     } catch (e) {
       console.warn('[ApiClient] Request interceptor error:', e);
+      return Promise.reject(e);
     }
     return config;
   },
@@ -78,6 +66,61 @@ function deepNormalize(obj: any): any {
     out[camel] = val;
     out[key] = val;
   }
+
+  // Tự động map 2 chiều các alias phổ biến giữa backend Oracle/Vietnamese và DTO Mobile
+  if (out.id === undefined) {
+    out.id = out.idYeuCau ?? out.id_yeucau ?? out.idUl ?? out.id_ul ?? out.idbh ?? out.id_bh;
+  }
+  if (out.idYeuCau === undefined && out.id !== undefined) {
+    out.idYeuCau = out.id;
+  }
+  if (out.fromDate === undefined && out.tuNgay !== undefined) out.fromDate = out.tuNgay;
+  if (out.tuNgay === undefined && out.fromDate !== undefined) out.tuNgay = out.fromDate;
+
+  if (out.toDate === undefined && out.denNgay !== undefined) out.toDate = out.denNgay;
+  if (out.denNgay === undefined && out.toDate !== undefined) out.denNgay = out.toDate;
+
+  if (out.totalDays === undefined && out.soNgay !== undefined) out.totalDays = out.soNgay;
+  if (out.soNgay === undefined && out.totalDays !== undefined) out.soNgay = out.totalDays;
+
+  if (out.leaveType === undefined && out.loaiNghi !== undefined) out.leaveType = out.loaiNghi;
+  if (out.loaiNghi === undefined && out.leaveType !== undefined) out.loaiNghi = out.leaveType;
+
+  if (out.workDate === undefined && out.ngayCong !== undefined) out.workDate = out.ngayCong;
+  if (out.ngayCong === undefined && out.workDate !== undefined) out.ngayCong = out.workDate;
+
+  if (out.requestedCheckIn === undefined && out.gioVaoMoi !== undefined) out.requestedCheckIn = out.gioVaoMoi;
+  if (out.gioVaoMoi === undefined && out.requestedCheckIn !== undefined) out.gioVaoMoi = out.requestedCheckIn;
+
+  if (out.requestedCheckOut === undefined && out.gioRaMoi !== undefined) out.requestedCheckOut = out.gioRaMoi;
+  if (out.gioRaMoi === undefined && out.requestedCheckOut !== undefined) out.gioRaMoi = out.requestedCheckOut;
+
+  if (out.otDate === undefined && out.ngayTangCa !== undefined) out.otDate = out.ngayTangCa;
+  if (out.ngayTangCa === undefined && out.otDate !== undefined) out.ngayTangCa = out.otDate;
+
+  if (out.hours === undefined && out.soGio !== undefined) out.hours = out.soGio;
+  if (out.soGio === undefined && out.hours !== undefined) out.soGio = out.hours;
+
+  if (out.shiftType === undefined && out.tenCa !== undefined) out.shiftType = out.tenCa;
+  if (out.tenCa === undefined && out.shiftType !== undefined) out.tenCa = out.shiftType;
+
+  if (out.amount === undefined && out.soTienUng !== undefined) out.amount = out.soTienUng;
+  if (out.soTienUng === undefined && out.amount !== undefined) out.soTienUng = out.amount;
+
+  if (out.advanceDate === undefined && out.ngayUng !== undefined) out.advanceDate = out.ngayUng;
+  if (out.ngayUng === undefined && out.advanceDate !== undefined) out.ngayUng = out.advanceDate;
+
+  if (out.reason === undefined && (out.lyDo !== undefined || out.noiDung !== undefined || out.ghiChu !== undefined)) {
+    out.reason = out.lyDo ?? out.noiDung ?? out.ghiChu;
+  }
+  if (out.lyDo === undefined && out.reason !== undefined) out.lyDo = out.reason;
+
+  if (out.status === undefined && out.trangThai !== undefined) out.status = out.trangThai;
+  if (out.trangThai === undefined && out.status !== undefined) out.trangThai = out.status;
+
+  if (out.createdAt === undefined && out.ngayTao !== undefined) out.createdAt = out.ngayTao;
+  if (out.ngayTao === undefined && out.createdAt !== undefined) out.ngayTao = out.createdAt;
+
   return out;
 }
 
@@ -99,7 +142,18 @@ function normalizeResponse(data: any): any {
   return deepNormalize(data);
 }
 
-// Response Interceptor: Handle 401 Unauthorized, Auto-Failover on 404/Network Error, and normalize data
+// Migrate any old cached base URL that contains raw IP or port back to official domain
+(async () => {
+  try {
+    const cachedUrl = await AppPreferencesStorage.getItem(APP_CONFIG.storageKeys.apiBaseUrl);
+    if (cachedUrl && (cachedUrl.includes('103.200.22.79') || cachedUrl.includes(':5000') || cachedUrl.includes('192.168.') || cachedUrl.startsWith('http://tryhardagain.com'))) {
+      await AppPreferencesStorage.setItem(APP_CONFIG.storageKeys.apiBaseUrl, APP_CONFIG.defaultApiBaseUrl);
+      apiClient.defaults.baseURL = APP_CONFIG.defaultApiBaseUrl;
+    }
+  } catch {}
+})();
+
+// Response Interceptor: Handle 401 Unauthorized and normalize data
 apiClient.interceptors.response.use(
   (response) => {
     if (response.data) {
@@ -108,34 +162,7 @@ apiClient.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    const originalRequest = error.config as (InternalAxiosRequestConfig & { _retryCount?: number }) | undefined;
-
-    // Tự động chuyển đổi giữa Domain (tryhardagain.com/api/api) và VPS IP (103.200.22.79:5000/api) khi gặp 404 hoặc lỗi mạng
-    const isFailoverCandidate =
-      !error.response ||
-      error.response.status === 404 ||
-      error.response.status === 502 ||
-      error.response.status === 503 ||
-      error.code === 'ECONNABORTED' ||
-      error.code === 'ERR_NETWORK';
-
-    if (originalRequest && isFailoverCandidate && (!originalRequest._retryCount || originalRequest._retryCount < 2)) {
-      originalRequest._retryCount = (originalRequest._retryCount || 0) + 1;
-      const currentUrl = (originalRequest.baseURL || apiClient.defaults.baseURL || '').toString();
-
-      let targetUrl = APP_CONFIG.fallbackApiBaseUrl;
-      if (currentUrl.includes('5000') || currentUrl.includes(APP_CONFIG.fallbackApiBaseUrl)) {
-        targetUrl = APP_CONFIG.defaultApiBaseUrl;
-      }
-
-      console.warn(`[ApiClient] Request tới ${currentUrl} thất bại (${error.response?.status || error.code || 'lỗi kết nối'}). Tự động thử lại với ${targetUrl}`);
-      apiClient.defaults.baseURL = targetUrl;
-      originalRequest.baseURL = targetUrl;
-
-      return apiClient(originalRequest);
-    }
-
-    if (error.response && error.response.status === 401) {
+    if (error.response && error.response.status === 401 && !error.config?.url?.startsWith('/auth/')) {
       console.warn('[ApiClient] 401 Unauthorized response received');
       await storage.removeToken();
       if (onUnauthorizedCallback) {

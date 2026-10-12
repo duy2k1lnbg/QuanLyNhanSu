@@ -26,15 +26,17 @@ namespace QLyNSu
         private NHANVIEN _nhanvien_nl;
         private HOPDONGLAODONG _hopdong;
 
-        private void FrmNangLuong_NhanVien_Load(object sender, EventArgs e)
+        private async void FrmNangLuong_NhanVien_Load(object sender, EventArgs e)
         {
             _nlnv = new NANGLUONG_NHANVIEN();
             _nhanvien_nl = new NHANVIEN();
             _hopdong = new HOPDONGLAODONG();
             _them = false;
             showHide(true);
-            LoadData();
-            loadHopDong();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            await loadHopDong();
+            if (IsDisposed || Disposing) return;
             splitContainer1.Panel1Collapsed = true;
         }
 
@@ -54,7 +56,7 @@ namespace QLyNSu
             gcDsNL.Enabled = true;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             splitContainer1.Panel1Collapsed = true;
             // Hiển thị hộp thoại xác nhận
@@ -65,14 +67,16 @@ namespace QLyNSu
                 var hd = _hopdong.getItem(searchHopDong.EditValue.ToString());
                 hd.HESOLUONG = decimal.Parse(spHSL_now.EditValue.ToString()); ;
                 _hopdong.Update(hd);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
             splitContainer1.Panel1Collapsed = true;
@@ -159,17 +163,29 @@ namespace QLyNSu
             searchHopDong.Properties.NullText = "Vui lòng chọn";
         }
 
-        private void loadHopDong()
+        private async Task loadHopDong()
         {
-            searchHopDong.Properties.DataSource = _hopdong.getlistFull_DTO();
+            try
+            {
+            searchHopDong.Properties.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _hopdong.getlistFull_DTO());
             searchHopDong.Properties.ValueMember = "SOHD";
             searchHopDong.Properties.DisplayMember = "SOHD";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsNL.DataSource = _nlnv.getListFull();
+            try
+            {
+            gcDsNL.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _nlnv.getListFull());
             FormManager_Functions.CustomView_Colums(gvDsNL);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()

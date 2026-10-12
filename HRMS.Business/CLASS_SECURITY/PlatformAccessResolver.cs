@@ -74,22 +74,8 @@ namespace Bu.CLASS_SECURITY
 
             string funcCode = PlatformFunctionCodes.GetFunctionCodeForChannel(normChannel);
 
-            // 1. Kiểm tra tài khoản Root Admin
-            bool isRootAdmin = false;
-            if (!string.IsNullOrEmpty(username))
-            {
-                isRootAdmin = username.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase);
-            }
-            else
-            {
-                var userRow = db.Database.SqlQuery<string>(
-                    "SELECT USERNAME FROM HR.TB_SYS_USER WHERE IDUSER = :p0",
-                    new OracleParameter("p0", userId)
-                ).FirstOrDefault();
-                isRootAdmin = (userRow != null && userRow.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase));
-            }
-
-            // Quy tắc: ADMIN cấm tuyệt đối MOBILE
+            // Root Admin cấm tuyệt đối Mobile theo chính sách bảo mật Zero-Trust
+            bool isRootAdmin = (username != null && username.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase)) || userId == 1;
             if (isRootAdmin && normChannel == AppChannels.Mobile)
             {
                 return new PlatformResolutionResult

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Bu.Services.AI_Services.Security
@@ -21,7 +21,7 @@ namespace Bu.Services.AI_Services.Security
     {
         public bool IsAdmin()
         {
-            return Bu.CLASS_SYSTEM.UserSession.IsAdmin;
+            return Bu.CLASS_SYSTEM.UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG");
         }
 
         public int GetActorUserId()
@@ -50,18 +50,20 @@ namespace Bu.Services.AI_Services.Security
         private readonly int _actorUserId;
         private readonly string _actorUsername;
         private readonly bool _isAdmin;
+        private readonly string _clientType;
 
-        public ApiAdminSecurityContext(int actorUserId, string actorUsername, bool isAdmin)
+        public ApiAdminSecurityContext(int actorUserId, string actorUsername, bool isAdmin, string clientType = "WEB_API")
         {
             _actorUserId = actorUserId;
             _actorUsername = actorUsername;
             _isAdmin = isAdmin;
+            _clientType = clientType;
         }
 
         public bool IsAdmin() => _isAdmin;
         public int GetActorUserId() => _actorUserId;
         public string GetActorUsername() => _actorUsername;
-        public string GetClientType() => "WEB_API";
+        public string GetClientType() => _clientType;
     }
 
     /// <summary>

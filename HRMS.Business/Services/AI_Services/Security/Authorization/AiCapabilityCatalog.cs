@@ -132,8 +132,8 @@ namespace Bu.Services.AI_Services.Security
                 CapabilityCode = "INSURANCE_VIEW",
                 Domain = "INSURANCE",
                 Operation = "VIEW",
-                RequiredFunctionCode = null,
-                IsEnabled = false, // Management insurance right has not been mapped to a real system function.
+                RequiredFunctionCode = "F_DM_NHANVIEN", // Insurance registration uses employee-profile rights and an explicit AI scope.
+                IsEnabled = true,
                 SourceView = "V_AI_INSURANCE",
                 FieldProfile = "SENSITIVE",
                 Description = "Quản lý tra cứu bảo hiểm của nhân viên"
@@ -215,10 +215,13 @@ namespace Bu.Services.AI_Services.Security
                 Domain = "POLICY",
                 Operation = "LOOKUP",
                 RequiredFunctionCode = null, // Mặc định người dùng xác thực được tra cứu quy chế công khai, trừ khi có DENY hoặc cấu hình riêng
-                SourceView = "hrms_vectors_v2",
+                SourceView = "hrms_knowledge_active",
                 FieldProfile = "DEFAULT",
                 Description = "Tra cứu quy chế, quy trình và văn bản chính sách nhân sự"
             });
+
+            // Đồng bộ trạng thái nguồn: lương và công thô chưa có protected view, bảo hiểm đã có nguồn hồ sơ.
+            ApplyBranchB2Profile();
         }
 
         private static void Register(AiCapabilityDefinition cap)
@@ -236,12 +239,12 @@ namespace Bu.Services.AI_Services.Security
 
         public static void ApplyBranchB2Profile()
         {
-            // B2: 11 capabilities enabled, 5 disabled
+            // Only capabilities without a protected source remain disabled.
             SetEnabled("PAYROLL_SELF", false);
             SetEnabled("PAYROLL_VIEW", false);
             SetEnabled("PAYROLL_SUMMARY", false);
             SetEnabled("ATTENDANCE_DETAIL", false);
-            SetEnabled("INSURANCE_VIEW", false);
+            // INSURANCE_VIEW has a protected source; its function right and AI scope remain mandatory.
         }
 
         public static AiCapabilityDefinition Get(string capabilityCode)

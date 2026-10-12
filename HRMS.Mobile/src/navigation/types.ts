@@ -16,6 +16,7 @@ export type RootStackParamList = {
   Main: NavigatorScreenParams<MainTabParamList> | undefined;
   Contract: undefined;
   Insurance: undefined;
+  Dependents: undefined;
   Settings: undefined;
   LanguageSettings: undefined;
   ThemeSettings: undefined;
@@ -24,6 +25,7 @@ export type RootStackParamList = {
   LeaveRequest: undefined;
   AttendanceCorrection: undefined;
   MyOvertime: undefined;
+  SalaryAdvance: undefined;
   MyRequests: undefined;
   ManagerApprovals: undefined;
 };

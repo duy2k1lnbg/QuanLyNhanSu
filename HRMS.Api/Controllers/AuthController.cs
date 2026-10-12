@@ -22,27 +22,7 @@ namespace HRMS_API.Controllers
         private readonly IAuthSecurityService _authSecurityService = new AuthSecurityService();
         private readonly Bu.CLASS_SECURITY.IChannelPermissionResolver _channelResolver = new Bu.CLASS_SECURITY.ChannelPermissionResolver();
 
-        private string GetClientIpAddress()
-        {
-            try
-            {
-                if (Request.Properties.ContainsKey("MS_HttpContext"))
-                {
-                    var ctx = Request.Properties["MS_HttpContext"] as System.Web.HttpContextWrapper;
-                    if (ctx != null)
-                    {
-                        string ip = ctx.Request.Headers["X-Forwarded-For"];
-                        if (!string.IsNullOrEmpty(ip))
-                        {
-                            return ip.Split(',')[0].Trim();
-                        }
-                        return ctx.Request.UserHostAddress;
-                    }
-                }
-            }
-            catch { }
-            return "127.0.0.1";
-        }
+        private string GetClientIpAddress() => AuditRequestContext.ClientIp(System.Web.HttpContext.Current==null ? null : new System.Web.HttpContextWrapper(System.Web.HttpContext.Current));
 
         private string GetHeaderValue(string headerName)
         {
@@ -177,6 +157,7 @@ namespace HRMS_API.Controllers
                     }
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi hệ thống khi đăng nhập: " + ex.ToString());
@@ -311,7 +292,11 @@ namespace HRMS_API.Controllers
                         }
                     }
 
-                    long tokenVer = Convert.ToInt64(user.TOKEN_VERSION);
+                    var rawTokenVer = db.Database.SqlQuery<decimal?>(
+                        "SELECT NVL(TOKEN_VERSION, 1) FROM HR.TB_SYS_USER WHERE IDUSER = :p0",
+                        new OracleParameter("p0", user.IDUSER)
+                    ).FirstOrDefault();
+                    long tokenVer = Convert.ToInt64(rawTokenVer ?? 1m);
                     string token = JwtService.GenerateToken(
                         (int)user.IDUSER,
                         user.USERNAME,
@@ -338,6 +323,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi trong ExchangeDesktopToken: " + ex);
@@ -453,6 +439,7 @@ namespace HRMS_API.Controllers
                     }
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi trong DesktopLogin: " + ex);
@@ -528,6 +515,7 @@ namespace HRMS_API.Controllers
                                 _channelResolver.ProjectEffectiveRights(channelTree, out freshDetailedRights, out projectedRefreshViewRights);
                             }
                         }
+                        catch (Exception chEx) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(chEx)) { throw; }
                         catch (Exception chEx)
                         {
                             System.Diagnostics.Trace.TraceWarning("[AuthController.RefreshSession] ResolveChannelTree error: " + chEx.Message);
@@ -643,6 +631,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi GetCurrentUser: " + ex.Message);
@@ -671,7 +660,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("change-password")]
-        [JwtAuthorize]
+        [JwtAuthorize(Right="DOIMATKHAU",Action=Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public async Task<IHttpActionResult> ChangePassword([FromBody] ChangePasswordRequest req)
         {
             if (req == null || string.IsNullOrWhiteSpace(req.OldPassword) || string.IsNullOrWhiteSpace(req.NewPassword))
@@ -729,6 +718,12 @@ namespace HRMS_API.Controllers
                     {
                         string correlationId = GetHeaderValue("X-Correlation-Id") ?? Guid.NewGuid().ToString("N");
                         await _authSecurityService.RevokeSessionAsync(jwtClaims.Jti, AuthRevokeReasons.UserLogout, userId, correlationId);
+
+                        string installId = GetHeaderValue("X-Installation-Id");
+                        if (!string.IsNullOrWhiteSpace(installId))
+                        {
+                            Bu.CLASS_SYSTEM.DeviceRegistrationService.DeactivateDevice((long)userId, installId);
+                        }
                     }
                 }
             }

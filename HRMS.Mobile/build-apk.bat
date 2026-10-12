@@ -1,7 +1,7 @@
 @echo off
 chcp 65001 >nul
 echo ==============================================================================
-echo        SCRIPT BUILD APK CHO HRMS MOBILE (Ket noi VPS: 103.200.22.79)
+echo        SCRIPT BUILD APK CHO HRMS MOBILE (Domain: tryhardagain.com)
 echo ==============================================================================
 echo.
 cd /d "%~dp0android"

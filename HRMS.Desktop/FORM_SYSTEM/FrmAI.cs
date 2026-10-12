@@ -137,13 +137,14 @@ namespace QLyNSu.FORM_SYSTEM
                         var panel=new FlowLayoutPanel { Dock=DockStyle.Fill,AutoScroll=true,FlowDirection=FlowDirection.TopDown };
                         dialog.Controls.Add(panel); string selected=null;
                         foreach (var option in result.Clarification.Options) { var value=option.Token; var button=new SimpleButton { Text=option.Label,AutoSize=true }; button.Click+=(s,args)=>{selected=value;dialog.DialogResult=DialogResult.OK;dialog.Close();}; panel.Controls.Add(button); }
-                        if (result.Clarification.Options.Count==0) { var input=new TextBox { Width=460 }; var send=new SimpleButton { Text="Gửi bổ sung" }; send.Click+=(s,args)=>{selected=input.Text;dialog.DialogResult=DialogResult.OK;dialog.Close();}; panel.Controls.Add(input);panel.Controls.Add(send); }
-                        if (dialog.ShowDialog(this)!=DialogResult.OK || string.IsNullOrWhiteSpace(selected)) break;
+                        if (result.Clarification.Options.Count==0) { var input=new TextBox { Width=460 }; var send=new SimpleButton { Text=QLyNSu.Functions.TranslationManager.Translate("Gửi bổ sung") }; send.Click+=(s,args)=>{selected=input.Text;dialog.DialogResult=DialogResult.OK;dialog.Close();}; panel.Controls.Add(input);panel.Controls.Add(send); }
+                        QLyNSu.Functions.TranslationManager.Translate(dialog);
+                        if (await Functions.ChildFormWindow.ShowAsync(this, dialog)!=DialogResult.OK || string.IsNullOrWhiteSpace(selected)) break;
                         result=result.Clarification.Options.Count>0 ? await _manager.ProcessClarificationAsync(selected) : await _manager.ProcessQuery(selected);
                     }
                 }
                 // Show AI explanation dialog
-                XtraMessageBox.Show(result.Answer, "Câu trả lời từ AI Copilot", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                XtraMessageBox.Show(result.Answer, QLyNSu.Functions.TranslationManager.Translate("Câu trả lời từ AI Copilot"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 
                 if (result.Data != null && result.Data.Rows.Count > 0)
                 {
@@ -157,7 +158,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
             catch (Exception)
             {
-                if (!IsDisposed && !Disposing) XtraMessageBox.Show("Không thể hoàn tất yêu cầu. Vui lòng thử lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (!IsDisposed && !Disposing) XtraMessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Không thể hoàn tất yêu cầu. Vui lòng thử lại."), QLyNSu.Functions.TranslationManager.Translate("Thông báo"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
             finally
             {

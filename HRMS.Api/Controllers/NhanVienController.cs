@@ -42,6 +42,7 @@ namespace HRMS_API.Controllers
 
                 return Ok(list);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách nhân viên: " + ex.ToString());
@@ -91,6 +92,7 @@ namespace HRMS_API.Controllers
 
                 return Ok(nv);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lấy thông tin nhân viên #" + id + ": " + ex.ToString());
@@ -403,6 +405,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lấy Profile 360 nhân viên #" + id + ": " + ex.ToString());
@@ -470,6 +473,7 @@ namespace HRMS_API.Controllers
                 var created = _nhanVienBus.Add(nv);
                 return Ok(created);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi thêm mới nhân viên: " + ex.ToString());
@@ -512,6 +516,7 @@ namespace HRMS_API.Controllers
                 var updated = _nhanVienBus.Update(nv);
                 return Ok(updated);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi cập nhật nhân viên #" + id + ": " + ex.ToString());
@@ -550,6 +555,7 @@ namespace HRMS_API.Controllers
 
                 return Ok(new { success = true, message = "Đã cập nhật ảnh đại diện thành công!" });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi cập nhật ảnh đại diện #" + id + ": " + ex.ToString());
@@ -612,6 +618,7 @@ namespace HRMS_API.Controllers
                 _nhanVienBus.Delete(id, currentUserId);
                 return Ok(new { success = true, message = $"Đã chuyển trạng thái nhân viên #{id} sang Đã thôi việc thành công." });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi cho thôi việc nhân viên #" + id + ": " + ex.ToString());
@@ -646,6 +653,7 @@ namespace HRMS_API.Controllers
                 _nhanVienBus.Restore(id, currentUserId);
                 return Ok(new { success = true, message = $"Đã khôi phục trạng thái đi làm lại cho nhân viên #{id} thành công." });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi khôi phục nhân viên #" + id + ": " + ex.ToString());

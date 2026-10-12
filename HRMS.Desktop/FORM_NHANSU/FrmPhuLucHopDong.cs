@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu;
 using Bu.DTO;
 using Bu.CLASS_SYSTEM;
@@ -17,6 +18,7 @@ namespace QLyNSu.FORM_NHANSU
     {
         private TB_HOPDONG _hopDong;
         private string _tenNhanVien;
+        private int _termsVersion;
         private BindingList<DieuKhoanPhuLucItem> _items = new BindingList<DieuKhoanPhuLucItem>();
         private LUONG_HIEULUC _luongHieuLuc;
 
@@ -82,7 +84,7 @@ namespace QLyNSu.FORM_NHANSU
             _tenNhanVien = tenNhanVien;
         }
 
-        private void FrmPhuLucHopDong_Load(object sender, EventArgs e)
+        private async void FrmPhuLucHopDong_Load(object sender, EventArgs e)
         {
             if (_hopDong != null)
             {
@@ -97,7 +99,9 @@ namespace QLyNSu.FORM_NHANSU
                 txtCanCu.Text = $"Căn cứ HĐLĐ số {_hopDong.SOHD} ký ngày {(_hopDong.NGAYKY.HasValue ? _hopDong.NGAYKY.Value.ToString("dd/MM/yyyy") : "...")}";
                 txtNoiDung.Text = "Điều chỉnh mức lương theo năng lực và hiệu quả công việc";
 
-                LoadDieuKhoanMucLuong(dtNgayHieuLuc.DateTime);
+                await LoadDieuKhoanMucLuong(dtNgayHieuLuc.DateTime);
+
+                if (IsDisposed || Disposing) return;
                 dtNgayHieuLuc.EditValueChanged += DtNgayHieuLuc_EditValueChanged;
             }
 
@@ -106,34 +110,39 @@ namespace QLyNSu.FORM_NHANSU
             Functions.TranslationManager.Translate(this);
         }
 
-        private void DtNgayHieuLuc_EditValueChanged(object sender, EventArgs e)
+        private async void DtNgayHieuLuc_EditValueChanged(object sender, EventArgs e)
         {
             if (dtNgayHieuLuc.EditValue != null && _hopDong != null)
             {
-                LoadDieuKhoanMucLuong(dtNgayHieuLuc.DateTime);
+                await LoadDieuKhoanMucLuong(dtNgayHieuLuc.DateTime);
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void LoadDieuKhoanMucLuong(DateTime effectiveDate)
+        private async Task LoadDieuKhoanMucLuong(DateTime effectiveDate)
         {
-            _items.Clear();
+            try
+            {
+            var version = ++_termsVersion;
+            var items = new System.Collections.Generic.List<DieuKhoanPhuLucItem>();
             decimal manv = (decimal)(_hopDong.MANV ?? 0);
             decimal mucLuongHienTai = _hopDong.LUONG_THOA_THUAN ?? 0;
 
             try
             {
-                var hieuLuc = _luongHieuLuc.GetLuongHieuLucTaiNgay(manv, effectiveDate);
+                var hieuLuc = await Functions.FormDataLoader.ReadAsync(this, () => _luongHieuLuc.GetLuongHieuLucTaiNgay(manv, effectiveDate));
                 if (hieuLuc != null && hieuLuc.LUONG_THANG > 0)
                 {
                     mucLuongHienTai = hieuLuc.LUONG_THANG;
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch
             {
                 // Fallback to contract agreed salary
             }
 
-            _items.Add(new DieuKhoanPhuLucItem
+            items.Add(new DieuKhoanPhuLucItem
             {
                 IdPc = 0,
                 KhoanMuc = "Lương thỏa thuận / chính",
@@ -149,16 +158,16 @@ namespace QLyNSu.FORM_NHANSU
                 using (var db = new MyEntities())
                 {
                     int imanv = (int)manv;
-                    var pcs = (from np in db.TB_NHANVIEN_PHUCAP
+                    var pcs = await Functions.FormDataLoader.ReadAsync(this, () => (from np in db.TB_NHANVIEN_PHUCAP
                                where np.MANV == imanv && np.DELETED_DATE == null
                                join pc in db.TB_PHUCAP on np.IDPC equals pc.IDPC
-                               select new { np.IDPC, pc.TENPC, np.SOTIEN, np.CACH_TINH }).ToList();
+                               select new { np.IDPC, pc.TENPC, np.SOTIEN, np.CACH_TINH }).ToList());
 
                     if (pcs.Count > 0)
                     {
                         foreach (var p in pcs)
                         {
-                            _items.Add(new DieuKhoanPhuLucItem
+                            items.Add(new DieuKhoanPhuLucItem
                             {
                                 IdPc = (int)p.IDPC,
                                 KhoanMuc = p.TENPC,
@@ -171,7 +180,7 @@ namespace QLyNSu.FORM_NHANSU
                     }
                     else
                     {
-                        _items.Add(new DieuKhoanPhuLucItem
+                        items.Add(new DieuKhoanPhuLucItem
                         {
                             IdPc = 1,
                             KhoanMuc = "Phụ cấp trách nhiệm / công việc",
@@ -183,9 +192,10 @@ namespace QLyNSu.FORM_NHANSU
                     }
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch
             {
-                _items.Add(new DieuKhoanPhuLucItem
+                items.Add(new DieuKhoanPhuLucItem
                 {
                     IdPc = 1,
                     KhoanMuc = "Phụ cấp trách nhiệm / công việc",
@@ -195,6 +205,13 @@ namespace QLyNSu.FORM_NHANSU
                     GhiChu = "Phụ cấp bổ sung (nếu có)"
                 });
             }
+            if (version != _termsVersion || IsDisposed || Disposing) return;
+            _items.Clear();
+            foreach (var item in items) _items.Add(item);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void GvDieuKhoan_CellValueChanged(object sender, DevExpress.XtraGrid.Views.Base.CellValueChangedEventArgs e)

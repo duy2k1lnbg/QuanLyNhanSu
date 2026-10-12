@@ -1,4 +1,4 @@
-using DA;
+﻿using DA;
 using Bu.CLASS_SYSTEM;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -672,11 +672,27 @@ namespace Bu.CLASS_SECURITY
                     }
                     catch (Exception ex)
                     {
-                        transaction.Rollback();
+                        try { transaction.Rollback(); } catch { }
                         System.Diagnostics.Trace.TraceError("[AuthSecurityService] AuthenticateAsync error: " + ex);
                         result.Success = false;
                         result.FailureReason = "DATABASE_ERROR";
                         result.ErrorMessage = "Không thể kết nối hoặc xảy ra lỗi dịch vụ xác thực. Vui lòng thử lại sau.";
+                        if (clientType == AppChannels.Desktop)
+                        {
+                            var cause = ex;
+                            while (cause != null && !(cause is OracleException)) cause = cause.InnerException;
+                            var oracle = cause as OracleException;
+                            if (oracle != null)
+                            {
+                                string code = "ORA-" + oracle.Number.ToString("D5");
+                                string guidance = oracle.Number == 942 || oracle.Number == 904
+                                    ? "Kiểm tra đúng service/schema và cấu trúc bảng, cột xác thực trên database VPS."
+                                    : oracle.Number == 1031
+                                        ? "Tài khoản Oracle chưa có đủ quyền thực hiện đăng nhập."
+                                        : "Kiểm tra cấu hình Oracle và nhật ký xác thực trên VPS.";
+                                result.ErrorMessage = "Không thể hoàn tất đăng nhập (" + code + "). " + guidance;
+                            }
+                        }
                         return result;
                     }
                 }

@@ -94,7 +94,19 @@ namespace Bu.CLASS_SECURITY
             { "F_BANGCONG_VIEW", ("F_CC_BANGCONG", ChannelAction.View) },
             { "F_BANGCONG_ADD", ("F_CC_BANGCONG", ChannelAction.Add) },
             { "F_BANGCONG_EDIT", ("F_CC_BANGCONG", ChannelAction.Edit) },
-            { "F_BANGCONG_DELETE", ("F_CC_BANGCONG", ChannelAction.Delete) }
+            { "F_BANGCONG_DELETE", ("F_CC_BANGCONG", ChannelAction.Delete) },
+
+            // Phê duyệt yêu cầu & Giải ngân
+            { "F_PHEDUYET_VIEW", ("F_NV_PHEDUYET", ChannelAction.View) },
+            { "F_PHEDUYET_EDIT", ("F_NV_PHEDUYET", ChannelAction.Edit) },
+            { "F_PHEDUYET_PRINT", ("F_NV_PHEDUYET", ChannelAction.Print) },
+            { "F_APPROVE_ADVANCE_VIEW", ("F_APPROVE_ADVANCE", ChannelAction.View) },
+            { "F_APPROVE_ADVANCE_EDIT", ("F_APPROVE_ADVANCE", ChannelAction.Edit) },
+            { "F_APPROVE_PROFILE_VIEW", ("F_APPROVE_PROFILE", ChannelAction.View) },
+            { "F_APPROVE_PROFILE_EDIT", ("F_APPROVE_PROFILE", ChannelAction.Edit) },
+            { "F_DISBURSE_ADVANCE", ("F_PAYROLL_DISBURSE_ADVANCE", ChannelAction.Edit) },
+            { "F_DISBURSE_ADVANCE_VIEW", ("F_PAYROLL_DISBURSE_ADVANCE", ChannelAction.View) },
+            { "F_DISBURSE_ADVANCE_EDIT", ("F_PAYROLL_DISBURSE_ADVANCE", ChannelAction.Edit) }
         };
 
         public bool ResolveEndpointAction(string rightAlias, out string functionCode, out ChannelAction action)

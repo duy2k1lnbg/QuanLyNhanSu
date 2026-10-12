@@ -144,13 +144,6 @@ export function UserManagementPage({
   };
 
   const handleToggleMobile = async (user: SysUserDTO) => {
-    if (user.IsAdmin || user.Username?.toUpperCase() === 'ADMIN') {
-      notification.warning({
-        message: t('common.warning'),
-        description: 'ADMIN',
-      });
-      return;
-    }
     try {
       const current = user.IsMobileEnabled !== undefined ? user.IsMobileEnabled : (user.ClientType !== 'DESKTOP');
       const targetState = !current;
@@ -215,7 +208,7 @@ export function UserManagementPage({
 
     if (userTab === 'users') {
       if (filterAccountStatus === 'linked' && (!u.Manv && !u.manv)) return false;
-      if (filterAccountStatus === 'unlinked' && (u.Manv || u.manv || u.IsAdmin || u.Username?.toUpperCase() === 'ADMIN')) return false;
+      if (filterAccountStatus === 'unlinked' && (u.Manv || u.manv)) return false;
       if (filterAccountStatus === 'locked' && !u.Disabled) return false;
       if (filterAccountStatus === 'system' && !u.IsAdmin && u.Username?.toUpperCase() !== 'ADMIN') return false;
 
@@ -265,15 +258,6 @@ export function UserManagementPage({
       width: 170,
       render: (_, record) => {
         const manv = record.Manv || record.manv;
-        const isRootAdmin = Boolean(record.IsAdmin || record.Username?.toUpperCase() === 'ADMIN');
-
-        if (isRootAdmin) {
-          return (
-            <Tag color="gold" icon={<SafetyCertificateOutlined />}>
-              ADMIN
-            </Tag>
-          );
-        }
 
         if (manv) {
           return (
@@ -310,14 +294,6 @@ export function UserManagementPage({
       key: 'mobileAccess',
       width: 140,
       render: (_, record: SysUserDTO) => {
-        const isRootAdmin = Boolean(record.IsAdmin || record.Username?.toUpperCase() === 'ADMIN');
-        if (isRootAdmin) {
-          return (
-            <Tag color="default" style={{ fontStyle: 'italic', fontSize: 12 }}>
-              -
-            </Tag>
-          );
-        }
 
         const isEnabled = record.IsMobileEnabled !== undefined ? record.IsMobileEnabled : (record.ClientType !== 'DESKTOP');
         const hasLinked = Boolean(record.Manv || record.manv);
@@ -350,27 +326,6 @@ export function UserManagementPage({
       width: 320,
       fixed: 'right',
       render: (_, record) => {
-        const isRootAdmin = Boolean(record.IsAdmin || record.Username?.toUpperCase() === 'ADMIN');
-
-        if (isRootAdmin) {
-          return (
-            <Space size="small">
-              <Tag color="gold" icon={<SafetyCertificateOutlined />} style={{ padding: '3px 10px', fontWeight: 600, fontSize: 12 }}>
-                SUPER ADMIN
-              </Tag>
-              <Button
-                size="small"
-                icon={<EyeOutlined />}
-                onClick={() => {
-                  setSelectedUserForDetail(record);
-                  setDetailDrawerVisible(true);
-                }}
-              >
-                {t('common.view')}
-              </Button>
-            </Space>
-          );
-        }
 
         return (
           <Space size="small" wrap>
@@ -397,7 +352,7 @@ export function UserManagementPage({
                 {t('user.colEmployeeCode')}
               </Button>
             )}
-            {(!canEdit || canEdit('F_SYSTEM_USER', 'PHANQUYEN')) && (
+            {(!canEdit || canEdit('F_SYSTEM_PQ_CHUCNANG')) && (
               <Button
                 size="small"
                 icon={<SettingOutlined />}

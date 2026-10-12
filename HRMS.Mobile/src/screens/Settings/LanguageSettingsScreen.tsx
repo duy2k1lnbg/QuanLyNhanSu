@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, {useState} from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
@@ -16,6 +16,7 @@ export const LanguageSettingsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { preference, setLanguage } = useLanguage();
   const { colors } = useTheme();
+  const [saving,setSaving]=useState(false);
 
   const options: { id: LanguagePreference; label: string; flag: string }[] = [
     { id: 'system', label: t('language.followSystem'), flag: '🌐' },
@@ -27,7 +28,11 @@ export const LanguageSettingsScreen: React.FC = () => {
   ];
 
   const handleSelect = async (id: LanguagePreference) => {
-    await setLanguage(id);
+    if (saving) return;
+    setSaving(true);
+    try { await setLanguage(id); }
+    catch { Alert.alert(t('common.error'), t('errors.unknown')); }
+    finally { setSaving(false); }
   };
 
   return (
@@ -46,6 +51,7 @@ export const LanguageSettingsScreen: React.FC = () => {
               <React.Fragment key={opt.id}>
                 {index > 0 && <AppDivider marginVertical={spacing.xs} />}
                 <TouchableOpacity
+                  disabled={saving}
                   activeOpacity={0.7}
                   onPress={() => handleSelect(opt.id)}
                   style={styles.optionRow}

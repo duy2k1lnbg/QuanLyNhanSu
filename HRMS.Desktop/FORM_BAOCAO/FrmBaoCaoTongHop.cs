@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu;
 using Bu.CLASS_CHAMCONG;
 using Bu.DTO;
@@ -28,19 +29,22 @@ namespace QLyNSu.FORM_BAOCAO
             InitializeComponent();
         }
 
-        private void FrmBaoCaoTongHop_Load(object sender, EventArgs e)
+        private async void FrmBaoCaoTongHop_Load(object sender, EventArgs e)
         {
-            LoadCombo();
+            await LoadCombo();
+            if (IsDisposed || Disposing) return;
             lstBaoCao.SelectedIndex = 0; // Default selection
             UpdateFilterVisibility();
         }
 
-        private void LoadCombo()
+        private async Task LoadCombo()
         {
             try
             {
+            try
+            {
                 // Load Kỳ công
-                var lstKyCong = _kycong.getList();
+                var lstKyCong = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.getList());
                 cboKyCong.Properties.DataSource = lstKyCong;
                 cboKyCong.Properties.DisplayMember = "MAKYCONG";
                 cboKyCong.Properties.ValueMember = "MAKYCONG";
@@ -48,7 +52,7 @@ namespace QLyNSu.FORM_BAOCAO
                 cboKyCong.Properties.Columns.Add(new LookUpColumnInfo("MAKYCONG", "Kỳ Công"));
 
                 // Load Nhân viên
-                var lstNhanVien = db.TB_NHANVIEN.Where(x => (x.DATHOIVIEC ?? 0) == 0).ToList();
+                var lstNhanVien = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_NHANVIEN.Where(x => (x.DATHOIVIEC ?? 0) == 0).ToList());
                 cboNhanVien.Properties.DataSource = lstNhanVien;
                 cboNhanVien.Properties.DisplayMember = "HOTEN";
                 cboNhanVien.Properties.ValueMember = "MANV";
@@ -59,10 +63,15 @@ namespace QLyNSu.FORM_BAOCAO
                 // Default month selection
                 cboMonth.Text = DateTime.Now.Month.ToString();
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi tải danh mục: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void lstBaoCao_SelectedIndexChanged(object sender, EventArgs e)
@@ -120,19 +129,23 @@ namespace QLyNSu.FORM_BAOCAO
             }
         }
 
-        private void Filter_ValueChanged(object sender, EventArgs e)
+        private async void Filter_ValueChanged(object sender, EventArgs e)
         {
             // Auto reload data when filter value changes
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void btnXem_Click(object sender, EventArgs e)
+        private async void btnXem_Click(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            try
+            {
             int index = lstBaoCao.SelectedIndex;
             try
             {
@@ -141,7 +154,7 @@ namespace QLyNSu.FORM_BAOCAO
                     int days = Convert.ToInt32(spinDays.Value);
                     DateTime targetDate = DateTime.Now.AddDays(days);
                     
-                    var lstHD = _hdld.getlistFull_DTO()
+                    var lstHD = await Functions.FormDataLoader.ReadAsync(this, () => _hdld.getlistFull_DTO()
                         .Where(x => {
                             if (string.IsNullOrEmpty(x.NGAYKETTHUC)) return false;
                             DateTime dt;
@@ -150,7 +163,7 @@ namespace QLyNSu.FORM_BAOCAO
                             }
                             return false;
                         })
-                        .ToList();
+                        .ToList());
 
                     gcData.DataSource = lstHD;
                     ConfigureGridContract();
@@ -160,7 +173,7 @@ namespace QLyNSu.FORM_BAOCAO
                     if (string.IsNullOrEmpty(cboMonth.Text)) return;
                     int month = Convert.ToInt32(cboMonth.Text);
 
-                    var lstNV = db.TB_NHANVIEN
+                    var lstNV = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_NHANVIEN
                         .Where(x => (x.DATHOIVIEC ?? 0) == 0 && x.NGAYSINH != null && x.NGAYSINH.Value.Month == month)
                         .Select(x => new {
                             x.MANV,
@@ -170,7 +183,7 @@ namespace QLyNSu.FORM_BAOCAO
                             x.DIENTHOAI,
                             x.CCCD
                         })
-                        .ToList();
+                        .ToList());
 
                     gcData.DataSource = lstNV;
                     ConfigureGridBirthday();
@@ -182,7 +195,7 @@ namespace QLyNSu.FORM_BAOCAO
                     int nam = (int)makycong / 100;
                     int thang = (int)makycong % 100;
 
-                    var lstTC = (from tc in db.TB_TANGCA
+                    var lstTC = await Functions.FormDataLoader.ReadAsync(this, () => (from tc in db.TB_TANGCA
                                  join nv in db.TB_NHANVIEN on tc.MANV equals nv.MANV
                                  join lc in db.TB_LOAICA on tc.IDLOAICA equals lc.IDLOAICA
                                  where tc.NAM == nam && tc.THANG == thang && (nv.DATHOIVIEC ?? 0) == 0
@@ -196,7 +209,7 @@ namespace QLyNSu.FORM_BAOCAO
                                      lc.HESOLOAICA,
                                      tc.SOTIENTC,
                                      tc.GHICHU
-                                 }).ToList();
+                                 }).ToList());
 
                     gcData.DataSource = lstTC;
                     ConfigureGridOvertime();
@@ -211,7 +224,7 @@ namespace QLyNSu.FORM_BAOCAO
                         manv = mVal;
                     }
 
-                    var blList = (from b in db.TB_BANGLUONG
+                    var blList = await Functions.FormDataLoader.ReadAsync(this, () => (from b in db.TB_BANGLUONG
                                   where b.MAKYCONG == makycong && (!manv.HasValue || b.MANV == manv.Value)
                                   join nv in db.TB_NHANVIEN on b.MANV equals nv.MANV into nvGroup
                                   from nv in nvGroup.DefaultIfEmpty()
@@ -232,15 +245,20 @@ namespace QLyNSu.FORM_BAOCAO
                                       b.TIEN_CONG_DOAN,
                                       b.THUE_TNCN,
                                       b.HOAN_THUE
-                                  }).ToList();
+                                  }).ToList());
                     gcData.DataSource = blList;
                     ConfigureGridSalary();
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi tải báo cáo: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void ConfigureGridContract()
@@ -353,7 +371,7 @@ namespace QLyNSu.FORM_BAOCAO
                     }
 
                     var rpt = new rptDSHopDongHetHan(lstHD);
-                    rpt.ShowRibbonPreviewDialog();
+                    rpt.ShowRibbonPreview();
                 }
                 else if (index == 1) // Sinh nhật nhân viên
                 {
@@ -413,7 +431,7 @@ namespace QLyNSu.FORM_BAOCAO
                     }
 
                     var rpt = new rptDSTangCa(dt, (int)makycong);
-                    rpt.ShowRibbonPreviewDialog();
+                    rpt.ShowRibbonPreview();
                 }
                 else if (index == 3) // Phiếu chi tiết lương
                 {
@@ -456,7 +474,7 @@ namespace QLyNSu.FORM_BAOCAO
 
                     rptBaoCaoLuongNV rpt = new rptBaoCaoLuongNV();
                     rpt.BindData(bl, hoten, tenpb, otHours, phucaps);
-                    rpt.ShowRibbonPreviewDialog();
+                    rpt.ShowRibbonPreview();
                 }
             }
             catch (Exception ex)

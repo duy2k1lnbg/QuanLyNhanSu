@@ -15,6 +15,7 @@ namespace HRMS_API.Models
         public string MaDvi { get; set; }
         public bool IsAdmin { get; set; }
         public List<string> Rights { get; set; } = new List<string>();
+        public Dictionary<string, Bu.DTO.UserRightDetail> DetailedRights { get; set; }
     }
 
     public class MobileProfileDto
@@ -230,6 +231,9 @@ namespace HRMS_API.Models
         public bool IsPinned { get; set; }
         public string FileDinhkem { get; set; }
         public bool IsUnread { get; set; }
+        public string TargetType { get; set; }
+        public string EventType { get; set; }
+        public decimal? EntityId { get; set; }
     }
 
     public class MobileDashboardDto
@@ -245,57 +249,92 @@ namespace HRMS_API.Models
 
     public class UpdateProfileRequest
     {
+        public string Hoten { get; set; }
+        public string Gioitinh { get; set; }
+        public string Ngaysinh { get; set; }
+        public string Cccd { get; set; }
         public string Dienthoai { get; set; }
+        public string Email { get; set; }
         public string Diachi { get; set; }
         public string AvatarBase64 { get; set; }
     }
 
     public class MobileLeaveRequestDto
     {
+        public decimal Id { get; set; }
         public decimal IdYeuCau { get; set; }
         public decimal Manv { get; set; }
         public string LoaiNghi { get; set; }
+        public string LeaveType { get; set; }
         public string TuNgay { get; set; }
+        public string FromDate { get; set; }
         public string DenNgay { get; set; }
+        public string ToDate { get; set; }
         public decimal SoNgay { get; set; }
+        public decimal TotalDays { get; set; }
         public string LyDo { get; set; }
+        public string Reason { get; set; }
         public string TrangThai { get; set; }
+        public string Status { get; set; }
         public string NgayTao { get; set; }
+        public string CreatedAt { get; set; }
         public string NguoiDuyet { get; set; }
+        public string ApproverName { get; set; }
         public string NgayDuyet { get; set; }
+        public string ApprovedAt { get; set; }
         public string LyDoTuChoi { get; set; }
+        public string Note { get; set; }
     }
 
     public class CreateLeaveRequest
     {
+        public string StartTime {get;set;}
+        public string EndTime {get;set;}
         public string LoaiNghi { get; set; }
+        public string LeaveType { get; set; }
         public string TuNgay { get; set; }
+        public string FromDate { get; set; }
         public string DenNgay { get; set; }
+        public string ToDate { get; set; }
         public decimal? SoNgay { get; set; }
+        public decimal? TotalDays { get; set; }
         public string LyDo { get; set; }
+        public string Reason { get; set; }
     }
 
     public class MobileAttendanceCorrectionDto
     {
+        public decimal Id { get; set; }
         public decimal IdYeuCau { get; set; }
         public decimal Manv { get; set; }
         public string NgayCong { get; set; }
+        public string WorkDate { get; set; }
         public string GioVaoMoi { get; set; }
+        public string RequestedCheckIn { get; set; }
         public string GioRaMoi { get; set; }
+        public string RequestedCheckOut { get; set; }
         public string LyDo { get; set; }
+        public string Reason { get; set; }
         public string TrangThai { get; set; }
+        public string Status { get; set; }
         public string NgayTao { get; set; }
+        public string CreatedAt { get; set; }
         public string NguoiDuyet { get; set; }
         public string NgayDuyet { get; set; }
         public string LyDoTuChoi { get; set; }
+        public string Note { get; set; }
     }
 
     public class CreateAttendanceCorrectionRequest
     {
         public string NgayCong { get; set; }
+        public string WorkDate { get; set; }
         public string GioVaoMoi { get; set; }
+        public string RequestedCheckIn { get; set; }
         public string GioRaMoi { get; set; }
+        public string RequestedCheckOut { get; set; }
         public string LyDo { get; set; }
+        public string Reason { get; set; }
     }
 
     public class MobileOvertimeRequestDto
@@ -337,17 +376,114 @@ namespace HRMS_API.Models
         public string Reason { get; set; }
     }
 
-    public class UnifiedRequestDto
+    public class MobileAdvanceSalaryDto
     {
         public decimal Id { get; set; }
-        public string RequestType { get; set; } // 'LEAVE', 'ATTENDANCE', 'OVERTIME'
+        public decimal IdUl { get; set; }
+        public decimal Manv { get; set; }
+        public decimal? Thang { get; set; }
+        public decimal? Nam { get; set; }
+        public decimal? Ngay { get; set; }
+        public string AdvanceDate { get; set; }
+        public string NgayUng { get; set; }
+        public decimal SoTienUng { get; set; }
+        public decimal Amount { get; set; }
+        public string GhiChu { get; set; }
+        public string Reason { get; set; }
+        public string TrangThai { get; set; }
+        public string Status { get; set; }
+        public string CreatedAt { get; set; }
+        public string NgayTao { get; set; }
+    }
+
+    public class CreateAdvanceSalaryRequest
+    {
+        public decimal? SoTien { get; set; }
+        public decimal? Amount { get; set; }
+        public decimal? SoTienUng { get; set; }
+        public string GhiChu { get; set; }
+        public string LyDo { get; set; }
+        public string Reason { get; set; }
+        public string NgayUng { get; set; }
+        public string AdvanceDate { get; set; }
+        public int? Thang { get; set; }
+        public int? Nam { get; set; }
+    }
+
+    public class UnifiedRequestDto
+    {
+        public decimal? Amount {get;set;}
+        public decimal? Hours {get;set;}
+        public decimal? TotalDays {get;set;}
+        public decimal Id { get; set; }
+        public string RequestType { get; set; } // 'LEAVE', 'ATTENDANCE', 'OVERTIME', 'ADVANCE', 'PROFILE', 'INSURANCE', 'DEPENDENTS', 'AVATAR'
         public string TypeLabel { get; set; }
         public string Title { get; set; }
         public string Subtitle { get; set; }
         public string DateRange { get; set; }
-        public string Status { get; set; } // 'PENDING', 'APPROVED', 'REJECTED'
+        public string Status { get; set; } // 'PENDING', 'APPROVED', 'REJECTED', 'DISBURSED', 'APPLIED'
         public string CreatedAt { get; set; }
         public string Reason { get; set; }
         public string RejectionReason { get; set; }
+    }
+
+    public class MobileProfileQuotaDto
+    {
+        public string GroupCode { get; set; }
+        public int DirectEditCount { get; set; }
+        public bool IsFirstEditAvailable { get; set; }
+        public string FirstEditDate { get; set; }
+        public string LastEditDate { get; set; }
+    }
+
+    public class MobileAllQuotasDto
+    {
+        public MobileProfileQuotaDto PersonalInfo { get; set; }
+        public MobileProfileQuotaDto InsuranceInfo { get; set; }
+        public MobileProfileQuotaDto Dependents { get; set; }
+        public MobileProfileQuotaDto Avatar { get; set; }
+    }
+
+    public class MobileDependentItemDto
+    {
+        public long Id { get; set; }
+        public long Manv { get; set; }
+        public string HoTen { get; set; }
+        public string MoiQuanHe { get; set; }
+        public string Cccd { get; set; }
+        public string MaSoThueNpt { get; set; }
+        public string NgaySinh { get; set; }
+        public string LoaiGiayTo { get; set; }
+        public string SoGiayTo { get; set; }
+        public int ThangBatDau { get; set; }
+        public int? ThangKetThuc { get; set; }
+        public string TrangThai { get; set; }
+    }
+
+    public class ProposeInsuranceRequest
+    {
+        public short? VungLuong { get; set; }
+        public bool? ThamGiaBhxh { get; set; }
+        public bool? ThamGiaBhyt { get; set; }
+        public bool? ThamGiaBhtn { get; set; }
+        public bool? ThamGiaTnldBnn { get; set; }
+        public decimal? LuongDongBhxhRieng { get; set; }
+        public string NgayBatDau { get; set; }
+        public string Reason { get; set; }
+        public string LyDo { get; set; }
+    }
+
+    public class ProposeDependentsRequest
+    {
+        public List<Bu.CLASS_NHANSU.DependentProposalItem> Dependents { get; set; }
+        public string Reason { get; set; }
+        public string LyDo { get; set; }
+    }
+
+    public class DisburseAdvanceRequest
+    {
+        public string NgayChi { get; set; }
+        public string SoChungTu { get; set; }
+        public string GhiChu { get; set; }
     }
 }

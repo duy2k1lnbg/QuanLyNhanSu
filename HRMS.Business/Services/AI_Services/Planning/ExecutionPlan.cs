@@ -13,7 +13,10 @@ namespace Bu.Services.AI_Services.Core
         Unsupported,
         Forbidden,
         NeedsClarification,
-        NoAction
+        NoAction,
+        ChatSocial,
+        ChatGeneral,
+        HrHelp
     }
 
     /// <summary>
@@ -51,5 +54,56 @@ namespace Bu.Services.AI_Services.Core
         public List<string> MaskedFields { get; set; } = new List<string>();
         public string VectorQuery { get; set; }
         public string VectorCapability { get; set; } = "POLICY_LOOKUP";
+
+        /// <summary>
+        /// Tạo bản sao độc lập của kế hoạch cho subtask (ví dụ: Hybrid SQL SubPlan)
+        /// Bảo toàn toàn bộ RowLimit, FieldModes, MaskedFields, SourceRevision và các tham số phân quyền.
+        /// </summary>
+        public QueryExecutionPlan CloneForSubPlan(ExecutionStrategy subStrategy)
+        {
+            var clone = new QueryExecutionPlan
+            {
+                PlanId = Guid.NewGuid().ToString("N"),
+                Strategy = subStrategy,
+                Domain = this.Domain,
+                Operation = this.Operation,
+                Metric = this.Metric,
+                RequiredCapability = this.RequiredCapability,
+                RequiredScope = this.RequiredScope,
+                TargetView = this.TargetView,
+                RequestedScope = this.RequestedScope,
+                AuthorizationFingerprint = this.AuthorizationFingerprint,
+                SourceRevision = this.SourceRevision,
+                RowLimit = this.RowLimit,
+                SqlStatement = this.SqlStatement,
+                IsScalar = this.IsScalar,
+                ScalarUnit = this.ScalarUnit,
+                SelectedEntityDisplay = this.SelectedEntityDisplay,
+                EffectiveScopeDisplay = this.EffectiveScopeDisplay,
+                EffectivePeriodDisplay = this.EffectivePeriodDisplay,
+                DenialOrUnsupportedReason = this.DenialOrUnsupportedReason,
+                VectorQuery = this.VectorQuery,
+                VectorCapability = this.VectorCapability
+            };
+
+            if (this.Parameters != null)
+            {
+                clone.Parameters = new Dictionary<string, object>(this.Parameters);
+            }
+            if (this.FieldModes != null)
+            {
+                clone.FieldModes = new Dictionary<string, string>(this.FieldModes, StringComparer.OrdinalIgnoreCase);
+            }
+            if (this.MaskedFields != null)
+            {
+                clone.MaskedFields = new List<string>(this.MaskedFields);
+            }
+            if (this.Assumptions != null)
+            {
+                clone.Assumptions = new List<string>(this.Assumptions);
+            }
+
+            return clone;
+        }
     }
 }

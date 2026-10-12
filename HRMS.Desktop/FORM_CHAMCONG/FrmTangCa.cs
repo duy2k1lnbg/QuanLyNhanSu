@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
@@ -27,7 +28,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private int _id;
         private bool _isBinding = false;
 
-        private void FrmTangCa_Load(object sender, EventArgs e)
+        private async void FrmTangCa_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_CC_TANGCA")) return;
             _loaica = new LOAICA();
@@ -37,9 +38,12 @@ namespace QLyNSu.FORM_CHAMCONG
             _them = false;
 
             showHide(true);
-            LoadData();
-            LoadNhanVien();
-            LoadCombo();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            await LoadNhanVien();
+            if (IsDisposed || Disposing) return;
+            await LoadCombo();
+            if (IsDisposed || Disposing) return;
             splitContainer1.Panel1Collapsed = true;
             Functions.TranslationManager.Translate(this);
 
@@ -187,22 +191,24 @@ namespace QLyNSu.FORM_CHAMCONG
             gcDanhSach.Enabled = true;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_CC_TANGCA", Bu.DTO.PermissionAction.Delete)) return;
             splitContainer1.Panel1Collapsed = true;
             if (MessageBox.Show("Bạn có chắc chắn muốn xóa bản ghi tăng ca này không?", "Xác nhận xóa", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
             {
                 _tangca.Delete(_id, 1);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (SaveData())
             {
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
                 _them = false;
                 showHide(true);
                 splitContainer1.Panel1Collapsed = true;
@@ -272,28 +278,46 @@ namespace QLyNSu.FORM_CHAMCONG
             Recalculate();
         }
 
-        private void LoadNhanVien()
+        private async Task LoadNhanVien()
         {
-            searchMANV.Properties.DataSource = _nhanvien.getListFll_DTO();
+            try
+            {
+            searchMANV.Properties.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _nhanvien.getListFll_DTO());
             searchMANV.Properties.ValueMember = "MANV";
             searchMANV.Properties.DisplayMember = "HOTEN";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDanhSach.DataSource = _tangca.getListFull();
+            try
+            {
+            gcDanhSach.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _tangca.getListFull());
             FormManager_Functions.CustomView_Colums(gvDanhSach);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadCombo()
+        private async Task LoadCombo()
         {
-            cbLoaiCa.DataSource = _loaica.getList();
+            try
+            {
+            cbLoaiCa.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _loaica.getList());
             cbLoaiCa.DisplayMember = "TENLOAICA";
             cbLoaiCa.ValueMember = "IDLOAICA";
 
-            cbLoaiCong.DataSource = _loaicong.getList();
+            cbLoaiCong.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _loaicong.getList());
             cbLoaiCong.DisplayMember = "TENLC";
             cbLoaiCong.ValueMember = "IDLOAICONG";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private bool SaveData()

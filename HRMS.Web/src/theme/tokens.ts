@@ -142,6 +142,8 @@ export const getAntdThemeConfig = (mode: AppThemeMode): ThemeConfig => {
       colorWarning: isDark ? '#F2BB62' : '#96610D',
       colorError: isDark ? '#FF8C9E' : '#C6384F',
       colorTextBase: tokens.textPrimary,
+      colorText: tokens.textPrimary,
+      colorTextSecondary: tokens.textSecondary,
       colorBgBase: isDark ? tokens.cardBg : '#FFFFFF',
       colorBgContainer: tokens.cardBg,
       colorBgElevated: tokens.elevatedBg,

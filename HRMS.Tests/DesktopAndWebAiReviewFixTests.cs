@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Net;
@@ -31,6 +31,7 @@ namespace HRMS.Tests
         public Task<float[]> GetEmbedding(string text, CancellationToken cancellationToken = default) => Task.FromResult(new float[0]);
         public Task<string> AskStructuredJsonAsync(string prompt, string system, CancellationToken cancellationToken = default) => Task.FromResult(_response);
         public Task<string> GenerateGroundedAnswerAsync(string question, string factsEvidence, string history = null, CancellationToken cancellationToken = default) => Task.FromResult(_response);
+        public Task<string> GenerateGeneralChatAsync(string question, string history = null, CancellationToken cancellationToken = default) => Task.FromResult(_response);
     }
 
     public class MockHttpAiHandler : HttpMessageHandler
@@ -134,9 +135,8 @@ namespace HRMS.Tests
                 })
             };
 
-            var client = new AiApiClient();
-            typeof(AiApiClient).GetField("_httpClient", BindingFlags.Instance | BindingFlags.NonPublic)
-                .SetValue(client, new HttpClient(mockHandler));
+            var client = new AiApiClient(new HttpClient(mockHandler));
+            client.SetToken("mock-parser-token");
 
             // Turn 1: Gửi câu hỏi khởi tạo
             var res1 = await client.SendChatAsync("Tra cứu thông tin nhân viên An", "client-temp-conv");
@@ -214,9 +214,8 @@ namespace HRMS.Tests
                 })
             };
 
-            var client = new AiApiClient();
-            typeof(AiApiClient).GetField("_httpClient", BindingFlags.Instance | BindingFlags.NonPublic)
-                .SetValue(client, new HttpClient(mockHandler));
+            var client = new AiApiClient(new HttpClient(mockHandler));
+            client.SetToken("mock-parser-token");
 
             var result = await client.GetDashboardAsync();
 

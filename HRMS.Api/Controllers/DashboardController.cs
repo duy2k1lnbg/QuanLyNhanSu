@@ -236,6 +236,7 @@ namespace HRMS_API.Controllers
                     anomalies = anomalies
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải thống kê Dashboard: " + ex.ToString());
@@ -376,6 +377,7 @@ namespace HRMS_API.Controllers
                     items = list
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải thông báo hệ thống: " + ex.ToString());

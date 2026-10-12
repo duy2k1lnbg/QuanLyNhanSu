@@ -1,3 +1,4 @@
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -21,6 +22,10 @@ import { AppBadge } from '../../components/AppBadge';
 import { AppButton } from '../../components/AppButton';
 import { AppTextInput } from '../../components/AppTextInput';
 import { AppLoading } from '../../components/AppLoading';
+import { useAuth } from '../../hooks/useAuth';
+import { canMobile } from '../../utils/mobilePermissions';
+import { localDate } from '../../utils/requestContracts';
+import { AppErrorState } from '../../components/AppErrorState';
 import { AppEmptyState } from '../../components/AppEmptyState';
 import { formatDate } from '../../utils/formatters';
 import { mapApiError } from '../../utils/errorMapper';
@@ -33,6 +38,8 @@ export const MyOvertimeScreen: React.FC = () => {
   const { colors } = useTheme();
   const { activeLanguage } = useLanguage();
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { user } = useAuth();
   const [history, setHistory] = useState<OvertimeRequestDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -41,7 +48,7 @@ export const MyOvertimeScreen: React.FC = () => {
   // Form states
   const [otDate, setOtDate] = useState<string>(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return localDate(today);
   });
   const [selectedIdCa, setSelectedIdCa] = useState<number>(1);
   const [shiftType, setShiftType] = useState<string>('Ca ngày');
@@ -49,51 +56,49 @@ export const MyOvertimeScreen: React.FC = () => {
   const [reason, setReason] = useState<string>('');
   const [cancellingId, setCancellingId] = useState<number | null>(null);
 
-  const shiftOptions = [
-    { label: t('requests.dayShift'), value: 'Ca ngày', idCa: 1 },
-    { label: t('requests.nightShift'), value: 'Ca đêm', idCa: 2 },
-  ];
+  const [shiftOptions,setShiftOptions]=useState<{label:string;value:string;idCa:number}[]>([]);
 
   const fetchHistory = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
+    setErrorMessage(null);
     try {
-      const data = await meApi.getOvertimeRequests();
+      const [data,shifts] = await Promise.all([meApi.getOvertimeRequests(),meApi.getOvertimeShifts()]);
       setHistory(data);
-    } catch {
-      // ignore
+      setShiftOptions(shifts.map(item=>({idCa:item.idCa,value:item.name,label:`${item.name} (${item.coefficient}×)`})));
+      setSelectedIdCa(current=>shifts.some(item=>item.idCa===current) ? current:(shifts[0]?.idCa || 0));
+    } catch (error) {
+      setErrorMessage(mapApiError(error));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+  useFocusEffect(useCallback(() => { fetchHistory(); }, [fetchHistory]));
 
   const handleSubmit = async () => {
     if (submitting) return;
 
     if (!otDate.trim()) {
-      Alert.alert(t('common.error'), 'Vui lòng nhập ngày làm thêm giờ.');
+      Alert.alert(t('common.error'), t('mobileReview.invalidDate'));
       return;
     }
 
-    const numHours = parseFloat(hours);
+    const numHours = Number(hours);
     if (isNaN(numHours) || numHours <= 0) {
-      Alert.alert(t('common.error'), 'Số giờ làm thêm phải lớn hơn 0.');
+      Alert.alert(t('common.error'), t('mobileReview.invalidOvertime'));
       return;
     }
 
     if (numHours > 24) {
-      Alert.alert(t('common.error'), 'Số giờ làm thêm không được vượt quá 24 giờ/ngày.');
+      Alert.alert(t('common.error'), t('mobileReview.invalidOvertime'));
       return;
     }
 
     if (!reason.trim()) {
-      Alert.alert(t('common.error'), 'Vui lòng nêu rõ nội dung và lý do tăng ca.');
+      Alert.alert(t('common.error'), t('mobileReview.requiredFields'));
       return;
     }
 
@@ -107,7 +112,7 @@ export const MyOvertimeScreen: React.FC = () => {
         reason: reason.trim(),
       });
 
-      Alert.alert(t('common.success'), 'Gửi đề xuất tăng ca thành công! Vui lòng chờ cấp quản lý xét duyệt.');
+      Alert.alert(t('common.success'), t('mobileReview.sentForApproval'));
       setReason('');
       fetchHistory(true);
     } catch (error: any) {
@@ -119,18 +124,18 @@ export const MyOvertimeScreen: React.FC = () => {
 
   const handleCancelRequest = (reqId: number) => {
     Alert.alert(
-      'Xác nhận hủy đề xuất',
-      'Bạn có chắc chắn muốn hủy đề xuất tăng ca này không?',
+      t('mobileReview.cancelOvertime'),
+      t('mobileReview.cancelOvertimePrompt'),
       [
-        { text: 'Đóng', style: 'cancel' },
+        { text: t('common.close'), style: 'cancel' },
         {
-          text: 'Xác nhận hủy',
+          text: t('mobileReview.cancelOvertime'),
           style: 'destructive',
           onPress: async () => {
             setCancellingId(reqId);
             try {
               await meApi.cancelOvertimeRequest(reqId);
-              Alert.alert(t('common.success'), 'Đã hủy đề xuất tăng ca thành công.');
+              Alert.alert(t('common.success'), t('mobileReview.cancelled'));
               fetchHistory(true);
             } catch (error: any) {
               Alert.alert(t('common.error'), mapApiError(error));
@@ -168,6 +173,8 @@ export const MyOvertimeScreen: React.FC = () => {
         return t('requests.statusPending');
     }
   };
+
+  if (errorMessage) return <AppErrorState message={errorMessage} onRetry={() => fetchHistory()} />;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -266,6 +273,7 @@ export const MyOvertimeScreen: React.FC = () => {
             title={submitting ? t('requests.submitting') : t('requests.submit')}
             onPress={handleSubmit}
             loading={submitting}
+            disabled={!canMobile(user, 'MOBILE_REQUEST_OVERTIME', 'Add') || !shiftOptions.length}
             variant="primary"
             size="lg"
             style={{ marginTop: spacing.sm }}
@@ -308,7 +316,7 @@ export const MyOvertimeScreen: React.FC = () => {
                 {isRejected && rejectReason ? (
                   <View style={[styles.noteBox, { backgroundColor: 'rgba(239, 68, 68, 0.08)', borderColor: '#EF4444' }]}>
                     <Text style={[typography.captionBold, { color: '#EF4444' }]}>
-                      Lý do từ chối: {rejectReason}
+                      {t('requests.note')}: {rejectReason}
                     </Text>
                   </View>
                 ) : null}
@@ -316,7 +324,7 @@ export const MyOvertimeScreen: React.FC = () => {
                 {isApproved && item.nguoiDuyet ? (
                   <View style={[styles.noteBox, { backgroundColor: 'rgba(16, 185, 129, 0.08)', borderColor: '#10B981' }]}>
                     <Text style={[typography.captionBold, { color: '#10B981' }]}>
-                      Đã duyệt bởi: {item.nguoiDuyet} {item.ngayDuyet ? `• ${item.ngayDuyet}` : ''}
+                      {t('requests.approver')}: {item.nguoiDuyet} {item.ngayDuyet ? `• ${item.ngayDuyet}` : ''}
                     </Text>
                   </View>
                 ) : null}
@@ -326,12 +334,12 @@ export const MyOvertimeScreen: React.FC = () => {
                     <TouchableOpacity
                       activeOpacity={0.7}
                       onPress={() => handleCancelRequest(reqId)}
-                      disabled={cancellingId === reqId}
+                      disabled={!canMobile(user, 'MOBILE_REQUEST_OVERTIME', 'Edit') || cancellingId === reqId}
                       style={[styles.cancelBtn, { borderColor: colors.border }]}
                     >
                       <Ionicons name="close-circle-outline" size={16} color={colors.textSecondary} />
                       <Text style={[typography.captionBold, { color: colors.textSecondary, marginLeft: 4 }]}>
-                        {cancellingId === reqId ? 'Đang hủy...' : 'Hủy đề xuất'}
+                        {cancellingId === reqId ? t('mobileReview.cancelling') : t('mobileReview.cancelOvertime')}
                       </Text>
                     </TouchableOpacity>
                   </View>

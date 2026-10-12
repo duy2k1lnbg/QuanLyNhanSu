@@ -25,6 +25,22 @@ namespace DA
         public Nullable<int> THANG_KET_THUC_GIAM_TRU { get; set; }
         public string TRANG_THAI { get; set; }
         public System.DateTime CREATED_AT { get; set; }
+        public string LOAI_GIAY_TO { get; set; }
+        public string SO_GIAY_TO { get; set; }
+        public string MA_DINH_DANH_CA_NHAN { get; set; }
+        public string NOI_CAP_GIAY_TO { get; set; }
+        public Nullable<System.DateTime> NGAY_CAP_GIAY_TO { get; set; }
+        public string QUOC_TICH_NPT { get; set; }
+        public string CAN_CU_GIAM_TRU { get; set; }
+        public string TRANG_THAI_DANG_KY { get; set; }
+        public string TINH_TRANG_HO_SO_CHUNG_MINH { get; set; }
+        public Nullable<System.DateTime> NGAY_NOP_HO_SO { get; set; }
+        public Nullable<System.DateTime> NGAY_DANG_KY_THUE { get; set; }
+        public Nullable<System.DateTime> NGAY_XAC_MINH { get; set; }
+        public string NGUOI_XAC_MINH { get; set; }
+        public string GHI_CHU_XAC_MINH { get; set; }
+        public string DATA_ORIGIN { get; set; }
+        public string SOURCE_NOTE { get; set; }
     
         public virtual TB_NHANVIEN TB_NHANVIEN { get; set; }
     }

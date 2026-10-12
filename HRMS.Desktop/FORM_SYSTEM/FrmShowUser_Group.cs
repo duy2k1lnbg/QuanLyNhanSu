@@ -87,7 +87,7 @@ namespace QLyNSu.FORM_SYSTEM
             pnlAction.BringToFront();
         }
 
-        private void FrmShowUser_Group_Load(object sender, EventArgs e)
+        private async void FrmShowUser_Group_Load(object sender, EventArgs e)
         {
             this.Text = this.Mode == 1 ? "Danh Sách Nhóm Người Dùng" : "Danh Sách Tài Khoản Người Dùng";
 
@@ -100,12 +100,16 @@ namespace QLyNSu.FORM_SYSTEM
             // Custom drawing for beautiful premium badges in cells
             gridView1.CustomDrawCell += gridView1_CustomDrawCell;
 
-            loadData();
+            await loadData();
+
+            if (IsDisposed || Disposing) return;
         }
 
-        private void loadData()
+        private async Task loadData()
         {
-            var data = _sysUser.getALL().Where(x => (x.ISGROUP ?? 0) == this.Mode).ToList();
+            try
+            {
+            var data = await Functions.FormDataLoader.ReadAsync(this, () => _sysUser.getALL().Where(x => (x.ISGROUP ?? 0) == this.Mode).ToList());
             gridControl1.DataSource = data;
             FormManager_Functions.CustomView_Colums(gridView1);
             
@@ -131,6 +135,10 @@ namespace QLyNSu.FORM_SYSTEM
             if (gridView1.Columns["MACTY"] != null) gridView1.Columns["MACTY"].Caption = "Mã Công ty";
             if (gridView1.Columns["MADVI"] != null) gridView1.Columns["MADVI"].Caption = "Mã Đơn vị";
             if (gridView1.Columns["DISABLED"] != null) gridView1.Columns["DISABLED"].Caption = "Trạng thái";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void gridView1_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
@@ -205,36 +213,19 @@ namespace QLyNSu.FORM_SYSTEM
             return path;
         }
 
-        private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            if (this.Mode == 1)
-            {
-                using (var frm = new FrmGroup())
-                {
-                    if (frm.ShowDialog() == DialogResult.OK)
-                    {
-                        loadData();
-                    }
-                }
-            }
-            else
-            {
-                using (var frm = new FrmUser())
-                {
-                    if (frm.ShowDialog() == DialogResult.OK)
-                    {
-                        loadData();
-                    }
-                }
-            }
+            await OpenEditor(this.Mode == 1 ? (Form)new FrmGroup() : new FrmUser());
+            if (IsDisposed || Disposing) return;
         }
 
-        private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            editSelectedItem();
+            await editSelectedItem();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             var selectedUser = (TB_SYS_USER)gridView1.GetFocusedRow();
             if (selectedUser == null)
@@ -246,12 +237,6 @@ namespace QLyNSu.FORM_SYSTEM
             if (selectedUser.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase))
             {
                 MessageBox.Show("Bạn không thể tự xóa tài khoản của chính mình.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
-            if (selectedUser.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
-            {
-                MessageBox.Show("Không thể xóa tài khoản Quản trị hệ thống (ADMIN).", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -278,7 +263,9 @@ namespace QLyNSu.FORM_SYSTEM
                     }
                     catch { }
 
-                    loadData();
+                    await loadData();
+
+                    if (IsDisposed || Disposing) return;
                 }
                 catch (Exception ex)
                 {
@@ -292,16 +279,18 @@ namespace QLyNSu.FORM_SYSTEM
             this.Close();
         }
 
-        private void gridView1_DoubleClick(object sender, EventArgs e)
+        private async void gridView1_DoubleClick(object sender, EventArgs e)
         {
-            editSelectedItem();
+            await editSelectedItem();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void gridView1_KeyDown(object sender, KeyEventArgs e)
+        private async void gridView1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter)
             {
-                editSelectedItem();
+                await editSelectedItem();
+                if (IsDisposed || Disposing) return;
                 e.Handled = true;
             }
             else if (e.KeyCode == Keys.Delete)
@@ -311,35 +300,23 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void editSelectedItem()
+        private async Task editSelectedItem()
         {
             var selectedUser = (TB_SYS_USER)gridView1.GetFocusedRow();
-            if (selectedUser == null)
-            {
-                MessageBox.Show("Vui lòng chọn tài khoản hoặc nhóm muốn chỉnh sửa.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
+            if (selectedUser == null) return;
+            await OpenEditor(this.Mode == 1 ? (Form)new FrmGroup(selectedUser) : new FrmUser(selectedUser));
+            if (IsDisposed || Disposing) return;
+        }
 
-            if (this.Mode == 1)
-            {
-                using (var frm = new FrmGroup(selectedUser))
-                {
-                    if (frm.ShowDialog() == DialogResult.OK)
-                    {
-                        loadData();
-                    }
-                }
-            }
-            else
-            {
-                using (var frm = new FrmUser(selectedUser))
-                {
-                    if (frm.ShowDialog() == DialogResult.OK)
-                    {
-                        loadData();
-                    }
-                }
-            }
+        private Form _editor;
+        private async Task OpenEditor(Form editor)
+        {
+            if (_editor != null && !_editor.IsDisposed) { editor.Dispose(); _editor.Activate(); return; }
+            _editor = editor;
+            try { await Functions.ChildFormWindow.ShowAsync(this, editor); }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
+            finally { _editor = null; editor.Dispose(); }
+            if (!IsDisposed && !Disposing) await loadData();
         }
     }
 }

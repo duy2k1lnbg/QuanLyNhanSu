@@ -3,6 +3,7 @@ import { Modal, Form, Input, Switch, message, Space, Tag } from 'antd';
 import { EditOutlined, LockOutlined, UserOutlined, TeamOutlined } from '@ant-design/icons';
 import api from '../services/api';
 import type { SysUserDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 interface UserEditModalProps {
   visible: boolean;
@@ -17,6 +18,7 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
   user,
   onSuccess,
 }) => {
+  const { t } = useAppLanguage();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -40,17 +42,16 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
         NewPassword: values.NewPassword?.trim() ? values.NewPassword.trim() : undefined,
       });
 
-      message.success(`Đã cập nhật thông tin [${user.Username}] thành công!`);
+      message.success(t('user.updateSuccessMsg', { username: user.Username }));
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { Message?: string } }; message?: string };
-      message.error(errorObj.response?.data?.Message || 'Cập nhật thất bại.');
+      message.error(errorObj.response?.data?.Message || t('user.updateErrorMsg'));
     }
   };
 
   const isGroup = user?.IsGroup;
-  const isAdminUser = user?.Username?.toUpperCase() === 'ADMIN';
 
   return (
     <Modal
@@ -58,15 +59,15 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
         <Space wrap>
           <EditOutlined style={{ color: '#1677ff' }} />
           <span>
-            {isGroup ? 'Chỉnh sửa nhóm quyền' : 'Chỉnh sửa thông tin người dùng'}: <b>{user?.Username}</b>
+            {isGroup ? t('user.modalEditGroupTitle') : t('user.modalEditUserTitle')}: <b>{user?.Username}</b>
           </span>
           {isGroup ? (
             <Tag color="purple" icon={<TeamOutlined />}>
-              Nhóm
+              {t('user.tagGroup')}
             </Tag>
           ) : (
             <Tag color="blue" icon={<UserOutlined />}>
-              Người dùng
+              {t('user.tagUser')}
             </Tag>
           )}
         </Space>
@@ -74,19 +75,19 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
       open={visible}
       onOk={handleSubmit}
       onCancel={onClose}
-      okText="Lưu thay đổi"
-      cancelText="Hủy"
+      okText={t('common.save')}
+      cancelText={t('common.cancel')}
       width="min(500px, 95vw)"
     >
       <Form form={form} layout="vertical" style={{ marginTop: 16 }}>
-        <Form.Item name="Username" label={isGroup ? 'Mã nhóm quyền' : 'Tên tài khoản'}>
+        <Form.Item name="Username" label={isGroup ? t('user.groupCode') : t('user.colUsername')}>
           <Input disabled />
         </Form.Item>
 
         <Form.Item
           name="FullName"
-          label={isGroup ? 'Mô tả nhóm quyền' : 'Họ và tên'}
-          rules={[{ required: true, message: 'Vui lòng nhập thông tin này' }]}
+          label={isGroup ? t('user.groupDesc') : t('user.colFullName')}
+          rules={[{ required: true, message: t('user.requiredField') }]}
         >
           <Input placeholder={isGroup ? 'Ví dụ: Nhóm Nhân sự' : 'Ví dụ: Nguyễn Văn A'} />
         </Form.Item>
@@ -94,24 +95,24 @@ export const UserEditModal: React.FC<UserEditModalProps> = ({
         {!isGroup && (
           <Form.Item
             name="NewPassword"
-            label="Đặt lại mật khẩu mới (Bỏ trống nếu không muốn đổi)"
+            label={t('user.resetPasswordLabel')}
           >
             <Input.Password
               prefix={<LockOutlined />}
-              placeholder="Nhập mật khẩu mới nếu muốn đổi..."
+              placeholder={t('user.resetPasswordPlaceholder')}
             />
           </Form.Item>
         )}
 
-        {!isGroup && !isAdminUser && (
+        {!isGroup && (
           <Form.Item
             name="Disabled"
-            label="Trạng thái tài khoản"
+            label={t('user.colStatus')}
             valuePropName="checked"
           >
             <Switch
-              checkedChildren="Bị khóa"
-              unCheckedChildren="Hoạt động"
+              checkedChildren={t('user.statusLockedSwitch')}
+              unCheckedChildren={t('user.statusActiveSwitch')}
             />
           </Form.Item>
         )}

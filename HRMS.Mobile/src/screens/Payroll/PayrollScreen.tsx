@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -22,7 +23,7 @@ import { AppErrorState } from '../../components/AppErrorState';
 import { AppDivider } from '../../components/AppDivider';
 import { formatCurrency } from '../../utils/formatters';
 import { mapApiError } from '../../utils/errorMapper';
-import { getLocalizedPayrollStatus } from '../../utils/statusMapper';
+import { getLocalizedPayrollStatus, isPayrollPaid } from '../../utils/statusMapper';
 import { spacing } from '../../constants/spacing';
 import { typography } from '../../constants/typography';
 
@@ -37,30 +38,30 @@ export const PayrollScreen: React.FC = () => {
     return { year: d.getFullYear(), month: d.getMonth() + 1 };
   });
 
+  const [availability,setAvailability]=useState('UNKNOWN');
   const [payroll, setPayroll] = useState<PayrollDto | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const requestVersion=useRef(0);
   const fetchPayroll = useCallback(async (isRefresh = false) => {
+    const version=++requestVersion.current;
     if (isRefresh) setRefreshing(true);
-    else setLoading(true);
+    else {setLoading(true);setPayroll(null);setAvailability('UNKNOWN');}
     setErrorMessage(null);
 
     try {
-      const data = await meApi.getPayroll(currentDate.year, currentDate.month);
-      setPayroll(data);
+      const result=await meApi.getPayrollResult(currentDate.year,currentDate.month);
+      if (version===requestVersion.current) {setPayroll(result.payroll);setAvailability(result.availability);}
     } catch (error: any) {
-      setErrorMessage(mapApiError(error));
+      if (version===requestVersion.current) setErrorMessage(mapApiError(error));
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (version===requestVersion.current) { setLoading(false); setRefreshing(false); }
     }
   }, [currentDate]);
 
-  useEffect(() => {
-    fetchPayroll();
-  }, [fetchPayroll]);
+  useFocusEffect(useCallback(() => { fetchPayroll(); }, [fetchPayroll]));
 
   const handlePrevMonth = () => {
     setCurrentDate((prev) => {
@@ -110,7 +111,7 @@ export const PayrollScreen: React.FC = () => {
           <Ionicons name="chevron-back" size={24} color={colors.text} />
         </TouchableOpacity>
 
-        <Text style={[typography.h3, { color: colors.text }]}>
+        <Text style={[typography.h3, { color: colors.text, flex:1, textAlign:'center' }]}>
           {t('payroll.title')}: {String(currentDate.month).padStart(2, '0')}/{currentDate.year}
         </Text>
 
@@ -132,12 +133,15 @@ export const PayrollScreen: React.FC = () => {
       >
         {loading && !refreshing ? (
           <AppLoading />
-        ) : errorMessage && !payroll ? (
+        ) : errorMessage ? (
           <AppErrorState message={errorMessage} onRetry={() => fetchPayroll()} />
         ) : !payroll ? (
           <AppEmptyState
             icon="wallet-outline"
-            title={t('payroll.noData')}
+            title={t(availability==='NOT_PUBLISHED' ? 'mobileReview.payrollNotPublished' : 'payroll.noData')}
+            message={t(availability==='NOT_PUBLISHED' ? 'mobileReview.payrollPublicationHelp' : availability==='NOT_CREATED' ? 'mobileReview.payrollNotCreated' : 'mobileReview.payrollUnavailableHelp')}
+            actionText={t('common.retry')}
+            onAction={()=>fetchPayroll(true)}
           />
         ) : (
           <>
@@ -156,7 +160,7 @@ export const PayrollScreen: React.FC = () => {
               <View style={styles.statusBadgeRow}>
                 <AppBadge
                   label={getLocalizedPayrollStatus(payroll.trangThaiChiTra)}
-                  variant={payroll.trangThaiChiTra?.toLowerCase().includes('đã') || payroll.trangThaiChiTra?.toLowerCase().includes('paid') ? 'success' : 'warning'}
+                  variant={isPayrollPaid(payroll.trangThaiChiTra) ? 'success' : 'warning'}
                 />
               </View>
             </AppCard>

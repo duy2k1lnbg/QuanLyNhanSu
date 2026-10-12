@@ -3,6 +3,7 @@ using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace HRMS.Tests
 {
@@ -262,6 +263,331 @@ namespace HRMS.Tests
                 {
                     Console.WriteLine($"  -> ALL_USERS query failed: {uex.Message}");
                 }
+            }
+        }
+
+        [Test]
+        public void Check_Admin_User_And_Rights()
+        {
+            using (var conn = new OracleConnection(ConnectionString))
+            {
+                conn.Open();
+                Console.WriteLine("================================================================================");
+                Console.WriteLine("=== INSPECTING ADMIN ACCOUNT & PERMISSIONS (NO HARD-CODING) ===");
+                Console.WriteLine("================================================================================");
+
+                decimal adminId = 0;
+                string adminUsername = null;
+                long tokenVersion = 0;
+
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT IDUSER, USERNAME, FULLNAME, DISABLED, ISGROUP, NVL(TOKEN_VERSION, 1) AS TOKEN_VERSION, LOCKOUT_END FROM HR.TB_SYS_USER WHERE LOWER(USERNAME) = 'admin'";
+                    using (var r = cmd.ExecuteReader())
+                    {
+                        if (r.Read())
+                        {
+                            adminId = Convert.ToDecimal(r["IDUSER"]);
+                            adminUsername = r["USERNAME"].ToString();
+                            tokenVersion = Convert.ToInt64(r["TOKEN_VERSION"]);
+                            Console.WriteLine($"[USER] ID: {adminId}, USERNAME: '{adminUsername}', FULLNAME: '{r["FULLNAME"]}', DISABLED: {r["DISABLED"]}, TOKEN_VERSION: {tokenVersion}, LOCKOUT: {r["LOCKOUT_END"]}");
+                        }
+                        else
+                        {
+                            Console.WriteLine("[ERROR] User 'admin' does not exist in TB_SYS_USER!");
+                            return;
+                        }
+                    }
+                }
+
+                // 2. Count total functions
+                int totalFunctions = 0;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT COUNT(*) FROM HR.TB_SYS_FUNCTION";
+                    totalFunctions = Convert.ToInt32(cmd.ExecuteScalar());
+                    Console.WriteLine($"[TB_SYS_FUNCTION] Total registered functions in system: {totalFunctions}");
+                }
+
+                // 3. Count admin direct rights
+                int adminRightsCount = 0;
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT COUNT(*) FROM HR.TB_SYS_RIGHT WHERE IDUSER = :p0 AND (CAN_VIEW = 1 OR USER_RIGHT = 1)";
+                    cmd.Parameters.Add("p0", adminId);
+                    adminRightsCount = Convert.ToInt32(cmd.ExecuteScalar());
+                    Console.WriteLine($"[TB_SYS_RIGHT] Admin active rights: {adminRightsCount} / {totalFunctions}");
+                }
+
+                // 4. Missing functions in TB_SYS_RIGHT
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT f.FUNCTION_CODE, f.DESCRIPTION
+                        FROM HR.TB_SYS_FUNCTION f
+                        WHERE f.FUNCTION_CODE NOT IN (
+                            SELECT r.FUNCTION_CODE FROM HR.TB_SYS_RIGHT r 
+                            WHERE r.IDUSER = :p0 AND (r.CAN_VIEW = 1 OR r.USER_RIGHT = 1)
+                        )
+                        ORDER BY f.FUNCTION_CODE";
+                    cmd.Parameters.Add("p0", adminId);
+                    using (var r = cmd.ExecuteReader())
+                    {
+                        var missing = new List<string>();
+                        while (r.Read())
+                        {
+                            missing.Add($"{r["FUNCTION_CODE"]} ({r["DESCRIPTION"]})");
+                        }
+                        Console.WriteLine($"[TB_SYS_RIGHT] Total functions MISSING for admin: {missing.Count}");
+                        foreach (var m in missing)
+                        {
+                            Console.WriteLine($"  - Missing: {m}");
+                        }
+                    }
+                }
+
+                // 5. Check crucial security & AI functions
+                Console.WriteLine("\n[CRITICAL FUNCTIONS CHECK]:");
+                var criticalCodes = new[] { "F_SYSTEM_AI", "F_SYSTEM_AI_CONFIG", "F_LOGIN_DESKTOP", "F_LOGIN_WEB", "F_LOGIN_MOBILE", "F_SYSTEM_SETTING" };
+                foreach (var code in criticalCodes)
+                {
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "SELECT USER_RIGHT, CAN_VIEW, CAN_ADD, CAN_EDIT, CAN_DELETE FROM HR.TB_SYS_RIGHT WHERE IDUSER = :p0 AND FUNCTION_CODE = :p1";
+                        cmd.Parameters.Add("p0", adminId);
+                        cmd.Parameters.Add("p1", code);
+                        using (var r = cmd.ExecuteReader())
+                        {
+                            if (r.Read())
+                            {
+                                Console.WriteLine($"  * {code}: USER_RIGHT={r["USER_RIGHT"]}, VIEW={r["CAN_VIEW"]}, ADD={r["CAN_ADD"]}, EDIT={r["CAN_EDIT"]}, DEL={r["CAN_DELETE"]}");
+                            }
+                            else
+                            {
+                                Console.WriteLine($"  * {code}: [NOT FOUND IN TB_SYS_RIGHT] - NO EXPLICIT RECORD!");
+                            }
+                        }
+                    }
+                }
+
+                // 6. Check sessions in TB_AUTH_SESSION
+                Console.WriteLine("\n[TB_AUTH_SESSION] Recent sessions for admin:");
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT SESSION_ID, JTI, CLIENT_TYPE, EXPIRES_AT, REVOKED_AT, LAST_USED_AT, CREATED_AT
+                        FROM (
+                            SELECT * FROM HR.TB_AUTH_SESSION
+                            WHERE USER_ID = :p0
+                            ORDER BY CREATED_AT DESC
+                        ) WHERE ROWNUM <= 5";
+                    cmd.Parameters.Add("p0", adminId);
+                    using (var r = cmd.ExecuteReader())
+                    {
+                        int sCount = 0;
+                        while (r.Read())
+                        {
+                            sCount++;
+                            Console.WriteLine($"  Session #{sCount}: ID={r["SESSION_ID"]}, JTI={r["JTI"]}, Channel={r["CLIENT_TYPE"]}, Created={r["CREATED_AT"]}, Expires={r["EXPIRES_AT"]}, Revoked={r["REVOKED_AT"]}");
+                        }
+                        if (sCount == 0) Console.WriteLine("  No sessions found in TB_AUTH_SESSION for admin!");
+                    }
+                }
+
+                // 7. Check PlatformAccessGuard evaluation for admin
+                Console.WriteLine("\n[PLATFORM ACCESS GUARD EVALUATION]:");
+                bool canDesktop = Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(
+                    adminId, "DESKTOP", "F_LOGIN_DESKTOP", Bu.CLASS_SECURITY.ChannelAction.View, adminUsername
+                );
+                Console.WriteLine($"  Can Login DESKTOP: {canDesktop}");
+
+                bool canAi = Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(
+                    adminId, "DESKTOP", "F_SYSTEM_AI", Bu.CLASS_SECURITY.ChannelAction.View, adminUsername
+                );
+                Console.WriteLine($"  Can Access AI on DESKTOP: {canAi}");
+
+                bool canAiConfig = Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(
+                    adminId, "DESKTOP", "F_SYSTEM_AI_CONFIG", Bu.CLASS_SECURITY.ChannelAction.View, adminUsername
+                );
+                Console.WriteLine($"  Can Access AI_CONFIG on DESKTOP: {canAiConfig}");
+
+                // 8. Check TB_SYS_RIGHT_CHANNEL for Admin
+                Console.WriteLine("\n[TB_SYS_RIGHT_CHANNEL CHECK FOR ADMIN]:");
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = @"
+                        SELECT CLIENT_TYPE, COUNT(*) AS TOTAL_FUNCS,
+                               SUM(NVL(CAN_VIEW, 0)) AS TOTAL_VIEW,
+                               SUM(NVL(CAN_ADD, 0)) AS TOTAL_ADD,
+                               SUM(NVL(CAN_EDIT, 0)) AS TOTAL_EDIT,
+                               SUM(NVL(CAN_DELETE, 0)) AS TOTAL_DELETE,
+                               SUM(NVL(CAN_PRINT, 0)) AS TOTAL_PRINT
+                        FROM HR.TB_SYS_RIGHT_CHANNEL
+                        WHERE IDUSER = :p0
+                        GROUP BY CLIENT_TYPE
+                        ORDER BY CLIENT_TYPE";
+                    cmd.Parameters.Add("p0", adminId);
+                    using (var r = cmd.ExecuteReader())
+                    {
+                        while (r.Read())
+                        {
+                            Console.WriteLine($"  Channel: {r["CLIENT_TYPE"]} | Funcs: {r["TOTAL_FUNCS"]} | View: {r["TOTAL_VIEW"]} | Add: {r["TOTAL_ADD"]} | Edit: {r["TOTAL_EDIT"]} | Del: {r["TOTAL_DELETE"]} | Print: {r["TOTAL_PRINT"]}");
+                        }
+                    }
+                }
+
+                // 9. Test Session Validation on most recent session
+                Console.WriteLine("\n[SESSION VALIDATION TEST VIA AuthSecurityService]:");
+                var authSec = new Bu.CLASS_SECURITY.AuthSecurityService();
+                using (var cmd = conn.CreateCommand())
+                {
+                    cmd.CommandText = "SELECT JTI, CLIENT_TYPE, SESSION_ID FROM (SELECT JTI, CLIENT_TYPE, SESSION_ID FROM HR.TB_AUTH_SESSION WHERE USER_ID = :p0 ORDER BY CREATED_AT DESC) WHERE ROWNUM = 1";
+                    cmd.Parameters.Add("p0", adminId);
+                    using (var r = cmd.ExecuteReader())
+                    {
+                        if (r.Read())
+                        {
+                            string jti = r["JTI"].ToString();
+                            string channel = r["CLIENT_TYPE"].ToString();
+                            string sessId = r["SESSION_ID"].ToString();
+                            bool vCurrent = authSec.ValidateSession(jti, tokenVersion, adminId, channel);
+                            bool vOld = authSec.ValidateSession(jti, 1, adminId, channel);
+                            Console.WriteLine($"  Latest Session JTI={jti}, Channel={channel}:");
+                            Console.WriteLine($"    - Validate with tokenVersion={tokenVersion}: {vCurrent}");
+                            Console.WriteLine($"    - Validate with tokenVersion=1 (Old): {vOld}");
+                        }
+                    }
+                }
+
+                // 10. Check AI Scope Grants in AI_OWNER.TB_AI_SCOPE_GRANT
+                Console.WriteLine("\n[AI_OWNER.TB_AI_SCOPE_GRANT CHECK]:");
+                try
+                {
+                    using (var cmd = conn.CreateCommand())
+                    {
+                        cmd.CommandText = "SELECT COUNT(*) FROM AI_OWNER.TB_AI_SCOPE_GRANT WHERE SUBJECT_TYPE = 'USER' AND SUBJECT_ID = :p0";
+                        cmd.Parameters.Add("p0", adminId);
+                        int gCount = Convert.ToInt32(cmd.ExecuteScalar());
+                        Console.WriteLine($"  Admin direct AI scope grants: {gCount}");
+                    }
+                }
+                catch (Exception gex)
+                {
+                    Console.WriteLine($"  Cannot query AI_OWNER.TB_AI_SCOPE_GRANT: {gex.Message}");
+                }
+            }
+        }
+
+        [Test]
+        public async Task Test_Desktop_Token_Exchange_And_Get_Ai_Config()
+        {
+            Console.WriteLine("================================================================================");
+            Console.WriteLine("=== TESTING LIVE DESKTOP LOGIN & GET_AI_CONFIG FLOW ===");
+            Console.WriteLine("================================================================================");
+
+            // 1. Perform login via AuthSecurityService (Desktop client)
+            var authSec = new Bu.CLASS_SECURITY.AuthSecurityService();
+            var loginResult = await authSec.AuthenticateAsync("admin", "123", "DESKTOP", "WINDOWS", "dev-1", "PC-Test", "127.0.0.1", "TestClient/1.0", Guid.NewGuid().ToString("N"));
+            Console.WriteLine($"[1. LOGIN] Success: {loginResult.Success}, SessionId: {loginResult.SessionId}, JTI: {loginResult.Jti}, TokenVersion: {loginResult.TokenVersion}, Failure: {loginResult.FailureReason}");
+
+            if (!loginResult.Success)
+            {
+                // Try with different password if 123 failed
+                loginResult = await authSec.AuthenticateAsync("admin", "admin", "DESKTOP", "WINDOWS", "dev-1", "PC-Test", "127.0.0.1", "TestClient/1.0", Guid.NewGuid().ToString("N"));
+                Console.WriteLine($"[1b. LOGIN with 'admin'] Success: {loginResult.Success}, SessionId: {loginResult.SessionId}, JTI: {loginResult.Jti}, TokenVersion: {loginResult.TokenVersion}, Failure: {loginResult.FailureReason}");
+            }
+
+            Assert.IsTrue(loginResult.Success, "Login failed: " + loginResult.ErrorMessage);
+
+            // 2. Test ExchangeDesktopTokenAsync with the live API on http://localhost:55463
+            using (var http = new System.Net.Http.HttpClient())
+            {
+                var exchangeBody = new
+                {
+                    username = "admin",
+                    password = "123",
+                    sessionId = loginResult.SessionId,
+                    jti = loginResult.Jti
+                };
+                var jsonContent = new System.Net.Http.StringContent(
+                    Newtonsoft.Json.JsonConvert.SerializeObject(exchangeBody),
+                    System.Text.Encoding.UTF8,
+                    "application/json"
+                );
+
+                var exchResp = await http.PostAsync("http://localhost:55463/api/auth/desktop-token", jsonContent);
+                string exchJson = await exchResp.Content.ReadAsStringAsync();
+                Console.WriteLine($"[2. DESKTOP-TOKEN API] Status: {exchResp.StatusCode}, Response: {exchJson}");
+
+                Assert.IsTrue(exchResp.IsSuccessStatusCode, "Exchange desktop token failed: " + exchJson);
+
+                dynamic exchObj = Newtonsoft.Json.JsonConvert.DeserializeObject(exchJson);
+                string token = exchObj?.token?.ToString() ?? exchObj?.Token?.ToString();
+                Assert.IsNotNull(token, "Token is null in exchange response");
+
+                // 3. Call GET /api/ai/config using this token
+                var configReq = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, "http://localhost:55463/api/ai/config");
+                configReq.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var configResp = await http.SendAsync(configReq);
+                string configJson = await configResp.Content.ReadAsStringAsync();
+                Console.WriteLine($"[3. GET /api/ai/config] Status: {configResp.StatusCode}, Response: {configJson}");
+
+                Assert.IsTrue(configResp.IsSuccessStatusCode, "GET /api/ai/config failed: " + configJson);
+
+                // 4. Call POST /api/ai/config/test
+                var testBody = new
+                {
+                    Target = "OLLAMA",
+                    Url = "http://localhost:11434",
+                    Model = "qwen2.5:latest"
+                };
+                var testReq = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Post, "http://localhost:55463/api/ai/config/test")
+                {
+                    Content = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(testBody), System.Text.Encoding.UTF8, "application/json")
+                };
+                testReq.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var testResp = await http.SendAsync(testReq);
+                string testJson = await testResp.Content.ReadAsStringAsync();
+                Console.WriteLine($"[4. POST /api/ai/config/test] Status: {testResp.StatusCode}, Response: {testJson}");
+
+                // Also call TestTargetEndpointAsync directly in process
+                var directResult = await Bu.Services.AI_Services.Core.AiConfigurationCoordinator.Instance.TestTargetEndpointAsync("OLLAMA", "http://localhost:11434", "qwen2.5:latest");
+                Console.WriteLine($"[4b. Direct TestTargetEndpointAsync OLLAMA] Success: {directResult.Success}, Message: {directResult.Message}, Latency: {directResult.LatencyMs}ms");
+
+                var qdrantLocal = await Bu.Services.AI_Services.Core.AiConfigurationCoordinator.Instance.TestTargetEndpointAsync("QDRANT", "http://localhost:6333");
+                Console.WriteLine($"[4c. Qdrant localhost:6333] Success: {qdrantLocal.Success}, Message: {qdrantLocal.Message}, Latency: {qdrantLocal.LatencyMs}ms");
+
+                // Update TB_CONFIG in Oracle to use localhost:6333 for QdrantUrl
+                using (var orclConn = new OracleConnection(ConnectionString))
+                {
+                    orclConn.Open();
+                    using (var cmd = orclConn.CreateCommand())
+                    {
+                        cmd.CommandText = "UPDATE HR.TB_CONFIG SET VALUE = 'http://localhost:6333' WHERE NAME = 'QdrantUrl'";
+                        int updated = cmd.ExecuteNonQuery();
+                        Console.WriteLine($"[5. DB UPDATE] Updated QdrantUrl to http://localhost:6333: {updated} row(s)");
+                    }
+                }
+
+                // 6. Test Qdrant via POST /api/ai/config/test
+                var qdrantTestBody = new
+                {
+                    Target = "QDRANT",
+                    Url = "http://localhost:6333"
+                };
+                var qdrantReq = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Post, "http://localhost:55463/api/ai/config/test")
+                {
+                    Content = new System.Net.Http.StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(qdrantTestBody), System.Text.Encoding.UTF8, "application/json")
+                };
+                qdrantReq.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+
+                var qdrantResp = await http.SendAsync(qdrantReq);
+                string qdrantJson = await qdrantResp.Content.ReadAsStringAsync();
+                Console.WriteLine($"[6. POST /api/ai/config/test QDRANT] Status: {qdrantResp.StatusCode}, Response: {qdrantJson}");
+
+                Assert.IsTrue(qdrantResp.IsSuccessStatusCode, "Qdrant test endpoint failed: " + qdrantJson);
             }
         }
     }

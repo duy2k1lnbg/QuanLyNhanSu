@@ -8,9 +8,9 @@ namespace HRMS_API.Controllers
 {
     /// <summary>
     /// API Quản trị phân quyền tra cứu AI (Scope Grants) cho User và Group
-    /// Yêu cầu xác thực tài khoản Quản trị viên (Admin)
+    /// Yêu cầu quyền sửa F_SYSTEM_PQ_CHUCNANG trên kênh của phiên đăng nhập
     /// </summary>
-    [JwtAuthorize(RequireAdmin = true)]
+    [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
     [RoutePrefix("api/admin/ai-scope")]
     public class AiScopeAdminController : ApiController
     {
@@ -38,10 +38,11 @@ namespace HRMS_API.Controllers
             {
                 int.TryParse(jwtUser.UserId, out actorId);
                 actorUsername = jwtUser.Username;
-                isAdmin = jwtUser.IsAdmin;
+                isAdmin = Bu.CLASS_SECURITY.PlatformAccessGuard.Current.CanExecute(actorId, jwtUser.ClientType,
+                    "F_SYSTEM_PQ_CHUCNANG", Bu.CLASS_SECURITY.ChannelAction.Edit, actorUsername);
             }
 
-            var secCtx = new ApiAdminSecurityContext(actorId, actorUsername, isAdmin);
+            var secCtx = new ApiAdminSecurityContext(actorId, actorUsername, isAdmin, jwtUser?.ClientType ?? "WEB_API");
             return new AiScopeGrantManagementService(new OracleAiScopeGrantRepository(), secCtx);
         }
 
@@ -86,6 +87,7 @@ namespace HRMS_API.Controllers
                     message = ioex.Message
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 string correlationId = Guid.NewGuid().ToString("N");
@@ -130,6 +132,7 @@ namespace HRMS_API.Controllers
                     message = uex.Message
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 string correlationId = Guid.NewGuid().ToString("N");

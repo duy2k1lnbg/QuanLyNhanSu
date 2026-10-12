@@ -12,7 +12,7 @@ using System.Web.Http;
 
 namespace HRMS_API.Controllers
 {
-    [JwtAuthorize(RequireAdmin = true)]
+    [JwtAuthorize]
     [RoutePrefix("api/users")]
     public class UserController : ApiController
     {
@@ -27,6 +27,7 @@ namespace HRMS_API.Controllers
         [HttpGet]
         [Route("")]
         [Route("~/api/user")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.View)]
         public IHttpActionResult GetAllUsers()
         {
             try
@@ -82,15 +83,7 @@ namespace HRMS_API.Controllers
                         string empCode = null;
                         string empName = null;
                         bool isMobileEnabled = true;
-
-                        if (isAdmin)
-                        {
-                            manv = null;
-                            empCode = null;
-                            empName = null;
-                            isMobileEnabled = false;
-                        }
-                        else if (map != null)
+                        if (map != null)
                         {
                             manv = map.EMPLOYEE_ID;
                             empCode = map.EMPLOYEE_CODE;
@@ -154,6 +147,7 @@ namespace HRMS_API.Controllers
                     return Ok(list);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách người dùng: " + ex.ToString());
@@ -168,6 +162,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("")]
         [Route("~/api/user")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.Add)]
         public IHttpActionResult CreateUser([FromBody] CreateUserRequest req)
         {
             try
@@ -216,6 +211,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tạo tài khoản / nhóm: " + ex.ToString());
@@ -230,6 +226,7 @@ namespace HRMS_API.Controllers
         [HttpPut]
         [Route("{id:int}")]
         [Route("~/api/user/{id:int}")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult UpdateUser(int id, [FromBody] UpdateUserRequest req)
         {
             try
@@ -245,10 +242,6 @@ namespace HRMS_API.Controllers
                     
                     if (req.Disabled.HasValue)
                     {
-                        if (user.USERNAME.Trim().ToUpper() == "ADMIN" && req.Disabled.Value)
-                        {
-                            return BadRequest("Không thể khóa tài khoản Quản trị hệ thống (ADMIN).");
-                        }
                         user.DISABLED = req.Disabled.Value ? 1 : 0;
                     }
 
@@ -261,6 +254,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã cập nhật thông tin tài khoản #{id} ({user.USERNAME})." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi cập nhật tài khoản: " + ex.ToString());
@@ -276,6 +270,7 @@ namespace HRMS_API.Controllers
         [HttpPut]
         [Route("{id:int}/toggle-lock")]
         [Route("~/api/user/{id:int}/toggle-lock")]
+        [JwtAuthorize(Right = "F_SYSTEM_LOCK_USER", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult ToggleLock(int id)
         {
             try
@@ -284,11 +279,6 @@ namespace HRMS_API.Controllers
                 {
                     var user = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == id);
                     if (user == null) return NotFound();
-
-                    if (user.USERNAME.Trim().ToUpper() == "ADMIN")
-                    {
-                        return BadRequest("Không thể khóa tài khoản Quản trị hệ thống (ADMIN).");
-                    }
 
                     bool willLock = (user.DISABLED ?? 0) == 0;
                     user.DISABLED = willLock ? 1 : 0;
@@ -305,6 +295,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi khóa/mở khóa tài khoản: " + ex.ToString());
@@ -319,6 +310,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("{id:int}/reset-password")]
         [Route("~/api/user/{id:int}/reset-password")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult ResetPassword(int id, [FromBody] ResetPasswordRequest req)
         {
             try
@@ -342,6 +334,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã đặt lại mật khẩu cho tài khoản [{user.USERNAME}] thành công." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi đặt lại mật khẩu: " + ex.ToString());
@@ -356,6 +349,7 @@ namespace HRMS_API.Controllers
         [HttpDelete]
         [Route("{id:int}")]
         [Route("~/api/user/{id:int}")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.Delete)]
         public IHttpActionResult DeleteUser(int id)
         {
             try
@@ -364,11 +358,6 @@ namespace HRMS_API.Controllers
                 {
                     var user = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == id);
                     if (user == null) return NotFound();
-
-                    if (user.USERNAME.Trim().ToUpper() == "ADMIN")
-                    {
-                        return BadRequest("Không thể xóa tài khoản Quản trị hệ thống (ADMIN).");
-                    }
 
                     // 1. Xóa phân quyền trong TB_SYS_RIGHT
                     var rights = db.TB_SYS_RIGHT.Where(r => r.IDUSER == id).ToList();
@@ -399,6 +388,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã xóa tài khoản / nhóm [{user.USERNAME}] thành công." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi xóa người dùng/nhóm: " + ex.ToString());
@@ -413,6 +403,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("{id:int}/link-employee")]
         [Route("~/api/user/{id:int}/link-employee")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult LinkEmployee(int id, [FromBody] LinkEmployeeRequest req)
         {
             try
@@ -430,11 +421,6 @@ namespace HRMS_API.Controllers
                     if ((user.ISGROUP ?? 0) == 1)
                     {
                         return BadRequest("Không thể liên kết hồ sơ nhân viên với nhóm quyền (Group).");
-                    }
-
-                    if (user.USERNAME != null && user.USERNAME.Trim().ToUpper() == "ADMIN")
-                    {
-                        return BadRequest("Tài khoản Quản trị viên tối cao (ADMIN) là tài khoản quản trị hệ thống, không được phép liên kết với hồ sơ nhân viên.");
                     }
 
                     // 1. Kiểm tra hồ sơ nhân viên có tồn tại không
@@ -501,6 +487,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi liên kết nhân viên: " + ex.ToString());
@@ -515,6 +502,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("{id:int}/unlink-employee")]
         [Route("~/api/user/{id:int}/unlink-employee")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult UnlinkEmployee(int id)
         {
             try
@@ -542,6 +530,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi hủy liên kết nhân viên: " + ex.ToString());
@@ -557,6 +546,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("{id:int}/toggle-mobile")]
         [Route("~/api/user/{id:int}/toggle-mobile")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public async Task<IHttpActionResult> ToggleMobile(int id, [FromBody] ToggleMobileRequest req)
         {
             try
@@ -567,11 +557,6 @@ namespace HRMS_API.Controllers
                 {
                     var user = db.TB_SYS_USER.FirstOrDefault(u => u.IDUSER == id);
                     if (user == null) return NotFound();
-
-                    if (user.USERNAME != null && user.USERNAME.Trim().ToUpper() == "ADMIN")
-                    {
-                        return BadRequest("Tài khoản Quản trị viên tối cao (ADMIN) là tài khoản quản trị hệ thống, không áp dụng quyền truy cập ứng dụng di động.");
-                    }
                 }
 
                 var jwtUser = JwtAuthorizeAttribute.GetCurrentJwtUser(Request);
@@ -604,6 +589,7 @@ namespace HRMS_API.Controllers
                     message = targetState ? "Đã kích hoạt Mobile Access cho tài khoản." : "Đã vô hiệu hóa Mobile Access và thu hồi các phiên Mobile cho tài khoản."
                 });
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi chuyển đổi quyền Mobile: " + ex.ToString());
@@ -618,6 +604,7 @@ namespace HRMS_API.Controllers
         [HttpGet]
         [Route("{id:int}/platform-access")]
         [Route("~/api/user/{id:int}/platform-access")]
+        [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.View)]
         public async Task<IHttpActionResult> GetPlatformAccess(int id)
         {
             try
@@ -626,6 +613,7 @@ namespace HRMS_API.Controllers
                 if (summary == null) return NotFound();
                 return Ok(summary);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lấy thông tin quyền nền tảng: " + ex.ToString());
@@ -640,6 +628,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("{id:int}/platform-access")]
         [Route("~/api/user/{id:int}/platform-access")]
+        [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public async Task<IHttpActionResult> SavePlatformAccess(int id, [FromBody] SavePlatformRightsRequest req)
         {
             try
@@ -654,6 +643,7 @@ namespace HRMS_API.Controllers
                     return Unauthorized();
                 }
                 req.ActorUserId = uid;
+                req.ActorChannel = jwtUser.ClientType;
 
                 if (string.IsNullOrEmpty(req.CorrelationId))
                 {
@@ -670,6 +660,7 @@ namespace HRMS_API.Controllers
 
                 return Ok(result);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lưu quyền nền tảng: " + ex.ToString());
@@ -684,6 +675,7 @@ namespace HRMS_API.Controllers
         [HttpGet]
         [Route("{id:int}/channel-permissions")]
         [Route("~/api/user/{id:int}/channel-permissions")]
+        [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.View)]
         public IHttpActionResult GetChannelPermissions(int id)
         {
             try
@@ -695,6 +687,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lấy thông tin quyền theo kênh: " + ex.ToString());
@@ -709,6 +702,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("{id:int}/channel-permissions")]
         [Route("~/api/user/{id:int}/channel-permissions")]
+        [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public async Task<IHttpActionResult> SaveChannelPermissions(int id, [FromBody] SaveChannelRightsRequest req)
         {
             try
@@ -723,6 +717,7 @@ namespace HRMS_API.Controllers
                     return Unauthorized();
                 }
                 req.ActorUserId = uid;
+                req.ActorChannel = jwtUser.ClientType;
 
                 if (string.IsNullOrEmpty(req.CorrelationId))
                 {
@@ -743,6 +738,7 @@ namespace HRMS_API.Controllers
 
                 return Ok(result);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lưu quyền theo kênh: " + ex.ToString());
@@ -757,6 +753,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("{id:int}/channel-permissions/batch")]
         [Route("~/api/user/{id:int}/channel-permissions/batch")]
+        [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public async Task<IHttpActionResult> SaveBatchChannelPermissions(int id, [FromBody] BatchSaveChannelRightsRequest req)
         {
             try
@@ -771,6 +768,7 @@ namespace HRMS_API.Controllers
                     return Unauthorized();
                 }
                 req.ActorUserId = uid;
+                req.ActorChannel = jwtUser.ClientType;
 
                 if (string.IsNullOrEmpty(req.CorrelationId))
                 {
@@ -791,6 +789,7 @@ namespace HRMS_API.Controllers
 
                 return Ok(result);
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lưu quyền theo kênh (batch): " + ex.ToString());
@@ -823,6 +822,7 @@ namespace HRMS_API.Controllers
                     new OracleParameter("p4", description ?? (object)DBNull.Value),
                     new OracleParameter("p5", changedFields ?? (object)DBNull.Value));
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceWarning("Không thể ghi audit log: " + ex.Message);
@@ -836,6 +836,7 @@ namespace HRMS_API.Controllers
         [HttpGet]
         [Route("stats")]
         [Route("~/api/user/stats")]
+        [JwtAuthorize(Right = "F_SYSTEM_USER", Action = Bu.CLASS_SECURITY.ChannelAction.View)]
         public IHttpActionResult GetUserStats()
         {
             try
@@ -898,6 +899,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải thống kê người dùng: " + ex.ToString());
@@ -912,6 +914,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("bulk-provision-preview")]
         [Route("~/api/user/bulk-provision-preview")]
+        [JwtAuthorize(Right = "F_SYSTEM_CAPTAIKHOAN", Action = Bu.CLASS_SECURITY.ChannelAction.View)]
         public IHttpActionResult BulkProvisionPreview([FromBody] BulkProvisionPreviewRequest req)
         {
             try
@@ -1047,6 +1050,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi xem trước cấp phát: " + ex.ToString());
@@ -1061,6 +1065,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("bulk-provision")]
         [Route("~/api/user/bulk-provision")]
+        [JwtAuthorize(Right = "F_SYSTEM_CAPTAIKHOAN", Action = Bu.CLASS_SECURITY.ChannelAction.Add)]
         public IHttpActionResult BulkProvision([FromBody] BulkProvisionRequest req)
         {
             try
@@ -1219,6 +1224,7 @@ namespace HRMS_API.Controllers
                                 Message = req.EnableMobile ? "Cấp tài khoản & kích hoạt Mobile thành công" : "Cấp tài khoản thành công (chưa kích hoạt Mobile)"
                             });
                         }
+                        catch (Exception itemEx) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(itemEx)) { throw; }
                         catch (Exception itemEx)
                         {
                             failedCount++;
@@ -1253,6 +1259,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi thực thi cấp phát hàng loạt: " + ex.ToString());
@@ -1266,6 +1273,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpGet]
         [Route("groups/{groupId:int}/members")]
+        [JwtAuthorize(Right = "F_SYSTEM_GROUP", Action = Bu.CLASS_SECURITY.ChannelAction.View)]
         public IHttpActionResult GetGroupMembers(int groupId)
         {
             try
@@ -1314,6 +1322,7 @@ namespace HRMS_API.Controllers
                     });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải thành viên nhóm: " + ex.ToString());
@@ -1327,6 +1336,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpPost]
         [Route("groups/{groupId:int}/members/{memberId:int}")]
+        [JwtAuthorize(Right = "F_SYSTEM_GROUP", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult AddMemberToGroup(int groupId, int memberId)
         {
             try
@@ -1347,6 +1357,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = "Đã thêm thành viên vào nhóm thành công." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi thêm thành viên vào nhóm: " + ex.ToString());
@@ -1360,6 +1371,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpDelete]
         [Route("groups/{groupId:int}/members/{memberId:int}")]
+        [JwtAuthorize(Right = "F_SYSTEM_GROUP", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult RemoveMemberFromGroup(int groupId, int memberId)
         {
             try
@@ -1376,6 +1388,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = "Đã gỡ thành viên khỏi nhóm thành công." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi gỡ thành viên khỏi nhóm: " + ex.ToString());
@@ -1390,6 +1403,7 @@ namespace HRMS_API.Controllers
         [HttpGet]
         [Route("{id:int}/rights")]
         [Route("~/api/user/{id:int}/rights")]
+        [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.View)]
         public IHttpActionResult GetUserRights(int id)
         {
             try
@@ -1454,6 +1468,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lấy quyền người dùng: " + ex.ToString());
@@ -1468,6 +1483,7 @@ namespace HRMS_API.Controllers
         [HttpPost]
         [Route("{id:int}/rights")]
         [Route("~/api/user/{id:int}/rights")]
+        [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.Edit)]
         public IHttpActionResult SaveUserRights(int id, [FromBody] SaveRightsRequest req)
         {
             try
@@ -1561,6 +1577,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã cập nhật phân quyền thành công cho tài khoản/nhóm #{id} ({count} quyền)." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi lưu phân quyền: " + ex.ToString());
@@ -1574,6 +1591,7 @@ namespace HRMS_API.Controllers
         /// </summary>
         [HttpGet]
         [Route("functions")]
+        [JwtAuthorize(Right = "F_SYSTEM_PQ_CHUCNANG", Action = Bu.CLASS_SECURITY.ChannelAction.View)]
         public IHttpActionResult GetFunctions()
         {
             try
@@ -1587,6 +1605,7 @@ namespace HRMS_API.Controllers
                     return Ok(functions);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh mục chức năng: " + ex.ToString());

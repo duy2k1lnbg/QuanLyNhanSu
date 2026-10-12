@@ -26,20 +26,24 @@ namespace QLyNSu.FORM_SYSTEM
         private bool _them;
         private decimal _ID;
 
-        private void FrmThongBao_Load(object sender, EventArgs e)
+        private async void FrmThongBao_Load(object sender, EventArgs e)
         {
             _thongbao = new THONGBAO();
             _them = false;
-            LoadCombo();
+            await LoadCombo();
+            if (IsDisposed || Disposing) return;
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             ApplyAuthorization();
             gvDanhSach.CustomColumnDisplayText += gvDanhSach_CustomColumnDisplayText;
             QLyNSu.Functions.TranslationManager.Translate(this);
         }
 
-        public void LoadCombo()
+        public async Task LoadCombo()
         {
+            try
+            {
             try
             {
                 // 1. Static list for cboLoaiTB
@@ -58,7 +62,7 @@ namespace QLyNSu.FORM_SYSTEM
                 cboTrangThai.SelectedIndex = 1; // Default to "Đã đăng"
 
                 // 3. Load cboCongTy list from Database
-                var listCongTy = new CONGTY().getList();
+                var listCongTy = (await Functions.FormDataLoader.ReadAsync(this, () => new CONGTY().getList()));
                 cboCongTy.Properties.DataSource = listCongTy;
                 cboCongTy.Properties.DisplayMember = "TENCTY";
                 cboCongTy.Properties.ValueMember = "IDCTY";
@@ -66,17 +70,22 @@ namespace QLyNSu.FORM_SYSTEM
                 cboCongTy.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TENCTY", QLyNSu.Functions.TranslationManager.Translate("Tên Công ty")));
 
                 // 4. Load cboPhongBan list from Database
-                var listPhongBan = new PHONGBAN().getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+                var listPhongBan = (await Functions.FormDataLoader.ReadAsync(this, () => new PHONGBAN().getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode())));
                 cboPhongBan.Properties.DataSource = listPhongBan;
                 cboPhongBan.Properties.DisplayMember = "TENPB";
                 cboPhongBan.Properties.ValueMember = "IDPB";
                 cboPhongBan.Properties.Columns.Clear();
                 cboPhongBan.Properties.Columns.Add(new DevExpress.XtraEditors.Controls.LookUpColumnInfo("TENPB", QLyNSu.Functions.TranslationManager.Translate("Tên Phòng ban")));
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 MessageBox.Show(QLyNSu.Functions.TranslationManager.Translate("Lỗi khi tải danh mục:") + " " + ex.Message, QLyNSu.Functions.TranslationManager.Translate("Lỗi"), MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void gvDanhSach_CustomColumnDisplayText(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDisplayTextEventArgs e)
@@ -106,44 +115,34 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void showHide(bool kt)
         {
-            // Only allow buttons if user is admin
-            bool isAdmin = UserSession.CurrentUser != null && UserSession.CurrentUser.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase);
+            bool canAdd = UserSession.CanAdd("F_SYSTEM_THONGBAO");
+            bool canEdit = UserSession.CanEdit("F_SYSTEM_THONGBAO");
+            bool canDelete = UserSession.CanDelete("F_SYSTEM_THONGBAO");
+            bool canManage = canAdd || canEdit;
 
-            if (isAdmin)
-            {
-                btnThem.Enabled = kt;
-                btnSua.Enabled = kt;
-                btnXoa.Enabled = kt;
-                btnLuu.Enabled = !kt;
-                btnHuy.Enabled = !kt;
-            }
-            else
-            {
-                btnThem.Enabled = false;
-                btnSua.Enabled = false;
-                btnXoa.Enabled = false;
-                btnLuu.Enabled = false;
-                btnHuy.Enabled = false;
-            }
-
+            btnThem.Enabled = kt && canAdd;
+            btnSua.Enabled = kt && canEdit;
+            btnXoa.Enabled = kt && canDelete;
+            btnLuu.Enabled = !kt && canManage;
+            btnHuy.Enabled = !kt;
             btnDong.Enabled = true;
 
-            txtTieuDe.Enabled = !kt && isAdmin;
-            txtNoiDung.Properties.ReadOnly = kt || !isAdmin;
+            txtTieuDe.Enabled = !kt && canManage;
+            txtNoiDung.Properties.ReadOnly = kt || !canManage;
 
-            cboLoaiTB.ReadOnly = kt || !isAdmin;
-            cboTrangThai.ReadOnly = kt || !isAdmin;
-            chkGhim.ReadOnly = kt || !isAdmin;
-            dtNgayHetHan.ReadOnly = kt || !isAdmin;
-            txtFileDinhKem.ReadOnly = kt || !isAdmin;
-            cboCongTy.ReadOnly = kt || !isAdmin;
-            cboPhongBan.ReadOnly = kt || !isAdmin;
+            cboLoaiTB.ReadOnly = kt || !canManage;
+            cboTrangThai.ReadOnly = kt || !canManage;
+            chkGhim.ReadOnly = kt || !canManage;
+            dtNgayHetHan.ReadOnly = kt || !canManage;
+            txtFileDinhKem.ReadOnly = kt || !canManage;
+            cboCongTy.ReadOnly = kt || !canManage;
+            cboPhongBan.ReadOnly = kt || !canManage;
         }
 
         private void ApplyAuthorization()
         {
-            bool isAdmin = UserSession.CurrentUser != null && UserSession.CurrentUser.USERNAME.Equals("admin", StringComparison.OrdinalIgnoreCase);
-            if (!isAdmin)
+            bool canManage = UserSession.CanAdd("F_SYSTEM_THONGBAO") || UserSession.CanEdit("F_SYSTEM_THONGBAO");
+            if (!canManage)
             {
                 txtTieuDe.Enabled = false;
                 txtNoiDung.Properties.ReadOnly = true;
@@ -157,17 +156,24 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        public void LoadData()
+        public async Task LoadData()
         {
             try
             {
-                gcDanhSach.DataSource = _thongbao.getListFull_DTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            try
+            {
+                gcDanhSach.DataSource = (await Functions.FormDataLoader.ReadAsync(this, () => _thongbao.getListFull_DTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode())));
                 FormManager_Functions.CustomView_Colums(gvDanhSach);
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi tải dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private bool SaveData()
@@ -273,7 +279,7 @@ namespace QLyNSu.FORM_SYSTEM
             txtTieuDe.Focus();
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (_ID <= 0)
             {
@@ -287,7 +293,8 @@ namespace QLyNSu.FORM_SYSTEM
                 {
                     _thongbao.Delete(_ID);
                     ResetInputs();
-                    LoadData();
+                    await LoadData();
+                    if (IsDisposed || Disposing) return;
                 }
                 catch (Exception ex)
                 {
@@ -296,11 +303,12 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (SaveData())
             {
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
                 _them = false;
                 showHide(true);
             }

@@ -1,4 +1,4 @@
-using Bu;
+﻿using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
@@ -16,29 +16,38 @@ namespace QLyNSu.FORM_CHAMCONG
 {
     public partial class FrmPhuCap : DevExpress.XtraEditors.XtraForm
     {
+        public int InitialEmployeeId { get; set; }
+        private int _employeeLoadVersion;
         public FrmPhuCap()
         {
             InitializeComponent();
+            Functions.DesktopTypography.Apply(this, barManager1);
         }
 
         private PHUCAP _phucap;
         private NHANVIEN _nhanvien;
 
-        private void FrmPhuCap_Load(object sender, EventArgs e)
+        private async void FrmPhuCap_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_CC_PHUCAP")) return;
 
             showHide(true);
             _nhanvien = new NHANVIEN();
             _phucap = new PHUCAP();
-            LoadData();
-            LoadNhanVien();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            await LoadNhanVien();
+            if (IsDisposed || Disposing) return;
             searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
             gvDanhSach.OptionsFind.AlwaysVisible = true;
             gvDanhSach.OptionsFind.FindDelay = 100;
             splitContainer1.Panel1Collapsed = true;
 
             searchMANV.EditValueChanged += searchMANV_EditValueChanged;
+            if (InitialEmployeeId > 0) {
+                gvDanhSach.FocusedRowHandle = gvDanhSach.LocateByValue("MANV", InitialEmployeeId);
+                searchMANV.EditValue = InitialEmployeeId; splitContainer1.Panel1Collapsed = false;
+            }
         }
 
         private void btnSua_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -53,7 +62,7 @@ namespace QLyNSu.FORM_CHAMCONG
             splitContainer1.Panel1Collapsed = false;
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             try
             {
@@ -82,8 +91,10 @@ namespace QLyNSu.FORM_CHAMCONG
                     { 13, spP13.Value }
                 };
 
-                _phucap.SavePhuCapHopDong(manv, allowances);
-                LoadData();
+                int actor = (int)Bu.CLASS_SYSTEM.UserSession.CurrentUser.IDUSER;
+                await Functions.FormDataLoader.RunAsync(this, () => _phucap.SavePhuCapHopDong(manv, allowances, actor));
+                await LoadData();
+                if (IsDisposed || Disposing) return;
 
                 string hoten = searchMANV.Text;
                 MessageBox.Show($"Cập nhật thành công 13 loại phụ cấp theo hợp đồng cho nhân viên: {manv} - {hoten}!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -117,11 +128,14 @@ namespace QLyNSu.FORM_CHAMCONG
             }
         }
 
-        private void searchMANV_EditValueChanged(object sender, EventArgs e)
+        private async void searchMANV_EditValueChanged(object sender, EventArgs e)
         {
+            int version = ++_employeeLoadVersion;
+            try {
             if (searchMANV.EditValue != null && int.TryParse(searchMANV.EditValue.ToString(), out int manv))
             {
-                var dict = _phucap.GetPhuCapByNhanVien(manv);
+                var dict = await Functions.FormDataLoader.ReadAsync(this, () => _phucap.GetPhuCapByNhanVien(manv));
+                if (version != _employeeLoadVersion || IsDisposed) return;
                 spP1.EditValue = dict.ContainsKey(1) ? dict[1] : 0;
                 spP2.EditValue = dict.ContainsKey(2) ? dict[2] : 0;
                 spP3.EditValue = dict.ContainsKey(3) ? dict[3] : 0;
@@ -137,6 +151,7 @@ namespace QLyNSu.FORM_CHAMCONG
                 spP13.EditValue = dict.ContainsKey(13) ? dict[13] : 0;
                 CalculateTotal(null, null);
             }
+            } catch (OperationCanceledException) {} catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void gvDanhSach_Click(object sender, EventArgs e)
@@ -179,16 +194,24 @@ namespace QLyNSu.FORM_CHAMCONG
             spPTong.Value = total;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            try
+            {
             _phucap = new PHUCAP();
-            gcDanhSach.DataSource = _phucap.GetNhanVienSortedByIDPC();
+            gcDanhSach.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _phucap.GetNhanVienSortedByIDPC());
             FormManager_Functions.CustomView_Colums(gvDanhSach);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadNhanVien()
+        private async Task LoadNhanVien()
         {
-            var nhanVienList = _nhanvien.getList();
+            try
+            {
+            var nhanVienList = await Functions.FormDataLoader.ReadAsync(this, () => _nhanvien.getList());
 
             DataTable dt = new DataTable();
             dt.Columns.Add("MANV", typeof(int));
@@ -203,6 +226,10 @@ namespace QLyNSu.FORM_CHAMCONG
             searchMANV.Properties.DataSource = dt;
             searchMANV.Properties.ValueMember = "MANV";
             searchMANV.Properties.DisplayMember = "Display";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void showHide(bool kt)

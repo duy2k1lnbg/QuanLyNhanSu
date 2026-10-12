@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace Bu.CLASS_SECURITY
@@ -277,6 +277,7 @@ namespace Bu.CLASS_SECURITY
         public bool MobileDirectGrant { get; set; }
         public bool? IsMobileEnabled { get; set; }
         public decimal ActorUserId { get; set; }
+        public string ActorChannel { get; set; } = "DESKTOP";
         public string CorrelationId { get; set; }
     }
 
@@ -373,6 +374,7 @@ namespace Bu.CLASS_SECURITY
         public bool? ParentDirectGrant { get; set; } // Quyền cha F_LOGIN_*
         public List<SaveChannelFunctionItemRequest> Functions { get; set; } = new List<SaveChannelFunctionItemRequest>();
         public decimal ActorUserId { get; set; }
+        public string ActorChannel { get; set; } = "DESKTOP";
         public string CorrelationId { get; set; }
         public long? ExpectedSecurityVersion { get; set; }
     }
@@ -394,6 +396,7 @@ namespace Bu.CLASS_SECURITY
         public long? ExpectedSecurityVersion { get; set; }
         public List<SaveChannelRightsRequest> Channels { get; set; } = new List<SaveChannelRightsRequest>();
         public decimal ActorUserId { get; set; }
+        public string ActorChannel { get; set; } = "DESKTOP";
         public string CorrelationId { get; set; }
     }
 

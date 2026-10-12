@@ -4,6 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Bu.Services.AI_Services.Core
 {
+    [Obsolete("QueryPreprocessor is superseded by QueryUnderstandingService.Normalize().", false)]
     public static class QueryPreprocessor
     {
         private static readonly Dictionary<string, string> KeywordReplacements = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)

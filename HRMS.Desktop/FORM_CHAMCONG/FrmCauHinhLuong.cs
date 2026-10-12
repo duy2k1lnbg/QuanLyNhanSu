@@ -1,3 +1,4 @@
+﻿using System.Threading.Tasks;
 using Bu.CLASS_SYSTEM;
 using DA;
 using DevExpress.XtraEditors;
@@ -19,12 +20,26 @@ namespace QLyNSu.FORM_CHAMCONG
         public FrmCauHinhLuong()
         {
             InitializeComponent();
+            Functions.DesktopTypography.Apply(this, barManager1);
+            var manage = new DevExpress.XtraBars.BarButtonItem(barManager1, Functions.TranslationManager.Translate("Chính sách và hồ sơ lương"));
+            manage.ItemClick += async (s, e) => {
+                try {
+                    if (!UserSession.CanView("F_CC_BANGLUONG")) return;
+                    using (var editor = new FrmPayrollDataEditor(DateTime.Today.Year * 100 + DateTime.Today.Month, "TB_CHINH_SACH_LUONG"))
+                        await Functions.ChildFormWindow.ShowAsync(this, editor);
+                    if (!IsDisposed) await LoadData();
+                } catch (OperationCanceledException) { }
+                catch (Exception error) { Functions.FormDataLoader.ShowLoadError(this, error); }
+            };
+            bar1.AddItem(manage);
+            Functions.DesktopTypography.Apply(this, barManager1);
             this.FormClosing += FrmCauHinhLuong_FormClosing;
         }
 
-        private void FrmCauHinhLuong_Load(object sender, EventArgs e)
+        private async void FrmCauHinhLuong_Load(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             gvKhoanLuong.CellValueChanged += (s, ev) => { _isDirty = true; };
             gvKhoanLuong.ShowingEditor += (s, ev) =>
             {
@@ -49,8 +64,10 @@ namespace QLyNSu.FORM_CHAMCONG
             }
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            try
+            {
             try
             {
                 // 1. Khoản Lương & Phụ cấp
@@ -193,7 +210,7 @@ namespace QLyNSu.FORM_CHAMCONG
                 // Bổ sung các phụ cấp từ TB_PHUCAP (Cho phép sửa tên khoản)
                 using (var db = new MyEntities())
                 {
-                    var dbPcs = db.TB_PHUCAP.ToList();
+                    var dbPcs = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_PHUCAP.ToList());
                     foreach (var pc in dbPcs)
                     {
                         if (!listKhoan.Any(k => k.MaKhoan == "PC_" + pc.IDPC))
@@ -306,9 +323,13 @@ namespace QLyNSu.FORM_CHAMCONG
                 string msg = ErrorHelper.ResolveUserFriendlyMessage(ex, "Tải cấu hình lương");
                 XtraMessageBox.Show(msg, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (_isProcessing) return;
 
@@ -395,7 +416,8 @@ namespace QLyNSu.FORM_CHAMCONG
                 // Sau commit thành công, thực hiện tải lại dữ liệu ở luồng riêng
                 try
                 {
-                    LoadData();
+                    await LoadData();
+                    if (IsDisposed || Disposing) return;
                 }
                 catch (Exception reloadEx)
                 {
@@ -417,9 +439,10 @@ namespace QLyNSu.FORM_CHAMCONG
             }
         }
 
-        private void btnLamMoi_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLamMoi_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

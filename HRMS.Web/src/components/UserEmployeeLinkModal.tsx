@@ -3,6 +3,7 @@ import { Modal, Form, Select, Switch, Button, Space, Tag, Typography, Popconfirm
 import { LinkOutlined, DisconnectOutlined, MobileOutlined, UserOutlined, IdcardOutlined } from '@ant-design/icons';
 import api from '../services/api';
 import type { SysUserDTO, NhanVienDTO } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
 
 const { Text } = Typography;
 
@@ -19,6 +20,7 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
   user,
   onSuccess,
 }) => {
+  const { t } = useAppLanguage();
   const [form] = Form.useForm();
   const [employees, setEmployees] = useState<NhanVienDTO[]>([]);
   const [loadingEmployees, setLoadingEmployees] = useState(false);
@@ -45,7 +47,7 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
       const active = Array.isArray(data) ? data.filter((nv: NhanVienDTO) => (nv.DATHOIVIEC ?? 0) !== 1) : [];
       setEmployees(active);
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể tải danh sách nhân viên.' });
+      notification.error({ message: t('common.error'), description: t('user.fetchEmpError') });
     } finally {
       setLoadingEmployees(false);
     }
@@ -53,13 +55,6 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
 
   const handleLink = async () => {
     if (!user) return;
-    if (user.IsAdmin || user.Username?.toUpperCase() === 'ADMIN') {
-      notification.warning({
-        message: 'Không khả dụng',
-        description: 'Tài khoản Quản trị viên tối cao (ADMIN) là tài khoản hệ thống, không được phép liên kết với hồ sơ nhân viên.',
-      });
-      return;
-    }
     try {
       const values = await form.validateFields();
       setSubmitting(true);
@@ -69,15 +64,15 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
       });
 
       notification.success({
-        message: 'Thành công',
-        description: `Đã liên kết tài khoản [${user.Username}] với nhân viên thành công!`,
+        message: t('common.success'),
+        description: t('user.linkSuccessMsg', { username: user.Username }),
       });
       if (onSuccess) onSuccess();
       onClose();
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { Message?: string; message?: string } }; message?: string };
-      const msg = errorObj.response?.data?.Message || errorObj.response?.data?.message || 'Liên kết thất bại.';
-      notification.error({ message: 'Lỗi liên kết', description: msg });
+      const msg = errorObj.response?.data?.Message || errorObj.response?.data?.message || t('user.linkError');
+      notification.error({ message: t('user.linkError'), description: msg });
     } finally {
       setSubmitting(false);
     }
@@ -89,13 +84,13 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
       setSubmitting(true);
       await api.post(`/users/${user.IdUser}/unlink-employee`);
       notification.success({
-        message: 'Thành công',
-        description: `Đã hủy liên kết hồ sơ nhân viên cho tài khoản [${user.Username}].`,
+        message: t('common.success'),
+        description: t('user.unlinkSuccessMsg', { username: user.Username }),
       });
       if (onSuccess) onSuccess();
       onClose();
     } catch {
-      notification.error({ message: 'Lỗi', description: 'Không thể hủy liên kết.' });
+      notification.error({ message: t('common.error'), description: t('user.unlinkError') });
     } finally {
       setSubmitting(false);
     }
@@ -110,43 +105,43 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
       title={
         <Space wrap>
           <LinkOutlined style={{ color: '#1677ff' }} />
-          <span>Liên kết Tài khoản ↔ Hồ sơ Nhân sự (Quy tắc 9 & 21)</span>
+          <span>{t('user.linkModalFullTitle')}</span>
         </Space>
       }
       open={visible}
       onCancel={onClose}
       footer={[
         <Button key="cancel" onClick={onClose}>
-          Đóng
+          {t('common.close')}
         </Button>,
         currentManv && (
           <Popconfirm
             key="unlink"
-            title="Hủy liên kết nhân viên?"
-            description="Tài khoản này sẽ không thể đăng nhập trên Mobile cho đến khi được liên kết lại."
+            title={t('user.unlinkConfirmTitle')}
+            description={t('user.unlinkConfirmDesc')}
             onConfirm={handleUnlink}
-            okText="Hủy liên kết"
-            cancelText="Không"
+            okText={t('user.btnUnlink')}
+            cancelText={t('common.cancel')}
             okButtonProps={{ danger: true }}
           >
             <Button danger icon={<DisconnectOutlined />} loading={submitting}>
-              Hủy liên kết
+              {t('user.btnUnlink')}
             </Button>
           </Popconfirm>
         ),
         <Button key="submit" type="primary" onClick={handleLink} loading={submitting}>
-          {currentManv ? 'Cập nhật liên kết' : 'Xác nhận liên kết'}
+          {currentManv ? t('user.btnUpdateLink') : t('user.btnConfirmLink')}
         </Button>,
       ]}
       width="min(560px, 95vw)"
     >
       <Alert
-        message="Nguyên tắc phân định danh tính an toàn"
+        message={t('user.identityRuleTitle')}
         description={
           <ul style={{ paddingLeft: 16, margin: 0, fontSize: 13 }}>
-            <li>Tên đăng nhập (LoginName) và Mã nhân sự (EmployeeCode) độc lập 100%.</li>
-            <li>Quan hệ liên kết chuẩn 1:1. Một tài khoản chỉ liên kết với 1 nhân viên và ngược lại.</li>
-            <li>Nhân viên có thể dùng cả LoginName hoặc Mã nhân sự nguyên bản để đăng nhập Mobile.</li>
+            <li>{t('user.identityRule1')}</li>
+            <li>{t('user.identityRule2')}</li>
+            <li>{t('user.identityRule3')}</li>
           </ul>
         }
         type="info"
@@ -155,9 +150,9 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
       />
 
       <div style={{ background: '#fafafa', padding: 12, borderRadius: 8, marginBottom: 16 }}>
-        <Space orientation="vertical" style={{ width: '100%' }}>
+        <Space direction="vertical" style={{ width: '100%' }}>
           <div>
-            <Text type="secondary">Tài khoản hệ thống (Login Account): </Text>
+            <Text type="secondary">{t('user.loginAccountLabel')} </Text>
             <Text strong style={{ color: '#1677ff', fontSize: 14 }}>
               <UserOutlined style={{ marginRight: 6 }} />
               {user?.Username}
@@ -166,13 +161,13 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
           </div>
 
           <div>
-            <Text type="secondary">Trạng thái liên kết hiện tại: </Text>
+            <Text type="secondary">{t('user.linkStatusLabel')} </Text>
             {currentManv ? (
               <Tag color="success" icon={<IdcardOutlined />}>
-                {currentEmpCode || `NV#${currentManv}`} - {currentEmpName || 'Hồ sơ nhân sự'}
+                {currentEmpCode || `NV#${currentManv}`} - {currentEmpName || t('user.tagUser')}
               </Tag>
             ) : (
-              <Tag color="orange">Chưa liên kết hồ sơ</Tag>
+              <Tag color="orange">{t('employee360.notLinked')}</Tag>
             )}
           </div>
         </Space>
@@ -181,12 +176,12 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
       <Form form={form} layout="vertical">
         <Form.Item
           name="EmployeeId"
-          label="Chọn hồ sơ nhân viên để liên kết (1:1)"
-          rules={[{ required: true, message: 'Vui lòng chọn nhân viên cần liên kết' }]}
+          label={t('user.selectEmpLabel')}
+          rules={[{ required: true, message: t('user.selectEmpRequired') }]}
         >
           <Select
             showSearch
-            placeholder="Tìm theo họ tên hoặc mã nhân viên (VD: PX01-KT-TV-2026-001, 01, NV000123)..."
+            placeholder={t('user.selectEmpPlaceholder')}
             loading={loadingEmployees}
             optionFilterProp="children"
             filterOption={(input, option) => {
@@ -211,13 +206,13 @@ export const UserEmployeeLinkModal: React.FC<UserEmployeeLinkModalProps> = ({
 
         <Form.Item
           name="IsMobileEnabled"
-          label="Quyền truy cập ứng dụng di động (Mobile Access)"
+          label={t('employee360.mobileAccess')}
           valuePropName="checked"
-          help="Bật tùy chọn này để cho phép nhân viên đăng nhập vào ứng dụng HRMS Mobile Self-Service."
+          help={t('user.mobileAccessHelp')}
         >
           <Switch
-            checkedChildren={<Space><MobileOutlined />Bật</Space>}
-            unCheckedChildren="Tắt"
+            checkedChildren={<Space><MobileOutlined />{t('employee360.switchOn')}</Space>}
+            unCheckedChildren={t('employee360.switchOff')}
           />
         </Form.Item>
       </Form>

@@ -23,6 +23,8 @@ namespace QLyNSu.FORM_CHAMCONG
 {
     public partial class FrmBangCong_ChiTiet : DevExpress.XtraEditors.XtraForm
     {
+        private bool _periodLocked = true;
+        private bool _isGenerating;
         private ContextMenuStrip contextMenu;
         public FrmBangCong_ChiTiet()
         {
@@ -64,10 +66,12 @@ namespace QLyNSu.FORM_CHAMCONG
         public int _thang;
         public int _nam;
         public int _MAKYCONG;
-        
 
-        private void FrmBangCong_ChiTiet_Load(object sender, EventArgs e)
+
+        private async void FrmBangCong_ChiTiet_Load(object sender, EventArgs e)
         {
+            try
+            {
             chkTrangThai.Enabled = false;
             chkKhoa.Enabled = false;
             cboNam.Enabled = false;
@@ -77,41 +81,44 @@ namespace QLyNSu.FORM_CHAMCONG
             _nhanvien = new NHANVIEN();
             _bangcong_ct = new BANGCONG_NV_CHITIET();
 
-            if (_nam > 0 && _thang > 0)
-            {
-                cboThang.Text = _thang.ToString();
-                cboNam.Text = _nam.ToString();
-                if (_MAKYCONG <= 0)
-                {
-                    _MAKYCONG = _nam * 100 + _thang;
-                }
+            InitializePeriodSelection();
+
+            gcBangCongChiTiet.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _kcct.getList(_MAKYCONG));
+            await UpdateLockUI();
+            if (IsDisposed || Disposing) return;
+            CustomView(_thang, _nam);
+            LockInfoColumns();
+
             }
-            else if (int.TryParse(cboNam.Text, out int n) && int.TryParse(cboThang.Text, out int t))
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
+        }
+
+        private void InitializePeriodSelection()
+        {
+            // The caller's period key wins over designer values and the current date.
+            if (_MAKYCONG > 0)
             {
-                _nam = n;
-                _thang = t;
-                if (_MAKYCONG <= 0)
-                {
-                    _MAKYCONG = _nam * 100 + _thang;
-                }
+                _nam = _MAKYCONG / 100;
+                _thang = _MAKYCONG % 100;
             }
-            else
+            else if (_nam <= 0 || _thang <= 0)
             {
                 _nam = DateTime.Now.Year;
                 _thang = DateTime.Now.Month;
-                _MAKYCONG = _nam * 100 + _thang;
-                cboNam.Text = _nam.ToString();
-                cboThang.Text = _thang.ToString();
             }
-
-            gcBangCongChiTiet.DataSource = _kcct.getList(_MAKYCONG);
-            CustomView(_thang, _nam);
-            LockInfoColumns();
-            UpdateLockUI();
+            if (_nam < 2000 || _nam > 2100 || _thang < 1 || _thang > 12)
+                throw new ArgumentException("Mã kỳ công hoặc tháng/năm không hợp lệ.");
+            _MAKYCONG = _nam * 100 + _thang;
+            cboNam.Text = _nam.ToString();
+            cboThang.Text = _thang.ToString();
+            chkTrangThai.Text = TranslationManager.Translate("Đã công bố công");
         }
 
-        public void loadBangCong()
+        public async Task loadBangCong()
         {
+            try
+            {
             _kcct = new KYCONGCHITIET();
             int nam = _nam > 0 ? _nam : DateTime.Now.Year;
             int thang = _thang > 0 ? _thang : DateTime.Now.Month;
@@ -122,17 +129,25 @@ namespace QLyNSu.FORM_CHAMCONG
             _thang = thang;
             _MAKYCONG = _nam * 100 + _thang;
 
-            gcBangCongChiTiet.DataSource = _kcct.getList(_MAKYCONG);
+            gcBangCongChiTiet.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _kcct.getList(_MAKYCONG));
+            await UpdateLockUI();
+            if (IsDisposed || Disposing) return;
             CustomView(_thang, _nam);
             LockInfoColumns();
-            UpdateLockUI();
+
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void UpdateLockUI()
+        private async Task UpdateLockUI()
         {
+            try
+            {
             if (_kycong == null) _kycong = new KYCONG();
-            var kc = _kycong.getItem(_MAKYCONG);
-            bool isKhoa = kc != null && (kc.KHOA ?? 0) == 1;
+            var kc = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.getItem(_MAKYCONG));
+            bool isKhoa = kc == null || (kc.KHOA ?? 0) == 1;
+            _periodLocked = isKhoa;
             bool isTrangThai = kc != null && (kc.TRANGTHAI ?? 0) == 1;
 
             chkKhoa.Checked = isKhoa;
@@ -153,13 +168,16 @@ namespace QLyNSu.FORM_CHAMCONG
                 gvBangCongChiTiet.OptionsBehavior.Editable = true;
                 btnPhatSinhKyCong.Enabled = true;
             }
+
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private bool IsKyCongBiKhoa()
         {
-            if (_kycong == null) _kycong = new KYCONG();
-            var kc = _kycong.getItem(_MAKYCONG);
-            return kc != null && (kc.KHOA ?? 0) == 1;
+            // UI-only snapshot; the write handler still checks the database before saving.
+            return _periodLocked;
         }
 
         private void gvBangCongChiTiet_ShowingEditor(object sender, System.ComponentModel.CancelEventArgs e)
@@ -172,80 +190,82 @@ namespace QLyNSu.FORM_CHAMCONG
 
         private async void btnPhatSinhKyCong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            #region Check_Key
-            SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Locked);
-            int makycongCheck = int.Parse(cboNam.Text) * 100 + int.Parse(cboThang.Text);
-            if (_kycong.KiemTraMaKyCong(makycongCheck) == 0)
+            if (_isGenerating) return;
+            if (!Bu.CLASS_SYSTEM.UserSession.IsLoggedIn)
             {
-                SplashScreenManager.CloseForm();
-                MessageBox.Show("Kỳ công này chưa được tạo vui lòng vào bảng công và thêm.", "Thông báo");
+                XtraMessageBox.Show("Vui lòng đăng nhập để phát sinh bảng công.", "Thông báo");
                 return;
             }
-            var kcCheck = _kycong.getItem(makycongCheck);
-            if (kcCheck != null && (kcCheck.KHOA ?? 0) == 1)
+            if (!int.TryParse(cboNam.Text, out int nam) || !int.TryParse(cboThang.Text, out int thang)
+                || nam < 2000 || nam > 2100 || thang < 1 || thang > 12)
             {
-                SplashScreenManager.CloseForm();
-                XtraMessageBox.Show($"Kỳ công {makycongCheck} đã bị khóa (KHOA = 1), không thể phát sinh lại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show("Tháng/năm của kỳ công không hợp lệ.", "Thông báo");
                 return;
             }
-            if (_kycong.KiemTraPhatSinhKyCong(makycongCheck) == 1)
-            {
-                SplashScreenManager.CloseForm();
-                XtraMessageBox.Show($"Kỳ công tháng {cboThang.Text}/{cboNam.Text} đã được phát sinh trước đó. Bảng công chỉ được tạo 1 lần!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
-            #endregion
-
-            int thang = int.Parse(cboThang.Text);
-            int nam = int.Parse(cboNam.Text);
-            int macty = _macty;
+            int actorId = (int)Bu.CLASS_SYSTEM.UserSession.CurrentUser.IDUSER;
             int makycong = nam * 100 + thang;
-            _MAKYCONG = makycong;
-
+            int macty = _macty;
+            bool splashShown = false;
+            _isGenerating = true;
             try
             {
-                SplashScreenManager.Default.SetWaitFormCaption("Phát Sinh Kỳ Công");
-                SplashScreenManager.Default.SetWaitFormDescription("Đang chuẩn bị dữ liệu... (0%)");
-                SplashScreenManager.Default.SendCommand(FrmWaiting.WaitFormCommand.SetProgress, 0);
-
-                Action<int, int, string> onProgress = (current, total, msg) =>
+                var period = await FormDataLoader.ReadAsync(this, () => new KYCONG().getItem(makycong));
+                if (period == null)
                 {
-                    int percent = total > 0 ? (int)((double)current / total * 100) : current;
-                    if (percent < 0) percent = 0;
-                    if (percent > 100) percent = 100;
+                    XtraMessageBox.Show($"Kỳ công {makycong} chưa tồn tại hoặc đã chuyển vào thùng rác.", "Thông báo");
+                    return;
+                }
+                if ((period.KHOA ?? 0) == 1 || (period.TRANGTHAI ?? 0) == 1)
+                {
+                    XtraMessageBox.Show($"Kỳ công {makycong} đã khóa hoặc đã công bố; không phát sinh lại đầu vào.", "Thông báo");
+                    return;
+                }
+                _MAKYCONG = makycong;
+                SplashScreenManager.ShowForm(this, typeof(FrmWaiting), true, true, ParentFormState.Unlocked);
+                splashShown = true;
+                SplashScreenManager.Default.SetWaitFormCaption("Phát sinh và công bố bảng công");
+                Action<int, int, string> onProgress = (current, total, message) =>
+                {
+                    int percent = Math.Max(0, Math.Min(100, total > 0 ? current * 100 / total : current));
                     try
                     {
-                        SplashScreenManager.Default.SetWaitFormDescription($"{msg} ({percent}%)");
+                        SplashScreenManager.Default.SetWaitFormDescription($"{message} ({percent}%)");
                         SplashScreenManager.Default.SendCommand(FrmWaiting.WaitFormCommand.SetProgress, percent);
                     }
                     catch { }
                 };
-
-                await Task.Run(() =>
-                {
-                    // Phát sinh toàn diện kỳ công & bảng công chi tiết theo chuẩn ACID (Nguyên tử hóa, rollback sạch nếu lỗi)
-                    _kcct.PhatSinhToanBoKyCongVaBangCong(macty, thang, nam, 1, onProgress);
-                });
-
+                // Only this form is busy. Other windows remain responsive.
+                await FormDataLoader.RunAsync(this, () =>
+                    new KYCONGCHITIET().PhatSinhToanBoKyCongVaBangCong(macty, thang, nam, actorId, onProgress));
+                splashShown = false;
                 SplashScreenManager.CloseForm();
-                loadBangCong();
-                XtraMessageBox.Show("Phát sinh kỳ công thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                await loadBangCong();
+                if (IsDisposed || Disposing) return;
+                XtraMessageBox.Show("Đã phát sinh và công bố bảng công thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
+            catch (OperationCanceledException) { }
             catch (Exception ex)
             {
-                SplashScreenManager.CloseForm();
-                XtraMessageBox.Show("Lỗi khi phát sinh kỳ công: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                if (!IsDisposed && !Disposing)
+                    XtraMessageBox.Show("Lỗi khi phát sinh/công bố bảng công: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                _isGenerating = false;
+                if (splashShown) { try { SplashScreenManager.CloseForm(); } catch { } }
             }
         }
 
-        private void btnRefresh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnRefresh_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            loadBangCong();
+            await loadBangCong();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void btnXemBC_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXemBC_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            loadBangCong();
+            await loadBangCong();
+            if (IsDisposed || Disposing) return;
         }
 
         private void btnIn_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -256,7 +276,7 @@ namespace QLyNSu.FORM_CHAMCONG
             }
             List<TB_KYCONGCHITIET> lst = _kcct.getList(_MAKYCONG);
             rptBangCongTongHop rpt = new rptBangCongTongHop(lst, _MAKYCONG.ToString());
-            rpt.ShowRibbonPreviewDialog();
+            rpt.ShowRibbonPreview();
         }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -264,7 +284,7 @@ namespace QLyNSu.FORM_CHAMCONG
             this.Close();
         }
 
-        
+
 
         private void CustomView(int thang, int nam)
         {
@@ -439,8 +459,10 @@ namespace QLyNSu.FORM_CHAMCONG
             return dayNumber;
         }
 
-        private void mnCapNhatNgayCong_Click(object sender, EventArgs e)
+        private async void mnCapNhatNgayCong_Click(object sender, EventArgs e)
         {
+            try
+            {
             if (gvBangCongChiTiet.RowCount <= 0)
             {
                 MessageBox.Show("Không có dữ liệu trong bảng hiện tại.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -489,8 +511,12 @@ namespace QLyNSu.FORM_CHAMCONG
             frm._ngay = fieldName;
             frm.nam_f_bcct1 = int.TryParse(cboNam.Text, out int n) ? n : (_MAKYCONG / 100);
             frm.thang_f1_bcct = int.TryParse(cboThang.Text, out int t) ? t : (_MAKYCONG % 100);
-            frm.ShowDialog();
-            loadBangCong();
+            try { await Functions.ChildFormWindow.ShowAsync(this, frm); } finally { frm.Dispose(); }
+            if (!IsDisposed && !Disposing) await loadBangCong();
+
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void gvBangCongChiTiet_CustomDrawCell(object sender, DevExpress.XtraGrid.Views.Base.RowCellCustomDrawEventArgs e)
@@ -499,7 +525,7 @@ namespace QLyNSu.FORM_CHAMCONG
             {
 
             }
-            else 
+            else
             {
                 if (e.CellValue.ToString() == "CT")
                 {
@@ -569,16 +595,19 @@ namespace QLyNSu.FORM_CHAMCONG
             TONGNGAYCONG.OptionsColumn.AllowEdit = false;
         }
 
-        private void gvBangCongChiTiet_CellValueChanged(object sender, DevExpress.XtraGrid.Views.Base.CellValueChangedEventArgs e)
+        private async void gvBangCongChiTiet_CellValueChanged(object sender, DevExpress.XtraGrid.Views.Base.CellValueChangedEventArgs e)
         {
             try
             {
+            try
+            {
                 if (_kycong == null) _kycong = new KYCONG();
-                var kc = _kycong.getItem(_MAKYCONG);
+                var kc = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.getItem(_MAKYCONG));
                 if (kc != null && (kc.KHOA ?? 0) == 1)
                 {
                     XtraMessageBox.Show($"Kỳ công {_MAKYCONG} đã bị khóa (KHOA = 1), không thể chỉnh sửa dữ liệu.", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    loadBangCong();
+                    await loadBangCong();
+                    if (IsDisposed || Disposing) return;
                     return;
                 }
 
@@ -692,10 +721,15 @@ namespace QLyNSu.FORM_CHAMCONG
                 gvBangCongChiTiet.SetRowCellValue(e.RowHandle, "TONGNGAYCONG", tongngaycong);
                 gvBangCongChiTiet.SetRowCellValue(e.RowHandle, "NGAYPHEP", tongngayphep);
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khi đồng bộ dữ liệu sửa nhanh: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
     }
 }

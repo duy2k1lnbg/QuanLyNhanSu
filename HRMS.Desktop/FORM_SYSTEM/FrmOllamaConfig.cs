@@ -1,4 +1,4 @@
-using DevExpress.XtraEditors;
+﻿using DevExpress.XtraEditors;
 using System;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -25,7 +25,7 @@ namespace QLyNSu.FORM_SYSTEM
         private async Task LoadConfigFromApiAsync()
         {
             // Kiểm tra token xác thực
-            if (!Functions.AiApiClient.Instance.HasToken)
+            if (!await Functions.AiApiClient.Instance.EnsureAuthenticatedAsync())
             {
                 btnSave.Enabled = false;
                 btnTest.Enabled = false;
@@ -41,9 +41,14 @@ namespace QLyNSu.FORM_SYSTEM
                 txtTopK.Text = "30";
                 txtTopP.Text = "0.8";
                 txtRepeat.Text = "1.15";
+                txtTimeout.Text = "180";
+
+                string warningMsg = Bu.CLASS_SYSTEM.UserSession.IsLoggedIn
+                    ? Functions.TranslationManager.Translate("Không thể kết nối hoặc xác thực với máy chủ Backend API. Kiểm tra địa chỉ AiApiBaseUrl trong cấu hình ứng dụng và thử lại.")
+                    : Functions.TranslationManager.Translate("Chưa có phiên làm việc xác thực. Bạn cần đăng nhập tài khoản quản trị để xem và lưu cấu hình AI.");
 
                 XtraMessageBox.Show(
-                    Functions.TranslationManager.Translate("Chưa có phiên làm việc xác thực. Bạn cần đăng nhập tài khoản quản trị để xem và lưu cấu hình AI."),
+                    warningMsg,
                     Functions.TranslationManager.Translate("Cảnh báo xác thực"),
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning
@@ -68,6 +73,7 @@ namespace QLyNSu.FORM_SYSTEM
                     txtTopK.Text = res.AiTopK.ToString();
                     txtTopP.Text = res.AiTopP.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
                     txtRepeat.Text = res.AiRepeat.ToString("0.00", System.Globalization.CultureInfo.InvariantCulture);
+                    txtTimeout.Text = res.AiRequestTimeoutSeconds.ToString();
 
                     btnSave.Enabled = true;
                     btnTest.Enabled = true;
@@ -104,10 +110,14 @@ namespace QLyNSu.FORM_SYSTEM
             string url = txtUrl.Text.Trim();
             if (string.IsNullOrEmpty(url)) return;
 
-            if (!Functions.AiApiClient.Instance.HasToken)
+            if (!await Functions.AiApiClient.Instance.EnsureAuthenticatedAsync())
             {
+                string warnMsg = Bu.CLASS_SYSTEM.UserSession.IsLoggedIn
+                    ? Functions.TranslationManager.Translate("Không thể kết nối đến máy chủ Backend API. Kiểm tra địa chỉ AiApiBaseUrl trong cấu hình ứng dụng và trạng thái dịch vụ trên máy chủ.")
+                    : Functions.TranslationManager.Translate("Bạn cần đăng nhập để kiểm tra kết nối từ máy chủ API.");
+
                 XtraMessageBox.Show(
-                    Functions.TranslationManager.Translate("Bạn cần đăng nhập để kiểm tra kết nối từ máy chủ API."),
+                    warnMsg,
                     Functions.TranslationManager.Translate("Cảnh báo"),
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning
@@ -163,10 +173,14 @@ namespace QLyNSu.FORM_SYSTEM
             string url = txtQdrant.Text.Trim();
             if (string.IsNullOrEmpty(url)) return;
 
-            if (!Functions.AiApiClient.Instance.HasToken)
+            if (!await Functions.AiApiClient.Instance.EnsureAuthenticatedAsync())
             {
+                string warnMsg = Bu.CLASS_SYSTEM.UserSession.IsLoggedIn
+                    ? Functions.TranslationManager.Translate("Không thể kết nối đến máy chủ Backend API. Kiểm tra địa chỉ AiApiBaseUrl trong cấu hình ứng dụng và trạng thái dịch vụ trên máy chủ.")
+                    : Functions.TranslationManager.Translate("Bạn cần đăng nhập để kiểm tra kết nối từ máy chủ API.");
+
                 XtraMessageBox.Show(
-                    Functions.TranslationManager.Translate("Bạn cần đăng nhập để kiểm tra kết nối từ máy chủ API."),
+                    warnMsg,
                     Functions.TranslationManager.Translate("Cảnh báo"),
                     MessageBoxButtons.OK,
                     MessageBoxIcon.Warning
@@ -309,11 +323,23 @@ namespace QLyNSu.FORM_SYSTEM
                     return;
                 }
 
-                // Không có token: Bắt buộc từ chối lưu, không ghi trực tiếp CSDL
-                if (!Functions.AiApiClient.Instance.HasToken)
+                if (!AiConfigurationCoordinator.ParseInvariantInt(txtTimeout.Text, 180, out int timeoutSeconds, 30, 900))
                 {
+                    XtraMessageBox.Show(Functions.TranslationManager.Translate("Thời gian chờ AI phải là số nguyên từ 30 đến 900 giây."),
+                        Functions.TranslationManager.Translate("Lỗi nhập liệu"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    txtTimeout.Focus();
+                    return;
+                }
+
+                // Không có token: Bắt buộc từ chối lưu, không ghi trực tiếp CSDL
+                if (!await Functions.AiApiClient.Instance.EnsureAuthenticatedAsync())
+                {
+                    string warnMsg = Bu.CLASS_SYSTEM.UserSession.IsLoggedIn
+                        ? Functions.TranslationManager.Translate("Không thể kết nối đến máy chủ Backend API để lưu cấu hình AI. Kiểm tra địa chỉ AiApiBaseUrl trong cấu hình ứng dụng và trạng thái dịch vụ trên máy chủ.")
+                        : Functions.TranslationManager.Translate("Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn. Vui lòng đăng nhập lại tài khoản quản trị để lưu cấu hình AI.");
+
                     XtraMessageBox.Show(
-                        Functions.TranslationManager.Translate("Bạn chưa đăng nhập hoặc phiên làm việc đã hết hạn. Vui lòng đăng nhập lại tài khoản quản trị để lưu cấu hình AI."),
+                        warnMsg,
                         Functions.TranslationManager.Translate("Xác thực thất bại"),
                         MessageBoxButtons.OK,
                         MessageBoxIcon.Warning
@@ -335,6 +361,7 @@ namespace QLyNSu.FORM_SYSTEM
                     AiTopK = topk,
                     AiTopP = topp,
                     AiRepeat = repeat,
+                    AiRequestTimeoutSeconds = timeoutSeconds,
                     ExpectedVersion = _currentVersion
                 };
 
@@ -418,6 +445,8 @@ namespace QLyNSu.FORM_SYSTEM
                               "   - Tham số lấy mẫu xác suất từ ngữ cho mô hình ngôn ngữ lớn.\n\n" +
                               "5. Repeat Penalty (0.01 - 2.0):\n" +
                               "   - Hệ số phạt lặp từ để AI không bị lặp lại các cụm từ giống nhau liên tục.\n\n" +
+                              "6. Thời gian chờ AI (30 - 900 giây):\n" +
+                              "   - Mặc định 180 giây; có thể tăng lên 300 giây nếu model tải chậm. Đây là giới hạn chờ xử lý, không buộc AI suy nghĩ lâu hơn.\n\n" +
                               "LƯU Ý BẢO MẬT:\n" +
                               "- Mọi thay đổi cấu hình được kiểm soát thẩm quyền qua Backend API (yêu cầu F_SYSTEM_AI_CONFIG).\n" +
                               "- Thao tác lưu có kiểm soát phiên bản (ExpectedVersion) để chống xung đột ghi đè đồng thời.";

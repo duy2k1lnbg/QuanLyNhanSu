@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -40,7 +41,9 @@ export const AttendanceScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const requestVersion=useRef(0);
   const fetchAttendance = useCallback(async (isRefresh = false) => {
+    const version=++requestVersion.current;
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     setErrorMessage(null);
@@ -49,18 +52,15 @@ export const AttendanceScreen: React.FC = () => {
 
     try {
       const data = await meApi.getAttendance(monthParam);
-      setAttendance(data);
+      if (version===requestVersion.current) setAttendance(data);
     } catch (error: any) {
-      setErrorMessage(mapApiError(error));
+      if (version===requestVersion.current) setErrorMessage(mapApiError(error));
     } finally {
-      setLoading(false);
-      setRefreshing(false);
+      if (version===requestVersion.current) { setLoading(false); setRefreshing(false); }
     }
   }, [currentDate]);
 
-  useEffect(() => {
-    fetchAttendance();
-  }, [fetchAttendance]);
+  useFocusEffect(useCallback(() => { fetchAttendance(); }, [fetchAttendance]));
 
   const handlePrevMonth = () => {
     setCurrentDate((prev) => {

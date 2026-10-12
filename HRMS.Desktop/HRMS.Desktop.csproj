@@ -175,6 +175,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FORM_CHAMCONG\FrmPayrollDataEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmPayrollWorkflow.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="FORM_SYSTEM\FrmQuanLyTaiKhoan.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -228,6 +234,9 @@
     </Compile>
     <Compile Include="FORM_CHAMCONG\FrmBangCongNV_IN.Designer.cs">
       <DependentUpon>FrmBangCongNV_IN.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_CHAMCONG\FrmPayrollPublication.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="FORM_CHAMCONG\FrmBangLuong.cs">
       <SubType>Form</SubType>
@@ -300,6 +309,12 @@
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmAI_Chat.Designer.cs">
       <DependentUpon>FrmAI_Chat.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmAI_LogViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FORM_SYSTEM\FrmAI_LogViewer.Designer.cs">
+      <DependentUpon>FrmAI_LogViewer.cs</DependentUpon>
     </Compile>
     <Compile Include="FORM_SYSTEM\FrmDangNhap.cs">
       <SubType>Form</SubType>
@@ -400,8 +415,12 @@
     <Compile Include="FrmStartup.Designer.cs">
       <DependentUpon>FrmStartup.cs</DependentUpon>
     </Compile>
-    <Compile Include="Functions\AiBootstrap.cs" />
     <Compile Include="Functions\AiApiClient.cs" />
+    <Compile Include="Functions\AiTextPresentation.cs" />
+    <Compile Include="Functions\AiLogger.cs" />
+    <Compile Include="Functions\FormDataLoader.cs" />
+    <Compile Include="Functions\ChildFormWindow.cs" />
+    <Compile Include="Functions\DesktopTypography.cs" />
     <Compile Include="Functions\FormManager_Functions.cs" />
     <Compile Include="Functions\FormSecurity.cs" />
     <Compile Include="Functions\TranslationManager.cs" />
@@ -717,6 +736,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_NHANSU\FrmPheDuyetYeuCau.resx">
       <DependentUpon>FrmPheDuyetYeuCau.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FORM_SYSTEM\FrmAiScopeGrantDetail.resx">
+      <DependentUpon>FrmAiScopeGrantDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FORM_SYSTEM\FrmQuanLyTaiKhoan.resx">
       <DependentUpon>FrmQuanLyTaiKhoan.cs</DependentUpon>

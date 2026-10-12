@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -143,9 +144,12 @@ namespace QLyNSu.Functions
         #endregion
 
         // Translation dictionary mapping Vietnamese to English, Japanese, Chinese, and Korean
-        private static readonly Dictionary<string, (string English, string Japanese, string Chinese, string Korean)> _dictionary = 
+        private static volatile Dictionary<string, (string English, string Japanese, string Chinese, string Korean)> _dictionary =
             new Dictionary<string, (string, string, string, string)>(StringComparer.OrdinalIgnoreCase)
         {
+            { "Thời gian chờ AI (giây):", ("AI timeout (seconds):", "AI待機時間（秒）:", "AI等待时间（秒）：", "AI 대기 시간(초):") },
+            { "Thời gian chờ AI phải là số nguyên từ 30 đến 900 giây.", ("AI timeout must be an integer between 30 and 900 seconds.", "AI待機時間は30～900秒の整数で指定してください。", "AI等待时间必须是30到900秒之间的整数。", "AI 대기 시간은 30~900초 사이의 정수여야 합니다.") },
+            { "Thời gian tối đa chờ AI xử lý (30–900 giây). Mặc định: 180 giây.", ("Maximum AI processing wait (30–900 seconds). Default: 180 seconds.", "AI処理の最大待機時間（30～900秒）。既定値：180秒。", "AI处理最长等待时间（30–900秒）。默认180秒。", "AI 처리 최대 대기 시간(30~900초). 기본값: 180초.") },
             { "CCCD:", ("Citizen ID:", "国民ID:", "身份证:", "주민등록번호:") },
             { "Loại nhân sự:", ("Employee Type:", "従業員タイプ:", "员工类型:", "직원 유형:") },
             { "HRM SYSTEM", ("HRM SYSTEM", "人事管理システム", "人力资源管理系统", "인사 관리 시스템") },
@@ -291,6 +295,18 @@ namespace QLyNSu.Functions
             { "Cảnh báo", ("Warning", "警告", "警告", "경고") },
             { "Xác nhận", ("Confirm", "確認", "确认", "확인") },
             { "Hủy bỏ", ("Cancel", "キャンセル", "取消", "취소") },
+            { "Không Tên", ("Unnamed", "名前なし", "未命名", "이름 없음") },
+            { "Vui lòng chọn một kết nối để sửa.", ("Please select a connection to edit.", "編集する接続を選択してください。", "请选择要编辑的连接。", "수정할 연결을 선택하십시오.") },
+            { "Bạn có chắc muốn xóa kết nối '{0}'?", ("Are you sure you want to delete connection '{0}'?", "接続 '{0}' を削除してもよろしいですか？", "确定要删除连接 '{0}' 吗？", "연결 '{0}'을(를) 삭제하시겠습니까?") },
+            { "Lỗi đọc cấu hình: ", ("Error reading configuration: ", "設定読み込みエラー: ", "读取配置出错：", "구성 읽기 오류: ") },
+            { "Lỗi ghi file cấu hình: ", ("Error writing configuration file: ", "設定ファイル書き込みエラー: ", "写入配置文件出错：", "구성 파일 쓰기 오류: ") },
+            { "Chọn nhóm muốn tham gia", ("Select group to join", "参加するグループの選択", "选择要加入的用户组", "참여할 그룹 선택") },
+            { "Chọn thành viên thêm vào nhóm", ("Select members to add to group", "グループに追加するメンバーの選択", "选择添加到组的成员", "그룹에 추가할 구성원 선택") },
+            { "Mã nhóm", ("Group ID", "グループID", "组编号", "그룹 코드") },
+            { "Gửi bổ sung", ("Send additional info", "追加送信", "补充发送", "추가 전송") },
+            { "Câu trả lời từ AI Copilot", ("Answer from AI Copilot", "AI Copilot からの回答", "AI Copilot 的回答", "AI Copilot의 답변") },
+            { "Quản trị Quyền tra cứu AI - Nhóm quyền: [{0}] - {1}", ("Manage AI Search Rights - Group: [{0}] - {1}", "AI検索権限管理 - グループ: [{0}] - {1}", "AI查询权限管理 - 权限组: [{0}] - {1}", "AI 검색 권한 관리 - 권한 그룹: [{0}] - {1}") },
+            { "Quản trị Quyền tra cứu AI - Tài khoản: [{0}] - {1}", ("Manage AI Search Rights - Account: [{0}] - {1}", "AI検索権限管理 - アカウント: [{0}] - {1}", "AI查询权限管理 - 账户: [{0}] - {1}", "AI 검색 권한 관리 - 계정: [{0}] - {1}") },
 
             // Validation messages in CRUD forms
             { "Vui lòng điền tên trình độ.", ("Please enter qualification name.", "学歴名を入力してください。", "请输入学历名称。", "학력명을 입력하십시오.") },
@@ -401,6 +417,10 @@ namespace QLyNSu.Functions
             { "Quyền sửa", ("Edit Permission", "編集権限", "编辑权限", "수정 권한") },
             { "Quyền xóa", ("Delete Permission", "削除権限", "删除权限", "삭제 권한") },
             { "Quyền in", ("Print Permission", "印刷権限", "打印权限", "인쇄 권한") },
+            { "Công bố bảng công", ("Attendance publication", "勤怠結果の確定", "考勤结果发布", "근태 결과 확정") },
+            { "Đã công bố công", ("Attendance published", "勤怠結果確定済み", "考勤结果已发布", "근태 결과 확정됨") },
+            { "Đã công bố", ("Published", "確定済み", "已发布", "확정됨") },
+            { "Chưa công bố", ("Not published", "未確定", "未发布", "미확정") },
             { "Chọn tất cả", ("Select All", "すべて選択", "全选", "모두 선택") },
             { "Bỏ tất cả", ("Deselect All", "すべて解除", "取消全选", "모두 해제") },
             { "Sửa quyền", ("Edit Rights", "権限編集", "编辑权限", "권한 편집") },
@@ -456,6 +476,9 @@ namespace QLyNSu.Functions
             { "Báo cáo danh sách nhân viên", ("Employee List Report", "社員一覧レポート", "员工名单报表", "직원 명부 보고서") },
             { "Báo cáo nâng lương", ("Salary Increment Report", "昇給レポート", "加薪报表", "급여 인상 보고서") },
             { "Báo cáo hợp đồng lao động", ("Labor Contract Report", "労働契約レポート", "劳动合同报表", "근로계약 보고서") },
+            { "Phụ cấp hợp đồng: quản lý tại mục Phụ cấp nhân viên.", ("Contract allowance: manage it under Employee Allowances.", "契約手当は社員手当画面で管理してください。", "合同津贴：请在员工津贴中管理。", "계약 수당은 직원 수당 메뉴에서 관리하세요.") },
+            { "Tạm ứng: quản lý tại mục Ứng lương.", ("Salary advance: manage it under Salary Advances.", "給与前払いは給与前払い画面で管理してください。", "预支工资：请在预支工资中管理。", "가불은 급여 가불 메뉴에서 관리하세요.") },
+            { "Chọn khoản phát sinh nháp để duyệt; khoản đã duyệt có thể thu hồi.", ("Select a draft adjustment to approve; an approved adjustment can be revoked.", "承認する下書き項目を選択してください。承認済み項目は承認を取り消せます。", "请选择草稿调整项进行审批；已审批项可撤销审批。", "승인할 초안 조정 항목을 선택하세요. 승인된 항목은 승인을 취소할 수 있습니다.") },
             { "Phê duyệt yêu cầu từ Mobile App", ("Approve Requests from Mobile App", "モバイル申請の承認", "审批移动端申请", "모바일 신청 승인") },
             { "Quản lý và đăng thông báo", ("Announcements Management", "通知管理・投稿", "通知管理与发布", "공지사항 관리 및 등록") },
             { "Cấp phát tài khoản hàng loạt", ("Bulk Account Provisioning", "一括アカウント発行", "批量分配账号", "일괄 계정 발급") },
@@ -626,10 +649,156 @@ namespace QLyNSu.Functions
 
         static TranslationManager()
         {
+            _dictionary["Lương kỳ này đã công bố. Không được sửa, xóa, tính lại, thu hồi công bố, đổi trạng thái lương hoặc sửa/mở khóa bảng công."] = ("Payroll has been published. Payroll amounts, status and attendance are read-only. Editing, deleting, recalculating, retracting or unlocking is prohibited.", "給与は公開済みです。給与金額・状態・勤怠は読み取り専用です。編集、削除、再計算、公開取消、ロック解除はできません。", "工资已发布。工资金额、状态和考勤均为只读，禁止修改、删除、重新计算、撤回发布或解锁。", "급여가 공개되었습니다. 급여 금액, 상태 및 근태는 읽기 전용입니다. 수정, 삭제, 재계산, 공개 취소 및 잠금 해제는 불가능합니다.");
+            _dictionary["Cần quyền Sửa của chức năng Công bố lương trên nền tảng đang sử dụng."] = ("Edit permission for Publish payslips is required on this platform.", "このプラットフォームの給与公開の編集権限が必要です。", "需要当前平台的工资单发布修改权限。", "현재 플랫폼의 급여명세서 공개 수정 권한이 필요합니다.");
+            _dictionary["Căn cứ công bố (5–1000 ký tự)"] = ("Publication basis (5–1000 characters)", "公開の根拠（5～1000文字）", "发布依据（5–1000个字符）", "공개 근거 (5–1000자)");
+            _dictionary["Kỳ công dùng chung giữa các công ty. Cần người quản trị có phạm vi toàn kỳ để công bố và khóa bất biến."] = ("This attendance period is shared across companies. An administrator with access to the entire period must publish and freeze it.", "この勤怠期間は複数会社で共有されています。期間全体の権限を持つ管理者が公開し、変更不可にする必要があります。", "该考勤期间由多家公司共享，需要有整个期间权限的管理员发布并永久锁定。", "이 근태 기간은 여러 회사가 공유합니다. 기간 전체에 접근할 수 있는 관리자가 공개하고 잠가야 합니다.");
+            _dictionary["Nhập căn cứ công bố từ 5 đến 1000 ký tự."] = ("Enter a publication basis of 5–1000 characters.", "公開の根拠を5～1000文字で入力してください。", "请输入5–1000个字符的发布依据。", "공개 근거를5–1000자로 입력하세요.");
+            _dictionary["Công bố sẽ khóa bất biến lương và bảng công của kỳ này. Sau công bố không được sửa, xóa, tính lại, đổi trạng thái hay mở khóa, kể cả ADMIN."] = ("Publication permanently locks payroll and attendance for this period. After publication, editing, deleting, recalculating, changing status and unlocking are prohibited, including for ADMIN.", "公開すると、この期間の給与と勤怠は変更不可になります。公開後はADMINでも編集、削除、再計算、状態変更、ロック解除はできません。", "发布后该期间的工资和考勤将永久锁定。发布后包括ADMIN在内，均不能修改、删除、重新计算、更改状态或解锁。", "공개하면 이 기간의 급여와 근태가 변경 불가 상태로 잠깁니다. 공개 후에는 ADMIN도 수정, 삭제, 재계산, 상태 변경 및 잠금 해제를 할 수 없습니다.");
+            _dictionary["Công bố và thu hồi công bố lương"] = ("Publish and retract payslips", "給与明細の公開・取消", "发布及撤回工资单", "급여명세서 공개 및 회수");
+            _dictionary["Công bố lương"] = ("Publish payslips", "給与明細の公開", "发布工资单", "급여명세서 공개");
+            _dictionary["Công bố để nhân viên xem phiếu lương trên Mobile và Web. Không thay đổi số tiền và không xác nhận đã chi trả."] = ("Publish payslips for employees to view on Mobile and Web. Amounts and payment status remain unchanged.", "従業員がMobileとWebで給与明細を確認できるように公開します。金額や支払状況は変更しません。", "发布后员工可在Mobile和Web查看工资单。不会改变金额或支付状态。", "직원이 Mobile과 Web에서 급여명세서를 볼 수 있도록 공개합니다. 금액과 지급 상태는 변경되지 않습니다.");
+            _dictionary["Kỳ công đã khóa."] = ("Attendance period is locked.", "勤怠期間はロック済みです。", "考勤期间已锁定。", "근태 기간이 잠겼습니다.");
+            _dictionary["Kỳ công đang mở."] = ("Attendance period is open.", "勤怠期間は未ロックです。", "考勤期间尚未锁定。", "근태 기간이 열려 있습니다.");
+            _dictionary["Cần quyền Sửa của chức năng Công bố và thu hồi công bố lương trên nền tảng đang sử dụng."] = ("Edit permission for Publish and retract payslips is required on this platform.", "この端末の「給与明細の公開・取消」の編集権限が必要です。", "需要当前平台的“发布及撤回工资单”修改权限。", "현재 플랫폼의 급여명세서 공개 및 회수 수정 권한이 필요합니다.");
+            _dictionary["Công bố lương"] = ("Publish payslips", "給与明細を公開", "发布工资单", "급여명세서 공개");
+            _dictionary["Thu hồi công bố"] = ("Retract publication", "公開を取り消す", "撤回发布", "공개 회수");
+            _dictionary["Mở Bảng công"] = ("Open Attendance", "勤怠表を開く", "打开考勤表", "근태표 열기");
+            _dictionary["Chọn kỳ công để kiểm tra."] = ("Select a period to review.", "確認する期間を選択してください。", "请选择待检查期间。", "확인할 기간을 선택하세요.");
+            _dictionary["Xác nhận"] = ("Confirm", "確認", "确认", "확인");
+            _dictionary["Hủy"] = ("Cancel", "キャンセル", "取消", "취소");
+            _dictionary["Căn cứ công bố / lý do thu hồi (5–1000 ký tự)"] = ("Publication basis / retraction reason (5–1000 characters)", "公開根拠／取消理由（5～1000文字）", "发布依据／撤回原因（5–1000字符）", "공개 근거 / 회수 사유 (5–1000자)");
+            _dictionary["Tôi đã đối chiếu hồ sơ lương lịch sử và xác nhận công bố đúng số liệu lưu trữ."] = ("I have checked the archived payroll records and confirm publication of their recorded values.", "過去の給与記録を照合し、保存された金額での公開を確認しました。", "我已核对历史工资记录，并确认按存档金额发布。", "과거 급여 기록을 대조했고 저장된 금액의 공개를 확인했습니다.");
+            _dictionary["Thu hồi để nhân viên tạm thời không xem phiếu này. Số tiền được giữ nguyên; phiếu đã chi trả được bảo vệ."] = ("Employees will temporarily lose access to these slips. Amounts remain unchanged; paid slips are protected.", "従業員は一時的に明細を閲覧できなくなります。金額は保持され、支払済み明細は保護されます。", "员工将暂时无法查看这些工资单。金额保留，已支付工资单受到保护。", "직원은 일시적으로 명세서를 볼 수 없습니다. 금액은 유지되며 지급된 명세서는 보호됩니다.");
+            _dictionary["Kiểm tra lại"] = ("Check again", "再確認", "重新检查", "다시 확인");
+            _dictionary["Cần cập nhật API máy chủ để sử dụng Công bố lương."] = ("Update the server API to use payslip publication.", "給与明細公開を利用するにはサーバーAPIの更新が必要です。", "请更新服务器API以使用工资单发布。", "공개 기능을 사용하려면 서버 API를 업데이트하세요.");
+            _dictionary["Không tải được điều kiện công bố lương. Vui lòng thử lại."] = ("Could not load publication readiness. Try again.", "公開条件を読み込めませんでした。再試行してください。", "无法加载发布条件，请重试。", "공개 조건을 불러오지 못했습니다. 다시 시도하세요.");
+            _dictionary["Không thể cập nhật công bố lương. Kiểm tra căn cứ và thử lại."] = ("Could not update publication. Check the reason and try again.", "公開を更新できません。理由を確認して再試行してください。", "无法更新发布，请核对原因并重试。", "공개 상태를 갱신하지 못했습니다. 사유를 확인하고 다시 시도하세요.");
+            _dictionary["Dữ liệu hoặc điều kiện đã thay đổi. Kiểm tra lại trước khi xác nhận."] = ("Data or readiness changed. Review again before confirming.", "データまたは条件が変更されました。確認をやり直してください。", "数据或条件已变更，请重新检查再确认。", "데이터 또는 조건이 변경되었습니다. 다시 확인하세요.");
+            _dictionary["Chưa có bảng lương. Mở Bảng lương và tính lương cho kỳ đã chọn."] = ("No payroll exists. Calculate payroll for the selected period.", "給与データがありません。選択期間の給与を計算してください。", "没有工资数据，请计算所选期间的工资。", "급여 데이터가 없습니다. 선택 기간의 급여를 계산하세요.");
+            _dictionary["Đối chiếu lương, sau đó mở Bảng công và khóa kỳ công trước khi công bố lương."] = ("Review payroll, then open Attendance and lock the period before publication.", "給与を照合後、勤怠表で期間をロックしてから公開してください。", "核对工资后，打开考勤表并锁定期间再发布。", "급여를 대조한 후 근태표에서 기간을 잠그고 공개하세요.");
+            _dictionary["Cần tính lại lương để có kết quả và phiên bản công hợp lệ. Thực hiện tại PC: Chấm công > Bảng lương > Tính lương."] = ("Recalculate payroll to capture a valid attendance revision: PC > Attendance > Payroll > Calculate payroll.", "有効な勤怠版を記録するため再計算してください：PC > 勤怠 > 給与表 > 給与計算。", "请重新计算以记录有效考勤版本：PC > 考勤 > 工资表 > 计算工资。", "유효한 근태 버전을 기록하도록 재계산하세요: PC > 근태 > 급여표 > 급여 계산.");
+            _dictionary["Đầu vào công hoặc hồ sơ đã thay đổi. Công bố lại công và tính lại lương trước khi công bố phiếu."] = ("Attendance or profile inputs changed. Republish attendance and recalculate payroll.", "勤怠または登録情報が変更されました。勤怠を再公開し、給与を再計算してください。", "考勤或档案数据已更改，请重新发布考勤并重新计算工资。", "근태 또는 개인 정보가 변경되었습니다. 근태를 다시 공개하고 급여를 재계산하세요.");
+            _dictionary["Phiếu thiếu số tiền hoặc tổng thu nhập/khấu trừ không khớp thực lĩnh. Đối chiếu Chi tiết lương và tính lại."] = ("Amounts are missing or gross minus deductions does not match net pay. Review payroll details and recalculate.", "金額不足または収入・控除と手取り額が一致しません。詳細を確認し再計算してください。", "金额缺失或收入减扣除与实发不一致，请核对工资明细并重算。", "금액이 없거나 수입에서 공제한 금액과 실지급액이 다릅니다. 상세 내역을 확인하고 재계산하세요.");
+            _dictionary["Trạng thái phiếu chưa phù hợp để công bố. Kiểm tra và xử lý tại Bảng lương."] = ("This payslip state cannot be published. Review it in Payroll.", "公開できない状態です。給与表で確認してください。", "该工资单状态不可发布，请在工资表中处理。", "공개할 수 없는 상태입니다. 급여표에서 확인하세요.");
+            _dictionary["Tôi đã đối chiếu hồ sơ lương lịch sử và xác nhận công bố đúng số liệu lưu trữ."] = ("I have checked the archived payroll records and confirm publication of their recorded values.", "過去の給与記録を照合し、保存された金額での公開を確認しました。", "我已核对历史工资记录，并确认按存档金额发布。", "과거 급여 기록을 대조했고 저장된 금액의 공개를 확인했습니다.");
+            _dictionary["Thu hồi công bố để nhân viên tạm thời không xem phiếu này? Số tiền được giữ nguyên."] = ("Retract publication so employees cannot view these slips temporarily? Amounts remain unchanged.", "公開を取り消して閲覧を一時停止しますか？金額は保持されます。", "撤回发布以暂时停止员工查看？金额将保留。", "공개를 회수하여 직원 열람을 일시 중지할까요? 금액은 유지됩니다.");
+            _dictionary["Công bố các phiếu đã kiểm tra cho nhân viên xem? Thao tác này không xác nhận chi trả."] = ("Publish reviewed slips for employees? This does not confirm payment.", "確認済み明細を公開しますか？支払の確認は行いません。", "发布已核对的工资单？这不会确认支付。", "확인한 명세서를 직원에게 공개할까요? 지급 확인은 아닙니다.");
+            _dictionary["Đã cập nhật số phiếu"] = ("Updated payslips", "更新した明細数", "已更新工资单数量", "갱신한 명세서 수");
+            _dictionary["Tổng phiếu"] = ("Total slips", "明細総数", "工资单总数", "명세서 총수");
+            _dictionary["Chưa công bố"] = ("Unpublished", "未公開", "未发布", "미공개");
+            _dictionary["Đã công bố"] = ("Published", "公開済み", "已发布", "공개됨");
+            _dictionary["Lương lịch sử"] = ("Archived payroll", "過去の給与", "历史工资", "과거 급여");
+            _dictionary["Có phiếu lương lịch sử. Xác nhận đã đối chiếu hồ sơ lưu trữ trước khi công bố; không tính lại theo chính sách mới."] = ("Archived slips require review before publication; do not recalculate using current policies.", "過去の明細は保存記録を照合してから公開してください。現在の規定で再計算しないでください。", "历史工资单须核对存档后发布，不要按当前政策重算。", "과거 명세서는 보관 기록과 대조한 후 공개하세요. 현재 정책으로 재계산하지 마세요.");
+            _dictionary["Cần xác nhận đã đối chiếu hồ sơ lương lịch sử."] = ("Confirm that archived payroll records were reviewed.", "過去の給与記録との照合を確認してください。", "请确认已核对历史工资记录。", "과거 급여 기록 대조를 확인하세요.");
+            _dictionary["Nhập căn cứ công bố hoặc lý do thu hồi từ 5 đến 1000 ký tự."] = ("Enter the publication basis or retraction reason using 5–1000 characters.", "公開根拠または取消理由を5～1000文字で入力してください。", "请输入5–1000字符的发布依据或撤回原因。", "공개 근거 또는 회수 사유를 5–1000자로 입력하세요.");
+            _dictionary["Dữ liệu đã thay đổi. Kiểm tra lại trước khi công bố hoặc thu hồi."] = ("Data changed. Review again before publishing or retracting.", "データが変更されました。公開・取消前に再確認してください。", "数据已变更，请在发布或撤回前重新检查。", "데이터가 변경되었습니다. 공개 또는 회수 전에 다시 확인하세요.");
+            _dictionary["Chưa đủ điều kiện thực hiện. Kiểm tra hướng dẫn trong Công bố lương."] = ("Requirements are not met. Check the Payslip publication guidance.", "条件を満たしていません。給与明細公開の案内を確認してください。", "条件未满足，请查看工资单发布指引。", "조건이 충족되지 않았습니다. 급여명세서 공개 안내를 확인하세요.");
+            _dictionary["Kỳ đã có phiếu lương công bố. Thu hồi công bố trước khi mở khóa và tính lại."] = ("Payslips are published. Retract publication before unlocking and recalculating.", "公開済み明細があります。公開を取り消してからロック解除・再計算してください。", "工资单已发布，请先撤回发布再解锁及重算。", "공개된 명세서가 있습니다. 회수 후 잠금 해제 및 재계산하세요.");
+            _dictionary["Thu hồi công bố lương trước khi mở khóa kỳ công. Phiếu đã chi trả được bảo vệ."] = ("Retract payslip publication before unlocking attendance. Paid slips are protected.", "勤怠のロック解除前に明細の公開を取り消してください。支払済み明細は保護されます。", "解锁考勤前须撤回工资单发布，已支付的工资单受到保护。", "근태 잠금 해제 전에 공개를 회수하세요. 지급된 명세서는 보호됩니다.");
+            _dictionary["Hồ sơ dùng chung toàn hệ thống, không nhập lại mỗi tháng. Để trống ngày hết hiệu lực nếu chưa hết hạn. Sửa hồ sơ của kỳ còn mở cần tính lại lương; kỳ đã chốt được bảo vệ. Dấu * là bắt buộc."] = ("Profiles are shared across the system; no monthly re-entry. Leave the expiry date blank if still valid. Editing an open period requires payroll recalculation; closed periods remain protected. * is required.", "登録情報はシステム共通で、毎月の再入力は不要です。有効期限がなければ終了日は空欄にしてください。未締め期間の変更後は給与を再計算してください。締め済みの期間は保護されます。* は必須です。", "档案全系统共享，无需每月重录。仍有效时可留空失效日期。修改未结期档案后须重算工资；已结期仍受保护。* 为必填项。", "정보는 시스템 전체에서 공유되며 매월 다시 입력할 필요가 없습니다. 만료되지 않았다면 종료일을 비워 두세요. 미마감 기간의 정보 변경 후 급여를 재계산해야 합니다. 마감 기간은 보호됩니다. * 는 필수입니다.");
+            _dictionary["Đã lưu hồ sơ dùng chung. Cần tính lại lương các kỳ:"] = ("Shared profile saved. Recalculate payroll for:", "共通登録情報を保存しました。給与の再計算が必要な期間：", "共享档案已保存。需重新计算以下期间工资：", "공유 정보를 저장했습니다. 다음 기간의 급여를 재계산하세요:");
+            _dictionary["Hồ sơ/chính sách đã có kết quả lương cần bảo vệ. Chỉ kết thúc hiệu lực sau kỳ đã dùng, rồi thêm phiên bản mới; không phải nhập lại hồ sơ mỗi tháng."] = ("This profile or policy has protected payroll results. End its validity after the last affected period and add a new version; monthly re-entry is not required.", "この登録または方針には保護対象の給与結果があります。使用期間の後に有効期間を終了し、新しい版を追加してください。毎月の再入力は不要です。", "该档案或政策已有受保护的工资结果。请在最后使用期间之后结束有效期并新增版本；无需每月重录。", "이 정보 또는 정책에는 보호할 급여 결과가 있습니다. 마지막 사용 기간 이후에 유효 기간을 종료하고 새 버전을 추가하세요. 매월 재입력할 필요는 없습니다.");
+            _dictionary["Cần tính lại"] = ("Recalculation required", "再計算が必要", "需要重新计算", "재계산 필요");
+            _dictionary["Kết quả lương"] = ("Payroll result", "給与計算結果", "工资计算结果", "급여 계산 결과");
+            _dictionary["Đã tính"] = ("Calculated", "計算済み", "已计算", "계산 완료");
+            _dictionary["Giám sát đa nền tảng"] = ("Cross-platform monitoring", "マルチプラットフォーム監視", "跨平台监控", "다중 플랫폼 모니터링");
+            _dictionary["Theo dõi thao tác, bảo mật và phiên truy cập trên Desktop, Web và Mobile"] = ("Track activity, security and sessions across Desktop, Web and Mobile", "Desktop・Web・Mobile の操作、セキュリティ、セッションを確認", "查看桌面、网页和移动端的操作、安全及会话", "Desktop, Web, Mobile의 작업, 보안 및 세션 확인");
+            _dictionary["Nhật ký thao tác"] = ("Activity log", "操作履歴", "操作日志", "작업 기록");
+            _dictionary["Đăng nhập và bảo mật"] = ("Sign-in and security", "ログインとセキュリティ", "登录与安全", "로그인 및 보안");
+            _dictionary["Thiết bị và phiên truy cập"] = ("Devices and sessions", "端末とセッション", "设备与会话", "기기 및 세션");
+            _dictionary["Người dùng, thiết bị, IP hoặc hành động"] = ("User, device, IP or action", "ユーザー・端末・IP・操作", "用户、设备、IP 或操作", "사용자, 기기, IP 또는 작업");
+            _dictionary["Thời gian"] = ("Time", "日時", "时间", "시간");
+            _dictionary["Người thực hiện"] = ("Actor", "実行者", "操作人", "실행자");
+            _dictionary["Kênh và thiết bị"] = ("Channel and device", "接続元と端末", "渠道与设备", "채널 및 기기");
+            _dictionary["Hành động"] = ("Action", "操作", "操作", "작업");
+            _dictionary["Kết quả"] = ("Result", "結果", "结果", "결과");
+            _dictionary["Đối tượng"] = ("Object", "対象", "对象", "대상");
+            _dictionary["Hoạt động gần nhất"] = ("Last activity", "最終利用", "最近活动", "최근 활동");
+            _dictionary["Hết hạn"] = ("Expires", "有効期限", "到期时间", "만료");
+            _dictionary["Chi tiết nhật ký"] = ("Event details", "履歴詳細", "日志详情", "기록 상세");
+            _dictionary["Tổng số bản ghi"] = ("Total records", "件数", "记录总数", "전체 기록");
+            _dictionary["Mã phiên"] = ("Session ID", "セッションID", "会话 ID", "세션 ID");
+            _dictionary["Mã liên kết"] = ("Correlation ID", "関連ID", "关联 ID", "연결 ID");
+            _dictionary["Thiết bị"] = ("Device", "端末", "设备", "기기");
+            _dictionary["Mã thiết bị"] = ("Device ID", "端末ID", "设备 ID", "기기 ID");
+            _dictionary["Địa chỉ IP"] = ("IP address", "IPアドレス", "IP 地址", "IP 주소");
+            _dictionary["Nguồn địa chỉ IP"] = ("IP source", "IP取得元", "IP 来源", "IP 출처");
+            _dictionary["Trình duyệt / ứng dụng"] = ("Browser / application", "ブラウザー・アプリ", "浏览器 / 应用", "브라우저 / 앱");
+            _dictionary["Dịch vụ thực thi"] = ("Executor", "実行サービス", "执行服务", "실행 서비스");
+            _dictionary["Phiên bản"] = ("Version", "バージョン", "版本", "버전");
+            _dictionary["Chi tiết thay đổi"] = ("Changes", "変更内容", "变更详情", "변경 내용");
+            _dictionary["Dữ liệu trước"] = ("Before", "変更前", "变更前", "변경 전");
+            _dictionary["Dữ liệu sau"] = ("After", "変更後", "变更后", "변경 후");
+            _dictionary["Nhật ký cũ thiếu nguồn truy cập được hiển thị Không xác định; không suy đoán kênh từ IP."] = ("Historical entries without a source are marked Unknown; IP does not determine the channel.", "接続元がない過去の履歴は不明と表示します。IPから推測しません。", "缺少来源的旧日志显示为未知，不通过 IP 推断渠道。", "출처 없는 이전 기록은 알 수 없음으로 표시하며 IP로 채널을 추측하지 않습니다.");
+            _dictionary["Phiên chưa hết hạn không đồng nghĩa thiết bị đang online. Xem thời điểm hoạt động gần nhất."] = ("An unexpired session does not mean the device is online. Check its last activity.", "有効なセッションでもオンラインとは限りません。最終利用時刻を確認してください。", "会话未过期不代表设备在线，请查看最近活动时间。", "유효한 세션이 기기의 온라인 상태를 의미하지 않습니다. 최근 활동을 확인하세요.");
+            _dictionary["Thu hồi phiên"] = ("Revoke session", "セッションを失効", "撤销会话", "세션 해제");
+            _dictionary["Thu hồi phiên sẽ yêu cầu thiết bị đăng nhập lại. Tiếp tục?"] = ("This device will need to sign in again. Continue?", "端末は再ログインが必要になります。続行しますか？", "设备将需要重新登录，是否继续？", "기기에서 다시 로그인해야 합니다. 계속하시겠습니까?");
+            _dictionary["Đã thu hồi phiên"] = ("Session revoked", "セッションを失効しました", "会话已撤销", "세션이 해제되었습니다");
+            _dictionary["Không thu hồi được phiên."] = ("Could not revoke the session.", "セッションを失効できませんでした。", "无法撤销会话。", "세션을 해제할 수 없습니다.");
+            _dictionary["Đặt lại"] = ("Reset", "リセット", "重置", "초기화");
+            _dictionary["Thử lại"] = ("Retry", "再試行", "重试", "다시 시도");
+            _dictionary["Không tải được nhật ký. Vui lòng thử lại."] = ("Could not load logs. Please retry.", "履歴を取得できません。再試行してください。", "无法加载日志，请重试。", "기록을 불러올 수 없습니다. 다시 시도하세요.");
+            _dictionary["Không có bản ghi phù hợp"] = ("No matching records", "該当する履歴はありません", "没有匹配记录", "일치하는 기록이 없습니다");
+            _dictionary["Không xác định"] = ("Unknown", "不明", "未知", "알 수 없음");
+            _dictionary["Hệ thống"] = ("System", "システム", "系统", "시스템");
+            _dictionary["Tất cả"] = ("All", "すべて", "全部", "전체");
+            _dictionary["Desktop"] = ("Desktop", "Desktop", "桌面端", "Desktop");
+            _dictionary["Web"] = ("Web", "Web", "网页端", "Web");
+            _dictionary["Mobile"] = ("Mobile", "Mobile", "移动端", "Mobile");
+            _dictionary["Hệ thống"] = ("System", "システム", "系统", "시스템");
+            _dictionary["Không xác định"] = ("Unknown", "不明", "未知", "알 수 없음");
+            _dictionary["Thành công"] = ("Success", "成功", "成功", "성공");
+            _dictionary["Thất bại"] = ("Failure", "失敗", "失败", "실패");
+            _dictionary["Bị từ chối"] = ("Denied", "拒否", "已拒绝", "거부됨");
+            _dictionary["Chưa hết hạn"] = ("Unexpired", "有効", "未过期", "유효함");
+            _dictionary["Đã hết hạn"] = ("Expired", "期限切れ", "已过期", "만료됨");
+            _dictionary["Đã thu hồi"] = ("Revoked", "失効済み", "已撤销", "해제됨");
+            _dictionary["Giám sát đa nền tảng"] = ("Cross-platform monitoring", "マルチプラットフォーム監視", "跨平台监控", "다중 플랫폼 모니터링");
+            _dictionary["Nhật ký thao tác, bảo mật và phiên truy cập"] = ("Activity, security and sessions", "操作、セキュリティ、セッション", "操作、安全及会话", "작업, 보안 및 세션");
+            _dictionary["Tổng số bản ghi"] = ("Total records", "件数", "记录总数", "전체 기록");
+            _dictionary["Trang"] = ("Page", "ページ", "页", "페이지");
+            _dictionary["Trang trước"] = ("Previous page", "前のページ", "上一页", "이전 페이지");
+            _dictionary["Trang sau"] = ("Next page", "次のページ", "下一页", "다음 페이지");
+            _dictionary["Chưa được cấp quyền giám sát."] = ("Monitoring permission is required.", "監視権限が必要です。", "需要监控权限。", "모니터링 권한이 필요합니다.");
+            _dictionary["Kênh"] = ("Channel", "接続元", "渠道", "채널");
+            _dictionary["Xem chi tiết"] = ("View details", "詳細を表示", "查看详情", "상세 보기");
+            _dictionary["Mã nhật ký"] = ("Event ID", "履歴ID", "日志 ID", "기록 ID");
+            _dictionary["Mã tài khoản"] = ("Account ID", "アカウントID", "账户 ID", "계정 ID");
+            _dictionary["Mã bản ghi"] = ("Record ID", "レコードID", "记录 ID", "레코드 ID");
+            _dictionary["Phân hệ"] = ("Module", "モジュール", "模块", "모듈");
+            // Payroll data editor: labels and validation feedback.
+            _dictionary["Thông tin hồ sơ"] = ("Profile details", "登録情報", "档案详情", "등록 정보");
+            _dictionary["Dữ liệu chưa lưu"] = ("Unsaved changes", "未保存の変更", "未保存的更改", "저장되지 않은 변경");
+            _dictionary["Có thay đổi chưa lưu. Bỏ thay đổi để tiếp tục?"] = ("Discard unsaved changes and continue?", "未保存の変更を破棄して続行しますか？", "放弃未保存的更改并继续？", "저장되지 않은 변경을 버리고 계속할까요?");
+            _dictionary["Nhập căn cứ hoặc lý do thay đổi..."] = ("Enter supporting information or a reason...", "根拠または変更理由を入力...", "输入依据或修改原因...", "근거 또는 변경 사유 입력...");
+            _dictionary["Hồ sơ thuế"] = ("Tax profile", "税務情報", "税务档案", "세무 정보");
+            _dictionary["Nhân viên"] = ("Employee", "従業員", "员工", "직원");
+            _dictionary["Mã số thuế / số định danh"] = ("Tax / identification number", "納税者番号／個人識別番号", "税号／身份号码", "납세자 번호 / 개인 식별 번호");
+            _dictionary["Loại định danh"] = ("Identification type", "本人確認書類の種類", "身份证件类型", "신분증 유형");
+            _dictionary["Số hộ chiếu"] = ("Passport number", "旅券番号", "护照号码", "여권 번호");
+            _dictionary["Cá nhân cư trú"] = ("Tax resident", "税務上の居住者", "税收居民", "세법상 거주자");
+            _dictionary["Căn cứ cư trú"] = ("Residence evidence", "居住判定の根拠", "居民身份依据", "거주자 판정 근거");
+            _dictionary["Ủy quyền quyết toán"] = ("Tax settlement authorization", "年次税務申告の委任", "税务汇算授权", "연말 세금 신고 위임");
+            _dictionary["Trạng thái hồ sơ"] = ("Profile status", "登録状況", "档案状态", "등록 상태");
+            _dictionary["Ngày hiệu lực"] = ("Effective from", "適用開始日", "生效日期", "적용 시작일");
+            _dictionary["Ngày hết hiệu lực"] = ("Effective until", "適用終了日", "失效日期", "적용 종료일");
+            _dictionary["Căn cứ / lý do lưu *"] = ("Supporting information / reason *", "根拠／保存理由 *", "依据／保存原因 *", "근거 / 저장 사유 *");
+            _dictionary["Thiếu định danh"] = ("Missing identification", "本人確認情報不足", "缺少身份信息", "신원 정보 부족");
+            _dictionary["Thiếu căn cứ cư trú"] = ("Missing residence evidence", "居住判定根拠不足", "缺少居民身份依据", "거주자 판정 근거 부족");
+            _dictionary["Chờ xác minh"] = ("Awaiting verification", "確認待ち", "待核实", "확인 대기");
+            _dictionary["Hộ chiếu"] = ("Passport", "旅券", "护照", "여권");
+            _dictionary["Công dân VN thường trú"] = ("Vietnamese permanent resident", "ベトナムの永住者", "越南常住居民", "베트남 영주 거주자");
+            _dictionary["Nhập căn cứ/lý do lưu dữ liệu."] = ("Enter supporting information or a reason for saving.", "保存の根拠または理由を入力してください。", "请输入保存依据或原因。", "저장 근거 또는 사유를 입력하세요.");
+            _dictionary["Hồ sơ đã xác minh phải có Mã số thuế hoặc Số hộ chiếu. Hãy bổ sung định danh trước khi lưu trạng thái Đã xác minh."] = ("A verified profile requires a tax or passport number. Add identification before saving it as verified.", "確認済みの登録には納税者番号または旅券番号が必要です。確認済みとして保存する前に入力してください。", "已核实的档案必须有税号或护照号码。请补充身份信息后再保存为已核实。", "확인된 정보에는 납세자 번호 또는 여권 번호가 필요합니다. 확인 완료로 저장하기 전에 입력하세요.");
+            _dictionary["Cá nhân không cư trú không được ủy quyền quyết toán thuế."] = ("Non-residents cannot authorize tax settlement.", "非居住者は年次税務申告を委任できません。", "非居民不得授权税务汇算。", "비거주자는 연말 세금 신고를 위임할 수 없습니다.");
+            _dictionary["Dữ liệu hợp lệ. Chưa lưu thay đổi; bấm Lưu dữ liệu để áp dụng."] = ("Validation passed. Click Save data to apply the changes.", "入力内容に問題はありません。変更を適用するには「データ保存」を押してください。", "数据验证通过。点击保存数据以应用更改。", "검증을 통과했습니다. 변경을 적용하려면 데이터 저장을 누르세요.");
+            _dictionary["Đã lưu dữ liệu. Quay lại quy trình và bấm Kiểm tra lại."] = ("Data saved. Return to the workflow and check again.", "保存しました。手順画面に戻って再確認してください。", "数据已保存。请返回流程并重新检查。", "저장했습니다. 절차 화면으로 돌아가 다시 확인하세요.");
+            _dictionary["Dấu * là bắt buộc. Hồ sơ đã dùng tính lương được bảo vệ; thêm phiên bản mới khi cần thay đổi. Tỷ lệ 0,08 tương ứng 8%."] = ("Fields marked * are required. Profiles used in payroll are protected; create a new version to change them. A rate of 0.08 means 8%.", "* は必須項目です。給与計算に使用した登録は保護されます。変更時は新しい版を追加してください。比率 0.08 は 8% です。", "* 为必填项。用于工资计算的档案受保护；修改时请新增版本。比例 0.08 表示 8%。", "* 항목은 필수입니다. 급여에 사용된 정보는 보호되므로 변경하려면 새 버전을 추가하세요. 비율 0.08은 8%입니다.");
             LoadLanguage();
         }
 
-        
+
         public static string GetCurrentLanguageCode()
         {
             if (_currentLanguage == null) return "vi";
@@ -650,13 +819,14 @@ namespace QLyNSu.Functions
             }
         }
 
-        public static void LoadDictionaryFromDB()
+        public static async Task LoadDictionaryFromDBAsync()
         {
             try
             {
                 using (var db = new DA.MyEntities())
                 {
-                    var records = System.Linq.Enumerable.ToList(System.Linq.Queryable.Where(db.TB_TRANSLATIONS, t => t.TABLE_NAME == "UI_LABEL"));
+                    var records = await Task.Run(() => System.Linq.Enumerable.ToList(System.Linq.Queryable.Where(db.TB_TRANSLATIONS, t => t.TABLE_NAME == "UI_LABEL")));
+                    var dictionary = new Dictionary<string, (string English, string Japanese, string Chinese, string Korean)>(_dictionary, StringComparer.OrdinalIgnoreCase);
                     var grouped = System.Linq.Enumerable.GroupBy(records, t => t.COLUMN_NAME);
                     foreach (var group in grouped)
                     {
@@ -664,9 +834,9 @@ namespace QLyNSu.Functions
                         if (string.IsNullOrEmpty(viText)) continue;
 
                         string en = viText, ja = viText, zh = viText, ko = viText;
-                        
+
                         // Láº¥y dá»¯ liá»u cÅ© tá»« fix cá»©ng Äá» KHÃNG lÃ m máº¥t cÃ¡c ngÃ´n ngá»¯ khÃ´ng cÃ³ trong DB
-                        if (_dictionary.TryGetValue(viText, out var existing))
+                        if (dictionary.TryGetValue(viText, out var existing))
                         {
                             en = existing.English;
                             ja = existing.Japanese;
@@ -686,8 +856,9 @@ namespace QLyNSu.Functions
                         }
 
                         // Override or append database translation onto the hardcoded dictionary base
-                        _dictionary[viText] = (en, ja, zh, ko);
+                        dictionary[viText] = (en, ja, zh, ko);
                     }
+                    _dictionary = dictionary;
                 }
             }
             catch (System.Exception ex)
@@ -758,6 +929,15 @@ namespace QLyNSu.Functions
                 _originalTexts.Add(obj, original);
             }
             return original;
+        }
+
+        /// <summary>Updates a dynamic caption and its source text so a language switch cannot restore stale content.</summary>
+        public static void SetTranslatedText(Control control, string originalText)
+        {
+            if (control == null) throw new ArgumentNullException(nameof(control));
+            _originalTexts.Remove(control);
+            _originalTexts.Add(control, originalText ?? string.Empty);
+            control.Text = Translate(originalText ?? string.Empty);
         }
 
         public static void Translate(Form form)
@@ -897,7 +1077,7 @@ namespace QLyNSu.Functions
             }
         }
 
-        
+
         private static void TranslateBarManager(DevExpress.XtraBars.BarManager manager)
         {
             if (manager == null) return;
@@ -1040,6 +1220,8 @@ namespace QLyNSu.Functions
             if (string.IsNullOrEmpty(translatedName)) return "Tiếng Việt";
             if (translatedName.Equals("Tiếng Việt", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("Vietnamese", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("vi", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("vi-vn", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("ベトナム語", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("越南语", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("베트남어", StringComparison.OrdinalIgnoreCase))
@@ -1048,6 +1230,9 @@ namespace QLyNSu.Functions
             }
             if (translatedName.Equals("Tiếng Anh", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("English", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("en", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("en-us", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("en-gb", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("英語", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("英语", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("영어", StringComparison.OrdinalIgnoreCase))
@@ -1056,6 +1241,8 @@ namespace QLyNSu.Functions
             }
             if (translatedName.Equals("Tiếng Nhật", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("Japanese", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("ja", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("ja-jp", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("日本語", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("日语", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("일본어", StringComparison.OrdinalIgnoreCase))
@@ -1064,6 +1251,10 @@ namespace QLyNSu.Functions
             }
             if (translatedName.Equals("Tiếng Trung", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("Chinese", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("zh", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("zh-cn", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("zh-hans", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("chinesesimplified", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("中国語", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("中文", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("중국어", StringComparison.OrdinalIgnoreCase))
@@ -1072,6 +1263,8 @@ namespace QLyNSu.Functions
             }
             if (translatedName.Equals("Tiếng Hàn", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("Korean", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("ko", StringComparison.OrdinalIgnoreCase) ||
+                translatedName.Equals("ko-kr", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("韓国語", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("韩语", StringComparison.OrdinalIgnoreCase) ||
                 translatedName.Equals("한국어", StringComparison.OrdinalIgnoreCase))

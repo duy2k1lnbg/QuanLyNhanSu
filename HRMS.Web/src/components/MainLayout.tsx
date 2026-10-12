@@ -38,11 +38,12 @@ import {
   CheckOutlined,
   CheckSquareOutlined,
   AuditOutlined,
+  DesktopOutlined,
 } from '@ant-design/icons';
 import { Popover } from 'antd';
 import NotificationPopoverContent, { type NotificationItem } from './NotificationPopoverContent';
 import type { CurrentUserDTO } from '../types/hrms';
-import { useAppLanguage, type AppLanguage } from '../services/i18n';
+import { useAppLanguage, type AppLanguage, type LanguagePreference } from '../services/i18n';
 import { useAppTheme } from '../theme/ThemeContext';
 import { ThemeToggle } from '../theme/components/ThemeToggle';
 import {
@@ -102,8 +103,8 @@ export function MainLayout({
   // Design system theme state
   const { mode, toggleTheme, tokens } = useAppTheme();
 
-  // Hook đa ngôn ngữ toàn hệ thống (Anh, Việt, Nhật)
-  const { lang: currentLang, setLang: handleLanguageChange, tApp, allConfigs } = useAppLanguage();
+  // Hook đa ngôn ngữ toàn hệ thống (Anh, Việt, Nhật, Trung, Hàn + Tự động theo hệ thống)
+  const { lang: currentLang, preference, setLang: handleLanguageChange, systemLabel, tApp, allConfigs } = useAppLanguage();
 
   const unreadNotifCount = notifications ? notifications.filter((n) => !n.read).length : 0;
 
@@ -145,13 +146,13 @@ export function MainLayout({
     ...(canView(currentUser, 'UNGLUONG', 'TANGCA', 'F_CC_UNGLUONG', 'F_CC_TANGCA')
       ? [{ key: 'ungluong', icon: <SwapOutlined />, label: tApp.menuOvertime }]
       : []),
-    ...(canView(currentUser, 'APPROVE', 'CHAMCONG', 'F_CC_BANGCONG', 'F_CC_TANGCA', 'F_NV_NHANVIEN')
+    ...(canView(currentUser, 'F_NV_PHEDUYET', 'F_APPROVE_ADVANCE', 'F_APPROVE_PROFILE', 'F_PAYROLL_DISBURSE_ADVANCE', 'APPROVE', 'CHAMCONG', 'F_CC_BANGCONG', 'F_CC_TANGCA', 'F_NV_NHANVIEN')
       ? [{ key: 'approvals', icon: <CheckSquareOutlined />, label: tApp.menuApprovals }]
       : []),
-    ...(currentUser.IsAdmin || canView(currentUser, 'PHANQUYEN', 'F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER')
+    ...(canView(currentUser, 'PHANQUYEN', 'F_SYSTEM_USER', 'F_SYSTEM_GROUP', 'F_SYSTEM_LOCK_USER')
       ? [{ key: 'phanquyen', icon: <SafetyCertificateOutlined />, label: tApp.menuPermissions }]
       : []),
-    ...(currentUser.IsAdmin || canView(currentUser, 'AUDIT', 'PHANQUYEN', 'F_SYSTEM_USER')
+    ...(canView(currentUser, 'F_SYSTEM_GIAMSAT', 'AUDIT', 'PHANQUYEN', 'F_SYSTEM_USER')
       ? [{ key: 'audit', icon: <AuditOutlined />, label: tApp.menuAudit }]
       : []),
     {
@@ -542,25 +543,42 @@ export function MainLayout({
             {/* BỘ CHUYỂN ĐỔI CHẾ ĐỘ SÁNG / TỐI (LIGHT / DARK THEME) */}
             <ThemeToggle mode={mode} onToggle={toggleTheme} />
 
-            {/* BỘ CHUYỂN ĐỔI NGÔN NGỮ (VI, EN, ZH, KO, JA) */}
+            {/* BỘ CHUYỂN ĐỔI NGÔN NGỮ (VI, EN, ZH, KO, JA + SYSTEM) */}
             <Dropdown
               menu={{
-                items: (Object.keys(allConfigs) as AppLanguage[]).map((lKey) => ({
-                  key: lKey,
-                  label: (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 140, padding: '4px 0' }}>
-                      <Space size={8}>
-                        <span style={{ fontSize: 16 }}>{allConfigs[lKey]?.flag}</span>
-                        <span style={{ fontWeight: currentLang === lKey ? 700 : 600, color: currentLang === lKey ? tokens.primary : tokens.textPrimary, fontSize: 13 }}>
-                          {allConfigs[lKey]?.name}
-                        </span>
-                      </Space>
-                      {currentLang === lKey && <CheckOutlined style={{ color: tokens.primary, fontWeight: 700, fontSize: 13 }} />}
-                    </div>
-                  ),
-                })),
-                selectedKeys: [currentLang],
-                onClick: ({ key }) => handleLanguageChange(key as AppLanguage),
+                items: [
+                  {
+                    key: 'system',
+                    label: (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 160, padding: '4px 0' }}>
+                        <Space size={8}>
+                          <DesktopOutlined style={{ fontSize: 16, color: preference === 'system' ? tokens.primary : tokens.textMuted }} />
+                          <span style={{ fontWeight: preference === 'system' ? 700 : 500, color: preference === 'system' ? tokens.primary : tokens.textPrimary, fontSize: 13 }}>
+                            {systemLabel}
+                          </span>
+                        </Space>
+                        {preference === 'system' && <CheckOutlined style={{ color: tokens.primary, fontWeight: 700, fontSize: 13 }} />}
+                      </div>
+                    ),
+                  },
+                  { type: 'divider' },
+                  ...(Object.keys(allConfigs) as AppLanguage[]).map((lKey) => ({
+                    key: lKey,
+                    label: (
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', minWidth: 160, padding: '4px 0' }}>
+                        <Space size={8}>
+                          <span style={{ fontSize: 16 }}>{allConfigs[lKey]?.flag}</span>
+                          <span style={{ fontWeight: preference === lKey ? 700 : 500, color: preference === lKey ? tokens.primary : tokens.textPrimary, fontSize: 13 }}>
+                            {allConfigs[lKey]?.name}
+                          </span>
+                        </Space>
+                        {preference === lKey && <CheckOutlined style={{ color: tokens.primary, fontWeight: 700, fontSize: 13 }} />}
+                      </div>
+                    ),
+                  })),
+                ],
+                selectedKeys: [preference],
+                onClick: ({ key }) => handleLanguageChange(key as LanguagePreference),
               }}
               placement="bottomRight"
               trigger={['click']}
@@ -580,9 +598,15 @@ export function MainLayout({
                   }}
                   size="middle"
                 >
-                  <GlobalOutlined style={{ color: tokens.primary, fontSize: 13 }} />
+                  {preference === 'system' ? (
+                    <DesktopOutlined style={{ color: tokens.primary, fontSize: 13 }} />
+                  ) : (
+                    <GlobalOutlined style={{ color: tokens.primary, fontSize: 13 }} />
+                  )}
                   <span style={{ fontSize: 13 }}>{allConfigs[currentLang].flag}</span>
-                  <span className="header-hide-mobile" style={{ fontSize: 12 }}>{allConfigs[currentLang].short}</span>
+                  <span className="header-hide-mobile" style={{ fontSize: 12 }}>
+                    {preference === 'system' ? `Auto (${allConfigs[currentLang].short})` : allConfigs[currentLang].short}
+                  </span>
                   <DownOutlined style={{ fontSize: 8, color: tokens.textMuted }} />
                 </Button>
               </Tooltip>

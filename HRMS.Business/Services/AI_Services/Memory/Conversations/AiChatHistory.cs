@@ -7,6 +7,7 @@ namespace Bu.Services.AI_Services.Memory
     {
         public string Role { get; set; } // "User" hoặc "AI"
         public string Content { get; set; }
+        public string Domain { get; set; }
     }
 
     public class AiChatHistory

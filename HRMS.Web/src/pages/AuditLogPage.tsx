@@ -1,531 +1,90 @@
-import { useState, useEffect, useCallback } from 'react';
-import {
-  Card,
-  Table,
-  Tag,
-  Button,
-  Space,
-  Input,
-  Select,
-  DatePicker,
-  Modal,
-  Descriptions,
-  Typography,
-  Tooltip,
-  Row,
-  Col,
-} from 'antd';
-import {
-  AuditOutlined,
-  SearchOutlined,
-  ReloadOutlined,
-  EyeOutlined,
-  LaptopOutlined,
-  HistoryOutlined,
-  AppstoreOutlined,
-} from '@ant-design/icons';
+import { useEffect, useRef, useState } from 'react';
+import { Alert, Button, Card, DatePicker, Descriptions, Drawer, Input, Modal, Select, Space, Table, Tabs, Tag, Typography, message } from 'antd';
+import { EyeOutlined, ReloadOutlined, SearchOutlined, StopOutlined } from '@ant-design/icons';
+import type { ColumnsType } from 'antd/es/table';
+import type { Dayjs } from 'dayjs';
 import api from '../services/api';
-import dayjs from 'dayjs';
 import { useAppLanguage } from '../services/i18n';
 import { useAppTheme } from '../theme/ThemeContext';
 import { PageHeader } from '../theme/components/PageHeader';
-import { MetricCard } from '../theme/components/MetricCard';
-
-const { Text } = Typography;
-const { RangePicker } = DatePicker;
-
-interface AuditLogItem {
-  id: number;
-  userId?: number;
-  username: string;
-  action: string;
-  tableName: string;
-  recordId: string;
-  module: string;
-  ipAddress: string;
-  computerName?: string;
-  timestamp: string;
-  changedFields?: string;
-  appVersion?: string;
+type Kind = 'activity' | 'security' | 'sessions';
+interface AuditRow {
+  id: string; userId?: number; username: string; channel: string; computerName?: string; deviceId?: string;
+  action: string; result: string; timestamp: string; ipAddress?: string; ipSource?: string; userAgent?: string;
+  module?: string; tableName?: string; recordId?: string; sessionId?: string; correlationId?: string;
+  changedFields?: string; oldData?: string; newData?: string; executor?: string; appVersion?: string;
+  lastSeen?: string; expiresAt?: string; canRevoke?: boolean;
 }
-
-interface AuditLogDetail extends AuditLogItem {
-  macAddress?: string;
-  oldData?: string;
-  newData?: string;
-  sessionId?: string;
-}
-
-export function AuditLogPage() {
-  const { t } = useAppLanguage();
-  const { tokens } = useAppTheme();
-  const [logs, setLogs] = useState<AuditLogItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState(0);
-  const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(20);
-
-  // Filters
-  const [search, setSearch] = useState('');
-  const [action, setAction] = useState('ALL');
-  const [moduleFilter, setModuleFilter] = useState('ALL');
-  const [dateRange, setDateRange] = useState<[dayjs.Dayjs | null, dayjs.Dayjs | null] | null>(null);
-
-  // Module & Action options
-  const [moduleOptions, setModuleOptions] = useState<string[]>([]);
-  const [actionOptions, setActionOptions] = useState<string[]>([]);
-
-  // Detail modal
-  const [detailModalVisible, setDetailModalVisible] = useState(false);
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [selectedLog, setSelectedLog] = useState<AuditLogDetail | null>(null);
-
-  const fetchFilterOptions = async () => {
+export default function AuditLogPage() {
+  const { t } = useAppLanguage(); const { tokens } = useAppTheme();
+  const [kind, setKind] = useState<Kind>('activity');
+  const [action,setAction] = useState('ALL'); const [module,setModule] = useState('ALL');
+  const [options,setOptions] = useState<{actions:string[];modules:string[]}>({actions:[],modules:[]});
+  const [channel,setChannel] = useState('ALL'); const [result,setResult] = useState('ALL');
+  const [search,setSearch] = useState(''); const [sessionId,setSessionId] = useState(''); const [correlationId,setCorrelationId] = useState('');
+  const [range,setRange] = useState<[Dayjs | null,Dayjs | null] | null>(null);
+  const [rows,setRows] = useState<AuditRow[]>([]);const [total,setTotal] = useState(0);
+  const [page,setPage] = useState(1);const [pageSize,setPageSize] = useState(20);
+  const [loading,setLoading] = useState(false);const [error,setError] = useState('');const [detail,setDetail] = useState<AuditRow | null>(null);
+  const serial=useRef(0);const abort=useRef<AbortController | null>(null);
+  const label=(key:string)=>t('monitor.'+key);
+  const display=(key:string)=>{const value=label(key);return value==='monitor.'+key?key:value;};
+  useEffect(()=>{const controller=new AbortController();void api.get('/audit/modules',{signal:controller.signal}).then(response=>{if(response.data?.success)setOptions({actions:response.data.actions??[],modules:response.data.modules??[]});}).catch(()=>{});return()=>controller.abort();},[]);
+  const load=async (target=1,size=pageSize,reset=false) => {
+    const version=++serial.current;abort.current?.abort();const controller=new AbortController();abort.current=controller;
+    setLoading(true);setError('');
     try {
-      const res = await api.get('/audit/modules');
-      if (res.data && res.data.success) {
-        setModuleOptions(res.data.modules || []);
-        setActionOptions(res.data.actions || []);
-      }
-    } catch {
-      // ignore
-    }
+      const response=await api.get('/audit',{signal:controller.signal,params:{kind,page:target,pageSize:size,
+        action:reset || kind!=='activity'?'ALL':action,module:reset || kind!=='activity'?'ALL':module,channel:reset?'ALL':channel,result:reset?'ALL':result,search:reset?'':search,sessionId:reset?'':sessionId,correlationId:reset?'':correlationId,
+        fromDate:reset?undefined:range?.[0]?.format('YYYY-MM-DD'),toDate:reset?undefined:range?.[1]?.format('YYYY-MM-DD')}});
+      if(version!==serial.current)return;
+      if(!response.data?.success)throw new Error('Invalid audit response');
+      setRows(response.data.data??[]);setTotal(response.data.total??0);setPage(target);setPageSize(size);
+    } catch {if(version===serial.current && !controller.signal.aborted){setError(label('loadError'));setRows([]);setTotal(0);}}
+    finally {if(version===serial.current)setLoading(false);}
   };
-
-  const fetchLogs = useCallback(async (targetPage = page, targetPageSize = pageSize) => {
-    setLoading(true);
-    try {
-      const params: Record<string, any> = {
-        page: targetPage,
-        pageSize: targetPageSize,
-      };
-      if (search.trim()) params.search = search.trim();
-      if (action && action !== 'ALL') params.action = action;
-      if (moduleFilter && moduleFilter !== 'ALL') params.module = moduleFilter;
-      if (dateRange && dateRange[0]) params.fromDate = dateRange[0].format('YYYY-MM-DD');
-      if (dateRange && dateRange[1]) params.toDate = dateRange[1].format('YYYY-MM-DD');
-
-      const res = await api.get('/audit', { params });
-      if (res.data && res.data.success) {
-        setLogs(res.data.data || []);
-        setTotal(res.data.total || 0);
-      }
-    } catch {
-      // fallback
-    } finally {
-      setLoading(false);
-    }
-  }, [page, pageSize, search, action, moduleFilter, dateRange]);
-
-  useEffect(() => {
-    fetchFilterOptions();
-    fetchLogs(1, pageSize);
-  }, []);
-
-  const handleSearch = () => {
-    fetchLogs(1, pageSize);
-    setPage(1);
-  };
-
-  const handleViewDetail = async (record: AuditLogItem) => {
-    setDetailLoading(true);
-    setDetailModalVisible(true);
-    setSelectedLog(null);
-    try {
-      const res = await api.get(`/audit/${record.id}`);
-      if (res.data && res.data.success) {
-        setSelectedLog(res.data.data);
-      } else {
-        setSelectedLog(record as AuditLogDetail);
-      }
-    } catch {
-      setSelectedLog(record as AuditLogDetail);
-    } finally {
-      setDetailLoading(false);
-    }
-  };
-
-  const getActionColor = (act: string) => {
-    switch (act?.toUpperCase()) {
-      case 'INSERT':
-      case 'CREATE':
-      case 'ADD':
-        return 'success';
-      case 'UPDATE':
-      case 'EDIT':
-        return 'processing';
-      case 'DELETE':
-      case 'REMOVE':
-        return 'error';
-      case 'LOGIN':
-        return 'purple';
-      case 'LOGOUT':
-        return 'default';
-      default:
-        return 'blue';
-    }
-  };
-
-  const columns = [
-    {
-      title: t('audit.colTimestamp'),
-      dataIndex: 'timestamp',
-      key: 'timestamp',
-      width: 160,
-      render: (val: string) => <Text style={{ fontSize: 13, fontFamily: 'monospace' }}>{val}</Text>,
-    },
-    {
-      title: t('audit.colActor'),
-      dataIndex: 'username',
-      key: 'username',
-      width: 140,
-      render: (val: string, record: AuditLogItem) => (
-        <Space direction="vertical" size={0}>
-          <Text strong style={{ fontSize: 13 }}>{val || 'System'}</Text>
-          {record.userId ? (
-            <Text type="secondary" style={{ fontSize: 11 }}>#{record.userId}</Text>
-          ) : null}
-        </Space>
-      ),
-    },
-    {
-      title: t('audit.colAction'),
-      dataIndex: 'action',
-      key: 'action',
-      width: 110,
-      render: (val: string) => (
-        <Tag color={getActionColor(val)} style={{ fontWeight: 600, borderRadius: 4 }}>
-          {val || 'UNKNOWN'}
-        </Tag>
-      ),
-    },
-    {
-      title: t('audit.colTarget'),
-      key: 'moduleTable',
-      width: 160,
-      render: (_: any, record: AuditLogItem) => (
-        <Space direction="vertical" size={0}>
-          <Tag color="geekblue" style={{ margin: 0, fontSize: 11, borderRadius: 4 }}>{record.module || '-'}</Tag>
-          <Text type="secondary" style={{ fontSize: 12, fontFamily: 'monospace' }}>{record.tableName}</Text>
-        </Space>
-      ),
-    },
-    {
-      title: t('audit.colIpAddress'),
-      key: 'ipDevice',
-      width: 150,
-      render: (_: any, record: AuditLogItem) => (
-        <Space direction="vertical" size={0}>
-          <Text style={{ fontSize: 12 }}>{record.ipAddress || '127.0.0.1'}</Text>
-          {record.computerName && (
-            <Text type="secondary" style={{ fontSize: 11 }}>
-              <LaptopOutlined style={{ marginRight: 4 }} />
-              {record.computerName}
-            </Text>
-          )}
-        </Space>
-      ),
-    },
-    {
-      title: t('audit.colDetails'),
-      dataIndex: 'changedFields',
-      key: 'changedFields',
-      ellipsis: true,
-      render: (val: string) => (
-        <Tooltip title={val}>
-          <Text type="secondary" style={{ fontSize: 12 }}>{val || '-'}</Text>
-        </Tooltip>
-      ),
-    },
-    {
-      title: t('common.actions'),
-      key: 'actionBtn',
-      width: 80,
-      fixed: 'right' as const,
-      align: 'center' as const,
-      render: (_: any, record: AuditLogItem) => (
-        <Button
-          type="text"
-          icon={<EyeOutlined />}
-          onClick={() => handleViewDetail(record)}
-          size="small"
-        />
-      ),
-    },
+  useEffect(()=>{setRows([]);setDetail(null);void load(1);return()=>{serial.current++;abort.current?.abort();};},[kind]);
+  const reset=()=>{setAction('ALL');setModule('ALL');setChannel('ALL');setResult('ALL');setSearch('');setSessionId('');setCorrelationId('');setRange(null);void load(1,pageSize,true);};
+  const revoke=(row:AuditRow)=>Modal.confirm({title:label('revoke'),content:label('revokeConfirm'),okText:label('revoke'),cancelText:t('common.cancel'),
+    onOk:async()=>{try{const response=await api.post('/audit/sessions/'+encodeURIComponent(row.sessionId! )+'/revoke');if(!response.data?.success)throw new Error();message.success(label('revoked'));await load(page);}catch{message.error(label('revokeError'));throw new Error('Revoke failed');}}});
+  const status=(value:string)=> <Tag color={value==='SUCCESS' || value==='ACTIVE'?'green':value==='DENIED' || value==='FAILURE'?'red':'default'}>{display(value || 'UNKNOWN')}</Tag>;
+  const pretty=(value?:string)=>{if(!value)return label('unknown');try{return JSON.stringify(JSON.parse(value),null,2);}catch{return value;}};
+  const columns:ColumnsType<AuditRow>=[
+    {title:label('time'),dataIndex:'timestamp',width:165},
+    {title:label('actor'),dataIndex:'username',width:165,render:(value,row)=><div><Typography.Text strong>{value}</Typography.Text><div><Typography.Text type="secondary">{row.userId ? '#'+row.userId : label('system')}</Typography.Text></div></div>},
+    {title:label('source'),width:230,render:(_,row)=><div><Tag color={row.channel==='MOBILE'?'green':row.channel==='WEB'?'purple':'blue'}>{label(row.channel)}</Tag><div>{row.computerName || label('unknown')}</div></div>},
+    ...(kind==='sessions'?[]:[{title:label('action'),dataIndex:'action',width:190}]),
+    {title:label('result'),dataIndex:'result',width:155,render:status},
+    ...(kind==='sessions'?[{title:label('lastSeen'),dataIndex:'lastSeen',width:165},{title:label('expires'),dataIndex:'expiresAt',width:165}]:[{title:label('object'),width:220,render:(_:unknown,row:AuditRow)=><div>{row.module}<div>{row.tableName} {row.recordId && '#'+row.recordId}</div></div>}]),
+    {title:t('common.actions'),width:110,fixed:'right',render:(_,row)=><Space><Button aria-label={label('details')} icon={<EyeOutlined />} onClick={()=>setDetail(row)}/>{row.canRevoke && <Button danger aria-label={label('revoke')} icon={<StopOutlined />} onClick={()=>revoke(row)}/>}</Space>}
   ];
-
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 16, width: '100%' }}>
-      {/* PAGE HEADER */}
-      <PageHeader
-        title={t('audit.pageTitle') || 'Nhật Ký Hệ Thống'}
-        subtitle="Ghi nhận chi tiết lịch sử truy cập, các thao tác thêm sửa xóa và thay đổi dữ liệu của người dùng"
-        breadcrumbs={[
-          { title: 'Hệ thống' },
-          { title: 'Nhật ký kiểm toán' },
-        ]}
-        extra={
-          <Button
-            icon={<ReloadOutlined spin={loading} />}
-            onClick={() => {
-              setSearch('');
-              setAction('ALL');
-              setModuleFilter('ALL');
-              setDateRange(null);
-              fetchLogs(1, pageSize);
-            }}
-            style={{ borderRadius: 8 }}
-          >
-            {t('common.refresh')}
-          </Button>
-        }
-      />
-
-      {/* KPI METRIC CARDS */}
-      <Row gutter={[16, 16]}>
-        <Col xs={12} sm={6}>
-          <MetricCard
-            title="Tổng số nhật ký"
-            value={total}
-            icon={<HistoryOutlined />}
-            accent="blue"
-          />
-        </Col>
-        <Col xs={12} sm={6}>
-          <MetricCard
-            title="Bản ghi trang hiện tại"
-            value={logs.length}
-            icon={<EyeOutlined />}
-            accent="purple"
-          />
-        </Col>
-        <Col xs={12} sm={6}>
-          <MetricCard
-            title="Module đang giám sát"
-            value={moduleOptions.length || 'Hệ thống'}
-            icon={<AppstoreOutlined />}
-            accent="cyan"
-          />
-        </Col>
-        <Col xs={12} sm={6}>
-          <MetricCard
-            title="Loại thao tác"
-            value={actionOptions.length || 5}
-            icon={<AuditOutlined />}
-            accent="green"
-          />
-        </Col>
-      </Row>
-
-      <Card
-        bordered={false}
-        style={{
-          borderRadius: 12,
-          background: tokens.cardBg,
-          border: `1px solid ${tokens.borderSubtle}`,
-          boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-        }}
-      >
-        {/* Filters */}
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: 12,
-            marginBottom: 16,
-            alignItems: 'center',
-          }}
-        >
-          <Input
-            placeholder={t('common.searchPlaceholder')}
-            prefix={<SearchOutlined style={{ color: tokens.textMuted }} />}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onPressEnter={handleSearch}
-            style={{ width: 220, borderRadius: 8 }}
-            allowClear
-          />
-
-          <Select
-            value={action}
-            onChange={(val) => setAction(val)}
-            style={{ width: 140, borderRadius: 8 }}
-            options={[
-              { value: 'ALL', label: t('audit.filterAction') },
-              ...actionOptions.map((act) => ({ value: act, label: act })),
-            ]}
-          />
-
-          <Select
-            value={moduleFilter}
-            onChange={(val) => setModuleFilter(val)}
-            style={{ width: 150, borderRadius: 8 }}
-            options={[
-              { value: 'ALL', label: t('common.all') },
-              ...moduleOptions.map((mod) => ({ value: mod, label: mod })),
-            ]}
-          />
-
-          <RangePicker
-            value={dateRange}
-            onChange={(val) => setDateRange(val)}
-            format="YYYY-MM-DD"
-            style={{ minWidth: 230, borderRadius: 8 }}
-          />
-
-          <Button
-            type="primary"
-            icon={<SearchOutlined />}
-            onClick={handleSearch}
-            style={{
-              borderRadius: 8,
-              background: tokens.btnPrimaryBg,
-              borderColor: tokens.btnPrimaryBg,
-              fontWeight: 600,
-            }}
-          >
-            {t('common.search')}
-          </Button>
-
-          <Button
-            icon={<ReloadOutlined />}
-            onClick={() => {
-              setSearch('');
-              setAction('ALL');
-              setModuleFilter('ALL');
-              setDateRange(null);
-              fetchLogs(1, pageSize);
-            }}
-            style={{ borderRadius: 8 }}
-          >
-            {t('common.reset')}
-          </Button>
-        </div>
-
-        {/* Audit Log Table */}
-        <Table
-          columns={columns}
-          dataSource={logs}
-          rowKey="id"
-          loading={loading}
-          pagination={{
-            current: page,
-            pageSize,
-            total,
-            showSizeChanger: true,
-            showTotal: (totalCount) => t('common.totalRecords', { total: totalCount }),
-            onChange: (p, ps) => {
-              setPage(p);
-              setPageSize(ps);
-              fetchLogs(p, ps);
-            },
-          }}
-          size="middle"
-          scroll={{ x: 'max-content' }}
-        />
-      </Card>
-
-      {/* Detail Modal */}
-      <Modal
-        title={
-          <Space>
-            <AuditOutlined style={{ color: tokens.primary }} />
-            <span>{t('audit.colDetails')} #{selectedLog?.id}</span>
-          </Space>
-        }
-        open={detailModalVisible}
-        onCancel={() => setDetailModalVisible(false)}
-        footer={[
-          <Button
-            key="close"
-            type="primary"
-            onClick={() => setDetailModalVisible(false)}
-            style={{
-              borderRadius: 8,
-              background: tokens.btnPrimaryBg,
-              borderColor: tokens.btnPrimaryBg,
-            }}
-          >
-            {t('common.close')}
-          </Button>,
-        ]}
-        width="min(750px, 95vw)"
-      >
-        {detailLoading ? (
-          <div style={{ textAlign: 'center', padding: '30px 0' }}>{t('common.loading')}</div>
-        ) : selectedLog ? (
-          <Space direction="vertical" size={16} style={{ width: '100%' }}>
-            <Descriptions bordered size="small" column={{ xs: 1, sm: 2 }}>
-              <Descriptions.Item label={t('audit.colTimestamp')}>{selectedLog.timestamp}</Descriptions.Item>
-              <Descriptions.Item label={t('audit.colAction')}>
-                <Tag color={getActionColor(selectedLog.action)} style={{ fontWeight: 600 }}>
-                  {selectedLog.action}
-                </Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label={t('audit.colActor')}>
-                <Text strong>{selectedLog.username}</Text> {selectedLog.userId ? `(ID: ${selectedLog.userId})` : ''}
-              </Descriptions.Item>
-              <Descriptions.Item label={t('audit.colTarget')}>
-                <Tag color="geekblue">{selectedLog.module}</Tag> / <code>{selectedLog.tableName}</code>
-              </Descriptions.Item>
-              <Descriptions.Item label={t('audit.colIpAddress')}>{selectedLog.ipAddress || '127.0.0.1'}</Descriptions.Item>
-              {selectedLog.computerName && (
-                <Descriptions.Item label="Host">{selectedLog.computerName}</Descriptions.Item>
-              )}
-              {selectedLog.changedFields && (
-                <Descriptions.Item label={t('audit.colDetails')} span={2}>
-                  <Text code>{selectedLog.changedFields}</Text>
-                </Descriptions.Item>
-              )}
-            </Descriptions>
-
-            {/* Old vs New data */}
-            {selectedLog.oldData && (
-              <div>
-                <Text strong style={{ color: '#fa8c16' }}>Dữ liệu cũ (Old Data):</Text>
-                <pre
-                  style={{
-                    backgroundColor: tokens.cardSecondaryBg,
-                    padding: 12,
-                    borderRadius: 8,
-                    border: `1px solid ${tokens.borderSubtle}`,
-                    color: tokens.textPrimary,
-                    maxHeight: 200,
-                    overflow: 'auto',
-                    fontSize: 12,
-                    marginTop: 6,
-                  }}
-                >
-                  {selectedLog.oldData}
-                </pre>
-              </div>
-            )}
-
-            {selectedLog.newData && (
-              <div>
-                <Text strong style={{ color: '#52c41a' }}>Dữ liệu mới (New Data):</Text>
-                <pre
-                  style={{
-                    backgroundColor: tokens.cardSecondaryBg,
-                    padding: 12,
-                    borderRadius: 8,
-                    border: `1px solid ${tokens.borderSubtle}`,
-                    color: tokens.textPrimary,
-                    maxHeight: 200,
-                    overflow: 'auto',
-                    fontSize: 12,
-                    marginTop: 6,
-                  }}
-                >
-                  {selectedLog.newData}
-                </pre>
-              </div>
-            )}
-          </Space>
-        ) : null}
-      </Modal>
-    </div>
-  );
+  return <div style={{display:'flex',flexDirection:'column',gap:16,width:'100%',minWidth:0}}>
+    <PageHeader title={label('title')} subtitle={label('subtitle')} extra={<Button icon={<ReloadOutlined spin={loading}/>} onClick={()=>load(page)}>{t('common.refresh')}</Button>}/>
+    <Card style={{background:tokens.cardBg,borderColor:tokens.borderSubtle}}>
+      <Tabs activeKey={kind} onChange={value=>{setResult('ALL');setKind(value as Kind);}} items={(['activity','security','sessions'] as Kind[]).map(key=>({key,label:label(key)}))}/>
+      <Space wrap style={{marginBottom:16}}>
+        <Input value={search} allowClear placeholder={label('search')} onChange={event=>setSearch(event.target.value)} onPressEnter={()=>load(1)} style={{width:240}}/>
+        <Select value={channel} onChange={setChannel} style={{width:160}} options={['ALL','DESKTOP','WEB','MOBILE','SYSTEM','UNKNOWN'].map(value=>({value,label:label(value)}))}/>
+        <Select value={result} onChange={setResult} style={{width:170}} options={['ALL',...(kind==='sessions'?['ACTIVE','EXPIRED','REVOKED']:['SUCCESS','FAILURE','DENIED','UNKNOWN'])].map(value=>({value,label:label(value)}))}/>
+        {kind==='activity' && <><Select aria-label={label('action')} value={action} onChange={setAction} showSearch style={{width:190}} options={['ALL',...options.actions].map(value=>({value,label:value==='ALL'?label('action')+' · '+label('ALL'):value}))}/><Select aria-label={label('object')} value={module} onChange={setModule} showSearch style={{width:175}} options={['ALL',...options.modules].map(value=>({value,label:value==='ALL'?label('object')+' · '+label('ALL'):value}))}/></>}
+        <DatePicker.RangePicker value={range} onChange={value=>setRange(value)} format="DD/MM/YYYY"/>
+        <Input value={sessionId} onChange={event=>setSessionId(event.target.value)} placeholder={label('session')} style={{width:190}} allowClear/>
+        <Input value={correlationId} onChange={event=>setCorrelationId(event.target.value)} placeholder={label('correlation')} style={{width:190}} allowClear/>
+        <Button type="primary" icon={<SearchOutlined />} onClick={()=>load(1)}>{t('common.search')}</Button><Button onClick={reset}>{label('reset')}</Button>
+      </Space>
+      <Alert type="info" showIcon title={label(kind==='sessions'?'sessionNote':'legacyNote')} style={{marginBottom:16}}/>
+      {error && <Alert type="error" showIcon title={error} action={<Button onClick={()=>load(page)}>{label('retry')}</Button>} style={{marginBottom:16}}/>}
+      <Typography.Paragraph type="secondary">{label('total')}: {total}</Typography.Paragraph>
+      <Table<AuditRow> columns={columns} dataSource={rows} rowKey="id" loading={loading} scroll={{x:kind==='sessions'?1155:1235}} locale={{emptyText:error?label('loadError'):label('empty')}}
+        pagination={{current:page,pageSize,total,showSizeChanger:true,onChange:(next,size)=>load(next,size)}}/>
+    </Card>
+    <Drawer title={label('details')} open={!!detail} onClose={()=>setDetail(null)} size={720}>
+      {detail && <><Descriptions column={1} bordered items={[
+        ['actor',detail.username],['source',label(detail.channel)],['action',detail.action],['result',display(detail.result)],['time',detail.timestamp],
+        ['device',detail.computerName],['deviceId',detail.deviceId],['ip',detail.ipAddress],['ipSource',detail.ipSource],['userAgent',detail.userAgent],['executor',detail.executor],['version',detail.appVersion],
+        ['session',detail.sessionId],['correlation',detail.correlationId],['object',[detail.tableName,detail.recordId].filter(Boolean).join(' #')],['lastSeen',detail.lastSeen],['expires',detail.expiresAt]
+      ].map(([key,value])=>({key,label:label(key!),children:value||label('unknown')}))}/>
+      {(['changedFields','oldData','newData'] as const).map(key=><div key={key} style={{marginTop:20}}><Typography.Title level={5}>{label(key)}</Typography.Title><pre style={{whiteSpace:'pre-wrap',overflowWrap:'anywhere',background:tokens.cardBg,padding:12,borderRadius:8}}>{pretty(detail[key])}</pre></div>)}</>}
+    </Drawer>
+  </div>;
 }
-
-export default AuditLogPage;

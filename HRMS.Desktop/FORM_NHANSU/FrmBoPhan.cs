@@ -33,10 +33,15 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsBP.DataSource = _bophan.getList();
+            try
+            {
+            gcDsBP.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _bophan.getList());
             FormManager_Functions.CustomView_Colums(gvDsBP);
+                    }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()
@@ -108,13 +113,14 @@ namespace QLyNSu
             }
         }
 
-        private void FrmBoPhan_Load(object sender, EventArgs e)
+        private async void FrmBoPhan_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_BOPHAN")) return;
             _them = false;
             _bophan = new BOPHAN();
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
 
         }
 
@@ -125,7 +131,7 @@ namespace QLyNSu
             showHide(false);
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_DM_BOPHAN", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
@@ -140,14 +146,16 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _bophan.Delete(_IDBP);
-                LoadData();
+                await LoadData();
+            if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
         }

@@ -380,3 +380,15 @@ scratch/
 
 # Legacy backup copies awaiting Windows file cleanup
 /docs/backup_metadata/
+
+# Temporary and local cache files
+*.pyc
+__pycache__/
+*.pdf
+*.PDF
+*.rar
+*.zip
+app.json.*
+!app.json
+HUONG_DAN_SU_DUNG_VPS.txt
+

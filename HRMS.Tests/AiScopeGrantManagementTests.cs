@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Bu.Services.AI_Services.Security;
@@ -136,7 +136,7 @@ namespace HRMS.Tests
 
             var result = nonAdminService.SaveSubjectScopeGrants(forgedReq);
             Assert.IsFalse(result.Success, "Thao tác lưu của non-admin phải bị từ chối.");
-            StringAssert.Contains("Quản trị viên", result.Message);
+            StringAssert.Contains("quyền sửa Phân quyền chức năng", result.Message);
             Assert.AreEqual(0, _repo.Audits.Count, "Không được ghi audit khi lưu bị từ chối.");
         }
 
@@ -362,7 +362,7 @@ namespace HRMS.Tests
             var empItem = overview.Capabilities.First(c => c.CapabilityCode == "EMPLOYEE_LOOKUP");
             Assert.AreEqual(2, empItem.DirectGrants.Count, "Phải tải đủ 2 grant phòng ban cho EMPLOYEE_LOOKUP.");
 
-            // Gửi lưu với 2 grant phòng ban cho EMPLOYEE_LOOKUP và thêm grant cho PAYROLL_VIEW
+            // Gửi lưu với 2 grant phòng ban cho EMPLOYEE_LOOKUP và thêm grant cho POLICY_LOOKUP
             var saveReq = new SaveAiSubjectScopeGrantsRequest
             {
                 SubjectType = "USER",
@@ -373,7 +373,7 @@ namespace HRMS.Tests
                     new SaveAiSubjectScopeGrantItemDto { GrantId = 1, CapabilityCode = "EMPLOYEE_LOOKUP", Effect = "ALLOW", ScopeType = "DEPARTMENT", ScopeKey = "2" },
                     new SaveAiSubjectScopeGrantItemDto { GrantId = 2, CapabilityCode = "EMPLOYEE_LOOKUP", Effect = "ALLOW", ScopeType = "DEPARTMENT", ScopeKey = "5" },
                     new SaveAiSubjectScopeGrantItemDto { GrantId = 3, CapabilityCode = "OVERTIME_VIEW", Effect = "ALLOW", ScopeType = "DEPARTMENT", ScopeKey = "2" },
-                    new SaveAiSubjectScopeGrantItemDto { CapabilityCode = "PAYROLL_VIEW", Effect = "ALLOW", ScopeType = "DEPARTMENT", ScopeKey = "2" }
+                    new SaveAiSubjectScopeGrantItemDto { CapabilityCode = "POLICY_LOOKUP", Effect = "ALLOW", ScopeType = "DEPARTMENT", ScopeKey = "2" }
                 }
             };
 

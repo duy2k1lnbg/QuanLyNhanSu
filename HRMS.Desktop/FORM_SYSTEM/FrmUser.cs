@@ -41,8 +41,7 @@ namespace QLyNSu.FORM_SYSTEM
                 txtUsername.Enabled = false; // Cannot edit username
                 txtFullName.Text = _selectedUser.FULLNAME;
                 chkDisabled.Checked = _selectedUser.DISABLED == 1;
-                chkDisabled.Enabled = !_selectedUser.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && 
-                                      !_selectedUser.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase) && 
+                chkDisabled.Enabled = !_selectedUser.USERNAME.Equals(UserSession.CurrentUser?.USERNAME, StringComparison.OrdinalIgnoreCase) && 
                                       UserSession.HasRight("F_SYSTEM_LOCK_USER");
                 txtPassword.Properties.NullValuePrompt = "Để trống nếu không muốn đổi mật khẩu";
                 txtPassword.Properties.NullValuePromptShowForEmptyValue = true;
@@ -66,22 +65,22 @@ namespace QLyNSu.FORM_SYSTEM
                     Text = "Quyền tra cứu AI...",
                     Size = new Size(155, 40),
                     Location = new Point(35, btnLuu.Location.Y),
-                    Visible = UserSession.IsAdmin,
-                    Enabled = UserSession.IsAdmin
+                    Visible = UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG"),
+                    Enabled = UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG")
                 };
                 btnQuyenAi.Appearance.Font = new Font("Segoe UI", 9.5F, FontStyle.Bold);
                 btnQuyenAi.Appearance.Options.UseFont = true;
-                btnQuyenAi.Click += (s, ev) =>
+                btnQuyenAi.Click += async (s, ev) =>
                 {
-                    if (!UserSession.IsAdmin)
+                    if (!UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG"))
                     {
                         MessageBox.Show("Chỉ Quản trị viên hệ thống (Admin) mới có quyền quản trị quyền tra cứu AI.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                    using (var frmAi = new FrmAiScopeGrantDetail((int)_selectedUser.IDUSER, _selectedUser.USERNAME, _selectedUser.FULLNAME, isGroup: false))
-                    {
-                        frmAi.ShowDialog(this);
-                    }
+                    var frmAi = new FrmAiScopeGrantDetail((int)_selectedUser.IDUSER, _selectedUser.USERNAME, _selectedUser.FULLNAME, isGroup: false);
+                    try { await Functions.ChildFormWindow.ShowAsync(this, frmAi); }
+                    catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
+                    finally { frmAi.Dispose(); }
                 };
                 this.Controls.Add(btnQuyenAi);
             }
@@ -170,12 +169,6 @@ namespace QLyNSu.FORM_SYSTEM
                         MessageBox.Show("Bạn không thể tự khóa tài khoản của chính mình.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         return;
                     }
-                }
-
-                if (_selectedUser.USERNAME.Equals("ADMIN", StringComparison.OrdinalIgnoreCase) && chkDisabled.Checked)
-                {
-                    MessageBox.Show("Không thể khóa tài khoản Quản trị hệ thống (ADMIN).", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return;
                 }
 
                 // Log audit action if status changed

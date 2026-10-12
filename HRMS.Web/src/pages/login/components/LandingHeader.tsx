@@ -5,15 +5,18 @@ import {
   CheckOutlined,
   MenuOutlined,
   CloseOutlined,
+  DesktopOutlined,
 } from '@ant-design/icons';
 import type { LocaleType } from '../../../locales/vi';
-import type { AppLanguage } from '../../../services/i18n';
+import type { AppLanguage, LanguagePreference } from '../../../services/i18n';
 import { ThemeToggle } from '../../../theme/components/ThemeToggle';
 import { AmbientAudioToggle } from './AmbientAudioToggle';
 
 interface LandingHeaderProps {
   currentLang: AppLanguage;
-  onLanguageChange: (lang: AppLanguage) => void;
+  preference?: LanguagePreference;
+  systemLabel?: string;
+  onLanguageChange: (lang: LanguagePreference) => void;
   allConfigs: Record<AppLanguage, { name: string; short: string; flag: string }>;
   tLanding: LocaleType['landing'];
   onOpenDownload: (type?: 'windows' | 'mobile' | 'general') => void;
@@ -24,6 +27,8 @@ interface LandingHeaderProps {
 
 export const LandingHeader: React.FC<LandingHeaderProps> = ({
   currentLang,
+  preference,
+  systemLabel,
   onLanguageChange,
   allConfigs,
   tLanding,
@@ -58,27 +63,54 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
     }
   };
 
-  const languageMenuItems = Object.entries(allConfigs).map(([code, config]) => ({
-    key: code,
-    label: (
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: 12,
-          padding: '4px 6px',
-        }}
-      >
-        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 16 }}>{config.flag}</span>
-          <span style={{ fontWeight: currentLang === code ? 600 : 400 }}>{config.name}</span>
-        </span>
-        {currentLang === code && <CheckOutlined style={{ color: '#DCC58E', fontSize: 12 }} />}
-      </div>
-    ),
-    onClick: () => onLanguageChange(code as AppLanguage),
-  }));
+  const isSystem = preference === 'system';
+  const effectiveSystemLabel = systemLabel || 'Tự động — theo hệ thống';
+
+  const languageMenuItems = [
+    {
+      key: 'system',
+      label: (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            padding: '4px 6px',
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <DesktopOutlined style={{ fontSize: 16, color: '#DCC58E' }} />
+            <span style={{ fontWeight: isSystem ? 600 : 400 }}>{effectiveSystemLabel}</span>
+          </span>
+          {isSystem && <CheckOutlined style={{ color: '#DCC58E', fontSize: 12 }} />}
+        </div>
+      ),
+      onClick: () => onLanguageChange('system'),
+    },
+    { type: 'divider' as const },
+    ...Object.entries(allConfigs).map(([code, config]) => ({
+      key: code,
+      label: (
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 12,
+            padding: '4px 6px',
+          }}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ fontSize: 16 }}>{config.flag}</span>
+            <span style={{ fontWeight: !isSystem && currentLang === code ? 600 : 400 }}>{config.name}</span>
+          </span>
+          {!isSystem && currentLang === code && <CheckOutlined style={{ color: '#DCC58E', fontSize: 12 }} />}
+        </div>
+      ),
+      onClick: () => onLanguageChange(code as AppLanguage),
+    })),
+  ];
 
   return (
     <header
@@ -231,7 +263,14 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
               padding: '4px 8px',
             }}
           >
-            <span>{allConfigs[currentLang]?.short || 'VI'}</span>
+            {isSystem ? (
+              <>
+                <DesktopOutlined style={{ fontSize: 12, color: '#DCC58E', marginRight: 2 }} />
+                <span>Auto ({allConfigs[currentLang]?.short || 'VI'})</span>
+              </>
+            ) : (
+              <span>{allConfigs[currentLang]?.short || 'VI'}</span>
+            )}
             <DownOutlined style={{ fontSize: 10, opacity: 0.7 }} />
           </button>
         </Dropdown>
@@ -404,7 +443,14 @@ export const LandingHeader: React.FC<LandingHeaderProps> = ({
                 cursor: 'pointer',
               }}
             >
-              <span>{allConfigs[currentLang]?.name}</span> <DownOutlined style={{ fontSize: 10 }} />
+            {isSystem ? (
+              <>
+                <DesktopOutlined style={{ fontSize: 11, color: '#DCC58E', marginRight: 4 }} />
+                <span>Auto ({allConfigs[currentLang]?.name})</span>
+              </>
+            ) : (
+              <span>{allConfigs[currentLang]?.name}</span>
+            )} <DownOutlined style={{ fontSize: 10 }} />
             </button>
           </Dropdown>
         </div>

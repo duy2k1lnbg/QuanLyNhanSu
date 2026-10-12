@@ -1,4 +1,4 @@
-using Bu.CLASS_CHAMCONG;
+﻿using Bu.CLASS_CHAMCONG;
 using Bu;
 using DevExpress.XtraEditors;
 using System;
@@ -16,9 +16,12 @@ namespace QLyNSu.FORM_CHAMCONG
 {
     public partial class FrmUngLuong : DevExpress.XtraEditors.XtraForm
     {
+        public int InitialEmployeeId { get; set; }
+        public int InitialSourceId { get; set; }
         public FrmUngLuong()
         {
             InitializeComponent();
+            Functions.DesktopTypography.Apply(this, barManager1);
         }
 
         private UNGLUONG _ungluong;
@@ -26,7 +29,7 @@ namespace QLyNSu.FORM_CHAMCONG
         private bool _them;
         private int _id;
 
-        private void FrmUngLuong_Load(object sender, EventArgs e)
+        private async void FrmUngLuong_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_CC_UNGLUONG")) return;
 
@@ -34,9 +37,15 @@ namespace QLyNSu.FORM_CHAMCONG
             _nhanvien = new NHANVIEN();
             _them = false;
             showHide(true);
-            LoadData();
-            LoadNhanVien();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            await LoadNhanVien();
+            if (IsDisposed || Disposing) return;
             splitContainer1.Panel1Collapsed = true;
+            if (InitialSourceId > 0) {
+                gvDanhSach.FocusedRowHandle = gvDanhSach.LocateByValue("IDUL", InitialSourceId);
+                if (gvDanhSach.FocusedRowHandle >= 0) { gvDanhSach_Click(this, EventArgs.Empty); splitContainer1.Panel1Collapsed = false; }
+            }
         }
 
         private void gvDanhSach_Click(object sender, EventArgs e)
@@ -102,7 +111,7 @@ namespace QLyNSu.FORM_CHAMCONG
             gcDanhSach.Enabled = true;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_CC_UNGLUONG", Bu.DTO.PermissionAction.Delete)) return;
             splitContainer1.Panel1Collapsed = true;
@@ -111,17 +120,23 @@ namespace QLyNSu.FORM_CHAMCONG
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _ungluong.Delete(_id, 1);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
             splitContainer1.Panel1Collapsed = true;
+            if (InitialSourceId > 0) {
+                gvDanhSach.FocusedRowHandle = gvDanhSach.LocateByValue("IDUL", InitialSourceId);
+                if (gvDanhSach.FocusedRowHandle >= 0) { gvDanhSach_Click(this, EventArgs.Empty); splitContainer1.Panel1Collapsed = false; }
+            }
         }
 
         private void btnHuy_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -129,6 +144,10 @@ namespace QLyNSu.FORM_CHAMCONG
             _them = false;
             showHide(true);
             splitContainer1.Panel1Collapsed = true;
+            if (InitialSourceId > 0) {
+                gvDanhSach.FocusedRowHandle = gvDanhSach.LocateByValue("IDUL", InitialSourceId);
+                if (gvDanhSach.FocusedRowHandle >= 0) { gvDanhSach_Click(this, EventArgs.Empty); splitContainer1.Panel1Collapsed = false; }
+            }
         }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -162,16 +181,28 @@ namespace QLyNSu.FORM_CHAMCONG
             dtNgayUng.Value = DateTime.Now;
         }
 
-        private void LoadNhanVien()
+        private async Task LoadNhanVien()
         {
-            searchMANV.Properties.DataSource = _nhanvien.getListFll_DTO();
+            try
+            {
+            searchMANV.Properties.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _nhanvien.getListFll_DTO());
             searchMANV.Properties.ValueMember = "MANV";
             searchMANV.Properties.DisplayMember = "HOTEN";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDanhSach.DataSource = _ungluong.getListFull();
+            try
+            {
+            gcDanhSach.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _ungluong.getListFull());
             FormManager_Functions.CustomView_Colums(gvDanhSach);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()

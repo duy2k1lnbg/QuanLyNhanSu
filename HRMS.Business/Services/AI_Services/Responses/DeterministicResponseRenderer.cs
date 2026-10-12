@@ -18,6 +18,8 @@ namespace Bu.Services.AI_Services.Core
         public DateTime? AsOf { get; set; }
         public int HttpStatus { get; set; } = 500;
         public DataTable Data { get; set; }
+        [Newtonsoft.Json.JsonIgnore]
+        public DataTable EvidenceData { get; set; }
     }
     public static class DeterministicResponseRenderer
     {
@@ -46,7 +48,27 @@ namespace Bu.Services.AI_Services.Core
             if (sql.Status != SqlExecutionStatus.SuccessWithData && sql.Status != SqlExecutionStatus.SuccessEmpty) return Error("Có lỗi khi truy vấn dữ liệu. Vui lòng thử lại sau.",500);
             string source = PublicSource(p.Domain);
             string provenance = "Nguồn: " + source + " • Phạm vi: " + (p.EffectiveScopeDisplay ?? "Được cấp") + (p.EffectivePeriodDisplay != null ? " • Kỳ: " + p.EffectivePeriodDisplay : "");
-            if (sql.Data == null || sql.Data.Rows.Count == 0) return new RenderedResponse { Status="no_data", Answer=(p.Domain == "PAYROLL" ? "Không có bảng lương đã khóa sổ với đợt tính thành công trong kỳ và phạm vi được phép." : "Không có dữ liệu phù hợp trong phạm vi được phép.") + (p.SelectedEntityDisplay != null ? " Đối tượng: " + p.SelectedEntityDisplay + "." : ""), SourceProvenance=provenance, TotalRecords=0, HttpStatus=200 };
+            if (sql.Data == null || sql.Data.Rows.Count == 0)
+            {
+                string emptyMsg;
+                if (p.Domain == "PAYROLL")
+                    emptyMsg = "Không có bảng lương đã khóa sổ với đợt tính thành công trong kỳ và phạm vi được phép.";
+                else if (p.Domain == "CONTRACT" && p.Operation == "EXPIRING")
+                    emptyMsg = "Không có hợp đồng lao động nào hết hạn trong khoảng thời gian đã xét (" + (p.EffectivePeriodDisplay ?? "khoảng được chọn") + ") trong phạm vi được cấp quyền.";
+                else if (p.Domain == "SALARY_CHANGE")
+                    emptyMsg = "Hiện không có quyết định nâng lương nào trong khoảng thời gian đã xét hoặc trong phạm vi được cấp quyền.";
+                else
+                    emptyMsg = "Không có dữ liệu phù hợp trong phạm vi được phép.";
+
+                return new RenderedResponse
+                {
+                    Status = "no_data",
+                    Answer = emptyMsg + (p.SelectedEntityDisplay != null ? " Đối tượng: " + p.SelectedEntityDisplay + "." : ""),
+                    SourceProvenance = provenance,
+                    TotalRecords = 0,
+                    HttpStatus = 200
+                };
+            }
             var table = sql.Data; var sb = new StringBuilder();
             if (p.IsScalar)
             {
@@ -79,8 +101,33 @@ namespace Bu.Services.AI_Services.Core
                 }
                 if (sql.HasMore || table.Rows.Count > p.RowLimit) sb.AppendLine("Đang hiển thị " + p.RowLimit + " kết quả đầu tiên. Hãy thu hẹp đối tượng hoặc phạm vi để xem tiếp.");
             }
-            return new RenderedResponse { Status="answered", Answer=sb.ToString().TrimEnd()+"\n\n"+provenance, SourceProvenance=source, TotalRecords=sql.TotalRecords, HasMore=sql.HasMore || (!p.IsScalar && table.Rows.Count > p.RowLimit), Data = p.IsScalar ? null : table, HttpStatus=200 };
+            return new RenderedResponse { Status="answered", Answer=sb.ToString().TrimEnd()+"\n\n"+provenance, SourceProvenance=source, TotalRecords=sql.TotalRecords, HasMore=sql.HasMore || (!p.IsScalar && table.Rows.Count > p.RowLimit), Data = p.IsScalar ? null : CreatePublicTable(p, table), HttpStatus=200 };
         }
+        // Text and API table must enforce the same field modes. Keep raw evidence internal.
+        private static DataTable CreatePublicTable(QueryExecutionPlan plan, DataTable source)
+        {
+            var result = new DataTable();
+            foreach (DataColumn column in source.Columns)
+            {
+                string field = column.ColumnName;
+                string mode = plan.FieldModes.TryGetValue(field, out var configured) ? configured : (plan.MaskedFields.Contains(field) ? "MASK" : "FULL");
+                if (mode == "DENY") continue;
+                result.Columns.Add(field, mode == "MASK" ? typeof(string) : column.DataType);
+            }
+            foreach (DataRow sourceRow in source.Rows.Cast<DataRow>().Take(plan.RowLimit))
+            {
+                var row = result.NewRow();
+                foreach (DataColumn column in result.Columns)
+                {
+                    string field = column.ColumnName;
+                    string mode = plan.FieldModes.TryGetValue(field, out var configured) ? configured : (plan.MaskedFields.Contains(field) ? "MASK" : "FULL");
+                    row[field] = mode == "MASK" ? (object)"***" : sourceRow[field];
+                }
+                result.Rows.Add(row);
+            }
+            return result;
+        }
+
         private static RenderedResponse Error(string message,int status) => new RenderedResponse { Status="error", Answer=message, HttpStatus=status };
         private static string PaymentStatus(string raw)
         {

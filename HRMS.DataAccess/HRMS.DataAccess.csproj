@@ -346,6 +346,9 @@
     <Compile Include="TB_THONGBAO.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>
+    <Compile Include="TB_USER_DEVICE.cs" />
+    <Compile Include="TB_PUSH_OUTBOX.cs" />
+    <Compile Include="MyEntities.Notifications.cs" />
     <Compile Include="TB_TANGCA.cs">
       <DependentUpon>QLNhanSu.tt</DependentUpon>
     </Compile>

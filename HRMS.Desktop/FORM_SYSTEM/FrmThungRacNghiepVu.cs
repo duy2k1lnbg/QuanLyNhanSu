@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu;
 using Bu.CLASS_SYSTEM;
 using Bu.DTO;
@@ -17,7 +18,7 @@ namespace QLyNSu.FORM_SYSTEM
             InitializeComponent();
         }
 
-        private void FrmThungRacNghiepVu_Load(object sender, EventArgs e)
+        private async void FrmThungRacNghiepVu_Load(object sender, EventArgs e)
         {
             _recycleBinService = new RecycleBinService();
 
@@ -30,17 +31,22 @@ namespace QLyNSu.FORM_SYSTEM
             cboLoaiDoiTuong.Items.Add(new ComboBoxItem { Text = "Khoản phát sinh lương", Value = "PHATSINH" });
             cboLoaiDoiTuong.SelectedIndex = 0;
 
-            LoadData();
+            await LoadData();
+
+            if (IsDisposed || Disposing) return;
             Functions.TranslationManager.Translate(this);
         }
 
-        private void cboLoaiDoiTuong_SelectedIndexChanged(object sender, EventArgs e)
+        private async void cboLoaiDoiTuong_SelectedIndexChanged(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            try
+            {
             try
             {
                 string selectedType = null;
@@ -49,16 +55,21 @@ namespace QLyNSu.FORM_SYSTEM
                     selectedType = item.Value;
                 }
 
-                var list = _recycleBinService.GetDeletedItems(selectedType);
+                var list = (await Functions.FormDataLoader.ReadAsync(this, () => _recycleBinService.GetDeletedItems(selectedType)));
                 gcThungRac.DataSource = list;
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi tải danh sách thùng rác: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnKhoiPhuc_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnKhoiPhuc_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             var selectedItem = gvThungRac.GetFocusedRow() as RecycleBinItemDTO;
             if (selectedItem == null)
@@ -80,7 +91,8 @@ namespace QLyNSu.FORM_SYSTEM
                 if (result.Success)
                 {
                     XtraMessageBox.Show(result.Message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadData();
+                    await LoadData();
+                    if (IsDisposed || Disposing) return;
                 }
                 else
                 {
@@ -89,7 +101,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnXoaVinhVien_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoaVinhVien_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             var selectedItem = gvThungRac.GetFocusedRow() as RecycleBinItemDTO;
             if (selectedItem == null)
@@ -123,7 +135,8 @@ namespace QLyNSu.FORM_SYSTEM
                 if (result.Success)
                 {
                     XtraMessageBox.Show(result.Message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadData();
+                    await LoadData();
+                    if (IsDisposed || Disposing) return;
                 }
                 else
                 {
@@ -132,9 +145,10 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnLamMoi_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLamMoi_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
         private void btnDong_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

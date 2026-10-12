@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect, useMemo } from 'react';
 import {
   Drawer,
   Alert,
@@ -25,9 +25,12 @@ import {
   QuestionCircleOutlined,
 } from '@ant-design/icons';
 import api from '../services/api';
+import { createAiTypingTimeline } from '../utils/aiTyping';
 import type { AiServiceStatus } from '../utils/aiConversation';
 import { AiRequestGuard, buildAiChatPayload, aiConversationStorageKey, getAiAvailability } from '../utils/aiConversation';
 import type { AIChatMessage, AiClarification, InterpretedRequestSummary } from '../types/hrms';
+import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
 
 const { Text } = Typography;
 
@@ -45,43 +48,7 @@ interface ActionPrompt {
   icon?: React.ReactNode;
 }
 
-// 6 câu hỏi nghiệp vụ chuẩn hóa V2 đồng bộ 100% với WinForms FrmAI_Chat & FrmAI
-const WINFORMS_QUICK_PROMPTS: ActionPrompt[] = [
-  {
-    label: '🎂 Nhân viên sinh nhật tháng này?',
-    query: 'Danh sách nhân viên sinh nhật tháng này?',
-  },
-  {
-    label: '📄 Hợp đồng sắp hết hạn trong 30 ngày?',
-    query: 'Danh sách hợp đồng hết hạn trong 30 ngày?',
-  },
-  {
-    label: '📈 Nhân viên chuẩn bị tăng lương?',
-    query: 'Danh sách nhân viên chuẩn bị tăng lương?',
-  },
-  {
-    label: '🏢 Thống kê nhân sự theo phòng ban?',
-    query: 'Thống kê số lượng nhân viên theo từng phòng ban?',
-  },
-  {
-    label: '👥 Danh sách tất cả nhân viên công ty?',
-    query: 'Danh sách tất cả nhân viên trong công ty?',
-  },
-  {
-    label: '💰 Báo cáo tổng quỹ lương tháng này?',
-    query: 'Tổng quỹ lương tháng này là bao nhiêu?',
-  },
-];
 
-// Lời chào chuẩn hoá V2
-const INITIAL_MESSAGE: AIChatMessage = {
-  id: 'init-1',
-  sender: 'assistant',
-  content:
-    'Xin chào! Tôi là Trợ lý AI Quản trị Nhân sự V2. Tôi có thể giúp gì cho bạn hôm nay?\n\nBạn có thể hỏi các câu hỏi nghiệp vụ trong phạm vi được cấp quyền (ví dụ: "Danh sách nhân viên sinh nhật tháng này", "Hợp đồng hết hạn trong 30 ngày", "Thống kê nhân sự theo phòng ban", "Danh sách nhân viên chuẩn bị tăng lương").',
-  timestamp: 'Vừa xong',
-  source: 'AI_Assistant',
-};
 
 const generateSafeUUID = (): string => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -101,9 +68,47 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   isMobile,
   onNavigate,
 }) => {
+  const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
+
+  const initialMessage = useMemo<AIChatMessage>(() => ({
+    id: 'init-1',
+    sender: 'assistant',
+    content: t('aiChat.greeting'),
+    timestamp: t('aiChat.justNow'),
+    source: 'AI_Assistant',
+  }), [t]);
+
+  const quickPrompts = useMemo<ActionPrompt[]>(() => [
+    {
+      label: t('aiChat.promptBirthday'),
+      query: t('aiChat.promptBirthdayQuery'),
+    },
+    {
+      label: t('aiChat.promptContracts'),
+      query: t('aiChat.promptContractsQuery'),
+    },
+    {
+      label: t('aiChat.promptRaise'),
+      query: t('aiChat.promptRaiseQuery'),
+    },
+    {
+      label: t('aiChat.promptDepartment'),
+      query: t('aiChat.promptDepartmentQuery'),
+    },
+    {
+      label: t('aiChat.promptAllEmp'),
+      query: t('aiChat.promptAllEmpQuery'),
+    },
+    {
+      label: t('aiChat.promptPayroll'),
+      query: t('aiChat.promptPayrollQuery'),
+    },
+  ], [t]);
+
   // A fresh mount starts a new conversation because the visible history is kept only in memory.
   const [conversationId, setConversationId] = useState<string>(generateSessionConversationId);
-  const [chatMessages, setChatMessages] = useState<AIChatMessage[]>([INITIAL_MESSAGE]);
+  const [chatMessages, setChatMessages] = useState<AIChatMessage[]>([initialMessage]);
   const [chatInput, setChatInput] = useState('');
   const [chatLoading, setChatLoading] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
@@ -112,7 +117,6 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
   const [isQueryReady, setIsQueryReady] = useState<boolean | null>(null);
   const [checkingStatus, setCheckingStatus] = useState<boolean>(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const activeTypingIdRef = useRef<string | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
@@ -148,28 +152,26 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     }
   };
 
-  // Hàm tự động cuộn xuống dưới cùng của khung chat
-  const scrollToBottom = (behavior: ScrollBehavior = 'smooth') => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior, block: 'end' });
-    }
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-    }
+  // Scroll only this drawer, after React has committed the new text and layout.
+  const scrollToBottom = (_behavior: ScrollBehavior = 'auto') => {
+    const container = chatContainerRef.current;
+    if (container) container.scrollTop = container.scrollHeight;
   };
 
-  // Cuộn xuống và kiểm tra kết nối khi mở Drawer
-  useEffect(() => {
-    if (open) {
-      checkAiStatus();
-      setTimeout(() => scrollToBottom('auto'), 150);
-    }
-  }, [open]);
+  useLayoutEffect(() => {
+    if (open) scrollToBottom();
+  }, [open, chatMessages, chatLoading, typingMessageId]);
 
-  // Cuộn xuống khi có tin nhắn mới hoặc thay đổi trạng thái loading
   useEffect(() => {
-    scrollToBottom('smooth');
-  }, [chatMessages.length, chatLoading]);
+    if (!open) return;
+    checkAiStatus();
+    const container = chatContainerRef.current;
+    if (!container) return;
+    // Drawer opening and viewport resizing can change its height without a message update.
+    const observer = new ResizeObserver(() => scrollToBottom());
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, [open]);
 
   // Điều hướng nghiệp vụ dựa trên interpretedRequest.domain chuẩn xác (Section 12)
   const getActionForMessage = (msg: AIChatMessage): { label: string; route: string } | null => {
@@ -178,40 +180,40 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     }
     const domain = msg.interpretedRequest?.domain?.toUpperCase();
     if (domain === 'PAYROLL') {
-      return { label: 'Xem Bảng Lương Chi Tiết', route: 'bangluong' };
+      return { label: t('aiChat.openPayroll'), route: 'bangluong' };
     }
     if (domain === 'CONTRACT') {
-      return { label: 'Xem Danh Sách Hợp Đồng', route: 'hopdong' };
+      return { label: t('aiChat.openContracts'), route: 'hopdong' };
     }
     if (domain === 'ATTENDANCE' || domain === 'OVERTIME') {
-      return { label: 'Xem Bảng Chấm Công & Tăng Ca', route: 'chamcong' };
+      return { label: t('aiChat.openAttendance'), route: 'chamcong' };
     }
     if (domain === 'EMPLOYEE') {
-      return { label: 'Xem Danh Sách Nhân Sự', route: 'nhanvien' };
+      return { label: t('aiChat.openEmployees'), route: 'nhanvien' };
     }
     if (domain === 'ALLOWANCE') {
-      return { label: 'Xem Danh Sách Phụ Cấp', route: 'phucap' };
+      return { label: t('aiChat.openAllowances'), route: 'phucap' };
     }
     if (domain === 'SALARY_CHANGE') {
-      return { label: 'Xem Quyết Định Nâng Lương', route: 'nangluong' };
+      return { label: t('aiChat.openSalaryChanges'), route: 'nangluong' };
     }
 
     // Dự phòng dựa trên nội dung câu trả lời nếu không có domain metadata
     const lower = msg.content.toLowerCase();
     if (lower.includes('quỹ lương') || lower.includes('thực lĩnh') || lower.includes('bảng lương')) {
-      return { label: 'Xem Bảng Lương Chi Tiết', route: 'bangluong' };
+      return { label: t('aiChat.openPayroll'), route: 'bangluong' };
     }
     if (lower.includes('hợp đồng') || lower.includes('hết hạn') || lower.includes('tái ký')) {
-      return { label: 'Xem Danh Sách Hợp Đồng', route: 'hopdong' };
+      return { label: t('aiChat.openContracts'), route: 'hopdong' };
     }
     if (lower.includes('chấm công') || lower.includes('vắng') || lower.includes('tăng ca')) {
-      return { label: 'Xem Bảng Chấm Công & Heatmap', route: 'chamcong' };
+      return { label: t('aiChat.openAttendance'), route: 'chamcong' };
     }
     if (lower.includes('nhân sự') || lower.includes('nhân viên') || lower.includes('hồ sơ')) {
-      return { label: 'Xem Danh Sách Nhân Sự', route: 'nhanvien' };
+      return { label: t('aiChat.openEmployees'), route: 'nhanvien' };
     }
     if (lower.includes('tăng lương') || lower.includes('nâng ngạch') || lower.includes('nâng lương')) {
-      return { label: 'Xem Quyết Định Nâng Lương', route: 'nangluong' };
+      return { label: t('aiChat.openSalaryChanges'), route: 'nangluong' };
     }
     return null;
   };
@@ -225,20 +227,18 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     activeTypingIdRef.current = targetMsgId;
     setTypingMessageId(targetMsgId);
 
-    const tokens: string[] = fullText.match(/\S+|\s+/g) || [fullText];
-    const delay = Math.max(10, Math.min(26, Math.floor(1500 / Math.max(tokens.length, 1))));
-
-    let currentAccum = '';
-    for (let i = 0; i < tokens.length; i++) {
-      if (activeTypingIdRef.current !== targetMsgId) break;
-
-      currentAccum += tokens[i];
-      setChatMessages((prev) =>
-        prev.map((m) => (m.id === targetMsgId ? { ...m, content: currentAccum } : m))
-      );
-
-      scrollToBottom('auto');
-      await new Promise((resolve) => setTimeout(resolve, delay));
+    const timeline = createAiTypingTimeline(fullText);
+    const startedAt = performance.now();
+    let previousLength = -1;
+    while (activeTypingIdRef.current === targetMsgId) {
+      const length = timeline.visibleLength(performance.now() - startedAt);
+      if (length !== previousLength) {
+        const content = fullText.slice(0, length);
+        setChatMessages(prev => prev.map(m => m.id === targetMsgId ? { ...m, content } : m));
+        previousLength = length;
+      }
+      if (length === fullText.length) break;
+      await new Promise(resolve => setTimeout(resolve, 30));
     }
 
     if (activeTypingIdRef.current === targetMsgId) {
@@ -249,7 +249,6 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
       );
       setTypingMessageId(null);
       activeTypingIdRef.current = null;
-      setTimeout(() => scrollToBottom('smooth'), 50);
     }
   };
   const handleResetChat = async () => {
@@ -270,7 +269,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     setChatLoading(false);
     activeTypingIdRef.current = null;
     setTypingMessageId(null);
-    setChatMessages([INITIAL_MESSAGE]);
+    setChatMessages([initialMessage]);
 
     try {
       await api.post('/ai/reset', { conversationId: oldConvId });
@@ -329,7 +328,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         sqlQuery?: string;
       }>('/ai/chat', buildAiChatPayload(question, conversationId, generateSafeUUID(),
         conversationVersionRef.current, pendingClarificationRef.current, optionToken), {
-        signal: controller.signal
+        signal: controller.signal,
+        // API owns the configurable 30–900s deadline; allow its response to arrive.
+        timeout: 930000
       });
 
       if (!requestGuardRef.current.accepts(currentGen)) {
@@ -392,13 +393,12 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         id: errorMsgId,
         sender: 'assistant',
         content: backendAnswer || (err?.response?.status === 403
-          ? 'Bạn không có quyền thực hiện tra cứu này trong phạm vi được yêu cầu.'
-          : 'Rất tiếc hiện tại không thể kết nối tới dịch vụ AI. Vui lòng kiểm tra lại kết nối API backend.'),
+          ? t('aiChat.forbidden')
+          : t('aiChat.serviceUnavailable')),
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         status: backendStatus || (err?.response?.status === 403 ? 'forbidden' : 'error'),
       };
       setChatMessages((prev) => [...prev, errorReply]);
-      setTimeout(() => scrollToBottom('smooth'), 50);
     } finally {
       isSendingRef.current = false;
     }
@@ -410,7 +410,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
     try {
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(content);
-        message.success('Đã sao chép phản hồi vào bộ nhớ tạm!');
+        message.success(t('aiChat.copiedSuccess'));
         return;
       }
       const textArea = document.createElement('textarea');
@@ -423,7 +423,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
       const successful = document.execCommand('copy');
       document.body.removeChild(textArea);
       if (successful) {
-        message.success('Đã sao chép phản hồi vào bộ nhớ tạm!');
+        message.success(t('aiChat.copiedSuccess'));
       } else {
         message.warning('Không thể sao chép văn bản.');
       }
@@ -434,6 +434,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
 
   return (
     <Drawer
+      className="hrms-ai-chat"
       title={
         <Space align="center" size={10}>
           <Badge
@@ -458,18 +459,18 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
               <Tooltip
                 title={
                   checkingStatus
-                    ? 'Đang kiểm tra kết nối...'
+                    ? t('aiChat.connectionChecking')
                     : isAiConnected
-                    ? 'Đã kết nối máy chủ AI V2 (Trực tuyến)'
-                    : 'Mất kết nối máy chủ AI'
+                    ? t('aiChat.connectionOnline')
+                    : t('aiChat.statusDisconnected')
                 }
               >
                 {checkingStatus && isAiConnected === null ? (
-                  <SyncOutlined spin style={{ color: '#1677ff', fontSize: 13 }} />
+                  <SyncOutlined spin style={{ color: tokens.primary, fontSize: 13 }} />
                 ) : isAiConnected ? (
                   <CheckCircleFilled
                     style={{
-                      color: '#52c41a',
+                      color: tokens.successText,
                       fontSize: 15,
                       filter: 'drop-shadow(0 0 2px rgba(82, 196, 26, 0.4))',
                       cursor: 'pointer',
@@ -479,7 +480,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                 ) : (
                   <CloseCircleFilled
                     style={{
-                      color: '#ff4d4f',
+                      color: tokens.dangerText,
                       fontSize: 15,
                       filter: 'drop-shadow(0 0 2px rgba(255, 77, 79, 0.4))',
                       cursor: 'pointer',
@@ -506,15 +507,15 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                 {isAiConnected ? (
                   <>
                     <CheckCircleFilled style={{ fontSize: 10 }} />
-                    <span>{isQueryReady === false ? "Nguồn tra cứu chưa sẵn sàng" : isQueryReady === true ? "Đã kết nối • Nguồn tra cứu sẵn sàng" : "API đã kết nối"}</span>
+                    <span>{isQueryReady === false ? t('aiChat.queryUnavailable') : t('aiChat.statusConnected')}</span>
                   </>
                 ) : isAiConnected === false ? (
                   <>
                     <CloseCircleFilled style={{ fontSize: 10 }} />
-                    <span>Mất kết nối máy chủ AI</span>
+                    <span>{t('aiChat.statusDisconnected')}</span>
                   </>
                 ) : (
-                  <span>Đang kiểm tra kết nối...</span>
+                  <span>{t('aiChat.statusConnecting')}</span>
                 )}
               </Tag>
             </div>
@@ -522,10 +523,10 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         </Space>
       }
       extra={
-        <Tooltip title="Làm mới cuộc trò chuyện (Reset Chat)">
+        <Tooltip title={t('aiChat.resetChat')}>
           <Button
             type="text"
-            icon={<ClearOutlined style={{ color: '#64748b' }} />}
+            icon={<ClearOutlined style={{ color: tokens.textSecondary }} />}
             onClick={handleResetChat}
             disabled={isBusy}
           />
@@ -543,26 +544,30 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
           50% { opacity: 0; }
         }
       `}</style>
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
         {isAiConnected && isQueryReady === false && (
           <Alert type="warning" showIcon style={{ marginBottom: 12 }}
-            message="Tra cứu dữ liệu chưa sẵn sàng"
-            description="Quản trị viên cần hoàn tất cấu hình nguồn dữ liệu và phân quyền. Bạn vẫn có thể gửi lời chào." />
+            message={t('aiChat.queryUnavailable')}
+            description={t('aiChat.queryUnavailableHelp')} />
         )}
         {/* DANH SÁCH TIN NHẮN */}
         <div
           ref={chatContainerRef}
           style={{
             flex: 1,
+            minHeight: 0,
             overflowY: 'auto',
+            overflowX: 'hidden',
             paddingRight: 4,
             display: 'flex',
             flexDirection: 'column',
             gap: 14,
-            scrollBehavior: 'smooth',
+            scrollBehavior: 'auto',
           }}
         >
           {chatMessages.map((msg) => {
+            const displayedContent = msg.id === initialMessage.id ? initialMessage.content : msg.content;
+            const displayedTimestamp = msg.id === initialMessage.id ? initialMessage.timestamp : msg.timestamp;
             const action = msg.sender === 'assistant' ? getActionForMessage(msg) : null;
             const isCurrentlyTyping = typingMessageId === msg.id;
 
@@ -572,9 +577,11 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                 style={{
                   alignSelf: msg.sender === 'user' ? 'flex-end' : 'flex-start',
                   maxWidth: '92%',
-                  background: msg.sender === 'user' ? '#1677ff' : '#f8fafc',
-                  color: msg.sender === 'user' ? '#fff' : '#0f172a',
-                  border: msg.sender === 'user' ? 'none' : '1px solid #e2e8f0',
+                  flexShrink: 0,
+                  overflowWrap: 'anywhere',
+                  background: msg.sender === 'user' ? tokens.btnPrimaryBg : tokens.cardSecondaryBg,
+                  color: msg.sender === 'user' ? tokens.btnPrimaryText : tokens.textPrimary,
+                  border: msg.sender === 'user' ? 'none' : `1px solid ${tokens.borderMedium}`,
                   padding: '12px 16px',
                   borderRadius: msg.sender === 'user' ? '14px 14px 2px 14px' : '14px 14px 14px 2px',
                   fontSize: '13.5px',
@@ -587,7 +594,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                   <div style={{ marginBottom: 6 }}>
                     <Tag color="purple" style={{ fontSize: 10.5, borderRadius: 4, padding: '0 6px' }}>
                       {[
-                        msg.interpretedRequest.effectiveScope || msg.interpretedRequest.requestedScope || "Phạm vi được cấp",
+                        msg.interpretedRequest.effectiveScope || msg.interpretedRequest.requestedScope || t('aiChat.scopeGranted'),
                         msg.interpretedRequest.resolvedPeriod,
                         msg.interpretedRequest.selectedEntityDisplay
                       ].filter(Boolean).join(' • ')}
@@ -597,14 +604,14 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
 
                 {/* NỘI DUNG VĂN BẢN */}
                 <div style={{ whiteSpace: 'pre-wrap' }}>
-                  {msg.content}
+                  {displayedContent}
                   {isCurrentlyTyping && (
                     <span
                       style={{
                         display: 'inline-block',
                         width: 7,
                         height: 15,
-                        backgroundColor: '#722ed1',
+                        backgroundColor: tokens.primary,
                         marginLeft: 3,
                         verticalAlign: 'middle',
                         animation: 'cursorBlink 0.7s infinite',
@@ -616,12 +623,12 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
 
                 {/* RESULT METADATA (BẢO TOÀN SỐ LIỆU NGUỒN) */}
                 {msg.resultMetadata && !isCurrentlyTyping && (
-                  <div style={{ marginTop: 6, fontSize: 11, color: '#64748b' }}>
+                  <div style={{ marginTop: 6, fontSize: 11, color: tokens.textSecondary }}>
                     {msg.resultMetadata.sourcePublicLabel && (
-                      <span>Nguồn: {msg.resultMetadata.sourcePublicLabel}</span>
+                      <span>{t('aiChat.sourceLabel', { source: msg.resultMetadata.sourcePublicLabel })}</span>
                     )}
                     {msg.resultMetadata.total !== undefined && msg.resultMetadata.total !== null && (
-                      <span> • Tổng: {msg.resultMetadata.total} bản ghi</span>
+                      <span> • {t('aiChat.totalRecords', { count: msg.resultMetadata.total })}</span>
                     )}
                   </div>
                 )}
@@ -634,15 +641,15 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                       style={{
                         marginTop: 10,
                         paddingTop: 8,
-                        borderTop: '1px dashed #cbd5e1',
+                        borderTop: `1px dashed ${tokens.borderMedium}`,
                         display: 'flex',
                         flexDirection: 'column',
                         gap: 6,
                       }}
                     >
-                      <Text strong style={{ fontSize: 11, color: isClarificationActive ? '#4f46e5' : '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <QuestionCircleOutlined /> {msg.clarification.question || 'Vui lòng chọn một phương án:'}
-                        {!isClarificationActive && <span style={{ fontSize: 10, fontStyle: 'italic' }}>(đã hoàn thành / hết hạn)</span>}
+                      <Text strong style={{ fontSize: 11, color: isClarificationActive ? tokens.violetText : tokens.textSecondary, display: 'flex', alignItems: 'center', gap: 4 }}>
+                        <QuestionCircleOutlined /> {msg.clarification.question || t('aiChat.clarificationChoice')}
+                        {!isClarificationActive && <span style={{ fontSize: 10, fontStyle: 'italic' }}>{t('aiChat.clarificationComplete')}</span>}
                       </Text>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {msg.clarification.options.map((opt) => (
@@ -660,9 +667,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                             style={{
                               borderRadius: 12,
                               fontSize: 12,
-                              borderColor: isClarificationActive ? '#818cf8' : '#cbd5e1',
-                              color: isClarificationActive ? '#4338ca' : '#94a3b8',
-                              backgroundColor: isClarificationActive ? '#eef2ff' : '#f1f5f9',
+                              borderColor: isClarificationActive ? tokens.primary : tokens.borderMedium,
+                              color: isClarificationActive ? tokens.violetText : tokens.textSecondary,
+                              backgroundColor: isClarificationActive ? tokens.activeBg : tokens.cardSecondaryBg,
                               fontWeight: 500,
                             }}
                           >
@@ -676,7 +683,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
 
                 {/* NÚT ĐIỀU HƯỚNG NHANH THEO NGỮ CẢNH */}
                 {action && onNavigate && !isCurrentlyTyping && (
-                  <div style={{ marginTop: 10, paddingTop: 8, borderTop: '1px solid #e2e8f0' }}>
+                  <div style={{ marginTop: 10, paddingTop: 8, borderTop: `1px solid ${tokens.borderMedium}` }}>
                     <Button
                       type="primary"
                       size="small"
@@ -686,8 +693,8 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                         onNavigate(action.route);
                       }}
                       style={{
-                        background: '#0f172a',
-                        borderColor: '#0f172a',
+                        background: tokens.btnPrimaryBg,
+                        borderColor: tokens.btnPrimaryBg,
                         fontWeight: 600,
                         fontSize: 12,
                       }}
@@ -705,24 +712,24 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
                     marginTop: 6,
                   }}
                 >
-                  {msg.sender === 'assistant' && !isCurrentlyTyping && msg.content ? (
+                  {msg.sender === 'assistant' && !isCurrentlyTyping && displayedContent ? (
                     <Button
                       type="text"
                       size="small"
-                      icon={<CopyOutlined style={{ fontSize: 11, color: '#94a3b8' }} />}
-                      onClick={() => handleCopyMessage(msg.content)}
-                      style={{ padding: '0 4px', height: 20, fontSize: 11, color: '#94a3b8' }}
+                      icon={<CopyOutlined style={{ fontSize: 11, color: tokens.textSecondary }} />}
+                      onClick={() => handleCopyMessage(displayedContent)}
+                      style={{ padding: '0 4px', height: 20, fontSize: 11, color: tokens.textSecondary }}
                     >
-                      Sao chép
+                      {t('aiChat.btnCopy')}
                     </Button>
                   ) : <span />}
                   <div
                     style={{
                       fontSize: '10px',
-                      color: msg.sender === 'user' ? 'rgba(255,255,255,0.7)' : '#94a3b8',
+                      color: msg.sender === 'user' ? tokens.btnPrimaryText : tokens.textSecondary,
                     }}
                   >
-                    {msg.timestamp}
+                    {displayedTimestamp}
                   </div>
                 </div>
               </div>
@@ -730,46 +737,46 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
           })}
 
           {chatLoading && (
-            <div style={{ alignSelf: 'flex-start', padding: 12, background: '#f8fafc', borderRadius: 8, border: '1px solid #e2e8f0' }}>
-              <Spin size="small" /> <Text type="secondary" style={{ fontSize: 12, marginLeft: 8 }}>AI Copilot đang phân tích CSDL & tổng hợp báo cáo...</Text>
+            <div style={{ alignSelf: 'flex-start', padding: 12, background: tokens.cardSecondaryBg, borderRadius: 8, border: `1px solid ${tokens.borderMedium}` }}>
+              <Spin size="small" /> <Text type="secondary" style={{ fontSize: 12, marginLeft: 8, color: tokens.textSecondary }}>{t('aiChat.thinking')}</Text>
             </div>
           )}
 
-          <div ref={messagesEndRef} style={{ float: 'left', clear: 'both', height: 1 }} />
+
         </div>
 
         {/* CÂU HỎI NHANH */}
         <div style={{ margin: '14px 0 8px 0' }}>
-          <Text strong type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-            ⚡ Câu hỏi nghiệp vụ thường gặp (WinForms):
+          <Text strong type="secondary" style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: 0.5, color: tokens.textSecondary }}>
+            {t('aiChat.quickPromptsTitle')}
           </Text>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 6 }}>
-            {WINFORMS_QUICK_PROMPTS.map((p, idx) => (
+            {quickPrompts.map((p: ActionPrompt, idx: number) => (
               <div
                 key={idx}
                 onClick={() => !isBusy && handleSendMessage(p.query)}
                 style={{
                   padding: '6px 10px',
-                  background: isBusy ? '#f8fafc' : '#f1f5f9',
+                  background: tokens.cardSecondaryBg,
                   borderRadius: 6,
                   fontSize: 12,
-                  color: isBusy ? '#94a3b8' : '#334155',
+                  color: isBusy ? tokens.textSecondary : tokens.textPrimary,
                   cursor: isBusy ? 'not-allowed' : 'pointer',
-                  border: '1px solid #e2e8f0',
+                  border: `1px solid ${tokens.borderMedium}`,
                   transition: 'background 0.15s ease',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                 }}
                 onMouseEnter={(e) => {
-                  if (!isBusy) e.currentTarget.style.backgroundColor = '#e2e8f0';
+                  if (!isBusy) e.currentTarget.style.backgroundColor = tokens.hoverBg;
                 }}
                 onMouseLeave={(e) => {
-                  if (!isBusy) e.currentTarget.style.backgroundColor = '#f1f5f9';
+                  if (!isBusy) e.currentTarget.style.backgroundColor = tokens.cardSecondaryBg;
                 }}
               >
                 <span>{p.label}</span>
-                <ArrowRightOutlined style={{ fontSize: 10, color: '#94a3b8' }} />
+                <ArrowRightOutlined style={{ fontSize: 10, color: tokens.textSecondary }} />
               </div>
             ))}
           </div>
@@ -778,7 +785,7 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
         {/* THANH NHẬP CÂU HỎI */}
         <Space.Compact style={{ width: '100%' }}>
           <Input
-            placeholder="Hỏi AI về sinh nhật, hợp đồng, tăng lương, phòng ban..."
+            placeholder={t('aiChat.inputPlaceholder')}
             maxLength={2000}
             value={chatInput}
             onChange={(e) => setChatInput(e.target.value)}
@@ -791,9 +798,9 @@ export const AiChatDrawer: React.FC<AiChatDrawerProps> = ({
             onClick={() => handleSendMessage()}
             loading={chatLoading}
             disabled={isBusy}
-            style={{ background: '#722ed1', borderColor: '#722ed1' }}
+            style={{ background: isBusy ? tokens.cardSecondaryBg : tokens.btnPrimaryBg, borderColor: tokens.borderMedium, color: isBusy ? tokens.textSecondary : tokens.btnPrimaryText }}
           >
-            Gửi
+            {t('aiChat.btnSend')}
           </Button>
         </Space.Compact>
       </div>

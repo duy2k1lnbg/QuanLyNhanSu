@@ -5,6 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 using Bu.CLASS_SYSTEM;
 using Bu.Services.AI_Services.Security;
 using DevExpress.XtraEditors;
@@ -29,6 +30,9 @@ namespace QLyNSu.FORM_SYSTEM
         private long _baseRevision = 0;
         private bool _isDirty = false;
         private bool _isSaving = false;
+        private bool _isReady;
+        private bool _updatingSimplePermission;
+        private DevExpress.XtraGrid.Columns.GridColumn _simplePermissionColumn;
         private int? _actorManv = null;
 
         public class LookupItem
@@ -44,6 +48,8 @@ namespace QLyNSu.FORM_SYSTEM
             public string CapabilityCode { get; set; }
             public string Domain { get; set; }
             public string Description { get; set; }
+            private bool _isAiAllowed;
+            public bool IsAiAllowed { get => _isAiAllowed; set { if(_isAiAllowed!=value) {_isAiAllowed=value;OnPropertyChanged(nameof(IsAiAllowed));} } }
             public bool IsCapabilityEnabled { get; set; }
             public string AvailabilityStatus { get; set; }
             public string RequiredFunctionCode { get; set; }
@@ -130,62 +136,195 @@ namespace QLyNSu.FORM_SYSTEM
             _scopeService = new AiScopeGrantManagementService();
         }
 
-        private void FrmAiScopeGrantDetail_Load(object sender, EventArgs e)
+        public event EventHandler DirtyStateChanged;
+        private void SetDirty(bool value) { _isDirty=value; DirtyStateChanged?.Invoke(this,EventArgs.Empty); }
+        public bool HasUnsavedChanges => _isDirty;
+        public bool TryDiscardChanges()
         {
-            // 1. Kiểm tra quyền Quản trị viên tối cao (Chỉ Admin mới có quyền mở form)
-            if (!UserSession.IsAdmin)
+            if(_isSaving) return false;
+            if(!_isDirty) return true;
+            if(XtraMessageBox.Show("Có thay đổi quyền AI chưa lưu. Hủy thay đổi để tiếp tục?", "Phân quyền AI", MessageBoxButtons.YesNo, MessageBoxIcon.Question)!=DialogResult.Yes) return false;
+            SetDirty(false); return true;
+        }
+        public void ConfigureEmbedded()
+        {
+            TopLevel=false; FormBorderStyle=FormBorderStyle.None; Dock=DockStyle.Fill;
+            btnDong.Visible=false;
+        }
+        private void ConfigureResponsiveLayout()
+        {
+            AutoScaleMode=AutoScaleMode.Dpi; Font=new Font("Segoe UI",9.5F);
+            gridViewGrants.OptionsView.ColumnAutoWidth=true;
+            gridViewGrants.OptionsDetail.EnableMasterViewMode=false;
+            foreach(DevExpress.XtraGrid.Columns.GridColumn column in gridViewGrants.Columns) column.Visible=false;
+            colDescription.Visible=true;colDescription.VisibleIndex=0;colDescription.Caption="Chức năng AI";colDescription.Width=420;
+            var toggle=new DevExpress.XtraEditors.Repository.RepositoryItemCheckEdit { AutoHeight=false };
+            toggle.EditValueChanged+=(s,e)=>gridViewGrants.PostEditor();
+            gridControlGrants.RepositoryItems.Add(toggle);
+            _simplePermissionColumn=gridViewGrants.Columns.AddField("IsAiAllowed");
+            _simplePermissionColumn.Caption="Cho phép";_simplePermissionColumn.Visible=true;_simplePermissionColumn.VisibleIndex=1;
+            _simplePermissionColumn.Width=120;_simplePermissionColumn.MinWidth=110;_simplePermissionColumn.OptionsColumn.FixedWidth=true;
+            _simplePermissionColumn.ColumnEdit=toggle;
+            gridViewGrants.OptionsView.RowAutoHeight=true;
+            gridViewGrants.RowHeight=34;
+            gridViewGrants.ColumnPanelRowHeight=40;
+            gridViewGrants.OptionsFind.AlwaysVisible=true;
+            gridViewGrants.OptionsFind.FindNullPrompt=QLyNSu.Functions.TranslationManager.Translate("Tìm kiếm chức năng / phân hệ...");
+            gridViewGrants.Appearance.Row.TextOptions.VAlignment=DevExpress.Utils.VertAlignment.Center;
+            gridViewGrants.Appearance.HeaderPanel.TextOptions.HAlignment=DevExpress.Utils.HorzAlignment.Center;
+            gridViewGrants.Appearance.HeaderPanel.TextOptions.VAlignment=DevExpress.Utils.VertAlignment.Center;
+            foreach(DevExpress.XtraGrid.Columns.GridColumn column in gridViewGrants.Columns)
             {
-                XtraMessageBox.Show("Từ chối truy cập: Chỉ Quản trị viên hệ thống (Admin) mới có quyền quản trị phân quyền tra cứu AI.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                column.AppearanceCell.TextOptions.VAlignment=DevExpress.Utils.VertAlignment.Center;
+                column.AppearanceCell.TextOptions.HAlignment=(column==colDescription || column==colExplanation || column==colInherited) ? DevExpress.Utils.HorzAlignment.Near : DevExpress.Utils.HorzAlignment.Center;
+                column.AppearanceCell.TextOptions.WordWrap=DevExpress.Utils.WordWrap.Wrap;
+            }
+            var top=new TableLayoutPanel {Dock=DockStyle.Fill,ColumnCount=1,RowCount=2,Padding=new Padding(8),AutoScroll=false};
+            top.ColumnStyles.Add(new ColumnStyle(SizeType.Percent,100));
+            for(int i=0;i<2;i++) top.RowStyles.Add(new RowStyle(SizeType.Absolute,28));
+            pnlTop.Controls.Clear(); pnlTop.Height=138;
+            foreach(var label in new[]{lblSubjectTitle,lblSecurityWarning})
+            { label.Dock=DockStyle.Fill; label.AutoSizeMode=DevExpress.XtraEditors.LabelAutoSizeMode.None; label.MinimumSize=new Size(0,28);label.Appearance.Font=Font;label.Appearance.TextOptions.WordWrap=DevExpress.Utils.WordWrap.Wrap;label.Appearance.TextOptions.VAlignment=DevExpress.Utils.VertAlignment.Center;top.Controls.Add(label); }
+            pnlTop.Controls.Add(top);
+            lblSubjectTitle.Appearance.Font=new Font(Font.FontFamily,11F,FontStyle.Bold);
+            lblSubjectTitle.Appearance.TextOptions.HAlignment=DevExpress.Utils.HorzAlignment.Center;
+            lblAiRightStatus.Appearance.TextOptions.HAlignment=DevExpress.Utils.HorzAlignment.Center;
+            lblSecurityWarning.Text="Chọn Có để cho phép AI dùng nghiệp vụ, Không để chặn.\r\nGiữ nguyên phạm vi đã cấp; quyền mới chỉ áp dụng cho bản thân.";
+            lblSecurityWarning.Appearance.BackColor=Color.Empty;
+            lblSecurityWarning.Appearance.ForeColor=SystemColors.ControlText;
+            lblSecurityWarning.Appearance.Options.UseBackColor=false;
+            int previousWidth=-1;
+            Action reflowHeader=()=>{
+                int width=Math.Max(240,pnlTop.ClientSize.Width-top.Padding.Horizontal);
+                if(width==previousWidth)return; previousWidth=width;
+                int total=top.Padding.Vertical;
+                var labels=new[]{lblSubjectTitle,lblSecurityWarning};
+                for(int i=0;i<labels.Length;i++) {
+                    var label=labels[i];
+                    int height=Math.Max(28,TextRenderer.MeasureText(label.Text,label.Appearance.Font,
+                        new Size(Math.Max(100,width-label.Padding.Horizontal-label.Margin.Horizontal),int.MaxValue),
+                        TextFormatFlags.WordBreak|TextFormatFlags.NoPadding).Height+label.Padding.Vertical+8);
+                    top.RowStyles[i].Height=height+label.Margin.Vertical; total+=height+label.Margin.Vertical;
+                }
+                pnlTop.Height=total;
+            };
+            pnlTop.SizeChanged+=(s,e)=>reflowHeader();
+            foreach(var label in new[]{lblSubjectTitle,lblSecurityWarning}) label.TextChanged+=(s,e)=>{previousWidth=-1;reflowHeader();};
+            reflowHeader();
+
+            var actions=new FlowLayoutPanel {Dock=DockStyle.Fill,FlowDirection=FlowDirection.RightToLeft,WrapContents=true,Padding=new Padding(6)};
+            pnlBottom.Controls.Clear();pnlBottom.Height=66;
+            foreach(var button in new[]{btnDong,btnLuu,btnLamMoi}) {
+                button.Anchor=AnchorStyles.None;button.Size=new Size(135,38);button.Margin=new Padding(4);
+                button.Appearance.TextOptions.HAlignment=DevExpress.Utils.HorzAlignment.Center;button.Appearance.TextOptions.VAlignment=DevExpress.Utils.VertAlignment.Center;actions.Controls.Add(button);
+            }
+            pnlBottom.Controls.Add(actions);
+        }
+        private List<AiScopeGrantRecord> BuildDirectGrants(AiScopeRowViewModel row)
+        {
+            var grants=new List<AiScopeGrantRecord>();
+            if(row.DirectEffect=="NONE") return grants;
+            grants.Add(new AiScopeGrantRecord {CapabilityCode=row.CapabilityCode,Effect=row.DirectEffect,ScopeType=row.DirectScopeType,ScopeKey=row.DirectScopeKey,ValidFrom=row.DirectValidFrom,ValidTo=row.DirectValidTo,IsEnabled=true});
+            foreach(var extra in row.DirectGrants.Skip(1)) grants.Add(new AiScopeGrantRecord {CapabilityCode=row.CapabilityCode,Effect=extra.Effect,ScopeType=extra.ScopeType,ScopeKey=extra.ScopeKey,ValidFrom=extra.ValidFrom,ValidTo=extra.ValidTo,IsEnabled=true});
+            return grants;
+        }
+        private static bool IsActiveGrant(AiScopeGrantItemDto grant)
+        {
+            var now=DateTime.Now;
+            return grant.IsActive && (!grant.ValidFrom.HasValue || grant.ValidFrom.Value<=now) && (!grant.ValidTo.HasValue || grant.ValidTo.Value>now);
+        }
+        private static bool HasInheritedDeny(AiScopeRowViewModel row) => row.InheritedGrants.Any(g=>g.IsActive && g.Effect=="DENY");
+        private static bool HasSimplePermission(AiScopeRowViewModel row)
+        {
+            if(!row.IsCapabilityEnabled || HasInheritedDeny(row) || row.DirectGrants.Any(g=>IsActiveGrant(g) && g.Effect=="DENY")) return false;
+            return row.DirectGrants.Any(g=>IsActiveGrant(g) && g.Effect=="ALLOW") || row.InheritedGrants.Any(g=>g.IsActive && g.Effect=="ALLOW") ||
+                ((row.CapabilityCode=="INSURANCE_SELF" || row.CapabilityCode=="PAYROLL_SELF") && row.EffectiveEffect=="ALLOW");
+        }
+        private static void SetSimplePermission(AiScopeRowViewModel row,bool enabled)
+        {
+            if(!row.IsCapabilityEnabled || (enabled && HasInheritedDeny(row))) {row.IsAiAllowed=HasSimplePermission(row);return;}
+            var grants=row.DirectGrants.Where(g=>g.Effect=="ALLOW").Select(g=>new AiScopeGrantItemDto {
+                GrantId=g.GrantId,CapabilityCode=row.CapabilityCode,Effect=g.Effect,ScopeType=g.ScopeType,ScopeKey=g.ScopeKey,
+                ScopeName=g.ScopeName,ValidFrom=g.ValidFrom,ValidTo=g.ValidTo,IsActive=g.IsActive
+            }).ToList();
+            if(!enabled) grants.Add(new AiScopeGrantItemDto {CapabilityCode=row.CapabilityCode,Effect="DENY",ScopeType="ALL",IsActive=true});
+            else if(!grants.Any(g=>IsActiveGrant(g)) && !row.InheritedGrants.Any(g=>g.IsActive && g.Effect=="ALLOW")) {
+                var self=grants.FirstOrDefault(g=>g.ScopeType=="SELF");
+                if(self!=null) {self.ValidFrom=null;self.ValidTo=null;self.IsActive=true;}
+                else grants.Add(new AiScopeGrantItemDto {CapabilityCode=row.CapabilityCode,Effect="ALLOW",ScopeType="SELF",IsActive=true});
+            }
+            row.DirectGrants=grants;var first=grants.FirstOrDefault();
+            row.DirectEffect=first?.Effect ?? "NONE";row.DirectScopeType=first?.ScopeType ?? "SELF";row.DirectScopeKey=first?.ScopeKey;
+            row.DirectValidFrom=first?.ValidFrom;row.DirectValidTo=first?.ValidTo;row.IsAiAllowed=HasSimplePermission(row);
+        }
+        private async void FrmAiScopeGrantDetail_Load(object sender, EventArgs e)
+        {
+            ConfigureResponsiveLayout();
+            // Kiểm tra quyền quản lý phân quyền trên kênh đang đăng nhập.
+            if (!UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG"))
+            {
+                XtraMessageBox.Show("Từ chối truy cập: Cần quyền sửa Phân quyền chức năng để quản lý quyền AI.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 this.Close();
                 return;
             }
 
             this.Text = _isGroup
-                ? $"Quản trị Quyền tra cứu AI - Nhóm quyền: [{_subjectCode}] - {_subjectName}"
-                : $"Quản trị Quyền tra cứu AI - Tài khoản: [{_subjectCode}] - {_subjectName}";
+                ? string.Format(QLyNSu.Functions.TranslationManager.Translate("Quản trị Quyền tra cứu AI - Nhóm quyền: [{0}] - {1}"), _subjectCode, _subjectName)
+                : string.Format(QLyNSu.Functions.TranslationManager.Translate("Quản trị Quyền tra cứu AI - Tài khoản: [{0}] - {1}"), _subjectCode, _subjectName);
 
             lblSubjectTitle.Text = _isGroup
                 ? $"Nhóm quyền: {_subjectCode} ({_subjectName})"
                 : $"Tài khoản: {_subjectCode} - {_subjectName}";
 
             // Ẩn cột kế thừa từ nhóm nếu đối tượng chính là nhóm
-            colInherited.Visible = !_isGroup;
+            colInherited.Visible = false;
 
-            LoadLookups();
-            LoadData();
+            await LoadLookups();
+            if (IsDisposed || Disposing) return;
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            QLyNSu.Functions.TranslationManager.Translate(this);
 
             // Format hàng theo trạng thái
             gridViewGrants.RowStyle += GridViewGrants_RowStyle;
             gridViewGrants.CellValueChanged += GridViewGrants_CellValueChanged;
             gridViewGrants.ShowingEditor += GridViewGrants_ShowingEditor;
+            gridViewGrants.CustomColumnDisplayText+=(s,args)=>{
+                if(args.Column!=colDirectEffect || args.ListSourceRowIndex<0 || _bindingList==null || args.ListSourceRowIndex>=_bindingList.Count) return;
+                var row=_bindingList[args.ListSourceRowIndex];
+                if(row.DirectEffect!="NONE" && row.DirectGrants.Count>1) args.DisplayText+=" ("+row.DirectGrants.Count+" phạm vi)";
+            };
+
         }
 
-        private void LoadLookups()
+        private async Task LoadLookups()
         {
             try
             {
-                var depts = _scopeService.GetDepartmentOptions() ?? new List<KeyValuePair<string, string>>();
+                var depts = (await QLyNSu.Functions.FormDataLoader.ReadAsync(this, () => _scopeService.GetDepartmentOptions())) ?? new List<KeyValuePair<string, string>>();
                 _departmentLookup = depts.Select(d => new LookupItem { Id = d.Key, Name = $"{d.Value} (ID: {d.Key})" }).ToList();
                 _departmentDict = depts.ToDictionary(k => k.Key, v => v.Value);
 
-                var comps = _scopeService.GetCompanyOptions() ?? new List<KeyValuePair<string, string>>();
+                var comps = (await QLyNSu.Functions.FormDataLoader.ReadAsync(this, () => _scopeService.GetCompanyOptions())) ?? new List<KeyValuePair<string, string>>();
                 _companyLookup = comps.Select(c => new LookupItem { Id = c.Key, Name = $"{c.Value} (Mã: {c.Key})" }).ToList();
                 _companyDict = comps.ToDictionary(k => k.Key, v => v.Value);
 
                 repoLookUpScopeKey.DataSource = _departmentLookup;
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi tải danh mục phòng ban / công ty: " + ex.Message, "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
             try
             {
-                var overview = _scopeService.GetSubjectScopeOverview(_isGroup ? "GROUP" : "USER", _subjectId);
+                var overview = await QLyNSu.Functions.FormDataLoader.ReadAsync(this, () => _scopeService.GetSubjectScopeOverview(_isGroup ? "GROUP" : "USER", _subjectId));
                 _baseRevision = overview.CurrentRevision;
+                _isReady=overview.IsReady;
                 _actorManv = overview.EmployeeId;
 
                 // Kiểm tra tính sẵn sàng của Schema
@@ -243,15 +382,19 @@ namespace QLyNSu.FORM_SYSTEM
                         EffectiveScopeSummary = c.EffectiveScopeSummary,
                         ExplanationNotes = c.ExplanationNotes
                     };
+                    vm.IsAiAllowed=HasSimplePermission(vm);
+                    if(!vm.IsCapabilityEnabled) vm.Description+=" (Chưa hỗ trợ)";
                     list.Add(vm);
                 }
 
                 _bindingList = new BindingList<AiScopeRowViewModel>(list);
                 gridControlGrants.DataSource = _bindingList;
-                _isDirty = false;
+                SetDirty(false);
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
+                _isReady=false; gridViewGrants.OptionsBehavior.Editable=false;
                 btnLuu.Enabled = false;
                 XtraMessageBox.Show("Lỗi khi tải thông tin phân quyền AI: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -259,75 +402,25 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void GridViewGrants_ShowingEditor(object sender, CancelEventArgs e)
         {
-            var row = gridViewGrants.GetFocusedRow() as AiScopeRowViewModel;
-            if (row == null) return;
-
-            // Nếu Capability đang bị tắt ở mức hệ thống -> Không cho phép sửa đổi
-            if (!row.IsCapabilityEnabled)
-            {
-                e.Cancel = true;
-                return;
-            }
-
-            var focusedCol = gridViewGrants.FocusedColumn;
-
-            // Tùy biến datasource cho repoLookUpScopeKey theo loại phạm vi đang chọn
-            if (focusedCol == colDirectScopeKey)
-            {
-                if (row.DirectScopeType == "DEPARTMENT")
-                {
-                    repoLookUpScopeKey.DataSource = _departmentLookup;
-                    repoLookUpScopeKey.NullText = "-- Chọn phòng ban --";
-                }
-                else if (row.DirectScopeType == "COMPANY")
-                {
-                    repoLookUpScopeKey.DataSource = _companyLookup;
-                    repoLookUpScopeKey.NullText = "-- Chọn công ty --";
-                }
-                else
-                {
-                    // SELF hoặc ALL không cần chọn ScopeKey
-                    e.Cancel = true;
-                }
+            var row=gridViewGrants.GetFocusedRow() as AiScopeRowViewModel;
+            e.Cancel=row==null || !_isReady || _isSaving || !row.IsCapabilityEnabled || gridViewGrants.FocusedColumn!=_simplePermissionColumn;
+            if(!e.Cancel && HasInheritedDeny(row)) {
+                e.Cancel=true;
+                XtraMessageBox.Show("Nhóm đang chặn chức năng này. Hãy chỉnh quyền của nhóm trước.","Phân quyền AI",MessageBoxButtons.OK,MessageBoxIcon.Information);
             }
         }
-
         private void GridViewGrants_CellValueChanged(object sender, DevExpress.XtraGrid.Views.Base.CellValueChangedEventArgs e)
         {
-            var row = gridViewGrants.GetRow(e.RowHandle) as AiScopeRowViewModel;
-            if (row == null) return;
-
-            _isDirty = true;
-
-            // Nếu đổi sang SELF hoặc ALL, tự động xóa ScopeKey
-            if (e.Column == colDirectScopeType)
-            {
-                if (row.DirectScopeType == "SELF" || row.DirectScopeType == "ALL")
-                {
-                    row.DirectScopeKey = null;
-                }
-            }
-
-            // Tự động tính toán lại Effective và Explanation ngay trên giao diện bằng AiScopePolicyResolver
-            RecalculateRowEffective(row);
+            if(_updatingSimplePermission || e.Column!=_simplePermissionColumn) return;
+            var row=gridViewGrants.GetRow(e.RowHandle) as AiScopeRowViewModel;
+            if(row==null) return;
+            _updatingSimplePermission=true;
+            try { SetSimplePermission(row,row.IsAiAllowed);RecalculateRowEffective(row);SetDirty(true);gridViewGrants.RefreshRow(e.RowHandle); }
+            finally {_updatingSimplePermission=false;}
         }
-
         private void RecalculateRowEffective(AiScopeRowViewModel row)
         {
-            var directGrants = new List<AiScopeGrantRecord>();
-            if (row.DirectEffect != "NONE")
-            {
-                directGrants.Add(new AiScopeGrantRecord
-                {
-                    CapabilityCode = row.CapabilityCode,
-                    Effect = row.DirectEffect,
-                    ScopeType = row.DirectScopeType,
-                    ScopeKey = row.DirectScopeKey,
-                    ValidFrom = row.DirectValidFrom,
-                    ValidTo = row.DirectValidTo,
-                    IsEnabled = true
-                });
-            }
+            var directGrants = BuildDirectGrants(row);
 
             var inheritedGrants = new List<(AiScopeGrantRecord Grant, string GroupName)>();
             if (row.InheritedGrants != null)
@@ -375,31 +468,31 @@ namespace QLyNSu.FORM_SYSTEM
             if (!row.IsCapabilityEnabled)
             {
                 e.Appearance.ForeColor = Color.Gray;
-                e.Appearance.BackColor = Color.FromArgb(245, 245, 245);
+                e.Appearance.BackColor = Color.Empty;
             }
             else if (row.EffectiveEffect == "DENY")
             {
-                e.Appearance.BackColor = Color.FromArgb(255, 235, 238); // Đỏ nhạt cảnh báo DENY
+                e.Appearance.BackColor = Color.Empty; // Đỏ nhạt cảnh báo DENY
                 e.Appearance.ForeColor = Color.FromArgb(183, 28, 28);
             }
             else if (row.EffectiveEffect == "BLOCKED_NO_FUNCTION" || row.EffectiveEffect == "UNMAPPED_EMPLOYEE")
             {
-                e.Appearance.BackColor = Color.FromArgb(255, 243, 224); // Cam nhạt thiếu quyền nền hoặc MANV
+                e.Appearance.BackColor = Color.Empty; // Cam nhạt thiếu quyền nền hoặc MANV
             }
             else if (row.EffectiveEffect == "ALLOW")
             {
-                e.Appearance.BackColor = Color.FromArgb(232, 245, 233); // Xanh nhạt cho phép
+                e.Appearance.BackColor = Color.Empty; // Xanh nhạt cho phép
             }
         }
 
-        private void btnLuu_Click(object sender, EventArgs e)
+        private async void btnLuu_Click(object sender, EventArgs e)
         {
             if (_isSaving) return;
 
             // Kiểm tra quyền người thao tác
-            if (!UserSession.IsAdmin)
+            if (!UserSession.CanEdit("F_SYSTEM_PQ_CHUCNANG"))
             {
-                XtraMessageBox.Show("Từ chối thao tác: Chỉ Quản trị viên hệ thống (Admin) mới có quyền cấu hình phân quyền tra cứu AI.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                XtraMessageBox.Show("Từ chối thao tác: Cần quyền sửa Phân quyền chức năng để quản lý quyền AI.", "Lỗi bảo mật", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
@@ -425,34 +518,30 @@ namespace QLyNSu.FORM_SYSTEM
                     // Nếu capability bị tắt, không gửi thay đổi
                     if (!vm.IsCapabilityEnabled) continue;
 
-                    request.Grants.Add(new SaveAiSubjectScopeGrantItemDto
+                    foreach(var grant in BuildDirectGrants(vm)) request.Grants.Add(new SaveAiSubjectScopeGrantItemDto
                     {
-                        CapabilityCode = vm.CapabilityCode,
-                        Effect = vm.DirectEffect,
-                        ScopeType = vm.DirectScopeType,
-                        ScopeKey = vm.DirectScopeKey,
-                        ValidFrom = vm.DirectValidFrom,
-                        ValidTo = vm.DirectValidTo
+                        CapabilityCode=vm.CapabilityCode,Effect=grant.Effect,ScopeType=grant.ScopeType,
+                        ScopeKey=grant.ScopeKey,ValidFrom=grant.ValidFrom,ValidTo=grant.ValidTo
                     });
                 }
 
-                var result = _scopeService.SaveSubjectScopeGrants(request);
+                var result = await QLyNSu.Functions.FormDataLoader.ReadAsync(this, () => _scopeService.SaveSubjectScopeGrants(request));
                 if (result.Success)
                 {
                     XtraMessageBox.Show(result.Message, "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    _isDirty = false;
-                    LoadData();
+                    SetDirty(false);
+                    await LoadData();
                 }
                 else if (result.IsConcurrencyConflict)
                 {
-                    XtraMessageBox.Show(result.Message, "Xung đột phiên bản", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    LoadData();
+                    XtraMessageBox.Show(result.Message + "\nBản sửa được giữ lại. Hãy tải lại để đối chiếu trước khi lưu.", "Xung đột phiên bản", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
                 else
                 {
                     XtraMessageBox.Show(result.Message, "Lỗi lưu cấu hình", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Có lỗi xảy ra trong quá trình lưu cấu hình: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -460,18 +549,19 @@ namespace QLyNSu.FORM_SYSTEM
             finally
             {
                 _isSaving = false;
-                btnLuu.Enabled = true;
+                btnLuu.Enabled = _isReady;
             }
         }
 
-        private void btnLamMoi_Click(object sender, EventArgs e)
+        private async void btnLamMoi_Click(object sender, EventArgs e)
         {
+            if(_isSaving) return;
             if (_isDirty)
             {
                 var cf = XtraMessageBox.Show("Dữ liệu thay đổi chưa được lưu. Bạn có chắc chắn muốn tải lại không?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
                 if (cf != DialogResult.Yes) return;
             }
-            LoadData();
+            await LoadData();
         }
 
         private void btnDong_Click(object sender, EventArgs e)

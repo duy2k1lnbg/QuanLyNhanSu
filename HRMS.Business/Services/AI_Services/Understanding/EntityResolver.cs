@@ -38,6 +38,12 @@ namespace Bu.Services.AI_Services.Core
         private static string EscapeLike(string value) => value.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
         private List<EntityCandidate> Employees(string query, int? id, AiAuthorizationContext ctx)
         {
+            string cacheKey = Bu.Services.AI_Services.Memory.AiCacheCoordinator.BuildEntityKey(id.HasValue ? "id:" + id.Value : query, ctx.LookupCapability, ctx.UserId, ctx.PolicyVersion);
+            if (Bu.Services.AI_Services.Memory.AiCacheCoordinator.Instance.EntityCache.TryGet(cacheKey, out var cached))
+            {
+                return cached;
+            }
+
             var scope = AiScopeEvaluator.BuildSqlScopeFilter(ctx,ctx.LookupCapability);
             if (!scope.IsAllowed) return new List<EntityCandidate>();
             var parameters = new Dictionary<string,object>(scope.Parameters);
@@ -45,7 +51,9 @@ namespace Bu.Services.AI_Services.Core
             if (id.HasValue) parameters[":lookup_id"]=id.Value; else parameters[":lookup_name"]="%"+query.Trim()+"%";
             var result = _executor.ExecuteAuthorizedQuery("SELECT MANV,HOTEN,TEN_PHONGBAN,TEN_CHUCVU,IDPB,MACTY FROM AI_OWNER.V_AI_EMPLOYEE_LOOKUP WHERE ("+scope.SqlPredicate+") AND "+target+" ORDER BY MANV FETCH FIRST 21 ROWS ONLY",parameters,ctx,ctx.LookupCapability);
             if (result.Status != Bu.Services.AI_Services.Interfaces.SqlExecutionStatus.SuccessWithData && result.Status != Bu.Services.AI_Services.Interfaces.SqlExecutionStatus.SuccessEmpty) throw new AiSourceUnavailableException();
-            return result.Data.Rows.Cast<System.Data.DataRow>().Select(r => new EntityCandidate { Id=Convert.ToInt32(r["MANV"]), Code=Convert.ToString(r["MANV"]), Name=Convert.ToString(r["HOTEN"]), DepartmentId=r["IDPB"]==DBNull.Value ? (int?)null : Convert.ToInt32(r["IDPB"]), CompanyCode=Convert.ToString(r["MACTY"]), DepartmentName=Convert.ToString(r["TEN_PHONGBAN"]), PositionName=Convert.ToString(r["TEN_CHUCVU"]) }).ToList();
+            var list = result.Data.Rows.Cast<System.Data.DataRow>().Select(r => new EntityCandidate { Id=Convert.ToInt32(r["MANV"]), Code=Convert.ToString(r["MANV"]), Name=Convert.ToString(r["HOTEN"]), DepartmentId=r["IDPB"]==DBNull.Value ? (int?)null : Convert.ToInt32(r["IDPB"]), CompanyCode=Convert.ToString(r["MACTY"]), DepartmentName=Convert.ToString(r["TEN_PHONGBAN"]), PositionName=Convert.ToString(r["TEN_CHUCVU"]) }).ToList();
+            Bu.Services.AI_Services.Memory.AiCacheCoordinator.Instance.EntityCache.Set(cacheKey, list, TimeSpan.FromMinutes(5), ctx.PolicyVersion);
+            return list;
         }
         public List<EntityCandidate> FindEmployees(string query,AiAuthorizationContext ctx) => string.IsNullOrWhiteSpace(query) ? new List<EntityCandidate>() : Employees(query,null,ctx);
         public EntityCandidate FindEmployeeById(int id,AiAuthorizationContext ctx) => id>0 ? Employees(null,id,ctx).SingleOrDefault() : null;
@@ -96,6 +104,20 @@ namespace Bu.Services.AI_Services.Core
 
             // 2. Tra cứu theo tên
             var candidates = _provider.FindEmployees(mentionText, ctx).Where(c => AiScopeEvaluator.IsEmployeeInScope(ctx,c.Id,c.DepartmentId,c.CompanyCode,ctx.LookupCapability)).ToList();
+
+            if (candidates.Count > 1)
+            {
+                // Ưu tiên các ứng viên có từ khớp chính xác (word-boundary) với từ khóa tìm kiếm (ví dụ "duy" không lấy "duyên")
+                var trimmedQuery = mentionText.Trim();
+                var exactWordMatches = candidates.Where(c => !string.IsNullOrWhiteSpace(c.Name) &&
+                    c.Name.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries)
+                          .Any(w => string.Equals(w, trimmedQuery, StringComparison.OrdinalIgnoreCase))).ToList();
+
+                if (exactWordMatches.Count > 0)
+                {
+                    candidates = exactWordMatches;
+                }
+            }
 
             if (candidates.Count == 1)
             {

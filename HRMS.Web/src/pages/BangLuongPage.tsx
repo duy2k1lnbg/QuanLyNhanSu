@@ -26,6 +26,7 @@ import {
 } from '@ant-design/icons';
 import api from '../services/api';
 import PhieuLuongModal from '../components/PhieuLuongModal';
+import {PayrollPublicationPanel} from '../components/PayrollPublicationPanel';
 import PayrollDetailDrawer from '../components/PayrollDetailDrawer';
 import type { KyCongDTO, BangLuongDTO } from '../types/hrms';
 import { useAppLanguage } from '../services/i18n';
@@ -41,6 +42,7 @@ interface BangLuongPageProps {
   bangLuongList: BangLuongDTO[];
   bangLuongLoading: boolean;
   onRefresh: () => void;
+  onOpenAttendance:()=>void;
   canPrint?: (...codes: string[]) => boolean;
   danhMuc?: any;
 }
@@ -52,6 +54,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   bangLuongList,
   bangLuongLoading,
   onRefresh,
+  onOpenAttendance,
   canPrint,
   danhMuc,
 }) => {
@@ -59,6 +62,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   const { tokens, isDark } = useAppTheme();
   const [selectedBangLuong, setSelectedBangLuong] = useState<BangLuongDTO | null>(null);
   const [phieuLuongModalVisible, setPhieuLuongModalVisible] = useState(false);
+  const [publicationBusy,setPublicationBusy]=useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
 
   // Filters
@@ -85,6 +89,8 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   const {
     token: { borderRadiusLG },
   } = theme.useToken();
+
+  const printAllowed = Boolean(canPrint?.('BANGLUONG', 'F_CC_BANGLUONG'));
 
   const currentKyCong = kyCongList.find((k) => k.MAKYCONG === selectedKyCong);
   const isPeriodLocked = currentKyCong?.KHOA === 1;
@@ -118,6 +124,10 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
   };
 
   const handleOpenPhieuLuong = (record: BangLuongDTO) => {
+    if (!printAllowed) {
+      message.warning(t('attendanceOps.printDenied'));
+      return;
+    }
     setSelectedBangLuong(record);
     setPhieuLuongModalVisible(true);
   };
@@ -306,6 +316,9 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
       align: 'center',
       width: 130,
       render: (_, record) => {
+        if (record.TRANG_THAI === 'CAN_TINH_LAI') {
+          return <Tag color="orange">{t('payroll.needsRecalculation')}</Tag>;
+        }
         if (record.TRANGTHAI_CHITRA === 'Đã chi trả') {
           return <Tag color="success">Đã chi trả</Tag>;
         }
@@ -336,14 +349,14 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
               onClick={() => handleOpenDrawer(record)}
             />
           </Tooltip>
-          <Tooltip title={t('payroll.btnPrintPayslip')}>
-            <Button
+          <Tooltip title={printAllowed ? t('payroll.btnPrintPayslip') : t('attendanceOps.printDenied')}>
+            <span><Button
               size="small"
               type="text"
-              disabled={Boolean(canPrint && !canPrint('BANGLUONG', 'F_CC_BANGLUONG'))}
-              icon={<PrinterOutlined style={{ color: (canPrint && !canPrint('BANGLUONG', 'F_CC_BANGLUONG')) ? '#94a3b8' : '#059669' }} />}
+              disabled={!printAllowed}
+              icon={<PrinterOutlined style={{ color: !printAllowed ? '#94a3b8' : '#059669' }} />}
               onClick={() => handleOpenPhieuLuong(record)}
-            />
+            /></span>
           </Tooltip>
         </Space>
       ),
@@ -369,6 +382,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
             <Space>
               <Text strong>{t('common.period')}:</Text>
               <Select
+                disabled={publicationBusy}
                 value={selectedKyCong}
                 onChange={onSelectKyCong}
                 style={{ width: 140 }}
@@ -381,6 +395,8 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
           </Space>
         }
       />
+
+      <PayrollPublicationPanel period={selectedKyCong} onRefresh={onRefresh} onOpenAttendance={onOpenAttendance} onBusyChange={setPublicationBusy}/>
 
       {/* 2. 5 KPI METRICS */}
       <Row gutter={[14, 14]}>
@@ -518,7 +534,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
           </Space>
 
           <Space wrap>
-            {(!canPrint || canPrint('BANGLUONG', 'F_CC_BANGLUONG')) && (
+            {printAllowed && (
               <Button icon={<FileExcelOutlined />} onClick={handleExportExcel}>
                 {t('payroll.btnExportPayroll')}
               </Button>
@@ -549,6 +565,7 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
       {/* 4. DETAIL DRAWER (GROSS-TO-NET) */}
       <PayrollDetailDrawer
+        printAllowed={printAllowed}
         visible={drawerVisible}
         onClose={() => setDrawerVisible(false)}
         record={selectedBangLuong}
@@ -560,12 +577,13 @@ export const BangLuongPage: React.FC<BangLuongPageProps> = ({
 
       {/* 5. PHIEU LUONG MODAL (A4 PRINTING) */}
       <PhieuLuongModal
+        printAllowed={printAllowed}
         visible={phieuLuongModalVisible}
         onClose={() => setPhieuLuongModalVisible(false)}
         record={selectedBangLuong}
         kyCongLabel={
           currentKyCong
-            ? `Tháng ${currentKyCong.THANG} Năm ${currentKyCong.NAM}`
+            ? t('payroll.payslipPeriodHeader', { month: currentKyCong.THANG ?? '', year: currentKyCong.NAM ?? '' })
             : undefined
         }
       />

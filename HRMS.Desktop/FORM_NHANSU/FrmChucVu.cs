@@ -33,11 +33,16 @@ namespace QLyNSu
             txtTen.Enabled = !kt;
         }
 
-        public void LoadData()
+        public async Task LoadData()
         {
-            gcDsCV.DataSource = _chucvu.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            try
+            {
+            gcDsCV.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _chucvu.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode()));
             gvDsCV.OptionsBehavior.Editable = false;
             FormManager_Functions.CustomView_Colums(gvDsCV);
+                    }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()
@@ -95,7 +100,7 @@ namespace QLyNSu
             showHide(false);
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_DM_CHUCVU", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
@@ -110,14 +115,16 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _chucvu.Delete(_IDCV);
-                LoadData();
+                await LoadData();
+            if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
         }
@@ -163,13 +170,14 @@ namespace QLyNSu
             }
         }
 
-        private void FrmChucVu_Load(object sender, EventArgs e)
+        private async void FrmChucVu_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_CHUCVU")) return;
             _them = false;
             _chucvu = new CHUCVU();
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
     }
 }

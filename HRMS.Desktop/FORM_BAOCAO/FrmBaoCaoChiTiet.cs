@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
@@ -25,17 +26,20 @@ namespace QLyNSu.FORM_BAOCAO
             InitializeComponent();
         }
 
-        private void FrmBaoCaoChiTiet_Load(object sender, EventArgs e)
+        private async void FrmBaoCaoChiTiet_Load(object sender, EventArgs e)
         {
-            LoadCombo();
+            await LoadCombo();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadCombo()
+        private async Task LoadCombo()
         {
             try
             {
+            try
+            {
                 // Load Kỳ công
-                var lstKyCong = _kycong.getList();
+                var lstKyCong = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.getList());
                 cboKyCong.Properties.DataSource = lstKyCong;
                 cboKyCong.Properties.DisplayMember = "MAKYCONG";
                 cboKyCong.Properties.ValueMember = "MAKYCONG";
@@ -43,7 +47,7 @@ namespace QLyNSu.FORM_BAOCAO
                 cboKyCong.Properties.Columns.Add(new LookUpColumnInfo("MAKYCONG", "Kỳ Công"));
                 
                 // Load Nhân viên
-                var lstNhanVien = db.TB_NHANVIEN.Where(x => (x.DATHOIVIEC ?? 0) == 0).ToList();
+                var lstNhanVien = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_NHANVIEN.Where(x => (x.DATHOIVIEC ?? 0) == 0).ToList());
                 cboNhanVien.Properties.DataSource = lstNhanVien;
                 cboNhanVien.Properties.DisplayMember = "HOTEN";
                 cboNhanVien.Properties.ValueMember = "MANV";
@@ -51,24 +55,33 @@ namespace QLyNSu.FORM_BAOCAO
                 cboNhanVien.Properties.Columns.Add(new LookUpColumnInfo("MANV", "Mã NV", 60));
                 cboNhanVien.Properties.Columns.Add(new LookUpColumnInfo("HOTEN", "Họ Tên", 150));
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi tải danh mục: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void cboKyCong_EditValueChanged(object sender, EventArgs e)
+        private async void cboKyCong_EditValueChanged(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void cboNhanVien_EditValueChanged(object sender, EventArgs e)
+        private async void cboNhanVien_EditValueChanged(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            try
+            {
             if (cboKyCong.EditValue != null && cboNhanVien.EditValue != null)
             {
                 try
@@ -76,7 +89,7 @@ namespace QLyNSu.FORM_BAOCAO
                     decimal makycong = Convert.ToDecimal(cboKyCong.EditValue);
                     decimal manv = Convert.ToDecimal(cboNhanVien.EditValue);
 
-                    var bl = db.TB_BANGLUONG.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv);
+                    var bl = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_BANGLUONG.FirstOrDefault(x => x.MAKYCONG == makycong && x.MANV == manv));
                     if (bl != null)
                     {
                         var list = new List<TB_BANGLUONG> { bl };
@@ -88,7 +101,8 @@ namespace QLyNSu.FORM_BAOCAO
                         gcChiTiet.DataSource = null;
                     }
                 }
-                catch (Exception ex)
+                catch (OperationCanceledException) { return; }
+            catch (Exception ex)
                 {
                     XtraMessageBox.Show("Lỗi nạp dữ liệu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -97,6 +111,10 @@ namespace QLyNSu.FORM_BAOCAO
             {
                 gcChiTiet.DataSource = null;
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void ConfigureGrid()
@@ -178,7 +196,7 @@ namespace QLyNSu.FORM_BAOCAO
 
                 rptBaoCaoLuongNV rpt = new rptBaoCaoLuongNV();
                 rpt.BindData(bl, hoten, tenpb, otHours, phucaps);
-                rpt.ShowRibbonPreviewDialog();
+                rpt.ShowRibbonPreview();
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
@@ -28,19 +28,23 @@ namespace QLyNSu.FORM_CHAMCONG
         private KYCONG _kycong;
         private BANGCONG_NV_CHITIET _bcct_nv;
 
-        private void FrmBangCongNV_IN_Load(object sender, EventArgs e)
+        private async void FrmBangCongNV_IN_Load(object sender, EventArgs e)
         {
             _nhanvien = new NHANVIEN();
             _kycong = new KYCONG();
             _bcct_nv = new BANGCONG_NV_CHITIET();
-            LoadNhanVien();
-            LoadKyCong();
+            await LoadNhanVien();
+            if (IsDisposed || Disposing) return;
+            await LoadKyCong();
+            if (IsDisposed || Disposing) return;
             searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
         }
 
-        private void LoadNhanVien()
+        private async Task LoadNhanVien()
         {
-            var nhanVienList = _nhanvien.getList();
+            try
+            {
+            var nhanVienList = await Functions.FormDataLoader.ReadAsync(this, () => _nhanvien.getList());
 
             DataTable dt = new DataTable();
             dt.Columns.Add("MANV", typeof(int));
@@ -55,13 +59,23 @@ namespace QLyNSu.FORM_CHAMCONG
             searchMANV.Properties.DataSource = dt;
             searchMANV.Properties.ValueMember = "MANV"; 
             searchMANV.Properties.DisplayMember = "Display"; 
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadKyCong()
+        private async Task LoadKyCong()
         {
-            cboKyCong.DataSource = _kycong.getList();
+            try
+            {
+            cboKyCong.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.getList());
             cboKyCong.DisplayMember = "MAKYCONG";
             cboKyCong.ValueMember = "MAKYCONG";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnDong_Click(object sender, EventArgs e)
@@ -83,7 +97,7 @@ namespace QLyNSu.FORM_CHAMCONG
             }
             var lst = _bcct_nv.getBangCongCT(Convert.ToInt32(cboKyCong.SelectedValue), (int)searchMANV.EditValue);
             rptBangCongCTNV frm = new rptBangCongCTNV(lst);
-            frm.ShowRibbonPreviewDialog();
+            frm.ShowRibbonPreview();
         }
     }
 }

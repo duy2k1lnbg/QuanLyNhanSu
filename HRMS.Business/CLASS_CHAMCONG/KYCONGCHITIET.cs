@@ -1,4 +1,5 @@
 using DA;
+using Bu.CLASS_SYSTEM;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -199,26 +200,34 @@ namespace Bu.CLASS_CHAMCONG
         }
 
         /// <summary>
-        /// Phát sinh toàn diện kỳ công & bảng công chi tiết theo chuẩn ACID (Transaction ReadCommitted).
-        /// Đảm bảo tính nguyên tử tuyệt đối (All-or-Nothing): Nếu có bất kỳ lỗi nào, toàn bộ dữ liệu kỳ công cũ được giữ nguyên,
-        /// không bao giờ xảy ra tình trạng dữ liệu dở dang hoặc lỗi trùng khóa chính.
+        /// Two atomic phases: prepare inputs, then publish calculated attendance.
+        /// Publication failure retains committed inputs for a later retry.
+        /// A rollback of phase A cannot undo the separately committed inputs after phase A succeeds.
         /// CHỈ DÀNH CHO BẢN DESKTOP NỘI BỘ (Không mở ra Web API public).
         /// </summary>
         public void PhatSinhToanBoKyCongVaBangCong(int macty, int thang, int nam, int iduser, Action<int, int, string> progress = null, bool tuPhatSinhBangCong = true)
         {
+            if (iduser <= 0) throw new BusinessException("UNAUTHENTICATED", "Yêu cầu tài khoản hợp lệ để phát sinh bảng công.");
+            int periodKey = nam * 100 + thang;
             using (var cleanDb = new MyEntities())
             {
                 using (var trans = cleanDb.Database.BeginTransaction(System.Data.IsolationLevel.ReadCommitted))
                 {
+                    bool inputsCommitted = false;
                     try
                     {
+                        // Serialize generation against other generators, edits, deletes and period locking.
+                        var lockedPeriod = cleanDb.Database.SqlQuery<decimal>(
+                            "SELECT MAKYCONG FROM TB_KYCONG WHERE MAKYCONG=:p_mkc AND DELETED_DATE IS NULL FOR UPDATE WAIT 5",
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p_mkc", periodKey)).ToList();
+                        if (lockedPeriod.Count != 1)
+                            throw new BusinessException("NOT_FOUND", "Kỳ công không tồn tại hoặc đã chuyển vào thùng rác.");
                         progress?.Invoke(10, 100, "Đang kiểm tra thời hạn hợp đồng nhân sự...");
                         NHANVIEN nhanvienBus = new NHANVIEN();
                         var lstNV = nhanvienBus.GetEligibleEmployeesForPeriod(nam, thang, macty > 0 ? (int?)macty : null);
                         if (lstNV == null || lstNV.Count == 0)
                         {
-                            trans.Rollback();
-                            return;
+                            throw new BusinessException("NO_ELIGIBLE_EMPLOYEES", "Không có nhân viên đủ điều kiện trong kỳ; chưa phát sinh hoặc công bố bảng công.");
                         }
 
                         // Lọc bỏ trùng lặp MANV nếu có để đảm bảo tính duy nhất của khóa chính (MAKYCONG, MANV)
@@ -229,9 +238,11 @@ namespace Bu.CLASS_CHAMCONG
                         var kcCheck = cleanDb.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == makycong);
                         if (kcCheck != null && (kcCheck.KHOA ?? 0) == 1)
                         {
-                            trans.Rollback();
-                            throw new InvalidOperationException($"Kỳ công {makycong} đã bị khóa (KHOA = 1), không thể phát sinh lại.");
+                            throw new BusinessException("PERIOD_LOCKED", $"Kỳ công {makycong} đã bị khóa (KHOA = 1), không thể phát sinh lại.");
                         }
+
+                        if ((kcCheck.TRANGTHAI ?? 0) == 1)
+                            throw new BusinessException("PERIOD_ALREADY_PUBLISHED", "Kỳ công đã được công bố; không phát sinh lại đầu vào.");
 
                         // Tự động phát sinh bảng chấm công gốc TB_BANGCONG nếu chưa có máy chấm công
                         BANGCONG_NV_CHITIET bangcongBus = new BANGCONG_NV_CHITIET();
@@ -369,6 +380,7 @@ namespace Bu.CLASS_CHAMCONG
                         }
 
                         progress?.Invoke(45, 100, "Đang lưu ma trận kỳ công vào CSDL...");
+                        cleanDb.ChangeTracker.DetectChanges();
                         cleanDb.SaveChanges();
 
                         // 3. Phát sinh bảng công chi tiết từng ngày (trên cùng context, non-destructive MERGE)
@@ -380,6 +392,7 @@ namespace Bu.CLASS_CHAMCONG
 
                         // 5. TẤT CẢ THÀNH CÔNG -> COMMIT TRANSACTION (BƯỚC A: LƯU ĐẦU VÀO)
                         trans.Commit();
+                        inputsCommitted = true;
 
                         // 6. Sau khi commit thành công Bước A, chạy TimeSegmentationEngine và công bố bảng công chính thức V1.18 (BƯỚC B)
                         progress?.Invoke(95, 100, "Đang phân đoạn thời gian và công bố bảng công V1.18...");
@@ -398,21 +411,15 @@ namespace Bu.CLASS_CHAMCONG
                             throw new InvalidOperationException("Đã lưu đầu vào kỳ công thành công, nhưng công bố kết quả chưa hoàn tất: " + pubResult.ErrorMessage + ". Dữ liệu đầu vào đã được lưu giữ; bạn có thể chạy lại bước công bố mà không cần phát sinh lại.");
                         }
 
-                        // Đảm bảo cờ TRANGTHAI = 1 và NGAYTINHCONG được đồng bộ chắc chắn trên CSDL
-                        using (var finalDb = new MyEntities())
-                        {
-                            finalDb.Database.ExecuteSqlCommand(
-                                "UPDATE TB_KYCONG SET TRANGTHAI = 1, NGAYTINHCONG = SYSDATE, UPDATED_BY = :p_user, UPDATED_DATE = SYSDATE WHERE MAKYCONG = :p_mkc",
-                                new Oracle.ManagedDataAccess.Client.OracleParameter("p_user", iduser),
-                                new Oracle.ManagedDataAccess.Client.OracleParameter("p_mkc", makycong));
-                        }
+                        // Status and revision are committed in the publication transaction itself.
+                        // Never overwrite them in a later independent UPDATE.
 
                         progress?.Invoke(100, 100, "Phát sinh kỳ công và bảng công chi tiết thành công!");
                     }
-                    catch (Exception ex)
+                    catch
                     {
-                        try { trans.Rollback(); } catch { }
-                        throw new Exception(ex.Message, ex);
+                        if (!inputsCommitted) trans.Rollback();
+                        throw;
                     }
                 }
             }

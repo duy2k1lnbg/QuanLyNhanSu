@@ -51,6 +51,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách tạm ứng: " + ex.ToString());
@@ -105,6 +106,7 @@ namespace HRMS_API.Controllers
                     return Ok(ul);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tạo phiếu tạm ứng lương: " + ex.ToString());
@@ -135,6 +137,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã hủy phiếu tạm ứng #{id}." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi xóa tạm ứng: " + ex.ToString());
@@ -200,6 +203,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách tăng ca: " + ex.ToString());
@@ -290,6 +294,7 @@ namespace HRMS_API.Controllers
                     return Ok(tc);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tạo đăng ký tăng ca: " + ex.ToString());
@@ -320,6 +325,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã hủy bản ghi tăng ca #{id}." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi xóa tăng ca: " + ex.ToString());

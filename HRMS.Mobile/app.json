@@ -2,7 +2,7 @@
   "expo": {
     "name": "HRMS Mobile",
     "slug": "hrms-mobile",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -13,7 +13,7 @@
     },
     "android": {
       "package": "com.qlns.hrmsmobile",
-      "versionCode": 1,
+      "versionCode": 2,
       "adaptiveIcon": {
         "backgroundColor": "#1E40AF",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -22,16 +22,38 @@
       },
       "permissions": [
         "INTERNET",
-        "ACCESS_NETWORK_STATE"
+        "ACCESS_NETWORK_STATE",
+        "POST_NOTIFICATIONS"
       ],
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
     "plugins": [
       "expo-secure-store",
-      "expo-localization"
-    ]
+      "expo-localization",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/android-icon-monochrome.png",
+          "color": "#1E40AF"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow HRMS to select a profile photo.",
+          "cameraPermission": "Allow HRMS to take a profile photo.",
+          "microphonePermission": false
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "2add3fd9-2af9-46e9-ad3c-045d38e5f4f7"
+      }
+    }
   }
 }

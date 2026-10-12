@@ -7,6 +7,8 @@ import {
   AlertOutlined,
   CheckCircleOutlined,
 } from '@ant-design/icons';
+import { useAppLanguage } from '../services/i18n';
+import { useAppTheme } from '../theme/ThemeContext';
 
 const { Text } = Typography;
 
@@ -34,6 +36,8 @@ export const NotificationPopoverContent: React.FC<NotificationPopoverContentProp
   onMarkAllAsRead,
   onMarkItemAsRead,
 }) => {
+  const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleItemClick = (item: NotificationItem) => {
@@ -45,17 +49,42 @@ export const NotificationPopoverContent: React.FC<NotificationPopoverContentProp
     if (onClose) onClose();
   };
 
+  const getLocalizedTitle = (rawTitle: string): string => {
+    if (!rawTitle) return '';
+    const tsMatch = rawTitle.match(/Bảng chấm công kỳ Tháng (\d+)\/(\d+) chưa hoàn tất khóa sổ/i);
+    if (tsMatch) {
+      return t('notification.timesheetUnclosed', { month: tsMatch[1], year: tsMatch[2] });
+    }
+    const missingMatch = rawTitle.match(/Có (\d+) hồ sơ nhân sự đang thiếu CCCD hoặc SĐT/i);
+    if (missingMatch) {
+      return t('notification.missingInfo', { count: missingMatch[1] });
+    }
+    const expMatch = rawTitle.match(/Hợp đồng lao động của (.+) sẽ hết hạn sau (\d+) ngày/i);
+    if (expMatch) {
+      return t('notification.contractExpiring', { name: expMatch[1], days: expMatch[2] });
+    }
+    return rawTitle;
+  };
+
+  const getLocalizedTime = (rawTime: string): string => {
+    if (!rawTime) return '';
+    if (rawTime === 'Đang mở') return t('notification.statusOpen');
+    if (rawTime === 'Cần bổ sung') return t('notification.statusNeedsUpdate');
+    if (rawTime === 'Gần đây') return t('notification.statusRecent');
+    return rawTime;
+  };
+
   return (
-    <div style={{ width: 360 }}>
+    <div className="hrms-notifications" style={{ width: 360, maxWidth: 'calc(100vw - 32px)', color: tokens.textPrimary }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px 8px 16px' }}>
         <Space>
           <BellOutlined style={{ fontSize: 16, color: '#1677ff' }} />
-          <Text strong style={{ fontSize: 15 }}>Thông báo hệ thống</Text>
+          <Text strong style={{ fontSize: 15 }}>{t('notification.systemTitle')}</Text>
           {unreadCount > 0 && <Badge count={unreadCount} style={{ backgroundColor: '#ef4444' }} />}
         </Space>
         {unreadCount > 0 && onMarkAllAsRead && (
-          <Button type="link" size="small" onClick={onMarkAllAsRead} style={{ padding: 0 }}>
-            Đánh dấu đã đọc
+          <Button type="link" size="small" onClick={onMarkAllAsRead} style={{ padding: 0, color: tokens.primary }}>
+            {t('notification.markAllRead')}
           </Button>
         )}
       </div>
@@ -64,26 +93,27 @@ export const NotificationPopoverContent: React.FC<NotificationPopoverContentProp
 
       {notifications.length === 0 ? (
         <div style={{ padding: '36px 16px', textAlign: 'center' }}>
-          <CheckCircleOutlined style={{ fontSize: 36, color: '#10b981', marginBottom: 10 }} />
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
-            Không có thông báo khẩn
+          <CheckCircleOutlined style={{ fontSize: 36, color: tokens.successText, marginBottom: 10 }} />
+          <div style={{ fontSize: 14, fontWeight: 600, color: tokens.textPrimary }}>
+            {t('notification.emptyTitle')}
           </div>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            Hệ thống đang hoạt động an toàn và chuẩn mực.
+          <Text type="secondary" style={{ fontSize: 12, color: tokens.textSecondary }}>
+            {t('notification.emptyDesc')}
           </Text>
         </div>
       ) : (
         <List
           dataSource={notifications}
           renderItem={(item) => {
-            let dotColor = '#3b82f6';
-            let icon = <UserAddOutlined style={{ color: '#3b82f6' }} />;
+            let dotColor = tokens.infoText;
+            let iconBackground = tokens.infoBg;
+            let icon = <UserAddOutlined style={{ color: tokens.infoText }} />;
             if (item.type === 'urgent') {
-              dotColor = '#ef4444';
-              icon = <AlertOutlined style={{ color: '#ef4444' }} />;
+              dotColor = tokens.dangerText;iconBackground=tokens.dangerBg;
+              icon = <AlertOutlined style={{ color: tokens.dangerText }} />;
             } else if (item.type === 'warning') {
-              dotColor = '#f59e0b';
-              icon = <ClockCircleOutlined style={{ color: '#f59e0b' }} />;
+              dotColor = tokens.warningText;iconBackground=tokens.warningBg;
+              icon = <ClockCircleOutlined style={{ color: tokens.warningText }} />;
             }
 
             return (
@@ -93,16 +123,16 @@ export const NotificationPopoverContent: React.FC<NotificationPopoverContentProp
                 style={{
                   padding: '10px 16px',
                   cursor: 'pointer',
-                  backgroundColor: item.read ? '#fff' : '#f8fafc',
-                  borderBottom: '1px solid #f1f5f9',
+                  backgroundColor: item.read ? tokens.elevatedBg : tokens.cardSecondaryBg,
+                  borderBottom: `1px solid ${tokens.borderMedium}`,
                   transition: 'background 0.2s',
                   display: 'flex',
                   gap: 12,
                   alignItems: 'flex-start',
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f1f5f9')}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = tokens.hoverBg)}
                 onMouseLeave={(e) =>
-                  (e.currentTarget.style.backgroundColor = item.read ? '#fff' : '#f8fafc')
+                  (e.currentTarget.style.backgroundColor = item.read ? tokens.elevatedBg : tokens.cardSecondaryBg)
                 }
               >
                 <div
@@ -111,7 +141,7 @@ export const NotificationPopoverContent: React.FC<NotificationPopoverContentProp
                     width: 28,
                     height: 28,
                     borderRadius: '50%',
-                    backgroundColor: `${dotColor}15`,
+                    backgroundColor: iconBackground,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -126,14 +156,14 @@ export const NotificationPopoverContent: React.FC<NotificationPopoverContentProp
                     style={{
                       fontSize: 13,
                       fontWeight: item.read ? 400 : 600,
-                      color: item.read ? '#475569' : '#0f172a',
+                      color: item.read ? tokens.textSecondary : tokens.textPrimary,
                       lineHeight: 1.4,
                     }}
                   >
-                    {item.title}
+                    {getLocalizedTitle(item.title)}
                   </div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 4 }}>
-                    {item.time}
+                  <div style={{ fontSize: 11, color: tokens.textSecondary, marginTop: 4 }}>
+                    {getLocalizedTime(item.time)}
                   </div>
                 </div>
 
@@ -156,9 +186,9 @@ export const NotificationPopoverContent: React.FC<NotificationPopoverContentProp
       )}
 
       {notifications.length > 0 && (
-        <div style={{ padding: '8px 16px', textAlign: 'center', background: '#f8fafc' }}>
-          <Text type="secondary" style={{ fontSize: 12 }}>
-            Hiển thị {notifications.length} thông báo thực tế từ CSDL
+        <div style={{ padding: '8px 16px', textAlign: 'center', background: tokens.cardSecondaryBg }}>
+          <Text type="secondary" style={{ fontSize: 12, color: tokens.textSecondary }}>
+            {t('notification.showingCount', { count: notifications.length })}
           </Text>
         </div>
       )}

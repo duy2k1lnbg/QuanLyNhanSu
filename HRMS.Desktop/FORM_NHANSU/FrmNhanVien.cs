@@ -86,12 +86,19 @@ namespace QLyNSu
             cboLoaiNV.SelectedValue = 1;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsNV.DataSource = _nhanvien.getListFll_DTO();
+            try
+            {
+            var employees = await Functions.FormDataLoader.ReadAsync(this, () => _nhanvien.getListFll_DTO());
+            gcDsNV.DataSource = employees;
             gvDsNV.OptionsBehavior.Editable = false;
-            _lstNVDTO = _nhanvien.getListFll_DTO();
+            _lstNVDTO = employees;
             FormManager_Functions.CustomView_Colums(gvDsNV);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()
@@ -264,7 +271,7 @@ namespace QLyNSu
             gcDsNV.Enabled = true;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_DM_NHANVIEN", Bu.DTO.PermissionAction.Delete)) return;
             splitContainer1.Panel1Collapsed = false;
@@ -280,15 +287,17 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _nhanvien.Delete(_MANV,1);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
             splitContainer1.Panel1Collapsed = true;
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
             splitContainer1.Panel1Collapsed = true;
@@ -313,7 +322,7 @@ namespace QLyNSu
             rpt.ShowRibbonPreview();
         }
 
-        private void FrmNhanVien_Load(object sender, EventArgs e)
+        private async void FrmNhanVien_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_NHANVIEN")) return;
             _them = false;
@@ -328,8 +337,10 @@ namespace QLyNSu
             _quoctich = new QUOCTICH();
             _congty = new CONGTY();
             showHide(true);
-            LoadData();
-            LoadCombo();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            await LoadCombo();
+            if (IsDisposed || Disposing) return;
             splitContainer1.Panel1Collapsed = true;
         }
 
@@ -417,41 +428,56 @@ namespace QLyNSu
             
         }
 
-        private void LoadCombo()
+        private async Task LoadCombo()
         {
-            cboBoPhan.DataSource = _bophan.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            try
+            {
+            var language = Functions.TranslationManager.GetCurrentLanguageCode();
+            var lookups = await Functions.FormDataLoader.ReadAsync(this, () => new {
+                Item0 = _bophan.getListDTO(language),
+                Item1 = _phongban.getListDTO(language),
+                Item2 = _trinhdo.getListDTO(language),
+                Item3 = _chucvu.getListDTO(language),
+                Item4 = _dantoc.getListDTO(language),
+                Item5 = _tongiao.getListDTO(language),
+                Item6 = _gioitinh.getListDTO(language),
+                Item7 = _quoctich.getListDTO(language),
+                Item8 = _congty.getList(),
+            });
+
+            cboBoPhan.DataSource = lookups.Item0;
             cboBoPhan.DisplayMember = "TEN";
             cboBoPhan.ValueMember = "ID";
 
-            cboPhongBan.DataSource = _phongban.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboPhongBan.DataSource = lookups.Item1;
             cboPhongBan.DisplayMember = "TENPB";
             cboPhongBan.ValueMember = "IDPB";
 
-            cboTrinhDo.DataSource = _trinhdo.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboTrinhDo.DataSource = lookups.Item2;
             cboTrinhDo.DisplayMember = "TEN";
             cboTrinhDo.ValueMember = "ID";
 
-            cboChucVu.DataSource = _chucvu.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboChucVu.DataSource = lookups.Item3;
             cboChucVu.DisplayMember = "TENCV";
             cboChucVu.ValueMember = "IDCV";
 
-            cboDanToc.DataSource = _dantoc.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboDanToc.DataSource = lookups.Item4;
             cboDanToc.DisplayMember = "TEN";
             cboDanToc.ValueMember = "ID";
 
-            cboTonGiao.DataSource = _tongiao.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboTonGiao.DataSource = lookups.Item5;
             cboTonGiao.DisplayMember = "TEN";
             cboTonGiao.ValueMember = "ID";
 
-            cboGioiTinh.DataSource = _gioitinh.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboGioiTinh.DataSource = lookups.Item6;
             cboGioiTinh.DisplayMember = "TEN";
             cboGioiTinh.ValueMember = "ID";
 
-            cboQuocTich.DataSource = _quoctich.getListDTO(QLyNSu.Functions.TranslationManager.GetCurrentLanguageCode());
+            cboQuocTich.DataSource = lookups.Item7;
             cboQuocTich.DisplayMember = "TEN";
             cboQuocTich.ValueMember = "ID";
 
-            cboCongTy.DataSource = _congty.getList();
+            cboCongTy.DataSource = lookups.Item8;
             cboCongTy.DisplayMember = "TENCTY";
             cboCongTy.ValueMember = "IDCTY";
 
@@ -464,6 +490,10 @@ namespace QLyNSu
             cboLoaiNV.DataSource = loaiNvList;
             cboLoaiNV.DisplayMember = "Name";
             cboLoaiNV.ValueMember = "Value";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnImage_Click(object sender, EventArgs e)

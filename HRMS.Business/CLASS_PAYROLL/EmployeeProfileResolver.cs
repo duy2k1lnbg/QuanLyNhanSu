@@ -177,12 +177,27 @@ namespace Bu.CLASS_PAYROLL
                 using (var db = new MyEntities())
                 {
                     return db.Database.SqlQuery<DependentDto>(@"
-                        SELECT ID, MANV, HO_TEN, MOI_QUAN_HE, CCCD, MA_SO_THUE_NPT, NGAY_SINH,
-                               THANG_BAT_DAU_GIAM_TRU, THANG_KET_THUC_GIAM_TRU, TRANG_THAI
-                        FROM TB_NGUOI_PHU_THUOC
-                        WHERE MANV = :p0 AND TRANG_THAI = 'ACTIVE'
-                          AND THANG_BAT_DAU_GIAM_TRU <= :p1
-                          AND (THANG_KET_THUC_GIAM_TRU IS NULL OR THANG_KET_THUC_GIAM_TRU >= :p1)",
+                        SELECT n.ID, r.MANV, n.HO_TEN, n.MOI_QUAN_HE, n.CCCD, n.MA_SO_THUE_NPT, n.NGAY_SINH,
+                               r.THANG_BAT_DAU AS THANG_BAT_DAU_GIAM_TRU, r.THANG_KET_THUC AS THANG_KET_THUC_GIAM_TRU, r.TRANG_THAI
+                        FROM TB_DANG_KY_GIAM_TRU_NPT r
+                        JOIN TB_NGUOI_PHU_THUOC n ON n.ID = r.ID_NPT
+                        WHERE r.MANV = :p0 AND r.TRANG_THAI = 'ACTIVE'
+                          AND r.THANG_BAT_DAU <= :p1
+                          AND (r.THANG_KET_THUC IS NULL OR r.THANG_KET_THUC >= :p1)
+                        UNION
+                        SELECT n.ID, n.MANV, n.HO_TEN, n.MOI_QUAN_HE, n.CCCD, n.MA_SO_THUE_NPT, n.NGAY_SINH,
+                               n.THANG_BAT_DAU_GIAM_TRU, n.THANG_KET_THUC_GIAM_TRU, n.TRANG_THAI
+                        FROM TB_NGUOI_PHU_THUOC n
+                        WHERE n.MANV = :p0 AND n.TRANG_THAI = 'ACTIVE'
+                          AND n.THANG_BAT_DAU_GIAM_TRU <= :p1
+                          AND (n.THANG_KET_THUC_GIAM_TRU IS NULL OR n.THANG_KET_THUC_GIAM_TRU >= :p1)
+                          AND NOT EXISTS (
+                              SELECT 1 FROM TB_DANG_KY_GIAM_TRU_NPT r2
+                              WHERE r2.ID_NPT = n.ID
+                                AND r2.TRANG_THAI = 'ACTIVE'
+                                AND r2.THANG_BAT_DAU <= :p1
+                                AND (r2.THANG_KET_THUC IS NULL OR r2.THANG_KET_THUC >= :p1)
+                          )",
                         new OracleParameter("p0", manv),
                         new OracleParameter("p1", kyCong)
                     ).ToList();
@@ -190,8 +205,8 @@ namespace Bu.CLASS_PAYROLL
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Trace.TraceWarning($"GetActiveDependents fallback to empty: {ex.Message}");
-                return new List<DependentDto>();
+                System.Diagnostics.Trace.TraceError($"GetActiveDependents failed: {ex.Message}");
+                throw new InvalidOperationException("Không đọc được người phụ thuộc; dừng tính lương để tránh tính sai thuế.", ex);
             }
         }
     }

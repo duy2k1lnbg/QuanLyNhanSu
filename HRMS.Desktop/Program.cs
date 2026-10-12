@@ -1,4 +1,4 @@
-using DevExpress.Skins;
+﻿using DevExpress.Skins;
 using DevExpress.UserSkins;
 using System;
 using System.Collections.Generic;
@@ -20,6 +20,12 @@ namespace QLyNSu
         [STAThread]
         static void Main(string[] args)
         {
+            DA.MyEntities.AuditIdentityProvider=()=>new DA.AuditIdentity {
+                UserId=Bu.CLASS_SYSTEM.UserSession.CurrentUser==null ? (int?)null : (int)Bu.CLASS_SYSTEM.UserSession.CurrentUser.IDUSER,
+                Username=Bu.CLASS_SYSTEM.UserSession.CurrentUser?.USERNAME ?? "System",SessionId=Bu.CLASS_SYSTEM.UserSession.CurrentSessionId,
+                Channel="DESKTOP",DeviceName=Environment.MachineName,Executor="DESKTOP",IpSource="CLIENT_REPORTED",
+                CorrelationId=Guid.NewGuid().ToString("N")
+            };
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
@@ -36,7 +42,7 @@ namespace QLyNSu
 
             // Load saved display language at startup
             QLyNSu.Functions.TranslationManager.LoadLanguage();
-            QLyNSu.Functions.TranslationManager.LoadDictionaryFromDB();
+            // Database translations are loaded asynchronously by MainForm; built-in labels remain available at startup.
             QLyNSu.Functions.TranslationManager.InitializeHook();
 
             // Override DB Config from AppData JSON if it exists
@@ -56,16 +62,7 @@ namespace QLyNSu
                             var activeProfile = configData.Profiles?.FirstOrDefault(p => p.Id == configData.ActiveProfileId);
                             if (activeProfile != null)
                             {
-                                string dataSource = activeProfile.ServerIP;
-                                if (!string.IsNullOrEmpty(activeProfile.Port)) dataSource += $":{activeProfile.Port}";
-                                if (!string.IsNullOrEmpty(activeProfile.Database)) dataSource += $"/{activeProfile.Database}";
-
-                                string authParams = string.Equals(activeProfile.AuthType, "OS", StringComparison.OrdinalIgnoreCase) ? "Integrated Security=yes;" : $"USER ID={activeProfile.Username};PASSWORD={activeProfile.Password};";
-                                string roleParams = (string.IsNullOrEmpty(activeProfile.Role) || string.Equals(activeProfile.Role, "Default", StringComparison.OrdinalIgnoreCase)) ? "" : $"DBA Privilege={activeProfile.Role};";
-
-                                string providerHR = $"DATA SOURCE={dataSource};{authParams}{roleParams}PERSIST SECURITY INFO=True";
-                                
-                                dict["MyEntities"] = $"metadata=res://*/QLNhanSu.csdl|res://*/QLNhanSu.ssdl|res://*/QLNhanSu.msl;provider=Oracle.ManagedDataAccess.Client;provider connection string=\"{providerHR}\"";
+                                dict["MyEntities"] = activeProfile.GetEntityConnectionString();
                             }
                         }
                     }
@@ -88,11 +85,9 @@ namespace QLyNSu
             DevExpress.UserSkins.BonusSkins.Register();
             DevExpress.Skins.SkinManager.EnableFormSkins();
 
-            // Set global DevExpress settings for a modern premium aesthetic
-            // DevExpress.XtraEditors.WindowsFormsSettings.ForceDirectXPaint();
-            // DevExpress.XtraEditors.WindowsFormsSettings.DefaultFont = new System.Drawing.Font("Segoe UI", 9.5F);
-            // DevExpress.XtraEditors.WindowsFormsSettings.DefaultMenuFont = new System.Drawing.Font("Segoe UI", 9.5F);
-            // DevExpress.XtraEditors.WindowsFormsSettings.ScrollUIMode = DevExpress.XtraEditors.ScrollUIMode.Touch;
+            // Set global DevExpress settings for modern enterprise typography (Segoe UI 9.5pt)
+            DevExpress.XtraEditors.WindowsFormsSettings.DefaultFont = new System.Drawing.Font("Segoe UI", 9.5F);
+            DevExpress.XtraEditors.WindowsFormsSettings.DefaultMenuFont = new System.Drawing.Font("Segoe UI", 9.5F);
 
             // Apply "The Bezier" skin with "Gleam" palette as default
             // DevExpress.LookAndFeel.UserLookAndFeel.Default.SetSkinStyle("The Bezier", "Gleam");

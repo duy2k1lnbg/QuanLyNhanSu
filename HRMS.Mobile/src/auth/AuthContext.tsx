@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { AppState } from 'react-native';
 import { UserSession, LoginRequest } from '../types/auth';
 import { authApi } from '../api/authApi';
 import { meApi } from '../api/meApi';
 import { SecureTokenStorage } from '../utils/storage';
 import { setUnauthorizedHandler } from '../api/client';
+import { notificationService } from '../services/notificationService';
 
 interface AuthContextType {
   user: UserSession | null;
@@ -24,7 +26,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(false);
   const [isInitializing, setIsInitializing] = useState(true);
 
+  const logoutInProgress = useRef(false);
   const handleLogout = useCallback(async () => {
+    if (logoutInProgress.current) return;
+    logoutInProgress.current = true;
+    setUser(null); // Unmount authenticated notification listeners before deactivation.
+    try {
+      await notificationService.deactivateOnLogout();
+    } catch (e) {
+      console.warn('[AuthContext] Error deactivating device push on logout:', e);
+    }
     try {
       await authApi.logout();
     } catch (e) {
@@ -37,6 +48,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setToken(null);
     setUser(null);
+    logoutInProgress.current = false;
   }, []);
 
   const refreshUser = useCallback(async () => {
@@ -48,6 +60,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       throw e;
     }
   }, []);
+
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', state => {
+      if (state === 'active' && token && user) refreshUser().catch(error => {
+        if ([401,403].includes(error?.response?.status)) handleLogout();
+      });
+    });
+    return () => subscription.remove();
+  }, [token, !!user, refreshUser, handleLogout]);
 
   // Initialize session from SecureStore
   useEffect(() => {
@@ -66,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(me);
           } catch (apiError: any) {
             // If 401, remove token; if network error, keep token so retry/offline works
-            if (apiError.response && apiError.response.status === 401) {
+            if (apiError.response && [401,403].includes(apiError.response.status)) {
               await SecureTokenStorage.removeToken();
               setToken(null);
               setUser(null);
@@ -89,6 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(true);
     try {
       const response = await authApi.login(credentials);
+      if (!response?.token) throw {response:{status:401,data:{message:response?.message}}};
       if (response && response.token) {
         await SecureTokenStorage.saveToken(response.token);
         setToken(response.token);
@@ -97,8 +119,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const me = await meApi.getMe();
           setUser(me);
-        } catch {
-          // Fallback to login response user if me fails
+        } catch (error: any) {
+          if (error?.response?.status === 401 || error?.response?.status === 403) {
+            await SecureTokenStorage.removeToken(); setToken(null); setUser(null); throw error;
+          }
           setUser(response.user as UserSession);
         }
       }

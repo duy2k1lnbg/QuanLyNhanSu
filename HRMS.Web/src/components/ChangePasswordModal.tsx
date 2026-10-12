@@ -35,7 +35,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
         NewPassword: values.newPassword,
       });
 
-      message.success('Đổi mật khẩu thành công! Toàn bộ phiên đăng nhập cũ đã được thu hồi. Vui lòng đăng nhập lại.');
+      message.success(t('auth.changePasswordSuccess') || 'Đổi mật khẩu thành công! Toàn bộ phiên đăng nhập cũ đã được thu hồi. Vui lòng đăng nhập lại.');
       form.resetFields();
       onClose();
       if (onPasswordChanged) {
@@ -82,7 +82,7 @@ export const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
           label={t('auth.newPassword')}
           rules={[
             { required: true, message: t('auth.newPassword') },
-            { min: 3, message: 'Mật khẩu phải từ 3 ký tự trở lên' },
+            { min: 3, message: t('auth.minPasswordLength') || 'Mật khẩu phải từ 3 ký tự trở lên' },
           ]}
         >
           <Input.Password prefix={<LockOutlined />} placeholder={t('auth.newPassword')} />

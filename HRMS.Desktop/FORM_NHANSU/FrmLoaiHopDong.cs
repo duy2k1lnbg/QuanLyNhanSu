@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu;
 using Bu.CLASS_NHANSU;
 using DA;
@@ -19,13 +20,14 @@ namespace QLyNSu.FORM_NHANSU
         private bool _them;
         private int _IDLOAIHD;
 
-        private void FrmLoaiHopDong_Load(object sender, EventArgs e)
+        private async void FrmLoaiHopDong_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_NV_LOAIHOPDONG")) return;
             _them = false;
             _loaiHopDong = new LOAIHOPDONG();
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             Functions.TranslationManager.Translate(this);
         }
 
@@ -39,10 +41,15 @@ namespace QLyNSu.FORM_NHANSU
             gcDanhSach.Enabled = kt;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDanhSach.DataSource = _loaiHopDong.getAll();
+            try
+            {
+            gcDanhSach.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _loaiHopDong.getAll());
             FormManager_Functions.CustomView_Colums(gvDanhSach);
+                    }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnThem_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -68,7 +75,7 @@ namespace QLyNSu.FORM_NHANSU
             txtTen.Focus();
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_NV_LOAIHOPDONG", Bu.DTO.PermissionAction.Delete)) return;
             if (_IDLOAIHD <= 0)
@@ -82,7 +89,8 @@ namespace QLyNSu.FORM_NHANSU
                 try
                 {
                     _loaiHopDong.Delete(_IDLOAIHD, 1);
-                    LoadData();
+                    await LoadData();
+            if (IsDisposed || Disposing) return;
                     txtTen.Text = string.Empty;
                     _IDLOAIHD = 0;
                     MessageBox.Show("Xóa loại hợp đồng thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
@@ -94,12 +102,12 @@ namespace QLyNSu.FORM_NHANSU
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            SaveData();
+            await SaveData();
         }
 
-        private void SaveData()
+        private async Task SaveData()
         {
             var permAction = _them ? Bu.DTO.PermissionAction.Add : Bu.DTO.PermissionAction.Edit;
             if (!Functions.FormSecurity.AssertPermission("F_NV_LOAIHOPDONG", permAction)) return;
@@ -136,7 +144,8 @@ namespace QLyNSu.FORM_NHANSU
                     MessageBox.Show("Cập nhật loại hợp đồng thành công.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
 
-                LoadData();
+                await LoadData();
+            if (IsDisposed || Disposing) return;
                 _them = false;
                 showHide(true);
             }

@@ -50,17 +50,19 @@ namespace Bu.Services.AI_Services.Core
 
             string lower = Regex.Replace(normalized.ToLowerInvariant(), @"[?.!,;:]+$", "").Trim();
 
-            if(IsPureGreeting(lower)) { result.Domain="GENERAL"; result.IsGreetingOnly=true; return result; }
-            // 2. Kiểm tra câu chào hỏi
+            // 2. Kiểm tra câu cảm ơn / tạm biệt / chào hỏi (CHAT_SOCIAL)
+            if (IsSocialChat(lower, out string sType))
+            {
+                result.Domain = "CHAT_SOCIAL";
+                result.IntentSubtype = ChatIntentSubtype.ChatSocial;
+                result.IsGreetingOnly = (sType == "GREETING");
+                result.SocialType = sType;
+                return result;
+            }
+
             string[] greetings = { "xin chào", "chào bạn", "chào em", "chào bot", "chào ad", "hello", "hi", "hey" };
             foreach (var g in greetings)
             {
-                if (lower == g || lower == g + "!" || lower == g + ".")
-                {
-                    result.Domain = "GENERAL";
-                    result.IsGreetingOnly = true;
-                    return result;
-                }
                 if (lower.StartsWith(g + " ") || lower.StartsWith(g + ", ") || lower.StartsWith(g + "! "))
                 {
                     // Tách câu chào ra khỏi câu hỏi chính để hiểu đúng nghiệp vụ phía sau (U07)
@@ -102,8 +104,14 @@ namespace Bu.Services.AI_Services.Core
             ResolveFilters(lower, result);
 
             // 7. Xử lý câu hỏi tiếp nối (Conversational resolution):
-            // Ví dụ U11: "tháng trước đó thì sao?"
-            bool isPureTimeFollowUp = lower.Contains("tháng trước đó") || lower.Contains("kỳ trước đó") || lower.Contains("tháng sau đó") || (lower.StartsWith("thế còn") && result.Time.Month.HasValue);
+            // Ví dụ U11: "tháng trước đó thì sao?", HT03: "còn tháng 2?"
+            bool hasExplicitDomainKeyword = lower.Contains("tăng ca") || lower.Contains("làm thêm") || lower.Contains("công") || 
+                lower.Contains("lương") || lower.Contains("hợp đồng") || lower.Contains("phụ cấp") || lower.Contains("trợ cấp") || 
+                lower.Contains("bảo hiểm") || lower.Contains("tạm ứng") || lower.Contains("sinh nhật");
+            bool isPureTimeFollowUp = previousRequest != null && !hasExplicitDomainKeyword && 
+                (lower.Contains("tháng trước đó") || lower.Contains("kỳ trước đó") || lower.Contains("tháng sau đó") || 
+                 lower.StartsWith("thế còn") || lower.StartsWith("còn ") ||
+                 result.Time.Month.HasValue);
             if (previousRequest != null && isPureTimeFollowUp)
             {
                 result.Domain = previousRequest.Domain;
@@ -120,12 +128,11 @@ namespace Bu.Services.AI_Services.Core
             if (lower.Contains("so sánh") || Regex.Matches(lower,@"tháng\s+\d+").Count > 1) { result.SupportStatus = QuerySupportStatus.Unsupported; result.UnsupportedReason = "Truy vấn so sánh hoặc nhiều kỳ chưa được hỗ trợ. Hãy chọn một kỳ cụ thể."; }
             if (result.Domain == "EMPLOYEE" && result.Metric != "BIRTHDAY" && (result.Time.Month.HasValue || result.Time.Year.HasValue)) { result.SupportStatus = QuerySupportStatus.Unsupported; result.UnsupportedReason = "Nguồn hồ sơ chỉ phản ánh hiện tại, chưa có snapshot nhân sự theo tháng/năm. Vui lòng hỏi nhân sự hiện tại hoặc chọn nghiệp vụ theo kỳ đã có nguồn."; }
             if (result.Filters.Count > 0 && result.Domain != "ALLOWANCE" && result.Domain != "ADVANCE") { result.SupportStatus = QuerySupportStatus.Unsupported; result.UnsupportedReason = "Điều kiện lọc số tiền hiện chỉ hỗ trợ phụ cấp hoặc tạm ứng. Chưa có bộ lọc tiền được xác nhận cho nghiệp vụ này."; }
+            
             // 8. Phân giải Thực thể (Entities: nhân viên, mã nhân viên)
-            if (result.SupportStatus == QuerySupportStatus.Supported && result.Domain != "GENERAL" && result.Domain != "POLICY") {
-                ctx.LookupCapability = QueryPlanner.DetermineCapability(result, ctx, lower);
-                if (AiCapabilityCatalog.Get(ctx.LookupCapability)?.IsEnabled == false) { result.SupportStatus = QuerySupportStatus.Unsupported; result.UnsupportedReason = "Nguồn dữ liệu hoặc ánh xạ quyền cho chức năng này chưa sẵn sàng."; }
-                else if (!AiAuthorizationService.ValidateCapability(ctx, ctx.LookupCapability).IsAllowed) { result.SupportStatus = QuerySupportStatus.Forbidden; result.UnsupportedReason = "Bạn chưa được cấp quyền tra cứu nghiệp vụ này."; }
-                else if (Regex.IsMatch(lower,@"\b(anh ấy|cô ấy|người đó|nhân viên đó)\b"))
+            if (result.SupportStatus == QuerySupportStatus.Supported && result.Domain != "GENERAL" && result.Domain != "CHAT_GENERAL" && result.Domain != "CHAT_SOCIAL" && result.Domain != "HR_HELP" && result.Domain != "POLICY")
+            {
+                if (Regex.IsMatch(lower, @"\b(anh ấy|cô ấy|người đó|nhân viên đó|người này|nhân viên này|người vừa chọn|người được chọn|người vừa hỏi|người trên|đồng chí này|bạn này)\b"))
                 {
                     var previousEmployees = previousRequest?.Entities.Where(e => e.EntityType == "EMPLOYEE").ToList() ?? new List<EntityMention>();
                     var ids = previousEmployees.SelectMany(e => e.ResolvedId.HasValue ? new[] { e.ResolvedId.Value } : e.Candidates.Select(c => c.Id)).Distinct().ToList();
@@ -133,6 +140,20 @@ namespace Bu.Services.AI_Services.Core
                     result.Entities.Add(new EntityMention { MentionText="người đó", EntityType="EMPLOYEE", Status=currentCandidates.Count==1 ? "RESOLVED" : currentCandidates.Count>1 ? "AMBIGUOUS" : "NOT_FOUND", ResolvedId=currentCandidates.Count==1 ? (int?)currentCandidates[0].Id : null, ResolvedName=currentCandidates.Count==1 ? currentCandidates[0].Name : null, DepartmentId=currentCandidates.Count==1 ? currentCandidates[0].DepartmentId : null, CompanyCode=currentCandidates.Count==1 ? currentCandidates[0].CompanyCode : null, Candidates=currentCandidates });
                 }
                 else ResolveEntities(lower, result, ctx);
+
+                // Zero anaphora: nếu không tìm thấy nhân viên hợp lệ trong câu hỏi nhưng câu trước có nhân viên và đây là câu hỏi nghiệp vụ cá nhân
+                if (result.Entities.Count == 0 && result.RequestedScope != "SELF" && !Regex.IsMatch(lower, @"\b(?:mã|manv|nhân viên|phòng)\b"))
+                {
+                    var prevEmp = previousRequest?.Entities.FirstOrDefault(e => e.EntityType == "EMPLOYEE" && e.ResolvedId.HasValue);
+                    if (prevEmp != null && (result.Domain == "OVERTIME" || result.Domain == "ATTENDANCE" || result.Domain == "CONTRACT" || 
+                                            result.Domain == "SALARY_CHANGE" || result.Domain == "ALLOWANCE" || result.Domain == "ADVANCE" ||
+                                            (result.Domain == "EMPLOYEE" && result.Metric == "PROFILE")))
+                    {
+                        result.Entities.RemoveAll(e => e.EntityType == "EMPLOYEE" && !e.ResolvedId.HasValue);
+                        result.Entities.Add(Bu.Services.AI_Services.Memory.ConversationStateManager.Clone(prevEmp));
+                        result.Assumptions.Add($"Kế thừa nhân viên #{prevEmp.ResolvedId} ({prevEmp.ResolvedName}) từ câu hỏi trước.");
+                    }
+                }
             }
 
             // 9. Xử lý phản hồi bổ sung cho lượt đang chờ làm rõ (U10):
@@ -149,7 +170,7 @@ namespace Bu.Services.AI_Services.Core
                 }
             }
 
-            if (result.Domain == "EMPLOYEE" && result.Operation == "LOOKUP" && result.Entities.Count == 0 && !lower.Contains("nhân viên") && !lower.Contains("nhân sự")) { result.SupportStatus = QuerySupportStatus.Unsupported; result.UnsupportedReason = "Chưa xác định được nghiệp vụ hoặc đối tượng cần tra cứu."; }
+            if (result.Domain == "EMPLOYEE" && result.Operation == "LOOKUP" && result.Metric != "PROFILE" && result.RequestedScope != "SELF" && result.Entities.Count == 0 && !lower.Contains("nhân viên") && !lower.Contains("nhân sự")) { result.SupportStatus = QuerySupportStatus.Unsupported; result.UnsupportedReason = "Chưa xác định được nghiệp vụ hoặc đối tượng cần tra cứu."; }
             if (Regex.IsMatch(lower,@"\bngày\s+\d{1,2}/\d{1,2}") && result.Domain != "CONTRACT") { result.SupportStatus=QuerySupportStatus.Unsupported; result.UnsupportedReason="Truy vấn theo ngày cụ thể chưa được ánh xạ. Hãy chọn tháng và năm."; }
             // 10. Hoàn thiện ResolvedQuestion
             result.ResolvedQuestion = BuildResolvedQuestion(result);
@@ -157,13 +178,52 @@ namespace Bu.Services.AI_Services.Core
             return result;
         }
 
+        public static bool IsSocialChat(string question, out string socialType)
+        {
+            socialType = null;
+            if (string.IsNullOrWhiteSpace(question)) return false;
+            var trimmed = question.Trim();
+            if (Regex.IsMatch(trimmed, @"^(cảm ơn|cám ơn|thank you|thanks|cảm ơn bạn|cảm ơn nhiều|cảm ơn nha|cảm ơn nhé|thank|thanks bot|cảm ơn bạn nhé|cảm ơn nhiều nhé)[.!?~ ]*$", RegexOptions.IgnoreCase))
+            {
+                socialType = "THANK";
+                return true;
+            }
+            if (Regex.IsMatch(trimmed, @"^(tạm biệt|bye|goodbye|hẹn gặp lại|bye bye|chào tạm biệt)[.!?~ ]*$", RegexOptions.IgnoreCase))
+            {
+                socialType = "GOODBYE";
+                return true;
+            }
+            if (IsPureGreeting(trimmed))
+            {
+                socialType = "GREETING";
+                return true;
+            }
+            return false;
+        }
+
         public static bool IsPureGreeting(string question)
         {
-            return !string.IsNullOrWhiteSpace(question) && Regex.IsMatch(question.Trim(),@"^(xin chào|chào bạn|chào em|chào bot|chào ad|hello|hi|hey)[.!?]*$",RegexOptions.IgnoreCase);
+            if (string.IsNullOrWhiteSpace(question)) return false;
+            var trimmed = question.Trim();
+            return Regex.IsMatch(trimmed, @"^(xin chào|chào bạn|chào em|chào bot|chào ad|chào|hello|hi|hey|alo|alô|ê|ê bot)[.!?~ ]*$", RegexOptions.IgnoreCase);
         }
         private void ResolveTime(string lower, TimeResolution time, TimeResolution previousTime)
         {
             DateTime now = _clock.Now;
+
+            // 0. Cùng kỳ / cùng kỳ đó (kế thừa kỳ từ câu hỏi trước)
+            if (lower.Contains("cùng kỳ") || lower.Contains("cùng kỳ đó") || lower.Contains("cùng tháng đó"))
+            {
+                if (previousTime?.Month.HasValue == true)
+                {
+                    time.Month = previousTime.Month;
+                    time.Year = previousTime.Year ?? now.Year;
+                    time.AnchorKind = "CALENDAR_MONTH";
+                    time.IsRelativeTime = true;
+                    time.RelativeDescription = "cùng kỳ";
+                    return;
+                }
+            }
 
             // 1. Sinh nhật theo tháng (U04)
             var birthMatch = Regex.Match(lower, @"sinh nhật(?:\s+vào)?\s+tháng\s+(\d+)");
@@ -256,7 +316,7 @@ namespace Bu.Services.AI_Services.Core
                 if (sm >= 1 && sm <= 12)
                 {
                     time.Month = sm;
-                    time.Year = yearOnly.Success ? (int?)int.Parse(yearOnly.Groups[1].Value) : null;
+                    time.Year = yearOnly.Success ? (int?)int.Parse(yearOnly.Groups[1].Value) : (previousTime?.Year ?? null);
                     time.AnchorKind = "CALENDAR_MONTH";
                 }
                 else
@@ -269,7 +329,69 @@ namespace Bu.Services.AI_Services.Core
 
         private void ResolveDomainAndMetric(string lower, QueryUnderstandingResult result)
         {
-            if (lower.Contains("sinh nhật")) { result.Domain = "EMPLOYEE"; result.Operation = "LIST"; result.Metric = "BIRTHDAY"; return; }
+            // 0. Nhận diện các câu chào hỏi, trợ giúp hoặc hỏi về năng lực của trợ lý AI (HR_HELP)
+            if (Regex.IsMatch(lower, @"^(alo|alô|ê|ê bot|bạn là ai|bạn làm được gì|bạn có thể làm gì|bạn có thể giúp tôi những việc gì|bạn giúp được gì|chức năng của bạn|hướng dẫn|hướng dẫn sử dụng|hướng dẫn dùng|trợ giúp|help|tính năng|bạn biết làm gì|giới thiệu|tôi nên hỏi thế nào|hỏi như thế nào|cách đặt câu hỏi)(\s+.*)?$") ||
+                lower.Contains("bạn có thể giúp tôi những việc gì") ||
+                lower.Contains("bạn làm được gì") || 
+                lower.Contains("bạn có thể làm gì") || 
+                lower.Contains("chức năng của bạn") || 
+                lower.Contains("hướng dẫn sử dụng") ||
+                lower.Contains("tôi nên hỏi thế nào") ||
+                lower.Contains("cách đặt câu hỏi") ||
+                lower == "help" || lower == "trợ giúp")
+            {
+                result.Domain = "HR_HELP";
+                result.IntentSubtype = ChatIntentSubtype.HrHelp;
+                result.Operation = "HELP";
+                return;
+            }
+
+            // 0.1 Nhận diện Chat General: Toán học đơn giản
+            var mathMatch = Regex.Match(lower, @"^\s*(\d+(?:[.,]\d+)?)\s*(?:[\+\-\*\/xX]|cộng|trừ|nhân|chia)\s*(\d+(?:[.,]\d+)?)\s*(?:bằng|là)?\s*(?:mấy|bao nhiêu|\?)?\s*$");
+            if (mathMatch.Success)
+            {
+                result.Domain = "CHAT_GENERAL";
+                result.IntentSubtype = ChatIntentSubtype.ChatGeneral;
+                result.Operation = "MATH";
+                result.GeneralType = "MATH";
+                return;
+            }
+
+            // 0.2 Nhận diện Chat General: Sáng tác, lời chúc, gợi ý công việc
+            if (lower.Contains("viết lời chúc") || lower.Contains("lời chúc sinh nhật") || lower.Contains("chúc sinh nhật") ||
+                lower.Contains("gợi ý cách sắp xếp công việc") || lower.Contains("sắp xếp công việc") ||
+                lower.Contains("viết email") || lower.Contains("viết thư") || lower.Contains("soạn tin nhắn") ||
+                lower.Contains("làm thơ") || lower.Contains("kể chuyện") || lower.Contains("đừng tra hồ sơ ai"))
+            {
+                result.Domain = "CHAT_GENERAL";
+                result.IntentSubtype = ChatIntentSubtype.ChatGeneral;
+                result.Operation = "CREATIVE";
+                result.GeneralType = "CREATIVE";
+                return;
+            }
+
+            // 0.3 Nhận diện Chat General: Giải thích khái niệm ngoài nhân sự (RAG, AI...)
+            if (lower.Contains("giải thích rag") || lower.Contains("rag là gì") || lower.Contains("khái niệm rag") ||
+                lower.Contains("giải thích bằng ví dụ") || lower.Contains("trí tuệ nhân tạo là gì") ||
+                Regex.IsMatch(lower, @"^(giải thích|thế nào là|khái niệm|định nghĩa)\b"))
+            {
+                result.Domain = "CHAT_GENERAL";
+                result.IntentSubtype = ChatIntentSubtype.ChatGeneral;
+                result.Operation = "CONCEPT";
+                result.GeneralType = "CONCEPT";
+                return;
+            }
+
+            // 0.4 Nhận diện Chat General: Thời tiết
+            if (lower.Contains("thời tiết"))
+            {
+                result.Domain = "CHAT_GENERAL";
+                result.IntentSubtype = ChatIntentSubtype.ChatGeneral;
+                result.Operation = "WEATHER";
+                result.GeneralType = "WEATHER";
+                return;
+            }
+
             // Kiểm tra câu hỏi skills/lập trình viên ngoài CSDL (U19)
             if (lower.Contains("java") || lower.Contains("developer") || lower.Contains("lập trình") || lower.Contains("kỹ năng") || lower.Contains("react"))
             {
@@ -279,13 +401,65 @@ namespace Bu.Services.AI_Services.Core
                 return;
             }
 
-            // Nghỉ phép năm (U06) -> không tìm tên người!
-            if (lower.Contains("nghỉ phép") || lower.Contains("phép năm") || lower.Contains("ngày phép"))
+            // Nhận diện từ khóa chính sách / quy định
+            bool hasPolicyKeyword = lower.Contains("quy định") || lower.Contains("chính sách") || lower.Contains("quy chế") || 
+                lower.Contains("nội quy") || lower.Contains("chế độ") || lower.Contains("luật") || lower.Contains("nghị định") || 
+                lower.Contains("thông tư") || lower.Contains("hướng dẫn") || lower.Contains("trình tự") || lower.Contains("thủ tục") || 
+                lower.Contains("điều khoản") || lower.Contains("nguyên tắc");
+            if (hasPolicyKeyword)
             {
-                if (lower.Contains("quy định") || lower.Contains("chế độ") || lower.Contains("luật"))
+                result.HasPolicyIntent = true;
+            }
+
+            // 0.4 Kỷ luật lao động, nghỉ lễ tết (HR_POLICY)
+            if (lower.Contains("kỷ luật") || lower.Contains("nghỉ lễ") || lower.Contains("lễ tết") || lower.Contains("hưởng nguyên lương"))
+            {
+                result.Domain = "POLICY";
+                result.Operation = "LOOKUP";
+                result.IsPolicyPure = true;
+                return;
+            }
+
+            // 0.5 Danh sách nhân viên đã thôi việc (chưa có snapshot/lịch sử)
+            if (lower.Contains("danh sách") && (lower.Contains("đã nghỉ việc") || lower.Contains("thôi việc") || lower.Contains("nghỉ làm")))
+            {
+                result.Domain = "EMPLOYEE";
+                result.SupportStatus = QuerySupportStatus.Unsupported;
+                result.UnsupportedReason = "Hiện tại hệ thống AI chỉ hỗ trợ tra cứu nhân viên đang làm việc (chưa thôi việc), chưa có nguồn dữ liệu danh sách nhân viên đã nghỉ việc.";
+                return;
+            }
+
+            // 0.6 Thủ tục thôi việc / nghỉ việc (HR_POLICY)
+            if ((lower.Contains("thủ tục") || lower.Contains("quy trình")) && (lower.Contains("nghỉ việc") || lower.Contains("thôi việc")))
+            {
+                result.Domain = "POLICY";
+                result.Operation = "LOOKUP";
+                result.IsPolicyPure = true;
+                return;
+            }
+
+            // 0.7 Giờ làm việc, ca kíp nội quy (HR_POLICY)
+            if ((lower.Contains("nội quy") || hasPolicyKeyword || lower.Contains("ca kíp") || lower.Contains("ca làm việc") || lower.Contains("ca đêm") || lower.Contains("nghỉ giữa ca")) && 
+                (lower.Contains("giờ làm việc") || lower.Contains("thời gian làm việc") || lower.Contains("thời giờ làm việc") || lower.Contains("ca làm việc") || lower.Contains("nghỉ giữa ca")))
+            {
+                result.Domain = "POLICY";
+                result.Operation = "LOOKUP";
+                result.IsPolicyPure = true;
+                return;
+            }
+
+            // Sinh nhật nhân viên (đã loại trừ viết lời chúc ở trên)
+            if (lower.Contains("sinh nhật")) { result.Domain = "EMPLOYEE"; result.Operation = "LIST"; result.Metric = "BIRTHDAY"; return; }
+
+            // Nghỉ phép năm (U06) -> không tìm tên người!
+            if (lower.Contains("nghỉ phép") || lower.Contains("phép năm") || lower.Contains("ngày phép") || lower.Contains("thâm niên"))
+            {
+                bool hasPersonalOrPeriod = lower.Contains("của tôi") || lower.Contains("của mình") || result.Time.Month.HasValue || Regex.IsMatch(lower, @"\bmã\b|\bmanv\b");
+                if ((hasPolicyKeyword || lower.Contains("bao nhiêu ngày") || lower.Contains("thâm niên") || lower.Contains("điều kiện bình thường")) && !hasPersonalOrPeriod)
                 {
                     result.Domain = "POLICY";
-                    result.Operation = "VIEW";
+                    result.Operation = "LOOKUP";
+                    result.IsPolicyPure = true;
                     return;
                 }
                 result.Domain = "ATTENDANCE";
@@ -298,6 +472,16 @@ namespace Bu.Services.AI_Services.Core
             bool hasOt = lower.Contains("tăng ca") || lower.Contains("làm thêm") || Regex.IsMatch(lower, @"\bot\b", RegexOptions.IgnoreCase);
             if (hasOt)
             {
+                bool hasPersonalOrStats = lower.Contains("của tôi") || lower.Contains("của mình") || result.Time.Month.HasValue || Regex.IsMatch(lower, @"\bmã\b|\bmanv\b") || lower.Contains("top") || lower.Contains("nhiều nhất") || lower.Contains("cao nhất");
+                bool isGeneralOtPolicy = (hasPolicyKeyword || lower.Contains("tối đa") || lower.Contains("giới hạn") || lower.Contains("tiền lương") || lower.Contains("ban đêm")) && !hasPersonalOrStats;
+                if (isGeneralOtPolicy)
+                {
+                    result.Domain = "POLICY";
+                    result.Operation = "LOOKUP";
+                    result.IsPolicyPure = true;
+                    return;
+                }
+
                 result.Domain = "OVERTIME";
                 result.Metric = "SOGIO";
 
@@ -319,6 +503,15 @@ namespace Bu.Services.AI_Services.Core
             // Phụ cấp / Trợ cấp (U02, U03)
             if (lower.Contains("phụ cấp") || lower.Contains("trợ cấp"))
             {
+                bool hasPersonalOrAmount = lower.Contains("của tôi") || lower.Contains("của mình") || result.Time.Month.HasValue || Regex.IsMatch(lower, @"\bmã\b|\bmanv\b") || lower.Contains("triệu") || Regex.IsMatch(lower, @"\b\d+\s*tr\b");
+                if (hasPolicyKeyword && !hasPersonalOrAmount)
+                {
+                    result.Domain = "POLICY";
+                    result.Operation = "LOOKUP";
+                    result.IsPolicyPure = true;
+                    return;
+                }
+
                 result.Domain = "ALLOWANCE";
                 result.Metric = "SOTIEN";
                 result.Operation = "VIEW";
@@ -370,7 +563,19 @@ namespace Bu.Services.AI_Services.Core
                 return;
             }
 
-            if (lower.Contains("lương") && !lower.Contains("tăng lương") && !lower.Contains("lên lương") && !lower.Contains("nâng lương") && !lower.Contains("ứng lương")) { result.Domain = "PAYROLL"; result.Operation = "VIEW"; result.Metric = "PAYROLL_UNSPECIFIED"; return; }
+            if (lower.Contains("lương") && !lower.Contains("tăng lương") && !lower.Contains("lên lương") && !lower.Contains("nâng lương") && !lower.Contains("ứng lương") && !lower.Contains("tạm ứng")) { result.Domain = "PAYROLL"; result.Operation = "VIEW"; result.Metric = "PAYROLL_UNSPECIFIED"; return; }
+
+            // Ngày công / Tổng ngày công / Bảng công (ATTENDANCE SUMMARY)
+            if (lower.Contains("ngày công") || lower.Contains("bảng công") || lower.Contains("tổng công") || 
+                lower.Contains("công người này") || lower.Contains("công của") || lower.Contains("đi làm bao nhiêu ngày") ||
+                Regex.IsMatch(lower, @"\b(?:số\s+công|bao\s+nhiêu\s+công|mấy\s+công)\b"))
+            {
+                result.Domain = "ATTENDANCE";
+                result.Operation = "SUMMARY";
+                result.Metric = "TONGNGAYCONG";
+                return;
+            }
+
             // Chấm công
             if (lower.Contains("chấm công") || lower.Contains("điểm danh") || lower.Contains("giờ vào") || lower.Contains("giờ ra"))
             {
@@ -390,6 +595,15 @@ namespace Bu.Services.AI_Services.Core
             // Tạm ứng lương
             if (lower.Contains("tạm ứng") || lower.Contains("ứng lương"))
             {
+                bool hasPersonalOrAmount = lower.Contains("của tôi") || lower.Contains("của mình") || result.Time.Month.HasValue || Regex.IsMatch(lower, @"\bmã\b|\bmanv\b") || lower.Contains("triệu") || Regex.IsMatch(lower, @"\b\d+\s*tr\b");
+                if ((hasPolicyKeyword || lower.Contains("quy trình") || lower.Contains("thủ tục") || lower.Contains("hướng dẫn") || lower.Contains("như thế nào") || lower.Contains("là gì")) && !hasPersonalOrAmount && !Regex.IsMatch(lower, @"\b(?:mã|manv|\d+)\b"))
+                {
+                    result.Domain = "POLICY";
+                    result.Operation = "LOOKUP";
+                    result.IsPolicyPure = true;
+                    return;
+                }
+
                 result.Domain = "ADVANCE";
                 result.Metric = "SOTIEN";
                 result.Operation = "VIEW";
@@ -403,9 +617,9 @@ namespace Bu.Services.AI_Services.Core
                 result.Operation = lower.Contains("hết hạn") ? "EXPIRING" : "VIEW";
                 if (result.Operation == "EXPIRING") {
                     var days = Regex.Match(lower, @"(\d+)\s+ngày");
-                    int horizon = days.Success ? int.Parse(days.Groups[1].Value) : 30;
+                    int horizon = days.Success ? int.Parse(days.Groups[1].Value) : 60;
                     if (horizon < 1 || horizon > 366) { result.SupportStatus = QuerySupportStatus.Unsupported; result.UnsupportedReason = "Khoảng hết hạn phải từ 1 đến 366 ngày."; }
-                    else { result.Time.StartDate = _clock.Now.Date; result.Time.EndDate = _clock.Now.Date.AddDays(horizon + 1); if (!days.Success) result.Assumptions.Add("Mặc định xét 30 ngày tới."); }
+                    else { result.Time.StartDate = _clock.Now.Date; result.Time.EndDate = _clock.Now.Date.AddDays(horizon + 1); if (!days.Success) result.Assumptions.Add("Mặc định xét 60 ngày tới."); }
                 }
                 return;
             }
@@ -428,9 +642,31 @@ namespace Bu.Services.AI_Services.Core
                 return;
             }
 
-            // Mặc định tra cứu nhân sự
-            result.Domain = "EMPLOYEE";
-            result.Operation = "LOOKUP";
+            // Thông tin cá nhân / hồ sơ cá nhân
+            if (lower.Contains("thông tin cá nhân") || lower.Contains("hồ sơ cá nhân") || 
+                lower.Contains("thông tin của tôi") || lower.Contains("hồ sơ của tôi") ||
+                lower.Contains("thông tin bản thân") || lower.Contains("hồ sơ bản thân"))
+            {
+                result.Domain = "EMPLOYEE";
+                result.Operation = "LOOKUP";
+                result.Metric = "PROFILE";
+                result.RequestedScope = "SELF";
+                return;
+            }
+
+            // Mặc định tra cứu nhân sự nếu có từ khóa nhân sự/hồ sơ/phòng ban, ngược lại chuyển sang CHAT_GENERAL
+            if (lower.Contains("nhân viên") || lower.Contains("nhân sự") || lower.Contains("hồ sơ") || lower.Contains("phòng ban") || lower.Contains("ai") || lower.Contains("người"))
+            {
+                result.Domain = "EMPLOYEE";
+                result.Operation = "LOOKUP";
+            }
+            else
+            {
+                result.Domain = "CHAT_GENERAL";
+                result.IntentSubtype = ChatIntentSubtype.ChatGeneral;
+                result.Operation = "CHAT";
+                result.GeneralType = "OTHER";
+            }
         }
 
         private void ResolveFilters(string lower, QueryUnderstandingResult result)
@@ -459,10 +695,11 @@ namespace Bu.Services.AI_Services.Core
 
         private void ResolveEntities(string lower, QueryUnderstandingResult result, AiAuthorizationContext ctx)
         {
-            // 1. Tìm theo mã nhân viên: "mã 10", "manv: 12", "mã nv 10" (U01)
-            var idMatch = Regex.Match(lower, @"(?:mã nhân viên|mã nv|manv|nv|mã)\s*[:=]?\s*(\d+)");
+            // 1. Tìm theo mã nhân viên: "mã 10", "mã số 21", "mã số nhân viên 21", "manv: 12", "nhân viên số 21" (U01)
+            var idMatch = Regex.Match(lower, @"\b(?:mã\s*(?:số)?\s*(?:nhân\s*viên|nv)?|nhân\s*viên\s*(?:mã\s*(?:số)?|số)?|manv|nv\s*(?:số)?|mã\s*số)\s*[:=]?\s*(\d+)\b");
             if (idMatch.Success && int.TryParse(idMatch.Groups[1].Value, out int manv))
             {
+                System.Diagnostics.Debug.WriteLine($"[QueryUnderstanding] Bóc tách MANV={manv} thành công từ câu truy vấn");
                 var cand = _entityResolver.ResolveEmployee(manv.ToString(), ctx);
                 result.Entities.Add(cand);
             }
@@ -481,17 +718,33 @@ namespace Bu.Services.AI_Services.Core
                     }
                     else
                     {
-                        var startNameMatch = Regex.Match(lower, @"^([\p{L}]+(?:\s+[\p{L}]+){0,3})\s+(?:tăng ca|làm thêm|lương|phụ cấp|sinh nhật)");
-                        if (startNameMatch.Success)
+                        var shortNvMatch = Regex.Match(lower, @"^(?:nhân viên|nv|tìm nhân viên|tìm nv|thông tin nv|thông tin nhân viên)\s+([\p{L}\s]+?)(?:\s+(?:không|hông|ko|k|ạ|nhỉ|vậy)|[.?!]*)$");
+                        if (shortNvMatch.Success)
                         {
-                            candidateName = startNameMatch.Groups[1].Value.Trim();
+                            candidateName = shortNvMatch.Groups[1].Value.Trim();
+                        }
+                        else
+                        {
+                            var startNameMatch = Regex.Match(lower, @"^([\p{L}]+(?:\s+[\p{L}]+){0,3})\s+(?:tăng ca|làm thêm|lương|phụ cấp|sinh nhật)");
+                            if (startNameMatch.Success)
+                            {
+                                candidateName = startNameMatch.Groups[1].Value.Trim();
+                            }
                         }
                     }
 
                     if (!string.IsNullOrWhiteSpace(candidateName) && candidateName.Length >= 2)
                     {
-                        string[] excludeKeywords = { "ai", "tổng", "tổng giờ", "xem", "tính tổng", "tất cả", "danh sách", "phòng", "bộ phận", "công ty", "nghỉ phép", "hợp đồng", "nào", "gì", "không", "ko" };
-                        if (!excludeKeywords.Any(k => candidateName.Equals(k, StringComparison.OrdinalIgnoreCase)))
+                        string[] excludeKeywords = { "ai", "tổng", "tổng giờ", "xem", "tính tổng", "tất cả", "danh sách", "phòng", "bộ phận", "công ty", "nghỉ phép", "hợp đồng", "nào", "gì", "không", "ko", "còn", "thế còn", "vậy", "cho", "hỏi", "tra", "tìm", "kiểm tra", "bác", "chú", "anh", "chị", "em", "bạn", "người", "nhân viên", "nv" };
+                        string[] excludePhrases = {
+                            "chuẩn bị", "sắp", "mới", "toàn bộ", "tất cả", "thôi việc", "nghỉ việc",
+                            "tăng lương", "lên lương", "nâng lương", "hết hạn", "thử việc", "trong công ty"
+                        };
+
+                        bool isExcluded = excludeKeywords.Any(k => candidateName.Equals(k, StringComparison.OrdinalIgnoreCase)) ||
+                                          excludePhrases.Any(p => candidateName.IndexOf(p, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                        if (!isExcluded)
                         {
                             var mention = _entityResolver.ResolveEmployee(candidateName, ctx);
                             result.Entities.Add(mention);

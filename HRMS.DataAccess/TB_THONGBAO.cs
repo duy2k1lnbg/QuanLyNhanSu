@@ -26,5 +26,9 @@ namespace DA
         public string FILE_DINHKEM { get; set; }
         public string MACTY { get; set; }
         public string MAPB { get; set; }
+        public string TARGET_TYPE { get; set; }
+        public Nullable<decimal> TARGET_MANV { get; set; }
+        public string EVENT_TYPE { get; set; }
+        public Nullable<decimal> ENTITY_ID { get; set; }
     }
 }

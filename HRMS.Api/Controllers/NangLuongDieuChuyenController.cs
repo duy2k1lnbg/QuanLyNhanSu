@@ -37,20 +37,28 @@ namespace HRMS_API.Controllers
 
                     var result = raw.Select(x => new
                     {
+                        SOQD = x.nl.SOQDNL,
                         SOQDNL = x.nl.SOQDNL,
                         SOHD = x.nl.SOHD,
                         MANV = x.nl.MANV,
                         HOTEN = x.HOTEN ?? "",
                         HESOLUONG_NOW = x.nl.HESOLUONG_NOW,
+                        HESOLUONG_CU = x.nl.HESOLUONG_NOW,
+                        HESOLUONGHIENTAI = x.nl.HESOLUONG_NOW,
                         HESOLUONG_NEW = x.nl.HESOLUONG_NEW,
+                        HESOLUONG_MOI = x.nl.HESOLUONG_NEW,
+                        HESOLUONGMOI = x.nl.HESOLUONG_NEW,
                         NGAYLENLUONG = x.nl.NGAYLENLUONG.HasValue ? x.nl.NGAYLENLUONG.Value.ToString("dd/MM/yyyy") : "",
                         NGAYKYNL = x.nl.NGAYKYNL.HasValue ? x.nl.NGAYKYNL.Value.ToString("dd/MM/yyyy") : "",
-                        GHICHUNL = x.nl.GHICHUNL
+                        NGAYKY = x.nl.NGAYKYNL.HasValue ? x.nl.NGAYKYNL.Value.ToString("dd/MM/yyyy") : "",
+                        GHICHUNL = x.nl.GHICHUNL,
+                        GHICHU = x.nl.GHICHUNL
                     }).ToList();
 
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách nâng lương: " + ex.ToString());
@@ -126,6 +134,7 @@ namespace HRMS_API.Controllers
                     return Ok(record);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi thêm quyết định nâng lương: " + ex.ToString());
@@ -159,6 +168,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã xóa quyết định nâng lương {soqd}." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi xóa quyết định nâng lương: " + ex.ToString());
@@ -198,14 +208,21 @@ namespace HRMS_API.Controllers
 
                     var result = raw.Select(x => new
                     {
+                        SOQD = x.dc.SOQDDIEUCHUYEN,
                         SOQDDIEUCHUYEN = x.dc.SOQDDIEUCHUYEN,
                         MANV = x.dc.MANV,
                         HOTEN = x.HOTEN ?? "",
                         MAPB = x.dc.MAPB,
+                        IDPB = x.dc.MAPB,
+                        TENPB = x.TENPB_CU ?? "Chưa phân bổ",
                         TENPB_CU = x.TENPB_CU ?? "Chưa phân bổ",
                         MAPB2 = x.dc.MAPB2,
+                        IDPB2 = x.dc.MAPB2,
                         TENPB_MOI = x.TENPB_MOI ?? "Chưa phân bổ",
+                        TENPB2 = x.TENPB_MOI ?? "Chưa phân bổ",
+                        NGAY = x.dc.NGAYDC.HasValue ? x.dc.NGAYDC.Value.ToString("dd/MM/yyyy") : "",
                         NGAYDC = x.dc.NGAYDC.HasValue ? x.dc.NGAYDC.Value.ToString("dd/MM/yyyy") : "",
+                        LYDO = x.dc.LYDODC,
                         LYDODC = x.dc.LYDODC,
                         GHICHU = x.dc.GHICHU
                     }).ToList();
@@ -213,6 +230,7 @@ namespace HRMS_API.Controllers
                     return Ok(result);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi tải danh sách điều chuyển: " + ex.ToString());
@@ -281,6 +299,7 @@ namespace HRMS_API.Controllers
                     return Ok(dc);
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi thêm quyết định điều chuyển: " + ex.ToString());
@@ -314,6 +333,7 @@ namespace HRMS_API.Controllers
                     return Ok(new { success = true, message = $"Đã xóa quyết định điều chuyển {soqd}." });
                 }
             }
+            catch (Exception ex) when (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) { throw; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi khi xóa quyết định điều chuyển: " + ex.ToString());

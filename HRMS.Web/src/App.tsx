@@ -629,6 +629,7 @@ export function App() {
                 bangLuongLoading={bangLuongLoading}
                 onRefresh={() => fetchBangLuong(selectedKyCong)}
                 canPrint={checkCanPrint}
+                onOpenAttendance={()=>setCurrentMenu('chamcong')}
                 danhMuc={danhMuc}
               />
             )}
@@ -684,7 +685,7 @@ export function App() {
             )}
 
             {currentMenu === 'approvals' && (
-              <ApprovalCenterPage />
+              <ApprovalCenterPage currentUser={currentUser} />
             )}
 
             {currentMenu === 'phanquyen' && (

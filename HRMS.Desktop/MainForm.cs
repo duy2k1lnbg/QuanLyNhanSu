@@ -1,4 +1,4 @@
-using Bu;
+﻿using Bu;
 using Bu.CLASS_SYSTEM;
 using Bu.DTO;
 using DevExpress.XtraSplashScreen;
@@ -28,9 +28,12 @@ namespace QLyNSu
         public MainForm()
         {
             InitializeComponent();
+            ribbonControl1.Controller = new DevExpress.XtraBars.BarAndDockingController(components);
+            ConfigureRibbonLayout();
+            DesktopTypography.Ribbon(ribbonControl1);
             _formManager = new FormManager_Functions(this); // Khởi tạo FormManager
             // InitializeNewSystemIcons(); // Vô hiệu hóa tính năng này để giao diện VS và Runtime giống hệt nhau
-            
+
             this.FormClosing += MainForm_FormClosing;
         }
 
@@ -47,7 +50,7 @@ namespace QLyNSu
                 {
                     using (var db = new DA.MyEntities())
                     {
-                        db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_LOGIN_HISTORY SET THOIGIAN_DANGXUAT = CURRENT_TIMESTAMP WHERE ID_LOGIN = :p0", 
+                        db.Database.ExecuteSqlCommand("UPDATE HR.TB_SYS_LOGIN_HISTORY SET THOIGIAN_DANGXUAT = CURRENT_TIMESTAMP WHERE ID_LOGIN = :p0",
                             new Oracle.ManagedDataAccess.Client.OracleParameter("p0", UserSession.CurrentLoginId));
                     }
                 }
@@ -179,28 +182,33 @@ namespace QLyNSu
             await _formManager.OpenFormWithSplashScreen(typeof(FrmPhuCap));
         }
 
-        private void MainForm_Load(object sender, EventArgs e)
+        private async void MainForm_Load(object sender, EventArgs e)
         {
             this.WindowState = FormWindowState.Maximized;
+            ApplyAuthorization(); // Enforce cached rights before yielding during startup.
             try
             {
                 // Ensure default users and rights are seeded
-                new SYS_USER().EnsureSeeded();
+                await Task.Run(() => new SYS_USER().EnsureSeeded());
+                if (IsDisposed || Disposing) return;
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Lỗi khởi tạo dữ liệu hệ thống: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
+            await TranslationManager.LoadDictionaryFromDBAsync();
+            if (IsDisposed || Disposing) return;
             TranslationManager.LoadLanguage();
             TranslationManager.Translate(this);
+            DesktopTypography.Ribbon(ribbonControl1);
             // Avoid overriding custom settings/notification icons
 
-            _ = AiBootstrap.EnsureOllama();
             _nhanvien = new NHANVIEN();
             _hopdong = new HOPDONGLAODONG();
             ribbonControl1.SelectedPage = ribbonPage1;
-            loadMainFormThongBao();
+            await loadMainFormThongBao();
+            if (IsDisposed || Disposing) return;
 
             // Apply default authorization (lock ui elements) - deferred to avoid Ribbon initialization overwriting it
             this.BeginInvoke(new Action(() => ApplyAuthorization()));
@@ -208,6 +216,12 @@ namespace QLyNSu
 
         private async void btnPheDuyet_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            if (!UserSession.CanView("F_NV_PHEDUYET") && !UserSession.CanView("F_APPROVE_ADVANCE") && !UserSession.CanView("F_APPROVE_PROFILE") && !UserSession.CanView("F_PAYROLL_DISBURSE_ADVANCE"))
+            {
+                ApplyAuthorization();
+                DevExpress.XtraEditors.XtraMessageBox.Show("Bạn chưa được cấp quyền xem phê duyệt yêu cầu trên Desktop.", "Thông báo");
+                return;
+            }
             await _formManager.OpenFormWithSplashScreen(typeof(FrmPheDuyetYeuCau));
         }
 
@@ -233,13 +247,40 @@ namespace QLyNSu
             }
         }
 
+        // Small groups can collapse as a unit when the window is narrow.
+        // Existing commands and their authorization/event handlers are preserved.
+        private void ConfigureRibbonLayout()
+        {
+            ribbonPage1.Groups.Clear();
+            AddRibbonGroup(ribbonPage1, "sessionCommands", "Đăng nhập", btnLogin, btnPass);
+            AddRibbonGroup(ribbonPage1, "accountCommands", "Tài Khoản", btnGroup, btnUser, btnCapTaiKhoanHangLoat, btnUser_Update);
+            AddRibbonGroup(ribbonPage1, "permissionCommands", "Phân quyền", btnChucNang, btnPQ_BaoCao);
+            AddRibbonGroup(ribbonPage1, "dataCommands", "Dữ liệu", btnSaoLuu_DB, btnPhucHoi_DB);
+            AddRibbonGroup(ribbonPage1, "configurationCommands", "Cấu hình", BtnAI, btnSetting);
+            AddRibbonGroup(ribbonPage1, "monitoringCommands", "Hệ Thống", btnThungRac, btnThongBao, btnGiamSat);
+            AddRibbonGroup(ribbonPage1, "systemExit", "Thoát", BtnExit);
+            ribbonPage3.Groups.Clear();
+            AddRibbonGroup(ribbonPage3, "attendanceSettings", "Danh mục", btnLoaiCa, btnLoaiCong, btnNgayLe);
+            AddRibbonGroup(ribbonPage3, "attendanceCommands", "Chấm công", btnBangCong, btnBCCT_NV);
+            AddRibbonGroup(ribbonPage3, "payrollExtras", "Phát sinh", btnPhuCap, btnTangCa, btnUngLuong);
+            AddRibbonGroup(ribbonPage3, "payrollCommands", "Tiền lương", btnBangLuong, btnCauHinhLuong, btnPhatSinhLuong);
+            AddRibbonGroup(ribbonPage3, "attendanceExit", "Thoát", btnThoat2);
+        }
+        private static void AddRibbonGroup(DevExpress.XtraBars.Ribbon.RibbonPage page, string name, string caption, params DevExpress.XtraBars.BarItem[] items)
+        {
+            var group = new DevExpress.XtraBars.Ribbon.RibbonPageGroup { Name = name, Text = caption };
+            foreach (var item in items) group.ItemLinks.Add(item);
+            if (items.Length > 0) group.ImageOptions.SvgImage = items[0].ImageOptions.SvgImage;
+            page.Groups.Add(group);
+        }
+
         private void ApplyAuthorization()
         {
             if (UserSession.CurrentUser == null)
             {
                 // Disconnected state
                 btnLogin.Caption = TranslationManager.Translate("Đăng Nhập");
-                
+
                 // Disable all controls except login and exit
                 btnPass.Enabled = false;
                 btnThungRac.Enabled = false;
@@ -280,11 +321,11 @@ namespace QLyNSu
                 btnChucNang.Enabled = false;
                 btnPQ_BaoCao.Enabled = false;
                 BtnAI.Enabled = false;
-                
+
                 btnSetting.Enabled = false;
                 btnDashboardNhanSu.Enabled = false;
                 btnDashboardLuong.Enabled = false;
-                
+
                 btnThongBao.Enabled = false;
                 btnPheDuyet.Enabled = false;
             }
@@ -293,26 +334,26 @@ namespace QLyNSu
                 // Connected state
                 btnLogin.Caption = TranslationManager.Translate("Đăng Xuất") + " (" + UserSession.CurrentUser.FULLNAME + ")";
                 if (ribbonControl1 != null) ribbonControl1.Refresh();
-                
+
                 // Check rights
                 btnPass.Enabled = true;
                 btnUser_Update.Enabled = true;
-                
+
                 // Phê duyệt yêu cầu online (FrmPheDuyetYeuCau)
-                btnPheDuyet.Enabled = UserSession.HasRight("F_NV_PHEDUYET");
-                
+                btnPheDuyet.Enabled = UserSession.HasRight("F_NV_PHEDUYET") || UserSession.HasRight("F_APPROVE_ADVANCE") || UserSession.HasRight("F_APPROVE_PROFILE") || UserSession.HasRight("F_PAYROLL_DISBURSE_ADVANCE");
+
                 btnGroup.Enabled = UserSession.HasRight("F_SYSTEM_GROUP");
                 btnUser.Enabled = UserSession.HasRight("F_SYSTEM_USER");
                 btnCapTaiKhoanHangLoat.Enabled = UserSession.HasRight("F_SYSTEM_CAPTAIKHOAN") || UserSession.HasRight("F_SYSTEM_USER");
                 btnSaoLuu_DB.Enabled = UserSession.HasRight("F_SYSTEM_SAULUU");
                 btnPhucHoi_DB.Enabled = UserSession.HasRight("F_SYSTEM_PHUCHOI");
                 BtnAI.Enabled = UserSession.HasRight("F_SYSTEM_AI");
-                
+
                 btnSetting.Enabled = UserSession.HasRight("F_SYSTEM_SETTING");
                 btnDashboardNhanSu.Enabled = UserSession.HasRight("F_DB_NHANSU");
                 btnDashboardLuong.Enabled = UserSession.HasRight("F_DB_LUONG");
                 btnGiamSat.Enabled = UserSession.HasRight("F_SYSTEM_GIAMSAT");
-                
+
                 btnDanToc.Enabled = UserSession.HasRight("F_DM_DANTOC");
                 btnTonGiao.Enabled = UserSession.HasRight("F_DM_TONGIAO");
                 btnTrinhDo.Enabled = UserSession.HasRight("F_DM_TRINHDO");
@@ -321,14 +362,14 @@ namespace QLyNSu
                 btnBoPhan.Enabled = UserSession.HasRight("F_DM_BOPHAN");
                 btnCongTy.Enabled = UserSession.HasRight("F_DM_CONGTY");
                 btnChucVu.Enabled = UserSession.HasRight("F_DM_CHUCVU");
-                
+
                 btnHopDong.Enabled = UserSession.HasRight("F_NV_HOPDONG");
                 btnNangLuong.Enabled = UserSession.HasRight("F_NV_NANGLUONG");
                 btnKhenThuong.Enabled = UserSession.HasRight("F_NV_KHENTHUONG");
                 btnKyLuat.Enabled = UserSession.HasRight("F_NV_KYLUAT");
                 btnDieuChuyen.Enabled = UserSession.HasRight("F_NV_DIEUCHUYEN");
                 btnThoiViec.Enabled = UserSession.HasRight("F_NV_THOIVIEC");
-                
+
                 btnLoaiCa.Enabled = UserSession.HasRight("F_CC_LOAICA");
                 btnLoaiCong.Enabled = UserSession.HasRight("F_CC_LOAICONG");
                 btnPhuCap.Enabled = UserSession.HasRight("F_CC_PHUCAP");
@@ -341,15 +382,16 @@ namespace QLyNSu
                 btnPhatSinhLuong.Enabled = UserSession.HasRight("F_CC_BANGLUONG") || UserSession.IsAdmin;
                 btnLoaiHopDong.Enabled = UserSession.HasRight("F_NV_LOAIHOPDONG");
                 btnNgayLe.Enabled = UserSession.HasRight("F_CC_NGAYLE");
-                
+
                 btnBaoCao.Enabled = UserSession.HasRight("F_BC_BAOCAO");
-                
+
                 btnChucNang.Enabled = UserSession.IsAdmin || UserSession.HasRight("F_SYSTEM_PQ_CHUCNANG");
                 btnPQ_BaoCao.Enabled = UserSession.IsAdmin || UserSession.HasRight("F_SYSTEM_PQ_BAOCAO");
-                
+
                 btnThongBao.Enabled = UserSession.HasRight("F_SYSTEM_THONGBAO");
             }
-            loadMainFormThongBao();
+            DesktopTypography.Ribbon(ribbonControl1);
+            _ = loadMainFormThongBao(); // Independently refreshed; this Task handles its own errors.
         }
 
         private async void barButtonItem7_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
@@ -424,18 +466,22 @@ namespace QLyNSu
             documentManager1.View.ActivateDocument(frm);
         }
 
-        private void loadMainFormThongBao()
+        private int _noticeLoadVersion;
+        private async Task loadMainFormThongBao()
         {
+            var version = ++_noticeLoadVersion;
+            var user = UserSession.CurrentUser;
             string logPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "debug_log.txt");
             try
             {
                 System.IO.File.AppendAllText(logPath, $"{DateTime.Now:yyyy-MM-dd HH:mm:ss} - loadMainFormThongBao called. CurrentUser: {UserSession.CurrentUser?.USERNAME ?? "null"}\r\n");
 
-                var allNotices = new THONGBAO().getListFull_DTO();
+                var allNotices = await Task.Run(() => new THONGBAO().getListFull_DTO());
                 System.IO.File.AppendAllText(logPath, $"  Total notices in DB: {allNotices.Count}\r\n");
 
+                if (IsDisposed || Disposing || version != _noticeLoadVersion || !ReferenceEquals(user, UserSession.CurrentUser)) return;
                 // Filter active notifications
-                var activeNotices = allNotices.Where(x => 
+                var activeNotices = allNotices.Where(x =>
                     x.TRANGTHAI == 1 && // Đã đăng
                     (x.NGAY_HETHAN == null || x.NGAY_HETHAN >= DateTime.Now) // Chưa hết hạn
                 ).ToList();
@@ -450,7 +496,7 @@ namespace QLyNSu
                         string userPb = UserSession.CurrentUser.MADVI;
                         System.IO.File.AppendAllText(logPath, $"  Filtering for non-admin user. Company: '{userCty}', Dept/Div: '{userPb}'\r\n");
 
-                        activeNotices = activeNotices.Where(x => 
+                        activeNotices = activeNotices.Where(x =>
                             (string.IsNullOrEmpty(x.MACTY) || x.MACTY == userCty) &&
                             (string.IsNullOrEmpty(x.MAPB) || x.MAPB == userPb)
                         ).ToList();
@@ -474,14 +520,15 @@ namespace QLyNSu
                 lstThongBao.DisplayMember = "DisplayText";
                 lstThongBao.ValueMember = "ID";
                 grThongKe.Text = TranslationManager.Translate("Thông Báo Mới");
-                
+
                 System.IO.File.AppendAllText(logPath, "  Successfully bound data source manually.\r\n");
             }
             catch (Exception ex)
             {
+                if (IsDisposed || Disposing || version != _noticeLoadVersion) return;
                 lstThongBao.DataSource = null;
                 grThongKe.Text = TranslationManager.Translate("Thông Báo Mới (Lỗi)");
-                System.IO.File.AppendAllText(logPath, $"  ERROR: {ex}\r\n");
+                try { System.IO.File.AppendAllText(logPath, $"  ERROR: {ex}\r\n"); } catch { System.Diagnostics.Trace.TraceError(ex.Message); }
             }
         }
 
@@ -622,7 +669,7 @@ namespace QLyNSu
             var frm = this.MdiChildren.OfType<FrmQuanLyTaiKhoan>().FirstOrDefault();
             if (frm != null)
             {
-                frm.SelectBatchProvisioningTab();
+                await frm.SelectBatchProvisioningTab();
             }
         }
 
@@ -680,21 +727,41 @@ namespace QLyNSu
             }
         }
 
-        private void btnPass_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnPass_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
-            using (var frm = new FrmChangePassword())
+            try
             {
-                TranslationManager.Translate(frm);
-                frm.ShowDialog();
+                using (var frm = new FrmChangePassword())
+                {
+                    TranslationManager.Translate(frm);
+                    if (await Functions.ChildFormWindow.ShowAsync(this, frm) != DialogResult.OK) return;
+                }
+                foreach (Form child in MdiChildren) child.Close();
+                ApplyAuthorization();
+                Hide();
+                using (var loginForm = new FrmDangNhap())
+                {
+                    TranslationManager.Translate(loginForm);
+                    if (loginForm.ShowDialog() == DialogResult.OK)
+                    {
+                        Show();
+                        ApplyAuthorization();
+                    }
+                    else Application.Exit();
+                }
             }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnSetting_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnSetting_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            try
+            {
             using (var frm = new FrmSetting())
             {
                 TranslationManager.Translate(frm);
-                if (frm.ShowDialog() == DialogResult.OK)
+                if (await Functions.ChildFormWindow.ShowAsync(this, frm) == DialogResult.OK)
                 {
                     foreach (Form openForm in Application.OpenForms)
                     {
@@ -703,19 +770,29 @@ namespace QLyNSu
                     ApplyAuthorization(); // Re-apply dynamic captions that might have been overwritten by TranslationManager
                 }
             }
+
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnUser_Update_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnUser_Update_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
+            try
+            {
             if (UserSession.CurrentUser == null) return;
             using (var frm = new FrmUser(UserSession.CurrentUser))
             {
                 TranslationManager.Translate(frm);
-                if (frm.ShowDialog() == DialogResult.OK)
+                if (await Functions.ChildFormWindow.ShowAsync(this, frm) == DialogResult.OK)
                 {
                     ApplyAuthorization();
                 }
             }
+
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private async void btnChucNang_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)

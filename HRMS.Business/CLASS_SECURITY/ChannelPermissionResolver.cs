@@ -423,6 +423,11 @@ namespace Bu.CLASS_SECURITY
                             actorId = (decimal)MyEntities.CurrentAuditUserId.Value;
                         }
 
+                        if (actorId <= 0)
+                        {
+                            transaction.Rollback();
+                            return new SaveChannelRightsResult { Success=false, Message="Không có danh tính người thao tác hợp lệ." };
+                        }
                         if (actorId > 0)
                         {
                             var actor = db.Database.SqlQuery<TargetUserRow>(@"
@@ -432,14 +437,15 @@ namespace Bu.CLASS_SECURITY
                                 new OracleParameter("p0", actorId)
                             ).FirstOrDefault();
 
-                            bool isActorAdmin = actor != null && actor.USERNAME != null && actor.USERNAME.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase);
+                            bool isActorAdmin = actor != null && (actor.DISABLED ?? 0) == 0 && (actor.ISGROUP ?? 0) == 0
+                                && CanExecuteAction(db, actorId, req.ActorChannel, "F_SYSTEM_PQ_CHUCNANG", ChannelAction.Edit, actor.USERNAME);
                             if (!isActorAdmin)
                             {
                                 transaction.Rollback();
                                 return new SaveChannelRightsResult
                                 {
                                     Success = false,
-                                    Message = "Từ chối truy cập: Thao tác phân quyền chỉ dành riêng cho Quản trị viên hệ thống (Admin)."
+                                    Message = "Từ chối truy cập: Cần quyền sửa Phân quyền chức năng trên kênh đang đăng nhập."
                                 };
                             }
                         }
@@ -470,18 +476,7 @@ namespace Bu.CLASS_SECURITY
                             };
                         }
 
-                        bool isTargetAdmin = user.USERNAME != null && user.USERNAME.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase);
-
                         // Quy tắc bảo mật: Admin cấm tuyệt đối Mobile
-                        if (isTargetAdmin && normChannel == AppChannels.Mobile && req.ParentDirectGrant == true)
-                        {
-                            transaction.Rollback();
-                            return new SaveChannelRightsResult
-                            {
-                                Success = false,
-                                Message = "Tài khoản Quản trị tối cao (ADMIN) bị cấm sử dụng ứng dụng di động Mobile."
-                            };
-                        }
 
                         // 2. Cập nhật quyền cha nếu có truyền
                         string parentFunc = PlatformFunctionCodes.GetFunctionCodeForChannel(normChannel);
@@ -560,6 +555,10 @@ namespace Bu.CLASS_SECURITY
                                         new OracleParameter("p11", del),
                                         new OracleParameter("p12", print)
                                     );
+                                    var storedPrint=db.Database.SqlQuery<decimal>("SELECT CAN_PRINT FROM HR.TB_SYS_RIGHT_CHANNEL WHERE IDUSER=:p0 AND CLIENT_TYPE=:p1 AND FUNCTION_CODE=:p2",
+                                        new OracleParameter("p0",req.TargetUserId),new OracleParameter("p1",normChannel),new OracleParameter("p2",f.FunctionCode)).Single();
+                                    if(storedPrint!=print) throw new InvalidOperationException("Database đã thay đổi quyền In sau khi lưu. Cần cập nhật trigger TRG_ENFORCE_RIGHT_CHANNEL (migration V1_42), sau đó lưu lại quyền.");
+
                                 }
                             }
                         }
@@ -676,6 +675,11 @@ namespace Bu.CLASS_SECURITY
                             actorId = (decimal)MyEntities.CurrentAuditUserId.Value;
                         }
 
+                        if (actorId <= 0)
+                        {
+                            transaction.Rollback();
+                            return new BatchSaveChannelRightsResult { Success=false, Message="Không có danh tính người thao tác hợp lệ." };
+                        }
                         if (actorId > 0)
                         {
                             var actor = db.Database.SqlQuery<TargetUserRow>(@"
@@ -685,14 +689,15 @@ namespace Bu.CLASS_SECURITY
                                 new OracleParameter("p0", actorId)
                             ).FirstOrDefault();
 
-                            bool isActorAdmin = actor != null && actor.USERNAME != null && actor.USERNAME.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase);
+                            bool isActorAdmin = actor != null && (actor.DISABLED ?? 0) == 0 && (actor.ISGROUP ?? 0) == 0
+                                && CanExecuteAction(db, actorId, req.ActorChannel, "F_SYSTEM_PQ_CHUCNANG", ChannelAction.Edit, actor.USERNAME);
                             if (!isActorAdmin)
                             {
                                 transaction.Rollback();
                                 return new BatchSaveChannelRightsResult
                                 {
                                     Success = false,
-                                    Message = "Từ chối truy cập: Thao tác phân quyền chỉ dành riêng cho Quản trị viên hệ thống (Admin)."
+                                    Message = "Từ chối truy cập: Cần quyền sửa Phân quyền chức năng trên kênh đang đăng nhập."
                                 };
                             }
                         }
@@ -723,8 +728,6 @@ namespace Bu.CLASS_SECURITY
                             };
                         }
 
-                        bool isTargetAdmin = user.USERNAME != null && user.USERNAME.Trim().Equals("ADMIN", StringComparison.OrdinalIgnoreCase);
-
                         // Kiểm tra tính hợp lệ trước khi thực hiện bất kỳ lệnh ghi nào
                         foreach (var chReq in req.Channels)
                         {
@@ -733,15 +736,6 @@ namespace Bu.CLASS_SECURITY
                             {
                                 transaction.Rollback();
                                 return new BatchSaveChannelRightsResult { Success = false, Message = $"Kênh truy cập '{chReq.Channel}' không hợp lệ." };
-                            }
-                            if (isTargetAdmin && norm == AppChannels.Mobile && chReq.ParentDirectGrant == true)
-                            {
-                                transaction.Rollback();
-                                return new BatchSaveChannelRightsResult
-                                {
-                                    Success = false,
-                                    Message = "Tài khoản Quản trị tối cao (ADMIN) bị cấm sử dụng ứng dụng di động Mobile."
-                                };
                             }
                         }
 
@@ -825,6 +819,10 @@ namespace Bu.CLASS_SECURITY
                                             new OracleParameter("p11", del),
                                             new OracleParameter("p12", print)
                                         );
+                                    var storedPrint=db.Database.SqlQuery<decimal>("SELECT CAN_PRINT FROM HR.TB_SYS_RIGHT_CHANNEL WHERE IDUSER=:p0 AND CLIENT_TYPE=:p1 AND FUNCTION_CODE=:p2",
+                                        new OracleParameter("p0",req.TargetUserId),new OracleParameter("p1",normChannel),new OracleParameter("p2",f.FunctionCode)).Single();
+                                    if(storedPrint!=print) throw new InvalidOperationException("Database đã thay đổi quyền In sau khi lưu. Cần cập nhật trigger TRG_ENFORCE_RIGHT_CHANNEL (migration V1_42), sau đó lưu lại quyền.");
+
                                     }
                                 }
                             }

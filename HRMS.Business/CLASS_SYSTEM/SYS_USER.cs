@@ -511,14 +511,18 @@ namespace Bu.CLASS_SYSTEM
                     // === DỊCH VỤ MOBILE APP ===
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_ROOT", SORT = 200, DESCRIPTION = "Phân Hệ Mobile App", ISGROUP = 0, MENU = 1, PARENT = "MOBILE" },
                     new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_PROFILE_VIEW", SORT = 201, DESCRIPTION = "Xem Hồ Sơ Cá Nhân Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_ATTENDANCE_VIEW", SORT = 202, DESCRIPTION = "Xem Bảng Công Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_PAYROLL_VIEW", SORT = 203, DESCRIPTION = "Xem Bảng Lương Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_CONTRACT_VIEW", SORT = 204, DESCRIPTION = "Xem Hợp Đồng Lao Động Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_INSURANCE_VIEW", SORT = 205, DESCRIPTION = "Xem Bảo Hiểm Xã Hội Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_NOTIFICATION_VIEW", SORT = 206, DESCRIPTION = "Xem Thông Báo Nội Bộ Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_LEAVE", SORT = 207, DESCRIPTION = "Gửi Đơn Nghỉ Phép Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_OVERTIME", SORT = 208, DESCRIPTION = "Gửi Đơn Tăng Ca Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
-                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_ADVANCE", SORT = 209, DESCRIPTION = "Gửi Yêu Cầu Ứng Lương Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" }
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_PROFILE_EDIT", SORT = 202, DESCRIPTION = "Đề Xuất / Cập Nhật Hồ Sơ Cá Nhân Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_ATTENDANCE_VIEW", SORT = 203, DESCRIPTION = "Xem Bảng Công Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_CORRECTION", SORT = 204, DESCRIPTION = "Gửi Yêu Cầu Điều Chỉnh Công Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_PAYROLL_VIEW", SORT = 205, DESCRIPTION = "Xem Bảng Lương Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_CONTRACT_VIEW", SORT = 206, DESCRIPTION = "Xem Hợp Đồng Lao Động Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_INSURANCE_VIEW", SORT = 207, DESCRIPTION = "Xem Bảo Hiểm Xã Hội Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_INSURANCE", SORT = 208, DESCRIPTION = "Đề Xuất Thay Đổi Bảo Hiểm Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_DEPENDENT", SORT = 209, DESCRIPTION = "Đề Xuất Người Phụ Thuộc Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_NOTIFICATION_VIEW", SORT = 210, DESCRIPTION = "Xem Thông Báo Nội Bộ Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_LEAVE", SORT = 211, DESCRIPTION = "Gửi Đơn Nghỉ Phép Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_OVERTIME", SORT = 212, DESCRIPTION = "Gửi Đơn Tăng Ca Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" },
+                    new TB_SYS_FUNCTION { FUNCTION_CODE = "MOBILE_REQUEST_ADVANCE", SORT = 213, DESCRIPTION = "Gửi Yêu Cầu Ứng Lương Mobile", ISGROUP = 0, MENU = 1, PARENT = "MOBILE_ROOT" }
                 };
 
                 foreach (var f in functions)

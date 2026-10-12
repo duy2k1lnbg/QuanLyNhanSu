@@ -1,3 +1,4 @@
+import { useFocusEffect } from '@react-navigation/native';
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -20,6 +21,10 @@ import { AppBadge } from '../../components/AppBadge';
 import { AppButton } from '../../components/AppButton';
 import { AppTextInput } from '../../components/AppTextInput';
 import { AppLoading } from '../../components/AppLoading';
+import { useAuth } from '../../hooks/useAuth';
+import { canMobile } from '../../utils/mobilePermissions';
+import { localDate } from '../../utils/requestContracts';
+import { AppErrorState } from '../../components/AppErrorState';
 import { AppEmptyState } from '../../components/AppEmptyState';
 import { formatDate } from '../../utils/formatters';
 import { mapApiError } from '../../utils/errorMapper';
@@ -32,6 +37,8 @@ export const AttendanceCorrectionScreen: React.FC = () => {
   const { colors } = useTheme();
   const { activeLanguage } = useLanguage();
 
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const { user } = useAuth();
   const [history, setHistory] = useState<AttendanceCorrectionDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -40,7 +47,7 @@ export const AttendanceCorrectionScreen: React.FC = () => {
   // Form states
   const [workDate, setWorkDate] = useState<string>(() => {
     const today = new Date();
-    return today.toISOString().split('T')[0];
+    return localDate(today);
   });
   const [checkIn, setCheckIn] = useState<string>('08:00');
   const [checkOut, setCheckOut] = useState<string>('17:00');
@@ -50,36 +57,35 @@ export const AttendanceCorrectionScreen: React.FC = () => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
+    setErrorMessage(null);
     try {
       const data = await meApi.getAttendanceCorrections();
       setHistory(data);
-    } catch {
-      // ignore
+    } catch (error) {
+      setErrorMessage(mapApiError(error));
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchHistory();
-  }, [fetchHistory]);
+  useFocusEffect(useCallback(() => { fetchHistory(); }, [fetchHistory]));
 
   const handleSubmit = async () => {
     if (submitting) return;
 
     if (!workDate.trim()) {
-      Alert.alert(t('common.error'), 'Vui lòng nhập ngày làm việc cần điều chỉnh.');
+      Alert.alert(t('common.error'), t('mobileReview.invalidDate'));
       return;
     }
 
     if (!checkIn.trim() && !checkOut.trim()) {
-      Alert.alert(t('common.error'), 'Vui lòng nhập ít nhất một trong hai: giờ vào hoặc giờ ra.');
+      Alert.alert(t('common.error'), t('mobileReview.invalidTime'));
       return;
     }
 
     if (!reason.trim()) {
-      Alert.alert(t('common.error'), 'Vui lòng nêu rõ lý do điều chỉnh công.');
+      Alert.alert(t('common.error'), t('mobileReview.requiredFields'));
       return;
     }
 
@@ -123,6 +129,8 @@ export const AttendanceCorrectionScreen: React.FC = () => {
         return t('requests.statusPending');
     }
   };
+
+  if (errorMessage) return <AppErrorState message={errorMessage} onRetry={() => fetchHistory()} />;
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
@@ -193,6 +201,7 @@ export const AttendanceCorrectionScreen: React.FC = () => {
             title={submitting ? t('requests.submitting') : t('requests.submit')}
             onPress={handleSubmit}
             loading={submitting}
+            disabled={!canMobile(user, 'MOBILE_REQUEST_CORRECTION', 'Add')}
             variant="primary"
             size="lg"
             style={{ marginTop: spacing.sm }}
@@ -209,44 +218,61 @@ export const AttendanceCorrectionScreen: React.FC = () => {
         ) : history.length === 0 ? (
           <AppEmptyState message={t('requests.emptyRequests')} />
         ) : (
-          history.map((item) => (
-            <AppCard key={item.id} style={styles.historyCard}>
-              <View style={styles.historyHeader}>
-                <View style={styles.historyTypeWrapper}>
-                  <Ionicons name="time" size={18} color={colors.primary} />
-                  <Text style={[typography.bodyBold, { color: colors.text, marginLeft: spacing.xs }]}>
-                    {formatDate(item.workDate, activeLanguage)}
-                  </Text>
-                </View>
-                <AppBadge label={getStatusLabel(item.status)} variant={getStatusVariant(item.status)} />
-              </View>
+          history.map((item, index) => {
+            const reqId = item.id || (item as any).idYeuCau || (item as any).id_yeucau || `corr-${index}`;
+            const workDateStr = item.workDate || (item as any).ngayCong;
+            const inTime = item.requestedCheckIn || (item as any).gioVaoMoi || '--:--';
+            const outTime = item.requestedCheckOut || (item as any).gioRaMoi || '--:--';
+            const reasonStr = item.reason || (item as any).lyDo || '';
+            const statusStr = item.status || (item as any).trangThai || 'PENDING';
+            const noteStr = item.note || (item as any).lyDoTuChoi || (item as any).ghichuduyet;
+            const approverStr = (item as any).approverName || (item as any).nguoiDuyet;
 
-              <View style={styles.timeBadgeRow}>
-                <View style={[styles.timeChip, { backgroundColor: 'rgba(59, 130, 246, 0.08)' }]}>
-                  <Text style={[typography.captionBold, { color: colors.primary }]}>
-                    Vào: {item.requestedCheckIn || '--:--'}
-                  </Text>
+            return (
+              <AppCard key={reqId} style={styles.historyCard}>
+                <View style={styles.historyHeader}>
+                  <View style={styles.historyTypeWrapper}>
+                    <Ionicons name="time" size={18} color={colors.primary} />
+                    <Text style={[typography.bodyBold, { color: colors.text, marginLeft: spacing.xs }]}>
+                      {formatDate(workDateStr, activeLanguage)}
+                    </Text>
+                  </View>
+                  <AppBadge label={getStatusLabel(statusStr)} variant={getStatusVariant(statusStr)} />
                 </View>
-                <View style={[styles.timeChip, { backgroundColor: 'rgba(16, 185, 129, 0.08)' }]}>
-                  <Text style={[typography.captionBold, { color: colors.success }]}>
-                    Ra: {item.requestedCheckOut || '--:--'}
-                  </Text>
-                </View>
-              </View>
 
-              <Text style={[typography.body, { color: colors.text, marginTop: spacing.xs }]}>
-                {item.reason}
-              </Text>
-
-              {item.note ? (
-                <View style={[styles.noteBox, { backgroundColor: 'rgba(245, 158, 11, 0.08)', borderColor: colors.border }]}>
-                  <Text style={[typography.captionBold, { color: colors.warning }]}>
-                    {t('requests.note')}: {item.note}
-                  </Text>
+                <View style={styles.timeBadgeRow}>
+                  <View style={[styles.timeChip, { backgroundColor: 'rgba(59, 130, 246, 0.08)' }]}>
+                    <Text style={[typography.captionBold, { color: colors.primary }]}>
+                      Vào: {inTime}
+                    </Text>
+                  </View>
+                  <View style={[styles.timeChip, { backgroundColor: 'rgba(16, 185, 129, 0.08)' }]}>
+                    <Text style={[typography.captionBold, { color: colors.success }]}>
+                      Ra: {outTime}
+                    </Text>
+                  </View>
                 </View>
-              ) : null}
-            </AppCard>
-          ))
+
+                <Text style={[typography.body, { color: colors.text, marginTop: spacing.xs }]}>
+                  {reasonStr}
+                </Text>
+
+                {noteStr ? (
+                  <View style={[styles.noteBox, { backgroundColor: 'rgba(245, 158, 11, 0.08)', borderColor: colors.border }]}>
+                    <Text style={[typography.captionBold, { color: colors.warning }]}>
+                      {t('requests.note')}: {noteStr}
+                    </Text>
+                  </View>
+                ) : null}
+
+                {approverStr ? (
+                  <Text style={[typography.caption, { color: colors.textMuted, marginTop: spacing.xs }]}>
+                    {t('requests.approver')}: {approverStr}
+                  </Text>
+                ) : null}
+              </AppCard>
+            );
+          })
         )}
       </ScrollView>
     </View>

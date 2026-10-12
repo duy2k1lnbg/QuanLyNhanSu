@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Drawing;
 using QLyNSu.Functions;
 using System.Drawing.Drawing2D;
@@ -97,40 +97,46 @@ namespace QLyNSu.FORM_SYSTEM
             txt.Properties.AppearanceFocused.Options.UseBorderColor = true;
         }
 
-        private void FrmDangNhap_Load(object sender, EventArgs e)
+        private async void FrmDangNhap_Load(object sender, EventArgs e)
         {
             TranslationManager.Translate(this);
 
-            // Tải thông tin tài khoản đã ghi nhớ
-            try
+            string resourcePath = System.IO.Path.Combine(Application.StartupPath, "Resources", "login_bg.png");
+            string initialUsername = txtTenDangNhap.Text;
+            var assets = await Task.Run(() =>
             {
-                using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\QLyNSu\Login"))
+                string savedUser = null;
+                Image background = null;
+                try
                 {
-                    if (key != null)
-                    {
-                        string savedUser = key.GetValue("SavedUsername") as string;
-                        if (!string.IsNullOrEmpty(savedUser))
-                        {
-                            txtTenDangNhap.Text = savedUser;
-                            chkRememberMe.Checked = true;
-                        }
-                    }
+                    using (var key = Microsoft.Win32.Registry.CurrentUser.OpenSubKey(@"SOFTWARE\QLyNSu\Login"))
+                        savedUser = key?.GetValue("SavedUsername") as string;
                 }
+                catch { }
+                try
+                {
+                    if (System.IO.File.Exists(resourcePath))
+                        using (var source = Image.FromFile(resourcePath)) background = new Bitmap(source);
+                }
+                catch { }
+                return Tuple.Create(savedUser, background);
+            });
+            if (IsDisposed || Disposing) { assets.Item2?.Dispose(); return; }
+            if (!string.IsNullOrEmpty(assets.Item1) && txtTenDangNhap.Text == initialUsername)
+            {
+                txtTenDangNhap.Text = assets.Item1;
+                chkRememberMe.Checked = true;
             }
-            catch { }
-
-            try {
-                string bgPath = System.IO.Path.Combine(Application.StartupPath, "Resources", "login_bg.png");
-                if (System.IO.File.Exists(bgPath)) {
-                    this.panelLeft.BackgroundImage = Image.FromFile(bgPath);
-                    this.panelLeft.BackgroundImageLayout = ImageLayout.Stretch;
-                    // Make labels transparent so background shows through
-                    this.lblLeftTitle.BackColor = Color.Transparent;
-                    this.lblLeftSub.BackColor = Color.Transparent;
-                    this.lblLeftSlogan.BackColor = Color.Transparent;
-                    this.lblLeftVersion.BackColor = Color.Transparent;
-                }
-            } catch { }
+            if (assets.Item2 != null)
+            {
+                panelLeft.BackgroundImage = assets.Item2;
+                panelLeft.BackgroundImageLayout = ImageLayout.Stretch;
+                lblLeftTitle.BackColor = Color.Transparent;
+                lblLeftSub.BackColor = Color.Transparent;
+                lblLeftSlogan.BackColor = Color.Transparent;
+                lblLeftVersion.BackColor = Color.Transparent;
+                Disposed += (s, args) => assets.Item2.Dispose();
+            }
             // Apply rounded corners to the form
             this.Region = System.Drawing.Region.FromHrgn(CreateRoundRectRgn(0, 0, Width, Height, 16, 16));
 
@@ -325,25 +331,17 @@ namespace QLyNSu.FORM_SYSTEM
                     MyEntities.CurrentAuditUsername = user.FULLNAME;
                     MyEntities.CurrentSessionId = loginResult.SessionId;
 
-                    // 4. Trao đổi phiên Desktop lấy Bearer Token cho AiApiClient (chạy nền không chặn luồng đăng nhập UI)
-                    string exchangeSessionId = loginResult.SessionId;
-                    string exchangeJti = loginResult.Jti;
-                    _ = Task.Run(async () =>
+                    // Oracle login is complete. No HTTP request until an AI feature is opened.
+                    try
                     {
-                        try
-                        {
-                            await AiApiClient.Instance.ExchangeDesktopTokenAsync(
-                                username: username,
-                                password: password,
-                                sessionId: exchangeSessionId,
-                                jti: exchangeJti
-                            ).ConfigureAwait(false);
-                        }
-                        catch (Exception ex)
-                        {
-                            System.Diagnostics.Debug.WriteLine("[FrmDangNhap] Không lấy được Bearer Token cho AiApiClient: " + ex.Message);
-                        }
-                    });
+                        AiApiClient.Instance.SetDesktopCredentials(user.USERNAME, password,
+                            loginResult.SessionId, loginResult.Jti);
+                    }
+                    catch (Exception ex)
+                    {
+                        AiLogger.Error("LOGIN", "Không thể chuẩn bị phiên AI. Đăng nhập Oracle vẫn thành công.", ex);
+                    }
+                    txtMatKhau.Text = string.Empty;
 
                     // Ghi nhớ đăng nhập
                     try

@@ -545,7 +545,7 @@ namespace QLyNSu
             // 
             // btnSetting
             // 
-            this.btnSetting.Caption = "Cấu Hinh Ngôn Ngữ";
+            this.btnSetting.Caption = "Cấu Hình Ngôn Ngữ";
             this.btnSetting.Id = 40;
             this.btnSetting.ImageOptions.LargeImage = ((System.Drawing.Image)(resources.GetObject("btnSetting.ImageOptions.LargeImage")));
             this.btnSetting.ImageOptions.SvgImage = ((DevExpress.Utils.Svg.SvgImage)(resources.GetObject("btnSetting.ImageOptions.SvgImage")));
@@ -840,7 +840,7 @@ namespace QLyNSu
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Ribbon = this.ribbonControl1;
-            this.Text = "Phầm Mềm Quản Lý Nhân Sự";
+            this.Text = "Phần Mềm Quản Lý Nhân Sự";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.ribbonControl1)).EndInit();

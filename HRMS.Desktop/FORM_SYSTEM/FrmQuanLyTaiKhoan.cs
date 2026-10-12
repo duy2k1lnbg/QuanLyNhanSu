@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Bu.CLASS_SYSTEM;
 using DA;
 using DevExpress.XtraEditors;
@@ -23,7 +24,7 @@ namespace QLyNSu.FORM_SYSTEM
             InitializeComponent();
         }
 
-        private void FrmQuanLyTaiKhoan_Load(object sender, EventArgs e)
+        private async void FrmQuanLyTaiKhoan_Load(object sender, EventArgs e)
         {
             if (this.DesignMode || System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
                 return;
@@ -32,20 +33,26 @@ namespace QLyNSu.FORM_SYSTEM
             SetupGridAppearance(gvCandidates);
             SetupGridAppearance(gvBulkResults);
 
-            LoadDepartments();
-            LoadAllData();
-            LoadBulkPreview();
+            await LoadDepartments();
+
+            if (IsDisposed || Disposing) return;
+            await LoadAllData();
+            if (IsDisposed || Disposing) return;
+            await LoadBulkPreview();
+            if (IsDisposed || Disposing) return;
 
             // Tự động tải lại danh sách ứng viên khi thay đổi tiêu chí lọc
-            cboBulkDept.EditValueChanged += (s, ev) =>
+            cboBulkDept.EditValueChanged += async (s, ev) =>
             {
                 if (tabBulkSub != null) tabBulkSub.SelectedTabPage = tabSubCandidates;
-                LoadBulkPreview();
+                await LoadBulkPreview();
+                if (IsDisposed || Disposing) return;
             };
-            chkBulkOnlyWithoutAcc.CheckedChanged += (s, ev) =>
+            chkBulkOnlyWithoutAcc.CheckedChanged += async (s, ev) =>
             {
                 if (tabBulkSub != null) tabBulkSub.SelectedTabPage = tabSubCandidates;
-                LoadBulkPreview();
+                await LoadBulkPreview();
+                if (IsDisposed || Disposing) return;
             };
 
             QLyNSu.Functions.TranslationManager.Translate(this);
@@ -59,22 +66,25 @@ namespace QLyNSu.FORM_SYSTEM
             gv.Appearance.Row.Font = new Font("Segoe UI", 9F);
         }
 
-        private void tabMain_SelectedPageChanged(object sender, DevExpress.XtraTab.TabPageChangedEventArgs e)
+        private async void tabMain_SelectedPageChanged(object sender, DevExpress.XtraTab.TabPageChangedEventArgs e)
         {
             if (e.Page == tabCapPhatHangLoat && _dtCandidates == null)
             {
-                LoadBulkPreview();
+                await LoadBulkPreview();
+                if (IsDisposed || Disposing) return;
             }
         }
 
         #region DATA LOADING & DIRECT ORACLE ACCESS
-        private void LoadDepartments()
+        private async Task LoadDepartments()
         {
+            try
+            {
             try
             {
                 using (var db = new MyEntities())
                 {
-                    var depts = db.Database.SqlQuery<DeptItem>("SELECT IDPB, TENPB FROM HR.TB_PHONGBAN ORDER BY TENPB").ToList();
+                    var depts = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<DeptItem>("SELECT IDPB, TENPB FROM HR.TB_PHONGBAN ORDER BY TENPB").ToList());
                     depts.Insert(0, new DeptItem { IDPB = 0, TENPB = QLyNSu.Functions.TranslationManager.Translate("-- Tất cả phòng ban --") });
 
                     cboPhongBan.Properties.DataSource = depts;
@@ -88,63 +98,70 @@ namespace QLyNSu.FORM_SYSTEM
                     cboBulkDept.EditValue = 0;
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi tải danh mục phòng ban: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        public void LoadAllData()
+        public async Task LoadAllData()
         {
-            LoadStatsDirectOracle();
-            LoadUsersDirectOracle();
+            await LoadStatsDirectOracle();
+            if (IsDisposed || Disposing) return;
+            await LoadUsersDirectOracle();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadStatsDirectOracle()
+        private async Task LoadStatsDirectOracle()
         {
+            try
+            {
             try
             {
                 using (var db = new MyEntities())
                 {
-                    int totalEmp = db.Database.SqlQuery<int>(
+                    int totalEmp = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<int>(
                         "SELECT COUNT(*) FROM HR.TB_NHANVIEN WHERE (DATHOIVIEC IS NULL OR DATHOIVIEC = 0) AND DELETED_BY IS NULL"
-                    ).FirstOrDefault();
+                    ).FirstOrDefault());
 
-                    int accCreated = db.Database.SqlQuery<int>(
+                    int accCreated = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<int>(
                         "SELECT COUNT(*) FROM HR.TB_SYS_USER WHERE (ISGROUP IS NULL OR ISGROUP = 0)"
-                    ).FirstOrDefault();
+                    ).FirstOrDefault());
 
-                    int noAcc = db.Database.SqlQuery<int>(@"
+                    int noAcc = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<int>(@"
                         SELECT COUNT(*) FROM HR.TB_NHANVIEN NV
                         WHERE (NV.DATHOIVIEC IS NULL OR NV.DATHOIVIEC = 0)
                           AND NV.DELETED_BY IS NULL
                           AND NOT EXISTS (SELECT 1 FROM HR.TB_USER_EMPLOYEE_MAPPING M WHERE M.EMPLOYEE_ID = NV.MANV)
                           AND NOT EXISTS (SELECT 1 FROM HR.TB_SYS_USER U WHERE U.MANV = NV.MANV AND (U.ISGROUP IS NULL OR U.ISGROUP = 0))"
-                    ).FirstOrDefault();
+                    ).FirstOrDefault());
 
-                    int mobOn = db.Database.SqlQuery<int>(@"
+                    int mobOn = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<int>(@"
                         SELECT COUNT(*) FROM HR.TB_SYS_USER U
                         LEFT JOIN HR.TB_USER_EMPLOYEE_MAPPING M ON U.IDUSER = M.USER_ID
                         WHERE (U.ISGROUP IS NULL OR U.ISGROUP = 0)
-                          AND UPPER(TRIM(U.USERNAME)) <> 'ADMIN'
                           AND (M.IS_MOBILE_ENABLED = 1 OR (M.IS_MOBILE_ENABLED IS NULL AND UPPER(NVL(U.CLIENT_TYPE, 'ALL')) = 'MOBILE'))"
-                    ).FirstOrDefault();
+                    ).FirstOrDefault());
 
-                    int mobOff = db.Database.SqlQuery<int>(@"
+                    int mobOff = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<int>(@"
                         SELECT COUNT(*) FROM HR.TB_SYS_USER U
                         LEFT JOIN HR.TB_USER_EMPLOYEE_MAPPING M ON U.IDUSER = M.USER_ID
                         WHERE (U.ISGROUP IS NULL OR U.ISGROUP = 0)
-                          AND UPPER(TRIM(U.USERNAME)) <> 'ADMIN'
                           AND (M.IS_MOBILE_ENABLED = 0 OR (M.IS_MOBILE_ENABLED IS NULL AND UPPER(NVL(U.CLIENT_TYPE, 'ALL')) <> 'MOBILE'))"
-                    ).FirstOrDefault();
+                    ).FirstOrDefault());
 
-                    int locked = db.Database.SqlQuery<int>(
+                    int locked = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<int>(
                         "SELECT COUNT(*) FROM HR.TB_SYS_USER WHERE (ISGROUP IS NULL OR ISGROUP = 0) AND DISABLED = 1"
-                    ).FirstOrDefault();
+                    ).FirstOrDefault());
 
-                    int sysAcc = db.Database.SqlQuery<int>(
+                    int sysAcc = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<int>(
                         "SELECT COUNT(*) FROM HR.TB_SYS_USER WHERE UPPER(TRIM(USERNAME)) = 'ADMIN' OR (ISGROUP = 1) OR UPPER(TRIM(NVL(CLIENT_TYPE, 'ALL'))) IN ('SYSTEM', 'DESKTOP', 'WEB')"
-                    ).FirstOrDefault();
+                    ).FirstOrDefault());
 
                     lblTotalEmpVal.Text = totalEmp.ToString("N0");
                     lblAccCreatedVal.Text = accCreated.ToString("N0");
@@ -155,14 +172,21 @@ namespace QLyNSu.FORM_SYSTEM
                     lblSysVal.Text = sysAcc.ToString("N0");
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 System.Diagnostics.Trace.TraceError("Lỗi tính toán chỉ số Dashboard: " + ex.Message);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadUsersDirectOracle()
+        private async Task LoadUsersDirectOracle()
         {
+            try
+            {
             try
             {
                 using (var db = new MyEntities())
@@ -184,8 +208,7 @@ namespace QLyNSu.FORM_SYSTEM
                                 WHEN NV.MANV IS NOT NULL OR UPPER(TRIM(NVL(U.CLIENT_TYPE, 'ALL'))) = 'MOBILE' THEN 'Tài khoản người dùng (Nhân viên)'
                                 ELSE 'Tài khoản hệ thống'
                             END AS ACCOUNT_TYPE,
-                            CASE 
-                                WHEN UPPER(TRIM(U.USERNAME)) = 'ADMIN' THEN 'BLOCKED (Cấm Mobile)'
+                            CASE
                                 WHEN UPPER(TRIM(NVL(U.CLIENT_TYPE, 'ALL'))) IN ('SYSTEM', 'DESKTOP', 'WEB') THEN 'BLOCKED (Tài khoản hệ thống)'
                                 WHEN M.IS_MOBILE_ENABLED = 1 OR (M.IS_MOBILE_ENABLED IS NULL AND UPPER(NVL(U.CLIENT_TYPE, 'ALL')) = 'MOBILE') THEN 'ENABLED (Đã bật)'
                                 ELSE 'DISABLED (Đang tắt)'
@@ -197,20 +220,24 @@ namespace QLyNSu.FORM_SYSTEM
                         LEFT JOIN HR.TB_NHANVIEN NV ON (M.EMPLOYEE_ID = NV.MANV OR (M.EMPLOYEE_ID IS NULL AND U.MANV = NV.MANV))
                         LEFT JOIN HR.TB_PHONGBAN PB ON NV.IDPB = PB.IDPB
                         LEFT JOIN HR.TB_CHUCVU CV ON NV.IDCV = CV.IDCV
-                        WHERE (U.ISGROUP IS NULL OR U.ISGROUP = 0)
                         ORDER BY U.IDUSER";
 
-                    var rows = db.Database.SqlQuery<UserDisplayRow>(sql).ToList();
+                    var rows = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<UserDisplayRow>(sql).ToList());
                     _dtUsers = ConvertListToDataTable(rows);
                     gcUsers.DataSource = _dtUsers;
                     gvUsers.PopulateColumns();
                     ConfigureUserGridColumns();
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi nạp danh sách tài khoản: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void ConfigureUserGridColumns()
@@ -309,7 +336,6 @@ namespace QLyNSu.FORM_SYSTEM
                     cboDetailClientType.Text = u.CLIENT_TYPE ?? "ALL";
                     chkDetailDisabled.Checked = (u.DISABLED ?? 0) == 1;
 
-                    bool isAdmin = u.USERNAME != null && u.USERNAME.Trim().ToUpper() == "ADMIN";
 
                     var map = db.Database.SqlQuery<MappingCheckRow>(
                         "SELECT EMPLOYEE_ID, IS_MOBILE_ENABLED FROM HR.TB_USER_EMPLOYEE_MAPPING WHERE USER_ID = :p0",
@@ -347,17 +373,11 @@ namespace QLyNSu.FORM_SYSTEM
                         txtDetailPos.Text = "N/A";
                     }
 
-                    if (isAdmin)
-                    {
-                        lblDetailMobileBadge.Text = "⛔ BLOCKED (Tài khoản Quản trị tối cao bị cấm Mobile)";
-                        lblDetailMobileBadge.Appearance.ForeColor = Color.Red;
-                    }
-                    else
-                    {
+
                         bool isMob = map != null ? (map.IS_MOBILE_ENABLED ?? 1) == 1 : (u.CLIENT_TYPE ?? "ALL").ToUpperInvariant() == "MOBILE";
                         lblDetailMobileBadge.Text = isMob ? "✅ ENABLED (Được phép truy cập Mobile)" : "❌ DISABLED (Đang tắt)";
                         lblDetailMobileBadge.Appearance.ForeColor = isMob ? Color.Green : Color.Gray;
-                    }
+                    
                 }
             }
             catch (Exception ex)
@@ -368,10 +388,12 @@ namespace QLyNSu.FORM_SYSTEM
         #endregion
 
         #region EVENT HANDLERS - TAB 1 & TAB 2
-        private void btnRefreshAll_Click(object sender, EventArgs e)
+        private async void btnRefreshAll_Click(object sender, EventArgs e)
         {
-            LoadAllData();
-            LoadBulkPreview();
+            await LoadAllData();
+            if (IsDisposed || Disposing) return;
+            await LoadBulkPreview();
+            if (IsDisposed || Disposing) return;
         }
 
         private void btnLoc_Click(object sender, EventArgs e)
@@ -389,15 +411,14 @@ namespace QLyNSu.FORM_SYSTEM
             SwitchToDetail();
         }
 
-        private void btnThem_Click(object sender, EventArgs e)
+        private async void btnThem_Click(object sender, EventArgs e)
         {
             using (var frm = new FrmUser())
             {
-                if (frm.ShowDialog() == DialogResult.OK)
-                {
-                    LoadAllData();
-                }
+                try { await Functions.ChildFormWindow.ShowAsync(this, frm); }
+                catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
             }
+            if (!IsDisposed && !Disposing) await LoadAllData();
         }
 
         private void btnSua_Click(object sender, EventArgs e)
@@ -405,7 +426,7 @@ namespace QLyNSu.FORM_SYSTEM
             SwitchToDetail();
         }
 
-        private void btnKhoaMoKhoa_Click(object sender, EventArgs e)
+        private async void btnKhoaMoKhoa_Click(object sender, EventArgs e)
         {
             int rowHandle = gvUsers.FocusedRowHandle;
             if (rowHandle < 0) return;
@@ -413,12 +434,6 @@ namespace QLyNSu.FORM_SYSTEM
             int userId = Convert.ToInt32(gvUsers.GetRowCellValue(rowHandle, "IDUSER"));
             string username = Convert.ToString(gvUsers.GetRowCellValue(rowHandle, "USERNAME"));
             string status = Convert.ToString(gvUsers.GetRowCellValue(rowHandle, "ACCOUNT_STATUS"));
-
-            if (username.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
-            {
-                XtraMessageBox.Show("Không thể khóa tài khoản Quản trị tối cao (ADMIN).", "Cảnh báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
 
             bool isCurrentlyLocked = status == "Bị tạm khóa";
             int targetState = isCurrentlyLocked ? 0 : 1;
@@ -437,7 +452,8 @@ namespace QLyNSu.FORM_SYSTEM
                     WriteAuditDirectOracle(action, userId.ToString(), $"{(targetState == 1 ? "Khóa" : "Mở khóa")} tài khoản [{username}]", UserSession.CurrentUser?.USERNAME ?? "ADMIN");
 
                     XtraMessageBox.Show($"Đã {(targetState == 1 ? "khóa" : "mở khóa")} tài khoản [{username}] thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadAllData();
+                    await LoadAllData();
+                    if (IsDisposed || Disposing) return;
                 }
             }
             catch (Exception ex)
@@ -479,7 +495,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnToggleMobile_Click(object sender, EventArgs e)
+        private async void btnToggleMobile_Click(object sender, EventArgs e)
         {
             int rowHandle = gvUsers.FocusedRowHandle;
             if (rowHandle < 0) return;
@@ -487,12 +503,6 @@ namespace QLyNSu.FORM_SYSTEM
             int userId = Convert.ToInt32(gvUsers.GetRowCellValue(rowHandle, "IDUSER"));
             string username = Convert.ToString(gvUsers.GetRowCellValue(rowHandle, "USERNAME"));
             string mobStatus = Convert.ToString(gvUsers.GetRowCellValue(rowHandle, "MOBILE_STATUS"));
-
-            if (username.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
-            {
-                XtraMessageBox.Show("Tài khoản Quản trị tối cao (ADMIN) là tài khoản hệ thống, bị cấm tuyệt đối truy cập ứng dụng di động.", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
 
             bool isEnabled = mobStatus.StartsWith("ENABLED");
             int targetState = isEnabled ? 0 : 1;
@@ -533,7 +543,8 @@ namespace QLyNSu.FORM_SYSTEM
                     WriteAuditDirectOracle(action, userId.ToString(), $"Đổi Mobile Access thành {(targetState == 1 ? "BẬT" : "TẮT")} cho [{username}]", UserSession.CurrentUser?.USERNAME ?? "ADMIN");
 
                     XtraMessageBox.Show($"Đã {(targetState == 1 ? "kích hoạt" : "tắt")} Mobile Access cho [{username}]!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadAllData();
+                    await LoadAllData();
+                    if (IsDisposed || Disposing) return;
                 }
             }
             catch (Exception ex)
@@ -542,19 +553,13 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        private void btnLienKetNV_Click(object sender, EventArgs e)
+        private async void btnLienKetNV_Click(object sender, EventArgs e)
         {
             int rowHandle = gvUsers.FocusedRowHandle;
             if (rowHandle < 0) return;
 
             int userId = Convert.ToInt32(gvUsers.GetRowCellValue(rowHandle, "IDUSER"));
             string username = Convert.ToString(gvUsers.GetRowCellValue(rowHandle, "USERNAME"));
-
-            if (username.Equals("ADMIN", StringComparison.OrdinalIgnoreCase))
-            {
-                XtraMessageBox.Show("Tài khoản Quản trị tối cao (ADMIN) là tài khoản hệ thống, không được phép liên kết với hồ sơ nhân sự.", "Từ chối", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                return;
-            }
 
             string manvStr = XtraInputBox.Show("Nhập mã số nội bộ (MANV) của nhân viên cần liên kết với [" + username + "]:", "Liên Kết Hồ Sơ 1:1", "");
             if (string.IsNullOrWhiteSpace(manvStr) || !decimal.TryParse(manvStr.Trim(), out decimal manv)) return;
@@ -617,7 +622,8 @@ namespace QLyNSu.FORM_SYSTEM
                     WriteAuditDirectOracle("LINK_EMPLOYEE", userId.ToString(), $"Liên kết tài khoản [{username}] với nhân sự MANV {manv} ({emp.HOTEN})", UserSession.CurrentUser?.USERNAME ?? "ADMIN");
 
                     XtraMessageBox.Show($"Liên kết tài khoản [{username}] với nhân viên [{emp.HOTEN}] thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadAllData();
+                    await LoadAllData();
+                    if (IsDisposed || Disposing) return;
                 }
             }
             catch (Exception ex)
@@ -626,7 +632,7 @@ namespace QLyNSu.FORM_SYSTEM
             }
         }
 
-        public void SelectBatchProvisioningTab()
+        public async Task SelectBatchProvisioningTab()
         {
             tabMain.SelectedTabPage = tabCapPhatHangLoat;
             if (tabBulkSub != null)
@@ -635,7 +641,8 @@ namespace QLyNSu.FORM_SYSTEM
             }
             if (_dtCandidates == null)
             {
-                LoadBulkPreview();
+                await LoadBulkPreview();
+                if (IsDisposed || Disposing) return;
             }
         }
 
@@ -653,7 +660,7 @@ namespace QLyNSu.FORM_SYSTEM
             ExportGridToExcel(gvUsers, "DanhSachTaiKhoan");
         }
 
-        private void btnSaveDetail_Click(object sender, EventArgs e)
+        private async void btnSaveDetail_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(txtDetailId.Text)) return;
             if (!int.TryParse(txtDetailId.Text, out int userId)) return;
@@ -677,7 +684,8 @@ namespace QLyNSu.FORM_SYSTEM
                     WriteAuditDirectOracle("UPDATE_USER", userId.ToString(), $"Cập nhật tài khoản [{txtDetailUsername.Text}] (FullName: {fullName}, Client: {clientType}, Disabled: {disabled})", UserSession.CurrentUser?.USERNAME ?? "ADMIN");
 
                     XtraMessageBox.Show("Cập nhật thông tin tài khoản thành công!", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                    LoadAllData();
+                    await LoadAllData();
+                    if (IsDisposed || Disposing) return;
                 }
             }
             catch (Exception ex)
@@ -688,17 +696,20 @@ namespace QLyNSu.FORM_SYSTEM
         #endregion
 
         #region TAB 3: CẤP PHÁT HÀNG LOẠT (BULK PROVISIONING)
-        private void btnBulkRefresh_Click(object sender, EventArgs e)
+        private async void btnBulkRefresh_Click(object sender, EventArgs e)
         {
             if (tabBulkSub != null)
             {
                 tabBulkSub.SelectedTabPage = tabSubCandidates;
             }
-            LoadBulkPreview();
+            await LoadBulkPreview();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadBulkPreview()
+        private async Task LoadBulkPreview()
         {
+            try
+            {
             try
             {
                 int deptId = Convert.ToInt32(cboBulkDept.EditValue ?? 0);
@@ -717,8 +728,7 @@ namespace QLyNSu.FORM_SYSTEM
                             NV.DATHOIVIEC AS DaThoiViec,
                             U.USERNAME AS ExistingAccount,
                             CASE WHEN U.IDUSER IS NOT NULL THEN 1 ELSE 0 END AS HasAccount,
-                            CASE 
-                                WHEN UPPER(TRIM(U.USERNAME)) = 'ADMIN' THEN 'BLOCKED'
+                            CASE
                                 WHEN M.IS_MOBILE_ENABLED = 1 THEN 'ENABLED'
                                 WHEN M.IS_MOBILE_ENABLED = 0 THEN 'DISABLED'
                                 ELSE 'NONE'
@@ -737,7 +747,7 @@ namespace QLyNSu.FORM_SYSTEM
 
                     sql += " ORDER BY NV.MANV";
 
-                    var raw = db.Database.SqlQuery<BulkCandidateRaw>(sql).ToList();
+                    var raw = await Functions.FormDataLoader.ReadAsync(this, () => db.Database.SqlQuery<BulkCandidateRaw>(sql).ToList());
 
                     int eligible = 0;
                     int ready = 0;
@@ -825,10 +835,15 @@ namespace QLyNSu.FORM_SYSTEM
                     ConfigureCandidateGridColumns();
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 XtraMessageBox.Show("Lỗi xem trước ứng viên cấp phát: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void ConfigureCandidateGridColumns()
@@ -870,7 +885,7 @@ namespace QLyNSu.FORM_SYSTEM
             gcCandidates.RefreshDataSource();
         }
 
-        private void btnExecuteBulk_Click(object sender, EventArgs e)
+        private async void btnExecuteBulk_Click(object sender, EventArgs e)
         {
             if (_dtCandidates == null) return;
 
@@ -1026,8 +1041,11 @@ namespace QLyNSu.FORM_SYSTEM
                             tabBulkSub.SelectedTabPage = tabSubResults;
                         }
 
-                        LoadAllData();
-                        LoadBulkPreview();
+                        await LoadAllData();
+
+                        if (IsDisposed || Disposing) return;
+                        await LoadBulkPreview();
+                        if (IsDisposed || Disposing) return;
                     }
                     catch (Exception exTrans)
                     {

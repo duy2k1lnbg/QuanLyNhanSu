@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using DA;
 using DevExpress.XtraEditors;
 using System;
@@ -25,14 +25,16 @@ namespace QLyNSu
         private NHANVIEN_THOIVIEC _nvtv;
         private NHANVIEN _nhanvien;
 
-        private void FrmNhanVien_ThoiViec_Load(object sender, EventArgs e)
+        private async void FrmNhanVien_ThoiViec_Load(object sender, EventArgs e)
         {
             _nvtv = new NHANVIEN_THOIVIEC();
             _nhanvien = new NHANVIEN();
             _them = false;
             showHide(true);
-            LoadData();
-            loadNhanVien();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
+            await loadNhanVien();
+            if (IsDisposed || Disposing) return;
             splitContainer1.Panel1Collapsed = true;
         }
 
@@ -52,7 +54,7 @@ namespace QLyNSu
             gcDsTV.Enabled = true;
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             splitContainer1.Panel1Collapsed = true;
             // Hiển thị hộp thoại xác nhận
@@ -60,14 +62,16 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _nvtv.Delete(_SOQD, 1);
-                LoadData();
+                await LoadData();
+                if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
             splitContainer1.Panel1Collapsed = true;
@@ -118,17 +122,29 @@ namespace QLyNSu
             searchMANV.Properties.NullText = "Vui lòng chọn 1 nhân viên";
         }
 
-        private void loadNhanVien()
+        private async Task loadNhanVien()
         {
-            searchMANV.Properties.DataSource = _nhanvien.getList();
+            try
+            {
+            searchMANV.Properties.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _nhanvien.getList());
             searchMANV.Properties.ValueMember = "MANV";
             searchMANV.Properties.DisplayMember = "HOTEN";
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsTV.DataSource = _nvtv.getListFull();
+            try
+            {
+            gcDsTV.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _nvtv.getListFull());
             FormManager_Functions.CustomView_Colums(gvDsTV);
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()

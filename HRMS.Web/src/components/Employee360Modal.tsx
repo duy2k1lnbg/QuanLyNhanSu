@@ -47,6 +47,9 @@ import api from '../services/api';
 import type { NhanVienDTO, BangLuongDTO, CurrentUserDTO, SysUserDTO } from '../types/hrms';
 import { canEdit, canPrint } from '../utils/permissionUtils';
 import PhieuLuongModal from './PhieuLuongModal';
+import { useAppTheme } from '../theme/ThemeContext';
+import { timelineLabels, checklistLabels } from '../utils/profileEventLabels';
+import { useAppLanguage } from '../services/i18n';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -118,6 +121,8 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
   onAvatarUpdated,
   currentUser: propUser,
 }) => {
+  const { t } = useAppLanguage();
+  const { tokens } = useAppTheme();
   const [activeTab, setActiveTab] = useState<string>('overview');
   const [uploadingAvatar, setUploadingAvatar] = useState<boolean>(false);
   const [currentAvatar, setCurrentAvatar] = useState<string | undefined>(employee?.HINHANH);
@@ -191,7 +196,10 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
 
   const handleDirectAvatarUpload = (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
-      notification.error({ message: 'Ảnh quá lớn', description: 'Vui lòng chọn ảnh dung lượng dưới 5MB.' });
+      notification.error({
+        message: t('employee360.avatarTooLarge'),
+        description: t('employee360.avatarTooLargeDesc'),
+      });
       return false;
     }
     const reader = new FileReader();
@@ -203,10 +211,16 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
         await api.post(`/nhanvien/${employee.MANV}/avatar`, { ImageBase64: base64 });
         setCurrentAvatar(base64);
         employee.HINHANH = base64;
-        notification.success({ message: 'Thành công', description: 'Đã cập nhật ảnh chân dung nhân viên thành công!' });
+        notification.success({
+          message: t('employee360.avatarSuccess'),
+          description: t('employee360.avatarSuccessDesc'),
+        });
         if (onAvatarUpdated) onAvatarUpdated(employee.MANV, base64);
       } catch {
-        notification.error({ message: 'Lỗi tải ảnh', description: 'Không thể cập nhật ảnh chân dung.' });
+        notification.error({
+          message: t('employee360.avatarError'),
+          description: t('employee360.avatarErrorDesc'),
+        });
       } finally {
         setUploadingAvatar(false);
       }
@@ -234,6 +248,13 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
     }
   };
 
+  const timelineColor = (kind: string) => {
+    if (kind === 'LUONG' || kind === 'JOIN') return { text: tokens.successText, background: tokens.successBg };
+    if (kind === 'HOPDONG') return { text: tokens.violetText, background: tokens.violetBg };
+    if (kind === 'KYLUAT') return { text: tokens.dangerText, background: tokens.dangerBg };
+    if (kind === 'KHENTHUONG' || kind === 'DIEUCHUYEN') return { text: tokens.warningText, background: tokens.warningBg };
+    return { text: tokens.infoText, background: tokens.infoBg };
+  };
   const summary = profileData?.Summary;
   const rawPayroll = profileData?.LichSuLuong || [];
   const timelineItems = profileData?.Timeline || [];
@@ -308,7 +329,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                   border: '2px solid #0f172a',
                   zIndex: 2,
                 }}
-                title={employee.DATHOIVIEC === 1 ? 'Đã thôi việc' : 'Đang làm việc'}
+                title={employee.DATHOIVIEC === 1 ? t('employee360.statusResigned') : t('employee360.statusWorking')}
               />
               {canEdit(currentUser, 'F_DM_NHANVIEN') && (
                 <Upload
@@ -316,7 +337,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                   accept="image/*"
                   beforeUpload={handleDirectAvatarUpload}
                 >
-                  <Tooltip title="Đổi ảnh chân dung nhân viên">
+                  <Tooltip title={t('employee360.changeAvatar')}>
                     <Button
                       shape="circle"
                       size="small"
@@ -344,16 +365,16 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                   {employee.HOTEN}
                 </Title>
                 <Tag color={employee.DATHOIVIEC === 1 ? 'error' : 'success'} style={{ fontWeight: 600 }}>
-                  {employee.DATHOIVIEC === 1 ? '🔴 ĐÃ THÔI VIỆC' : '🟢 ĐANG LÀM VIỆC'}
+                  {employee.DATHOIVIEC === 1 ? `🔴 ${t('employee360.statusResigned')}` : `🟢 ${t('employee360.statusWorking')}`}
                 </Tag>
-                <Tag color="cyan">Mã NV: #{employee.MANV}</Tag>
+                <Tag color="cyan">{t('employee360.empCode', { id: employee.MANV })}</Tag>
               </div>
 
               <div className="employee-360-meta-row">
-                <span className="employee-360-meta-item">🏢 <strong>Phòng ban:</strong> {employee.TENPB || 'Chưa phân bổ'}</span>
-                <span className="employee-360-meta-item">💼 <strong>Vị trí:</strong> {employee.TENCV || 'Nhân viên'}</span>
-                <span className="employee-360-meta-item">📅 <strong>Ngày vào công ty:</strong> {summary?.NgayVaoCongTy || 'Chưa ghi nhận'}</span>
-                <span className="employee-360-meta-item">🎓 <strong>Trình độ:</strong> {employee.TENTD || 'Đại học'}</span>
+                <span className="employee-360-meta-item">🏢 <strong>{t('employee360.department')}</strong> {employee.TENPB || t('employee360.unassigned')}</span>
+                <span className="employee-360-meta-item">💼 <strong>{t('employee360.position')}</strong> {employee.TENCV || t('employee360.defaultPosition')}</span>
+                <span className="employee-360-meta-item">📅 <strong>{t('employee360.hireDateLabel')}</strong> {summary?.NgayVaoCongTy || t('employee360.notRecorded')}</span>
+                <span className="employee-360-meta-item">🎓 <strong>{t('employee360.education')}</strong> {employee.TENTD || t('employee360.defaultEducation')}</span>
               </div>
             </div>
           </div>
@@ -370,7 +391,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                 }}
                 style={{ background: '#3b82f6', borderColor: '#3b82f6' }}
               >
-                Sửa hồ sơ
+                {t('employee360.editProfile')}
               </Button>
             )}
             {canPrint(currentUser, 'F_DM_NHANVIEN') && (
@@ -380,7 +401,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                 onClick={() => window.print()}
                 style={{ color: '#cbd5e1', borderColor: '#64748b' }}
               >
-                Xuất sơ yếu lý lịch
+                {t('employee360.exportResume')}
               </Button>
             )}
           </div>
@@ -389,27 +410,27 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
 
       {/* BODY CONTENT WITH TABS */}
       <div className="employee-360-body">
-        <Spin spinning={loadingProfile} tip="Đang tải dữ liệu thực tế từ hệ thống...">
+        <Spin spinning={loadingProfile} tip={t('employee360.loadingData')}>
           <Tabs
             activeKey={activeTab}
             onChange={setActiveTab}
             items={[
               {
                 key: 'overview',
-                label: '📑 Tổng quan 360°',
+                label: `📑 ${t('employee360.tabOverview')}`,
                 children: (
                   <Space direction="vertical" size="large" style={{ width: '100%' }}>
                     {/* METRIC STRIP */}
                     <Row gutter={[12, 12]}>
                       <Col xs={24} md={8}>
-                        <Card size="small" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
+                        <Card size="small" style={{ background: tokens.cardSecondaryBg, borderColor: tokens.borderMedium }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <Text type="secondary">
-                              Chuyên cần {summary?.KyCongChuyenCanLabel ? `(${summary.KyCongChuyenCanLabel})` : ''}
+                              {t('employee360.attendance')} {summary?.KyCongChuyenCanLabel ? `(${summary.KyCongChuyenCanLabel})` : ''}
                             </Text>
-                            <ClockCircleOutlined style={{ color: '#10b981' }} />
+                            <ClockCircleOutlined style={{ color: tokens.successText }} />
                           </div>
-                          <div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a', margin: '6px 0' }}>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: tokens.textPrimary, margin: '6px 0' }}>
                             {summary ? summary.TyLeChuyenCan : 0}%
                           </div>
                           <Progress
@@ -419,20 +440,20 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                             size="small"
                           />
                           <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>
-                            {summary?.TongNgayCong ?? 0}/{summary?.CongChuan ?? 26} ngày công chuẩn đạt chỉ tiêu
+                            {t('employee360.attendanceTarget', { actual: summary?.TongNgayCong ?? 0, standard: summary?.CongChuan ?? 26 })}
                           </Text>
                         </Card>
                       </Col>
 
                       <Col xs={24} md={8}>
-                        <Card size="small" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
+                        <Card size="small" style={{ background: tokens.cardSecondaryBg, borderColor: tokens.borderMedium }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text type="secondary">Quỹ phép năm (Leave)</Text>
-                            <CalendarOutlined style={{ color: '#3b82f6' }} />
+                            <Text type="secondary">{t('employee360.leaveQuota')}</Text>
+                            <CalendarOutlined style={{ color: tokens.infoText }} />
                           </div>
-                          <div style={{ fontSize: 24, fontWeight: 700, color: '#0f172a', margin: '6px 0' }}>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: tokens.textPrimary, margin: '6px 0' }}>
                             {summary?.SoNgayNghiPhep ?? 0} / {summary?.TongQuyPhep ?? 12}{' '}
-                            <span style={{ fontSize: 14, fontWeight: 400 }}>ngày</span>
+                            <span style={{ fontSize: 14, fontWeight: 400 }}>{t('employee360.daysUnit')}</span>
                           </div>
                           <Progress
                             percent={
@@ -445,69 +466,76 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                             size="small"
                           />
                           <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>
-                            Còn lại {summary?.PhepConLai ?? 12} ngày phép có lương
+                            {t('employee360.leaveRemaining', { days: summary?.PhepConLai ?? 12 })}
                           </Text>
                         </Card>
                       </Col>
 
                       <Col xs={24} md={8}>
-                        <Card size="small" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
+                        <Card size="small" style={{ background: tokens.cardSecondaryBg, borderColor: tokens.borderMedium }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text type="secondary">Thu nhập Net kỳ gần nhất</Text>
-                            <DollarOutlined style={{ color: '#f59e0b' }} />
+                            <Text type="secondary">{t('employee360.latestNetIncome')}</Text>
+                            <DollarOutlined style={{ color: tokens.warningText }} />
                           </div>
-                          <div style={{ fontSize: 22, fontWeight: 700, color: '#0f172a', margin: '6px 0' }}>
+                          <div style={{ fontSize: 22, fontWeight: 700, color: tokens.textPrimary, margin: '6px 0' }}>
                             {summary?.ThuNhapNetKyGanNhat != null
                               ? `${Number(summary.ThuNhapNetKyGanNhat).toLocaleString()} đ`
-                              : 'Chưa có bảng lương'}
+                              : t('employee360.noPayroll')}
                           </div>
                           <Tag color={summary?.ThuNhapNetKyGanNhat != null ? 'green' : 'default'}>
-                            {summary?.KyLuongNetLabel || 'Chưa phát sinh kỳ lương'}
+                            {summary?.KyLuongNetLabel || t('employee360.noPayrollPeriod')}
                           </Tag>
                           <Text type="secondary" style={{ fontSize: 11, marginTop: 4, display: 'block' }}>
-                            Trạng thái: {summary?.TrangThaiChiTra || 'Chưa có'}
+                            {t('employee360.payoutStatus')} {summary?.TrangThaiChiTra || t('employee360.noStatus')}
                           </Text>
                         </Card>
                       </Col>
                     </Row>
 
                     {/* THÔNG TIN CHI TIẾT */}
-                    <Card title="Thông tin nhân sự cơ bản" size="small" style={{ borderColor: '#e2e8f0' }}>
+                    <Card title={t('employee360.basicInfo')} size="small" style={{ borderColor: tokens.borderMedium }}>
                       <Descriptions column={{ xs: 1, sm: 2, md: 3 }} size="small" bordered>
-                        <Descriptions.Item label={<Space><PhoneOutlined /> Điện thoại</Space>}>
-                          {employee.DIENTHOAI || <Text type="secondary">Chưa cập nhật</Text>}
+                        <Descriptions.Item label={<Space><PhoneOutlined /> {t('employee360.phone')}</Space>}>
+                          {employee.DIENTHOAI || <Text type="secondary">{t('employee360.notUpdated')}</Text>}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<Space><IdcardOutlined /> Số CCCD</Space>}>
-                          {employee.CCCD || <Text type="danger">Thiếu CCCD ⚠️</Text>}
+                        <Descriptions.Item label={<Space><IdcardOutlined /> {t('employee360.idCard')}</Space>}>
+                          {employee.CCCD || <Text type="danger">{t('employee360.missingIdCard')}</Text>}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Giới tính">
-                          <Tag color={(employee.GIOITINH || (employee as any).TENGT || (employee.IDGT === 2 ? 'Nữ' : 'Nam')) === 'Nữ' ? 'magenta' : 'blue'}>
-                            {employee.GIOITINH || (employee as any).TENGT || (employee.IDGT === 2 ? 'Nữ' : (employee.IDGT === 3 ? 'Khác' : 'Nam'))}
-                          </Tag>
+                        <Descriptions.Item label={t('employee360.gender')}>
+                          {(() => {
+                            const rawG = employee.GIOITINH || (employee as any).TENGT;
+                            const isFem = rawG === 'Nữ' || employee.IDGT === 2;
+                            const isOth = rawG === 'Khác' || employee.IDGT === 3;
+                            return (
+                              <Tag color={isFem ? 'magenta' : 'blue'}>
+                                {isFem ? t('employee360.genderFemale') : isOth ? t('employee360.genderOther') : t('employee360.genderMale')}
+                              </Tag>
+                            );
+                          })()}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Ngày sinh">
-                          {employee.NGAYSINH ? employee.NGAYSINH.split('T')[0] : 'Chưa cập nhật'}
+                        <Descriptions.Item label={t('employee360.birthDate')}>
+                          {employee.NGAYSINH ? employee.NGAYSINH.split('T')[0] : t('employee360.notUpdated')}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<Space><HomeOutlined /> Địa chỉ cư trú</Space>} span={2}>
-                          {employee.DIACHI || 'Chưa cập nhật'}
+                        <Descriptions.Item label={<Space><HomeOutlined /> {t('employee360.address')}</Space>} span={2}>
+                          {employee.DIACHI || t('employee360.notUpdated')}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Phòng ban trực thuộc">
-                          <Tag color="blue">{employee.TENPB || 'Chưa phân bổ'}</Tag>
+                        <Descriptions.Item label={t('employee360.directDept')}>
+                          <Tag color="blue">{employee.TENPB || t('employee360.unassigned')}</Tag>
                         </Descriptions.Item>
-                        <Descriptions.Item label="Bộ phận chuyên môn">
-                          {employee.TENBP || 'Chưa phân bổ'}
+                        <Descriptions.Item label={t('employee360.subDept')}>
+                          {employee.TENBP || t('employee360.unassigned')}
                         </Descriptions.Item>
-                        <Descriptions.Item label="Chức vụ đảm nhiệm">
-                          <Tag color="geekblue">{employee.TENCV || 'Nhân viên'}</Tag>
+                        <Descriptions.Item label={t('employee360.jobTitle')}>
+                          <Tag color="geekblue">{employee.TENCV || t('employee360.defaultPosition')}</Tag>
                         </Descriptions.Item>
                       </Descriptions>
                     </Card>
 
                     {/* LỊCH SỬ THU NHẬP THỰC TẾ TỪ CSDL */}
                     <Card
-                      title="💵 Lịch sử chi trả lương thực tế"
+                      title={`💵 ${t('employee360.actualPayrollHistory')}`}
                       size="small"
-                      style={{ borderColor: '#e2e8f0' }}
+                      style={{ borderColor: tokens.borderMedium }}
                     >
                       <Table
                         dataSource={rawPayroll}
@@ -519,56 +547,65 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                           emptyText: (
                             <Empty
                               image={Empty.PRESENTED_IMAGE_SIMPLE}
-                              description="Chưa có dữ liệu bảng lương cho nhân viên này trong CSDL Oracle"
+                              description={t('employee360.noPayrollInDb')}
                             />
                           ),
                         }}
                         columns={[
-                          { title: 'Kỳ Lương', dataIndex: 'KyLuong', key: 'KyLuong' },
+                          { title: t('employee360.colPeriod'), dataIndex: 'KyLuong', key: 'KyLuong' },
                           {
-                            title: 'Thu nhập Gross',
+                            title: t('employee360.colGross'),
                             dataIndex: 'Gross',
                             key: 'Gross',
                             render: (v) => `${Number(v || 0).toLocaleString()} đ`,
                           },
                           {
-                            title: 'Làm thêm (OT)',
+                            title: t('employee360.colOt'),
                             dataIndex: 'Ot',
                             key: 'Ot',
                             render: (v) => `${Number(v || 0).toLocaleString()} đ`,
                           },
                           {
-                            title: 'Thực lĩnh (NET)',
+                            title: t('employee360.colNet'),
                             dataIndex: 'Net',
                             key: 'Net',
                             render: (v) => (
-                              <strong style={{ color: '#10b981' }}>
+                              <strong style={{ color: tokens.successText }}>
                                 {Number(v || 0).toLocaleString()} đ
                               </strong>
                             ),
                           },
                           {
-                            title: 'Ngày công',
+                            title: t('employee360.colWorkDays'),
                             key: 'Cong',
-                            render: (_, r) => `${r.CongThucTe}/${r.CongChuan} công`,
+                            render: (_, r) => t('employee360.workDaysUnit', { actual: r.CongThucTe, standard: r.CongChuan }),
                           },
                           {
-                            title: 'Trạng thái',
+                            title: t('employee360.colStatus'),
                             dataIndex: 'TrangThai',
                             key: 'TrangThai',
                             align: 'center',
-                            render: (t) => {
-                              const isPaid = t === 'Đã chi trả' || t === 'Đã thanh toán';
-                              const isLocked = t === 'Đã chốt sổ (Chờ chi trả)';
+                            render: (statusVal) => {
+                              const rawStatus = (statusVal || '').toLowerCase();
+                              const isPaid = rawStatus.includes('đã chi trả') || rawStatus.includes('đã thanh toán') || rawStatus.includes('paid');
+                              const isLocked = rawStatus.includes('chốt sổ') || rawStatus.includes('locked');
+                              const isDraft = rawStatus.includes('nháp') || rawStatus.includes('draft');
+                              const displayStatus = isPaid
+                                ? t('employee360.statusPaid')
+                                : isLocked
+                                ? t('employee360.statusLockedAwaiting')
+                                : isDraft
+                                ? t('employee360.statusDraft')
+                                : (statusVal ? t(`status.${statusVal}`) || statusVal : t('employee360.statusPending'));
                               return (
                                 <Tag color={isPaid ? 'success' : isLocked ? 'processing' : 'warning'}>
-                                  {t || 'Chờ chi trả'}
+                                  {displayStatus}
                                 </Tag>
                               );
                             },
                           },
                           {
-                            title: 'Bảng lương chi tiết',
+                            title: t('employee360.colDetail'),
                             key: 'Action',
                             align: 'center',
                             render: (_, r) => {
@@ -582,7 +619,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                               const makycong = year * 100 + month;
                               const canPrintPayslip = canPrint(currentUser, 'F_CC_BANGLUONG');
                               return (
-                                <Tooltip title={!canPrintPayslip ? 'Bạn không có quyền in phiếu lương' : undefined}>
+                                <Tooltip title={!canPrintPayslip ? t('employee360.noPrintPermission') : undefined}>
                                   <Button
                                     type="link"
                                     size="small"
@@ -607,7 +644,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                                     }}
                                     style={{ fontWeight: 600, color: canPrintPayslip ? '#1d4ed8' : '#94a3b8' }}
                                   >
-                                    In Phiếu Lương
+                                    {t('employee360.printPayslip')}
                                   </Button>
                                 </Tooltip>
                               );
@@ -621,30 +658,30 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
               },
               {
                 key: 'timeline',
-                label: '🕒 Dòng thời gian sự nghiệp (Timeline)',
+                label: `🕒 ${t('employee360.tabTimeline')}`,
                 children: (
                   <div style={{ padding: '12px 16px' }}>
                     <Paragraph type="secondary">
-                      Toàn bộ các mốc sự kiện thực tế: Hợp đồng, nâng lương, khen thưởng, điều chuyển và quyết toán lương ghi nhận trong hệ thống.
+                      {t('employee360.timelineDesc')}
                     </Paragraph>
                     {timelineItems.length > 0 ? (
                       <Timeline
                         mode="left"
                         items={timelineItems.map((item, idx) => ({
                           key: idx,
-                          label: <span style={{ fontWeight: 600, color: '#64748b', fontSize: 13 }}>{item.Ngay}</span>,
-                          color: item.TagColor || 'blue',
+                          label: <span style={{ fontWeight: 600, color: tokens.textSecondary, fontSize: 13 }}>{item.Ngay}</span>,
+                          color: timelineColor(item.Loai).text,
                           dot: renderTimelineDot(item.IconType),
                           children: (
-                            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 8, padding: '10px 14px', marginBottom: 8 }}>
+                            <div style={{ background: tokens.cardSecondaryBg, border: `1px solid ${tokens.borderMedium}`, borderRadius: 8, padding: '10px 14px', marginBottom: 8 }}>
                               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                                <Text strong style={{ color: '#0f172a' }}>{item.TieuDe}</Text>
-                                <Tag color={item.TagColor || 'blue'} style={{ borderRadius: 4, margin: 0 }}>
-                                  {item.Loai || 'Sự kiện'}
+                                <Text strong style={{ color: tokens.textPrimary }}>{timelineLabels(item, t).title}</Text>
+                                <Tag color={item.TagColor || 'blue'} style={{ borderRadius: 4, margin: 0, color: timelineColor(item.Loai).text, background: timelineColor(item.Loai).background, borderColor: tokens.borderMedium }}>
+                                  {timelineLabels(item, t).label || t('employee360.eventDefault')}
                                 </Tag>
                               </div>
-                              <Paragraph type="secondary" style={{ margin: 0, fontSize: 13 }}>
-                                {item.MoTa}
+                              <Paragraph type="secondary" style={{ margin: 0, fontSize: 13, color: tokens.textSecondary }}>
+                                {timelineLabels(item, t).description}
                               </Paragraph>
                             </div>
                           ),
@@ -653,7 +690,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                     ) : (
                       <Empty
                         image={Empty.PRESENTED_IMAGE_SIMPLE}
-                        description="Chưa có sự kiện thăng tiến hay khen thưởng nào được ghi nhận cho nhân viên này"
+                        description={t('employee360.noTimelineEvents')}
                       />
                     )}
                   </div>
@@ -661,7 +698,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
               },
               {
                 key: 'onboarding',
-                label: '✅ Onboarding Checklist',
+                label: `✅ ${t('employee360.tabOnboarding')}`,
                 children: (
                   <div style={{ padding: '8px 12px' }}>
                     <div
@@ -674,10 +711,10 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                     >
                       <div>
                         <Title level={5} style={{ margin: 0 }}>
-                          Tiến độ tiếp nhận & Hoàn thiện Hồ sơ Nhân sự
+                          {t('employee360.onboardingTitle')}
                         </Title>
                         <Text type="secondary">
-                          Kiểm tra tính đầy đủ của thông tin pháp lý, hợp đồng và hồ sơ lưu trữ trong CSDL.
+                          {t('employee360.onboardingDesc')}
                         </Text>
                       </div>
                       <div style={{ textAlign: 'right' }}>
@@ -685,7 +722,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                           style={{
                             fontSize: 20,
                             fontWeight: 700,
-                            color: onboardingPercent === 100 ? '#10b981' : '#3b82f6',
+                            color: onboardingPercent === 100 ? tokens.successText : tokens.infoText,
                           }}
                         >
                           {onboardingPercent}%
@@ -694,7 +731,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                       </div>
                     </div>
 
-                    <Card size="small" style={{ background: '#f8fafc', borderColor: '#e2e8f0' }}>
+                    <Card size="small" style={{ background: tokens.cardSecondaryBg, borderColor: tokens.borderMedium }}>
                       <Space direction="vertical" style={{ width: '100%' }} size="middle">
                         {checklistItems.map((item, idx) => (
                           <div
@@ -704,9 +741,9 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                               alignItems: 'center',
                               justifyContent: 'space-between',
                               padding: '8px 12px',
-                              background: '#fff',
+                              background: tokens.cardBg,
                               borderRadius: 6,
-                              border: '1px solid #f1f5f9',
+                              border: `1px solid ${tokens.borderSubtle}`,
                               gap: 8,
                               flexWrap: 'wrap',
                             }}
@@ -715,20 +752,20 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                               <span
                                 style={{
                                   textDecoration: item.Done ? 'line-through' : 'none',
-                                  color: item.Done ? '#64748b' : '#1e293b',
+                                  color: item.Done ? tokens.textSecondary : tokens.textPrimary,
                                 }}
                               >
-                                {item.Title}
+                                {checklistLabels(item, t).title}
                               </span>
                             </Checkbox>
                             <Space wrap>
-                              <Text type="secondary" style={{ fontSize: 12 }}>
-                                {item.Detail}
+                              <Text type="secondary" style={{ fontSize: 12, color: tokens.textSecondary }}>
+                                {checklistLabels(item, t).detail}
                               </Text>
                               {item.Done ? (
-                                <Tag color="success">Đã hoàn thành</Tag>
+                                <Tag color="success" style={{ background: tokens.successBg, color: tokens.successText, borderColor: tokens.borderMedium }}>{t('employee360.completed')}</Tag>
                               ) : (
-                                <Tag color="warning">Chưa hoàn thành</Tag>
+                                <Tag color="warning" style={{ background: tokens.warningBg, color: tokens.warningText, borderColor: tokens.borderMedium }}>{t('employee360.notCompleted')}</Tag>
                               )}
                             </Space>
                           </div>
@@ -740,31 +777,31 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
               },
               {
                 key: 'account',
-                label: '🔐 Tài khoản & Quyền Mobile',
+                label: `🔐 ${t('employee360.tabAccount')}`,
                 children: (
                   <div style={{ padding: '8px 12px' }}>
                     <Alert
-                      message="Quản lý Tài khoản & Quyền Mobile Self-Service"
-                      description="Hồ sơ nhân sự có thể liên kết 1-1 với tài khoản người dùng để đăng nhập vào ứng dụng Mobile. Tên đăng nhập (LoginName) và Mã nhân sự (EmployeeCode) được phân tách độc lập theo Quy tắc 6, 7 & 21."
+                      message={t('employee360.accountAlertTitle')}
+                      description={t('employee360.accountAlertDesc')}
                       type="info"
                       showIcon
                       style={{ marginBottom: 16 }}
                     />
 
-                    <Card size="small" style={{ background: '#f8fafc', borderColor: '#e2e8f0', borderRadius: 8 }}>
+                    <Card size="small" style={{ background: tokens.cardSecondaryBg, borderColor: tokens.borderMedium, borderRadius: 8 }}>
                       <Descriptions bordered size="middle" column={{ xs: 1, sm: 2 }}>
-                        <Descriptions.Item label="Mã nhân sự (EmployeeCode)">
-                          <Text strong style={{ color: '#1677ff', fontSize: 14 }}>
+                        <Descriptions.Item label={t('employee360.empCodeLabel')}>
+                          <Text strong style={{ color: tokens.infoText, fontSize: 14 }}>
                             <IdcardOutlined style={{ marginRight: 6 }} />
                             {employee?.EMPLOYEE_CODE || employee?.EmployeeCode || `NV${String(employee?.MANV).padStart(6, '0')}`}
                           </Text>
                         </Descriptions.Item>
 
-                        <Descriptions.Item label="Họ và tên">
+                        <Descriptions.Item label={t('employee360.fullName')}>
                           <Text strong>{employee?.HOTEN}</Text>
                         </Descriptions.Item>
 
-                        <Descriptions.Item label="Tài khoản liên kết (LoginName)">
+                        <Descriptions.Item label={t('employee360.linkedAccount')}>
                           {linkedAccount ? (
                             <Space>
                               <Tag color="blue" icon={<UserOutlined />}>
@@ -773,23 +810,23 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                               <Text type="secondary">({linkedAccount.FullName})</Text>
                             </Space>
                           ) : (
-                            <Tag color="orange">Chưa liên kết tài khoản</Tag>
+                            <Tag color="orange">{t('employee360.notLinked')}</Tag>
                           )}
                         </Descriptions.Item>
 
-                        <Descriptions.Item label="Trạng thái tài khoản">
+                        <Descriptions.Item label={t('employee360.accountStatus')}>
                           {linkedAccount ? (
                             linkedAccount.Disabled ? (
-                              <Tag color="red">Bị tạm khóa</Tag>
+                              <Tag color="red">{t('employee360.accountSuspended')}</Tag>
                             ) : (
-                              <Tag color="green">Đang hoạt động</Tag>
+                              <Tag color="green">{t('employee360.accountActive')}</Tag>
                             )
                           ) : (
                             <Text type="secondary">N/A</Text>
                           )}
                         </Descriptions.Item>
 
-                        <Descriptions.Item label="Quyền truy cập Mobile (Mobile Access)" span={2}>
+                        <Descriptions.Item label={t('employee360.mobileAccess')} span={2}>
                           {linkedAccount ? (
                             <Space size="middle" wrap>
                               <Switch
@@ -799,8 +836,8 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                                     : linkedAccount.ClientType !== 'DESKTOP'
                                 }
                                 loading={togglingMobile}
-                                checkedChildren={<Space><MobileOutlined />Bật</Space>}
-                                unCheckedChildren="Tắt"
+                                checkedChildren={<Space><MobileOutlined />{t('employee360.switchOn')}</Space>}
+                                unCheckedChildren={t('employee360.switchOff')}
                                 onChange={async (checked) => {
                                   try {
                                     setTogglingMobile(true);
@@ -812,13 +849,16 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                                       IsMobileEnabled: checked,
                                     });
                                     notification.success({
-                                      message: 'Thành công',
-                                      description: `Đã ${checked ? 'kích hoạt' : 'vô hiệu hóa'} Mobile Access cho [${linkedAccount.Username}]!`,
+                                      message: t('employee360.toggleMobileSuccess'),
+                                      description: t('employee360.toggleMobileSuccessDesc', {
+                                        action: checked ? t('employee360.actionActivated') : t('employee360.actionDeactivated'),
+                                        username: linkedAccount.Username,
+                                      }),
                                     });
                                   } catch {
                                     notification.error({
-                                      message: 'Lỗi',
-                                      description: 'Không thể cập nhật quyền Mobile Access.',
+                                      message: t('employee360.toggleMobileError'),
+                                      description: t('employee360.toggleMobileErrorDesc'),
                                     });
                                   } finally {
                                     setTogglingMobile(false);
@@ -827,13 +867,13 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
                               />
                               <Text type="secondary" style={{ fontSize: 13 }}>
                                 {linkedAccount.IsMobileEnabled !== false && linkedAccount.ClientType !== 'DESKTOP'
-                                  ? 'Nhân viên được phép sử dụng ứng dụng di động Self-Service.'
-                                  : 'Truy cập di động đang bị vô hiệu hóa cho nhân viên này.'}
+                                  ? t('employee360.mobileEnabledDesc')
+                                  : t('employee360.mobileDisabledDesc')}
                               </Text>
                             </Space>
                           ) : (
                             <Text type="secondary" italic>
-                              Cần liên kết tài khoản người dùng trước khi cấu hình Mobile Access.
+                              {t('employee360.needLinkFirst')}
                             </Text>
                           )}
                         </Descriptions.Item>
@@ -849,6 +889,7 @@ export const Employee360Modal: React.FC<Employee360ModalProps> = ({
     </Modal>
 
       <PhieuLuongModal
+        printAllowed={canPrint(currentUser, 'F_CC_BANGLUONG')}
         visible={payslipModalVisible}
         onClose={() => setPayslipModalVisible(false)}
         record={selectedPayslipRecord}

@@ -1,4 +1,4 @@
-namespace QLyNSu.FORM_SYSTEM
+﻿namespace QLyNSu.FORM_SYSTEM
 {
     partial class FrmAI_Chat
     {
@@ -17,7 +17,7 @@ namespace QLyNSu.FORM_SYSTEM
 
         private void InitializeComponent()
         {
-            this.flpChat = new System.Windows.Forms.FlowLayoutPanel();
+            this.flpChat = new QLyNSu.Functions.AiChatFlowPanel();
             this.pnlQuickActions = new DevExpress.XtraEditors.PanelControl();
             this.btnActionBirthday = new DevExpress.XtraEditors.SimpleButton();
             this.btnActionSalary = new DevExpress.XtraEditors.SimpleButton();
@@ -157,7 +157,9 @@ namespace QLyNSu.FORM_SYSTEM
             // 
             this.pnlChatHeader.Appearance.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(240)))), ((int)(((byte)(244)))), ((int)(((byte)(248)))));
             this.pnlChatHeader.Appearance.Options.UseBackColor = true;
+            this.btnViewLog = new DevExpress.XtraEditors.SimpleButton();
             this.pnlChatHeader.BorderStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
+            this.pnlChatHeader.Controls.Add(this.btnViewLog);
             this.pnlChatHeader.Controls.Add(this.btnOpenDashboard);
             this.pnlChatHeader.Controls.Add(this.btnClearChat);
             this.pnlChatHeader.Controls.Add(this.lblChatTitle);
@@ -167,6 +169,19 @@ namespace QLyNSu.FORM_SYSTEM
             this.pnlChatHeader.Name = "pnlChatHeader";
             this.pnlChatHeader.Size = new System.Drawing.Size(700, 62);
             this.pnlChatHeader.TabIndex = 0;
+            // 
+            // btnViewLog
+            // 
+            this.btnViewLog.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnViewLog.Appearance.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.btnViewLog.Appearance.Options.UseFont = true;
+            this.btnViewLog.Location = new System.Drawing.Point(323, 14);
+            this.btnViewLog.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnViewLog.Name = "btnViewLog";
+            this.btnViewLog.Size = new System.Drawing.Size(117, 34);
+            this.btnViewLog.TabIndex = 3;
+            this.btnViewLog.Text = "📜 Nhật ký AI";
+            this.btnViewLog.Click += new System.EventHandler(this.btnViewLog_Click);
             // 
             // btnOpenDashboard
             // 
@@ -235,7 +250,7 @@ namespace QLyNSu.FORM_SYSTEM
 
         #endregion
 
-        private System.Windows.Forms.FlowLayoutPanel flpChat;
+        private QLyNSu.Functions.AiChatFlowPanel flpChat;
         private DevExpress.XtraEditors.PanelControl pnlQuickActions;
         private DevExpress.XtraEditors.SimpleButton btnActionBirthday;
         private DevExpress.XtraEditors.SimpleButton btnActionSalary;
@@ -248,5 +263,6 @@ namespace QLyNSu.FORM_SYSTEM
         private DevExpress.XtraEditors.LabelControl lblChatTitle;
         private DevExpress.XtraEditors.SimpleButton btnClearChat;
         private DevExpress.XtraEditors.SimpleButton btnOpenDashboard;
+        private DevExpress.XtraEditors.SimpleButton btnViewLog;
     }
 }

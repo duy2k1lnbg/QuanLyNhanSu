@@ -48,6 +48,7 @@ namespace Bu.CLASS_CHAMCONG
             catch (Exception ex)
             {
 
+                if (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) throw new Bu.CLASS_SYSTEM.BusinessException("PAYROLL_FROZEN", Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage, ex);
                 throw new Exception("Lỗi Add data " + ex.Message);
             }
             
@@ -62,6 +63,7 @@ namespace Bu.CLASS_CHAMCONG
             }
             catch (Exception ex)
             {
+                if (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) throw new Bu.CLASS_SYSTEM.BusinessException("PAYROLL_FROZEN", Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage, ex);
                 throw new Exception("Lỗi AddRange data " + ex.Message);
             }
         }
@@ -166,6 +168,7 @@ WHERE TO_CHAR(d.ngay, 'DY', 'NLS_DATE_LANGUAGE=AMERICAN') != 'SUN'
             }
             catch (Exception ex)
             {
+                if (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) throw new Bu.CLASS_SYSTEM.BusinessException("PAYROLL_FROZEN", Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage, ex);
                 throw new Exception("Lỗi tự động phát sinh TB_BANGCONG: " + ex.Message, ex);
             }
             finally
@@ -478,6 +481,7 @@ INSERT (
             }
             catch (Exception ex)
             {
+                if (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) throw new Bu.CLASS_SYSTEM.BusinessException("PAYROLL_FROZEN", Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage, ex);
                 throw new Exception("Lỗi phát sinh bảng công chi tiết: " + ex.Message, ex);
             }
             finally
@@ -628,6 +632,7 @@ END;";
             catch (Exception ex)
             {
 
+                if (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) throw new Bu.CLASS_SYSTEM.BusinessException("PAYROLL_FROZEN", Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage, ex);
                 throw new Exception("Lỗi Update data " + ex.Message);
             }
         }
@@ -881,6 +886,7 @@ END;";
                 catch (Exception ex)
                 {
                     try { trans.Rollback(); } catch (InvalidOperationException) { }
+                    if (Bu.CLASS_SYSTEM.ErrorHelper.IsPayrollFrozen(ex)) throw new Bu.CLASS_SYSTEM.BusinessException("PAYROLL_FROZEN", Bu.CLASS_SYSTEM.ErrorHelper.PayrollFrozenMessage, ex);
                     throw new Exception("Lỗi khi cập nhật ngày công và giờ vào/ra: " + ex.Message, ex);
                 }
             }

@@ -12,6 +12,7 @@ export interface UserSession {
   clientType?: string;
   isAdmin: boolean;
   rights: string[];
+  detailedRights?: Record<string, Record<string, boolean | number | string>>;
 }
 
 export interface LoginResponse {
@@ -23,6 +24,7 @@ export interface LoginResponse {
     fullName: string;
     isAdmin: boolean;
     rights: string[];
+  detailedRights?: Record<string, Record<string, boolean | number | string>>;
     manv?: number | null;
     clientType?: string;
   };

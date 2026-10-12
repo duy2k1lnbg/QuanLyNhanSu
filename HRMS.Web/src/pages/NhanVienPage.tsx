@@ -508,7 +508,7 @@ export function NhanVienPage({
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span>{t('employee.listTitle', { count: filteredEmployees.length })}</span>
             <Tag color="purple" style={{ borderRadius: 6, margin: 0 }}>
-              {filteredEmployees.length} nhân sự
+              {filteredEmployees.length}
             </Tag>
           </div>
         }
@@ -608,9 +608,9 @@ export function NhanVienPage({
               <Form.Item name="GIOITINH" label={t('employee.labelGender')} initialValue="Nam">
                 <Select
                   options={[
-                    { value: 'Nam', label: 'Nam' },
-                    { value: 'Nữ', label: 'Nữ' },
-                    { value: 'Khác', label: 'Khác' },
+                    { value: 'Nam', label: t('employee360.genderMale') },
+                    { value: 'Nữ', label: t('employee360.genderFemale') },
+                    { value: 'Khác', label: t('employee360.genderOther') },
                   ]}
                 />
               </Form.Item>

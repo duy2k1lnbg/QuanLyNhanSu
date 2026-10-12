@@ -20,8 +20,9 @@ import {
 } from '@ant-design/icons';
 import {
   ResponsiveContainer,
-  AreaChart,
+  ComposedChart,
   Area,
+  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -125,6 +126,63 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     return true;
   });
 
+  const getActionItemTitle = (item: ActionItemDTO): string => {
+    if (item.id === 'act-contracts') {
+      return t('dashboard.actionExpiringContracts', { count: item.count });
+    }
+    if (item.id === 'act-timesheets') {
+      return t('dashboard.actionUnclosedTimesheets', { count: item.count });
+    }
+    if (item.id === 'act-missing') {
+      return t('dashboard.actionMissingInfo', { count: item.count });
+    }
+    if (item.id === 'act-salary') {
+      const matchPeriod = item.title.match(/Kỳ lương ([^\s]+)/i);
+      const period = matchPeriod ? matchPeriod[1] : (metrics.payrollPeriodLabel || '');
+      return t('dashboard.actionSalaryReady', { period });
+    }
+    return item.title;
+  };
+
+  const getActionItemButtonText = (item: ActionItemDTO): string => {
+    if (item.id === 'act-contracts') return t('dashboard.actionRenewContracts');
+    if (item.id === 'act-timesheets') return t('dashboard.actionReviewTimesheets');
+    if (item.id === 'act-missing') return t('dashboard.actionUpdateProfile');
+    if (item.id === 'act-salary') return t('dashboard.actionCalculateSalary');
+    return item.actionText || t('dashboard.btnProcessNow');
+  };
+
+  const chartData = useMemo(() => {
+    const rawList = luongStats && luongStats.length > 0 ? luongStats : [];
+    if (rawList.length === 0) {
+      if (totalSalary > 0 || metrics.totalNetPayroll > 0) {
+        const period = metrics.payrollPeriodLabel || 'T09/2026';
+        const val = totalSalary || metrics.totalNetPayroll;
+        return [
+          {
+            thang: period,
+            KyCong: period,
+            tongLuong: val,
+            TongLuong: val,
+          },
+        ];
+      }
+      return [];
+    }
+
+    return rawList.map((item: any) => {
+      const period = item.thang || item.KyCong || item.kyCong || 'Kỳ lương';
+      const val = Number(item.tongLuong ?? item.TongLuong ?? 0);
+      return {
+        ...item,
+        thang: period,
+        KyCong: period,
+        tongLuong: val,
+        TongLuong: val,
+      };
+    });
+  }, [luongStats, totalSalary, metrics]);
+
   const currentDateStr = new Date().toLocaleDateString(lang === 'zh-CN' ? 'zh-CN' : lang, {
     weekday: 'long',
     day: 'numeric',
@@ -136,7 +194,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20, width: '100%' }}>
       {/* 1. EXECUTIVE PAGE HEADER */}
       <PageHeader
-        title={`Xin chào, ${currentUser.FullName || currentUser.Username} 👋`}
+        title={t('dashboard.greeting', { name: currentUser.FullName || currentUser.Username })}
         subtitle={`${t('app.titleDashboard')} • ${currentDateStr}`}
         badge={
           <Tag
@@ -199,7 +257,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             value={countTotal}
             icon={<TeamOutlined />}
             accent="blue"
-            subtext={`${activeCount} đang làm việc • ${metrics.resignedEmployees} đã thôi việc`}
+            subtext={t('dashboard.statWorkingAndResigned', {
+              active: activeCount,
+              resigned: metrics.resignedEmployees,
+            })}
             onClick={canAccessNv ? () => onNavigate('nhanvien') : undefined}
             className="stagger-card-1"
           />
@@ -212,7 +273,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             value={activeCount}
             icon={<CheckCircleOutlined />}
             accent="green"
-            subtext={`Có mặt hôm nay: ${present} (${metrics.totalPunchesToday} lượt quẹt)`}
+            subtext={t('dashboard.statPresentSubtext', {
+              present,
+              punches: metrics.totalPunchesToday,
+            })}
             onClick={canAccessCc ? () => onNavigate('chamcong') : (canAccessNv ? () => onNavigate('nhanvien') : undefined)}
             className="stagger-card-2"
           />
@@ -221,11 +285,20 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         {/* Salary Fund (Net Pay) */}
         <Col xs={12} sm={12} lg={6}>
           <MetricCard
-            title={`Tổng thực lĩnh (${metrics.payrollPeriodLabel})`}
+            title={t('dashboard.statNetPayrollPeriod', {
+              period: metrics.payrollPeriodLabel,
+            })}
             value={formatPayroll(totalSalary || metrics.totalNetPayroll)}
             icon={<DollarOutlined />}
             accent="purple"
-            subtext={metrics.payrollCalculatedCount > 0 ? `${metrics.payrollCalculatedCount}/${countTotal} nhân sự đã tính lương` : 'Chi trả thực tế kỳ công'}
+            subtext={
+              metrics.payrollCalculatedCount > 0
+                ? t('dashboard.statPayrollCalculated', {
+                    calculated: metrics.payrollCalculatedCount,
+                    total: countTotal,
+                  })
+                : t('dashboard.statActualPayout')
+            }
             onClick={canAccessBl ? () => onNavigate('bangluong') : undefined}
             className="stagger-card-3"
           />
@@ -238,7 +311,14 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             value={metrics.activeContracts}
             icon={<CalendarOutlined />}
             accent="teal"
-            subtext={metrics.totalContracts > 0 ? `${metrics.activeContracts}/${metrics.totalContracts} hợp đồng còn hạn` : 'Hợp đồng lao động hiệu lực'}
+            subtext={
+              metrics.totalContracts > 0
+                ? t('dashboard.statContractsValid', {
+                    active: metrics.activeContracts,
+                    total: metrics.totalContracts,
+                  })
+                : t('dashboard.statContractsActive')
+            }
             onClick={canAccessNv ? () => onNavigate('hopdong') : undefined}
             className="stagger-card-4"
           />
@@ -251,55 +331,74 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <Col xs={24} lg={16}>
           <SectionCard
             title={t('dashboard.chartPayrollDistribution')}
-            subtitle="Biểu đồ quỹ lương thực tế phân bổ qua các kỳ công"
+            subtitle={t('dashboard.chartPayrollSubtitle')}
             icon={<DollarOutlined style={{ color: tokens.primary }} />}
           >
             <div style={{ width: '100%', height: 280, paddingTop: 10 }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={luongStats} margin={{ top: 10, right: 20, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="payrollAreaGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={tokens.primary} stopOpacity={isDark ? 0.45 : 0.25} />
-                      <stop offset="95%" stopColor={tokens.primary} stopOpacity={0.0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke={tokens.chartGrid} vertical={false} />
-                  <XAxis
-                    dataKey="thang"
-                    tick={{ fontSize: 12, fill: tokens.textSecondary }}
-                    stroke={tokens.borderSubtle}
-                  />
-                  <YAxis
-                    tick={{ fontSize: 12, fill: tokens.textSecondary }}
-                    stroke={tokens.borderSubtle}
-                    tickFormatter={(val) => {
-                      if (val >= 1000000000) return `${(val / 1000000000).toFixed(1)}B`;
-                      if (val >= 1000000) return `${(val / 1000000).toFixed(0)}M`;
-                      return val;
-                    }}
-                  />
-                  <RechartsTooltip
-                    contentStyle={{
-                      backgroundColor: tokens.elevatedBg,
-                      borderColor: tokens.borderSubtle,
-                      borderRadius: 10,
-                      boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-                      color: tokens.textPrimary,
-                    }}
-                    itemStyle={{ color: tokens.primary, fontWeight: 600 }}
-                    formatter={(val: any) => [`${Number(val).toLocaleString('vi-VN')} đ`, t('dashboard.chartSalaryFund')]}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="tongLuong"
-                    stroke={tokens.primary}
-                    strokeWidth={2.5}
-                    fillOpacity={1}
-                    fill="url(#payrollAreaGradient)"
-                    name={t('dashboard.chartSalaryFund')}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              {chartData.length === 0 ? (
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: tokens.textMuted }}>
+                  {t('common.noData')}
+                </div>
+              ) : (
+                <ResponsiveContainer width="100%" height={260}>
+                  <ComposedChart data={chartData} margin={{ top: 10, right: 20, left: 10, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="payrollAreaGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor={tokens.primary} stopOpacity={isDark ? 0.45 : 0.25} />
+                        <stop offset="95%" stopColor={tokens.primary} stopOpacity={0.0} />
+                      </linearGradient>
+                      <linearGradient id="payrollBarGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stopColor={tokens.primary} stopOpacity={0.8} />
+                        <stop offset="100%" stopColor={tokens.primary} stopOpacity={0.2} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={tokens.chartGrid} vertical={false} />
+                    <XAxis
+                      dataKey="thang"
+                      tick={{ fontSize: 12, fill: tokens.textSecondary }}
+                      stroke={tokens.borderSubtle}
+                    />
+                    <YAxis
+                      tick={{ fontSize: 12, fill: tokens.textSecondary }}
+                      stroke={tokens.borderSubtle}
+                      tickFormatter={(val) => {
+                        if (val >= 1000000000) return `${(val / 1000000000).toFixed(1)}B`;
+                        if (val >= 1000000) return `${(val / 1000000).toFixed(0)}M`;
+                        return `${val}`;
+                      }}
+                    />
+                    <RechartsTooltip
+                      contentStyle={{
+                        backgroundColor: tokens.elevatedBg,
+                        borderColor: tokens.borderSubtle,
+                        borderRadius: 10,
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
+                        color: tokens.textPrimary,
+                      }}
+                      itemStyle={{ color: tokens.primary, fontWeight: 600 }}
+                      formatter={(val: any) => [`${Number(val).toLocaleString('vi-VN')} đ`, t('dashboard.chartSalaryFund')]}
+                    />
+                    <Bar
+                      dataKey="tongLuong"
+                      fill="url(#payrollBarGradient)"
+                      radius={[6, 6, 0, 0]}
+                      maxBarSize={48}
+                      name={t('dashboard.chartSalaryFund')}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="tongLuong"
+                      stroke={tokens.primary}
+                      strokeWidth={2.5}
+                      dot={{ r: 4, fill: tokens.primary, stroke: '#fff', strokeWidth: 2 }}
+                      activeDot={{ r: 6, fill: tokens.primary }}
+                      fillOpacity={1}
+                      fill="url(#payrollAreaGradient)"
+                      name={t('dashboard.chartSalaryFund')}
+                    />
+                  </ComposedChart>
+                </ResponsiveContainer>
+              )}
             </div>
           </SectionCard>
         </Col>
@@ -308,7 +407,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <Col xs={24} lg={8}>
           <SectionCard
             title={t('dashboard.statAttendanceRate')}
-            subtitle="Tỷ lệ nhân sự đi làm hôm nay"
+            subtitle={t('dashboard.attendanceRateSubtitle')}
             icon={<CheckCircleOutlined style={{ color: tokens.successText }} />}
           >
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '16px 0' }}>
@@ -358,8 +457,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         {/* Action Items Panel */}
         <Col xs={24} lg={12}>
           <SectionCard
-            title="Cần xử lý & Cảnh báo"
-            subtitle={`${actionList.length} việc cần lưu ý`}
+            title={t('dashboard.actionCenterTitle')}
+            subtitle={t('dashboard.actionItemsNotice', { count: actionList.length })}
             icon={<WarningOutlined style={{ color: tokens.warningText }} />}
             extra={
               <Space size={6}>
@@ -369,7 +468,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                   onClick={() => setActionCategory('all')}
                   style={{ borderRadius: 6, fontSize: 12 }}
                 >
-                  Tất cả ({actionList.length})
+                  {t('dashboard.allCategories', { count: actionList.length })}
                 </Button>
                 {urgentCount > 0 && (
                   <Button
@@ -379,7 +478,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                     onClick={() => setActionCategory('urgent')}
                     style={{ borderRadius: 6, fontSize: 12 }}
                   >
-                    Gấp ({urgentCount})
+                    {t('dashboard.btnUrgent', { count: urgentCount })}
                   </Button>
                 )}
               </Space>
@@ -388,7 +487,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
             {filteredActionList.length === 0 ? (
               <div style={{ padding: '36px 16px', textAlign: 'center', color: tokens.textMuted }}>
                 <CheckCircleOutlined style={{ fontSize: 32, color: tokens.successText, marginBottom: 8 }} />
-                <div>Hệ thống ổn định. Không có việc cần xử lý gấp.</div>
+                <div>{t('dashboard.noUrgentActions')}</div>
               </div>
             ) : (
               <List
@@ -406,7 +505,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                           onClick={() => onNavigate(item.route)}
                           style={{ color: tokens.primary, fontWeight: 600, padding: 0 }}
                         >
-                          {item.actionText || 'Xử lý'} <ArrowRightOutlined />
+                          {getActionItemButtonText(item)} <ArrowRightOutlined />
                         </Button>
                       ) : null,
                     ]}
@@ -447,12 +546,12 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
                       }
                       title={
                         <Text strong style={{ fontSize: 13, color: tokens.textPrimary }}>
-                          {item.title}
+                          {getActionItemTitle(item)}
                         </Text>
                       }
                       description={
                         <Text style={{ fontSize: 12, color: tokens.textSecondary }}>
-                          {item.count ? `${item.count} bản ghi cần kiểm tra` : item.actionText || '-'}
+                          {item.count ? t('dashboard.recordsToReview', { count: item.count }) : item.actionText || '-'}
                         </Text>
                       }
                     />
@@ -467,7 +566,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
         <Col xs={24} lg={12}>
           <SectionCard
             title={t('employee.listTitle', { count: nhanVienList.length })}
-            subtitle="Danh sách nhân sự mới cập nhật trong hệ thống"
+            subtitle={t('dashboard.recentEmployeesSubtitle')}
             icon={<TeamOutlined style={{ color: tokens.primary }} />}
             extra={
               canAccessNv && (

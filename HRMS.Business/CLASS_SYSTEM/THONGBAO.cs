@@ -1,5 +1,6 @@
 using DA;
 using Bu.DTO;
+using Bu.CLASS_SYSTEM;
 using Oracle.ManagedDataAccess.Client;
 using System;
 using System.Collections.Generic;
@@ -107,21 +108,39 @@ namespace Bu
         {
             try
             {
-                db.Database.ExecuteSqlCommand(
-                    @"INSERT INTO TB_THONGBAO (TIEUDE, NOIDUNG, NGUOIDANG, NGAYDANG, LOAI_TB, IS_PINNED, TRANGTHAI, NGAY_HETHAN, FILE_DINHKEM, MACTY, MAPB) 
-                      VALUES (:TIEUDE, :NOIDUNG, :NGUOIDANG, :NGAYDANG, :LOAI_TB, :IS_PINNED, :TRANGTHAI, :NGAY_HETHAN, :FILE_DINHKEM, :MACTY, :MAPB)",
-                    new OracleParameter("TIEUDE", tb.TIEUDE ?? (object)DBNull.Value),
-                    new OracleParameter("NOIDUNG", tb.NOIDUNG ?? (object)DBNull.Value),
-                    new OracleParameter("NGUOIDANG", tb.NGUOIDANG ?? (object)DBNull.Value),
-                    new OracleParameter("NGAYDANG", tb.NGAYDANG),
-                    new OracleParameter("LOAI_TB", tb.LOAI_TB ?? (object)DBNull.Value),
-                    new OracleParameter("IS_PINNED", tb.IS_PINNED ?? (object)DBNull.Value),
-                    new OracleParameter("TRANGTHAI", tb.TRANGTHAI ?? (object)DBNull.Value),
-                    new OracleParameter("NGAY_HETHAN", tb.NGAY_HETHAN ?? (object)DBNull.Value),
-                    new OracleParameter("FILE_DINHKEM", tb.FILE_DINHKEM ?? (object)DBNull.Value),
-                    new OracleParameter("MACTY", tb.MACTY ?? (object)DBNull.Value),
-                    new OracleParameter("MAPB", tb.MAPB ?? (object)DBNull.Value)
-                );
+                string targetType = "ALL";
+                if (!string.IsNullOrWhiteSpace(tb.MAPB))
+                {
+                    targetType = "DEPARTMENT";
+                }
+                else if (!string.IsNullOrWhiteSpace(tb.MACTY))
+                {
+                    targetType = "COMPANY";
+                }
+
+                string connStr = Bu.CLASS_CHAMCONG.AttendanceCalculationHelper.GetStoreConnectionString(db);
+                using (var conn = new OracleConnection(connStr))
+                {
+                    conn.Open();
+                    NotificationService.CreateNotification(
+                        conn,
+                        null,
+                        tb.TIEUDE,
+                        tb.NOIDUNG,
+                        tb.LOAI_TB ?? "THONG_BAO_CHUNG",
+                        tb.NGUOIDANG ?? "Hệ thống",
+                        targetType: targetType,
+                        targetManv: null,
+                        mapb: tb.MAPB,
+                        macty: tb.MACTY,
+                        eventType: "ANNOUNCEMENT",
+                        discretePushBody: "HRMS: Công ty vừa phát hành thông báo mới. Mở ứng dụng để xem.",
+                        isPinned: tb.IS_PINNED == true,
+                        attachedFile: tb.FILE_DINHKEM,
+                        expiresAt: tb.NGAY_HETHAN,
+                        isActive: tb.TRANGTHAI != false
+                    );
+                }
             }
             catch (Exception ex)
             {
@@ -133,6 +152,16 @@ namespace Bu
         {
             try
             {
+                string targetType = "ALL";
+                if (!string.IsNullOrWhiteSpace(tb.MAPB))
+                {
+                    targetType = "DEPARTMENT";
+                }
+                else if (!string.IsNullOrWhiteSpace(tb.MACTY))
+                {
+                    targetType = "COMPANY";
+                }
+
                 db.Database.ExecuteSqlCommand(
                     @"UPDATE TB_THONGBAO SET 
                         TIEUDE = :TIEUDE, 
@@ -145,7 +174,8 @@ namespace Bu
                         NGAY_HETHAN = :NGAY_HETHAN, 
                         FILE_DINHKEM = :FILE_DINHKEM, 
                         MACTY = :MACTY, 
-                        MAPB = :MAPB 
+                        MAPB = :MAPB,
+                        TARGET_TYPE = :TARGET_TYPE
                       WHERE ID = :ID",
                     new OracleParameter("TIEUDE", tb.TIEUDE ?? (object)DBNull.Value),
                     new OracleParameter("NOIDUNG", tb.NOIDUNG ?? (object)DBNull.Value),
@@ -158,6 +188,7 @@ namespace Bu
                     new OracleParameter("FILE_DINHKEM", tb.FILE_DINHKEM ?? (object)DBNull.Value),
                     new OracleParameter("MACTY", tb.MACTY ?? (object)DBNull.Value),
                     new OracleParameter("MAPB", tb.MAPB ?? (object)DBNull.Value),
+                    new OracleParameter("TARGET_TYPE", targetType),
                     new OracleParameter("ID", tb.ID)
                 );
             }

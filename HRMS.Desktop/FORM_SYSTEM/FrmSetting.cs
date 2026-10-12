@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using DevExpress.XtraEditors;
 using System;
 using System.Linq;
@@ -15,9 +16,10 @@ namespace QLyNSu.FORM_SYSTEM
             InitializeComponent();
         }
 
-        private void FrmSetting_Load(object sender, EventArgs e)
+        private async void FrmSetting_Load(object sender, EventArgs e)
         {
-            LoadLanguagesToCombo();
+            await LoadLanguagesToCombo();
+            if (IsDisposed || Disposing) return;
 
             // Load saved language code (e.g. "en", "vi")
             string currentLangCode = LoadLanguageSetting();
@@ -47,13 +49,15 @@ namespace QLyNSu.FORM_SYSTEM
             btnOllamaConfig.Enabled = Bu.CLASS_SYSTEM.UserSession.HasRight("F_SYSTEM_AI_CONFIG");
         }
 
-        private void LoadLanguagesToCombo()
+        private async Task LoadLanguagesToCombo()
         {
+            try
+            {
             cboLanguage.Properties.Items.Clear();
             try
             {
                 var sysLang = new Bu.CLASS_SYSTEM.SYS_LANGUAGE();
-                var dbLangs = sysLang.getList()
+                var dbLangs = (await Functions.FormDataLoader.ReadAsync(this, () => sysLang.getList()))
                                      .Where(l => l.IS_ACTIVE)
                                      .GroupBy(l => l.NAME)
                                      .Select(g => g.First())
@@ -67,6 +71,7 @@ namespace QLyNSu.FORM_SYSTEM
                     return;
                 }
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("[FrmSetting DB Load Error]: " + ex.Message);
@@ -78,25 +83,42 @@ namespace QLyNSu.FORM_SYSTEM
             cboLanguage.Properties.Items.Add(new LangItem { Name = "Tiếng Nhật" });
             cboLanguage.Properties.Items.Add(new LangItem { Name = "Tiếng Trung" });
             cboLanguage.Properties.Items.Add(new LangItem { Name = "Tiếng Hàn" });
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnManage_Click(object sender, EventArgs e)
+        private async void btnManage_Click(object sender, EventArgs e)
         {
+            try
+            {
             using (var frm = new FrmLanguages())
             {
                 TranslationManager.Translate(frm);
-                frm.ShowDialog();
+                await Functions.ChildFormWindow.ShowAsync(this, frm);
             }
-            LoadLanguagesToCombo();
+            await LoadLanguagesToCombo();
+            if (IsDisposed || Disposing) return;
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
-        private void btnOllamaConfig_Click(object sender, EventArgs e)
+        private async void btnOllamaConfig_Click(object sender, EventArgs e)
         {
+            try
+            {
             using (var frm = new FrmOllamaConfig())
             {
                 TranslationManager.Translate(frm);
-                frm.ShowDialog();
+                await Functions.ChildFormWindow.ShowAsync(this, frm);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void btnLuu_Click(object sender, EventArgs e)

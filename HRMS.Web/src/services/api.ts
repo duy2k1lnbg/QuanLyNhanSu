@@ -1,4 +1,5 @@
 import axios from 'axios';
+import {getEffectiveLanguage, I18N_DICTIONARY, resolveTranslation} from './i18n';
 
 // Tự động nhận diện API URL:
 // 1. Biến môi trường VITE_API_BASE_URL (nếu có trong .env)
@@ -66,11 +67,16 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
+    if(error.response?.data?.code==='PAYROLL_FROZEN') {
+      const lang=getEffectiveLanguage();
+      error.response.data.message=resolveTranslation(I18N_DICTIONARY[lang],I18N_DICTIONARY.vi,'payrollPublication.frozen');
+      error.message=error.response.data.message;
+    }
     const originalRequest = error.config;
     if (!originalRequest) return Promise.reject(error);
 
     // Nếu request bị 404 (sai cấp độ route giữa IIS sub-app và root)
-    if (!originalRequest._retry && error.response?.status === 404) {
+    if (!originalRequest._skipBaseUrlFallback && !originalRequest._retry && error.response?.status === 404) {
       originalRequest._retry = true;
       if (originalRequest.baseURL === '/api/api') {
         console.warn(`[HRMS API] 404 tại '/api/api', đang tự động thử lại qua '/api'...`);

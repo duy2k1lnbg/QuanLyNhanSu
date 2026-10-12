@@ -53,7 +53,7 @@ namespace QLyNSu
             showHide(false);
         }
 
-        private void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnXoa_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             if (!Functions.FormSecurity.AssertPermission("F_DM_DANTOC", Bu.DTO.PermissionAction.Delete)) return;
             // Kiểm tra xem _IDTG có giá trị hợp lệ không
@@ -68,14 +68,16 @@ namespace QLyNSu
             {
                 // Thực hiện xóa và tải lại dữ liệu
                 _dantoc.Delete(_IDDT);
-                LoadData();
+                await LoadData();
+            if (IsDisposed || Disposing) return;
             }
         }
 
-        private void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
+        private async void btnLuu_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             SaveData();
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
             _them = false;
             showHide(true);
         }
@@ -91,19 +93,25 @@ namespace QLyNSu
             if (!Functions.FormSecurity.AssertPermission("F_DM_DANTOC", Bu.DTO.PermissionAction.Print)) return;
         }
 
-        private void FrmDanToc_Load(object sender, EventArgs e)
+        private async void FrmDanToc_Load(object sender, EventArgs e)
         {
             if (!Functions.FormSecurity.CheckViewPermission(this, "F_DM_DANTOC")) return;
             _them= false;
             _dantoc = new DANTOC();
             showHide(true);
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
-            gcDsDT.DataSource = _dantoc.getList();
+            try
+            {
+            gcDsDT.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _dantoc.getList());
             FormManager_Functions.CustomView_Colums(gvDsDT);
+                    }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
 
         private void SaveData()

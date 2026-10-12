@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using DA;
 using DevExpress.Utils;
 using DevExpress.XtraCharts;
@@ -19,13 +20,16 @@ namespace QLyNSu.FORM_BAOCAO
             InitializeComponent();
         }
 
-        private void FrmDashboardNhanSu_Shown(object sender, EventArgs e)
+        private async void FrmDashboardNhanSu_Shown(object sender, EventArgs e)
         {
-            LoadData();
+            await LoadData();
+            if (IsDisposed || Disposing) return;
         }
 
-        private void LoadData()
+        private async Task LoadData()
         {
+            try
+            {
             try
             {
                 List<DashboardPhongBanDTO> dataPB;
@@ -36,7 +40,7 @@ namespace QLyNSu.FORM_BAOCAO
                 using (var db = new MyEntities())
                 {
                     // Load active employees into memory using simple query projections
-                    var employeesRaw = db.TB_NHANVIEN
+                    var employeesRaw = await Functions.FormDataLoader.ReadAsync(this, () => db.TB_NHANVIEN
                                          .Where(nv => (nv.DATHOIVIEC ?? 0) == 0)
                                          .Select(nv => new {
                                              TenPB = nv.TB_PHONGBAN.TENPB,
@@ -44,7 +48,7 @@ namespace QLyNSu.FORM_BAOCAO
                                              TenTD = nv.TB_TRINHDO.TENTD,
                                              NgaySinh = nv.NGAYSINH
                                          })
-                                         .ToList();
+                                         .ToList());
 
                     var employees = employeesRaw.Select(nv => new {
                                           PhongBan = nv.TenPB ?? "Chưa xếp",
@@ -164,6 +168,7 @@ namespace QLyNSu.FORM_BAOCAO
                 chartTuoi.Titles.Clear();
                 chartTuoi.Titles.Add(titleTuoi);
             }
+            catch (OperationCanceledException) { return; }
             catch (Exception ex)
             {
                 string errMsg = ex.Message;
@@ -177,6 +182,10 @@ namespace QLyNSu.FORM_BAOCAO
                 }
                 XtraMessageBox.Show("Lỗi tải dữ liệu phân tích nhân sự: " + errMsg, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+        
+            }
+            catch (OperationCanceledException) { return; }
+            catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
     }
 }

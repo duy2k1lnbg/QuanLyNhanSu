@@ -1,0 +1,264 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DocumentMetadataSchema",
+  "description": "JSON Schema định nghĩa cấu trúc metadata chuẩn cho toàn bộ 30 tài liệu trong kho tri thức HRMS DataDoc",
+  "type": "object",
+  "required": [
+    "doc_id",
+    "title",
+    "version",
+    "status",
+    "source_kind",
+    "document_type",
+    "topics",
+    "jurisdiction",
+    "applicable_location",
+    "applicability_mode",
+    "access_profile",
+    "applies_to_current_company",
+    "ingest_enabled",
+    "requires_hr_approval_for_live"
+  ],
+  "properties": {
+    "doc_id": {
+      "type": "string",
+      "pattern": "^(PL|FC|CT|BM|SOP|FAQ|HD)-[0-9]{2}$",
+      "description": "Mã định danh duy nhất của tài liệu"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 5,
+      "description": "Tiêu đề đầy đủ của tài liệu"
+    },
+    "version": {
+      "type": "string",
+      "description": "Phiên bản tài liệu (ví dụ: 1.0.0, 1.0.0-draft)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ACTIVE_OFFICIAL",
+        "BENCHMARK_ONLY",
+        "DRAFT_NOT_APPROVED",
+        "VERIFIED_SYSTEM",
+        "ARCHIVED"
+      ],
+      "description": "Trạng thái hiệu lực của tài liệu"
+    },
+    "effective_from": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date",
+      "description": "Ngày bắt đầu có hiệu lực (YYYY-MM-DD), null nếu chưa ban hành"
+    },
+    "effective_to": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date",
+      "description": "Ngày hết hiệu lực (YYYY-MM-DD), null nếu còn hiệu lực vô thời hạn"
+    },
+    "approved_by": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Cơ quan/Cấp thẩm quyền ban hành hoặc null nếu chưa phê duyệt"
+    },
+    "company_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Mã định danh công ty áp dụng hoặc null nếu là văn bản pháp luật/tham khảo/chưa xác nhận"
+    },
+    "source_kind": {
+      "type": "string",
+      "enum": [
+        "VIETNAM_LAW",
+        "EXTERNAL_BENCHMARK",
+        "COMPANY_DRAFT",
+        "INTERNAL_PROCEDURE",
+        "SYSTEM_SPEC",
+        "COMPANY_POLICY"
+      ],
+      "description": "Nguồn gốc xuất xứ của tài liệu"
+    },
+    "document_type": {
+      "type": "string",
+      "enum": [
+        "LAW",
+        "DECREE",
+        "CIRCULAR",
+        "CODE_OF_CONDUCT",
+        "AUDIT_STANDARD",
+        "REGULATION",
+        "POLICY",
+        "DECISION",
+        "PROCEDURE",
+        "FORM_TEMPLATE",
+        "USER_GUIDE",
+        "FAQ",
+        "SYSTEM_SPEC",
+        "DATA_DICTIONARY"
+      ],
+      "description": "Thể thức tài liệu"
+    },
+    "topics": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "minItems": 1,
+      "description": "Danh sách các chủ đề nghiệp vụ"
+    },
+    "jurisdiction": {
+      "type": "string",
+      "enum": [
+        "VN",
+        "GLOBAL"
+      ],
+      "description": "Khu vực quyền tài phán"
+    },
+    "applicable_location": {
+      "type": "string",
+      "description": "Địa bàn áp dụng cụ thể"
+    },
+    "applicability_mode": {
+      "type": "string",
+      "enum": [
+        "ALL",
+        "RESTRICTED",
+        "UNRESOLVED"
+      ],
+      "description": "Chế độ áp dụng phạm vi đối tượng"
+    },
+    "access_profile": {
+      "type": "string",
+      "enum": [
+        "PUBLIC_INTERNAL",
+        "ROLE_RESTRICTED",
+        "CONFIDENTIAL"
+      ],
+      "description": "Hồ sơ bảo mật truy cập nội bộ"
+    },
+    "applies_to_current_company": {
+      "type": "boolean",
+      "description": "true nếu chính thức áp dụng cho công ty; false nếu là dự thảo hoặc tham khảo"
+    },
+    "ingest_enabled": {
+      "type": "boolean",
+      "description": "Cho phép nạp vào vector store phục vụ AI hay không (hiện tại toàn bộ đều là false)"
+    },
+    "requires_hr_approval_for_live": {
+      "type": "boolean",
+      "description": "Bắt buộc có phê duyệt HR bằng văn bản trước khi kích hoạt live"
+    },
+    "legal_basis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Căn cứ pháp luật Việt Nam"
+    },
+    "benchmark_basis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Căn cứ đối sánh quốc tế"
+    },
+    "source_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Danh sách URL nguồn chính thức"
+    },
+    "unresolved_fields": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Danh sách các thông tin công ty chưa xác nhận"
+    },
+    "allowed_role_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowedRoleIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "allowed_department_ids": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "allowedDepartmentIds": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "DRAFT_NOT_APPROVED",
+              "BENCHMARK_ONLY",
+              "ARCHIVED"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "ingest_enabled": {
+            "const": false
+          },
+          "applies_to_current_company": {
+            "const": false
+          },
+          "approved_by": {
+            "type": "null"
+          },
+          "effective_from": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "applies_to_current_company": {
+            "const": true
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "enum": [
+              "ACTIVE_OFFICIAL",
+              "VERIFIED_SYSTEM"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}
