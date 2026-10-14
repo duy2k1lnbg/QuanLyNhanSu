@@ -574,6 +574,7 @@ export function App() {
                 nhanVienList={nhanVienList}
                 bangLuongList={bangLuongList}
                 hopDongList={hopDongList}
+                chamCongList={chamCongList}
                 onNavigate={(key) => handleNavigate(key)}
                 presentToday={presentToday}
                 absentToday={absentToday}

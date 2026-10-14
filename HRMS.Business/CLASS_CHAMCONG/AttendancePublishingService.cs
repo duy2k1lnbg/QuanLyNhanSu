@@ -1,4 +1,4 @@
-﻿using DA;
+using DA;
 using Newtonsoft.Json;
 using Oracle.ManagedDataAccess.Client;
 using System;
@@ -838,8 +838,28 @@ namespace Bu.CLASS_CHAMCONG
             catch { }
         }
 
+        private AttendancePolicyDto MapPolicyDto(OracleDataReader reader)
+        {
+            return new AttendancePolicyDto
+            {
+                IdQuyDinh = Convert.ToInt64(reader["IDQUYDINH"]),
+                MaQuyDinh = reader["MA_QUYDINH"].ToString(),
+                SoPhienBan = Convert.ToInt32(reader["SO_PHIENBAN"]),
+                GiayDungSaiHuongCong = reader["GIAY_DUNG_SAI_HUONG_CONG"] != DBNull.Value ? Convert.ToInt32(reader["GIAY_DUNG_SAI_HUONG_CONG"]) : 300,
+                CachHuongDungSai = reader["CACH_HUONG_DUNG_SAI"] != DBNull.Value ? reader["CACH_HUONG_DUNG_SAI"].ToString() : "DU_CONG_NEU_TRONG_NGUONG",
+                CachDemMuon = reader["CACH_DEM_MUON"] != DBNull.Value ? reader["CACH_DEM_MUON"].ToString() : "TOAN_BO_NEU_VUOT",
+                GiayMienViPhamMuon = reader["GIAY_MIEN_VIPHAM_MUON"] != DBNull.Value ? Convert.ToInt32(reader["GIAY_MIEN_VIPHAM_MUON"]) : 0,
+                GiayMienViPhamSom = reader["GIAY_MIEN_VIPHAM_SOM"] != DBNull.Value ? Convert.ToInt32(reader["GIAY_MIEN_VIPHAM_SOM"]) : 0,
+                KieuLamTron = reader["KIEU_LAM_TRON"] != DBNull.Value ? reader["KIEU_LAM_TRON"].ToString() : "EXACT",
+                BuocLamTronGiay = reader["BUOC_LAM_TRON_GIAY"] != DBNull.Value ? Convert.ToInt32(reader["BUOC_LAM_TRON_GIAY"]) : 1,
+                DemBatDauPhut = reader["DEM_BATDAU_PHUT"] != DBNull.Value ? Convert.ToInt32(reader["DEM_BATDAU_PHUT"]) : 1320,
+                DemKetThucPhut = reader["DEM_KETTHUC_PHUT"] != DBNull.Value ? Convert.ToInt32(reader["DEM_KETTHUC_PHUT"]) : 360
+            };
+        }
+
         private AttendancePolicyDto LoadActivePolicy(OracleConnection conn, DateTime tuNgay, DateTime denNgay, long? policyId)
         {
+            // 1. Ưu tiên tìm quy định khớp chính xác theo ngày hiệu lực
             using (var cmd = CreateCmd(@"
                 SELECT IDQUYDINH, MA_QUYDINH, SO_PHIENBAN, GIAY_DUNG_SAI_HUONG_CONG,
                        CACH_HUONG_DUNG_SAI, CACH_DEM_MUON, GIAY_MIEN_VIPHAM_MUON, GIAY_MIEN_VIPHAM_SOM,
@@ -855,22 +875,46 @@ namespace Bu.CLASS_CHAMCONG
                 {
                     if (reader.Read())
                     {
-                        return new AttendancePolicyDto
-                        {
-                            IdQuyDinh = Convert.ToInt64(reader["IDQUYDINH"]),
-                            MaQuyDinh = reader["MA_QUYDINH"].ToString(),
-                            SoPhienBan = Convert.ToInt32(reader["SO_PHIENBAN"]),
-                            GiayDungSaiHuongCong = reader["GIAY_DUNG_SAI_HUONG_CONG"] != DBNull.Value ? Convert.ToInt32(reader["GIAY_DUNG_SAI_HUONG_CONG"]) : 300,
-                            CachHuongDungSai = reader["CACH_HUONG_DUNG_SAI"] != DBNull.Value ? reader["CACH_HUONG_DUNG_SAI"].ToString() : "DU_CONG_NEU_TRONG_NGUONG",
-                            CachDemMuon = reader["CACH_DEM_MUON"] != DBNull.Value ? reader["CACH_DEM_MUON"].ToString() : "TOAN_BO_NEU_VUOT",
-                            GiayMienViPhamMuon = reader["GIAY_MIEN_VIPHAM_MUON"] != DBNull.Value ? Convert.ToInt32(reader["GIAY_MIEN_VIPHAM_MUON"]) : 0,
-                            GiayMienViPhamSom = reader["GIAY_MIEN_VIPHAM_SOM"] != DBNull.Value ? Convert.ToInt32(reader["GIAY_MIEN_VIPHAM_SOM"]) : 0,
-                            KieuLamTron = reader["KIEU_LAM_TRON"] != DBNull.Value ? reader["KIEU_LAM_TRON"].ToString() : "EXACT",
-                            BuocLamTronGiay = reader["BUOC_LAM_TRON_GIAY"] != DBNull.Value ? Convert.ToInt32(reader["BUOC_LAM_TRON_GIAY"]) : 1,
-                            DemBatDauPhut = reader["DEM_BATDAU_PHUT"] != DBNull.Value ? Convert.ToInt32(reader["DEM_BATDAU_PHUT"]) : 1320,
-                            DemKetThucPhut = reader["DEM_KETTHUC_PHUT"] != DBNull.Value ? Convert.ToInt32(reader["DEM_KETTHUC_PHUT"]) : 360
-                        };
+                        return MapPolicyDto(reader);
                     }
+                }
+            }
+
+            // 2. Fallback: Nếu kỳ công diễn ra trước TU_NGAY của quy định (ví dụ kỳ công quá khứ), lấy phiên bản PUBLISHED của chính quy định đó
+            if (policyId.HasValue && policyId.Value > 0)
+            {
+                using (var cmd = CreateCmd(@"
+                    SELECT IDQUYDINH, MA_QUYDINH, SO_PHIENBAN, GIAY_DUNG_SAI_HUONG_CONG,
+                           CACH_HUONG_DUNG_SAI, CACH_DEM_MUON, GIAY_MIEN_VIPHAM_MUON, GIAY_MIEN_VIPHAM_SOM,
+                           KIEU_LAM_TRON, BUOC_LAM_TRON_GIAY, DEM_BATDAU_PHUT, DEM_KETTHUC_PHUT
+                    FROM TB_QUYDINH_CHAMCONG
+                    WHERE TRANG_THAI = 'PUBLISHED' AND IDQUYDINH = :p_policy
+                    ORDER BY SO_PHIENBAN DESC, TU_NGAY ASC", conn))
+                {
+                    cmd.Parameters.Add("p_policy", policyId.Value);
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return MapPolicyDto(reader);
+                        }
+                    }
+                }
+            }
+
+            // 3. Fallback: Lấy quy định PUBLISHED khả dụng bất kỳ trong hệ thống
+            using (var cmd = CreateCmd(@"
+                SELECT IDQUYDINH, MA_QUYDINH, SO_PHIENBAN, GIAY_DUNG_SAI_HUONG_CONG,
+                       CACH_HUONG_DUNG_SAI, CACH_DEM_MUON, GIAY_MIEN_VIPHAM_MUON, GIAY_MIEN_VIPHAM_SOM,
+                       KIEU_LAM_TRON, BUOC_LAM_TRON_GIAY, DEM_BATDAU_PHUT, DEM_KETTHUC_PHUT
+                FROM TB_QUYDINH_CHAMCONG
+                WHERE TRANG_THAI = 'PUBLISHED'
+                ORDER BY SO_PHIENBAN DESC, TU_NGAY ASC", conn))
+            using (var reader = cmd.ExecuteReader())
+            {
+                if (reader.Read())
+                {
+                    return MapPolicyDto(reader);
                 }
             }
 

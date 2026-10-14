@@ -34,9 +34,17 @@ namespace Bu.CLASS_PAYROLL
     public class SalaryAdvanceService
     {
         private readonly string _connectionString;
+        private readonly Action<OracleConnection, OracleTransaction, SalaryAdvanceRequestDto> _notifyRequestCreated;
 
         public SalaryAdvanceService(string connectionString = null)
+            : this(connectionString, null)
         {
+        }
+
+        internal SalaryAdvanceService(string connectionString,
+            Action<OracleConnection, OracleTransaction, SalaryAdvanceRequestDto> notifyRequestCreated)
+        {
+            _notifyRequestCreated = notifyRequestCreated ?? NotifyRequestCreated;
             if (string.IsNullOrEmpty(connectionString))
             {
                 using (var db = new MyEntities())
@@ -69,55 +77,72 @@ namespace Bu.CLASS_PAYROLL
                 throw new ArgumentException("Năm áp dụng không hợp lệ.");
 
             using (var conn = GetConnection())
+            using (var tx = conn.BeginTransaction())
             {
-                // Lấy ID từ sequence
-                long newId;
-                using (var cmdSeq = new OracleCommand("SELECT HR.SEQ_YEUCAU_UNGLUONG.NEXTVAL FROM DUAL", conn))
+                try
                 {
-                    newId = Convert.ToInt64(cmdSeq.ExecuteScalar());
+                    // Lấy ID từ sequence
+                    long newId;
+                    using (var cmdSeq = new OracleCommand("SELECT HR.SEQ_YEUCAU_UNGLUONG.NEXTVAL FROM DUAL", conn))
+                    {
+                        cmdSeq.Transaction = tx;
+                        newId = Convert.ToInt64(cmdSeq.ExecuteScalar());
+                    }
+
+                    string sql = @"
+                        INSERT INTO HR.TB_YEUCAU_UNGLUONG
+                        (ID, MANV, SOTIEN, NGAY_DENGHI, THANG, NAM, LYDO, TRANGTHAI, CREATED_AT, CREATED_BY)
+                        VALUES (:p_id, :p_manv, :p_sotien, :p_ngay, :p_thang, :p_nam, :p_lydo, 'PENDING', SYSDATE, :p_uid)";
+
+                    using (var cmd = new OracleCommand(sql, conn))
+                    {
+                        cmd.Transaction = tx;
+                        cmd.BindByName = true;
+                        cmd.Parameters.Add("p_id", newId);
+                        cmd.Parameters.Add("p_manv", manv);
+                        cmd.Parameters.Add("p_sotien", amount);
+                        cmd.Parameters.Add("p_ngay", advanceDate.Date);
+                        cmd.Parameters.Add("p_thang", thang);
+                        cmd.Parameters.Add("p_nam", nam);
+                        cmd.Parameters.Add("p_lydo", reason.Trim());
+                        cmd.Parameters.Add("p_uid", userId);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    var result = new SalaryAdvanceRequestDto
+                    {
+                        Id = newId,
+                        Manv = manv,
+                        Amount = amount,
+                        AdvanceDate = advanceDate.ToString("yyyy-MM-dd"),
+                        Thang = thang,
+                        Nam = nam,
+                        Reason = reason.Trim(),
+                        Status = "PENDING",
+                        CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
+                    };
+                    _notifyRequestCreated(conn, tx, result);
+                    tx.Commit();
+                    return result;
                 }
-
-                string sql = @"
-                    INSERT INTO HR.TB_YEUCAU_UNGLUONG 
-                    (ID, MANV, SOTIEN, NGAY_DENGHI, THANG, NAM, LYDO, TRANGTHAI, CREATED_AT, CREATED_BY)
-                    VALUES (:p_id, :p_manv, :p_sotien, :p_ngay, :p_thang, :p_nam, :p_lydo, 'PENDING', SYSDATE, :p_uid)";
-
-                using (var cmd = new OracleCommand(sql, conn))
+                catch
                 {
-                    cmd.BindByName = true;
-                    cmd.Parameters.Add("p_id", newId);
-                    cmd.Parameters.Add("p_manv", manv);
-                    cmd.Parameters.Add("p_sotien", amount);
-                    cmd.Parameters.Add("p_ngay", advanceDate.Date);
-                    cmd.Parameters.Add("p_thang", thang);
-                    cmd.Parameters.Add("p_nam", nam);
-                    cmd.Parameters.Add("p_lydo", reason.Trim());
-                    cmd.Parameters.Add("p_uid", userId);
-                    cmd.ExecuteNonQuery();
+                    tx.Rollback();
+                    throw;
                 }
-
-                // Gửi thông báo hệ thống
-                CLASS_SYSTEM.NotificationService.CreateNotification(
-                    conn,
-                    "Yêu cầu tạm ứng lương mới",
-                    $"Nhân viên #{manv} đã gửi yêu cầu tạm ứng số tiền {amount:N0} VNĐ cho kỳ {thang:D2}/{nam}.",
-                    "YEUCAU_UNGLUONG",
-                    "HR_SYSTEM"
-                );
-
-                return new SalaryAdvanceRequestDto
-                {
-                    Id = newId,
-                    Manv = manv,
-                    Amount = amount,
-                    AdvanceDate = advanceDate.ToString("yyyy-MM-dd"),
-                    Thang = thang,
-                    Nam = nam,
-                    Reason = reason,
-                    Status = "PENDING",
-                    CreatedAt = DateTime.Now.ToString("yyyy-MM-dd HH:mm")
-                };
             }
+        }
+
+        private static void NotifyRequestCreated(OracleConnection conn, OracleTransaction tx, SalaryAdvanceRequestDto request)
+        {
+            CLASS_SYSTEM.NotificationService.CreateNotification(
+                conn, tx,
+                "Yêu cầu tạm ứng lương mới",
+                $"Yêu cầu tạm ứng #{request.Id} của bạn cho kỳ {request.Thang:D2}/{request.Nam} đã được gửi và đang chờ duyệt.",
+                "YEUCAU_UNGLUONG", "HR_SYSTEM",
+                targetType: "PERSONAL", targetManv: request.Manv,
+                eventType: "SALARY_ADVANCE_CREATED", entityId: request.Id,
+                discretePushBody: "HRMS: Yêu cầu tạm ứng của bạn đã được gửi. Mở ứng dụng để xem.");
         }
 
         public List<SalaryAdvanceRequestDto> GetList(int? thang, int? nam, string status, string search, decimal? selfManv, int page, int pageSize, out int totalCount)

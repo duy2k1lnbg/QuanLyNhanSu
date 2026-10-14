@@ -14,6 +14,7 @@ let tokenError: string|null=null;
 let registrationAllowed=true;
 const registrations=new Set<Promise<DeviceStatusInfo>>();
 const ASYNC_KEY_PERMISSION_PROMPTED = 'HRMS_NOTIFICATION_PERMISSION_PROMPTED';
+export const HRMS_NOTIFICATION_CHANNEL_ID = 'hrms_default_channel';
 const ASYNC_KEY_PUSH_ENABLED = 'HRMS_NOTIFICATION_PUSH_ENABLED';
 
 export interface DeviceStatusInfo {
@@ -54,9 +55,10 @@ export const notificationService = {
     if (!Notifications) return;
     if (Platform.OS === 'android') {
       try {
-        await Notifications.setNotificationChannelAsync('hrms_default_channel', {
+        await Notifications.setNotificationChannelAsync(HRMS_NOTIFICATION_CHANNEL_ID, {
           name: 'HRMS Notifications',
           importance: Notifications.AndroidImportance.MAX,
+          enableVibrate: true,
           vibrationPattern: [0, 250, 250, 250],
           lightColor: '#1E40AF',
           sound: 'default',
@@ -274,6 +276,17 @@ export const notificationService = {
    * Mở Cài đặt hệ điều hành khi bị Denied vĩnh viễn
    */
   async openAppSettings(): Promise<void> {
+    if (Platform.OS === 'android') {
+      try {
+        await Linking.sendIntent('android.settings.CHANNEL_NOTIFICATION_SETTINGS', [
+          {key: 'android.provider.extra.APP_PACKAGE', value: Constants.expoConfig?.android?.package ?? 'com.qlns.hrmsmobile'},
+          {key: 'android.provider.extra.CHANNEL_ID', value: HRMS_NOTIFICATION_CHANNEL_ID},
+        ]);
+        return;
+      } catch {
+        // Some Android versions/OEMs do not expose the channel settings intent.
+      }
+    }
     await Linking.openSettings();
   },
 

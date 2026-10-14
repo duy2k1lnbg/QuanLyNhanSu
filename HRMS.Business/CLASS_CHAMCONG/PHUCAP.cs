@@ -20,102 +20,80 @@ namespace Bu.CLASS_CHAMCONG
     {
 
         MyEntities db = new MyEntities();
+        private MyEntities Context => db ?? (db = new MyEntities());
+
         public TB_NHANVIEN_PHUCAP getItem(int manv, int id)
         {
-            return db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == manv && x.IDPC == id);
+            using (var dbLocal = new MyEntities())
+            {
+                return dbLocal.TB_NHANVIEN_PHUCAP.AsNoTracking().FirstOrDefault(x => x.MANV == manv && x.IDPC == id);
+            }
         }
 
         public List<TB_NHANVIEN_PHUCAP> getList()
         {
-            return db.TB_NHANVIEN_PHUCAP.ToList();
+            using (var dbLocal = new MyEntities())
+            {
+                return dbLocal.TB_NHANVIEN_PHUCAP.AsNoTracking().ToList();
+            }
         }
 
         public List<NHANVIEN_PHUCAP_DTO> GetNhanVienSortedByIDPC()
         {
-            var result = (from np in db.TB_NHANVIEN_PHUCAP
-                          join pc in db.TB_PHUCAP on np.IDPC equals pc.IDPC
-                          join nv in db.TB_NHANVIEN on np.MANV equals nv.MANV 
-                          select new
-                          {
-                              np.MANV,
-                              nv.HOTEN, 
-                              np.IDPC,
-                              np.SOTIEN
-                          }).ToList();
+            using (var dbLocal = new MyEntities())
+            {
+                var result = (from np in dbLocal.TB_NHANVIEN_PHUCAP.AsNoTracking()
+                              join pc in dbLocal.TB_PHUCAP.AsNoTracking() on np.IDPC equals pc.IDPC
+                              join nv in dbLocal.TB_NHANVIEN.AsNoTracking() on np.MANV equals nv.MANV 
+                              select new
+                              {
+                                  np.MANV,
+                                  nv.HOTEN, 
+                                  np.IDPC,
+                                  np.SOTIEN
+                              }).ToList();
 
-            var groupedData = result
-                .GroupBy(x => new { x.MANV, x.HOTEN })
-                .Select(g => new NHANVIEN_PHUCAP_DTO
-                {
-                    MANV = g.Key.MANV,
-                    HOTEN = g.Key.HOTEN,
-                    MAKYCONG = 0, 
-                    SOTIEN_IDPC1 = g.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN,
-                    SOTIEN_IDPC2 = g.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN,
-                    SOTIEN_IDPC3 = g.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN,
-                    SOTIEN_IDPC4 = g.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN,
-                    SOTIEN_IDPC5 = g.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN,
-                    SOTIEN_IDPC6 = g.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN,
-                    SOTIEN_IDPC7 = g.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN,
-                    SOTIEN_IDPC8 = g.FirstOrDefault(x => x.IDPC == 8)?.SOTIEN,
-                    SOTIEN_IDPC9 = g.FirstOrDefault(x => x.IDPC == 9)?.SOTIEN,
-                    SOTIEN_IDPC10 = g.FirstOrDefault(x => x.IDPC == 10)?.SOTIEN,
-                    SOTIEN_IDPC11 = g.FirstOrDefault(x => x.IDPC == 11)?.SOTIEN,
-                    SOTIEN_IDPC12 = g.FirstOrDefault(x => x.IDPC == 12)?.SOTIEN,
-                    SOTIEN_IDPC13 = g.FirstOrDefault(x => x.IDPC == 13)?.SOTIEN
-                })
-                .OrderBy(a => a.MANV)
-                .ToList();
+                var groupedData = result
+                    .GroupBy(x => new { x.MANV, x.HOTEN })
+                    .Select(g => new NHANVIEN_PHUCAP_DTO
+                    {
+                        MANV = g.Key.MANV,
+                        HOTEN = g.Key.HOTEN,
+                        MAKYCONG = 0, 
+                        SOTIEN_IDPC1 = g.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN,
+                        SOTIEN_IDPC2 = g.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN,
+                        SOTIEN_IDPC3 = g.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN,
+                        SOTIEN_IDPC4 = g.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN,
+                        SOTIEN_IDPC5 = g.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN,
+                        SOTIEN_IDPC6 = g.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN,
+                        SOTIEN_IDPC7 = g.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN,
+                        SOTIEN_IDPC8 = g.FirstOrDefault(x => x.IDPC == 8)?.SOTIEN,
+                        SOTIEN_IDPC9 = g.FirstOrDefault(x => x.IDPC == 9)?.SOTIEN,
+                        SOTIEN_IDPC10 = g.FirstOrDefault(x => x.IDPC == 10)?.SOTIEN,
+                        SOTIEN_IDPC11 = g.FirstOrDefault(x => x.IDPC == 11)?.SOTIEN,
+                        SOTIEN_IDPC12 = g.FirstOrDefault(x => x.IDPC == 12)?.SOTIEN,
+                        SOTIEN_IDPC13 = g.FirstOrDefault(x => x.IDPC == 13)?.SOTIEN
+                    })
+                    .OrderBy(a => a.MANV)
+                    .ToList();
 
-            return groupedData;
+                return groupedData;
+            }
         }
-
-
-        //public List<NHANVIEN_PHUCAP_DTO> GetNhanVienSortedByIDPC()
-        //{
-        //    var result = (from np in db.TB_NHANVIEN_PHUCAP
-        //                  join pc in db.TB_PHUCAP on np.IDPC equals pc.IDPC
-        //                  join nv in db.TB_NHANVIEN on np.MANV equals nv.MANV // Thêm join để lấy HOTEN
-        //                  select new
-        //                  {
-        //                      np.MANV,
-        //                      nv.HOTEN, // Lấy HOTEN từ bảng NHANVIEN
-        //                      np.IDPC,
-        //                      np.SOTIEN
-        //                  }).ToList();
-
-        //    // Gộp dữ liệu theo nhân viên
-        //    var groupedData = result
-        //        .GroupBy(x => new { x.MANV, x.HOTEN })
-        //        .Select(g => new NHANVIEN_PHUCAP_DTO
-        //        {
-        //            MANV = g.Key.MANV,
-        //            HOTEN = g.Key.HOTEN,
-        //            SOTIEN_IDPC1 = g.FirstOrDefault(x => x.IDPC == 1)?.SOTIEN,
-        //            SOTIEN_IDPC2 = g.FirstOrDefault(x => x.IDPC == 2)?.SOTIEN,
-        //            SOTIEN_IDPC3 = g.FirstOrDefault(x => x.IDPC == 3)?.SOTIEN,
-        //            SOTIEN_IDPC4 = g.FirstOrDefault(x => x.IDPC == 4)?.SOTIEN,
-        //            SOTIEN_IDPC5 = g.FirstOrDefault(x => x.IDPC == 5)?.SOTIEN,
-        //            SOTIEN_IDPC6 = g.FirstOrDefault(x => x.IDPC == 6)?.SOTIEN,
-        //            SOTIEN_IDPC7 = g.FirstOrDefault(x => x.IDPC == 7)?.SOTIEN
-        //        }).OrderBy(a => a.MANV).ToList();
-
-        //    return groupedData;
-        //}
-
-
 
         public TB_NHANVIEN_PHUCAP Add(TB_NHANVIEN_PHUCAP pc)
         {
             try
             {
-                db.TB_NHANVIEN_PHUCAP.Add(pc);
-                db.SaveChanges();
-                return pc;
+                using (var dbLocal = new MyEntities())
+                {
+                    dbLocal.TB_NHANVIEN_PHUCAP.Add(pc);
+                    dbLocal.SaveChanges();
+                    return pc;
+                }
             }
             catch (Exception ex)
             {
-
                 throw new Exception("Lỗi Add data " + ex.Message);
             }
         }
@@ -124,15 +102,18 @@ namespace Bu.CLASS_CHAMCONG
         {
             try
             {
-                var _pc = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == pc.MANV && x.IDPC == pc.IDPC);
-                if (_pc != null)
+                using (var dbLocal = new MyEntities())
                 {
-                    _pc.SOTIEN = pc.SOTIEN;
-                    _pc.UPDATED_BY = pc.UPDATED_BY;
-                    _pc.UPDATED_DATE = pc.UPDATED_DATE;
-                    db.SaveChanges();
+                    var _pc = dbLocal.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == pc.MANV && x.IDPC == pc.IDPC);
+                    if (_pc != null)
+                    {
+                        _pc.SOTIEN = pc.SOTIEN;
+                        _pc.UPDATED_BY = pc.UPDATED_BY;
+                        _pc.UPDATED_DATE = pc.UPDATED_DATE;
+                        dbLocal.SaveChanges();
+                    }
+                    return pc;
                 }
-                return pc;
             }
             catch (Exception ex)
             {
@@ -142,16 +123,24 @@ namespace Bu.CLASS_CHAMCONG
 
         public void Delete(int manv, int id, int iduser)
         {
-            var _lc = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == manv && x.IDPC ==id);
-            _lc.DELETED_BY = iduser;
-            _lc.DELETED_DATE = DateTime.Now;
-
-            db.SaveChanges();
+            using (var dbLocal = new MyEntities())
+            {
+                var _lc = dbLocal.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == manv && x.IDPC == id);
+                if (_lc != null)
+                {
+                    _lc.DELETED_BY = iduser;
+                    _lc.DELETED_DATE = DateTime.Now;
+                    dbLocal.SaveChanges();
+                }
+            }
         }
 
         public TB_PHUCAP getItemPC(int id)
         {
-            return db.TB_PHUCAP.FirstOrDefault(x=>x.IDPC == id);
+            using (var dbLocal = new MyEntities())
+            {
+                return dbLocal.TB_PHUCAP.AsNoTracking().FirstOrDefault(x => x.IDPC == id);
+            }
         }
 
         public List<Bu.DTO.PhuCapDTO> getListPC_DTO(string langCode = "vi")
@@ -159,58 +148,64 @@ namespace Bu.CLASS_CHAMCONG
             var list = new List<Bu.DTO.PhuCapDTO>();
             try
             {
-                var conn = db.Database.Connection;
-                if (conn.State != ConnectionState.Open) conn.Open();
-
-                using (var cmd = conn.CreateCommand())
+                using (var dbLocal = new MyEntities())
                 {
-                    cmd.CommandText = @"
-                        SELECT 
-                            pc.idpc, 
-                            pc.tenpc as tenpc_vi,
-                            COALESCE(t.value, pc.tenpc) as tenpc,
-                            COALESCE(t.description, '') as description
-                        FROM TB_PHUCAP pc
-                        LEFT JOIN TB_TRANSLATIONS t 
-                            ON t.table_name = 'TB_PHUCAP' 
-                            AND t.record_id = TO_CHAR(pc.idpc) 
-                            AND t.column_name = 'TENPC' 
-                            AND LOWER(t.language_code) = :langCode
-                        ORDER BY pc.idpc ASC";
+                    var conn = dbLocal.Database.Connection;
+                    if (conn.State != ConnectionState.Open) conn.Open();
 
-                    var pLang = cmd.CreateParameter();
-                    pLang.ParameterName = "langCode";
-                    pLang.Value = string.IsNullOrEmpty(langCode) ? "vi" : langCode.Trim().ToLower();
-                    cmd.Parameters.Add(pLang);
-
-                    using (var reader = cmd.ExecuteReader())
+                    using (var cmd = conn.CreateCommand())
                     {
-                        while (reader.Read())
+                        cmd.CommandText = @"
+                            SELECT 
+                                pc.idpc, 
+                                pc.tenpc as tenpc_vi,
+                                COALESCE(t.value, pc.tenpc) as tenpc,
+                                COALESCE(t.description, '') as description
+                            FROM TB_PHUCAP pc
+                            LEFT JOIN TB_TRANSLATIONS t 
+                                ON t.table_name = 'TB_PHUCAP' 
+                                AND t.record_id = TO_CHAR(pc.idpc) 
+                                AND t.column_name = 'TENPC' 
+                                AND LOWER(t.language_code) = :langCode
+                            ORDER BY pc.idpc ASC";
+
+                        var pLang = cmd.CreateParameter();
+                        pLang.ParameterName = "langCode";
+                        pLang.Value = string.IsNullOrEmpty(langCode) ? "vi" : langCode.Trim().ToLower();
+                        cmd.Parameters.Add(pLang);
+
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            list.Add(new Bu.DTO.PhuCapDTO
+                            while (reader.Read())
                             {
-                                IDPC = reader.GetDecimal(0),
-                                TENPC_VI = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                                TENPC = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                                DESCRIPTION = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
-                            });
+                                list.Add(new Bu.DTO.PhuCapDTO
+                                {
+                                    IDPC = reader.GetDecimal(0),
+                                    TENPC_VI = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                                    TENPC = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                                    DESCRIPTION = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
+                                });
+                            }
                         }
                     }
                 }
             }
             catch (Exception)
             {
-                var rawList = db.TB_PHUCAP.ToList();
-                list.Clear();
-                foreach (var item in rawList)
+                using (var dbFallback = new MyEntities())
                 {
-                    list.Add(new Bu.DTO.PhuCapDTO
+                    var rawList = dbFallback.TB_PHUCAP.AsNoTracking().ToList();
+                    list.Clear();
+                    foreach (var item in rawList)
                     {
-                        IDPC = item.IDPC,
-                        TENPC_VI = item.TENPC,
-                        TENPC = item.TENPC,
-                        DESCRIPTION = string.Empty
-                    });
+                        list.Add(new Bu.DTO.PhuCapDTO
+                        {
+                            IDPC = item.IDPC,
+                            TENPC_VI = item.TENPC,
+                            TENPC = item.TENPC,
+                            DESCRIPTION = string.Empty
+                        });
+                    }
                 }
             }
             return list;
@@ -220,46 +215,49 @@ namespace Bu.CLASS_CHAMCONG
         {
             try
             {
-                var conn = db.Database.Connection;
-                if (conn.State != ConnectionState.Open) conn.Open();
-
-                using (var cmd = conn.CreateCommand())
+                using (var dbLocal = new MyEntities())
                 {
-                    cmd.CommandText = @"
-                        SELECT 
-                            pc.idpc, 
-                            pc.tenpc as tenpc_vi,
-                            COALESCE(t.value, pc.tenpc) as tenpc,
-                            COALESCE(t.description, '') as description
-                        FROM TB_PHUCAP pc
-                        LEFT JOIN TB_TRANSLATIONS t 
-                            ON t.table_name = 'TB_PHUCAP' 
-                            AND t.record_id = TO_CHAR(pc.idpc) 
-                            AND t.column_name = 'TENPC' 
-                            AND LOWER(t.language_code) = :langCode
-                        WHERE pc.idpc = :id";
+                    var conn = dbLocal.Database.Connection;
+                    if (conn.State != ConnectionState.Open) conn.Open();
 
-                    var pLang = cmd.CreateParameter();
-                    pLang.ParameterName = "langCode";
-                    pLang.Value = string.IsNullOrEmpty(langCode) ? "vi" : langCode.Trim().ToLower();
-                    cmd.Parameters.Add(pLang);
-
-                    var pId = cmd.CreateParameter();
-                    pId.ParameterName = "id";
-                    pId.Value = id;
-                    cmd.Parameters.Add(pId);
-
-                    using (var reader = cmd.ExecuteReader())
+                    using (var cmd = conn.CreateCommand())
                     {
-                        if (reader.Read())
+                        cmd.CommandText = @"
+                            SELECT 
+                                pc.idpc, 
+                                pc.tenpc as tenpc_vi,
+                                COALESCE(t.value, pc.tenpc) as tenpc,
+                                COALESCE(t.description, '') as description
+                            FROM TB_PHUCAP pc
+                            LEFT JOIN TB_TRANSLATIONS t 
+                                ON t.table_name = 'TB_PHUCAP' 
+                                AND t.record_id = TO_CHAR(pc.idpc) 
+                                AND t.column_name = 'TENPC' 
+                                AND LOWER(t.language_code) = :langCode
+                            WHERE pc.idpc = :id";
+
+                        var pLang = cmd.CreateParameter();
+                        pLang.ParameterName = "langCode";
+                        pLang.Value = string.IsNullOrEmpty(langCode) ? "vi" : langCode.Trim().ToLower();
+                        cmd.Parameters.Add(pLang);
+
+                        var pId = cmd.CreateParameter();
+                        pId.ParameterName = "id";
+                        pId.Value = id;
+                        cmd.Parameters.Add(pId);
+
+                        using (var reader = cmd.ExecuteReader())
                         {
-                            return new Bu.DTO.PhuCapDTO
+                            if (reader.Read())
                             {
-                                IDPC = reader.GetDecimal(0),
-                                TENPC_VI = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
-                                TENPC = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
-                                DESCRIPTION = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
-                            };
+                                return new Bu.DTO.PhuCapDTO
+                                {
+                                    IDPC = reader.GetDecimal(0),
+                                    TENPC_VI = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                                    TENPC = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                                    DESCRIPTION = reader.IsDBNull(3) ? string.Empty : reader.GetString(3)
+                                };
+                            }
                         }
                     }
                 }
@@ -281,38 +279,62 @@ namespace Bu.CLASS_CHAMCONG
             return null;
         }
 
-        //public void UpdatePhucap(int manv, int idpc, decimal sotien)
-        //{
-        //    var phucap = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc);
-
-        //    if (phucap != null)
-        //    {
-        //        phucap.SOTIEN = sotien;
-        //    }
-        //    else
-        //    {
-        //        db.TB_NHANVIEN_PHUCAP.Add(new TB_NHANVIEN_PHUCAP
-        //        {
-        //            MANV = manv,
-        //            IDPC = idpc,
-        //            SOTIEN = sotien,
-        //            GHICHU = ""
-        //        });
-        //    }
-        //    db.SaveChanges();
-        //}
+        private class PhuCapRow
+        {
+            public decimal IDPC { get; set; }
+            public decimal? SOTIEN { get; set; }
+        }
 
         public Dictionary<int, decimal> GetPhuCapByNhanVien(int manv)
         {
-            var list = db.TB_NHANVIEN_PHUCAP
-                         .Where(x => x.MANV == manv)
-                         .ToList();
-
             var dict = new Dictionary<int, decimal>();
             for (int i = 1; i <= 13; i++)
             {
-                var item = list.FirstOrDefault(x => x.IDPC == i);
-                dict[i] = item?.SOTIEN ?? 0;
+                dict[i] = 0m;
+            }
+
+            try
+            {
+                using (var dbLocal = new MyEntities())
+                {
+                    var list = dbLocal.TB_NHANVIEN_PHUCAP
+                                      .AsNoTracking()
+                                      .Where(x => x.MANV == manv)
+                                      .ToList();
+
+                    foreach (var item in list)
+                    {
+                        int idpc = Convert.ToInt32(item.IDPC);
+                        if (idpc >= 1 && idpc <= 13)
+                        {
+                            dict[idpc] = item.SOTIEN ?? 0m;
+                        }
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                try
+                {
+                    using (var dbFallback = new MyEntities())
+                    {
+                        var rows = dbFallback.Database.SqlQuery<PhuCapRow>(
+                            "SELECT IDPC, SOTIEN FROM TB_NHANVIEN_PHUCAP WHERE MANV = :p0",
+                            new OracleParameter("p0", (decimal)manv)).ToList();
+                        foreach (var r in rows)
+                        {
+                            int idpc = Convert.ToInt32(r.IDPC);
+                            if (idpc >= 1 && idpc <= 13)
+                            {
+                                dict[idpc] = r.SOTIEN ?? 0m;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // return default initialized zeros
+                }
             }
             return dict;
         }
@@ -321,60 +343,66 @@ namespace Bu.CLASS_CHAMCONG
         {
             if (allowances == null) return;
 
-            foreach (var kvp in allowances)
+            using (var dbLocal = new MyEntities())
             {
-                int idpc = kvp.Key;
-                decimal sotien = kvp.Value;
-
-                var existing = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == manv && x.IDPC == idpc);
-                if (existing != null)
+                foreach (var kvp in allowances)
                 {
-                    existing.SOTIEN = sotien;
-                    existing.UPDATED_BY = iduser;
-                    existing.UPDATED_DATE = DateTime.Now;
-                    if (tuNgay.HasValue) existing.TU_NGAY = tuNgay.Value;
-                    if (denNgay.HasValue) existing.DEN_NGAY = denNgay;
+                    int idpc = kvp.Key;
+                    decimal sotien = kvp.Value;
+
+                    var existing = dbLocal.TB_NHANVIEN_PHUCAP.FirstOrDefault(x => x.MANV == manv && x.IDPC == idpc);
+                    if (existing != null)
+                    {
+                        existing.SOTIEN = sotien;
+                        existing.UPDATED_BY = iduser;
+                        existing.UPDATED_DATE = DateTime.Now;
+                        if (tuNgay.HasValue) existing.TU_NGAY = tuNgay.Value;
+                        if (denNgay.HasValue) existing.DEN_NGAY = denNgay;
+                    }
+                    else
+                    {
+                        dbLocal.TB_NHANVIEN_PHUCAP.Add(new TB_NHANVIEN_PHUCAP
+                        {
+                            MANV = manv,
+                            IDPC = idpc,
+                            SOTIEN = sotien,
+                            GHICHU = "Phụ cấp theo hợp đồng",
+                            CREATED_BY = iduser,
+                            CREATED_DATE = DateTime.Now,
+                            TU_NGAY = tuNgay,
+                            DEN_NGAY = denNgay,
+                            CACH_TINH = "CO_DINH_THANG"
+                        });
+                    }
+                }
+                dbLocal.SaveChanges();
+            }
+        }
+
+        public void UpdatePhucap(int manv, int idpc, decimal sotien, int makycong = 0)
+        {
+            using (var dbLocal = new MyEntities())
+            {
+                var phucap = dbLocal.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc);
+
+                if (phucap != null)
+                {
+                    phucap.SOTIEN = sotien;
+                    phucap.UPDATED_DATE = DateTime.Now;
                 }
                 else
                 {
-                    db.TB_NHANVIEN_PHUCAP.Add(new TB_NHANVIEN_PHUCAP
+                    dbLocal.TB_NHANVIEN_PHUCAP.Add(new TB_NHANVIEN_PHUCAP
                     {
                         MANV = manv,
                         IDPC = idpc,
                         SOTIEN = sotien,
                         GHICHU = "Phụ cấp theo hợp đồng",
-                        CREATED_BY = iduser,
-                        CREATED_DATE = DateTime.Now,
-                        TU_NGAY = tuNgay,
-                        DEN_NGAY = denNgay,
-                        CACH_TINH = "CO_DINH_THANG"
+                        CREATED_DATE = DateTime.Now
                     });
                 }
+                dbLocal.SaveChanges();
             }
-            db.SaveChanges();
-        }
-
-        public void UpdatePhucap(int manv, int idpc, decimal sotien, int makycong = 0)
-        {
-            var phucap = db.TB_NHANVIEN_PHUCAP.FirstOrDefault(np => np.MANV == manv && np.IDPC == idpc);
-
-            if (phucap != null)
-            {
-                phucap.SOTIEN = sotien;
-                phucap.UPDATED_DATE = DateTime.Now;
-            }
-            else
-            {
-                db.TB_NHANVIEN_PHUCAP.Add(new TB_NHANVIEN_PHUCAP
-                {
-                    MANV = manv,
-                    IDPC = idpc,
-                    SOTIEN = sotien,
-                    GHICHU = "Phụ cấp theo hợp đồng",
-                    CREATED_DATE = DateTime.Now
-                });
-            }
-            db.SaveChanges();
         }
 
         public void UpdateCatalogItem(int idpc, string newTenPc, int userId)

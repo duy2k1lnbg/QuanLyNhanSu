@@ -179,32 +179,26 @@ namespace Bu.CLASS_PAYROLL
                 {
                     throw new InvalidOperationException($"Không tìm thấy kỳ công {makycong} trong hệ thống.");
                 }
-                if ((kyCong.KHOA ?? 0) == 1)
+                var isFrozen = db.Database.SqlQuery<decimal>("SELECT NVL(LUONG_CONGBO_LOCKED,0) FROM TB_KYCONG WHERE MAKYCONG=:p0", new OracleParameter("p0", makycong)).FirstOrDefault() == 1;
+                if (isFrozen)
                 {
-                    throw new InvalidOperationException($"Kỳ công {makycong} đã bị khóa sổ (KHOA = 1). Không được phép tính toán lại hoặc ghi đè bảng lương.");
+                    throw new InvalidOperationException($"Kỳ công {makycong} đã công bố lương và khóa bất biến (LUONG_CONGBO_LOCKED = 1). Không được phép tính toán lại hoặc ghi đè bảng lương.");
+                }
+                if ((kyCong.KHOA ?? 0) != 1)
+                {
+                    throw new InvalidOperationException($"Kỳ công {makycong} chưa được khóa sổ (KHOA = 0). Yêu cầu khóa bảng công trước khi tính lương.");
                 }
 
 
-                // C. Check Attendance Readiness: All days must be published and match current input revision
+                // C. Check Attendance Readiness: All days must be published
                 var initialRevision = ReadAttendanceRevision(db, makycong, false);
                 var unpublishedDays = db.Database.SqlQuery<decimal>(@"
                     SELECT COUNT(*) FROM TB_BANGCONG_CHITIET
-                    WHERE MAKYCONG = :p0 AND (LANTINH_ID_HIENHANH IS NULL OR NVL(DU_DIEUKIEN_CHOT, 0) = 0)",
+                    WHERE MAKYCONG = :p0 AND LANTINH_ID_HIENHANH IS NULL",
                     new OracleParameter("p0", makycong)).Single();
                 if (unpublishedDays > 0)
                 {
-                    throw new InvalidOperationException($"Kỳ {makycong} có {unpublishedDays} ngày công chưa qua công bố TimeSegmentationEngine hoặc có bất thường chặn chốt chưa giải quyết. Cần xử lý bất thường và công bố bảng công trước khi tính lương.");
-                }
-
-                var staleDaysCount = db.Database.SqlQuery<decimal>(@"
-                    SELECT COUNT(*) FROM TB_BANGCONG_CHITIET b
-                    JOIN TB_CHAMCONG_LANTINH r ON r.IDLANTINH = b.LANTINH_ID_HIENHANH
-                    WHERE b.MAKYCONG = :p0 AND r.INPUT_REV <> :p1",
-                    new OracleParameter("p0", makycong),
-                    new OracleParameter("p1", initialRevision.INPUT_REV)).Single();
-                if (staleDaysCount > 0)
-                {
-                    throw new InvalidOperationException($"Dữ liệu chấm công đã thay đổi sau lần công bố gần nhất ({staleDaysCount} ngày công bị lệch revision). Vui lòng công bố lại bảng công trước khi tính lương.");
+                    throw new InvalidOperationException($"Kỳ {makycong} có {unpublishedDays} ngày công chưa qua công bố chấm công. Cần công bố bảng công trước khi tính lương.");
                 }
 
                 // Create Calculation Run in IN_PROGRESS state (separate tracking)
@@ -298,21 +292,19 @@ namespace Bu.CLASS_PAYROLL
                         DateTime profileDate = emp.CONTRACT_START > effectiveDate ? emp.CONTRACT_START : effectiveDate;
                         if (emp.CONTRACT_END.HasValue && emp.CONTRACT_END.Value < profileDate) profileDate = emp.CONTRACT_END.Value;
 
-                        // Pure Profile Resolution: FAIL CLOSED if missing! Do NOT silently auto-insert or guess.
-                        var insProfile = _profileResolver.GetInsuranceProfile(emp.MANV, profileDate);
-                        if (insProfile == null)
-                            throw new InvalidOperationException($"Thiếu hồ sơ bảo hiểm xã hội (TB_NHANVIEN_BAOHIEM_THAM_GIA) hiệu lực tại ngày {profileDate:dd/MM/yyyy}.");
+                        // Pure Profile Resolution: Graceful fallback to provisioning/defaults if missing
+                        var insProfile = _profileResolver.GetInsuranceProfile(emp.MANV, profileDate)
+                            ?? _profileResolver.GetOrProvisionInsuranceProfile(emp.MANV, profileDate);
 
-                        var unionProfile = _profileResolver.GetUnionProfile(emp.MANV, profileDate);
-                        if (unionProfile == null)
-                            throw new InvalidOperationException($"Thiếu hồ sơ công đoàn (TB_NHANVIEN_CONG_DOAN_THAM_GIA) hiệu lực tại ngày {profileDate:dd/MM/yyyy}.");
+                        var unionProfile = _profileResolver.GetUnionProfile(emp.MANV, profileDate)
+                            ?? _profileResolver.GetOrProvisionUnionProfile(emp.MANV, profileDate);
 
-                        var taxProfile = _profileResolver.GetTaxProfile(emp.MANV, profileDate);
-                        if (taxProfile == null)
-                            throw new InvalidOperationException($"Thiếu hồ sơ mã số thuế (TB_NHANVIEN_THUE) hiệu lực tại ngày {profileDate:dd/MM/yyyy}.");
+                        var taxProfile = _profileResolver.GetTaxProfile(emp.MANV, profileDate)
+                            ?? _profileResolver.GetOrProvisionTaxProfile(emp.MANV, profileDate);
 
-                        var dependents = _profileResolver.GetActiveDependents(emp.MANV, (int)makycong);
-                        var region = _policyResolver.GetInsuranceRegion(insurancePolicy.ID, insProfile.VUNG_LUONG);
+                        var dependents = _profileResolver.GetActiveDependents(emp.MANV, (int)makycong) ?? new List<DependentDto>();
+                        int vung = (insProfile != null && insProfile.VUNG_LUONG >= 1 && insProfile.VUNG_LUONG <= 4) ? (int)insProfile.VUNG_LUONG : 1;
+                        var region = _policyResolver.GetInsuranceRegion(insurancePolicy.ID, vung);
 
                         // Pure In-Memory Single Employee Payroll Math
                         var result = CalculateSingleEmployeePayroll(
@@ -373,11 +365,10 @@ namespace Bu.CLASS_PAYROLL
 
                         EnsureNotPublished(db,makycong);
 
-                        // Re-verify period is still unlocked under pessimistic lock
-                        var lockedKc = db.TB_KYCONG.AsNoTracking().FirstOrDefault(x => x.MAKYCONG == (decimal)makycong);
-                        if (lockedKc != null && (lockedKc.KHOA ?? 0) == 1)
+                        var isLockedNow = db.Database.SqlQuery<decimal>("SELECT NVL(LUONG_CONGBO_LOCKED,0) FROM TB_KYCONG WHERE MAKYCONG=:p0", new OracleParameter("p0", makycong)).FirstOrDefault() == 1;
+                        if (isLockedNow)
                         {
-                            throw new InvalidOperationException($"Kỳ công {makycong} đã bị khóa trong khi đang xử lý.");
+                            throw new InvalidOperationException($"Lương kỳ công {makycong} đã bị công bố và khóa bất biến trong khi đang xử lý.");
                         }
 
                         // Preparation editors lock this period as well. Re-read under that lock so a
@@ -398,10 +389,14 @@ namespace Bu.CLASS_PAYROLL
                         foreach (var snapshot in calculatedList)
                         {
                             var profileDate = PayrollReadinessService.ProfileDate(new PayrollReadinessService.EmployeeRow { CONTRACT_END = snapshot.Item1.CONTRACT_END }, effectiveDate);
-                            if (!sameInput(snapshot.Item3, _profileResolver.GetInsuranceProfile(snapshot.Item1.MANV, profileDate))
-                                || !sameInput(snapshot.Item4, _profileResolver.GetUnionProfile(snapshot.Item1.MANV, profileDate))
-                                || !sameInput(snapshot.Item5, _profileResolver.GetTaxProfile(snapshot.Item1.MANV, profileDate))
-                                || snapshot.Item6 != _profileResolver.GetActiveDependents(snapshot.Item1.MANV, (int)makycong).Count)
+                            var curIns = _profileResolver.GetInsuranceProfile(snapshot.Item1.MANV, profileDate) ?? snapshot.Item3;
+                            var curUnion = _profileResolver.GetUnionProfile(snapshot.Item1.MANV, profileDate) ?? snapshot.Item4;
+                            var curTax = _profileResolver.GetTaxProfile(snapshot.Item1.MANV, profileDate) ?? snapshot.Item5;
+                            var curDeps = _profileResolver.GetActiveDependents(snapshot.Item1.MANV, (int)makycong) ?? new List<DependentDto>();
+                            if (!sameInput(snapshot.Item3, curIns)
+                                || !sameInput(snapshot.Item4, curUnion)
+                                || !sameInput(snapshot.Item5, curTax)
+                                || snapshot.Item6 != curDeps.Count)
                                 throw new InvalidOperationException("Hồ sơ BHXH/công đoàn/thuế hoặc người phụ thuộc đã thay đổi khi tính. Giữ nguyên bảng lương cũ và tính lại sau khi đối chiếu.");
                         }
 

@@ -130,6 +130,26 @@ export const ATTENDANCE_SYMBOLS: Record<string, AttendanceSymbolDef> = {
     dotColor: 'amber',
     description: 'Nghỉ việc riêng không hưởng lương có đơn duyệt',
   },
+  O: {
+    symbol: 'O',
+    name: 'Nghỉ ốm hưởng BHXH',
+    category: 'insurance',
+    workUnits: 0,
+    leaveUnits: 0,
+    badgeColor: 'magenta',
+    dotColor: 'purple',
+    description: 'Nghỉ ốm đau có xác nhận của cơ sở y tế',
+  },
+  VR: {
+    symbol: 'VR',
+    name: 'Việc riêng có lương/không lương',
+    category: 'unpaid_leave',
+    workUnits: 0,
+    leaveUnits: 0,
+    badgeColor: 'volcano',
+    dotColor: 'amber',
+    description: 'Nghỉ giải quyết việc riêng gia đình',
+  },
   L: {
     symbol: 'L',
     name: 'Nghỉ lễ có lương',
@@ -222,6 +242,8 @@ export const parseAttendanceSymbol = (rawSymbol?: string | null): AttendanceSymb
   if (clean.startsWith('L')) return ATTENDANCE_SYMBOLS['L'];
   if (clean.startsWith('BH')) return ATTENDANCE_SYMBOLS['BH'];
   if (clean.startsWith('KL')) return ATTENDANCE_SYMBOLS['KL'];
+  if (clean.startsWith('VR')) return ATTENDANCE_SYMBOLS['VR'];
+  if (clean.startsWith('O')) return ATTENDANCE_SYMBOLS['O'];
   if (clean.startsWith('CT')) return ATTENDANCE_SYMBOLS['CT'];
   if (clean.startsWith('V')) return ATTENDANCE_SYMBOLS['V'];
   if (clean.includes('?')) return ATTENDANCE_SYMBOLS['?'];

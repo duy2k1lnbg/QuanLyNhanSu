@@ -215,6 +215,8 @@
     "pushNotification": "プッシュ通知",
     "pushNotificationDesc": "申請の承認状況や社内通達を受信します",
     "systemPermission": "OS通知権限",
+    "notificationSoundVibration": "通知音とバイブレーション",
+    "notificationSoundVibrationDesc": "端末の通知設定で音と振動を有効にできます。マナーモードや通知制限により動作しない場合があります。",
     "permissionGranted": "通知が許可されています",
     "permissionDenied": "端末設定で無効になっています",
     "permissionUndetermined": "権限が未設定です",

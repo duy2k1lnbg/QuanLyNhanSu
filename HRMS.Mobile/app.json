@@ -23,7 +23,8 @@
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE",
-        "POST_NOTIFICATIONS"
+        "POST_NOTIFICATIONS",
+        "VIBRATE"
       ],
       "predictiveBackGestureEnabled": false,
       "googleServicesFile": "./google-services.json"

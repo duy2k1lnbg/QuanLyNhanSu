@@ -134,8 +134,11 @@ namespace QLyNSu.FORM_CHAMCONG
             {
                 var kc = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.getItem(makycong));
                 bool isKhoa = kc != null && (kc.KHOA ?? 0) == 1;
-                btnTinhLuong.Enabled = Bu.CLASS_SYSTEM.UserSession.CanEdit("F_CC_BANGLUONG") && !isKhoa;
-                btnTinhLuongCong.Enabled = Bu.CLASS_SYSTEM.UserSession.CanEdit("F_CC_BANGLUONG") && !isKhoa;
+                bool isPayrollFrozen = await Functions.FormDataLoader.ReadAsync(this, () => _kycong.IsPayrollFrozen(makycong));
+                bool canEdit = Bu.CLASS_SYSTEM.UserSession.CanEdit("F_CC_BANGLUONG");
+                bool canCalculate = canEdit && isKhoa && !isPayrollFrozen;
+                btnTinhLuong.Enabled = canCalculate;
+                btnTinhLuongCong.Enabled = canCalculate;
 
                 gcBangLuong.DataSource = await Functions.FormDataLoader.ReadAsync(this, () => _bangluong.getList(makycong));
                 gvBangLuong.OptionsBehavior.Editable = false;

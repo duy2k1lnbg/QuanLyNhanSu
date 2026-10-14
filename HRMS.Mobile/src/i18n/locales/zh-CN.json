@@ -215,6 +215,8 @@
     "pushNotification": "远程推送通知",
     "pushNotificationDesc": "接收审批结果与企业实时动态",
     "systemPermission": "系统通知权限",
+    "notificationSoundVibration": "通知声音和振动",
+    "notificationSoundVibrationDesc": "请在设备通知设置中开启声音和振动。静音或勿扰模式可能限制提醒。",
     "permissionGranted": "已允许接收通知",
     "permissionDenied": "在系统设置中已被关闭",
     "permissionUndetermined": "尚未授予权限",

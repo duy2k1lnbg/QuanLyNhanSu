@@ -1275,13 +1275,37 @@ namespace HRMS_API.Controllers
                     var advanceService = new Bu.CLASS_PAYROLL.SalaryAdvanceService();
                     int total;
                     var list = advanceService.GetList(thang, nam, status, search, selfEmpId, page, pageSize, out total);
+                    var data = list.Select(r => new
+                    {
+                        id = r.Id,
+                        manv = r.Manv,
+                        employeeCode = r.EmployeeCode,
+                        employeeName = r.EmployeeName,
+                        departmentName = r.DepartmentName,
+                        amount = r.Amount,
+                        advanceDate = r.AdvanceDate,
+                        thang = r.Thang,
+                        nam = r.Nam,
+                        reason = r.Reason,
+                        status = r.Status,
+                        approverName = r.ApproverName,
+                        approvedDate = r.ApprovedDate,
+                        rejectReason = r.RejectReason,
+                        disbursedDate = r.DisbursedDate,
+                        voucherNo = r.VoucherNo,
+                        disbursedByName = r.DisbursedByName,
+                        disburseNote = r.DisburseNote,
+                        idUlLink = r.IdUlLink,
+                        createdAt = r.CreatedAt
+                    }).ToList();
+
                     return Ok(new
                     {
                         success = true,
                         total = total,
                         page = page,
                         pageSize = pageSize,
-                        data = list
+                        data = data
                     });
                 }
             }
@@ -1459,6 +1483,26 @@ namespace HRMS_API.Controllers
                     var profileService = new Bu.CLASS_NHANSU.EmployeeProfileRequestService();
                     int total;
                     var list = profileService.GetRequests(groupCode, status, search, selfEmpId, page, pageSize, out total);
+                    var data = list.Select(r => new
+                    {
+                        id = r.Id,
+                        manv = r.Manv,
+                        employeeCode = r.EmployeeCode,
+                        employeeName = r.EmployeeName,
+                        departmentName = r.DepartmentName,
+                        groupCode = r.GroupCode,
+                        reqType = r.ReqType,
+                        currentDataJson = r.CurrentDataJson,
+                        proposedDataJson = r.ProposedDataJson,
+                        hasProposedAvatarBlob = r.HasProposedAvatarBlob,
+                        status = r.Status,
+                        reason = r.Reason,
+                        rejectReason = r.RejectReason,
+                        resolvedByName = r.ResolvedByName,
+                        resolvedAt = r.ResolvedAt,
+                        appliedAt = r.AppliedAt,
+                        createdAt = r.CreatedAt
+                    }).ToList();
 
                     return Ok(new
                     {
@@ -1466,7 +1510,7 @@ namespace HRMS_API.Controllers
                         total = total,
                         page = page,
                         pageSize = pageSize,
-                        data = list
+                        data = data
                     });
                 }
             }

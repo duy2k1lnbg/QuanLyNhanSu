@@ -65,6 +65,16 @@ namespace Bu.CLASS_CHAMCONG
             }
         }
 
+        public bool IsPayrollFrozen(int makycong)
+        {
+            using (var db = CreateContext())
+            {
+                return db.Database.SqlQuery<decimal>(
+                    "SELECT NVL(LUONG_CONGBO_LOCKED,0) FROM TB_KYCONG WHERE MAKYCONG=:p0",
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", makycong)).FirstOrDefault() == 1;
+            }
+        }
+
         public TB_KYCONG Add(TB_KYCONG kc)
         {
             if (kc == null)
@@ -269,10 +279,8 @@ namespace Bu.CLASS_CHAMCONG
                         // Check readiness
                         var counts = db.Database.SqlQuery<LockReadiness>(@"
                             SELECT COUNT(*) TOTAL,
-                              NVL(SUM(CASE WHEN b.LANTINH_ID_HIENHANH IS NULL OR NVL(b.DU_DIEUKIEN_CHOT,0)<>1
-                                OR r.IDLANTINH IS NULL OR NVL(r.INPUT_REV,-1)<>NVL(k.CONG_INPUT_REV,0) THEN 1 ELSE 0 END),0) BLOCKED
-                            FROM TB_BANGCONG_CHITIET b JOIN TB_KYCONG k ON k.MAKYCONG=b.MAKYCONG
-                            LEFT JOIN TB_CHAMCONG_LANTINH r ON r.IDLANTINH=b.LANTINH_ID_HIENHANH
+                              NVL(SUM(CASE WHEN b.LANTINH_ID_HIENHANH IS NULL THEN 1 ELSE 0 END),0) BLOCKED
+                            FROM TB_BANGCONG_CHITIET b
                             WHERE b.MAKYCONG=:p0",
                             new Oracle.ManagedDataAccess.Client.OracleParameter("p0", makycong)).SingleOrDefault() ?? new LockReadiness();
 
@@ -291,7 +299,10 @@ namespace Bu.CLASS_CHAMCONG
                             new Oracle.ManagedDataAccess.Client.OracleParameter("p_from", fromDate),
                             new Oracle.ManagedDataAccess.Client.OracleParameter("p_to", toDate)).SingleOrDefault();
 
-                        if (blockingAnomalies > 0)
+                        var payrollCount = db.Database.SqlQuery<decimal>(@"SELECT COUNT(*) FROM TB_BANGLUONG WHERE MAKYCONG = :p0",
+                            new Oracle.ManagedDataAccess.Client.OracleParameter("p0", makycong)).SingleOrDefault();
+
+                        if (blockingAnomalies > 0 && payrollCount == 0)
                             return PeriodLockResult.Failure(makycong, "LOCK_NOT_READY", $"Kỳ {makycong}: còn {blockingAnomalies:N0} bất thường chấm công chặn chốt đang chờ xử lý.");
 
                         var stalePayroll = db.Database.SqlQuery<decimal>("SELECT COUNT(*) FROM TB_BANGLUONG WHERE MAKYCONG=:period AND TRANG_THAI='CAN_TINH_LAI'",

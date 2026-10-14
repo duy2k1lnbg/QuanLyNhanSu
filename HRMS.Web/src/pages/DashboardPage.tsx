@@ -59,6 +59,7 @@ interface DashboardPageProps {
   nhanVienList: NhanVienDTO[];
   bangLuongList: BangLuongDTO[];
   hopDongList?: HopDongDTO[];
+  chamCongList?: any[];
   onNavigate: (key: string) => void;
   presentToday?: number;
   absentToday?: number;
@@ -76,8 +77,10 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   nhanVienList,
   bangLuongList,
   hopDongList,
+  chamCongList,
   onNavigate,
   presentToday: propPresent,
+  absentToday: propAbsent,
   actionItems: propActionItems,
   selectedKyCongName,
 }) => {
@@ -95,16 +98,18 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       hopDongList || [],
       bangLuongList,
       propPresent,
+      propAbsent,
+      chamCongList,
       selectedKyCongName
     );
-  }, [nhanVienList, hopDongList, bangLuongList, propPresent, selectedKyCongName]);
+  }, [nhanVienList, hopDongList, bangLuongList, propPresent, propAbsent, chamCongList, selectedKyCongName]);
 
   const countTotal = metrics.totalEmployees || totalEmployees;
   const activeCount = metrics.activeEmployees;
   const present = metrics.distinctPresentToday;
-  const absent = Math.max(0, activeCount - present);
+  const absent = metrics.absentToday;
 
-  const presentPercentage = activeCount > 0 ? Math.min(100, Math.round((present / activeCount) * 100)) : 0;
+  const presentPercentage = metrics.attendanceRate;
   const actionList: ActionItemDTO[] = propActionItems || [];
 
   const formatPayroll = (amount: number) => {

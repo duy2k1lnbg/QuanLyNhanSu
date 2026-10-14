@@ -311,6 +311,30 @@ export const SettingsScreen: React.FC = () => {
 
           <AppDivider marginVertical={spacing.xs} />
 
+          {/* Channel sound/vibration remain under the device owner's control. */}
+          <View style={styles.switchRow}>
+            <View style={styles.actionLeft}>
+              <Ionicons name="volume-high-outline" size={22} color={colors.primary} />
+              <View style={{ marginLeft: spacing.md, flex: 1 }}>
+                <Text style={[typography.bodyBold, { color: colors.text }]}>
+                  {t('settings.notificationSoundVibration')}
+                </Text>
+                <Text style={[typography.caption, { color: colors.textSecondary }]}>
+                  {t('settings.notificationSoundVibrationDesc')}
+                </Text>
+              </View>
+            </View>
+            <TouchableOpacity
+              disabled={!nativeNotifications || !notificationAllowed || notifLoading}
+              onPress={() => {
+                void notificationService.openAppSettings().catch(() => Alert.alert(t('common.error'), t('errors.unknown')));
+              }}
+              style={styles.openSettingsBtn}>
+              <Text style={[typography.captionBold, { color: colors.primary }]}>{t('settings.openSettings')}</Text>
+            </TouchableOpacity>
+          </View>
+          <AppDivider marginVertical={spacing.xs} />
+
           {/* Server Sync / Status */}
           <View style={styles.switchRow}>
             <View style={styles.actionLeft}>

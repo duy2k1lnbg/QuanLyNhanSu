@@ -119,9 +119,20 @@ namespace Bu.CLASS_CHAMCONG
             using (var dbCheck = new MyEntities())
             {
                 var kc = dbCheck.TB_KYCONG.FirstOrDefault(x => x.MAKYCONG == (decimal)makycong);
-                if (kc != null && (kc.KHOA ?? 0) == 1)
+                if (kc == null)
                 {
-                    throw new InvalidOperationException($"Kỳ công {makycong} đã bị khóa sổ. Khi đã khóa bảng công thì không cho phép tính lại lương.");
+                    throw new InvalidOperationException($"Không tìm thấy kỳ công {makycong} trong hệ thống.");
+                }
+                var isFrozen = dbCheck.Database.SqlQuery<decimal>(
+                    "SELECT NVL(LUONG_CONGBO_LOCKED,0) FROM TB_KYCONG WHERE MAKYCONG=:p0",
+                    new Oracle.ManagedDataAccess.Client.OracleParameter("p0", makycong)).FirstOrDefault() == 1;
+                if (isFrozen)
+                {
+                    throw new InvalidOperationException($"Kỳ công {makycong} đã công bố lương và khóa bất biến (LUONG_CONGBO_LOCKED = 1). Không được phép tính toán lại hoặc ghi đè bảng lương.");
+                }
+                if ((kc.KHOA ?? 0) != 1)
+                {
+                    throw new InvalidOperationException($"Kỳ công {makycong} chưa được khóa sổ (KHOA = 0). Yêu cầu khóa bảng công trước khi tính lương.");
                 }
             }
 

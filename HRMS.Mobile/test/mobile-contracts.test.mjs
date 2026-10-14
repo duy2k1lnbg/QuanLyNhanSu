@@ -245,3 +245,77 @@ test('published-period rejection is localized before any backend text',()=>{
   assert.equal(mapApiError({response:{status:409,data:{code:'PAYROLL_FROZEN',message:'Server text'}}}),'errors.payrollFrozen');
   for(const locale of ['vi','en','ja','ko','zh-CN'])assert.ok(JSON.parse(fs.readFileSync(`src/i18n/locales/${locale}.json`,'utf8')).errors.payrollFrozen);
 });
+
+
+function nativeAlertFixture(platform, linking = {}) {
+  let handler;
+  const channels = [];
+  const native = {
+    AndroidImportance: {MAX: 5},
+    setNotificationHandler: value => { handler = value; },
+    setNotificationChannelAsync: async (id, settings) => { channels.push({id, settings}); },
+  };
+  const stubs = {
+    'react-native': {Platform: {OS: platform}, Linking: linking},
+    'expo-constants': {__esModule: true, default: {
+      executionEnvironment: 'standalone',
+      expoConfig: {android: {package: 'com.qlns.hrmsmobile'}, extra: {eas: {projectId: 'fixture-project'}}},
+    }, ExecutionEnvironment: {StoreClient: 'storeClient'}},
+    'expo-device': {isDevice: true},
+    '@react-native-async-storage/async-storage': {__esModule: true, default: {}},
+    '../api/meApi': {meApi: {}},
+    '../i18n/i18n': {__esModule: true, default: {t: key => key}},
+    '../utils/deviceIdentity': {getInstallationId: async () => 'fixture-installation'},
+    'expo-notifications': native,
+  };
+  const module = load('services/notificationService.ts', stubs);
+  return {service: module.notificationService, channels, handler: () => handler};
+}
+
+test('Android alerts configure system sound and vibration on the backend-compatible channel', async () => {
+  const fixture = nativeAlertFixture('android');
+  await fixture.service.setupAndroidChannel();
+  assert.equal(fixture.channels.length, 1);
+  const {id, settings} = fixture.channels[0];
+  assert.equal(id, 'hrms_default_channel');
+  assert.equal(settings.sound, 'default');
+  assert.equal(settings.enableVibrate, true);
+  assert.deepEqual(plain(settings.vibrationPattern), [0,250,250,250]);
+  const behavior = await fixture.handler().handleNotification();
+  assert.equal(behavior.shouldPlaySound, true);
+  assert.equal(behavior.shouldShowBanner, true);
+});
+
+test('Android opens the exact notification channel settings even when permission is already granted', async () => {
+  const calls = [];
+  const fixture = nativeAlertFixture('android', {
+    sendIntent: async (action, extras) => { calls.push({action, extras}); },
+    openSettings: async () => { throw new Error('Unexpected generic settings'); },
+  });
+  await fixture.service.openAppSettings();
+  assert.equal(calls[0].action, 'android.settings.CHANNEL_NOTIFICATION_SETTINGS');
+  assert.deepEqual(plain(calls[0].extras), [
+    {key:'android.provider.extra.APP_PACKAGE',value:'com.qlns.hrmsmobile'},
+    {key:'android.provider.extra.CHANNEL_ID',value:'hrms_default_channel'},
+  ]);
+});
+
+test('unsupported Android channel settings fall back to application settings', async () => {
+  let opened = 0;
+  const fixture = nativeAlertFixture('android', {
+    sendIntent: async () => { throw new Error('OEM intent unsupported'); },
+    openSettings: async () => { opened++; },
+  });
+  await fixture.service.openAppSettings();
+  assert.equal(opened, 1);
+});
+
+test('iOS uses application settings and never tries an Android notification intent', async () => {
+  let opened = 0;
+  const fixture = nativeAlertFixture('ios', {
+    sendIntent: async () => { throw new Error('Android intent on iOS'); },
+    openSettings: async () => { opened++; },
+  });
+  await fixture.service.openAppSettings();
+  assert.equal(opened, 1);
+});

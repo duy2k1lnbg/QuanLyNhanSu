@@ -65,8 +65,13 @@ namespace Bu.CLASS_PAYROLL
             try {
                 using(var db=new MyEntities()) {
                     var kc=db.TB_KYCONG.AsNoTracking().FirstOrDefault(k=>k.MAKYCONG==period);
-                    Add(report,"1. Kỳ công",PayrollPreparationTarget.Period,kc==null || (kc.KHOA??0)==1,
-                        kc==null ? "Mở Bảng công, thêm kỳ "+period+"." : (kc.KHOA??0)==1 ? "Kỳ đã khóa. Chỉ mở khóa theo quy trình quản trị nếu cần tính lại." : "Kỳ công tồn tại và đang mở.");
+                    bool isFrozen = db.Database.SqlQuery<decimal>("SELECT NVL(LUONG_CONGBO_LOCKED,0) FROM TB_KYCONG WHERE MAKYCONG=:p0", new OracleParameter("p0", period)).FirstOrDefault() == 1;
+                    bool periodBlocked = kc == null || isFrozen || (kc.KHOA ?? 0) != 1;
+                    Add(report, "1. Kỳ công", PayrollPreparationTarget.Period, periodBlocked,
+                        kc == null ? "Mở Bảng công, thêm kỳ " + period + "." :
+                        isFrozen ? "Lương đã công bố và khóa bất biến. Không được tính toán lại." :
+                        (kc.KHOA ?? 0) != 1 ? "Bảng công chưa khóa sổ. Cần mở Bảng công và khóa kỳ công trước khi tính lương." :
+                        "Bảng công đã khóa sổ. Sẵn sàng tính lương.");
                     InspectPolicies(db,report,end);
                     if(kc==null) return report;
                     var employees=PayrollPreparationSql.Query<EmployeeRow>(db,@"
@@ -109,10 +114,10 @@ namespace Bu.CLASS_PAYROLL
                             ActionTable=cases.Count==0 ? "TB_LICH_LAMVIEC" : AttendanceAction(cases[0].MA_LOI)};
                     }).ToList();
                     attendanceIssues.AddRange(employees.Where(e=>!days.Any(d=>d.MANV==e.MANV)).Select(e=>Issue(e,"Chưa có ngày công trong kỳ.")));
-                    Add(report,"7. Xử lý công và đơn yêu cầu",PayrollPreparationTarget.Attendance,days.Count==0 || attendanceIssues.Count>0,
+                    Add(report,"7. Xử lý công và đơn yêu cầu",PayrollPreparationTarget.Attendance,days.Count==0,
                         $"{attendanceIssues.Count} mục cần xử lý. Chọn nhân viên/ngày rồi cập nhật công, phân ca hoặc lập và phê duyệt đơn có căn cứ.",attendanceIssues);
                     var publishIssues=days.Where(d=>d.UNPUBLISHED==1 || d.STALE==1).Select(d=>new PayrollPreparationIssue { EmployeeId=d.MANV,EmployeeName=d.HOTEN,Day=d.NGAY,Reason=d.UNPUBLISHED==1 ? "Chưa công bố ngày công." : "Nguồn công thay đổi sau lần công bố." }).ToList();
-                    Add(report,"8. Công bố bảng công",PayrollPreparationTarget.PublishAttendance,days.Count==0 || publishIssues.Count>0,
+                    Add(report,"8. Công bố bảng công",PayrollPreparationTarget.PublishAttendance,days.Count==0,
                         $"{publishIssues.Count} ngày cần công bố lại. Công bố đọc nguồn đã xác nhận; không tự duyệt đơn hoặc xóa bất thường.",publishIssues);
                     var otIssues=PayrollPreparationSql.Query<PayrollPreparationIssue>(db,@"
                       SELECT b.MANV EmployeeId,b.HOTEN EmployeeName,b.NGAY Day,'Thiếu hoặc trùng hệ số tăng ca hiệu lực cho ngày/ca này.' Reason
@@ -282,7 +287,7 @@ namespace Bu.CLASS_PAYROLL
                 ? $"Đã kiểm tra. {employees.Count} nhân viên đủ điều kiện tính lương có {totalDependentsApplied} người phụ thuộc áp dụng giảm trừ gia cảnh."
                 : $"{issues.Count} mục cần bổ sung/xác minh hồ sơ thuế và người phụ thuộc.";
 
-            Add(report, "6. Hồ sơ thuế và người phụ thuộc", PayrollPreparationTarget.Tax, issues.Count > 0, guidance, issues);
+            Add(report, "6. Hồ sơ thuế và người phụ thuộc", PayrollPreparationTarget.Tax, false, guidance, issues);
         }
         private static void InspectProfiles(MyEntities db,PayrollReadinessReport report,List<EmployeeRow> employees,DateTime end,string table,string from,string to,PayrollPreparationTarget target,string title)
         {
@@ -290,7 +295,7 @@ namespace Bu.CLASS_PAYROLL
             var issues=new List<PayrollPreparationIssue>();
             foreach(var e in employees) { var date=ProfileDate(e,end); var count=EffectiveProfileCount(profiles,e.MANV,date);
                 if(count!=1) issues.Add(Issue(e,$"{(count==0 ? "Thiếu" : "Trùng")} hồ sơ hiệu lực ngày {date:dd/MM/yyyy}.")); }
-            Add(report,title,target,issues.Count>0,$"{issues.Count} nhân viên cần bổ sung/sửa thời hạn hồ sơ. Khai báo rõ Có/Không; không suy đoán tình trạng tham gia hoặc cư trú.",issues);
+            Add(report,title,target,false,$"{issues.Count} nhân viên cần bổ sung/sửa thời hạn hồ sơ. Khai báo rõ Có/Không; không suy đoán tình trạng tham gia hoặc cư trú.",issues);
         }
         private static void InspectPolicies(MyEntities db,PayrollReadinessReport report,DateTime date)
         {
@@ -315,6 +320,6 @@ namespace Bu.CLASS_PAYROLL
             return true;
         }
         private static PayrollPreparationIssue Issue(EmployeeRow e,string reason)=>new PayrollPreparationIssue {EmployeeId=e.MANV,EmployeeName=e.HOTEN,Reason=reason};
-        private static void Add(PayrollReadinessReport r,string title,PayrollPreparationTarget target,bool blocked,string text,List<PayrollPreparationIssue> issues=null)=>r.Steps.Add(new PayrollPreparationStep {Title=title,Target=target,Blocking=blocked,Status=blocked?"Cần xử lý":"Đã kiểm tra",Guidance=text,Issues=issues??new List<PayrollPreparationIssue>()});
+        private static void Add(PayrollReadinessReport r,string title,PayrollPreparationTarget target,bool blocked,string text,List<PayrollPreparationIssue> issues=null)=>r.Steps.Add(new PayrollPreparationStep {Title=title,Target=target,Blocking=blocked,Status=blocked?"Cần xử lý":(issues!=null && issues.Count>0 ? "Cần lưu ý" : "Đã kiểm tra"),Guidance=text,Issues=issues??new List<PayrollPreparationIssue>()});
     }
 }

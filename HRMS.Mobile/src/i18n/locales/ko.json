@@ -215,6 +215,8 @@
     "pushNotification": "푸시 알림",
     "pushNotificationDesc": "결재 승인 결과 및 사내 주요 공지를 수신합니다",
     "systemPermission": "OS 알림 권한",
+    "notificationSoundVibration": "알림 소리 및 진동",
+    "notificationSoundVibrationDesc": "기기의 알림 설정에서 소리와 진동을 켜세요. 무음 또는 방해 금지 모드에서는 알림이 제한될 수 있습니다.",
     "permissionGranted": "알림 수신 허용됨",
     "permissionDenied": "기기 설정에서 비활성화됨",
     "permissionUndetermined": "권한이 아직 설정되지 않음",

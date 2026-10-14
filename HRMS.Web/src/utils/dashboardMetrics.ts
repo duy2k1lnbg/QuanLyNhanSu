@@ -27,23 +27,38 @@ export interface DashboardMetricsSummary {
   expiredContracts: number;
   distinctPresentToday: number;
   totalPunchesToday: number;
+  absentToday: number;
+  totalScheduledToday: number;
+  attendanceRate: number;
   totalNetPayroll: number;
   payrollCalculatedCount: number;
   payrollPeriodLabel: string;
 }
 
 /**
- * Tính toán các chỉ số KPI thống nhất, minh bạch, tránh nhầm lẫn giữa
- * số lượt quẹt (215) và số nhân sự đang làm việc (195),
- * giữa số hợp đồng tổng (200) và số hợp đồng hiệu lực (195).
+ * Tính toán các chỉ số KPI thống nhất, minh bạch theo BẢNG CÔNG THỰC TẾ
+ * (TB_BANGCONG_CHITIET / TB_KYCONGCHITIET), không hardcode số liệu.
  */
 export const calculateDashboardMetrics = (
   nhanVienList: NhanVienDTO[],
   hopDongList: HopDongDTO[],
   bangLuongList: BangLuongDTO[],
   rawPresentToday?: number,
-  selectedKyCongName?: string
+  param5?: number | string,
+  chamCongList?: any[],
+  param7?: string
 ): DashboardMetricsSummary => {
+  // Chuẩn hóa tham số đa hình để tương thích ngược 100% với các hàm gọi cũ
+  let rawAbsentToday: number | undefined;
+  let customPeriodName: string | undefined;
+
+  if (typeof param5 === 'number') {
+    rawAbsentToday = param5;
+    customPeriodName = param7;
+  } else if (typeof param5 === 'string') {
+    customPeriodName = param5;
+  }
+
   // 1. Nhân sự
   const totalEmployees = nhanVienList.length;
   const activeEmployees = nhanVienList.filter(
@@ -67,18 +82,64 @@ export const calculateDashboardMetrics = (
       }
     }
   } else if (nhanVienList.length > 0) {
-    // Nếu chưa tải hợp đồng, fallback có căn cứ từ danh sách nhân viên
     activeContracts = activeEmployees;
   }
 
-  // 3. Có mặt hôm nay / Lượt quẹt
-  // Backend DashboardController trả về presentToday = COUNT(TB_BANGCONG where GIOVAO/GIORA != null) = 215
-  // Nhưng số nhân viên duy nhất có mặt hôm nay là 195 (20 người có ca gãy / 2 lượt quẹt)
+  // 3. Có mặt & vắng hôm nay theo BẢNG CÔNG THỰC TẾ
+  let distinctPresentToday = 0;
+  let absentToday = 0;
+  let totalScheduledToday = 0;
   const totalPunchesToday = rawPresentToday ?? 0;
-  // Số nhân viên có mặt duy nhất tối đa không vượt quá số nhân sự đang làm việc
-  const distinctPresentToday = totalPunchesToday > 0 
-    ? Math.min(activeEmployees > 0 ? activeEmployees : totalPunchesToday, totalPunchesToday >= 215 ? 195 : totalPunchesToday)
-    : 0;
+
+  // Ưu tiên 1: Đọc trực tiếp từ bảng công chi tiết theo ngày nếu đã tải (chamCongList)
+  let calculatedFromTimesheet = false;
+  if (chamCongList && chamCongList.length > 0) {
+    const todayDay = dayjs().date();
+    const dayKey = `D${todayDay}`;
+    let ccWork = 0;
+    let ccLeave = 0;
+
+    for (const row of chamCongList) {
+      if (row.DATHOIVIEC === 1 || row.IS_ACTIVE === false) continue;
+      const val = (row[dayKey] ?? '').toString().trim().toUpperCase();
+      if (val && val !== '-' && val !== 'CN' && val !== 'N') {
+        calculatedFromTimesheet = true;
+        // Đi làm: X, X/2, CD, CT, 1, P/X
+        if (val === 'X' || val === 'X/2' || val === 'CD' || val === 'CT' || val === '1' || val === 'P/X') {
+          ccWork++;
+        }
+        // Vắng / Nghỉ phép / Nghỉ ốm / Việc riêng: P, O, VR, V, BH, KL, F
+        else if (['P', 'O', 'VR', 'V', 'BH', 'KL', 'F'].includes(val)) {
+          ccLeave++;
+        }
+      }
+    }
+
+    if (calculatedFromTimesheet && (ccWork > 0 || ccLeave > 0)) {
+      distinctPresentToday = ccWork;
+      absentToday = ccLeave;
+      totalScheduledToday = ccWork + ccLeave;
+    }
+  }
+
+  // Ưu tiên 2: Sử dụng số liệu từ API DashboardController (được tổng hợp từ TB_BANGCONG_CHITIET)
+  if (!calculatedFromTimesheet || totalScheduledToday === 0) {
+    distinctPresentToday = totalPunchesToday > 0
+      ? (activeEmployees > 0 ? Math.min(activeEmployees, totalPunchesToday) : totalPunchesToday)
+      : 0;
+
+    if (rawAbsentToday !== undefined && rawAbsentToday !== null) {
+      absentToday = rawAbsentToday;
+    } else {
+      absentToday = Math.max(0, activeEmployees - distinctPresentToday);
+    }
+    totalScheduledToday = distinctPresentToday + absentToday;
+  }
+
+  // Tỷ lệ đi làm theo bảng công (tổng đi làm / tổng nhân sự có lịch làm việc)
+  const attendanceRate = totalScheduledToday > 0
+    ? Math.min(100, Math.round((distinctPresentToday / totalScheduledToday) * 100))
+    : (activeEmployees > 0 ? Math.min(100, Math.round((distinctPresentToday / activeEmployees) * 100)) : 0);
 
   // 4. Quỹ lương (Tổng thực lĩnh kỳ mới nhất)
   let totalNetPayroll = 0;
@@ -93,7 +154,7 @@ export const calculateDashboardMetrics = (
     }
   }
 
-  const periodName = selectedKyCongName || 'Kỳ hiện hành';
+  const periodName = customPeriodName || 'Kỳ hiện hành';
 
   return {
     totalEmployees,
@@ -104,6 +165,9 @@ export const calculateDashboardMetrics = (
     expiredContracts,
     distinctPresentToday,
     totalPunchesToday,
+    absentToday,
+    totalScheduledToday,
+    attendanceRate,
     totalNetPayroll,
     payrollCalculatedCount,
     payrollPeriodLabel: periodName,

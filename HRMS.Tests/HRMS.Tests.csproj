@@ -31,6 +31,18 @@
     <Reference Include="QLyNSu">
       <HintPath>$(DesktopAssemblyPath)</HintPath>
     </Reference>
+    <Reference Include="DevExpress.Data.v24.1">
+      <HintPath>..\HRMS.Desktop\bin\Debug\DevExpress.Data.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Utils.v24.1">
+      <HintPath>..\HRMS.Desktop\bin\Debug\DevExpress.Utils.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.XtraEditors.v24.1">
+      <HintPath>..\HRMS.Desktop\bin\Debug\DevExpress.XtraEditors.v24.1.dll</HintPath>
+    </Reference>
+    <Reference Include="DevExpress.Drawing.v24.1">
+      <HintPath>..\HRMS.Desktop\bin\Debug\DevExpress.Drawing.v24.1.dll</HintPath>
+    </Reference>
     <Reference Include="System.Web.Extensions" /><Reference Include="System.Web" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Windows.Forms" />

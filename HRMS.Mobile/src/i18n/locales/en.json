@@ -215,6 +215,8 @@
     "pushNotification": "Push Notifications",
     "pushNotificationDesc": "Receive request approvals and corporate updates",
     "systemPermission": "System Permission",
+    "notificationSoundVibration": "Sound and vibration",
+    "notificationSoundVibrationDesc": "Enable sound and vibration in device notification settings. Silent mode or Do Not Disturb may limit alerts.",
     "permissionGranted": "Notifications are allowed",
     "permissionDenied": "Disabled in Device Settings",
     "permissionUndetermined": "Not yet granted",

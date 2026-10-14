@@ -4,6 +4,7 @@ using DA;
 using HRMS_API.Filters;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Web.Http;
 
@@ -37,7 +38,10 @@ namespace HRMS_API.Controllers
                 bool salaryNeedsCalc = false;
                 TB_KYCONG latestKyCong = null;
                 int presentToday = 0;
+                int absentToday = 0;
                 int lateToday = 0;
+                int totalScheduledToday = 0;
+                double attendanceRate = 0;
 
                 var actionItems = new List<object>();
                 var anomalies = new List<object>();
@@ -71,34 +75,76 @@ namespace HRMS_API.Controllers
                         salaryNeedsCalc = !db.TB_BANGLUONG.Any(b => b.MAKYCONG == latestKyCong.MAKYCONG);
                     }
 
-                    // 5. Số liệu chuyên cần hôm nay (Chấm công thực tế từ TB_BANGCONG)
+                    // 5. Số liệu chuyên cần hôm nay theo BẢNG CÔNG THỰC TẾ (TB_BANGCONG_CHITIET)
                     try
                     {
-                        int todayDay = today.Day;
-                        int todayMonth = today.Month;
-                        int todayYear = today.Year;
+                        DateTime targetDate = today;
 
-                        var todayPunchIns = db.TB_BANGCONG
-                            .Where(b => b.NGAY == todayDay && b.THANG == todayMonth && b.NAM == todayYear)
+                        // Tìm bảng công chi tiết cho ngày hôm nay
+                        var todayBcct = db.TB_BANGCONG_CHITIET
+                            .Where(b => DbFunctions.TruncateTime(b.NGAY) == targetDate && b.DELETED_DATE == null)
                             .ToList();
 
-                        if (todayPunchIns.Count > 0)
+                        // Nếu ngày hôm nay chưa có dữ liệu bảng công (ví dụ ngày nghỉ hoặc tương lai), tìm ngày gần nhất có bảng công
+                        if (todayBcct.Count == 0)
                         {
-                            presentToday = todayPunchIns.Count(b => b.GIOVAO != null || b.GIORA != null);
-                            // Đi trễ nếu giờ vào sau 08:30 (quy chuẩn)
-                            lateToday = todayPunchIns.Count(b => b.GIOVAO.HasValue && (b.GIOVAO.Value > 8 || (b.GIOVAO.Value == 8 && b.PHUTVAO.HasValue && b.PHUTVAO.Value > 30)));
+                            var maxDate = db.TB_BANGCONG_CHITIET
+                                .Where(b => b.DELETED_DATE == null && b.NGAY != null)
+                                .Max(b => b.NGAY);
+                            if (maxDate.HasValue)
+                            {
+                                targetDate = maxDate.Value.Date;
+                                todayBcct = db.TB_BANGCONG_CHITIET
+                                    .Where(b => DbFunctions.TruncateTime(b.NGAY) == targetDate && b.DELETED_DATE == null)
+                                    .ToList();
+                            }
+                        }
+
+                        if (todayBcct.Count > 0)
+                        {
+                            // Đi làm: ký hiệu X, CT (công tác), CD (ca đêm/chế độ đi làm) hoặc ngày công > 0
+                            presentToday = todayBcct.Count(b => b.KYHIEU == "X" || b.KYHIEU == "CT" || b.KYHIEU == "CD" || (b.NGAYCONG.HasValue && b.NGAYCONG.Value > 0));
+
+                            // Vắng / Nghỉ theo bảng công: P (phép), O (ốm), VR (việc riêng), V (vắng không phép), N (nghỉ)
+                            absentToday = todayBcct.Count(b => b.KYHIEU == "P" || b.KYHIEU == "O" || b.KYHIEU == "VR" || b.KYHIEU == "V" || b.KYHIEU == "N");
+
+                            // Đi muộn: có số giây đi muộn thực tế hoặc vi phạm > 0
+                            lateToday = todayBcct.Count(b => (b.GIAY_DI_MUON_THUC_TE.HasValue && b.GIAY_DI_MUON_THUC_TE.Value > 0)
+                                                          || (b.GIAY_DI_MUON_VIPHAM.HasValue && b.GIAY_DI_MUON_VIPHAM.Value > 0));
+
+                            totalScheduledToday = presentToday + absentToday;
+                            if (totalScheduledToday > 0)
+                            {
+                                attendanceRate = Math.Round((double)presentToday / totalScheduledToday * 100, 1);
+                            }
                         }
                         else
                         {
-                            // Nếu chưa có lượt quẹt thẻ hôm nay (hoặc đầu ca làm/ngày nghỉ), trả về đúng 0
-                            presentToday = 0;
-                            lateToday = 0;
+                            // Fallback TB_BANGCONG (quẹt thẻ)
+                            int todayDay = targetDate.Day;
+                            int todayMonth = targetDate.Month;
+                            int todayYear = targetDate.Year;
+
+                            var todayPunchIns = db.TB_BANGCONG
+                                .Where(b => b.NGAY == todayDay && b.THANG == todayMonth && b.NAM == todayYear)
+                                .ToList();
+
+                            if (todayPunchIns.Count > 0)
+                            {
+                                presentToday = todayPunchIns.Count(b => b.GIOVAO != null || b.GIORA != null);
+                                lateToday = todayPunchIns.Count(b => b.GIOVAO.HasValue && (b.GIOVAO.Value > 8 || (b.GIOVAO.Value == 8 && b.PHUTVAO.HasValue && b.PHUTVAO.Value > 30)));
+                                absentToday = Math.Max(0, tongNhanVien - presentToday);
+                                totalScheduledToday = presentToday + absentToday;
+                                if (totalScheduledToday > 0)
+                                {
+                                    attendanceRate = Math.Round((double)presentToday / totalScheduledToday * 100, 1);
+                                }
+                            }
                         }
                     }
-                    catch
+                    catch (Exception exBc)
                     {
-                        presentToday = 0;
-                        lateToday = 0;
+                        System.Diagnostics.Trace.TraceWarning("Lỗi đọc bảng công chi tiết hôm nay: " + exBc.Message);
                     }
 
                     // 6. Action Center Items (Chỉ hiển thị khi có dữ liệu thực tế phát sinh cần xử lý)
@@ -221,8 +267,6 @@ namespace HRMS_API.Controllers
                     }
                 }
 
-                int absentToday = Math.Max(0, tongNhanVien - presentToday);
-
                 return Ok(new
                 {
                     tongNhanVien = tongNhanVien,
@@ -230,6 +274,8 @@ namespace HRMS_API.Controllers
                     presentToday = presentToday,
                     absentToday = absentToday,
                     lateToday = lateToday,
+                    totalScheduledToday = totalScheduledToday,
+                    attendanceRate = attendanceRate,
                     phongBanStats = phongBanStats,
                     luongStats = luongStats,
                     actionItems = actionItems,

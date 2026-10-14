@@ -193,7 +193,7 @@ namespace Bu.CLASS_CHAMCONG
                         cmdBc.Parameters.Add("p_nc", calcResult.NgayCong);
                         cmdBc.Parameters.Add("p_kh", calcResult.KyHieu ?? "X");
                         cmdBc.Parameters.Add("p_cn", (ngayCong.DayOfWeek == DayOfWeek.Sunday) ? calcResult.NgayCong : 0m);
-                        cmdBc.Parameters.Add("p_le", 0m);
+                        cmdBc.Parameters.Add("p_le", OracleDbType.Decimal).Value = 0m;
                         cmdBc.Parameters.Add("p_manv", manv);
                         cmdBc.Parameters.Add("p_ngay", ngayCong.Date);
                         int affectedRows = cmdBc.ExecuteNonQuery();

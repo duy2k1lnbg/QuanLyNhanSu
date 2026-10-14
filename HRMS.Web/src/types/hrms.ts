@@ -58,6 +58,8 @@ export interface DashboardStatsDTO {
   presentToday: number;
   absentToday: number;
   lateToday: number;
+  totalScheduledToday?: number;
+  attendanceRate?: number;
   phongBanStats: DashboardPhongBanDTO[];
   luongStats: DashboardLuongDTO[];
   actionItems: ActionItemDTO[];

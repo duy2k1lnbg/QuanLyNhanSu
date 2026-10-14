@@ -26,6 +26,9 @@ export function MobileNotificationBootstrap() {
       notifyNotificationsChanged();
       notificationService.handleNotificationNavigation(navigation, response.notification.request.content.data);
     });
+    const unsubscribeReceived = notificationService.subscribeReceived(() => {
+      if (active) notifyNotificationsChanged();
+    });
     void notificationService.checkLastNotificationResponse(navigation);
     sync();
     if (notificationService.isRemotePushConfigured()) {
@@ -35,7 +38,7 @@ export function MobileNotificationBootstrap() {
         }).catch(()=>{});
     }
     const subscription = AppState.addEventListener('change', state => { if (state === 'active') sync(); });
-    return () => { active = false; unsubscribe(); subscription.remove(); };
+    return () => { active = false; unsubscribe(); unsubscribeReceived(); subscription.remove(); };
   }, [allowed, user?.idUser, navigation, activeLanguage]);
 
   const dismiss = () => {

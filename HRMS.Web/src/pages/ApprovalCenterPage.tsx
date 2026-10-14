@@ -35,7 +35,7 @@ import { useAppLanguage } from '../services/i18n';
 import { useAppTheme } from '../theme/ThemeContext';
 import { PageHeader } from '../theme/components/PageHeader';
 import { MetricCard } from '../theme/components/MetricCard';
-import { canEdit } from '../utils/permissionUtils';
+import { canEdit, isSuperAdmin } from '../utils/permissionUtils';
 import type { CurrentUserDTO } from '../types/hrms';
 
 const { Text } = Typography;
@@ -176,10 +176,13 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
     }
   })();
 
-  const canApproveGeneral = canEdit(currentUser, 'F_NV_PHEDUYET');
+  const canApproveGeneral = canEdit(currentUser, 'F_NV_PHEDUYET') || isSuperAdmin(currentUser);
   const canApproveAdvance = canApproveGeneral || canEdit(currentUser, 'F_APPROVE_ADVANCE');
-  const canDisburseAdvance = canEdit(currentUser, 'F_PAYROLL_DISBURSE_ADVANCE');
-  const canApproveProfile = canApproveGeneral || canEdit(currentUser, 'F_APPROVE_PROFILE');
+  const canDisburseAdvance = canEdit(currentUser, 'F_PAYROLL_DISBURSE_ADVANCE') || isSuperAdmin(currentUser);
+  const canApproveProfile = canApproveGeneral 
+    || canEdit(currentUser, 'F_APPROVE_PROFILE') 
+    || canEdit(currentUser, 'F_NV_NHANVIEN') 
+    || canEdit(currentUser, 'F_DM_NHANVIEN');
 
   const [activeTab, setActiveTab] = useState<string>('leave');
   const [statusFilter, setStatusFilter] = useState<string>('PENDING');
@@ -260,7 +263,30 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
         setInsuranceList(res.data?.data || []);
       } else if (activeTab === 'advance') {
         const res = await api.get('/approvals/advance', { params });
-        setAdvanceList(res.data?.data || []);
+        const rawList = res.data?.data || [];
+        const normalized = rawList.map((r: any) => ({
+          id: r.id ?? r.Id,
+          manv: r.manv ?? r.Manv,
+          employeeCode: r.employeeCode ?? r.EmployeeCode,
+          employeeName: r.employeeName ?? r.EmployeeName,
+          departmentName: r.departmentName ?? r.DepartmentName,
+          amount: r.amount ?? r.Amount,
+          advanceDate: r.advanceDate ?? r.AdvanceDate,
+          thang: r.thang ?? r.Thang,
+          nam: r.nam ?? r.Nam,
+          reason: r.reason ?? r.Reason,
+          status: r.status ?? r.Status,
+          approverName: r.approverName ?? r.ApproverName,
+          approvedDate: r.approvedDate ?? r.ApprovedDate,
+          rejectReason: r.rejectReason ?? r.RejectReason,
+          disbursedDate: r.disbursedDate ?? r.DisbursedDate,
+          voucherNo: r.voucherNo ?? r.VoucherNo,
+          disbursedByName: r.disbursedByName ?? r.DisbursedByName,
+          disburseNote: r.disburseNote ?? r.DisburseNote,
+          idUlLink: r.idUlLink ?? r.IdUlLink,
+          createdAt: r.createdAt ?? r.CreatedAt,
+        }));
+        setAdvanceList(normalized);
       } else if (activeTab === 'profile') {
         const res = await api.get('/approvals/profile-requests', {
           params: {
@@ -268,7 +294,27 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
             groupCode: profileGroupFilter !== 'ALL' ? profileGroupFilter : undefined,
           },
         });
-        setProfileList(res.data?.data || []);
+        const rawList = res.data?.data || [];
+        const normalized = rawList.map((r: any) => ({
+          id: r.id ?? r.Id,
+          manv: r.manv ?? r.Manv,
+          employeeCode: r.employeeCode ?? r.EmployeeCode,
+          employeeName: r.employeeName ?? r.EmployeeName,
+          departmentName: r.departmentName ?? r.DepartmentName,
+          groupCode: r.groupCode ?? r.GroupCode,
+          reqType: r.reqType ?? r.ReqType,
+          currentDataJson: r.currentDataJson ?? r.CurrentDataJson,
+          proposedDataJson: r.proposedDataJson ?? r.ProposedDataJson,
+          hasProposedAvatarBlob: r.hasProposedAvatarBlob ?? r.HasProposedAvatarBlob,
+          status: r.status ?? r.Status,
+          reason: r.reason ?? r.Reason,
+          rejectReason: r.rejectReason ?? r.RejectReason,
+          resolvedByName: r.resolvedByName ?? r.ResolvedByName,
+          resolvedAt: r.resolvedAt ?? r.ResolvedAt,
+          appliedAt: r.appliedAt ?? r.AppliedAt,
+          createdAt: r.createdAt ?? r.CreatedAt,
+        }));
+        setProfileList(normalized);
       }
     } catch {
       notification.error({ message: t('common.error'), description: t('common.loading') });
@@ -403,7 +449,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
       case 'REJECTED':
         return <Tag color="error" icon={<CloseCircleOutlined />}>{t('status.rejected')}</Tag>;
       case 'DISBURSED':
-        return <Tag color="cyan" icon={<CheckCircleOutlined />}>Đã chi tiền</Tag>;
+        return <Tag color="cyan" icon={<CheckCircleOutlined />}>{t('approval.statusDisbursed')}</Tag>;
       default:
         return <Tag color="processing" icon={<ClockCircleOutlined />}>{t('status.pending')}</Tag>;
     }
@@ -412,13 +458,13 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
   const renderGroupCodeTag = (groupCode: string) => {
     switch (groupCode) {
       case 'PERSONAL_INFO':
-        return <Tag color="blue">Thông tin cá nhân</Tag>;
+        return <Tag color="blue">{t('approval.groupPersonalInfo')}</Tag>;
       case 'INSURANCE_INFO':
-        return <Tag color="geekblue">Bảo hiểm</Tag>;
+        return <Tag color="geekblue">{t('approval.groupInsuranceInfo')}</Tag>;
       case 'DEPENDENTS':
-        return <Tag color="purple">Người phụ thuộc</Tag>;
+        return <Tag color="purple">{t('approval.groupDependents')}</Tag>;
       case 'AVATAR':
-        return <Tag color="gold">Ảnh đại diện</Tag>;
+        return <Tag color="gold">{t('approval.groupAvatar')}</Tag>;
       default:
         return <Tag color="default">{groupCode}</Tag>;
     }
@@ -811,7 +857,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
       render: (tVal) => <Tag color="cyan">{tVal || '-'}</Tag>,
     },
     {
-      title: 'Số tiền ứng',
+      title: t('approval.colAdvanceAmount'),
       dataIndex: 'amount',
       key: 'amount',
       width: 130,
@@ -822,13 +868,13 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
       ),
     },
     {
-      title: 'Kỳ áp dụng',
+      title: t('approval.colApplyPeriod'),
       key: 'period',
       width: 100,
       render: (_, r) => <Tag color="geekblue">{String(r.thang).padStart(2, '0')}/{r.nam}</Tag>,
     },
     {
-      title: 'Ngày đề nghị',
+      title: t('approval.colRequestDate'),
       dataIndex: 'advanceDate',
       key: 'advanceDate',
       width: 110,
@@ -854,7 +900,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
       render: (_, r) => {
         if (r.status === 'PENDING') {
           if (!canApproveAdvance) {
-            return <Text type="secondary" style={{ fontSize: 12 }}>Chờ quản lý duyệt</Text>;
+            return <Text type="secondary" style={{ fontSize: 12 }}>{t('approval.waitingManager')}</Text>;
           }
           return (
             <Space>
@@ -878,7 +924,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
         }
         if (r.status === 'APPROVED') {
           if (!canDisburseAdvance) {
-            return <Text type="secondary" style={{ fontSize: 12 }}>Chờ kế toán chi tiền</Text>;
+            return <Text type="secondary" style={{ fontSize: 12 }}>{t('approval.waitingAccountant')}</Text>;
           }
           return (
             <Button
@@ -888,14 +934,14 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
               style={{ background: '#2563eb', borderColor: '#2563eb' }}
               onClick={() => openDisburseModal(r)}
             >
-              Chi tiền
+              {t('approval.btnDisburse')}
             </Button>
           );
         }
         if (r.status === 'DISBURSED') {
           return (
             <Space direction="vertical" size={0}>
-              <Text type="secondary" style={{ fontSize: 11 }}>Đã chi: #{r.idUlLink || '-'}</Text>
+              <Text type="secondary" style={{ fontSize: 11 }}>{t('approval.statusDisbursed')}: #{r.idUlLink || '-'}</Text>
               <Text type="secondary" style={{ fontSize: 11 }}>CT: {r.voucherNo || '-'}</Text>
             </Space>
           );
@@ -928,14 +974,14 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
       render: (tVal) => <Tag color="cyan">{tVal || '-'}</Tag>,
     },
     {
-      title: 'Nhóm hồ sơ',
+      title: t('approval.colProfileGroup'),
       dataIndex: 'groupCode',
       key: 'groupCode',
       width: 150,
       render: renderGroupCodeTag,
     },
     {
-      title: 'Loại yêu cầu',
+      title: t('approval.colProfileReqType'),
       dataIndex: 'reqType',
       key: 'reqType',
       width: 140,
@@ -968,7 +1014,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
               setDiffModalVisible(true);
             }}
           >
-            So sánh
+            {t('approval.btnCompare')}
           </Button>
           {r.status === 'PENDING' && (
             canApproveProfile ? (
@@ -979,18 +1025,18 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
                   style={{ background: '#10b981', borderColor: '#10b981' }}
                   onClick={() => handleApprove('profile', r.id)}
                 >
-                  Duyệt
+                  {t('approval.btnApprove')}
                 </Button>
                 <Button
                   danger
                   size="small"
                   onClick={() => openRejectModal('profile', r.id, r.employeeName)}
                 >
-                  Từ chối
+                  {t('approval.btnReject')}
                 </Button>
               </>
             ) : (
-              <Text type="secondary" style={{ fontSize: 12 }}>Chờ quản lý duyệt</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>{t('approval.waitingManager')}</Text>
             )
           )}
         </Space>
@@ -1058,7 +1104,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
         </Col>
         <Col xs={12} sm={8} md={4} style={{ flexGrow: 1 }}>
           <MetricCard
-            title="Tạm ứng lương"
+            title={t('approval.metricAdvance')}
             value={summary.advancePending ?? 0}
             icon={<DollarOutlined />}
             accent="green"
@@ -1066,7 +1112,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
         </Col>
         <Col xs={12} sm={8} md={4} style={{ flexGrow: 1 }}>
           <MetricCard
-            title="Đổi hồ sơ"
+            title={t('approval.metricProfile')}
             value={summary.profilePending ?? 0}
             icon={<UserOutlined />}
             accent="purple"
@@ -1110,7 +1156,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
               options={[
                 { value: 'PENDING', label: t('status.pending') },
                 { value: 'APPROVED', label: t('status.approved') },
-                { value: 'DISBURSED', label: 'Đã chi tiền' },
+                { value: 'DISBURSED', label: t('approval.statusDisbursed') },
                 { value: 'REJECTED', label: t('status.rejected') },
                 { value: 'ALL', label: t('common.all') },
               ]}
@@ -1121,11 +1167,11 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
                 onChange={setProfileGroupFilter}
                 style={{ minWidth: 180, borderRadius: 8 }}
                 options={[
-                  { value: 'ALL', label: 'Tất cả nhóm hồ sơ' },
-                  { value: 'PERSONAL_INFO', label: 'Thông tin cá nhân' },
-                  { value: 'INSURANCE_INFO', label: 'Bảo hiểm' },
-                  { value: 'DEPENDENTS', label: 'Người phụ thuộc' },
-                  { value: 'AVATAR', label: 'Ảnh đại diện' },
+                  { value: 'ALL', label: t('approval.groupAll') },
+                  { value: 'PERSONAL_INFO', label: t('approval.groupPersonalInfo') },
+                  { value: 'INSURANCE_INFO', label: t('approval.groupInsuranceInfo') },
+                  { value: 'DEPENDENTS', label: t('approval.groupDependents') },
+                  { value: 'AVATAR', label: t('approval.groupAvatar') },
                 ]}
               />
             )}
@@ -1201,7 +1247,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
               label: (
                 <Space>
                   <DollarOutlined />
-                  <span>Tạm ứng lương</span>
+                  <span>{t('approval.tabAdvances', { count: (summary.advancePending ?? 0) > 0 ? (summary.advancePending ?? 0) : '' })}</span>
                   {(summary.advancePending ?? 0) > 0 && <Tag color="gold">{summary.advancePending}</Tag>}
                 </Space>
               ),
@@ -1221,7 +1267,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
               label: (
                 <Space>
                   <UserOutlined />
-                  <span>Thay đổi hồ sơ</span>
+                  <span>{t('approval.tabProfiles', { count: (summary.profilePending ?? 0) > 0 ? (summary.profilePending ?? 0) : '' })}</span>
                   {(summary.profilePending ?? 0) > 0 && <Tag color="blue">{summary.profilePending}</Tag>}
                 </Space>
               ),
@@ -1241,7 +1287,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
               label: (
                 <Space>
                   <SafetyCertificateOutlined />
-                  <span>Biến động BHXH</span>
+                  <span>{t('approval.tabInsurances', { count: (summary.insurancePending ?? 0) > 0 ? (summary.insurancePending ?? 0) : '' })}</span>
                   {(summary.insurancePending ?? 0) > 0 && <Tag color="cyan">{summary.insurancePending}</Tag>}
                 </Space>
               ),
@@ -1293,26 +1339,26 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
         title={
           <Space>
             <DollarOutlined style={{ color: '#10b981' }} />
-            <span>Xác nhận giải ngân tạm ứng lương</span>
+            <span>{t('approval.modalDisburseTitle')}</span>
           </Space>
         }
         open={disburseModalVisible}
         onCancel={() => setDisburseModalVisible(false)}
         onOk={handleConfirmDisburse}
         confirmLoading={submittingDisburse}
-        okText="Xác nhận chi tiền"
+        okText={t('approval.btnConfirmDisburse')}
         cancelText={t('common.cancel')}
         width="min(540px, 95vw)"
       >
         {disburseTarget && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 12 }}>
             <Card size="small" style={{ background: '#f8fafc', borderRadius: 8 }}>
-              <p style={{ margin: 0 }}><strong>Nhân viên:</strong> {disburseTarget.employeeName} ({disburseTarget.employeeCode})</p>
-              <p style={{ margin: '4px 0 0' }}><strong>Số tiền tạm ứng:</strong> <span style={{ color: '#059669', fontWeight: 600 }}>{Number(disburseTarget.amount).toLocaleString('vi-VN')} đ</span></p>
-              <p style={{ margin: '4px 0 0' }}><strong>Kỳ lương:</strong> Tháng {disburseTarget.thang}/{disburseTarget.nam}</p>
+              <p style={{ margin: 0 }}><strong>{t('approval.colApplicant')}:</strong> {disburseTarget.employeeName} ({disburseTarget.employeeCode})</p>
+              <p style={{ margin: '4px 0 0' }}><strong>{t('approval.labelAdvanceAmount')}:</strong> <span style={{ color: '#059669', fontWeight: 600 }}>{Number(disburseTarget.amount).toLocaleString('vi-VN')} đ</span></p>
+              <p style={{ margin: '4px 0 0' }}><strong>{t('approval.colApplyPeriod')}:</strong> {String(disburseTarget.thang).padStart(2, '0')}/{disburseTarget.nam}</p>
             </Card>
             <div>
-              <Text strong>Số chứng từ / Phiếu chi (*):</Text>
+              <Text strong>{t('approval.labelVoucherNo')}:</Text>
               <Input
                 style={{ marginTop: 4, borderRadius: 6 }}
                 value={soChungTu}
@@ -1321,7 +1367,7 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
               />
             </div>
             <div>
-              <Text strong>Ngày chi tiền:</Text>
+              <Text strong>{t('approval.labelDisburseDate')}:</Text>
               <Input
                 type="date"
                 style={{ marginTop: 4, borderRadius: 6 }}
@@ -1330,13 +1376,13 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
               />
             </div>
             <div>
-              <Text strong>Ghi chú chi tiền:</Text>
+              <Text strong>{t('approval.labelDisburseNote')}:</Text>
               <Input.TextArea
                 rows={2}
                 style={{ marginTop: 4, borderRadius: 6 }}
                 value={ghiChuChi}
                 onChange={(e) => setGhiChuChi(e.target.value)}
-                placeholder="Ghi chú thêm nếu có..."
+                placeholder="..."
               />
             </div>
           </div>
@@ -1348,14 +1394,14 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
         title={
           <Space>
             <UserOutlined style={{ color: '#3b82f6' }} />
-            <span>Chi tiết đề xuất thay đổi hồ sơ #{diffTarget?.id}</span>
+            <span>{t('approval.modalProfileDiffTitle', { id: diffTarget?.id ?? '' })}</span>
           </Space>
         }
         open={diffModalVisible}
         onCancel={() => setDiffModalVisible(false)}
         footer={[
           <Button key="close" onClick={() => setDiffModalVisible(false)}>
-            Đóng
+            {t('common.close')}
           </Button>,
           diffTarget?.status === 'PENDING' && (
             <Button
@@ -1367,7 +1413,20 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
                 if (diffTarget) handleApprove('profile', diffTarget.id);
               }}
             >
-              Phê duyệt & Áp dụng
+              {t('approval.btnApproveApply')}
+            </Button>
+          ),
+          diffTarget?.status === 'PENDING' && (
+            <Button
+              key="reject"
+              danger
+              onClick={() => {
+                const target = diffTarget;
+                setDiffModalVisible(false);
+                if (target) openRejectModal('profile', target.id, target.employeeName);
+              }}
+            >
+              {t('approval.btnReject')}
             </Button>
           ),
         ]}
@@ -1376,13 +1435,13 @@ export function ApprovalCenterPage({ currentUser: propUser }: ApprovalCenterPage
         {diffTarget && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 12 }}>
             <Card size="small" style={{ background: '#f8fafc', borderRadius: 8 }}>
-              <p style={{ margin: 0 }}><strong>Nhân viên:</strong> {diffTarget.employeeName} ({diffTarget.employeeCode}) - {diffTarget.departmentName}</p>
-              <p style={{ margin: '4px 0 0' }}><strong>Nhóm:</strong> {renderGroupCodeTag(diffTarget.groupCode)} | <strong>Lý do:</strong> {diffTarget.reason}</p>
+              <p style={{ margin: 0 }}><strong>{t('approval.colApplicant')}:</strong> {diffTarget.employeeName} ({diffTarget.employeeCode}) - {diffTarget.departmentName}</p>
+              <p style={{ margin: '4px 0 0' }}><strong>{t('approval.colProfileGroup')}:</strong> {renderGroupCodeTag(diffTarget.groupCode)} | <strong>{t('approval.colReason')}:</strong> {diffTarget.reason}</p>
             </Card>
 
             {diffTarget.groupCode === 'AVATAR' || diffTarget.hasProposedAvatarBlob ? (
               <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                <Text strong style={{ display: 'block', marginBottom: 8 }}>Ảnh đại diện đề xuất mới:</Text>
+                <Text strong style={{ display: 'block', marginBottom: 8 }}>{t('approval.groupAvatar')}:</Text>
                 <Image
                   width={200}
                   height={200}

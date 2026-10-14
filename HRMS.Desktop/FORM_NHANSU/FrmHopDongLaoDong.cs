@@ -174,19 +174,22 @@ namespace QLyNSu
             if (_phucap == null) _phucap = new PHUCAP();
             var dict = await Task.Run(() => _phucap.GetPhuCapByNhanVien(manv));
 
-            spPC_NhaO.EditValue = dict.ContainsKey(1) ? dict[1] : 0;
-            spPC_DiLai.EditValue = dict.ContainsKey(2) ? dict[2] : 0;
-            spPC_GiaDinh.EditValue = dict.ContainsKey(3) ? dict[3] : 0;
-            spPC_NguoiPhuThuoc.EditValue = dict.ContainsKey(4) ? dict[4] : 0;
-            spPC_ChucVu.EditValue = dict.ContainsKey(5) ? dict[5] : 0;
-            spPC_ChungChi.EditValue = dict.ContainsKey(6) ? dict[6] : 0;
-            spPC_KyNang.EditValue = dict.ContainsKey(7) ? dict[7] : 0;
-            spPC_KhuVuc.EditValue = dict.ContainsKey(8) ? dict[8] : 0;
-            spPC_ChuyenCan.EditValue = dict.ContainsKey(9) ? dict[9] : 0;
-            spPC_ThamNien.EditValue = dict.ContainsKey(10) ? dict[10] : 0;
-            spPC_LamViecTaiNha.EditValue = dict.ContainsKey(11) ? dict[11] : 0;
-            spPC_DacBiet.EditValue = dict.ContainsKey(12) ? dict[12] : 0;
-            spPC_Khac.EditValue = dict.ContainsKey(13) ? dict[13] : 0;
+            if (dict != null)
+            {
+                spPC_NhaO.EditValue = dict.ContainsKey(1) ? dict[1] : 0;
+                spPC_DiLai.EditValue = dict.ContainsKey(2) ? dict[2] : 0;
+                spPC_GiaDinh.EditValue = dict.ContainsKey(3) ? dict[3] : 0;
+                spPC_NguoiPhuThuoc.EditValue = dict.ContainsKey(4) ? dict[4] : 0;
+                spPC_ChucVu.EditValue = dict.ContainsKey(5) ? dict[5] : 0;
+                spPC_ChungChi.EditValue = dict.ContainsKey(6) ? dict[6] : 0;
+                spPC_KyNang.EditValue = dict.ContainsKey(7) ? dict[7] : 0;
+                spPC_KhuVuc.EditValue = dict.ContainsKey(8) ? dict[8] : 0;
+                spPC_ChuyenCan.EditValue = dict.ContainsKey(9) ? dict[9] : 0;
+                spPC_ThamNien.EditValue = dict.ContainsKey(10) ? dict[10] : 0;
+                spPC_LamViecTaiNha.EditValue = dict.ContainsKey(11) ? dict[11] : 0;
+                spPC_DacBiet.EditValue = dict.ContainsKey(12) ? dict[12] : 0;
+                spPC_Khac.EditValue = dict.ContainsKey(13) ? dict[13] : 0;
+            }
 
             CalculateTotalAllowance(null, null);
         }

@@ -215,6 +215,8 @@
     "pushNotification": "Thông báo đẩy",
     "pushNotificationDesc": "Nhận thông báo đơn từ và cập nhật công ty",
     "systemPermission": "Quyền hệ điều hành",
+    "notificationSoundVibration": "Âm thanh và rung",
+    "notificationSoundVibrationDesc": "Bật âm thanh và rung trong cài đặt thông báo của thiết bị. Chế độ im lặng/Không làm phiền có thể hạn chế cảnh báo.",
     "permissionGranted": "Đã cấp quyền thông báo",
     "permissionDenied": "Bị tắt trong Cài đặt thiết bị",
     "permissionUndetermined": "Chưa cấp quyền",

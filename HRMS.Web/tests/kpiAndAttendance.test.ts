@@ -222,4 +222,76 @@ assert.strictEqual(sundayMetrics.attendanceRateDisplay, 'Nghỉ tuần', 'Attend
 
 console.log('✓ Test 4 Passed: Sunday / non-scheduled day does not falsely output 100% or divide by zero.\n');
 
-console.log('ALL TESTS PASSED SUCCESSFULLY! (4/4 test suites)');
+// ----------------------------------------------------------------------
+// TEST 5: Timesheet-Driven Attendance Rate (Non-hardcoded)
+// ----------------------------------------------------------------------
+console.log('Test 5: Timesheet-Driven Attendance Rate (183 Present, 13 Leave -> 93%)');
+
+const currentDay = new Date().getDate();
+const timesheetRows: KyCongChiTietDTO[] = [
+  ...Array.from({ length: 183 }, (_, i) => ({
+    MAKYCONG: 202610,
+    MANV: i + 1,
+    HOTEN: `NV ${i + 1}`,
+    DATHOIVIEC: 0,
+    IS_ACTIVE: true,
+    [`D${currentDay}`]: 'X',
+  })),
+  ...Array.from({ length: 7 }, (_, i) => ({
+    MAKYCONG: 202610,
+    MANV: 184 + i,
+    HOTEN: `NV ${184 + i}`,
+    DATHOIVIEC: 0,
+    IS_ACTIVE: true,
+    [`D${currentDay}`]: 'P',
+  })),
+  ...Array.from({ length: 1 }, (_, i) => ({
+    MAKYCONG: 202610,
+    MANV: 191 + i,
+    HOTEN: `NV ${191 + i}`,
+    DATHOIVIEC: 0,
+    IS_ACTIVE: true,
+    [`D${currentDay}`]: 'O',
+  })),
+  ...Array.from({ length: 3 }, (_, i) => ({
+    MAKYCONG: 202610,
+    MANV: 192 + i,
+    HOTEN: `NV ${192 + i}`,
+    DATHOIVIEC: 0,
+    IS_ACTIVE: true,
+    [`D${currentDay}`]: 'V',
+  })),
+  ...Array.from({ length: 2 }, (_, i) => ({
+    MAKYCONG: 202610,
+    MANV: 195 + i,
+    HOTEN: `NV ${195 + i}`,
+    DATHOIVIEC: 0,
+    IS_ACTIVE: true,
+    [`D${currentDay}`]: 'VR',
+  })),
+];
+
+const mockEmp196: NhanVienDTO[] = Array.from({ length: 196 }, (_, i) => ({
+  MANV: i + 1,
+  HOTEN: `NV ${i + 1}`,
+  DATHOIVIEC: 0,
+  TRANGTHAI: true,
+}));
+
+const tsKpiResult = calculateDashboardMetrics(
+  mockEmp196,
+  [],
+  [],
+  183,
+  13,
+  timesheetRows,
+  '10/2026'
+);
+
+assert.strictEqual(tsKpiResult.distinctPresentToday, 183, 'Distinct present must be 183 from timesheet');
+assert.strictEqual(tsKpiResult.absentToday, 13, 'Absent count must be 13 (7 P + 1 O + 3 V + 2 VR)');
+assert.strictEqual(tsKpiResult.totalScheduledToday, 196, 'Total scheduled today must be 196');
+assert.strictEqual(tsKpiResult.attendanceRate, 93, 'Attendance rate must be exactly 93% (183/196)');
+console.log('✓ Test 5 Passed: Timesheet dynamically drives present=183, absent=13, rate=93% without hardcoding.\n');
+
+console.log('ALL TESTS PASSED SUCCESSFULLY! (5/5 test suites)');

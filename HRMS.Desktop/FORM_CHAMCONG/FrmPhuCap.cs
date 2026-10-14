@@ -1,4 +1,4 @@
-﻿using Bu;
+using Bu;
 using Bu.CLASS_CHAMCONG;
 using DA;
 using DevExpress.XtraEditors;
@@ -134,22 +134,26 @@ namespace QLyNSu.FORM_CHAMCONG
             try {
             if (searchMANV.EditValue != null && int.TryParse(searchMANV.EditValue.ToString(), out int manv))
             {
+                if (_phucap == null) _phucap = new PHUCAP();
                 var dict = await Functions.FormDataLoader.ReadAsync(this, () => _phucap.GetPhuCapByNhanVien(manv));
                 if (version != _employeeLoadVersion || IsDisposed) return;
-                spP1.EditValue = dict.ContainsKey(1) ? dict[1] : 0;
-                spP2.EditValue = dict.ContainsKey(2) ? dict[2] : 0;
-                spP3.EditValue = dict.ContainsKey(3) ? dict[3] : 0;
-                spP4.EditValue = dict.ContainsKey(4) ? dict[4] : 0;
-                spP5.EditValue = dict.ContainsKey(5) ? dict[5] : 0;
-                spP6.EditValue = dict.ContainsKey(6) ? dict[6] : 0;
-                spP7.EditValue = dict.ContainsKey(7) ? dict[7] : 0;
-                spP8.EditValue = dict.ContainsKey(8) ? dict[8] : 0;
-                spP9.EditValue = dict.ContainsKey(9) ? dict[9] : 0;
-                spP10.EditValue = dict.ContainsKey(10) ? dict[10] : 0;
-                spP11.EditValue = dict.ContainsKey(11) ? dict[11] : 0;
-                spP12.EditValue = dict.ContainsKey(12) ? dict[12] : 0;
-                spP13.EditValue = dict.ContainsKey(13) ? dict[13] : 0;
-                CalculateTotal(null, null);
+                if (dict != null)
+                {
+                    spP1.EditValue = dict.ContainsKey(1) ? dict[1] : 0;
+                    spP2.EditValue = dict.ContainsKey(2) ? dict[2] : 0;
+                    spP3.EditValue = dict.ContainsKey(3) ? dict[3] : 0;
+                    spP4.EditValue = dict.ContainsKey(4) ? dict[4] : 0;
+                    spP5.EditValue = dict.ContainsKey(5) ? dict[5] : 0;
+                    spP6.EditValue = dict.ContainsKey(6) ? dict[6] : 0;
+                    spP7.EditValue = dict.ContainsKey(7) ? dict[7] : 0;
+                    spP8.EditValue = dict.ContainsKey(8) ? dict[8] : 0;
+                    spP9.EditValue = dict.ContainsKey(9) ? dict[9] : 0;
+                    spP10.EditValue = dict.ContainsKey(10) ? dict[10] : 0;
+                    spP11.EditValue = dict.ContainsKey(11) ? dict[11] : 0;
+                    spP12.EditValue = dict.ContainsKey(12) ? dict[12] : 0;
+                    spP13.EditValue = dict.ContainsKey(13) ? dict[13] : 0;
+                    CalculateTotal(null, null);
+                }
             }
             } catch (OperationCanceledException) {} catch (Exception ex) { Functions.FormDataLoader.ShowLoadError(this, ex); }
         }
